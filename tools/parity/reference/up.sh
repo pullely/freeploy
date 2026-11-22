@@ -92,9 +92,10 @@ sudo chmod -R 700 /data/coolify
 
 docker network inspect coolify >/dev/null 2>&1 || docker network create --attachable coolify >/dev/null
 
-( cd /data/coolify/source && sudo -E env LATEST_IMAGE="$COOLIFY_REF" docker compose \
-    --env-file /data/coolify/source/.env -f docker-compose.yml -f docker-compose.prod.yml \
-    up -d --remove-orphans --wait --wait-timeout 600 )
+src=/data/coolify/source
+sudo env LATEST_IMAGE="$COOLIFY_REF" docker compose --project-directory "$src" \
+  --env-file "$src/.env" -f "$src/docker-compose.yml" -f "$src/docker-compose.prod.yml" \
+  up -d --remove-orphans --wait --wait-timeout 600
 
 base="http://127.0.0.1:${APP_PORT}"
 for _ in $(seq 1 90); do

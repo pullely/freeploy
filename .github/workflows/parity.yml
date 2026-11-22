@@ -133,4 +133,4 @@ jobs:
             tools/parity/out/diff
       - name: stop the reference
         if: always()
-        run: cd /data/coolify/source && sudo docker compose -f docker-compose.yml -f docker-compose.prod.yml down -v || true
+        run: sudo docker compose --project-directory /data/coolify/source -f /data/coolify/source/docker-compose.yml -f /data/coolify/source/docker-compose.prod.yml down -v || true
