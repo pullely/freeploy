@@ -78,6 +78,10 @@ set_env ROOT_USERNAME "'Parity Root'"
 set_env ROOT_USER_EMAIL "'$ROOT_USER_EMAIL'"
 set_env ROOT_USER_PASSWORD "'$ROOT_USER_PASSWORD'"
 set_env AUTOUPDATE "false"
+# Operator config, not an app change: the contract run makes ~700 API calls a
+# minute from one IP, and the default limit (200/min, config/api.php) would
+# answer most of them with 429.
+set_env API_RATE_LIMIT "100000"
 set_env LATEST_IMAGE "$COOLIFY_REF"
 set_env APP_PORT "$APP_PORT"
 

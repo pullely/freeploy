@@ -83,11 +83,20 @@ function loadOps(file: string): { ops: Op[]; doc: Record<string, unknown> } {
   return { ops, doc };
 }
 
+export const THROTTLED = 429;
+
 async function call(base: string, method: string, path: string, token?: string): Promise<{ status: number; body: Json }> {
-  const res = await fetch(`${base.replace(/\/$/, "")}/api/v1${path}`, {
-    method,
-    headers: { accept: "application/json", ...(token ? { authorization: `Bearer ${token}` } : {}) },
-  });
+  let res: Response;
+  // A 429 is never a contract answer: wait as told and retry, up to 5 times.
+  for (let attempt = 0; ; attempt++) {
+    res = await fetch(`${base.replace(/\/$/, "")}/api/v1${path}`, {
+      method,
+      headers: { accept: "application/json", ...(token ? { authorization: `Bearer ${token}` } : {}) },
+    });
+    if (res.status !== THROTTLED || attempt >= 5) break;
+    const wait = Math.min(60, Number(res.headers.get("retry-after")) || 2 ** attempt);
+    await new Promise((r) => setTimeout(r, wait * 1000));
+  }
   const text = await res.text();
   try {
     return { status: res.status, body: JSON.parse(text) };
@@ -163,9 +172,15 @@ async function main() {
     referenceUndocumentedStatus: rows.filter((r) => (r.read as { documented?: boolean })?.documented === false).length,
     referenceSchemaErrors: rows.filter((r) => ((r.read as { schemaErrors?: string[] })?.schemaErrors ?? []).length).length,
     needsFixture: rows.filter((r) => (r.read as { status?: string })?.status === "needs-fixture").length,
+    throttled: rows.filter((r) => JSON.stringify([r.unauth, r.read]).includes(`:${THROTTLED}`)).length,
   };
   writeFileSync(opt("report", "specs/epics/freeploy-coolify-parity/parity/api-report.json")!, JSON.stringify({ summary, operations: rows }, null, 1) + "\n");
   console.log(`api: ${summary.operations} operations; target ${tgt ? `${summary.pass} pass` : "not set"}; ${summary.needsFixture} need fixtures`);
+  // A throttled answer means the run measured the rate limiter, not the API.
+  if (summary.throttled) {
+    console.log(`✕ ${summary.throttled} operations were still answered 429 after retries; the run is not a measurement`);
+    process.exit(1);
+  }
   if (gate && tgt) {
     const failing = rows.filter((r) => gate.test(String(r.operationId)) && r.pass !== true);
     for (const r of failing) console.log(`✕ ${r.operationId}`);
