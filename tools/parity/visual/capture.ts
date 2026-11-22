@@ -107,6 +107,14 @@ async function main() {
           try {
             const res = await page.goto(base + url, { waitUntil: "networkidle", timeout: 45_000 });
             status = res?.status() ?? null;
+            // A redirect is not a capture of this route: it would compare
+            // the page it landed on and overstate coverage.
+            const landed = new URL(page.url()).pathname.replace(/\/$/, "") || "/";
+            const wanted = new URL(base + url).pathname.replace(/\/$/, "") || "/";
+            if (landed !== wanted) {
+              if (theme === "light" && vp === "desktop") skipped.push({ id: r.id, reason: `redirected to ${landed}` });
+              continue;
+            }
             await page.waitForTimeout(400);
             await prepareMasks(page);
             const file = join(dir, `${vp}-${theme}.png`);

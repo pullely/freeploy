@@ -18,6 +18,8 @@ umask 077
 token=$(docker exec coolify php artisan tinker --execute '
 $s = \App\Models\InstanceSettings::get();
 $s->is_api_enabled = true; $s->allowed_ips = null; $s->save();
+// The same as "Skip setup" on /onboarding: otherwise every page redirects there.
+\App\Models\Team::find(0)->forceFill(["show_boarding" => false])->save();
 $u = \App\Models\User::find(0);
 $t = $u->createToken("parity", ["root"], null, 0);
 echo $t->plainTextToken;' | tail -n 1 | tr -d '\r')
