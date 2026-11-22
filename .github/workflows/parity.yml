@@ -1,0 +1,136 @@
+# Parity harness (freeploy-coolify-parity DP1). Measures Freeploy against a
+# reference Coolify built from source at COOLIFY_REF.
+#
+#   unit       — harness self-tests (the gate can say no) + inventory --check
+#   reference  — build and start Coolify at COOLIFY_REF, seed fixtures through
+#                its API, capture every visual route (desktop/mobile ×
+#                light/dark); capture Freeploy too when PARITY_TARGET_URL is
+#                set; compare; publish visual-report.json, HARNESS.md and the
+#                screenshots and diffs as artefacts and the job summary.
+#
+# Credentials: the reference's root password and token are generated per run
+# and never leave the runner. The Freeploy target's login and API token come
+# from repository secrets (PARITY_TARGET_EMAIL, PARITY_TARGET_PASSWORD,
+# PARITY_TARGET_TOKEN) and are only read from the environment.
+name: parity
+
+on:
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "Regex on route ids to capture (default: every visual route)"
+        required: false
+  push:
+    branches: [main]
+    paths:
+      - "tools/parity/**"
+      - "apps/deploy-web/**"
+      - "specs/epics/freeploy-coolify-parity/parity/routes.web.json"
+      - ".github/workflows/parity.yml"
+  pull_request:
+    paths:
+      - "tools/parity/**"
+      - "apps/deploy-web/**"
+      - ".github/workflows/parity.yml"
+
+concurrency:
+  group: parity-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  COOLIFY_REF: 91b7e3e509dee1eb5cee7c41fe151be03b03092e
+  COOLIFY_DIR: ${{ github.workspace }}/ref/coolify
+  OUT: tools/parity/out
+  PARITY_TARGET_URL: ${{ vars.PARITY_TARGET_URL }}
+
+jobs:
+  unit:
+    name: parity · unit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: coollabsio/coolify
+          ref: ${{ env.COOLIFY_REF }}
+          path: ref/coolify
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci --no-audit --no-fund --ignore-scripts
+        working-directory: tools/parity
+      - run: npm test
+        working-directory: tools/parity
+      - name: inventory is current and within ±5% of the brief
+        run: |
+          node tools/parity/inventory.ts --coolify "$COOLIFY_DIR" --ref "${COOLIFY_REF:0:7}" \
+            --out specs/epics/freeploy-coolify-parity/parity --check
+          git diff --stat --exit-code -- specs/epics/freeploy-coolify-parity/parity \
+            || { echo "::error::the committed inventory differs from a fresh generation; re-run tools/parity/inventory.ts"; exit 1; }
+
+  reference:
+    name: parity · visual
+    needs: unit
+    # Pinned: ubuntu-latest moved to 26.04, which Playwright 1.56 has no
+    # Chromium build for.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: coollabsio/coolify
+          ref: ${{ env.COOLIFY_REF }}
+          path: ref/coolify
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci --no-audit --no-fund --ignore-scripts && npx playwright install --with-deps chromium
+        working-directory: tools/parity
+      - name: start the reference Coolify
+        run: bash tools/parity/reference/up.sh
+      - name: seed fixtures through the reference's API
+        run: bash tools/parity/reference/seed.sh
+      - name: capture the reference
+        run: |
+          node tools/parity/visual/capture.ts --system reference --base "$(grep ^REFERENCE_URL= $OUT/reference.env | cut -d= -f2-)" \
+            --env-file "$OUT/reference.env" --user-env REFERENCE_EMAIL --password-env REFERENCE_PASSWORD \
+            --ids "$OUT/reference.ids.json" --out "$OUT" ${{ inputs.only && format('--only ''{0}''', inputs.only) || '' }}
+      - name: seed and capture Freeploy
+        if: env.PARITY_TARGET_URL != ''
+        env:
+          TARGET_EMAIL: ${{ secrets.PARITY_TARGET_EMAIL }}
+          TARGET_PASSWORD: ${{ secrets.PARITY_TARGET_PASSWORD }}
+          TARGET_TOKEN: ${{ secrets.PARITY_TARGET_TOKEN }}
+        run: |
+          node tools/parity/fixtures/apply.ts --base "$PARITY_TARGET_URL" --token-env TARGET_TOKEN \
+            --fixtures tools/parity/fixtures/base.json --out "$OUT/target.ids.json"
+          node tools/parity/visual/capture.ts --system target --base "$PARITY_TARGET_URL" \
+            --user-env TARGET_EMAIL --password-env TARGET_PASSWORD --ids "$OUT/target.ids.json" --out "$OUT" \
+            ${{ inputs.only && format('--only ''{0}''', inputs.only) || '' }}
+      - name: compare and report
+        if: always()
+        run: |
+          node tools/parity/visual/compare.ts --out "$OUT"
+          node tools/parity/report.ts --out "$OUT"
+          cat specs/epics/freeploy-coolify-parity/parity/HARNESS.md >> "$GITHUB_STEP_SUMMARY"
+      - name: publish
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: parity-${{ github.run_id }}
+          retention-days: 14
+          path: |
+            specs/epics/freeploy-coolify-parity/parity/visual-report.json
+            specs/epics/freeploy-coolify-parity/parity/HARNESS.md
+            tools/parity/out/reference
+            tools/parity/out/target
+            tools/parity/out/diff
+      - name: stop the reference
+        if: always()
+        run: sudo docker compose --project-directory /data/coolify/source -f /data/coolify/source/docker-compose.yml -f /data/coolify/source/docker-compose.prod.yml down -v || true

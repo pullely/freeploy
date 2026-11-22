@@ -1,0 +1,16 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-3
+  title: "DP1: parity harness — reference Coolify, fixtures, visual + DOM/copy diff, report"
+spec:
+  goal: A parity workflow builds and starts Coolify at 91b7e3e from source on a CI runner, seeds deterministic fixtures through its /api/v1, captures every visual route at desktop and mobile in light and dark, compares Freeploy's captures (when a target is set) by pixels (≤0.5%) and DOM/copy (exact), and publishes visual-report.json, HARNESS.md and the screenshots as artefacts.
+  affects:
+    - tools/parity/**
+    - .github/workflows/parity.yml
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - the parity workflow's unit job passes (harness self-tests prove the gate fails on a perturbed screenshot, a size change and a copy change; the committed inventory equals a fresh generation)
+    - the parity workflow's visual job starts the reference, seeds it, captures its routes and renders HARNESS.md with no Freeploy target (stage not deployed)
+  gates: []
