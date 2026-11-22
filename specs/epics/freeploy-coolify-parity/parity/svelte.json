@@ -1,0 +1,228 @@
+{
+ "name": "svelte",
+ "coolifyRef": "91b7e3e",
+ "generatedFrom": "resources/js/**/*.svelte",
+ "count": 22,
+ "rows": [
+  {
+   "id": "svelte:canvas-beta-badge",
+   "source": "resources/js/canvas/BetaBadge.svelte",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/svelte/canvas-beta-badge",
+   "taskKey": null,
+   "status": "planned",
+   "lines": 10
+  },
+  {
+   "id": "svelte:canvas-canvas-controls",
+   "source": "resources/js/canvas/CanvasControls.svelte",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/svelte/canvas-canvas-controls",
+   "taskKey": null,
+   "status": "planned",
+   "lines": 36
+  },
+  {
+   "id": "svelte:canvas-deploy-deploy-canvas",
+   "source": "resources/js/canvas/deploy/DeployCanvas.svelte",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/svelte/canvas-deploy-deploy-canvas",
+   "taskKey": null,
+   "status": "planned",
+   "lines": 169
+  },
+  {
+   "id": "svelte:canvas-deploy-dropdown",
+   "source": "resources/js/canvas/deploy/Dropdown.svelte",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/svelte/canvas-deploy-dropdown",
+   "taskKey": null,
+   "status": "planned",
+   "lines": 138
+  },
+  {
+   "id": "svelte:canvas-deploy-edges",
+   "source": "resources/js/canvas/deploy/Edges.svelte",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/svelte/canvas-deploy-edges",
+   "taskKey": null,
+   "status": "planned",
+   "lines": 49
+  },
+  {
+   "id": "svelte:canvas-deploy-field",
+   "source": "resources/js/canvas/deploy/Field.svelte",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/svelte/canvas-deploy-field",
+   "taskKey": null,
+   "status": "planned",
+   "lines": 106
+  },
+  {
+   "id": "svelte:canvas-deploy-icon",
+   "source": "resources/js/canvas/deploy/Icon.svelte",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/svelte/canvas-deploy-icon",
+   "taskKey": null,
+   "status": "planned",
+   "lines": 26
+  },
+  {
+   "id": "svelte:canvas-deploy-node",
+   "source": "resources/js/canvas/deploy/Node.svelte",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/svelte/canvas-deploy-node",
+   "taskKey": null,
+   "status": "planned",
+   "lines": 105
+  },
+  {
+   "id": "svelte:canvas-deploy-palette-item",
+   "source": "resources/js/canvas/deploy/PaletteItem.svelte",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/svelte/canvas-deploy-palette-item",
+   "taskKey": null,
+   "status": "planned",
+   "lines": 22
+  },
+  {
+   "id": "svelte:canvas-deploy-run-panel",
+   "source": "resources/js/canvas/deploy/RunPanel.svelte",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/svelte/canvas-deploy-run-panel",
+   "taskKey": null,
+   "status": "planned",
+   "lines": 49
+  },
+  {
+   "id": "svelte:canvas-environment-add-section",
+   "source": "resources/js/canvas/environment/AddSection.svelte",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/svelte/canvas-environment-add-section",
+   "taskKey": null,
+   "status": "planned",
+   "lines": 41
+  },
+  {
+   "id": "svelte:canvas-environment-card",
+   "source": "resources/js/canvas/environment/Card.svelte",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/svelte/canvas-environment-card",
+   "taskKey": null,
+   "status": "planned",
+   "lines": 161
+  },
+  {
+   "id": "svelte:canvas-environment-deployments",
+   "source": "resources/js/canvas/environment/Deployments.svelte",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/svelte/canvas-environment-deployments",
+   "taskKey": null,
+   "status": "planned",
+   "lines": 88
+  },
+  {
+   "id": "svelte:canvas-environment-empty-card",
+   "source": "resources/js/canvas/environment/EmptyCard.svelte",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/svelte/canvas-environment-empty-card",
+   "taskKey": null,
+   "status": "planned",
+   "lines": 25
+  },
+  {
+   "id": "svelte:canvas-environment-environment-canvas",
+   "source": "resources/js/canvas/environment/EnvironmentCanvas.svelte",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/svelte/canvas-environment-environment-canvas",
+   "taskKey": null,
+   "status": "planned",
+   "lines": 1141
+  },
+  {
+   "id": "svelte:canvas-environment-icon",
+   "source": "resources/js/canvas/environment/Icon.svelte",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/svelte/canvas-environment-icon",
+   "taskKey": null,
+   "status": "planned",
+   "lines": 11
+  },
+  {
+   "id": "svelte:canvas-environment-node-icon",
+   "source": "resources/js/canvas/environment/NodeIcon.svelte",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/svelte/canvas-environment-node-icon",
+   "taskKey": null,
+   "status": "planned",
+   "lines": 38
+  },
+  {
+   "id": "svelte:canvas-environment-panel",
+   "source": "resources/js/canvas/environment/Panel.svelte",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/svelte/canvas-environment-panel",
+   "taskKey": null,
+   "status": "planned",
+   "lines": 317
+  },
+  {
+   "id": "svelte:canvas-environment-select",
+   "source": "resources/js/canvas/environment/Select.svelte",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/svelte/canvas-environment-select",
+   "taskKey": null,
+   "status": "planned",
+   "lines": 77
+  },
+  {
+   "id": "svelte:canvas-environment-status-dot",
+   "source": "resources/js/canvas/environment/StatusDot.svelte",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/svelte/canvas-environment-status-dot",
+   "taskKey": null,
+   "status": "planned",
+   "lines": 14
+  },
+  {
+   "id": "svelte:canvas-environment-toolbar",
+   "source": "resources/js/canvas/environment/Toolbar.svelte",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/svelte/canvas-environment-toolbar",
+   "taskKey": null,
+   "status": "planned",
+   "lines": 39
+  },
+  {
+   "id": "svelte:canvas-environment-zone",
+   "source": "resources/js/canvas/environment/Zone.svelte",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/svelte/canvas-environment-zone",
+   "taskKey": null,
+   "status": "planned",
+   "lines": 108
+  }
+ ]
+}

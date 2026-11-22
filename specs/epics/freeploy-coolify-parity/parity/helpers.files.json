@@ -1,0 +1,215 @@
+{
+ "name": "helpers.files",
+ "coolifyRef": "91b7e3e",
+ "generatedFrom": "bootstrap/helpers/*.php",
+ "count": 23,
+ "rows": [
+  {
+   "id": "helpers.files:api",
+   "source": "bootstrap/helpers/api.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/helpers.files/api",
+   "taskKey": null,
+   "status": "planned"
+  },
+  {
+   "id": "helpers.files:applications",
+   "source": "bootstrap/helpers/applications.php",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/helpers.files/applications",
+   "taskKey": null,
+   "status": "planned"
+  },
+  {
+   "id": "helpers.files:audit",
+   "source": "bootstrap/helpers/audit.php",
+   "milestone": "DP10",
+   "component": "lumen membership/policy/billing + apps/deploy-web",
+   "parityTest": "parity/helpers.files/audit",
+   "taskKey": null,
+   "status": "planned"
+  },
+  {
+   "id": "helpers.files:auth",
+   "source": "bootstrap/helpers/auth.php",
+   "milestone": "DP3",
+   "component": "apps/deploy-web + lumen identity",
+   "parityTest": "parity/helpers.files/auth",
+   "taskKey": null,
+   "status": "planned"
+  },
+  {
+   "id": "helpers.files:constants",
+   "source": "bootstrap/helpers/constants.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/helpers.files/constants",
+   "taskKey": null,
+   "status": "planned"
+  },
+  {
+   "id": "helpers.files:databases",
+   "source": "bootstrap/helpers/databases.php",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/helpers.files/databases",
+   "taskKey": null,
+   "status": "planned"
+  },
+  {
+   "id": "helpers.files:docker",
+   "source": "bootstrap/helpers/docker.php",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/helpers.files/docker",
+   "taskKey": null,
+   "status": "planned"
+  },
+  {
+   "id": "helpers.files:domains",
+   "source": "bootstrap/helpers/domains.php",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/helpers.files/domains",
+   "taskKey": null,
+   "status": "planned"
+  },
+  {
+   "id": "helpers.files:email",
+   "source": "bootstrap/helpers/email.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/helpers.files/email",
+   "taskKey": null,
+   "status": "planned"
+  },
+  {
+   "id": "helpers.files:gitea",
+   "source": "bootstrap/helpers/gitea.php",
+   "milestone": "DP6",
+   "component": "apps/deploy-core-worker + lumen integrations",
+   "parityTest": "parity/helpers.files/gitea",
+   "taskKey": null,
+   "status": "planned"
+  },
+  {
+   "id": "helpers.files:github",
+   "source": "bootstrap/helpers/github.php",
+   "milestone": "DP6",
+   "component": "apps/deploy-core-worker + lumen integrations",
+   "parityTest": "parity/helpers.files/github",
+   "taskKey": null,
+   "status": "planned"
+  },
+  {
+   "id": "helpers.files:gitlab",
+   "source": "bootstrap/helpers/gitlab.php",
+   "milestone": "DP6",
+   "component": "apps/deploy-core-worker + lumen integrations",
+   "parityTest": "parity/helpers.files/gitlab",
+   "taskKey": null,
+   "status": "planned"
+  },
+  {
+   "id": "helpers.files:notifications",
+   "source": "bootstrap/helpers/notifications.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/helpers.files/notifications",
+   "taskKey": null,
+   "status": "planned"
+  },
+  {
+   "id": "helpers.files:parsers",
+   "source": "bootstrap/helpers/parsers.php",
+   "milestone": "DP8",
+   "component": "apps/deploy-core-worker (catalog)",
+   "parityTest": "parity/helpers.files/parsers",
+   "taskKey": null,
+   "status": "planned"
+  },
+  {
+   "id": "helpers.files:proxy",
+   "source": "bootstrap/helpers/proxy.php",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/helpers.files/proxy",
+   "taskKey": null,
+   "status": "planned"
+  },
+  {
+   "id": "helpers.files:remoteProcess",
+   "source": "bootstrap/helpers/remoteProcess.php",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/helpers.files/remoteProcess",
+   "taskKey": null,
+   "status": "planned"
+  },
+  {
+   "id": "helpers.files:services",
+   "source": "bootstrap/helpers/services.php",
+   "milestone": "DP8",
+   "component": "apps/deploy-core-worker (catalog)",
+   "parityTest": "parity/helpers.files/services",
+   "taskKey": null,
+   "status": "planned"
+  },
+  {
+   "id": "helpers.files:shared",
+   "source": "bootstrap/helpers/shared.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/helpers.files/shared",
+   "taskKey": null,
+   "status": "planned"
+  },
+  {
+   "id": "helpers.files:socialite",
+   "source": "bootstrap/helpers/socialite.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/helpers.files/socialite",
+   "taskKey": null,
+   "status": "planned"
+  },
+  {
+   "id": "helpers.files:subscriptions",
+   "source": "bootstrap/helpers/subscriptions.php",
+   "milestone": "DP10",
+   "component": "lumen membership/policy/billing + apps/deploy-web",
+   "parityTest": "parity/helpers.files/subscriptions",
+   "taskKey": null,
+   "status": "planned"
+  },
+  {
+   "id": "helpers.files:sudo",
+   "source": "bootstrap/helpers/sudo.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/helpers.files/sudo",
+   "taskKey": null,
+   "status": "planned"
+  },
+  {
+   "id": "helpers.files:timezone",
+   "source": "bootstrap/helpers/timezone.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/helpers.files/timezone",
+   "taskKey": null,
+   "status": "planned"
+  },
+  {
+   "id": "helpers.files:versions",
+   "source": "bootstrap/helpers/versions.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/helpers.files/versions",
+   "taskKey": null,
+   "status": "planned"
+  }
+ ]
+}

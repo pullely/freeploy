@@ -1,0 +1,23 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-2
+  title: "DP0: public, listing-ready repository"
+spec:
+  goal: pullely/freeploy is public and listing-ready — Apache-2.0 LICENSE, Coolify attribution in THIRD_PARTY_NOTICES.md, SECURITY.md, CONTRIBUTING.md, a README that states it is a multi-tenant port of Coolify not affiliated with coollabs.io, topics including openproduct, and secret scanning, push protection and branch protection on main.
+  affects:
+    - LICENSE
+    - THIRD_PARTY_NOTICES.md
+    - SECURITY.md
+    - CONTRIBUTING.md
+    - README.md
+    - .gitignore
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+    - ai/context/deploy-platform-ledger.md
+  doneWhen:
+    - gh repo view pullely/freeploy --json visibility reads PUBLIC
+    - LICENSE, THIRD_PARTY_NOTICES.md, SECURITY.md, CONTRIBUTING.md and the README are on main
+    - the repo topics include openproduct, and secret scanning, push protection and branch protection on main are on
+    - DP0 is marked ✅ in implementation-plan.md and IMPLEMENTATION-STATUS.md records DP-1 and DP-2
+  gates: []
