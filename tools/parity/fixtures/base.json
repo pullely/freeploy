@@ -1,0 +1,12 @@
+{
+  "$comment": "Deterministic parity fixtures (DP1). Names are fixed so both systems are seeded identically; uuids are whatever each system assigns and are captured into <system>.ids.json for route substitution. All values are fake. A step's `capture` maps a fixture name to a JSON path in the response; `{{name}}` in a later path or body is replaced by it. `find` looks an existing object up instead of creating it.",
+  "steps": [
+    { "name": "localhost_server", "find": { "path": "/api/v1/servers", "where": { "name": "localhost" } }, "capture": { "server_uuid": "uuid" } },
+    { "name": "project", "method": "POST", "path": "/api/v1/projects", "body": { "name": "parity-project", "description": "Parity fixture project" }, "capture": { "project_uuid": "uuid" } },
+    { "name": "environment", "find": { "path": "/api/v1/projects/{{project_uuid}}/environments", "where": { "name": "production" } }, "capture": { "environment_uuid": "uuid" } },
+    { "name": "staging_environment", "method": "POST", "path": "/api/v1/projects/{{project_uuid}}/environments", "body": { "name": "staging" }, "capture": { "staging_environment_uuid": "uuid" } },
+    { "name": "private_key", "method": "POST", "path": "/api/v1/security/keys", "body": { "name": "parity-key", "description": "Parity fixture key (fake, generated per run)", "private_key": "{{generated_ed25519}}" }, "capture": { "private_key_uuid": "uuid" } },
+    { "name": "tag_frontend", "method": "POST", "path": "/api/v1/tags", "body": { "name": "frontend" }, "optional": true },
+    { "name": "tag_backend", "method": "POST", "path": "/api/v1/tags", "body": { "name": "backend" }, "optional": true }
+  ]
+}

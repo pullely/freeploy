@@ -1,0 +1,16 @@
+{
+  "name": "@freeploy/parity",
+  "private": true,
+  "type": "module",
+  "description": "Parity harness: measures Freeploy against Coolify at COOLIFY_REF (inventory, visual, DOM/copy; API, commands and behaviour follow in DP1)",
+  "engines": { "node": ">=22.6" },
+  "scripts": {
+    "inventory": "node inventory.ts --coolify ${COOLIFY_DIR:-../../../ref/coolify} --out ../../specs/epics/freeploy-coolify-parity/parity --check",
+    "test": "node --test test/*.test.ts"
+  },
+  "dependencies": {
+    "pixelmatch": "7.1.0",
+    "playwright": "1.56.1",
+    "pngjs": "7.0.0"
+  }
+}
