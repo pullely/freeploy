@@ -1,0 +1,5435 @@
+{
+ "name": "models",
+ "coolifyRef": "91b7e3e",
+ "generatedFrom": "app/Models/**",
+ "count": 81,
+ "rows": [
+  {
+   "id": "models:application",
+   "source": "app/Models/Application.php",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/application",
+   "taskKey": null,
+   "status": "planned",
+   "class": "Application",
+   "table": null,
+   "fillable": [
+    "name",
+    "description",
+    "fqdn",
+    "noindex_domains",
+    "domain_port_overrides",
+    "git_repository",
+    "git_branch",
+    "git_commit_sha",
+    "git_full_url",
+    "git_ssh_known_hosts",
+    "git_https_username",
+    "git_https_password",
+    "docker_registry_image_name",
+    "docker_registry_image_tag",
+    "build_pack",
+    "static_image",
+    "install_command",
+    "build_command",
+    "start_command",
+    "ports_exposes",
+    "ports_mappings",
+    "base_directory",
+    "publish_directory",
+    "health_check_enabled",
+    "health_check_path",
+    "health_check_port",
+    "health_check_host",
+    "health_check_method",
+    "health_check_return_code",
+    "health_check_scheme",
+    "health_check_response_text",
+    "health_check_interval",
+    "health_check_timeout",
+    "health_check_retries",
+    "health_check_start_period",
+    "health_check_type",
+    "health_check_command",
+    "limits_memory",
+    "limits_memory_swap",
+    "limits_memory_swappiness",
+    "limits_memory_reservation",
+    "limits_cpus",
+    "limits_cpuset",
+    "limits_cpu_shares",
+    "status",
+    "preview_url_template",
+    "dockerfile",
+    "dockerfile_location",
+    "dockerfile_target_build",
+    "custom_labels",
+    "custom_docker_run_options",
+    "post_deployment_command",
+    "post_deployment_command_container",
+    "pre_deployment_command",
+    "pre_deployment_command_container",
+    "manual_webhook_secret_github",
+    "manual_webhook_secret_gitlab",
+    "manual_webhook_secret_bitbucket",
+    "manual_webhook_secret_gitea",
+    "docker_compose_location",
+    "docker_compose",
+    "docker_compose_raw",
+    "docker_compose_domains",
+    "docker_compose_image_overrides",
+    "domain_dns_statuses",
+    "docker_compose_custom_start_command",
+    "docker_compose_custom_build_command",
+    "swarm_replicas",
+    "swarm_placement_constraints",
+    "watch_paths",
+    "redirect",
+    "compose_parsing_version",
+    "custom_nginx_configuration",
+    "custom_network_aliases",
+    "custom_healthcheck_found",
+    "nixpkgsarchive",
+    "is_http_basic_auth_enabled",
+    "http_basic_auth_username",
+    "http_basic_auth_password",
+    "http_basic_auth_hash_algorithm",
+    "http_basic_auth_bcrypt_cost",
+    "http_basic_auth_argon2id_memory_cost",
+    "http_basic_auth_argon2id_time_cost",
+    "connect_to_docker_network",
+    "force_domain_override",
+    "is_container_label_escape_enabled",
+    "use_build_server",
+    "config_hash",
+    "last_online_at",
+    "restart_count",
+    "max_restart_count",
+    "restart_limit_reached",
+    "container_present",
+    "last_restart_at",
+    "last_restart_type",
+    "uuid",
+    "environment_id",
+    "destination_id",
+    "destination_type",
+    "source_id",
+    "source_type",
+    "repository_project_id",
+    "private_key_id"
+   ],
+   "guarded": [],
+   "hidden": [
+    "http_basic_auth_password",
+    "git_https_password",
+    "manual_webhook_secret_github",
+    "manual_webhook_secret_gitlab",
+    "manual_webhook_secret_bitbucket",
+    "manual_webhook_secret_gitea",
+    "dockerfile",
+    "docker_compose",
+    "docker_compose_raw",
+    "custom_labels",
+    "domain_dns_statuses",
+    "domain_port_overrides"
+   ],
+   "casts": {
+    "http_basic_auth_password": "encrypted",
+    "git_https_password": "encrypted",
+    "http_basic_auth_hash_algorithm": "HttpBasicAuthHashAlgorithm::class",
+    "manual_webhook_secret_github": "encrypted",
+    "manual_webhook_secret_gitlab": "encrypted",
+    "manual_webhook_secret_bitbucket": "encrypted",
+    "manual_webhook_secret_gitea": "encrypted",
+    "noindex_domains": "array",
+    "domain_dns_statuses": "array",
+    "domain_port_overrides": "array",
+    "docker_compose_image_overrides": "array",
+    "restart_count": "integer",
+    "max_restart_count": "integer",
+    "restart_limit_reached": "boolean",
+    "container_present": "boolean",
+    "last_restart_at": "datetime",
+    "is_maintenance_enabled": "boolean",
+    "health_check_enabled": "boolean",
+    "custom_healthcheck_found": "boolean"
+   },
+   "relations": [
+    {
+     "name": "additional_servers",
+     "type": "belongsToMany",
+     "related": "Server"
+    },
+    {
+     "name": "additional_networks",
+     "type": "belongsToMany",
+     "related": "StandaloneDocker"
+    },
+    {
+     "name": "settings",
+     "type": "hasOne",
+     "related": "ApplicationSetting"
+    },
+    {
+     "name": "persistentStorages",
+     "type": "morphMany",
+     "related": "LocalPersistentVolume"
+    },
+    {
+     "name": "fileStorages",
+     "type": "morphMany",
+     "related": "LocalFileVolume"
+    },
+    {
+     "name": "tags",
+     "type": "morphToMany",
+     "related": "Tag"
+    },
+    {
+     "name": "environment_variables",
+     "type": "morphMany",
+     "related": "EnvironmentVariable"
+    },
+    {
+     "name": "runtime_environment_variables",
+     "type": "morphMany",
+     "related": "EnvironmentVariable"
+    },
+    {
+     "name": "nixpacks_environment_variables",
+     "type": "morphMany",
+     "related": "EnvironmentVariable"
+    },
+    {
+     "name": "railpack_environment_variables",
+     "type": "morphMany",
+     "related": "EnvironmentVariable"
+    },
+    {
+     "name": "environment_variables_preview",
+     "type": "morphMany",
+     "related": "EnvironmentVariable"
+    },
+    {
+     "name": "runtime_environment_variables_preview",
+     "type": "morphMany",
+     "related": "EnvironmentVariable"
+    },
+    {
+     "name": "nixpacks_environment_variables_preview",
+     "type": "morphMany",
+     "related": "EnvironmentVariable"
+    },
+    {
+     "name": "railpack_environment_variables_preview",
+     "type": "morphMany",
+     "related": "EnvironmentVariable"
+    },
+    {
+     "name": "scheduled_tasks",
+     "type": "hasMany",
+     "related": "ScheduledTask"
+    },
+    {
+     "name": "private_key",
+     "type": "belongsTo",
+     "related": "PrivateKey"
+    },
+    {
+     "name": "environment",
+     "type": "belongsTo",
+     "related": "Environment"
+    },
+    {
+     "name": "previews",
+     "type": "hasMany",
+     "related": "ApplicationPreview"
+    },
+    {
+     "name": "deployment_queue",
+     "type": "hasMany",
+     "related": "ApplicationDeploymentQueue"
+    },
+    {
+     "name": "destination",
+     "type": "morphTo",
+     "related": null
+    },
+    {
+     "name": "source",
+     "type": "morphTo",
+     "related": null
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:application-deployment-queue",
+   "source": "app/Models/ApplicationDeploymentQueue.php",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/application-deployment-queue",
+   "taskKey": null,
+   "status": "planned",
+   "class": "ApplicationDeploymentQueue",
+   "table": null,
+   "fillable": [
+    "application_id",
+    "deployment_uuid",
+    "pull_request_id",
+    "docker_registry_image_tag",
+    "configuration_hash",
+    "configuration_snapshot",
+    "configuration_diff",
+    "force_rebuild",
+    "commit",
+    "status",
+    "is_webhook",
+    "logs",
+    "current_process_id",
+    "restart_only",
+    "git_type",
+    "server_id",
+    "application_name",
+    "server_name",
+    "deployment_url",
+    "destination_id",
+    "only_this_server",
+    "parent_deployment_uuid",
+    "rollback",
+    "commit_message",
+    "is_api",
+    "is_mcp",
+    "build_server_id",
+    "horizon_job_id",
+    "horizon_job_worker",
+    "finished_at",
+    "scan_gate_result",
+    "scan_gate_bypassed_by",
+    "deploy_started_at"
+   ],
+   "guarded": [],
+   "hidden": [
+    "logs",
+    "configuration_snapshot",
+    "configuration_diff"
+   ],
+   "casts": {
+    "pull_request_id": "integer",
+    "finished_at": "datetime",
+    "scan_gate_result": "array",
+    "deploy_started_at": "datetime",
+    "configuration_snapshot": "EncryptedArrayCast::class",
+    "configuration_diff": "EncryptedArrayCast::class"
+   },
+   "relations": [
+    {
+     "name": "application",
+     "type": "belongsTo",
+     "related": "Application"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:application-preview",
+   "source": "app/Models/ApplicationPreview.php",
+   "milestone": "DP6",
+   "component": "apps/deploy-core-worker + lumen integrations",
+   "parityTest": "parity/models/application-preview",
+   "taskKey": null,
+   "status": "planned",
+   "class": "ApplicationPreview",
+   "table": null,
+   "fillable": [
+    "uuid",
+    "application_id",
+    "pull_request_id",
+    "pull_request_html_url",
+    "pull_request_issue_comment_id",
+    "fqdn",
+    "status",
+    "git_type",
+    "docker_compose_domains",
+    "docker_registry_image_tag",
+    "last_online_at",
+    "domain_dns_statuses",
+    "domain_port_overrides",
+    "keeps_production_values"
+   ],
+   "guarded": [],
+   "hidden": [
+    "domain_port_overrides"
+   ],
+   "casts": {
+    "pull_request_id": "integer",
+    "domain_dns_statuses": "array",
+    "domain_port_overrides": "array",
+    "keeps_production_values": "boolean",
+    "is_same_repository": "boolean"
+   },
+   "relations": [
+    {
+     "name": "application",
+     "type": "belongsTo",
+     "related": "Application"
+    },
+    {
+     "name": "persistentStorages",
+     "type": "morphMany",
+     "related": "LocalPersistentVolume"
+    }
+   ],
+   "teamScoped": false
+  },
+  {
+   "id": "models:application-setting",
+   "source": "app/Models/ApplicationSetting.php",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/application-setting",
+   "taskKey": null,
+   "status": "planned",
+   "class": "ApplicationSetting",
+   "table": null,
+   "fillable": [
+    "application_id",
+    "is_image_scan_enabled",
+    "image_builds_by_team",
+    "is_static",
+    "is_git_submodules_enabled",
+    "is_git_lfs_enabled",
+    "is_auto_deploy_enabled",
+    "is_force_https_enabled",
+    "is_debug_enabled",
+    "is_preview_deployments_enabled",
+    "is_log_drain_enabled",
+    "is_gpu_enabled",
+    "gpu_driver",
+    "gpu_count",
+    "gpu_device_ids",
+    "gpu_options",
+    "is_include_timestamps",
+    "is_swarm_only_worker_nodes",
+    "is_raw_compose_deployment_enabled",
+    "is_build_server_enabled",
+    "is_consistent_container_name_enabled",
+    "is_gzip_enabled",
+    "traefik_certificate_resolver",
+    "is_stripprefix_enabled",
+    "is_permanent_redirect_enabled",
+    "connect_to_docker_network",
+    "custom_internal_name",
+    "custom_container_name_prefix",
+    "is_container_label_escape_enabled",
+    "is_env_sorting_enabled",
+    "include_coolify_default_variables",
+    "is_container_label_readonly_enabled",
+    "is_preserve_repository_enabled",
+    "disable_build_cache",
+    "is_spa",
+    "is_git_shallow_clone_enabled",
+    "is_pr_deployments_public_enabled",
+    "use_build_secrets",
+    "redact_all_env_values_in_logs",
+    "inject_build_args_to_dockerfile",
+    "include_source_commit_in_build",
+    "include_network_hosts_in_build",
+    "docker_images_to_keep",
+    "stop_grace_period",
+    "rolling_update_drain_seconds",
+    "is_auto_cancel_queued_deployments_enabled",
+    "is_auto_cancel_building_deployments_enabled"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "is_static": "boolean",
+    "is_spa": "boolean",
+    "is_build_server_enabled": "boolean",
+    "is_preserve_repository_enabled": "boolean",
+    "is_container_label_escape_enabled": "boolean",
+    "is_container_label_readonly_enabled": "boolean",
+    "use_build_secrets": "boolean",
+    "inject_build_args_to_dockerfile": "boolean",
+    "include_source_commit_in_build": "boolean",
+    "include_network_hosts_in_build": "boolean",
+    "is_auto_deploy_enabled": "boolean",
+    "is_force_https_enabled": "boolean",
+    "is_debug_enabled": "boolean",
+    "is_preview_deployments_enabled": "boolean",
+    "is_pr_deployments_public_enabled": "boolean",
+    "is_git_submodules_enabled": "boolean",
+    "is_git_lfs_enabled": "boolean",
+    "is_git_shallow_clone_enabled": "boolean",
+    "docker_images_to_keep": "integer",
+    "stop_grace_period": "integer",
+    "rolling_update_drain_seconds": "integer",
+    "is_log_drain_enabled": "boolean",
+    "is_gpu_enabled": "boolean",
+    "is_include_timestamps": "boolean",
+    "is_swarm_only_worker_nodes": "boolean",
+    "is_raw_compose_deployment_enabled": "boolean",
+    "is_consistent_container_name_enabled": "boolean",
+    "is_gzip_enabled": "boolean",
+    "is_stripprefix_enabled": "boolean",
+    "is_permanent_redirect_enabled": "boolean",
+    "connect_to_docker_network": "boolean",
+    "is_env_sorting_enabled": "boolean",
+    "include_coolify_default_variables": "boolean",
+    "redact_all_env_values_in_logs": "boolean",
+    "disable_build_cache": "boolean",
+    "is_image_scan_enabled": "boolean",
+    "image_builds_by_team": "boolean",
+    "is_auto_cancel_queued_deployments_enabled": "boolean",
+    "is_auto_cancel_building_deployments_enabled": "boolean"
+   },
+   "relations": [
+    {
+     "name": "application",
+     "type": "belongsTo",
+     "related": "Application"
+    }
+   ],
+   "teamScoped": false
+  },
+  {
+   "id": "models:audit-event",
+   "source": "app/Models/AuditEvent.php",
+   "milestone": "DP10",
+   "component": "lumen membership/policy/billing + apps/deploy-web",
+   "parityTest": "parity/models/audit-event",
+   "taskKey": null,
+   "status": "planned",
+   "class": "AuditEvent",
+   "table": null,
+   "fillable": [
+    "team_id",
+    "event",
+    "source",
+    "action",
+    "level",
+    "actor_type",
+    "actor_id",
+    "actor_name",
+    "actor_email",
+    "actor_token_id",
+    "actor_token_name",
+    "resource_type",
+    "resource_uuid",
+    "resource_name",
+    "description",
+    "metadata",
+    "changes",
+    "ip_address",
+    "user_agent",
+    "created_at"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "metadata": "array",
+    "changes": "encrypted:array",
+    "created_at": "datetime"
+   },
+   "relations": [],
+   "teamScoped": true
+  },
+  {
+   "id": "models:base-model",
+   "source": "app/Models/BaseModel.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/models/base-model",
+   "taskKey": null,
+   "status": "planned",
+   "class": "BaseModel",
+   "table": null,
+   "fillable": [],
+   "guarded": [],
+   "hidden": [],
+   "casts": {},
+   "relations": [],
+   "teamScoped": false
+  },
+  {
+   "id": "models:cloud-init-script",
+   "source": "app/Models/CloudInitScript.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/models/cloud-init-script",
+   "taskKey": null,
+   "status": "planned",
+   "class": "CloudInitScript",
+   "table": null,
+   "fillable": [
+    "team_id",
+    "name",
+    "script"
+   ],
+   "guarded": [],
+   "hidden": [
+    "script"
+   ],
+   "casts": {
+    "script": "encrypted"
+   },
+   "relations": [
+    {
+     "name": "team",
+     "type": "belongsTo",
+     "related": "Team"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:cloud-provider-token",
+   "source": "app/Models/CloudProviderToken.php",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/cloud-provider-token",
+   "taskKey": null,
+   "status": "planned",
+   "class": "CloudProviderToken",
+   "table": null,
+   "fillable": [
+    "team_id",
+    "provider",
+    "token",
+    "name",
+    "description"
+   ],
+   "guarded": [],
+   "hidden": [
+    "token"
+   ],
+   "casts": {
+    "token": "encrypted"
+   },
+   "relations": [
+    {
+     "name": "team",
+     "type": "belongsTo",
+     "related": "Team"
+    },
+    {
+     "name": "servers",
+     "type": "hasMany",
+     "related": "Server"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:database-backup-s3-replica",
+   "source": "app/Models/DatabaseBackupS3Replica.php",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/database-backup-s3-replica",
+   "taskKey": null,
+   "status": "planned",
+   "class": "DatabaseBackupS3Replica",
+   "table": null,
+   "fillable": [
+    "execution_id",
+    "s3_storage_id",
+    "s3_uploaded",
+    "s3_storage_deleted",
+    "message"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "s3_uploaded": "boolean",
+    "s3_storage_deleted": "boolean"
+   },
+   "relations": [
+    {
+     "name": "execution",
+     "type": "belongsTo",
+     "related": "ScheduledDatabaseBackupExecution"
+    },
+    {
+     "name": "s3",
+     "type": "belongsTo",
+     "related": "S3Storage"
+    }
+   ],
+   "teamScoped": false
+  },
+  {
+   "id": "models:discord-notification-settings",
+   "source": "app/Models/DiscordNotificationSettings.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/models/discord-notification-settings",
+   "taskKey": null,
+   "status": "planned",
+   "class": "DiscordNotificationSettings",
+   "table": null,
+   "fillable": [
+    "team_id",
+    "discord_enabled",
+    "discord_webhook_url",
+    "deployment_success_discord_notifications",
+    "deployment_failure_discord_notifications",
+    "status_change_discord_notifications",
+    "restart_limit_reached_discord_notifications",
+    "backup_success_discord_notifications",
+    "backup_failure_discord_notifications",
+    "scheduled_task_success_discord_notifications",
+    "scheduled_task_failure_discord_notifications",
+    "docker_cleanup_success_discord_notifications",
+    "docker_cleanup_failure_discord_notifications",
+    "server_disk_usage_discord_notifications",
+    "server_reachable_discord_notifications",
+    "server_unreachable_discord_notifications",
+    "server_patch_discord_notifications",
+    "traefik_outdated_discord_notifications",
+    "image_vulnerabilities_discord_notifications",
+    "discord_ping_enabled"
+   ],
+   "guarded": [],
+   "hidden": [
+    "discord_webhook_url"
+   ],
+   "casts": {
+    "discord_enabled": "boolean",
+    "discord_webhook_url": "encrypted",
+    "deployment_success_discord_notifications": "boolean",
+    "deployment_failure_discord_notifications": "boolean",
+    "status_change_discord_notifications": "boolean",
+    "restart_limit_reached_discord_notifications": "boolean",
+    "backup_success_discord_notifications": "boolean",
+    "backup_failure_discord_notifications": "boolean",
+    "scheduled_task_success_discord_notifications": "boolean",
+    "scheduled_task_failure_discord_notifications": "boolean",
+    "docker_cleanup_discord_notifications": "boolean",
+    "server_disk_usage_discord_notifications": "boolean",
+    "server_reachable_discord_notifications": "boolean",
+    "server_unreachable_discord_notifications": "boolean",
+    "server_patch_discord_notifications": "boolean",
+    "traefik_outdated_discord_notifications": "boolean",
+    "image_vulnerabilities_discord_notifications": "boolean",
+    "discord_ping_enabled": "boolean"
+   },
+   "relations": [
+    {
+     "name": "team",
+     "type": "belongsTo",
+     "related": "Team"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:dns-provider-zone",
+   "source": "app/Models/DnsProviderZone.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/models/dns-provider-zone",
+   "taskKey": null,
+   "status": "planned",
+   "class": "DnsProviderZone",
+   "table": null,
+   "fillable": [
+    "integration_token_id",
+    "provider_zone_id",
+    "name",
+    "account_id",
+    "account_name"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {},
+   "relations": [
+    {
+     "name": "integrationToken",
+     "type": "belongsTo",
+     "related": "IntegrationToken"
+    },
+    {
+     "name": "managedRecords",
+     "type": "hasMany",
+     "related": "ManagedDnsRecord"
+    }
+   ],
+   "teamScoped": false
+  },
+  {
+   "id": "models:docker-cleanup-execution",
+   "source": "app/Models/DockerCleanupExecution.php",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/models/docker-cleanup-execution",
+   "taskKey": null,
+   "status": "planned",
+   "class": "DockerCleanupExecution",
+   "table": null,
+   "fillable": [
+    "server_id",
+    "status",
+    "message",
+    "cleanup_log",
+    "finished_at"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {},
+   "relations": [
+    {
+     "name": "server",
+     "type": "belongsTo",
+     "related": "Server"
+    }
+   ],
+   "teamScoped": false
+  },
+  {
+   "id": "models:email-notification-settings",
+   "source": "app/Models/EmailNotificationSettings.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/models/email-notification-settings",
+   "taskKey": null,
+   "status": "planned",
+   "class": "EmailNotificationSettings",
+   "table": null,
+   "fillable": [
+    "team_id",
+    "smtp_enabled",
+    "smtp_from_address",
+    "smtp_from_name",
+    "smtp_recipients",
+    "smtp_host",
+    "smtp_port",
+    "smtp_encryption",
+    "smtp_username",
+    "smtp_password",
+    "smtp_timeout",
+    "smtp_ehlo_domain",
+    "resend_enabled",
+    "resend_api_key",
+    "resend_from_address",
+    "resend_from_name",
+    "use_instance_email_settings",
+    "deployment_success_email_notifications",
+    "deployment_failure_email_notifications",
+    "deployment_commit_details_email_notifications",
+    "status_change_email_notifications",
+    "restart_limit_reached_email_notifications",
+    "backup_success_email_notifications",
+    "backup_failure_email_notifications",
+    "scheduled_task_success_email_notifications",
+    "scheduled_task_failure_email_notifications",
+    "docker_cleanup_success_email_notifications",
+    "docker_cleanup_failure_email_notifications",
+    "server_disk_usage_email_notifications",
+    "server_reachable_email_notifications",
+    "server_unreachable_email_notifications",
+    "server_patch_email_notifications",
+    "traefik_outdated_email_notifications",
+    "image_vulnerabilities_email_notifications"
+   ],
+   "guarded": [],
+   "hidden": [
+    "smtp_from_address",
+    "smtp_from_name",
+    "smtp_recipients",
+    "smtp_host",
+    "smtp_username",
+    "smtp_password",
+    "resend_api_key",
+    "resend_from_address",
+    "resend_from_name"
+   ],
+   "casts": {
+    "smtp_enabled": "boolean",
+    "smtp_from_address": "encrypted",
+    "smtp_from_name": "encrypted",
+    "smtp_recipients": "encrypted",
+    "smtp_host": "encrypted",
+    "smtp_port": "integer",
+    "smtp_username": "encrypted",
+    "smtp_password": "encrypted",
+    "smtp_timeout": "integer",
+    "resend_enabled": "boolean",
+    "resend_api_key": "encrypted",
+    "resend_from_address": "encrypted",
+    "resend_from_name": "encrypted",
+    "use_instance_email_settings": "boolean",
+    "deployment_success_email_notifications": "boolean",
+    "deployment_failure_email_notifications": "boolean",
+    "deployment_commit_details_email_notifications": "boolean",
+    "status_change_email_notifications": "boolean",
+    "restart_limit_reached_email_notifications": "boolean",
+    "backup_success_email_notifications": "boolean",
+    "backup_failure_email_notifications": "boolean",
+    "scheduled_task_success_email_notifications": "boolean",
+    "scheduled_task_failure_email_notifications": "boolean",
+    "server_disk_usage_email_notifications": "boolean",
+    "server_patch_email_notifications": "boolean",
+    "traefik_outdated_email_notifications": "boolean",
+    "image_vulnerabilities_email_notifications": "boolean"
+   },
+   "relations": [
+    {
+     "name": "team",
+     "type": "belongsTo",
+     "related": "Team"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:environment",
+   "source": "app/Models/Environment.php",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/environment",
+   "taskKey": null,
+   "status": "planned",
+   "class": "Environment",
+   "table": null,
+   "fillable": [
+    "name",
+    "description",
+    "project_id",
+    "uuid"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "canvas_positions": "array"
+   },
+   "relations": [
+    {
+     "name": "environment_variables",
+     "type": "hasMany",
+     "related": "SharedEnvironmentVariable"
+    },
+    {
+     "name": "applications",
+     "type": "hasMany",
+     "related": "Application"
+    },
+    {
+     "name": "postgresqls",
+     "type": "hasMany",
+     "related": "StandalonePostgresql"
+    },
+    {
+     "name": "redis",
+     "type": "hasMany",
+     "related": "StandaloneRedis"
+    },
+    {
+     "name": "mongodbs",
+     "type": "hasMany",
+     "related": "StandaloneMongodb"
+    },
+    {
+     "name": "mysqls",
+     "type": "hasMany",
+     "related": "StandaloneMysql"
+    },
+    {
+     "name": "mariadbs",
+     "type": "hasMany",
+     "related": "StandaloneMariadb"
+    },
+    {
+     "name": "keydbs",
+     "type": "hasMany",
+     "related": "StandaloneKeydb"
+    },
+    {
+     "name": "dragonflies",
+     "type": "hasMany",
+     "related": "StandaloneDragonfly"
+    },
+    {
+     "name": "clickhouses",
+     "type": "hasMany",
+     "related": "StandaloneClickhouse"
+    },
+    {
+     "name": "sqlites",
+     "type": "hasMany",
+     "related": "StandaloneSqlite"
+    },
+    {
+     "name": "project",
+     "type": "belongsTo",
+     "related": "Project"
+    },
+    {
+     "name": "services",
+     "type": "hasMany",
+     "related": "Service"
+    },
+    {
+     "name": "resourceLinks",
+     "type": "hasMany",
+     "related": "ResourceLink"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:environment-variable",
+   "source": "app/Models/EnvironmentVariable.php",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/environment-variable",
+   "taskKey": null,
+   "status": "planned",
+   "class": "EnvironmentVariable",
+   "table": null,
+   "fillable": [
+    "key",
+    "value",
+    "comment",
+    "resourceable_type",
+    "resourceable_id",
+    "is_preview",
+    "is_multiline",
+    "is_literal",
+    "is_runtime",
+    "is_buildtime",
+    "is_shown_once",
+    "is_shared",
+    "is_required",
+    "version",
+    "order"
+   ],
+   "guarded": [],
+   "hidden": [
+    "value",
+    "real_value",
+    "uses_legacy_escaping"
+   ],
+   "casts": {
+    "key": "string",
+    "value": "encrypted",
+    "preserve_compose_null": "boolean",
+    "is_multiline": "boolean",
+    "is_literal": "boolean",
+    "is_preview": "boolean",
+    "is_runtime": "boolean",
+    "is_buildtime": "boolean",
+    "uses_legacy_escaping": "boolean",
+    "version": "string",
+    "resourceable_type": "string",
+    "resourceable_id": "integer"
+   },
+   "relations": [
+    {
+     "name": "service",
+     "type": "belongsTo",
+     "related": "Service"
+    },
+    {
+     "name": "resourceable",
+     "type": "morphTo",
+     "related": null
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:gitea-app",
+   "source": "app/Models/GiteaApp.php",
+   "milestone": "DP6",
+   "component": "apps/deploy-core-worker + lumen integrations",
+   "parityTest": "parity/models/gitea-app",
+   "taskKey": null,
+   "status": "planned",
+   "class": "GiteaApp",
+   "table": null,
+   "fillable": [
+    "name",
+    "organization",
+    "api_url",
+    "html_url",
+    "custom_port",
+    "custom_user",
+    "is_system_wide",
+    "is_public",
+    "client_id",
+    "client_secret",
+    "access_token",
+    "refresh_token",
+    "expires_at",
+    "redirect_uri",
+    "webhook_secret",
+    "private_key_id",
+    "team_id"
+   ],
+   "guarded": [],
+   "hidden": [
+    "client_secret",
+    "access_token",
+    "refresh_token",
+    "webhook_secret"
+   ],
+   "casts": {
+    "access_token": "encrypted",
+    "refresh_token": "encrypted",
+    "client_secret": "encrypted",
+    "webhook_secret": "encrypted",
+    "is_system_wide": "boolean",
+    "is_public": "boolean"
+   },
+   "relations": [
+    {
+     "name": "applications",
+     "type": "morphMany",
+     "related": "Application"
+    },
+    {
+     "name": "privateKey",
+     "type": "belongsTo",
+     "related": "PrivateKey"
+    },
+    {
+     "name": "team",
+     "type": "belongsTo",
+     "related": "Team"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:github-app",
+   "source": "app/Models/GithubApp.php",
+   "milestone": "DP6",
+   "component": "apps/deploy-core-worker + lumen integrations",
+   "parityTest": "parity/models/github-app",
+   "taskKey": null,
+   "status": "planned",
+   "class": "GithubApp",
+   "table": null,
+   "fillable": [
+    "team_id",
+    "private_key_id",
+    "name",
+    "organization",
+    "api_url",
+    "html_url",
+    "custom_user",
+    "custom_port",
+    "app_id",
+    "installation_id",
+    "installation_account",
+    "client_id",
+    "client_secret",
+    "webhook_secret",
+    "is_system_wide",
+    "is_public",
+    "contents",
+    "metadata",
+    "pull_requests",
+    "deployments",
+    "administration",
+    "organization_self_hosted_runners",
+    "actions",
+    "webhook_events",
+    "runner_group_id"
+   ],
+   "guarded": [],
+   "hidden": [
+    "client_secret",
+    "webhook_secret"
+   ],
+   "casts": {
+    "is_public": "boolean",
+    "is_system_wide": "boolean",
+    "type": "string",
+    "webhook_events": "array",
+    "runner_group_id": "integer",
+    "client_secret": "encrypted",
+    "webhook_secret": "encrypted"
+   },
+   "relations": [
+    {
+     "name": "team",
+     "type": "belongsTo",
+     "related": "Team"
+    },
+    {
+     "name": "applications",
+     "type": "morphMany",
+     "related": "Application"
+    },
+    {
+     "name": "privateKey",
+     "type": "belongsTo",
+     "related": "PrivateKey"
+    },
+    {
+     "name": "runnerConfigs",
+     "type": "hasMany",
+     "related": "GithubRunnerConfig"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:github-runner-config",
+   "source": "app/Models/GithubRunnerConfig.php",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/github-runner-config",
+   "taskKey": null,
+   "status": "planned",
+   "class": "GithubRunnerConfig",
+   "table": null,
+   "fillable": [
+    "server_id",
+    "github_app_id",
+    "labels",
+    "is_enabled",
+    "is_dedicated",
+    "allow_pull_requests",
+    "max_runners",
+    "docker_mode",
+    "runner_image",
+    "cpu_limit",
+    "memory_limit",
+    "capacity_wait_timeout",
+    "idle_timeout",
+    "job_timeout"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "labels": "array",
+    "is_enabled": "boolean",
+    "is_dedicated": "boolean",
+    "allow_pull_requests": "boolean",
+    "max_runners": "integer",
+    "docker_mode": "GithubRunnerDockerMode::class",
+    "capacity_wait_timeout": "integer",
+    "idle_timeout": "integer",
+    "job_timeout": "integer"
+   },
+   "relations": [
+    {
+     "name": "server",
+     "type": "belongsTo",
+     "related": "Server"
+    },
+    {
+     "name": "githubApp",
+     "type": "belongsTo",
+     "related": "GithubApp"
+    },
+    {
+     "name": "executions",
+     "type": "hasMany",
+     "related": "GithubRunnerExecution"
+    }
+   ],
+   "teamScoped": false
+  },
+  {
+   "id": "models:github-runner-execution",
+   "source": "app/Models/GithubRunnerExecution.php",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/github-runner-execution",
+   "taskKey": null,
+   "status": "planned",
+   "class": "GithubRunnerExecution",
+   "table": null,
+   "fillable": [
+    "github_app_id",
+    "github_runner_config_id",
+    "server_id",
+    "status",
+    "trigger_workflow_job_id",
+    "workflow_job_id",
+    "workflow_job_html_url",
+    "workflow_name",
+    "job_name",
+    "repository_full_name",
+    "labels",
+    "is_pull_request",
+    "runner_name",
+    "runner_id",
+    "conclusion",
+    "error_message",
+    "provision_attempts",
+    "queued_at",
+    "ready_at",
+    "started_at",
+    "completed_at"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "status": "GithubRunnerStatus::class",
+    "trigger_workflow_job_id": "integer",
+    "workflow_job_id": "integer",
+    "runner_id": "integer",
+    "provision_attempts": "integer",
+    "labels": "array",
+    "is_pull_request": "boolean",
+    "queued_at": "datetime",
+    "ready_at": "datetime",
+    "started_at": "datetime",
+    "completed_at": "datetime"
+   },
+   "relations": [
+    {
+     "name": "githubApp",
+     "type": "belongsTo",
+     "related": "GithubApp"
+    },
+    {
+     "name": "config",
+     "type": "belongsTo",
+     "related": "GithubRunnerConfig"
+    },
+    {
+     "name": "server",
+     "type": "belongsTo",
+     "related": "Server"
+    }
+   ],
+   "teamScoped": false
+  },
+  {
+   "id": "models:gitlab-app",
+   "source": "app/Models/GitlabApp.php",
+   "milestone": "DP6",
+   "component": "apps/deploy-core-worker + lumen integrations",
+   "parityTest": "parity/models/gitlab-app",
+   "taskKey": null,
+   "status": "planned",
+   "class": "GitlabApp",
+   "table": null,
+   "fillable": [
+    "name",
+    "organization",
+    "api_url",
+    "html_url",
+    "custom_port",
+    "custom_user",
+    "is_system_wide",
+    "is_public",
+    "app_id",
+    "app_secret",
+    "oauth_id",
+    "client_id",
+    "client_secret",
+    "access_token",
+    "refresh_token",
+    "expires_at",
+    "redirect_uri",
+    "group_name",
+    "public_key",
+    "webhook_token",
+    "deploy_key_id",
+    "private_key_id",
+    "team_id"
+   ],
+   "guarded": [],
+   "hidden": [
+    "webhook_token",
+    "app_secret",
+    "client_secret",
+    "access_token",
+    "refresh_token"
+   ],
+   "casts": {
+    "access_token": "encrypted",
+    "refresh_token": "encrypted",
+    "client_secret": "encrypted",
+    "app_secret": "encrypted",
+    "is_system_wide": "boolean",
+    "is_public": "boolean"
+   },
+   "relations": [
+    {
+     "name": "applications",
+     "type": "morphMany",
+     "related": "Application"
+    },
+    {
+     "name": "privateKey",
+     "type": "belongsTo",
+     "related": "PrivateKey"
+    },
+    {
+     "name": "team",
+     "type": "belongsTo",
+     "related": "Team"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:image-sbom",
+   "source": "app/Models/ImageSbom.php",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/image-sbom",
+   "taskKey": null,
+   "status": "planned",
+   "class": "ImageSbom",
+   "table": null,
+   "fillable": [
+    "server_id",
+    "image_id",
+    "platform",
+    "packages",
+    "packages_truncated",
+    "last_used_at"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "packages": "array",
+    "packages_truncated": "boolean",
+    "last_used_at": "datetime"
+   },
+   "relations": [
+    {
+     "name": "server",
+     "type": "belongsTo",
+     "related": "Server"
+    },
+    {
+     "name": "scans",
+     "type": "hasMany",
+     "related": "ImageScan"
+    }
+   ],
+   "teamScoped": false
+  },
+  {
+   "id": "models:image-scan",
+   "source": "app/Models/ImageScan.php",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/image-scan",
+   "taskKey": null,
+   "status": "planned",
+   "class": "ImageScan",
+   "table": null,
+   "fillable": [
+    "server_id",
+    "image_sbom_id",
+    "image_id",
+    "repo_digest",
+    "resource_type",
+    "resource_id",
+    "image_ref",
+    "deployment_queue_id",
+    "status",
+    "error_code",
+    "error_context",
+    "summary",
+    "findings",
+    "candidates",
+    "base_image_ref",
+    "builds_image",
+    "is_baseline",
+    "grype_db_built_at",
+    "scanned_at"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "status": "ImageScanStatus::class",
+    "error_code": "ImageScanErrorCode::class",
+    "error_context": "array",
+    "summary": "array",
+    "findings": "array",
+    "candidates": "array",
+    "builds_image": "boolean",
+    "is_baseline": "boolean",
+    "grype_db_built_at": "datetime",
+    "scanned_at": "datetime"
+   },
+   "relations": [
+    {
+     "name": "resource",
+     "type": "morphTo",
+     "related": null
+    },
+    {
+     "name": "server",
+     "type": "belongsTo",
+     "related": "Server"
+    },
+    {
+     "name": "sbom",
+     "type": "belongsTo",
+     "related": "ImageSbom"
+    },
+    {
+     "name": "deploymentQueue",
+     "type": "belongsTo",
+     "related": "ApplicationDeploymentQueue"
+    }
+   ],
+   "teamScoped": false
+  },
+  {
+   "id": "models:image-scan-ignore",
+   "source": "app/Models/ImageScanIgnore.php",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/image-scan-ignore",
+   "taskKey": null,
+   "status": "planned",
+   "class": "ImageScanIgnore",
+   "table": null,
+   "fillable": [
+    "team_id",
+    "resource_type",
+    "resource_id",
+    "vulnerability_id",
+    "package",
+    "reason",
+    "expires_at",
+    "created_by"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "expires_at": "datetime"
+   },
+   "relations": [
+    {
+     "name": "team",
+     "type": "belongsTo",
+     "related": "Team"
+    },
+    {
+     "name": "resource",
+     "type": "morphTo",
+     "related": null
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:image-scan-notification-state",
+   "source": "app/Models/ImageScanNotificationState.php",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/image-scan-notification-state",
+   "taskKey": null,
+   "status": "planned",
+   "class": "ImageScanNotificationState",
+   "table": null,
+   "fillable": [
+    "resource_type",
+    "resource_id",
+    "team_id",
+    "notified_ids",
+    "notified_candidates",
+    "digest_ids",
+    "check_reported",
+    "held_digests",
+    "is_baseline",
+    "baseline_deployment_queue_id"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "notified_ids": "array",
+    "notified_candidates": "array",
+    "digest_ids": "array",
+    "check_reported": "boolean",
+    "held_digests": "integer",
+    "is_baseline": "boolean",
+    "baseline_deployment_queue_id": "integer"
+   },
+   "relations": [
+    {
+     "name": "resource",
+     "type": "morphTo",
+     "related": null
+    },
+    {
+     "name": "team",
+     "type": "belongsTo",
+     "related": "Team"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:image-scan-policy",
+   "source": "app/Models/ImageScanPolicy.php",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/image-scan-policy",
+   "taskKey": null,
+   "status": "planned",
+   "class": "ImageScanPolicy",
+   "table": null,
+   "fillable": [
+    "scope_type",
+    "scope_id",
+    "gate_mode",
+    "on_scan_error",
+    "count_medium"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "gate_mode": "ImageScanGateMode::class",
+    "on_scan_error": "ImageScanOnError::class",
+    "count_medium": "boolean"
+   },
+   "relations": [
+    {
+     "name": "scope",
+     "type": "morphTo",
+     "related": null
+    }
+   ],
+   "teamScoped": false
+  },
+  {
+   "id": "models:instance-settings",
+   "source": "app/Models/InstanceSettings.php",
+   "milestone": "DP12",
+   "component": "apps/deploy-core-worker (platform-admin)",
+   "parityTest": "parity/models/instance-settings",
+   "taskKey": null,
+   "status": "planned",
+   "class": "InstanceSettings",
+   "table": null,
+   "fillable": [
+    "public_ipv4",
+    "public_ipv6",
+    "fqdn",
+    "public_port_min",
+    "public_port_max",
+    "do_not_track",
+    "is_auto_update_enabled",
+    "is_backup_before_update_enabled",
+    "auto_update_target_version",
+    "auto_update_started_at",
+    "is_registration_enabled",
+    "disable_registration_when_oauth_enabled",
+    "next_channel",
+    "smtp_enabled",
+    "smtp_from_address",
+    "smtp_from_name",
+    "notification_from_address",
+    "notification_from_name",
+    "smtp_recipients",
+    "smtp_host",
+    "smtp_port",
+    "smtp_encryption",
+    "smtp_username",
+    "smtp_password",
+    "smtp_timeout",
+    "smtp_ehlo_domain",
+    "resend_enabled",
+    "resend_api_key",
+    "resend_from_address",
+    "resend_from_name",
+    "is_dns_validation_enabled",
+    "custom_dns_servers",
+    "domain_connect_private_key",
+    "instance_name",
+    "is_api_enabled",
+    "allowed_ips",
+    "auto_update_frequency",
+    "update_check_frequency",
+    "update_channel",
+    "update_custom_tag",
+    "previous_update_channel",
+    "new_version_available",
+    "instance_timezone",
+    "helper_version",
+    "disable_two_step_confirmation",
+    "is_sponsorship_popup_enabled",
+    "dev_helper_version",
+    "is_wire_navigate_enabled",
+    "is_mcp_server_enabled",
+    "webhook_allowed_internal_hosts",
+    "webhook_allow_localhost",
+    "avatar_storage_type",
+    "avatar_s3_storage_id",
+    "image_cdn_url",
+    "file_download_s3_storage_id",
+    "is_dashboard_force_https_enabled",
+    "is_passkey_enabled"
+   ],
+   "guarded": [],
+   "hidden": [
+    "smtp_from_address",
+    "smtp_from_name",
+    "notification_from_address",
+    "notification_from_name",
+    "smtp_recipients",
+    "smtp_host",
+    "smtp_username",
+    "smtp_password",
+    "resend_api_key",
+    "resend_from_address",
+    "resend_from_name",
+    "domain_connect_private_key",
+    "sentinel_token"
+   ],
+   "casts": {
+    "smtp_enabled": "boolean",
+    "smtp_from_address": "encrypted",
+    "smtp_from_name": "encrypted",
+    "notification_from_address": "encrypted",
+    "notification_from_name": "encrypted",
+    "smtp_recipients": "encrypted",
+    "smtp_host": "encrypted",
+    "smtp_port": "integer",
+    "smtp_username": "encrypted",
+    "smtp_password": "encrypted",
+    "smtp_timeout": "integer",
+    "resend_enabled": "boolean",
+    "resend_api_key": "encrypted",
+    "resend_from_address": "encrypted",
+    "resend_from_name": "encrypted",
+    "domain_connect_private_key": "encrypted",
+    "allowed_ip_ranges": "array",
+    "is_auto_update_enabled": "boolean",
+    "is_backup_before_update_enabled": "boolean",
+    "auto_update_started_at": "datetime",
+    "is_registration_enabled": "boolean",
+    "disable_registration_when_oauth_enabled": "boolean",
+    "auto_update_frequency": "string",
+    "update_check_frequency": "string",
+    "sentinel_token": "encrypted",
+    "is_wire_navigate_enabled": "boolean",
+    "is_mcp_server_enabled": "boolean",
+    "webhook_allowed_internal_hosts": "array",
+    "webhook_allow_localhost": "boolean",
+    "is_dashboard_force_https_enabled": "boolean",
+    "is_passkey_enabled": "boolean",
+    "server_validation_rate_limit_seconds": "integer",
+    "server_validation_max_failures_per_ip": "integer",
+    "server_validation_max_failures_per_team": "integer"
+   },
+   "relations": [],
+   "teamScoped": false
+  },
+  {
+   "id": "models:integration-token",
+   "source": "app/Models/IntegrationToken.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/models/integration-token",
+   "taskKey": null,
+   "status": "planned",
+   "class": "IntegrationToken",
+   "table": null,
+   "fillable": [
+    "team_id",
+    "provider",
+    "name",
+    "token",
+    "capabilities",
+    "metadata"
+   ],
+   "guarded": [],
+   "hidden": [
+    "token"
+   ],
+   "casts": {
+    "token": "encrypted",
+    "capabilities": "array",
+    "metadata": "array"
+   },
+   "relations": [
+    {
+     "name": "team",
+     "type": "belongsTo",
+     "related": "Team"
+    },
+    {
+     "name": "secretManagerLinks",
+     "type": "hasMany",
+     "related": "SecretManagerLink"
+    },
+    {
+     "name": "dnsZones",
+     "type": "hasMany",
+     "related": "DnsProviderZone"
+    },
+    {
+     "name": "managedDnsRecords",
+     "type": "hasMany",
+     "related": "ManagedDnsRecord"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:local-file-volume",
+   "source": "app/Models/LocalFileVolume.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/models/local-file-volume",
+   "taskKey": null,
+   "status": "planned",
+   "class": "LocalFileVolume",
+   "table": null,
+   "fillable": [
+    "fs_path",
+    "mount_path",
+    "content",
+    "resource_type",
+    "resource_id",
+    "is_directory",
+    "is_host_file",
+    "is_based_on_git",
+    "is_preview_suffix_enabled",
+    "variable_fs_path"
+   ],
+   "guarded": [],
+   "hidden": [
+    "content"
+   ],
+   "casts": {
+    "content": "encrypted",
+    "is_directory": "boolean",
+    "is_host_file": "boolean",
+    "is_preview_suffix_enabled": "boolean"
+   },
+   "relations": [
+    {
+     "name": "resource",
+     "type": "morphTo",
+     "related": null
+    },
+    {
+     "name": "service",
+     "type": "morphTo",
+     "related": null
+    },
+    {
+     "name": "scheduledBackups",
+     "type": "morphMany",
+     "related": "ScheduledVolumeBackup"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:local-persistent-volume",
+   "source": "app/Models/LocalPersistentVolume.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/models/local-persistent-volume",
+   "taskKey": null,
+   "status": "planned",
+   "class": "LocalPersistentVolume",
+   "table": null,
+   "fillable": [
+    "name",
+    "mount_path",
+    "host_path",
+    "standalone_sqlite_id",
+    "container_id",
+    "resource_type",
+    "resource_id",
+    "is_preview_suffix_enabled"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "is_preview_suffix_enabled": "boolean",
+    "ignores_compose_driver_options": "boolean"
+   },
+   "relations": [
+    {
+     "name": "resource",
+     "type": "morphTo",
+     "related": null
+    },
+    {
+     "name": "application",
+     "type": "morphTo",
+     "related": null
+    },
+    {
+     "name": "service",
+     "type": "morphTo",
+     "related": null
+    },
+    {
+     "name": "database",
+     "type": "morphTo",
+     "related": null
+    },
+    {
+     "name": "scheduledBackups",
+     "type": "morphMany",
+     "related": "ScheduledVolumeBackup"
+    },
+    {
+     "name": "standaloneSqlite",
+     "type": "belongsTo",
+     "related": "StandaloneSqlite"
+    }
+   ],
+   "teamScoped": false
+  },
+  {
+   "id": "models:managed-dns-record",
+   "source": "app/Models/ManagedDnsRecord.php",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/managed-dns-record",
+   "taskKey": null,
+   "status": "planned",
+   "class": "ManagedDnsRecord",
+   "table": null,
+   "fillable": [
+    "uuid",
+    "team_id",
+    "integration_token_id",
+    "dns_provider_zone_id",
+    "provider_record_id",
+    "type",
+    "name",
+    "content",
+    "owned"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "owned": "boolean"
+   },
+   "relations": [
+    {
+     "name": "zone",
+     "type": "belongsTo",
+     "related": "DnsProviderZone"
+    },
+    {
+     "name": "integrationToken",
+     "type": "belongsTo",
+     "related": "IntegrationToken"
+    },
+    {
+     "name": "references",
+     "type": "hasMany",
+     "related": "ManagedDnsRecordReference"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:managed-dns-record-reference",
+   "source": "app/Models/ManagedDnsRecordReference.php",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/managed-dns-record-reference",
+   "taskKey": null,
+   "status": "planned",
+   "class": "ManagedDnsRecordReference",
+   "table": null,
+   "fillable": [
+    "managed_dns_record_id",
+    "resource_type",
+    "resource_id"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {},
+   "relations": [
+    {
+     "name": "record",
+     "type": "belongsTo",
+     "related": "ManagedDnsRecord"
+    },
+    {
+     "name": "resource",
+     "type": "morphTo",
+     "related": null
+    }
+   ],
+   "teamScoped": false
+  },
+  {
+   "id": "models:notification-throttle",
+   "source": "app/Models/NotificationThrottle.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/models/notification-throttle",
+   "taskKey": null,
+   "status": "planned",
+   "class": "NotificationThrottle",
+   "table": null,
+   "fillable": [
+    "notifiable_type",
+    "notifiable_id",
+    "notification",
+    "sent_at"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "sent_at": "datetime"
+   },
+   "relations": [
+    {
+     "name": "notifiable",
+     "type": "morphTo",
+     "related": null
+    }
+   ],
+   "teamScoped": false
+  },
+  {
+   "id": "models:oauth-identity",
+   "source": "app/Models/OauthIdentity.php",
+   "milestone": "DP3",
+   "component": "apps/deploy-web + lumen identity",
+   "parityTest": "parity/models/oauth-identity",
+   "taskKey": null,
+   "status": "planned",
+   "class": "OauthIdentity",
+   "table": null,
+   "fillable": [
+    "user_id",
+    "provider",
+    "issuer",
+    "provider_user_id",
+    "email",
+    "raw_claims",
+    "last_login_at"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "raw_claims": "array",
+    "last_login_at": "datetime"
+   },
+   "relations": [
+    {
+     "name": "user",
+     "type": "belongsTo",
+     "related": "User"
+    }
+   ],
+   "teamScoped": false
+  },
+  {
+   "id": "models:oauth-setting",
+   "source": "app/Models/OauthSetting.php",
+   "milestone": "DP3",
+   "component": "apps/deploy-web + lumen identity",
+   "parityTest": "parity/models/oauth-setting",
+   "taskKey": null,
+   "status": "planned",
+   "class": "OauthSetting",
+   "table": null,
+   "fillable": [
+    "provider",
+    "client_id",
+    "client_secret",
+    "redirect_uri",
+    "tenant",
+    "base_url",
+    "enabled",
+    "custom_label",
+    "scopes",
+    "allow_registration",
+    "auto_join_root_team",
+    "require_email_verified",
+    "use_pkce",
+    "clock_skew_seconds"
+   ],
+   "guarded": [],
+   "hidden": [
+    "client_secret"
+   ],
+   "casts": {
+    "enabled": "boolean",
+    "allow_registration": "boolean",
+    "auto_join_root_team": "boolean",
+    "require_email_verified": "boolean",
+    "use_pkce": "boolean",
+    "clock_skew_seconds": "integer"
+   },
+   "relations": [],
+   "teamScoped": false
+  },
+  {
+   "id": "models:personal-access-token",
+   "source": "app/Models/PersonalAccessToken.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/models/personal-access-token",
+   "taskKey": null,
+   "status": "planned",
+   "class": "PersonalAccessToken",
+   "table": null,
+   "fillable": [
+    "name",
+    "token",
+    "abilities",
+    "expires_at",
+    "api_token_expiration_warning_sent_at",
+    "team_id",
+    "scopes",
+    "paused_at"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "api_token_expiration_warning_sent_at": "datetime",
+    "scopes": "array",
+    "paused_at": "datetime"
+   },
+   "relations": [],
+   "teamScoped": true
+  },
+  {
+   "id": "models:private-key",
+   "source": "app/Models/PrivateKey.php",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/models/private-key",
+   "taskKey": null,
+   "status": "planned",
+   "class": "PrivateKey",
+   "table": null,
+   "fillable": [
+    "name",
+    "description",
+    "private_key",
+    "is_git_related",
+    "team_id",
+    "fingerprint"
+   ],
+   "guarded": [],
+   "hidden": [
+    "private_key"
+   ],
+   "casts": {
+    "private_key": "encrypted",
+    "is_git_related": "boolean"
+   },
+   "relations": [
+    {
+     "name": "servers",
+     "type": "hasMany",
+     "related": "Server"
+    },
+    {
+     "name": "applications",
+     "type": "hasMany",
+     "related": "Application"
+    },
+    {
+     "name": "githubApps",
+     "type": "hasMany",
+     "related": "GithubApp"
+    },
+    {
+     "name": "gitlabApps",
+     "type": "hasMany",
+     "related": "GitlabApp"
+    },
+    {
+     "name": "giteaApps",
+     "type": "hasMany",
+     "related": "GiteaApp"
+    },
+    {
+     "name": "s3Storages",
+     "type": "hasMany",
+     "related": "S3Storage"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:project",
+   "source": "app/Models/Project.php",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/models/project",
+   "taskKey": null,
+   "status": "planned",
+   "class": "Project",
+   "table": null,
+   "fillable": [
+    "name",
+    "description",
+    "team_id",
+    "uuid"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "canvas_position": "array"
+   },
+   "relations": [
+    {
+     "name": "environment_variables",
+     "type": "hasMany",
+     "related": "SharedEnvironmentVariable"
+    },
+    {
+     "name": "environments",
+     "type": "hasMany",
+     "related": "Environment"
+    },
+    {
+     "name": "settings",
+     "type": "hasOne",
+     "related": "ProjectSetting"
+    },
+    {
+     "name": "team",
+     "type": "belongsTo",
+     "related": "Team"
+    },
+    {
+     "name": "services",
+     "type": "hasManyThrough",
+     "related": "Service"
+    },
+    {
+     "name": "applications",
+     "type": "hasManyThrough",
+     "related": "Application"
+    },
+    {
+     "name": "postgresqls",
+     "type": "hasManyThrough",
+     "related": "StandalonePostgresql"
+    },
+    {
+     "name": "redis",
+     "type": "hasManyThrough",
+     "related": "StandaloneRedis"
+    },
+    {
+     "name": "keydbs",
+     "type": "hasManyThrough",
+     "related": "StandaloneKeydb"
+    },
+    {
+     "name": "dragonflies",
+     "type": "hasManyThrough",
+     "related": "StandaloneDragonfly"
+    },
+    {
+     "name": "clickhouses",
+     "type": "hasManyThrough",
+     "related": "StandaloneClickhouse"
+    },
+    {
+     "name": "sqlites",
+     "type": "hasManyThrough",
+     "related": "StandaloneSqlite"
+    },
+    {
+     "name": "mongodbs",
+     "type": "hasManyThrough",
+     "related": "StandaloneMongodb"
+    },
+    {
+     "name": "mysqls",
+     "type": "hasManyThrough",
+     "related": "StandaloneMysql"
+    },
+    {
+     "name": "mariadbs",
+     "type": "hasManyThrough",
+     "related": "StandaloneMariadb"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:project-setting",
+   "source": "app/Models/ProjectSetting.php",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/models/project-setting",
+   "taskKey": null,
+   "status": "planned",
+   "class": "ProjectSetting",
+   "table": null,
+   "fillable": [
+    "project_id"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {},
+   "relations": [
+    {
+     "name": "project",
+     "type": "belongsTo",
+     "related": "Project"
+    }
+   ],
+   "teamScoped": false
+  },
+  {
+   "id": "models:pushover-notification-settings",
+   "source": "app/Models/PushoverNotificationSettings.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/models/pushover-notification-settings",
+   "taskKey": null,
+   "status": "planned",
+   "class": "PushoverNotificationSettings",
+   "table": null,
+   "fillable": [
+    "team_id",
+    "pushover_enabled",
+    "pushover_user_key",
+    "pushover_api_token",
+    "deployment_success_pushover_notifications",
+    "deployment_failure_pushover_notifications",
+    "status_change_pushover_notifications",
+    "restart_limit_reached_pushover_notifications",
+    "backup_success_pushover_notifications",
+    "backup_failure_pushover_notifications",
+    "scheduled_task_success_pushover_notifications",
+    "scheduled_task_failure_pushover_notifications",
+    "docker_cleanup_success_pushover_notifications",
+    "docker_cleanup_failure_pushover_notifications",
+    "server_disk_usage_pushover_notifications",
+    "server_reachable_pushover_notifications",
+    "server_unreachable_pushover_notifications",
+    "server_patch_pushover_notifications",
+    "traefik_outdated_pushover_notifications",
+    "image_vulnerabilities_pushover_notifications"
+   ],
+   "guarded": [],
+   "hidden": [
+    "pushover_user_key",
+    "pushover_api_token"
+   ],
+   "casts": {
+    "pushover_enabled": "boolean",
+    "pushover_user_key": "encrypted",
+    "pushover_api_token": "encrypted",
+    "deployment_success_pushover_notifications": "boolean",
+    "deployment_failure_pushover_notifications": "boolean",
+    "status_change_pushover_notifications": "boolean",
+    "restart_limit_reached_pushover_notifications": "boolean",
+    "backup_success_pushover_notifications": "boolean",
+    "backup_failure_pushover_notifications": "boolean",
+    "scheduled_task_success_pushover_notifications": "boolean",
+    "scheduled_task_failure_pushover_notifications": "boolean",
+    "docker_cleanup_pushover_notifications": "boolean",
+    "server_disk_usage_pushover_notifications": "boolean",
+    "server_reachable_pushover_notifications": "boolean",
+    "server_unreachable_pushover_notifications": "boolean",
+    "server_patch_pushover_notifications": "boolean",
+    "traefik_outdated_pushover_notifications": "boolean",
+    "image_vulnerabilities_pushover_notifications": "boolean"
+   },
+   "relations": [
+    {
+     "name": "team",
+     "type": "belongsTo",
+     "related": "Team"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:resource-link",
+   "source": "app/Models/ResourceLink.php",
+   "milestone": "DP6",
+   "component": "apps/deploy-core-worker + lumen integrations",
+   "parityTest": "parity/models/resource-link",
+   "taskKey": null,
+   "status": "planned",
+   "class": "ResourceLink",
+   "table": null,
+   "fillable": [
+    "environment_id",
+    "source_type",
+    "source_id",
+    "target_type",
+    "target_id",
+    "label",
+    "created_by"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {},
+   "relations": [
+    {
+     "name": "environment",
+     "type": "belongsTo",
+     "related": "Environment"
+    },
+    {
+     "name": "source",
+     "type": "morphTo",
+     "related": null
+    },
+    {
+     "name": "target",
+     "type": "morphTo",
+     "related": null
+    }
+   ],
+   "teamScoped": false
+  },
+  {
+   "id": "models:s3-storage",
+   "source": "app/Models/S3Storage.php",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/s3-storage",
+   "taskKey": null,
+   "status": "planned",
+   "class": "S3Storage",
+   "table": null,
+   "fillable": [
+    "team_id",
+    "type",
+    "name",
+    "description",
+    "region",
+    "key",
+    "secret",
+    "bucket",
+    "endpoint",
+    "use_path_style_endpoint",
+    "private_key_id",
+    "skip_tls_verification",
+    "is_usable",
+    "unusable_email_sent"
+   ],
+   "guarded": [],
+   "hidden": [
+    "key",
+    "secret"
+   ],
+   "casts": {
+    "type": "BackupStorageType::class",
+    "is_usable": "boolean",
+    "use_path_style_endpoint": "boolean",
+    "skip_tls_verification": "boolean",
+    "key": "encrypted",
+    "secret": "encrypted"
+   },
+   "relations": [
+    {
+     "name": "team",
+     "type": "belongsTo",
+     "related": "Team"
+    },
+    {
+     "name": "privateKey",
+     "type": "belongsTo",
+     "related": "PrivateKey"
+    },
+    {
+     "name": "scheduledBackups",
+     "type": "hasMany",
+     "related": "ScheduledDatabaseBackup"
+    },
+    {
+     "name": "scheduledVolumeBackups",
+     "type": "hasMany",
+     "related": "ScheduledVolumeBackup"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:scheduled-database-backup",
+   "source": "app/Models/ScheduledDatabaseBackup.php",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/scheduled-database-backup",
+   "taskKey": null,
+   "status": "planned",
+   "class": "ScheduledDatabaseBackup",
+   "table": null,
+   "fillable": [
+    "uuid",
+    "team_id",
+    "description",
+    "enabled",
+    "save_s3",
+    "frequency",
+    "database_backup_retention_amount_locally",
+    "database_type",
+    "database_id",
+    "s3_storage_id",
+    "databases_to_backup",
+    "dump_all",
+    "database_backup_retention_days_locally",
+    "database_backup_retention_max_storage_locally",
+    "database_backup_retention_amount_s3",
+    "database_backup_retention_days_s3",
+    "database_backup_retention_max_storage_s3",
+    "timeout",
+    "disable_local_backup",
+    "missing_backup_notification_days"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "dump_all": "boolean",
+    "database_backup_retention_max_storage_locally": "float",
+    "database_backup_retention_max_storage_s3": "float",
+    "missing_backup_notification_days": "integer",
+    "last_execution_at": "datetime"
+   },
+   "relations": [
+    {
+     "name": "team",
+     "type": "belongsTo",
+     "related": "Team"
+    },
+    {
+     "name": "database",
+     "type": "morphTo",
+     "related": null
+    },
+    {
+     "name": "latest_log",
+     "type": "hasOne",
+     "related": "ScheduledDatabaseBackupExecution"
+    },
+    {
+     "name": "executions",
+     "type": "hasMany",
+     "related": "ScheduledDatabaseBackupExecution"
+    },
+    {
+     "name": "s3",
+     "type": "belongsTo",
+     "related": "S3Storage"
+    },
+    {
+     "name": "s3Storages",
+     "type": "belongsToMany",
+     "related": "S3Storage"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:scheduled-database-backup-execution",
+   "source": "app/Models/ScheduledDatabaseBackupExecution.php",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/scheduled-database-backup-execution",
+   "taskKey": null,
+   "status": "planned",
+   "class": "ScheduledDatabaseBackupExecution",
+   "table": null,
+   "fillable": [
+    "uuid",
+    "scheduled_database_backup_id",
+    "status",
+    "message",
+    "size",
+    "filename",
+    "database_name",
+    "finished_at",
+    "local_storage_deleted",
+    "s3_storage_deleted",
+    "s3_uploaded"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "size": "integer",
+    "finished_at": "datetime",
+    "s3_uploaded": "boolean",
+    "local_storage_deleted": "boolean",
+    "s3_storage_deleted": "boolean"
+   },
+   "relations": [
+    {
+     "name": "scheduledDatabaseBackup",
+     "type": "belongsTo",
+     "related": "ScheduledDatabaseBackup"
+    },
+    {
+     "name": "s3Replicas",
+     "type": "hasMany",
+     "related": "DatabaseBackupS3Replica"
+    }
+   ],
+   "teamScoped": false
+  },
+  {
+   "id": "models:scheduled-job-delivery",
+   "source": "app/Models/ScheduledJobDelivery.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/models/scheduled-job-delivery",
+   "taskKey": null,
+   "status": "planned",
+   "class": "ScheduledJobDelivery",
+   "table": null,
+   "fillable": [
+    "uuid",
+    "schedule_key",
+    "scheduled_for",
+    "job_type",
+    "resource_id",
+    "payload",
+    "status",
+    "claim_token",
+    "enqueued_at",
+    "started_at"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "scheduled_for": "immutable_datetime",
+    "payload": "array",
+    "enqueued_at": "immutable_datetime",
+    "started_at": "immutable_datetime"
+   },
+   "relations": [],
+   "teamScoped": false
+  },
+  {
+   "id": "models:scheduled-job-state",
+   "source": "app/Models/ScheduledJobState.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/models/scheduled-job-state",
+   "taskKey": null,
+   "status": "planned",
+   "class": "ScheduledJobState",
+   "table": null,
+   "fillable": [
+    "schedule_key",
+    "last_scheduled_for"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "last_scheduled_for": "immutable_datetime"
+   },
+   "relations": [],
+   "teamScoped": false
+  },
+  {
+   "id": "models:scheduled-task",
+   "source": "app/Models/ScheduledTask.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/models/scheduled-task",
+   "taskKey": null,
+   "status": "planned",
+   "class": "ScheduledTask",
+   "table": null,
+   "fillable": [
+    "uuid",
+    "enabled",
+    "name",
+    "command",
+    "frequency",
+    "container",
+    "timeout",
+    "use_shell",
+    "team_id",
+    "application_id",
+    "service_id"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "enabled": "boolean",
+    "timeout": "integer",
+    "use_shell": "boolean",
+    "consecutive_failures": "integer",
+    "failing_since": "datetime"
+   },
+   "relations": [
+    {
+     "name": "service",
+     "type": "belongsTo",
+     "related": "Service"
+    },
+    {
+     "name": "application",
+     "type": "belongsTo",
+     "related": "Application"
+    },
+    {
+     "name": "latest_log",
+     "type": "hasOne",
+     "related": "ScheduledTaskExecution"
+    },
+    {
+     "name": "executions",
+     "type": "hasMany",
+     "related": "ScheduledTaskExecution"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:scheduled-task-execution",
+   "source": "app/Models/ScheduledTaskExecution.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/models/scheduled-task-execution",
+   "taskKey": null,
+   "status": "planned",
+   "class": "ScheduledTaskExecution",
+   "table": null,
+   "fillable": [
+    "scheduled_task_id",
+    "status",
+    "message",
+    "finished_at",
+    "started_at",
+    "retry_count",
+    "duration",
+    "error_details"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "started_at": "datetime",
+    "finished_at": "datetime",
+    "retry_count": "integer",
+    "duration": "float"
+   },
+   "relations": [
+    {
+     "name": "scheduledTask",
+     "type": "belongsTo",
+     "related": "ScheduledTask"
+    }
+   ],
+   "teamScoped": false
+  },
+  {
+   "id": "models:scheduled-volume-backup",
+   "source": "app/Models/ScheduledVolumeBackup.php",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/scheduled-volume-backup",
+   "taskKey": null,
+   "status": "planned",
+   "class": "ScheduledVolumeBackup",
+   "table": null,
+   "fillable": [
+    "uuid",
+    "backupable_type",
+    "backupable_id",
+    "team_id",
+    "s3_storage_id",
+    "frequency",
+    "enabled",
+    "save_s3",
+    "disable_local_backup",
+    "stop_during_backup",
+    "retention_amount_locally",
+    "retention_days_locally",
+    "retention_max_storage_locally",
+    "retention_amount_s3",
+    "retention_days_s3",
+    "retention_max_storage_s3",
+    "timeout",
+    "missing_backup_notification_days"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "enabled": "boolean",
+    "save_s3": "boolean",
+    "disable_local_backup": "boolean",
+    "stop_during_backup": "boolean",
+    "retention_amount_locally": "integer",
+    "retention_days_locally": "integer",
+    "retention_max_storage_locally": "float",
+    "retention_amount_s3": "integer",
+    "retention_days_s3": "integer",
+    "retention_max_storage_s3": "float",
+    "timeout": "integer",
+    "missing_backup_notification_days": "integer"
+   },
+   "relations": [
+    {
+     "name": "backupable",
+     "type": "morphTo",
+     "related": null
+    },
+    {
+     "name": "team",
+     "type": "belongsTo",
+     "related": "Team"
+    },
+    {
+     "name": "s3",
+     "type": "belongsTo",
+     "related": "S3Storage"
+    },
+    {
+     "name": "s3Storages",
+     "type": "belongsToMany",
+     "related": "S3Storage"
+    },
+    {
+     "name": "executions",
+     "type": "hasMany",
+     "related": "ScheduledVolumeBackupExecution"
+    },
+    {
+     "name": "latestExecution",
+     "type": "hasOne",
+     "related": "ScheduledVolumeBackupExecution"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:scheduled-volume-backup-execution",
+   "source": "app/Models/ScheduledVolumeBackupExecution.php",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/scheduled-volume-backup-execution",
+   "taskKey": null,
+   "status": "planned",
+   "class": "ScheduledVolumeBackupExecution",
+   "table": null,
+   "fillable": [
+    "uuid",
+    "scheduled_volume_backup_id",
+    "s3_storage_id",
+    "status",
+    "message",
+    "size",
+    "filename",
+    "stop_container_ids",
+    "stop_recovery_pending",
+    "s3_cleanup_pending",
+    "finished_at",
+    "local_storage_deleted",
+    "s3_storage_deleted",
+    "s3_uploaded",
+    "recovery_last_attempt_at",
+    "recovery_error",
+    "recovery_needs_attention"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "size": "integer",
+    "finished_at": "datetime",
+    "stop_container_ids": "array",
+    "stop_recovery_pending": "boolean",
+    "s3_cleanup_pending": "boolean",
+    "local_storage_deleted": "boolean",
+    "s3_storage_deleted": "boolean",
+    "s3_uploaded": "boolean",
+    "recovery_last_attempt_at": "datetime",
+    "recovery_needs_attention": "boolean"
+   },
+   "relations": [
+    {
+     "name": "scheduledVolumeBackup",
+     "type": "belongsTo",
+     "related": "ScheduledVolumeBackup"
+    },
+    {
+     "name": "s3",
+     "type": "belongsTo",
+     "related": "S3Storage"
+    },
+    {
+     "name": "s3Replicas",
+     "type": "hasMany",
+     "related": "VolumeBackupS3Replica"
+    }
+   ],
+   "teamScoped": false
+  },
+  {
+   "id": "models:visible-through-access-grants",
+   "source": "app/Models/Scopes/VisibleThroughAccessGrants.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/models/visible-through-access-grants",
+   "taskKey": null,
+   "status": "planned",
+   "class": "VisibleThroughAccessGrants",
+   "table": null,
+   "fillable": [],
+   "guarded": [],
+   "hidden": [],
+   "casts": {},
+   "relations": [],
+   "teamScoped": false
+  },
+  {
+   "id": "models:secret-manager-link",
+   "source": "app/Models/SecretManagerLink.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/models/secret-manager-link",
+   "taskKey": null,
+   "status": "planned",
+   "class": "SecretManagerLink",
+   "table": null,
+   "fillable": [
+    "resourceable_type",
+    "resourceable_id",
+    "integration_token_id",
+    "settings"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "settings": "array"
+   },
+   "relations": [
+    {
+     "name": "resourceable",
+     "type": "morphTo",
+     "related": null
+    },
+    {
+     "name": "integrationToken",
+     "type": "belongsTo",
+     "related": "IntegrationToken"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:server",
+   "source": "app/Models/Server.php",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/models/server",
+   "taskKey": null,
+   "status": "planned",
+   "class": "Server",
+   "table": null,
+   "fillable": [
+    "name",
+    "ip",
+    "port",
+    "user",
+    "description",
+    "private_key_id",
+    "cloud_provider_token_id",
+    "team_id",
+    "hetzner_server_id",
+    "hetzner_server_status",
+    "vultr_instance_id",
+    "vultr_instance_status",
+    "digitalocean_droplet_id",
+    "digitalocean_droplet_status",
+    "hostinger_virtual_machine_id",
+    "hostinger_virtual_machine_status",
+    "is_validating",
+    "validation_logs",
+    "detected_traefik_version",
+    "traefik_outdated_info",
+    "server_metadata",
+    "ip_previous"
+   ],
+   "guarded": [],
+   "hidden": [
+    "logdrain_axiom_api_key",
+    "logdrain_newrelic_license_key",
+    "proxy_error_page"
+   ],
+   "casts": {
+    "proxy": "SchemalessAttributes::class",
+    "traefik_outdated_info": "array",
+    "server_metadata": "array",
+    "logdrain_axiom_api_key": "encrypted",
+    "logdrain_newrelic_license_key": "encrypted",
+    "delete_unused_volumes": "boolean",
+    "delete_unused_networks": "boolean",
+    "force_disabled": "boolean",
+    "sentinel_waiting_since": "datetime",
+    "canvas_position": "array"
+   },
+   "relations": [
+    {
+     "name": "settings",
+     "type": "hasOne",
+     "related": "ServerSetting"
+    },
+    {
+     "name": "imageScans",
+     "type": "hasMany",
+     "related": "ImageScan"
+    },
+    {
+     "name": "imageSboms",
+     "type": "hasMany",
+     "related": "ImageSbom"
+    },
+    {
+     "name": "hostScan",
+     "type": "hasOne",
+     "related": "ServerHostScan"
+    },
+    {
+     "name": "dockerCleanupExecutions",
+     "type": "hasMany",
+     "related": "DockerCleanupExecution"
+    },
+    {
+     "name": "services",
+     "type": "hasMany",
+     "related": "Service"
+    },
+    {
+     "name": "githubRunnerConfig",
+     "type": "hasOne",
+     "related": "GithubRunnerConfig"
+    },
+    {
+     "name": "githubRunnerExecutions",
+     "type": "hasMany",
+     "related": "GithubRunnerExecution"
+    },
+    {
+     "name": "standaloneDockers",
+     "type": "hasMany",
+     "related": "StandaloneDocker"
+    },
+    {
+     "name": "swarmDockers",
+     "type": "hasMany",
+     "related": "SwarmDocker"
+    },
+    {
+     "name": "privateKey",
+     "type": "belongsTo",
+     "related": "PrivateKey"
+    },
+    {
+     "name": "cloudProviderToken",
+     "type": "belongsTo",
+     "related": "CloudProviderToken"
+    },
+    {
+     "name": "notificationThrottles",
+     "type": "morphMany",
+     "related": "NotificationThrottle"
+    },
+    {
+     "name": "sslCertificates",
+     "type": "hasMany",
+     "related": "SslCertificate"
+    },
+    {
+     "name": "team",
+     "type": "belongsTo",
+     "related": "Team"
+    },
+    {
+     "name": "environment_variables",
+     "type": "hasMany",
+     "related": "SharedEnvironmentVariable"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:server-host-scan",
+   "source": "app/Models/ServerHostScan.php",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/models/server-host-scan",
+   "taskKey": null,
+   "status": "planned",
+   "class": "ServerHostScan",
+   "table": null,
+   "fillable": [
+    "server_id",
+    "error_code",
+    "error_context",
+    "eol",
+    "summary",
+    "findings",
+    "findings_truncated",
+    "grype_db_built_at",
+    "scanned_at"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "error_code": "ImageScanErrorCode::class",
+    "error_context": "array",
+    "eol": "array",
+    "summary": "array",
+    "findings": "array",
+    "findings_truncated": "boolean",
+    "grype_db_built_at": "datetime",
+    "scanned_at": "datetime"
+   },
+   "relations": [
+    {
+     "name": "server",
+     "type": "belongsTo",
+     "related": "Server"
+    }
+   ],
+   "teamScoped": false
+  },
+  {
+   "id": "models:server-setting",
+   "source": "app/Models/ServerSetting.php",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/models/server-setting",
+   "taskKey": null,
+   "status": "planned",
+   "class": "ServerSetting",
+   "table": null,
+   "fillable": [
+    "server_id",
+    "is_image_scan_enabled",
+    "image_scan_memory_mb",
+    "public_ipv4",
+    "public_ipv6",
+    "image_candidate_scans_today",
+    "image_candidate_scans_date",
+    "image_scan_syft_timeout",
+    "image_scan_grype_timeout",
+    "image_scan_cpus",
+    "is_swarm_manager",
+    "is_jump_server",
+    "is_build_server",
+    "server_role",
+    "is_reachable",
+    "is_usable",
+    "wildcard_domain",
+    "is_cloudflare_tunnel",
+    "cloudflare_tunnel_id",
+    "cloudflare_tunnel_account_id",
+    "cloudflare_tunnel_integration_token_id",
+    "is_logdrain_newrelic_enabled",
+    "logdrain_newrelic_license_key",
+    "logdrain_newrelic_base_uri",
+    "is_logdrain_axiom_enabled",
+    "logdrain_axiom_dataset_name",
+    "logdrain_axiom_api_key",
+    "logdrain_axiom_domain",
+    "is_swarm_worker",
+    "is_logdrain_custom_enabled",
+    "logdrain_custom_config",
+    "logdrain_custom_config_parser",
+    "is_logdrain_cloudwatch_enabled",
+    "logdrain_cloudwatch_region",
+    "logdrain_cloudwatch_group",
+    "logdrain_cloudwatch_stream_prefix",
+    "concurrent_builds",
+    "dynamic_timeout",
+    "force_disabled",
+    "is_metrics_enabled",
+    "generate_exact_labels",
+    "force_docker_cleanup",
+    "docker_cleanup_frequency",
+    "docker_cleanup_threshold",
+    "server_timezone",
+    "delete_unused_volumes",
+    "delete_unused_networks",
+    "is_sentinel_enabled",
+    "sentinel_token",
+    "sentinel_metrics_refresh_rate_seconds",
+    "sentinel_metrics_history_days",
+    "sentinel_push_interval_seconds",
+    "sentinel_custom_url",
+    "server_disk_usage_notification_threshold",
+    "is_sentinel_debug_enabled",
+    "server_disk_usage_check_frequency",
+    "server_disk_usage_notification_interval_hours",
+    "is_terminal_enabled",
+    "deployment_queue_limit",
+    "backup_compression_cpu_percentage",
+    "disable_application_image_retention",
+    "connection_timeout",
+    "is_traffic_analytics_enabled",
+    "traffic_topn",
+    "traffic_sample_threshold",
+    "traffic_retention_1h_days",
+    "traffic_retention_1d_days",
+    "is_geoip_enabled",
+    "geoip_refresh_days",
+    "geoip_maxmind_license_key",
+    "traffic_ip_mode",
+    "traefik_certificate_resolver",
+    "docker_version",
+    "docker_version_checked_at",
+    "compose_version",
+    "compose_version_checked_at",
+    "patch_check_frequency",
+    "patch_check_result",
+    "patch_check_error",
+    "patch_checked_at",
+    "is_auto_security_updates_enabled",
+    "auto_security_updates_time"
+   ],
+   "guarded": [],
+   "hidden": [
+    "is_build_server",
+    "sentinel_token",
+    "sentinel_custom_url",
+    "logdrain_newrelic_license_key",
+    "logdrain_axiom_api_key",
+    "logdrain_custom_config",
+    "logdrain_custom_config_parser",
+    "geoip_maxmind_license_key"
+   ],
+   "casts": {
+    "force_disabled": "boolean",
+    "image_scan_syft_timeout": "integer",
+    "image_scan_grype_timeout": "integer",
+    "image_scan_cpus": "float",
+    "force_docker_cleanup": "boolean",
+    "docker_cleanup_threshold": "integer",
+    "sentinel_token": "encrypted",
+    "is_reachable": "boolean",
+    "is_usable": "boolean",
+    "is_build_server": "boolean",
+    "server_role": "ServerRole::class",
+    "is_terminal_enabled": "boolean",
+    "disable_application_image_retention": "boolean",
+    "connection_timeout": "integer",
+    "is_traffic_analytics_enabled": "boolean",
+    "traffic_topn": "integer",
+    "traffic_sample_threshold": "integer",
+    "traffic_retention_1h_days": "integer",
+    "traffic_retention_1d_days": "integer",
+    "is_geoip_enabled": "boolean",
+    "geoip_refresh_days": "integer",
+    "geoip_maxmind_license_key": "encrypted",
+    "logdrain_custom_config": "encrypted",
+    "traffic_ip_mode": "TrafficIpMode::class",
+    "docker_version_checked_at": "datetime",
+    "compose_version_checked_at": "datetime",
+    "backup_compression_cpu_percentage": "integer",
+    "server_disk_usage_notification_interval_hours": "integer",
+    "patch_check_result": "array",
+    "patch_checked_at": "datetime",
+    "is_auto_security_updates_enabled": "boolean",
+    "is_logdrain_cloudwatch_enabled": "boolean",
+    "is_image_scan_enabled": "boolean",
+    "image_scan_memory_mb": "integer",
+    "image_candidate_scans_today": "integer",
+    "image_candidate_scans_date": "date",
+    "ssh_host_key_trusted_at": "datetime",
+    "is_ssh_host_key_check_disabled": "boolean",
+    "is_ssh_host_key_check_enforced": "boolean"
+   },
+   "relations": [
+    {
+     "name": "server",
+     "type": "belongsTo",
+     "related": "Server"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:service",
+   "source": "app/Models/Service.php",
+   "milestone": "DP8",
+   "component": "apps/deploy-core-worker (catalog)",
+   "parityTest": "parity/models/service",
+   "taskKey": null,
+   "status": "planned",
+   "class": "Service",
+   "table": null,
+   "fillable": [
+    "uuid",
+    "name",
+    "description",
+    "docker_compose_raw",
+    "docker_compose",
+    "connect_to_docker_network",
+    "service_type",
+    "config_hash",
+    "compose_parsing_version",
+    "is_container_label_escape_enabled",
+    "redact_all_env_values_in_logs",
+    "environment_id",
+    "server_id",
+    "destination_id",
+    "destination_type"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "include_coolify_default_variables": "boolean",
+    "redact_all_env_values_in_logs": "boolean"
+   },
+   "relations": [
+    {
+     "name": "tags",
+     "type": "morphToMany",
+     "related": "Tag"
+    },
+    {
+     "name": "applications",
+     "type": "hasMany",
+     "related": "ServiceApplication"
+    },
+    {
+     "name": "databases",
+     "type": "hasMany",
+     "related": "ServiceDatabase"
+    },
+    {
+     "name": "destination",
+     "type": "morphTo",
+     "related": null
+    },
+    {
+     "name": "environment",
+     "type": "belongsTo",
+     "related": "Environment"
+    },
+    {
+     "name": "server",
+     "type": "belongsTo",
+     "related": "Server"
+    },
+    {
+     "name": "scheduled_tasks",
+     "type": "hasMany",
+     "related": "ScheduledTask"
+    },
+    {
+     "name": "environment_variables",
+     "type": "morphMany",
+     "related": "EnvironmentVariable"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:service-application",
+   "source": "app/Models/ServiceApplication.php",
+   "milestone": "DP8",
+   "component": "apps/deploy-core-worker (catalog)",
+   "parityTest": "parity/models/service-application",
+   "taskKey": null,
+   "status": "planned",
+   "class": "ServiceApplication",
+   "table": null,
+   "fillable": [
+    "service_id",
+    "name",
+    "human_name",
+    "description",
+    "fqdn",
+    "noindex_domains",
+    "redirect",
+    "domain_dns_statuses",
+    "domain_port_overrides",
+    "ports",
+    "exposes",
+    "status",
+    "exclude_from_status",
+    "required_fqdn",
+    "image",
+    "is_log_drain_enabled",
+    "is_include_timestamps",
+    "is_gzip_enabled",
+    "is_stripprefix_enabled",
+    "is_force_https_enabled",
+    "is_permanent_redirect_enabled",
+    "traefik_certificate_resolver",
+    "last_online_at",
+    "is_migrated"
+   ],
+   "guarded": [],
+   "hidden": [
+    "domain_dns_statuses",
+    "domain_port_overrides"
+   ],
+   "casts": {
+    "domain_dns_statuses": "array",
+    "domain_port_overrides": "array",
+    "noindex_domains": "array",
+    "is_force_https_enabled": "boolean",
+    "is_permanent_redirect_enabled": "boolean",
+    "is_removed_from_compose": "boolean"
+   },
+   "relations": [
+    {
+     "name": "service",
+     "type": "belongsTo",
+     "related": "Service"
+    },
+    {
+     "name": "persistentStorages",
+     "type": "morphMany",
+     "related": "LocalPersistentVolume"
+    },
+    {
+     "name": "fileStorages",
+     "type": "morphMany",
+     "related": "LocalFileVolume"
+    },
+    {
+     "name": "environment_variables",
+     "type": "morphMany",
+     "related": "EnvironmentVariable"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:service-database",
+   "source": "app/Models/ServiceDatabase.php",
+   "milestone": "DP8",
+   "component": "apps/deploy-core-worker (catalog)",
+   "parityTest": "parity/models/service-database",
+   "taskKey": null,
+   "status": "planned",
+   "class": "ServiceDatabase",
+   "table": null,
+   "fillable": [
+    "service_id",
+    "name",
+    "human_name",
+    "description",
+    "fqdn",
+    "ports",
+    "exposes",
+    "status",
+    "exclude_from_status",
+    "image",
+    "public_port",
+    "is_public",
+    "is_log_drain_enabled",
+    "is_include_timestamps",
+    "is_gzip_enabled",
+    "is_stripprefix_enabled",
+    "last_online_at",
+    "is_migrated",
+    "custom_type",
+    "public_port_timeout"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "exclude_from_status": "boolean",
+    "is_removed_from_compose": "boolean",
+    "is_public": "boolean",
+    "is_log_drain_enabled": "boolean",
+    "is_include_timestamps": "boolean",
+    "is_gzip_enabled": "boolean",
+    "is_stripprefix_enabled": "boolean",
+    "public_port": "integer",
+    "public_port_timeout": "integer"
+   },
+   "relations": [
+    {
+     "name": "service",
+     "type": "belongsTo",
+     "related": "Service"
+    },
+    {
+     "name": "persistentStorages",
+     "type": "morphMany",
+     "related": "LocalPersistentVolume"
+    },
+    {
+     "name": "fileStorages",
+     "type": "morphMany",
+     "related": "LocalFileVolume"
+    },
+    {
+     "name": "scheduledBackups",
+     "type": "morphMany",
+     "related": "ScheduledDatabaseBackup"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:shared-environment-variable",
+   "source": "app/Models/SharedEnvironmentVariable.php",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/shared-environment-variable",
+   "taskKey": null,
+   "status": "planned",
+   "class": "SharedEnvironmentVariable",
+   "table": null,
+   "fillable": [
+    "key",
+    "value",
+    "comment",
+    "type",
+    "team_id",
+    "project_id",
+    "environment_id",
+    "server_id",
+    "is_multiline",
+    "is_literal",
+    "is_shown_once",
+    "version"
+   ],
+   "guarded": [],
+   "hidden": [
+    "value"
+   ],
+   "casts": {
+    "key": "string",
+    "value": "encrypted",
+    "is_literal": "boolean"
+   },
+   "relations": [
+    {
+     "name": "team",
+     "type": "belongsTo",
+     "related": "Team"
+    },
+    {
+     "name": "project",
+     "type": "belongsTo",
+     "related": "Project"
+    },
+    {
+     "name": "environment",
+     "type": "belongsTo",
+     "related": "Environment"
+    },
+    {
+     "name": "server",
+     "type": "belongsTo",
+     "related": "Server"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:slack-notification-settings",
+   "source": "app/Models/SlackNotificationSettings.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/models/slack-notification-settings",
+   "taskKey": null,
+   "status": "planned",
+   "class": "SlackNotificationSettings",
+   "table": null,
+   "fillable": [
+    "team_id",
+    "slack_enabled",
+    "slack_webhook_url",
+    "deployment_success_slack_notifications",
+    "deployment_failure_slack_notifications",
+    "status_change_slack_notifications",
+    "restart_limit_reached_slack_notifications",
+    "backup_success_slack_notifications",
+    "backup_failure_slack_notifications",
+    "scheduled_task_success_slack_notifications",
+    "scheduled_task_failure_slack_notifications",
+    "docker_cleanup_success_slack_notifications",
+    "docker_cleanup_failure_slack_notifications",
+    "server_disk_usage_slack_notifications",
+    "server_reachable_slack_notifications",
+    "server_unreachable_slack_notifications",
+    "server_patch_slack_notifications",
+    "traefik_outdated_slack_notifications",
+    "image_vulnerabilities_slack_notifications"
+   ],
+   "guarded": [],
+   "hidden": [
+    "slack_webhook_url"
+   ],
+   "casts": {
+    "slack_enabled": "boolean",
+    "slack_webhook_url": "encrypted",
+    "deployment_success_slack_notifications": "boolean",
+    "deployment_failure_slack_notifications": "boolean",
+    "status_change_slack_notifications": "boolean",
+    "restart_limit_reached_slack_notifications": "boolean",
+    "backup_success_slack_notifications": "boolean",
+    "backup_failure_slack_notifications": "boolean",
+    "scheduled_task_success_slack_notifications": "boolean",
+    "scheduled_task_failure_slack_notifications": "boolean",
+    "docker_cleanup_slack_notifications": "boolean",
+    "server_disk_usage_slack_notifications": "boolean",
+    "server_reachable_slack_notifications": "boolean",
+    "server_unreachable_slack_notifications": "boolean",
+    "server_patch_slack_notifications": "boolean",
+    "traefik_outdated_slack_notifications": "boolean",
+    "image_vulnerabilities_slack_notifications": "boolean"
+   },
+   "relations": [
+    {
+     "name": "team",
+     "type": "belongsTo",
+     "related": "Team"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:ssl-certificate",
+   "source": "app/Models/SslCertificate.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/models/ssl-certificate",
+   "taskKey": null,
+   "status": "planned",
+   "class": "SslCertificate",
+   "table": null,
+   "fillable": [
+    "ssl_certificate",
+    "ssl_private_key",
+    "configuration_dir",
+    "mount_path",
+    "resource_type",
+    "resource_id",
+    "server_id",
+    "common_name",
+    "subject_alternative_names",
+    "valid_until",
+    "is_ca_certificate"
+   ],
+   "guarded": [],
+   "hidden": [
+    "ssl_private_key"
+   ],
+   "casts": {
+    "ssl_certificate": "encrypted",
+    "ssl_private_key": "encrypted",
+    "subject_alternative_names": "array",
+    "valid_until": "datetime"
+   },
+   "relations": [
+    {
+     "name": "application",
+     "type": "morphTo",
+     "related": null
+    },
+    {
+     "name": "service",
+     "type": "morphTo",
+     "related": null
+    },
+    {
+     "name": "database",
+     "type": "morphTo",
+     "related": null
+    },
+    {
+     "name": "server",
+     "type": "belongsTo",
+     "related": "Server"
+    }
+   ],
+   "teamScoped": false
+  },
+  {
+   "id": "models:standalone-clickhouse",
+   "source": "app/Models/StandaloneClickhouse.php",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/standalone-clickhouse",
+   "taskKey": null,
+   "status": "planned",
+   "class": "StandaloneClickhouse",
+   "table": null,
+   "fillable": [
+    "uuid",
+    "name",
+    "description",
+    "clickhouse_admin_user",
+    "clickhouse_admin_password",
+    "is_log_drain_enabled",
+    "is_include_timestamps",
+    "status",
+    "image",
+    "is_public",
+    "public_port",
+    "ports_mappings",
+    "limits_memory",
+    "limits_memory_swap",
+    "limits_memory_swappiness",
+    "limits_memory_reservation",
+    "limits_cpus",
+    "limits_cpuset",
+    "limits_cpu_shares",
+    "started_at",
+    "restart_count",
+    "last_restart_at",
+    "last_restart_type",
+    "last_online_at",
+    "public_port_timeout",
+    "custom_docker_run_options",
+    "clickhouse_db",
+    "destination_type",
+    "destination_id",
+    "environment_id",
+    "health_check_enabled",
+    "health_check_interval",
+    "health_check_timeout",
+    "health_check_retries",
+    "health_check_start_period"
+   ],
+   "guarded": [],
+   "hidden": [
+    "clickhouse_admin_password",
+    "internal_db_url",
+    "external_db_url"
+   ],
+   "casts": {
+    "include_coolify_default_variables": "boolean",
+    "health_check_enabled": "boolean",
+    "health_check_interval": "integer",
+    "health_check_timeout": "integer",
+    "health_check_retries": "integer",
+    "health_check_start_period": "integer",
+    "clickhouse_admin_password": "encrypted",
+    "public_port_timeout": "integer",
+    "restart_count": "integer",
+    "last_restart_at": "datetime",
+    "last_restart_type": "string"
+   },
+   "relations": [
+    {
+     "name": "tags",
+     "type": "morphToMany",
+     "related": "Tag"
+    },
+    {
+     "name": "sslCertificates",
+     "type": "morphMany",
+     "related": "SslCertificate"
+    },
+    {
+     "name": "environment",
+     "type": "belongsTo",
+     "related": "Environment"
+    },
+    {
+     "name": "fileStorages",
+     "type": "morphMany",
+     "related": "LocalFileVolume"
+    },
+    {
+     "name": "destination",
+     "type": "morphTo",
+     "related": null
+    },
+    {
+     "name": "environment_variables",
+     "type": "morphMany",
+     "related": "EnvironmentVariable"
+    },
+    {
+     "name": "runtime_environment_variables",
+     "type": "morphMany",
+     "related": "EnvironmentVariable"
+    },
+    {
+     "name": "persistentStorages",
+     "type": "morphMany",
+     "related": "LocalPersistentVolume"
+    },
+    {
+     "name": "scheduledBackups",
+     "type": "morphMany",
+     "related": "ScheduledDatabaseBackup"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:standalone-docker",
+   "source": "app/Models/StandaloneDocker.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/models/standalone-docker",
+   "taskKey": null,
+   "status": "planned",
+   "class": "StandaloneDocker",
+   "table": null,
+   "fillable": [
+    "server_id",
+    "name",
+    "network"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {},
+   "relations": [
+    {
+     "name": "applications",
+     "type": "morphMany",
+     "related": "Application"
+    },
+    {
+     "name": "postgresqls",
+     "type": "morphMany",
+     "related": "StandalonePostgresql"
+    },
+    {
+     "name": "redis",
+     "type": "morphMany",
+     "related": "StandaloneRedis"
+    },
+    {
+     "name": "mongodbs",
+     "type": "morphMany",
+     "related": "StandaloneMongodb"
+    },
+    {
+     "name": "mysqls",
+     "type": "morphMany",
+     "related": "StandaloneMysql"
+    },
+    {
+     "name": "mariadbs",
+     "type": "morphMany",
+     "related": "StandaloneMariadb"
+    },
+    {
+     "name": "keydbs",
+     "type": "morphMany",
+     "related": "StandaloneKeydb"
+    },
+    {
+     "name": "dragonflies",
+     "type": "morphMany",
+     "related": "StandaloneDragonfly"
+    },
+    {
+     "name": "clickhouses",
+     "type": "morphMany",
+     "related": "StandaloneClickhouse"
+    },
+    {
+     "name": "sqlites",
+     "type": "morphMany",
+     "related": "StandaloneSqlite"
+    },
+    {
+     "name": "server",
+     "type": "belongsTo",
+     "related": "Server"
+    },
+    {
+     "name": "services",
+     "type": "morphMany",
+     "related": "Service"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:standalone-dragonfly",
+   "source": "app/Models/StandaloneDragonfly.php",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/standalone-dragonfly",
+   "taskKey": null,
+   "status": "planned",
+   "class": "StandaloneDragonfly",
+   "table": null,
+   "fillable": [
+    "uuid",
+    "name",
+    "description",
+    "dragonfly_password",
+    "is_log_drain_enabled",
+    "is_include_timestamps",
+    "status",
+    "image",
+    "is_public",
+    "public_port",
+    "ports_mappings",
+    "limits_memory",
+    "limits_memory_swap",
+    "limits_memory_swappiness",
+    "limits_memory_reservation",
+    "limits_cpus",
+    "limits_cpuset",
+    "limits_cpu_shares",
+    "started_at",
+    "restart_count",
+    "last_restart_at",
+    "last_restart_type",
+    "last_online_at",
+    "public_port_timeout",
+    "enable_ssl",
+    "custom_docker_run_options",
+    "destination_type",
+    "destination_id",
+    "environment_id",
+    "health_check_enabled",
+    "health_check_interval",
+    "health_check_timeout",
+    "health_check_retries",
+    "health_check_start_period"
+   ],
+   "guarded": [],
+   "hidden": [
+    "dragonfly_password",
+    "internal_db_url",
+    "external_db_url",
+    "legacy_password_quoting"
+   ],
+   "casts": {
+    "include_coolify_default_variables": "boolean",
+    "health_check_enabled": "boolean",
+    "health_check_interval": "integer",
+    "health_check_timeout": "integer",
+    "health_check_retries": "integer",
+    "health_check_start_period": "integer",
+    "dragonfly_password": "encrypted",
+    "legacy_password_quoting": "boolean",
+    "public_port_timeout": "integer",
+    "restart_count": "integer",
+    "last_restart_at": "datetime",
+    "last_restart_type": "string"
+   },
+   "relations": [
+    {
+     "name": "tags",
+     "type": "morphToMany",
+     "related": "Tag"
+    },
+    {
+     "name": "sslCertificates",
+     "type": "morphMany",
+     "related": "SslCertificate"
+    },
+    {
+     "name": "environment",
+     "type": "belongsTo",
+     "related": "Environment"
+    },
+    {
+     "name": "fileStorages",
+     "type": "morphMany",
+     "related": "LocalFileVolume"
+    },
+    {
+     "name": "destination",
+     "type": "morphTo",
+     "related": null
+    },
+    {
+     "name": "runtime_environment_variables",
+     "type": "morphMany",
+     "related": "EnvironmentVariable"
+    },
+    {
+     "name": "persistentStorages",
+     "type": "morphMany",
+     "related": "LocalPersistentVolume"
+    },
+    {
+     "name": "scheduledBackups",
+     "type": "morphMany",
+     "related": "ScheduledDatabaseBackup"
+    },
+    {
+     "name": "environment_variables",
+     "type": "morphMany",
+     "related": "EnvironmentVariable"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:standalone-keydb",
+   "source": "app/Models/StandaloneKeydb.php",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/standalone-keydb",
+   "taskKey": null,
+   "status": "planned",
+   "class": "StandaloneKeydb",
+   "table": null,
+   "fillable": [
+    "uuid",
+    "name",
+    "description",
+    "keydb_password",
+    "keydb_conf",
+    "is_log_drain_enabled",
+    "is_include_timestamps",
+    "status",
+    "image",
+    "is_public",
+    "public_port",
+    "ports_mappings",
+    "limits_memory",
+    "limits_memory_swap",
+    "limits_memory_swappiness",
+    "limits_memory_reservation",
+    "limits_cpus",
+    "limits_cpuset",
+    "limits_cpu_shares",
+    "started_at",
+    "restart_count",
+    "last_restart_at",
+    "last_restart_type",
+    "last_online_at",
+    "public_port_timeout",
+    "enable_ssl",
+    "custom_docker_run_options",
+    "destination_type",
+    "destination_id",
+    "environment_id",
+    "health_check_enabled",
+    "health_check_interval",
+    "health_check_timeout",
+    "health_check_retries",
+    "health_check_start_period"
+   ],
+   "guarded": [],
+   "hidden": [
+    "keydb_password",
+    "internal_db_url",
+    "external_db_url",
+    "legacy_password_quoting"
+   ],
+   "casts": {
+    "include_coolify_default_variables": "boolean",
+    "health_check_enabled": "boolean",
+    "health_check_interval": "integer",
+    "health_check_timeout": "integer",
+    "health_check_retries": "integer",
+    "health_check_start_period": "integer",
+    "keydb_password": "encrypted",
+    "legacy_password_quoting": "boolean",
+    "public_port_timeout": "integer",
+    "restart_count": "integer",
+    "last_restart_at": "datetime",
+    "last_restart_type": "string"
+   },
+   "relations": [
+    {
+     "name": "tags",
+     "type": "morphToMany",
+     "related": "Tag"
+    },
+    {
+     "name": "sslCertificates",
+     "type": "morphMany",
+     "related": "SslCertificate"
+    },
+    {
+     "name": "environment",
+     "type": "belongsTo",
+     "related": "Environment"
+    },
+    {
+     "name": "fileStorages",
+     "type": "morphMany",
+     "related": "LocalFileVolume"
+    },
+    {
+     "name": "destination",
+     "type": "morphTo",
+     "related": null
+    },
+    {
+     "name": "runtime_environment_variables",
+     "type": "morphMany",
+     "related": "EnvironmentVariable"
+    },
+    {
+     "name": "persistentStorages",
+     "type": "morphMany",
+     "related": "LocalPersistentVolume"
+    },
+    {
+     "name": "scheduledBackups",
+     "type": "morphMany",
+     "related": "ScheduledDatabaseBackup"
+    },
+    {
+     "name": "environment_variables",
+     "type": "morphMany",
+     "related": "EnvironmentVariable"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:standalone-mariadb",
+   "source": "app/Models/StandaloneMariadb.php",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/standalone-mariadb",
+   "taskKey": null,
+   "status": "planned",
+   "class": "StandaloneMariadb",
+   "table": null,
+   "fillable": [
+    "uuid",
+    "name",
+    "description",
+    "mariadb_root_password",
+    "mariadb_user",
+    "mariadb_password",
+    "mariadb_database",
+    "mariadb_conf",
+    "status",
+    "image",
+    "is_public",
+    "public_port",
+    "ports_mappings",
+    "limits_memory",
+    "limits_memory_swap",
+    "limits_memory_swappiness",
+    "limits_memory_reservation",
+    "limits_cpus",
+    "limits_cpuset",
+    "limits_cpu_shares",
+    "started_at",
+    "restart_count",
+    "last_restart_at",
+    "last_restart_type",
+    "last_online_at",
+    "public_port_timeout",
+    "enable_ssl",
+    "is_log_drain_enabled",
+    "custom_docker_run_options",
+    "destination_type",
+    "destination_id",
+    "environment_id",
+    "health_check_enabled",
+    "health_check_interval",
+    "health_check_timeout",
+    "health_check_retries",
+    "health_check_start_period"
+   ],
+   "guarded": [],
+   "hidden": [
+    "mariadb_password",
+    "mariadb_root_password",
+    "internal_db_url",
+    "external_db_url"
+   ],
+   "casts": {
+    "include_coolify_default_variables": "boolean",
+    "health_check_enabled": "boolean",
+    "health_check_interval": "integer",
+    "health_check_timeout": "integer",
+    "health_check_retries": "integer",
+    "health_check_start_period": "integer",
+    "mariadb_password": "encrypted",
+    "mariadb_root_password": "encrypted",
+    "public_port_timeout": "integer",
+    "restart_count": "integer",
+    "last_restart_at": "datetime",
+    "last_restart_type": "string"
+   },
+   "relations": [
+    {
+     "name": "tags",
+     "type": "morphToMany",
+     "related": "Tag"
+    },
+    {
+     "name": "environment",
+     "type": "belongsTo",
+     "related": "Environment"
+    },
+    {
+     "name": "fileStorages",
+     "type": "morphMany",
+     "related": "LocalFileVolume"
+    },
+    {
+     "name": "destination",
+     "type": "morphTo",
+     "related": null
+    },
+    {
+     "name": "environment_variables",
+     "type": "morphMany",
+     "related": "EnvironmentVariable"
+    },
+    {
+     "name": "runtime_environment_variables",
+     "type": "morphMany",
+     "related": "EnvironmentVariable"
+    },
+    {
+     "name": "persistentStorages",
+     "type": "morphMany",
+     "related": "LocalPersistentVolume"
+    },
+    {
+     "name": "scheduledBackups",
+     "type": "morphMany",
+     "related": "ScheduledDatabaseBackup"
+    },
+    {
+     "name": "sslCertificates",
+     "type": "morphMany",
+     "related": "SslCertificate"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:standalone-mongodb",
+   "source": "app/Models/StandaloneMongodb.php",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/standalone-mongodb",
+   "taskKey": null,
+   "status": "planned",
+   "class": "StandaloneMongodb",
+   "table": null,
+   "fillable": [
+    "uuid",
+    "name",
+    "description",
+    "mongo_conf",
+    "mongo_initdb_root_username",
+    "mongo_initdb_root_password",
+    "mongo_initdb_database",
+    "status",
+    "image",
+    "is_public",
+    "public_port",
+    "ports_mappings",
+    "limits_memory",
+    "limits_memory_swap",
+    "limits_memory_swappiness",
+    "limits_memory_reservation",
+    "limits_cpus",
+    "limits_cpuset",
+    "limits_cpu_shares",
+    "started_at",
+    "restart_count",
+    "last_restart_at",
+    "last_restart_type",
+    "last_online_at",
+    "public_port_timeout",
+    "enable_ssl",
+    "ssl_mode",
+    "is_log_drain_enabled",
+    "is_include_timestamps",
+    "custom_docker_run_options",
+    "destination_type",
+    "destination_id",
+    "environment_id",
+    "health_check_enabled",
+    "health_check_interval",
+    "health_check_timeout",
+    "health_check_retries",
+    "health_check_start_period"
+   ],
+   "guarded": [],
+   "hidden": [
+    "mongo_initdb_root_password",
+    "internal_db_url",
+    "external_db_url"
+   ],
+   "casts": {
+    "include_coolify_default_variables": "boolean",
+    "health_check_enabled": "boolean",
+    "mongo_initdb_root_password": "encrypted",
+    "health_check_interval": "integer",
+    "health_check_timeout": "integer",
+    "health_check_retries": "integer",
+    "health_check_start_period": "integer",
+    "public_port_timeout": "integer",
+    "restart_count": "integer",
+    "last_restart_at": "datetime",
+    "last_restart_type": "string"
+   },
+   "relations": [
+    {
+     "name": "tags",
+     "type": "morphToMany",
+     "related": "Tag"
+    },
+    {
+     "name": "sslCertificates",
+     "type": "morphMany",
+     "related": "SslCertificate"
+    },
+    {
+     "name": "environment",
+     "type": "belongsTo",
+     "related": "Environment"
+    },
+    {
+     "name": "fileStorages",
+     "type": "morphMany",
+     "related": "LocalFileVolume"
+    },
+    {
+     "name": "destination",
+     "type": "morphTo",
+     "related": null
+    },
+    {
+     "name": "runtime_environment_variables",
+     "type": "morphMany",
+     "related": "EnvironmentVariable"
+    },
+    {
+     "name": "persistentStorages",
+     "type": "morphMany",
+     "related": "LocalPersistentVolume"
+    },
+    {
+     "name": "scheduledBackups",
+     "type": "morphMany",
+     "related": "ScheduledDatabaseBackup"
+    },
+    {
+     "name": "environment_variables",
+     "type": "morphMany",
+     "related": "EnvironmentVariable"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:standalone-mysql",
+   "source": "app/Models/StandaloneMysql.php",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/standalone-mysql",
+   "taskKey": null,
+   "status": "planned",
+   "class": "StandaloneMysql",
+   "table": null,
+   "fillable": [
+    "uuid",
+    "name",
+    "description",
+    "mysql_root_password",
+    "mysql_user",
+    "mysql_password",
+    "mysql_database",
+    "mysql_conf",
+    "status",
+    "image",
+    "is_public",
+    "public_port",
+    "ports_mappings",
+    "limits_memory",
+    "limits_memory_swap",
+    "limits_memory_swappiness",
+    "limits_memory_reservation",
+    "limits_cpus",
+    "limits_cpuset",
+    "limits_cpu_shares",
+    "started_at",
+    "restart_count",
+    "last_restart_at",
+    "last_restart_type",
+    "last_online_at",
+    "public_port_timeout",
+    "enable_ssl",
+    "ssl_mode",
+    "is_log_drain_enabled",
+    "is_include_timestamps",
+    "custom_docker_run_options",
+    "destination_type",
+    "destination_id",
+    "environment_id",
+    "health_check_enabled",
+    "health_check_interval",
+    "health_check_timeout",
+    "health_check_retries",
+    "health_check_start_period"
+   ],
+   "guarded": [],
+   "hidden": [
+    "mysql_password",
+    "mysql_root_password",
+    "internal_db_url",
+    "external_db_url"
+   ],
+   "casts": {
+    "include_coolify_default_variables": "boolean",
+    "health_check_enabled": "boolean",
+    "health_check_interval": "integer",
+    "health_check_timeout": "integer",
+    "health_check_retries": "integer",
+    "health_check_start_period": "integer",
+    "mysql_password": "encrypted",
+    "mysql_root_password": "encrypted",
+    "public_port_timeout": "integer",
+    "restart_count": "integer",
+    "last_restart_at": "datetime",
+    "last_restart_type": "string"
+   },
+   "relations": [
+    {
+     "name": "tags",
+     "type": "morphToMany",
+     "related": "Tag"
+    },
+    {
+     "name": "sslCertificates",
+     "type": "morphMany",
+     "related": "SslCertificate"
+    },
+    {
+     "name": "environment",
+     "type": "belongsTo",
+     "related": "Environment"
+    },
+    {
+     "name": "fileStorages",
+     "type": "morphMany",
+     "related": "LocalFileVolume"
+    },
+    {
+     "name": "destination",
+     "type": "morphTo",
+     "related": null
+    },
+    {
+     "name": "runtime_environment_variables",
+     "type": "morphMany",
+     "related": "EnvironmentVariable"
+    },
+    {
+     "name": "persistentStorages",
+     "type": "morphMany",
+     "related": "LocalPersistentVolume"
+    },
+    {
+     "name": "scheduledBackups",
+     "type": "morphMany",
+     "related": "ScheduledDatabaseBackup"
+    },
+    {
+     "name": "environment_variables",
+     "type": "morphMany",
+     "related": "EnvironmentVariable"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:standalone-postgresql",
+   "source": "app/Models/StandalonePostgresql.php",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/standalone-postgresql",
+   "taskKey": null,
+   "status": "planned",
+   "class": "StandalonePostgresql",
+   "table": null,
+   "fillable": [
+    "uuid",
+    "name",
+    "description",
+    "postgres_user",
+    "postgres_password",
+    "postgres_db",
+    "postgres_initdb_args",
+    "postgres_host_auth_method",
+    "postgres_conf",
+    "init_scripts",
+    "status",
+    "image",
+    "is_public",
+    "public_port",
+    "ports_mappings",
+    "limits_memory",
+    "limits_memory_swap",
+    "limits_memory_swappiness",
+    "limits_memory_reservation",
+    "limits_cpus",
+    "limits_cpuset",
+    "limits_cpu_shares",
+    "started_at",
+    "restart_count",
+    "last_restart_at",
+    "last_restart_type",
+    "last_online_at",
+    "public_port_timeout",
+    "enable_ssl",
+    "ssl_mode",
+    "is_log_drain_enabled",
+    "is_include_timestamps",
+    "custom_docker_run_options",
+    "destination_type",
+    "destination_id",
+    "environment_id",
+    "health_check_enabled",
+    "health_check_interval",
+    "health_check_timeout",
+    "health_check_retries",
+    "health_check_start_period"
+   ],
+   "guarded": [],
+   "hidden": [
+    "postgres_password",
+    "init_scripts",
+    "internal_db_url",
+    "external_db_url"
+   ],
+   "casts": {
+    "include_coolify_default_variables": "boolean",
+    "health_check_enabled": "boolean",
+    "health_check_interval": "integer",
+    "health_check_timeout": "integer",
+    "health_check_retries": "integer",
+    "health_check_start_period": "integer",
+    "init_scripts": "array",
+    "postgres_password": "encrypted",
+    "public_port_timeout": "integer",
+    "restart_count": "integer",
+    "last_restart_at": "datetime",
+    "last_restart_type": "string"
+   },
+   "relations": [
+    {
+     "name": "tags",
+     "type": "morphToMany",
+     "related": "Tag"
+    },
+    {
+     "name": "environment",
+     "type": "belongsTo",
+     "related": "Environment"
+    },
+    {
+     "name": "persistentStorages",
+     "type": "morphMany",
+     "related": "LocalPersistentVolume"
+    },
+    {
+     "name": "fileStorages",
+     "type": "morphMany",
+     "related": "LocalFileVolume"
+    },
+    {
+     "name": "sslCertificates",
+     "type": "morphMany",
+     "related": "SslCertificate"
+    },
+    {
+     "name": "destination",
+     "type": "morphTo",
+     "related": null
+    },
+    {
+     "name": "runtime_environment_variables",
+     "type": "morphMany",
+     "related": "EnvironmentVariable"
+    },
+    {
+     "name": "scheduledBackups",
+     "type": "morphMany",
+     "related": "ScheduledDatabaseBackup"
+    },
+    {
+     "name": "environment_variables",
+     "type": "morphMany",
+     "related": "EnvironmentVariable"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:standalone-redis",
+   "source": "app/Models/StandaloneRedis.php",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/standalone-redis",
+   "taskKey": null,
+   "status": "planned",
+   "class": "StandaloneRedis",
+   "table": null,
+   "fillable": [
+    "uuid",
+    "name",
+    "description",
+    "redis_conf",
+    "status",
+    "image",
+    "is_public",
+    "public_port",
+    "ports_mappings",
+    "limits_memory",
+    "limits_memory_swap",
+    "limits_memory_swappiness",
+    "limits_memory_reservation",
+    "limits_cpus",
+    "limits_cpuset",
+    "limits_cpu_shares",
+    "started_at",
+    "restart_count",
+    "last_restart_at",
+    "last_restart_type",
+    "last_online_at",
+    "public_port_timeout",
+    "enable_ssl",
+    "is_log_drain_enabled",
+    "is_include_timestamps",
+    "custom_docker_run_options",
+    "destination_type",
+    "destination_id",
+    "environment_id",
+    "health_check_enabled",
+    "health_check_interval",
+    "health_check_timeout",
+    "health_check_retries",
+    "health_check_start_period"
+   ],
+   "guarded": [],
+   "hidden": [
+    "redis_password",
+    "internal_db_url",
+    "external_db_url",
+    "legacy_password_quoting"
+   ],
+   "casts": {
+    "include_coolify_default_variables": "boolean",
+    "health_check_enabled": "boolean",
+    "health_check_interval": "integer",
+    "health_check_timeout": "integer",
+    "health_check_retries": "integer",
+    "health_check_start_period": "integer",
+    "legacy_password_quoting": "boolean",
+    "public_port_timeout": "integer",
+    "restart_count": "integer",
+    "last_restart_at": "datetime",
+    "last_restart_type": "string"
+   },
+   "relations": [
+    {
+     "name": "tags",
+     "type": "morphToMany",
+     "related": "Tag"
+    },
+    {
+     "name": "sslCertificates",
+     "type": "morphMany",
+     "related": "SslCertificate"
+    },
+    {
+     "name": "environment",
+     "type": "belongsTo",
+     "related": "Environment"
+    },
+    {
+     "name": "fileStorages",
+     "type": "morphMany",
+     "related": "LocalFileVolume"
+    },
+    {
+     "name": "destination",
+     "type": "morphTo",
+     "related": null
+    },
+    {
+     "name": "runtime_environment_variables",
+     "type": "morphMany",
+     "related": "EnvironmentVariable"
+    },
+    {
+     "name": "persistentStorages",
+     "type": "morphMany",
+     "related": "LocalPersistentVolume"
+    },
+    {
+     "name": "scheduledBackups",
+     "type": "morphMany",
+     "related": "ScheduledDatabaseBackup"
+    },
+    {
+     "name": "environment_variables",
+     "type": "morphMany",
+     "related": "EnvironmentVariable"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:standalone-sqlite",
+   "source": "app/Models/StandaloneSqlite.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/models/standalone-sqlite",
+   "taskKey": null,
+   "status": "planned",
+   "class": "StandaloneSqlite",
+   "table": null,
+   "fillable": [
+    "uuid",
+    "name",
+    "description",
+    "sqlite_databases",
+    "is_log_drain_enabled",
+    "is_include_timestamps",
+    "status",
+    "image",
+    "limits_memory",
+    "limits_memory_swap",
+    "limits_memory_swappiness",
+    "limits_memory_reservation",
+    "limits_cpus",
+    "limits_cpuset",
+    "limits_cpu_shares",
+    "started_at",
+    "restart_count",
+    "last_restart_at",
+    "last_restart_type",
+    "last_online_at",
+    "custom_docker_run_options",
+    "destination_type",
+    "destination_id",
+    "environment_id",
+    "health_check_enabled",
+    "health_check_interval",
+    "health_check_timeout",
+    "health_check_retries",
+    "health_check_start_period"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "include_coolify_default_variables": "boolean",
+    "health_check_enabled": "boolean",
+    "health_check_interval": "integer",
+    "health_check_timeout": "integer",
+    "health_check_retries": "integer",
+    "health_check_start_period": "integer",
+    "restart_count": "integer",
+    "last_restart_at": "datetime",
+    "last_restart_type": "string"
+   },
+   "relations": [
+    {
+     "name": "tags",
+     "type": "morphToMany",
+     "related": "Tag"
+    },
+    {
+     "name": "sslCertificates",
+     "type": "morphMany",
+     "related": "SslCertificate"
+    },
+    {
+     "name": "environment",
+     "type": "belongsTo",
+     "related": "Environment"
+    },
+    {
+     "name": "fileStorages",
+     "type": "morphMany",
+     "related": "LocalFileVolume"
+    },
+    {
+     "name": "destination",
+     "type": "morphTo",
+     "related": null
+    },
+    {
+     "name": "environment_variables",
+     "type": "morphMany",
+     "related": "EnvironmentVariable"
+    },
+    {
+     "name": "runtime_environment_variables",
+     "type": "morphMany",
+     "related": "EnvironmentVariable"
+    },
+    {
+     "name": "persistentStorages",
+     "type": "morphMany",
+     "related": "LocalPersistentVolume"
+    },
+    {
+     "name": "connectedVolumes",
+     "type": "hasMany",
+     "related": "LocalPersistentVolume"
+    },
+    {
+     "name": "scheduledBackups",
+     "type": "morphMany",
+     "related": "ScheduledDatabaseBackup"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:star",
+   "source": "app/Models/Star.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/models/star",
+   "taskKey": null,
+   "status": "planned",
+   "class": "Star",
+   "table": null,
+   "fillable": [
+    "user_id",
+    "starrable_type",
+    "starrable_id",
+    "position"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {},
+   "relations": [
+    {
+     "name": "user",
+     "type": "belongsTo",
+     "related": "User"
+    },
+    {
+     "name": "starrable",
+     "type": "morphTo",
+     "related": null
+    }
+   ],
+   "teamScoped": false
+  },
+  {
+   "id": "models:subscription",
+   "source": "app/Models/Subscription.php",
+   "milestone": "DP10",
+   "component": "lumen membership/policy/billing + apps/deploy-web",
+   "parityTest": "parity/models/subscription",
+   "taskKey": null,
+   "status": "planned",
+   "class": "Subscription",
+   "table": null,
+   "fillable": [
+    "team_id",
+    "stripe_invoice_paid",
+    "stripe_subscription_id",
+    "stripe_customer_id",
+    "stripe_cancel_at_period_end",
+    "stripe_plan_id",
+    "stripe_feedback",
+    "stripe_comment",
+    "stripe_trial_already_ended",
+    "stripe_past_due",
+    "stripe_refunded_at"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "stripe_refunded_at": "datetime",
+    "ended_at": "datetime",
+    "stripe_checkout_reminder_sent_at": "datetime"
+   },
+   "relations": [
+    {
+     "name": "team",
+     "type": "belongsTo",
+     "related": "Team"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:swarm-docker",
+   "source": "app/Models/SwarmDocker.php",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/swarm-docker",
+   "taskKey": null,
+   "status": "planned",
+   "class": "SwarmDocker",
+   "table": null,
+   "fillable": [
+    "server_id",
+    "name",
+    "network"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {},
+   "relations": [
+    {
+     "name": "applications",
+     "type": "morphMany",
+     "related": "Application"
+    },
+    {
+     "name": "postgresqls",
+     "type": "morphMany",
+     "related": "StandalonePostgresql"
+    },
+    {
+     "name": "redis",
+     "type": "morphMany",
+     "related": "StandaloneRedis"
+    },
+    {
+     "name": "keydbs",
+     "type": "morphMany",
+     "related": "StandaloneKeydb"
+    },
+    {
+     "name": "dragonflies",
+     "type": "morphMany",
+     "related": "StandaloneDragonfly"
+    },
+    {
+     "name": "clickhouses",
+     "type": "morphMany",
+     "related": "StandaloneClickhouse"
+    },
+    {
+     "name": "sqlites",
+     "type": "morphMany",
+     "related": "StandaloneSqlite"
+    },
+    {
+     "name": "mongodbs",
+     "type": "morphMany",
+     "related": "StandaloneMongodb"
+    },
+    {
+     "name": "mysqls",
+     "type": "morphMany",
+     "related": "StandaloneMysql"
+    },
+    {
+     "name": "mariadbs",
+     "type": "morphMany",
+     "related": "StandaloneMariadb"
+    },
+    {
+     "name": "server",
+     "type": "belongsTo",
+     "related": "Server"
+    },
+    {
+     "name": "services",
+     "type": "morphMany",
+     "related": "Service"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:tag",
+   "source": "app/Models/Tag.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/models/tag",
+   "taskKey": null,
+   "status": "planned",
+   "class": "Tag",
+   "table": null,
+   "fillable": [
+    "name",
+    "team_id"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {},
+   "relations": [
+    {
+     "name": "applications",
+     "type": "morphedByMany",
+     "related": "Application"
+    },
+    {
+     "name": "services",
+     "type": "morphedByMany",
+     "related": "Service"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:team",
+   "source": "app/Models/Team.php",
+   "milestone": "DP10",
+   "component": "lumen membership/policy/billing + apps/deploy-web",
+   "parityTest": "parity/models/team",
+   "taskKey": null,
+   "status": "planned",
+   "class": "Team",
+   "table": null,
+   "fillable": [
+    "name",
+    "description",
+    "personal_team",
+    "show_boarding",
+    "custom_server_limit",
+    "is_mcp_server_enabled",
+    "is_build_server_fallback_enabled",
+    "is_two_factor_required",
+    "scan_images_on_new_servers"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "personal_team": "boolean",
+    "is_mcp_server_enabled": "boolean",
+    "is_build_server_fallback_enabled": "boolean",
+    "is_two_factor_required": "boolean",
+    "scan_images_on_new_servers": "boolean"
+   },
+   "relations": [
+    {
+     "name": "environment_variables",
+     "type": "hasMany",
+     "related": "SharedEnvironmentVariable"
+    },
+    {
+     "name": "members",
+     "type": "belongsToMany",
+     "related": "User"
+    },
+    {
+     "name": "subscription",
+     "type": "hasOne",
+     "related": "Subscription"
+    },
+    {
+     "name": "subscriptions",
+     "type": "hasMany",
+     "related": "Subscription"
+    },
+    {
+     "name": "applications",
+     "type": "hasManyThrough",
+     "related": "Application"
+    },
+    {
+     "name": "invitations",
+     "type": "hasMany",
+     "related": "TeamInvitation"
+    },
+    {
+     "name": "projects",
+     "type": "hasMany",
+     "related": "Project"
+    },
+    {
+     "name": "servers",
+     "type": "hasMany",
+     "related": "Server"
+    },
+    {
+     "name": "privateKeys",
+     "type": "hasMany",
+     "related": "PrivateKey"
+    },
+    {
+     "name": "cloudProviderTokens",
+     "type": "hasMany",
+     "related": "CloudProviderToken"
+    },
+    {
+     "name": "integrationTokens",
+     "type": "hasMany",
+     "related": "IntegrationToken"
+    },
+    {
+     "name": "s3s",
+     "type": "hasMany",
+     "related": "S3Storage"
+    },
+    {
+     "name": "emailNotificationSettings",
+     "type": "hasOne",
+     "related": "EmailNotificationSettings"
+    },
+    {
+     "name": "discordNotificationSettings",
+     "type": "hasOne",
+     "related": "DiscordNotificationSettings"
+    },
+    {
+     "name": "telegramNotificationSettings",
+     "type": "hasOne",
+     "related": "TelegramNotificationSettings"
+    },
+    {
+     "name": "slackNotificationSettings",
+     "type": "hasOne",
+     "related": "SlackNotificationSettings"
+    },
+    {
+     "name": "pushoverNotificationSettings",
+     "type": "hasOne",
+     "related": "PushoverNotificationSettings"
+    },
+    {
+     "name": "webhookNotificationSettings",
+     "type": "hasOne",
+     "related": "WebhookNotificationSettings"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:team-invitation",
+   "source": "app/Models/TeamInvitation.php",
+   "milestone": "DP10",
+   "component": "lumen membership/policy/billing + apps/deploy-web",
+   "parityTest": "parity/models/team-invitation",
+   "taskKey": null,
+   "status": "planned",
+   "class": "TeamInvitation",
+   "table": null,
+   "fillable": [
+    "team_id",
+    "uuid",
+    "email",
+    "role",
+    "link",
+    "via",
+    "access"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "link": "encrypted",
+    "access": "array"
+   },
+   "relations": [
+    {
+     "name": "team",
+     "type": "belongsTo",
+     "related": "Team"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:telegram-notification-settings",
+   "source": "app/Models/TelegramNotificationSettings.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/models/telegram-notification-settings",
+   "taskKey": null,
+   "status": "planned",
+   "class": "TelegramNotificationSettings",
+   "table": null,
+   "fillable": [
+    "team_id",
+    "telegram_enabled",
+    "telegram_token",
+    "telegram_chat_id",
+    "deployment_success_telegram_notifications",
+    "deployment_failure_telegram_notifications",
+    "status_change_telegram_notifications",
+    "restart_limit_reached_telegram_notifications",
+    "backup_success_telegram_notifications",
+    "backup_failure_telegram_notifications",
+    "scheduled_task_success_telegram_notifications",
+    "scheduled_task_failure_telegram_notifications",
+    "docker_cleanup_success_telegram_notifications",
+    "docker_cleanup_failure_telegram_notifications",
+    "server_disk_usage_telegram_notifications",
+    "server_reachable_telegram_notifications",
+    "server_unreachable_telegram_notifications",
+    "server_patch_telegram_notifications",
+    "traefik_outdated_telegram_notifications",
+    "image_vulnerabilities_telegram_notifications",
+    "telegram_notifications_deployment_success_thread_id",
+    "telegram_notifications_deployment_failure_thread_id",
+    "telegram_notifications_status_change_thread_id",
+    "telegram_notifications_restart_limit_reached_thread_id",
+    "telegram_notifications_backup_success_thread_id",
+    "telegram_notifications_backup_failure_thread_id",
+    "telegram_notifications_scheduled_task_success_thread_id",
+    "telegram_notifications_scheduled_task_failure_thread_id",
+    "telegram_notifications_docker_cleanup_success_thread_id",
+    "telegram_notifications_docker_cleanup_failure_thread_id",
+    "telegram_notifications_server_disk_usage_thread_id",
+    "telegram_notifications_server_reachable_thread_id",
+    "telegram_notifications_server_unreachable_thread_id",
+    "telegram_notifications_server_patch_thread_id",
+    "telegram_notifications_traefik_outdated_thread_id",
+    "telegram_notifications_image_vulnerabilities_thread_id"
+   ],
+   "guarded": [],
+   "hidden": [
+    "telegram_token",
+    "telegram_chat_id",
+    "telegram_notifications_deployment_success_thread_id",
+    "telegram_notifications_deployment_failure_thread_id",
+    "telegram_notifications_status_change_thread_id",
+    "telegram_notifications_restart_limit_reached_thread_id",
+    "telegram_notifications_backup_success_thread_id",
+    "telegram_notifications_backup_failure_thread_id",
+    "telegram_notifications_scheduled_task_success_thread_id",
+    "telegram_notifications_scheduled_task_failure_thread_id",
+    "telegram_notifications_docker_cleanup_success_thread_id",
+    "telegram_notifications_docker_cleanup_failure_thread_id",
+    "telegram_notifications_server_disk_usage_thread_id",
+    "telegram_notifications_server_reachable_thread_id",
+    "telegram_notifications_server_unreachable_thread_id",
+    "telegram_notifications_server_patch_thread_id",
+    "telegram_notifications_traefik_outdated_thread_id",
+    "telegram_notifications_image_vulnerabilities_thread_id"
+   ],
+   "casts": {
+    "telegram_enabled": "boolean",
+    "telegram_token": "encrypted",
+    "telegram_chat_id": "encrypted",
+    "deployment_success_telegram_notifications": "boolean",
+    "deployment_failure_telegram_notifications": "boolean",
+    "status_change_telegram_notifications": "boolean",
+    "restart_limit_reached_telegram_notifications": "boolean",
+    "backup_success_telegram_notifications": "boolean",
+    "backup_failure_telegram_notifications": "boolean",
+    "scheduled_task_success_telegram_notifications": "boolean",
+    "scheduled_task_failure_telegram_notifications": "boolean",
+    "docker_cleanup_telegram_notifications": "boolean",
+    "server_disk_usage_telegram_notifications": "boolean",
+    "server_reachable_telegram_notifications": "boolean",
+    "server_unreachable_telegram_notifications": "boolean",
+    "server_patch_telegram_notifications": "boolean",
+    "traefik_outdated_telegram_notifications": "boolean",
+    "image_vulnerabilities_telegram_notifications": "boolean",
+    "telegram_notifications_deployment_success_thread_id": "encrypted",
+    "telegram_notifications_deployment_failure_thread_id": "encrypted",
+    "telegram_notifications_status_change_thread_id": "encrypted",
+    "telegram_notifications_restart_limit_reached_thread_id": "encrypted",
+    "telegram_notifications_backup_success_thread_id": "encrypted",
+    "telegram_notifications_backup_failure_thread_id": "encrypted",
+    "telegram_notifications_scheduled_task_success_thread_id": "encrypted",
+    "telegram_notifications_scheduled_task_failure_thread_id": "encrypted",
+    "telegram_notifications_docker_cleanup_success_thread_id": "encrypted",
+    "telegram_notifications_docker_cleanup_failure_thread_id": "encrypted",
+    "telegram_notifications_server_disk_usage_thread_id": "encrypted",
+    "telegram_notifications_server_reachable_thread_id": "encrypted",
+    "telegram_notifications_server_unreachable_thread_id": "encrypted",
+    "telegram_notifications_server_patch_thread_id": "encrypted",
+    "telegram_notifications_traefik_outdated_thread_id": "encrypted",
+    "telegram_notifications_image_vulnerabilities_thread_id": "encrypted"
+   },
+   "relations": [
+    {
+     "name": "team",
+     "type": "belongsTo",
+     "related": "Team"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:user",
+   "source": "app/Models/User.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/models/user",
+   "taskKey": null,
+   "status": "planned",
+   "class": "User",
+   "table": null,
+   "fillable": [
+    "name",
+    "email",
+    "password",
+    "current_team_id",
+    "force_password_reset",
+    "marketing_emails",
+    "pending_email",
+    "email_change_code",
+    "email_change_code_expires_at",
+    "avatar_path",
+    "avatar_storage_type",
+    "avatar_s3_storage_id"
+   ],
+   "guarded": [],
+   "hidden": [
+    "password",
+    "remember_token",
+    "two_factor_recovery_codes",
+    "two_factor_secret",
+    "created_before_oauth_identities",
+    "created_by_invitation"
+   ],
+   "casts": {
+    "created_before_oauth_identities": "boolean",
+    "created_by_invitation": "boolean",
+    "current_team_id": "integer",
+    "email_verified_at": "datetime",
+    "force_password_reset": "boolean",
+    "show_boarding": "boolean",
+    "email_change_code_expires_at": "datetime"
+   },
+   "relations": [
+    {
+     "name": "teams",
+     "type": "belongsToMany",
+     "related": "Team"
+    },
+    {
+     "name": "changelogReads",
+     "type": "hasMany",
+     "related": "UserChangelogRead"
+    },
+    {
+     "name": "stars",
+     "type": "hasMany",
+     "related": "Star"
+    },
+    {
+     "name": "oauthIdentities",
+     "type": "hasMany",
+     "related": "OauthIdentity"
+    }
+   ],
+   "teamScoped": true
+  },
+  {
+   "id": "models:user-changelog-read",
+   "source": "app/Models/UserChangelogRead.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/models/user-changelog-read",
+   "taskKey": null,
+   "status": "planned",
+   "class": "UserChangelogRead",
+   "table": null,
+   "fillable": [
+    "user_id",
+    "release_tag",
+    "read_at"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "read_at": "datetime"
+   },
+   "relations": [
+    {
+     "name": "user",
+     "type": "belongsTo",
+     "related": "User"
+    }
+   ],
+   "teamScoped": false
+  },
+  {
+   "id": "models:volume-backup-s3-replica",
+   "source": "app/Models/VolumeBackupS3Replica.php",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/models/volume-backup-s3-replica",
+   "taskKey": null,
+   "status": "planned",
+   "class": "VolumeBackupS3Replica",
+   "table": null,
+   "fillable": [
+    "execution_id",
+    "s3_storage_id",
+    "s3_uploaded",
+    "s3_storage_deleted",
+    "message"
+   ],
+   "guarded": [],
+   "hidden": [],
+   "casts": {
+    "s3_uploaded": "boolean",
+    "s3_storage_deleted": "boolean"
+   },
+   "relations": [
+    {
+     "name": "execution",
+     "type": "belongsTo",
+     "related": "ScheduledVolumeBackupExecution"
+    },
+    {
+     "name": "s3",
+     "type": "belongsTo",
+     "related": "S3Storage"
+    }
+   ],
+   "teamScoped": false
+  },
+  {
+   "id": "models:webhook-notification-settings",
+   "source": "app/Models/WebhookNotificationSettings.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/models/webhook-notification-settings",
+   "taskKey": null,
+   "status": "planned",
+   "class": "WebhookNotificationSettings",
+   "table": null,
+   "fillable": [
+    "team_id",
+    "webhook_enabled",
+    "webhook_url",
+    "deployment_success_webhook_notifications",
+    "deployment_failure_webhook_notifications",
+    "status_change_webhook_notifications",
+    "restart_limit_reached_webhook_notifications",
+    "backup_success_webhook_notifications",
+    "backup_failure_webhook_notifications",
+    "scheduled_task_success_webhook_notifications",
+    "scheduled_task_failure_webhook_notifications",
+    "docker_cleanup_success_webhook_notifications",
+    "docker_cleanup_failure_webhook_notifications",
+    "server_disk_usage_webhook_notifications",
+    "server_reachable_webhook_notifications",
+    "server_unreachable_webhook_notifications",
+    "server_patch_webhook_notifications",
+    "traefik_outdated_webhook_notifications",
+    "image_vulnerabilities_webhook_notifications"
+   ],
+   "guarded": [],
+   "hidden": [
+    "webhook_url"
+   ],
+   "casts": {
+    "webhook_enabled": "boolean",
+    "webhook_url": "encrypted",
+    "deployment_success_webhook_notifications": "boolean",
+    "deployment_failure_webhook_notifications": "boolean",
+    "status_change_webhook_notifications": "boolean",
+    "restart_limit_reached_webhook_notifications": "boolean",
+    "backup_success_webhook_notifications": "boolean",
+    "backup_failure_webhook_notifications": "boolean",
+    "scheduled_task_success_webhook_notifications": "boolean",
+    "scheduled_task_failure_webhook_notifications": "boolean",
+    "docker_cleanup_success_webhook_notifications": "boolean",
+    "docker_cleanup_failure_webhook_notifications": "boolean",
+    "server_disk_usage_webhook_notifications": "boolean",
+    "server_reachable_webhook_notifications": "boolean",
+    "server_unreachable_webhook_notifications": "boolean",
+    "server_patch_webhook_notifications": "boolean",
+    "traefik_outdated_webhook_notifications": "boolean",
+    "image_vulnerabilities_webhook_notifications": "boolean"
+   },
+   "relations": [
+    {
+     "name": "team",
+     "type": "belongsTo",
+     "related": "Team"
+    }
+   ],
+   "teamScoped": true
+  }
+ ]
+}

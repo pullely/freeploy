@@ -1,0 +1,5545 @@
+{
+ "name": "routes.web",
+ "coolifyRef": "91b7e3e",
+ "generatedFrom": "routes/web.php",
+ "count": 290,
+ "rows": [
+  {
+   "id": "routes.web:password.forgot",
+   "source": "routes/web.php:159",
+   "milestone": "DP3",
+   "component": "apps/deploy-web + lumen identity",
+   "parityTest": "parity/routes.web/password.forgot",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/forgot-password",
+   "name": "password.forgot",
+   "handler": "Controller@forgot_password",
+   "middleware": [
+    "throttle:forgot-password"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:get-realtime",
+   "source": "routes/web.php:160",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/get-realtime",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/realtime",
+   "name": null,
+   "handler": "Controller@realtime_test",
+   "middleware": [
+    "auth"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:verify.email",
+   "source": "routes/web.php:161",
+   "milestone": "DP3",
+   "component": "apps/deploy-web + lumen identity",
+   "parityTest": "parity/routes.web/verify.email",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/verify",
+   "name": "verify.email",
+   "handler": "Controller@verify",
+   "middleware": [
+    "auth"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:verify.verify",
+   "source": "routes/web.php:162",
+   "milestone": "DP3",
+   "component": "apps/deploy-web + lumen identity",
+   "parityTest": "parity/routes.web/verify.verify",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/email/verify/{id}/{hash}",
+   "name": "verify.verify",
+   "handler": "Controller@email_verify",
+   "middleware": [
+    "auth"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:auth.link",
+   "source": "routes/web.php:165",
+   "milestone": "DP3",
+   "component": "apps/deploy-web + lumen identity",
+   "parityTest": "parity/routes.web/auth.link",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/auth/link",
+   "name": "auth.link",
+   "handler": "Controller@link",
+   "middleware": [],
+   "visual": false
+  },
+  {
+   "id": "routes.web:auth.link.accept",
+   "source": "routes/web.php:166",
+   "milestone": "DP3",
+   "component": "apps/deploy-web + lumen identity",
+   "parityTest": "parity/routes.web/auth.link.accept",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/auth/link",
+   "name": "auth.link.accept",
+   "handler": "Controller@acceptLink",
+   "middleware": [
+    "throttle:magic-link"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:auth.redirect",
+   "source": "routes/web.php:169",
+   "milestone": "DP3",
+   "component": "apps/deploy-web + lumen identity",
+   "parityTest": "parity/routes.web/auth.redirect",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/auth/{provider}/redirect",
+   "name": "auth.redirect",
+   "handler": "OauthController@redirect",
+   "middleware": [],
+   "visual": false
+  },
+  {
+   "id": "routes.web:auth.callback",
+   "source": "routes/web.php:170",
+   "milestone": "DP3",
+   "component": "apps/deploy-web + lumen identity",
+   "parityTest": "parity/routes.web/auth.callback",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/auth/{provider}/callback",
+   "name": "auth.callback",
+   "handler": "OauthController@callback",
+   "middleware": [],
+   "visual": false
+  },
+  {
+   "id": "routes.web:dev.livewire-request-failure-preview",
+   "source": "routes/web.php:174",
+   "milestone": "DP6",
+   "component": "apps/deploy-core-worker + lumen integrations",
+   "parityTest": "parity/routes.web/dev.livewire-request-failure-preview",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/__livewire-request-failure",
+   "name": "dev.livewire-request-failure-preview",
+   "handler": "LivewireRequestFailurePreview",
+   "middleware": [],
+   "visual": true
+  },
+  {
+   "id": "routes.web:dev.exception-preview",
+   "source": "routes/web.php:177",
+   "milestone": "DP6",
+   "component": "apps/deploy-core-worker + lumen integrations",
+   "parityTest": "parity/routes.web/dev.exception-preview",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/__exception",
+   "name": "dev.exception-preview",
+   "handler": "closure",
+   "middleware": [],
+   "visual": false
+  },
+  {
+   "id": "routes.web:dev.error-preview",
+   "source": "routes/web.php:181",
+   "milestone": "DP6",
+   "component": "apps/deploy-core-worker + lumen integrations",
+   "parityTest": "parity/routes.web/dev.error-preview",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/__error/{code}",
+   "name": "dev.error-preview",
+   "handler": "closure",
+   "middleware": [],
+   "visual": false
+  },
+  {
+   "id": "routes.web:auth.force-password-reset",
+   "source": "routes/web.php:203",
+   "milestone": "DP3",
+   "component": "apps/deploy-web + lumen identity",
+   "parityTest": "parity/routes.web/auth.force-password-reset",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/force-password-reset",
+   "name": "auth.force-password-reset",
+   "handler": "ForcePasswordReset",
+   "middleware": [
+    "auth",
+    "verified",
+    "throttle:force-password-reset"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:two-factor.required",
+   "source": "routes/web.php:205",
+   "milestone": "DP3",
+   "component": "apps/deploy-web + lumen identity",
+   "parityTest": "parity/routes.web/two-factor.required",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/two-factor-required",
+   "name": "two-factor.required",
+   "handler": "TwoFactorRequired",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:two-factor.required.switch-team",
+   "source": "routes/web.php:207",
+   "milestone": "DP10",
+   "component": "lumen membership/policy/billing + apps/deploy-web",
+   "parityTest": "parity/routes.web/two-factor.required.switch-team",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/two-factor-required/switch-team",
+   "name": "two-factor.required.switch-team",
+   "handler": "closure",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:dashboard",
+   "source": "routes/web.php:220",
+   "milestone": "DP3",
+   "component": "apps/deploy-web + lumen identity",
+   "parityTest": "parity/routes.web/dashboard",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/",
+   "name": "dashboard",
+   "handler": "Dashboard",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:vulnerabilities",
+   "source": "routes/web.php:222",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/vulnerabilities",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/vulnerabilities",
+   "name": "vulnerabilities",
+   "handler": "FleetVulnerabilities",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:dashboard.canvas",
+   "source": "routes/web.php:224",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/dashboard.canvas",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/dashboard/canvas",
+   "name": "dashboard.canvas",
+   "handler": "DashboardCanvas",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:analytics",
+   "source": "routes/web.php:225",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/analytics",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/analytics",
+   "name": "analytics",
+   "handler": "Analytics",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:metrics",
+   "source": "routes/web.php:226",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/metrics",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/metrics",
+   "name": "metrics",
+   "handler": "FleetMetrics",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:deploy-canvas",
+   "source": "routes/web.php:227",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/deploy-canvas",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/canvas",
+   "name": "deploy-canvas",
+   "handler": "DeployCanvas",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:tags.canvas",
+   "source": "routes/web.php:228",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/tags.canvas",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/canvas/tags",
+   "name": "tags.canvas",
+   "handler": "TagsCanvas",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:get-canvas-api-projects",
+   "source": "routes/web.php:232",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/get-canvas-api-projects",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/canvas/api/projects",
+   "name": null,
+   "handler": "ProjectController@projects",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:read"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:post-canvas-api-projects",
+   "source": "routes/web.php:233",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/post-canvas-api-projects",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/canvas/api/projects",
+   "name": null,
+   "handler": "ProjectController@create_project",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:get-canvas-api-projects-canvas",
+   "source": "routes/web.php:234",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/get-canvas-api-projects-canvas",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/canvas/api/projects/canvas",
+   "name": null,
+   "handler": "ProjectCanvasController@index",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:read"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:patch-canvas-api-projects-canvas-positions",
+   "source": "routes/web.php:235",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/patch-canvas-api-projects-canvas-positions",
+   "taskKey": null,
+   "status": "planned",
+   "method": "PATCH",
+   "path": "/canvas/api/projects/canvas/positions",
+   "name": null,
+   "handler": "ProjectCanvasController@updatePositions",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:get-canvas-api-projects-uuid-canvas",
+   "source": "routes/web.php:236",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/get-canvas-api-projects-uuid-canvas",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/canvas/api/projects/{uuid}/canvas",
+   "name": null,
+   "handler": "ProjectCanvasController@show",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:read"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:get-canvas-api-projects-uuid-environments",
+   "source": "routes/web.php:237",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/get-canvas-api-projects-uuid-environments",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/canvas/api/projects/{uuid}/environments",
+   "name": null,
+   "handler": "ProjectController@get_environments",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:read"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:post-canvas-api-projects-uuid-environments",
+   "source": "routes/web.php:238",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/post-canvas-api-projects-uuid-environments",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/canvas/api/projects/{uuid}/environments",
+   "name": null,
+   "handler": "ProjectController@create_environment",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:get-canvas-api-projects-uuid-environments-environment_name_or_uuid-canvas",
+   "source": "routes/web.php:239",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/get-canvas-api-projects-uuid-environments-environment_name_or_uuid-canvas",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/canvas/api/projects/{uuid}/environments/{environment_name_or_uuid}/canvas",
+   "name": null,
+   "handler": "EnvironmentCanvasController@show",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:read"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:patch-canvas-api-projects-uuid-environments-environment_name_or_uuid-canvas-positions",
+   "source": "routes/web.php:240",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/patch-canvas-api-projects-uuid-environments-environment_name_or_uuid-canvas-positions",
+   "taskKey": null,
+   "status": "planned",
+   "method": "PATCH",
+   "path": "/canvas/api/projects/{uuid}/environments/{environment_name_or_uuid}/canvas/positions",
+   "name": null,
+   "handler": "EnvironmentCanvasController@updatePositions",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:post-canvas-api-projects-uuid-environments-environment_name_or_uuid-canvas-links",
+   "source": "routes/web.php:241",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/post-canvas-api-projects-uuid-environments-environment_name_or_uuid-canvas-links",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/canvas/api/projects/{uuid}/environments/{environment_name_or_uuid}/canvas/links",
+   "name": null,
+   "handler": "EnvironmentCanvasController@storeLink",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:patch-canvas-api-projects-uuid-environments-environment_name_or_uuid-canvas-links-link_uuid",
+   "source": "routes/web.php:242",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/patch-canvas-api-projects-uuid-environments-environment_name_or_uuid-canvas-links-link_uuid",
+   "taskKey": null,
+   "status": "planned",
+   "method": "PATCH",
+   "path": "/canvas/api/projects/{uuid}/environments/{environment_name_or_uuid}/canvas/links/{link_uuid}",
+   "name": null,
+   "handler": "EnvironmentCanvasController@updateLink",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:delete-canvas-api-projects-uuid-environments-environment_name_or_uuid-canvas-links-link_uuid",
+   "source": "routes/web.php:243",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/delete-canvas-api-projects-uuid-environments-environment_name_or_uuid-canvas-links-link_uuid",
+   "taskKey": null,
+   "status": "planned",
+   "method": "DELETE",
+   "path": "/canvas/api/projects/{uuid}/environments/{environment_name_or_uuid}/canvas/links/{link_uuid}",
+   "name": null,
+   "handler": "EnvironmentCanvasController@destroyLink",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:get-canvas-api-tags-canvas",
+   "source": "routes/web.php:244",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/get-canvas-api-tags-canvas",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/canvas/api/tags/canvas",
+   "name": null,
+   "handler": "TagCanvasController@show",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "access.team-wide",
+    "api.ability:read"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:post-canvas-api-tags-canvas-links",
+   "source": "routes/web.php:245",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/post-canvas-api-tags-canvas-links",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/canvas/api/tags/canvas/links",
+   "name": null,
+   "handler": "TagCanvasController@storeLink",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "access.team-wide",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:delete-canvas-api-tags-canvas-links-link_id",
+   "source": "routes/web.php:246",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/delete-canvas-api-tags-canvas-links-link_id",
+   "taskKey": null,
+   "status": "planned",
+   "method": "DELETE",
+   "path": "/canvas/api/tags/canvas/links/{link_id}",
+   "name": null,
+   "handler": "TagCanvasController@destroyLink",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "access.team-wide",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:get-canvas-api-shared-variables-team-canvas",
+   "source": "routes/web.php:247",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/get-canvas-api-shared-variables-team-canvas",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/canvas/api/shared-variables/team/canvas",
+   "name": null,
+   "handler": "SharedVariableCanvasController@show",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "access.team-wide",
+    "api.ability:read"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:post-canvas-api-shared-variables-team-canvas-links",
+   "source": "routes/web.php:248",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/post-canvas-api-shared-variables-team-canvas-links",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/canvas/api/shared-variables/team/canvas/links",
+   "name": null,
+   "handler": "SharedVariableCanvasController@storeLink",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "access.team-wide",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:delete-canvas-api-shared-variables-team-canvas-links-link_id",
+   "source": "routes/web.php:249",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/delete-canvas-api-shared-variables-team-canvas-links-link_id",
+   "taskKey": null,
+   "status": "planned",
+   "method": "DELETE",
+   "path": "/canvas/api/shared-variables/team/canvas/links/{link_id}",
+   "name": null,
+   "handler": "SharedVariableCanvasController@destroyLink",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "access.team-wide",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:get-canvas-api-shared-variables-scope-uuid-canvas",
+   "source": "routes/web.php:250",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/get-canvas-api-shared-variables-scope-uuid-canvas",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/canvas/api/shared-variables/{scope}/{uuid}/canvas",
+   "name": null,
+   "handler": "SharedVariableCanvasController@show",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:read"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:post-canvas-api-shared-variables-scope-uuid-canvas-links",
+   "source": "routes/web.php:251",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/post-canvas-api-shared-variables-scope-uuid-canvas-links",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/canvas/api/shared-variables/{scope}/{uuid}/canvas/links",
+   "name": null,
+   "handler": "SharedVariableCanvasController@storeLink",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:delete-canvas-api-shared-variables-scope-uuid-canvas-links-link_id",
+   "source": "routes/web.php:252",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/delete-canvas-api-shared-variables-scope-uuid-canvas-links-link_id",
+   "taskKey": null,
+   "status": "planned",
+   "method": "DELETE",
+   "path": "/canvas/api/shared-variables/{scope}/{uuid}/canvas/links/{link_id}",
+   "name": null,
+   "handler": "SharedVariableCanvasController@destroyLink",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:get-canvas-api-servers",
+   "source": "routes/web.php:253",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/get-canvas-api-servers",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/canvas/api/servers",
+   "name": null,
+   "handler": "ServersController@servers",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "access.team-wide",
+    "api.ability:read"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:get-canvas-api-servers-canvas",
+   "source": "routes/web.php:254",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/get-canvas-api-servers-canvas",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/canvas/api/servers/canvas",
+   "name": null,
+   "handler": "ServerCanvasController@index",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "access.team-wide",
+    "api.ability:read"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:patch-canvas-api-servers-canvas-positions",
+   "source": "routes/web.php:255",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/patch-canvas-api-servers-canvas-positions",
+   "taskKey": null,
+   "status": "planned",
+   "method": "PATCH",
+   "path": "/canvas/api/servers/canvas/positions",
+   "name": null,
+   "handler": "ServerCanvasController@updatePositions",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "access.team-wide",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:get-canvas-api-dashboard-canvas",
+   "source": "routes/web.php:256",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/get-canvas-api-dashboard-canvas",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/canvas/api/dashboard/canvas",
+   "name": null,
+   "handler": "ServerCanvasController@dashboard",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "access.team-wide",
+    "api.ability:read"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:patch-canvas-api-dashboard-canvas-positions",
+   "source": "routes/web.php:257",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/patch-canvas-api-dashboard-canvas-positions",
+   "taskKey": null,
+   "status": "planned",
+   "method": "PATCH",
+   "path": "/canvas/api/dashboard/canvas/positions",
+   "name": null,
+   "handler": "ServerCanvasController@updatePositions",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "access.team-wide",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:get-canvas-api-servers-uuid-canvas",
+   "source": "routes/web.php:258",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/get-canvas-api-servers-uuid-canvas",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/canvas/api/servers/{uuid}/canvas",
+   "name": null,
+   "handler": "ServerCanvasController@show",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "access.team-wide",
+    "api.ability:read"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:get-canvas-api-servers-uuid-canvas-containers",
+   "source": "routes/web.php:259",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/get-canvas-api-servers-uuid-canvas-containers",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/canvas/api/servers/{uuid}/canvas/containers",
+   "name": null,
+   "handler": "ServerCanvasController@containers",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "access.team-wide",
+    "api.ability:read"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:get-canvas-api-servers-uuid-canvas-usage",
+   "source": "routes/web.php:260",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/get-canvas-api-servers-uuid-canvas-usage",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/canvas/api/servers/{uuid}/canvas/usage",
+   "name": null,
+   "handler": "ServerCanvasController@usage",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "access.team-wide",
+    "api.ability:read"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:get-canvas-api-servers-server_uuid-destinations",
+   "source": "routes/web.php:261",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/get-canvas-api-servers-server_uuid-destinations",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/canvas/api/servers/{server_uuid}/destinations",
+   "name": null,
+   "handler": "DestinationsController@index_by_server",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "access.team-wide",
+    "api.ability:read"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:get-canvas-api-github-apps",
+   "source": "routes/web.php:262",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/get-canvas-api-github-apps",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/canvas/api/github-apps",
+   "name": null,
+   "handler": "GithubController@list_github_apps",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "access.team-wide",
+    "api.ability:read"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:get-canvas-api-github-apps-github_app_id-repositories",
+   "source": "routes/web.php:263",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/get-canvas-api-github-apps-github_app_id-repositories",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/canvas/api/github-apps/{github_app_id}/repositories",
+   "name": null,
+   "handler": "GithubController@load_repositories",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "access.team-wide",
+    "api.ability:read"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:get-canvas-api-github-apps-github_app_id-repositories-owner-repo-branches",
+   "source": "routes/web.php:264",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/get-canvas-api-github-apps-github_app_id-repositories-owner-repo-branches",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/canvas/api/github-apps/{github_app_id}/repositories/{owner}/{repo}/branches",
+   "name": null,
+   "handler": "GithubController@load_branches",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "access.team-wide",
+    "api.ability:read"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:get-canvas-api-security-keys",
+   "source": "routes/web.php:265",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/get-canvas-api-security-keys",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/canvas/api/security/keys",
+   "name": null,
+   "handler": "SecurityController@keys",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "access.team-wide",
+    "api.ability:read"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:post-canvas-api-applications-public",
+   "source": "routes/web.php:266",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/post-canvas-api-applications-public",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/canvas/api/applications/public",
+   "name": null,
+   "handler": "ApplicationsController@create_public_application",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:post-canvas-api-applications-private-github-app",
+   "source": "routes/web.php:267",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/post-canvas-api-applications-private-github-app",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/canvas/api/applications/private-github-app",
+   "name": null,
+   "handler": "ApplicationsController@create_private_gh_app_application",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:post-canvas-api-applications-private-deploy-key",
+   "source": "routes/web.php:268",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/post-canvas-api-applications-private-deploy-key",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/canvas/api/applications/private-deploy-key",
+   "name": null,
+   "handler": "ApplicationsController@create_private_deploy_key_application",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:post-canvas-api-applications-dockerfile",
+   "source": "routes/web.php:269",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/post-canvas-api-applications-dockerfile",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/canvas/api/applications/dockerfile",
+   "name": null,
+   "handler": "ApplicationsController@create_dockerfile_application",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:post-canvas-api-applications-dockerimage",
+   "source": "routes/web.php:270",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/post-canvas-api-applications-dockerimage",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/canvas/api/applications/dockerimage",
+   "name": null,
+   "handler": "ApplicationsController@create_dockerimage_application",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:get-canvas-api-applications-uuid",
+   "source": "routes/web.php:271",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/get-canvas-api-applications-uuid",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/canvas/api/applications/{uuid}",
+   "name": null,
+   "handler": "ApplicationsController@application_by_uuid",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:read"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:patch-canvas-api-applications-uuid",
+   "source": "routes/web.php:272",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/patch-canvas-api-applications-uuid",
+   "taskKey": null,
+   "status": "planned",
+   "method": "PATCH",
+   "path": "/canvas/api/applications/{uuid}",
+   "name": null,
+   "handler": "ApplicationsController@update_by_uuid",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:patch-canvas-api-applications-uuid-envs-bulk",
+   "source": "routes/web.php:273",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/patch-canvas-api-applications-uuid-envs-bulk",
+   "taskKey": null,
+   "status": "planned",
+   "method": "PATCH",
+   "path": "/canvas/api/applications/{uuid}/envs/bulk",
+   "name": null,
+   "handler": "ApplicationsController@create_bulk_envs",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:post-canvas-api-services",
+   "source": "routes/web.php:274",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/post-canvas-api-services",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/canvas/api/services",
+   "name": null,
+   "handler": "ServicesController@create_service",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:patch-canvas-api-services-uuid-envs-bulk",
+   "source": "routes/web.php:275",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/patch-canvas-api-services-uuid-envs-bulk",
+   "taskKey": null,
+   "status": "planned",
+   "method": "PATCH",
+   "path": "/canvas/api/services/{uuid}/envs/bulk",
+   "name": null,
+   "handler": "ServicesController@create_bulk_envs",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:post-canvas-api-databases-postgresql",
+   "source": "routes/web.php:276",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/post-canvas-api-databases-postgresql",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/canvas/api/databases/postgresql",
+   "name": null,
+   "handler": "DatabasesController@create_database_postgresql",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:post-canvas-api-databases-mysql",
+   "source": "routes/web.php:277",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/post-canvas-api-databases-mysql",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/canvas/api/databases/mysql",
+   "name": null,
+   "handler": "DatabasesController@create_database_mysql",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:post-canvas-api-databases-mariadb",
+   "source": "routes/web.php:278",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/post-canvas-api-databases-mariadb",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/canvas/api/databases/mariadb",
+   "name": null,
+   "handler": "DatabasesController@create_database_mariadb",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:post-canvas-api-databases-mongodb",
+   "source": "routes/web.php:279",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/post-canvas-api-databases-mongodb",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/canvas/api/databases/mongodb",
+   "name": null,
+   "handler": "DatabasesController@create_database_mongodb",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:post-canvas-api-databases-redis",
+   "source": "routes/web.php:280",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/post-canvas-api-databases-redis",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/canvas/api/databases/redis",
+   "name": null,
+   "handler": "DatabasesController@create_database_redis",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:post-canvas-api-databases-clickhouse",
+   "source": "routes/web.php:281",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/post-canvas-api-databases-clickhouse",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/canvas/api/databases/clickhouse",
+   "name": null,
+   "handler": "DatabasesController@create_database_clickhouse",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:post-canvas-api-databases-dragonfly",
+   "source": "routes/web.php:282",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/post-canvas-api-databases-dragonfly",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/canvas/api/databases/dragonfly",
+   "name": null,
+   "handler": "DatabasesController@create_database_dragonfly",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:post-canvas-api-databases-keydb",
+   "source": "routes/web.php:283",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/post-canvas-api-databases-keydb",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/canvas/api/databases/keydb",
+   "name": null,
+   "handler": "DatabasesController@create_database_keydb",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:write"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:post-canvas-api-deploy",
+   "source": "routes/web.php:284",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/post-canvas-api-deploy",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/canvas/api/deploy",
+   "name": null,
+   "handler": "DeployController@deploy",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:deploy"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:get-canvas-api-deployments-uuid",
+   "source": "routes/web.php:285",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/get-canvas-api-deployments-uuid",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/canvas/api/deployments/{uuid}",
+   "name": null,
+   "handler": "DeployController@deployment_by_uuid",
+   "middleware": [
+    "auth",
+    "verified",
+    "UseSessionTeamApiToken::class",
+    "api.token.team",
+    "api.sensitive",
+    "api.ability:read"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:admin.index",
+   "source": "routes/web.php:287",
+   "milestone": "DP12",
+   "component": "apps/deploy-core-worker (platform-admin)",
+   "parityTest": "parity/routes.web/admin.index",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/admin",
+   "name": "admin.index",
+   "handler": "AdminIndex",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:onboarding",
+   "source": "routes/web.php:288",
+   "milestone": "DP10",
+   "component": "lumen membership/policy/billing + apps/deploy-web",
+   "parityTest": "parity/routes.web/onboarding",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/onboarding",
+   "name": "onboarding",
+   "handler": "BoardingIndex",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:subscription.show",
+   "source": "routes/web.php:291",
+   "milestone": "DP10",
+   "component": "lumen membership/policy/billing + apps/deploy-web",
+   "parityTest": "parity/routes.web/subscription.show",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/subscription",
+   "name": "subscription.show",
+   "handler": "SubscriptionShow",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:subscription.index",
+   "source": "routes/web.php:292",
+   "milestone": "DP10",
+   "component": "lumen membership/policy/billing + apps/deploy-web",
+   "parityTest": "parity/routes.web/subscription.index",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/subscription/new",
+   "name": "subscription.index",
+   "handler": "SubscriptionIndex",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:settings.index",
+   "source": "routes/web.php:294",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/settings.index",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/settings",
+   "name": "settings.index",
+   "handler": "SettingsIndex",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:settings.advanced",
+   "source": "routes/web.php:295",
+   "milestone": "DP12",
+   "component": "apps/deploy-core-worker (platform-admin)",
+   "parityTest": "parity/routes.web/settings.advanced",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/settings/advanced",
+   "name": "settings.advanced",
+   "handler": "SettingsAdvanced",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:settings.updates",
+   "source": "routes/web.php:296",
+   "milestone": "DP12",
+   "component": "apps/deploy-core-worker (platform-admin)",
+   "parityTest": "parity/routes.web/settings.updates",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/settings/updates",
+   "name": "settings.updates",
+   "handler": "SettingsUpdates",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:settings.image-scanning",
+   "source": "routes/web.php:297",
+   "milestone": "DP12",
+   "component": "apps/deploy-core-worker (platform-admin)",
+   "parityTest": "parity/routes.web/settings.image-scanning",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/settings/image-scanning",
+   "name": "settings.image-scanning",
+   "handler": "InstanceImageScanning",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:settings.backup",
+   "source": "routes/web.php:299",
+   "milestone": "DP12",
+   "component": "apps/deploy-core-worker (platform-admin)",
+   "parityTest": "parity/routes.web/settings.backup",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/settings/backup",
+   "name": "settings.backup",
+   "handler": "SettingsBackup",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:settings.email",
+   "source": "routes/web.php:300",
+   "milestone": "DP12",
+   "component": "apps/deploy-core-worker (platform-admin)",
+   "parityTest": "parity/routes.web/settings.email",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/settings/email",
+   "name": "settings.email",
+   "handler": "SettingsEmail",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:settings.oauth",
+   "source": "routes/web.php:301",
+   "milestone": "DP12",
+   "component": "apps/deploy-core-worker (platform-admin)",
+   "parityTest": "parity/routes.web/settings.oauth",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/settings/oauth",
+   "name": "settings.oauth",
+   "handler": "SettingsOauth",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:settings.oauth.provider",
+   "source": "routes/web.php:302",
+   "milestone": "DP12",
+   "component": "apps/deploy-core-worker (platform-admin)",
+   "parityTest": "parity/routes.web/settings.oauth.provider",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/settings/oauth/{provider}",
+   "name": "settings.oauth.provider",
+   "handler": "SettingsOauth",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:profile",
+   "source": "routes/web.php:306",
+   "milestone": "DP3",
+   "component": "apps/deploy-web + lumen identity",
+   "parityTest": "parity/routes.web/profile",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/profile",
+   "name": "profile",
+   "handler": "ProfileIndex",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:profile.avatar",
+   "source": "routes/web.php:307",
+   "milestone": "DP3",
+   "component": "apps/deploy-web + lumen identity",
+   "parityTest": "parity/routes.web/profile.avatar",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/profile/avatar",
+   "name": "profile.avatar",
+   "handler": "ProfileAvatarController",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:profile.appearance",
+   "source": "routes/web.php:308",
+   "milestone": "DP3",
+   "component": "apps/deploy-web + lumen identity",
+   "parityTest": "parity/routes.web/profile.appearance",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/profile/appearance",
+   "name": "profile.appearance",
+   "handler": "ProfileAppearance",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:profile.passkeys.confirm",
+   "source": "routes/web.php:309",
+   "milestone": "DP3",
+   "component": "apps/deploy-web + lumen identity",
+   "parityTest": "parity/routes.web/profile.passkeys.confirm",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/profile/passkeys/confirm",
+   "name": "profile.passkeys.confirm",
+   "handler": "closure",
+   "middleware": [
+    "auth",
+    "verified",
+    "password.confirm"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:tags.show",
+   "source": "routes/web.php:314",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/routes.web/tags.show",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/tags/{tagName?}",
+   "name": "tags.show",
+   "handler": "TagsShow",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:notifications.email",
+   "source": "routes/web.php:318",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/routes.web/notifications.email",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/notifications/email",
+   "name": "notifications.email",
+   "handler": "NotificationEmail",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:notifications.telegram",
+   "source": "routes/web.php:319",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/routes.web/notifications.telegram",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/notifications/telegram",
+   "name": "notifications.telegram",
+   "handler": "NotificationTelegram",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:notifications.discord",
+   "source": "routes/web.php:320",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/routes.web/notifications.discord",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/notifications/discord",
+   "name": "notifications.discord",
+   "handler": "NotificationDiscord",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:notifications.slack",
+   "source": "routes/web.php:321",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/routes.web/notifications.slack",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/notifications/slack",
+   "name": "notifications.slack",
+   "handler": "NotificationSlack",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:notifications.pushover",
+   "source": "routes/web.php:322",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/routes.web/notifications.pushover",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/notifications/pushover",
+   "name": "notifications.pushover",
+   "handler": "NotificationPushover",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:notifications.webhook",
+   "source": "routes/web.php:323",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/routes.web/notifications.webhook",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/notifications/webhook",
+   "name": "notifications.webhook",
+   "handler": "NotificationWebhook",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:storage.index",
+   "source": "routes/web.php:327",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/storage.index",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/storages",
+   "name": "storage.index",
+   "handler": "StorageIndex",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:storage.show",
+   "source": "routes/web.php:328",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/storage.show",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/storages/{storage_uuid}",
+   "name": "storage.show",
+   "handler": "StorageShow",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:storage.danger",
+   "source": "routes/web.php:329",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/storage.danger",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/storages/{storage_uuid}/danger",
+   "name": "storage.danger",
+   "handler": "StorageShow",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:storage.resources",
+   "source": "routes/web.php:330",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/storage.resources",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/storages/{storage_uuid}/resources",
+   "name": "storage.resources",
+   "handler": "StorageShow",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:shared-variables.index",
+   "source": "routes/web.php:333",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/routes.web/shared-variables.index",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/shared-variables",
+   "name": "shared-variables.index",
+   "handler": "SharedVariablesIndex",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:shared-variables.team.index",
+   "source": "routes/web.php:334",
+   "milestone": "DP10",
+   "component": "lumen membership/policy/billing + apps/deploy-web",
+   "parityTest": "parity/routes.web/shared-variables.team.index",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/shared-variables/team",
+   "name": "shared-variables.team.index",
+   "handler": "TeamSharedVariablesIndex",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:shared-variables.team.canvas",
+   "source": "routes/web.php:335",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/shared-variables.team.canvas",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/shared-variables/team/canvas",
+   "name": "shared-variables.team.canvas",
+   "handler": "SharedVariablesCanvas",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:shared-variables.project.index",
+   "source": "routes/web.php:336",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/routes.web/shared-variables.project.index",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/shared-variables/projects",
+   "name": "shared-variables.project.index",
+   "handler": "ProjectSharedVariablesIndex",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:shared-variables.project.show",
+   "source": "routes/web.php:337",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/routes.web/shared-variables.project.show",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/shared-variables/project/{project_uuid}",
+   "name": "shared-variables.project.show",
+   "handler": "ProjectSharedVariablesShow",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:shared-variables.project.canvas",
+   "source": "routes/web.php:338",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/shared-variables.project.canvas",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/shared-variables/project/{project_uuid}/canvas",
+   "name": "shared-variables.project.canvas",
+   "handler": "SharedVariablesCanvas",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:shared-variables.environment.index",
+   "source": "routes/web.php:339",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/routes.web/shared-variables.environment.index",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/shared-variables/environments",
+   "name": "shared-variables.environment.index",
+   "handler": "EnvironmentSharedVariablesIndex",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:shared-variables.environment.show",
+   "source": "routes/web.php:340",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/routes.web/shared-variables.environment.show",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/shared-variables/environments/project/{project_uuid}/environment/{environment_uuid}",
+   "name": "shared-variables.environment.show",
+   "handler": "EnvironmentSharedVariablesShow",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:shared-variables.environment.canvas",
+   "source": "routes/web.php:341",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/shared-variables.environment.canvas",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/shared-variables/environments/project/{project_uuid}/environment/{environment_uuid}/canvas",
+   "name": "shared-variables.environment.canvas",
+   "handler": "SharedVariablesCanvas",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:shared-variables.server.index",
+   "source": "routes/web.php:342",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/routes.web/shared-variables.server.index",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/shared-variables/servers",
+   "name": "shared-variables.server.index",
+   "handler": "ServerSharedVariablesIndex",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:shared-variables.server.show",
+   "source": "routes/web.php:343",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/routes.web/shared-variables.server.show",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/shared-variables/server/{server_uuid}",
+   "name": "shared-variables.server.show",
+   "handler": "ServerSharedVariablesShow",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:shared-variables.server.canvas",
+   "source": "routes/web.php:344",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/shared-variables.server.canvas",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/shared-variables/server/{server_uuid}/canvas",
+   "name": "shared-variables.server.canvas",
+   "handler": "SharedVariablesCanvas",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:team.index",
+   "source": "routes/web.php:348",
+   "milestone": "DP10",
+   "component": "lumen membership/policy/billing + apps/deploy-web",
+   "parityTest": "parity/routes.web/team.index",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/team",
+   "name": "team.index",
+   "handler": "TeamIndex",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:team.avatar",
+   "source": "routes/web.php:349",
+   "milestone": "DP10",
+   "component": "lumen membership/policy/billing + apps/deploy-web",
+   "parityTest": "parity/routes.web/team.avatar",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/team/{team_id}/avatar",
+   "name": "team.avatar",
+   "handler": "TeamAvatarController",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:team.member.index",
+   "source": "routes/web.php:350",
+   "milestone": "DP10",
+   "component": "lumen membership/policy/billing + apps/deploy-web",
+   "parityTest": "parity/routes.web/team.member.index",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/team/members",
+   "name": "team.member.index",
+   "handler": "TeamMemberIndex",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:team.member.avatar",
+   "source": "routes/web.php:351",
+   "milestone": "DP10",
+   "component": "lumen membership/policy/billing + apps/deploy-web",
+   "parityTest": "parity/routes.web/team.member.avatar",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/team/members/{user_id}/avatar",
+   "name": "team.member.avatar",
+   "handler": "ProfileAvatarController",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:team.audit-log",
+   "source": "routes/web.php:352",
+   "milestone": "DP10",
+   "component": "lumen membership/policy/billing + apps/deploy-web",
+   "parityTest": "parity/routes.web/team.audit-log",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/team/audit-log",
+   "name": "team.audit-log",
+   "handler": "TeamAuditLog",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:team.image-scanning",
+   "source": "routes/web.php:353",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/team.image-scanning",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/team/image-scanning",
+   "name": "team.image-scanning",
+   "handler": "TeamImageScanning",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:team.admin-view",
+   "source": "routes/web.php:354",
+   "milestone": "DP12",
+   "component": "apps/deploy-core-worker (platform-admin)",
+   "parityTest": "parity/routes.web/team.admin-view",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/team/admin",
+   "name": "team.admin-view",
+   "handler": "TeamAdminView",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:team.danger-zone",
+   "source": "routes/web.php:355",
+   "milestone": "DP10",
+   "component": "lumen membership/policy/billing + apps/deploy-web",
+   "parityTest": "parity/routes.web/team.danger-zone",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/team/danger",
+   "name": "team.danger-zone",
+   "handler": "TeamDangerZone",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:terminal",
+   "source": "routes/web.php:358",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/terminal",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/terminal",
+   "name": "terminal",
+   "handler": "TerminalIndex",
+   "middleware": [
+    "auth",
+    "verified",
+    "can.access.terminal",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:terminal.auth",
+   "source": "routes/web.php:359",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/terminal.auth",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/terminal/auth",
+   "name": "terminal.auth",
+   "handler": "closure",
+   "middleware": [
+    "auth",
+    "verified",
+    "can.access.terminal"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:terminal.auth.ips",
+   "source": "routes/web.php:367",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/terminal.auth.ips",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/terminal/auth/ips",
+   "name": "terminal.auth.ips",
+   "handler": "closure",
+   "middleware": [
+    "auth",
+    "verified",
+    "can.access.terminal"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:terminal.session",
+   "source": "routes/web.php:392",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/terminal.session",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/terminal/session",
+   "name": "terminal.session",
+   "handler": "closure",
+   "middleware": [
+    "auth",
+    "verified",
+    "can.access.terminal"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:terminal.session.check",
+   "source": "routes/web.php:399",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/terminal.session.check",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/terminal/session/check",
+   "name": "terminal.session.check",
+   "handler": "DecideWhatToDoWithUser",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:team.invitation.show",
+   "source": "routes/web.php:407",
+   "milestone": "DP10",
+   "component": "lumen membership/policy/billing + apps/deploy-web",
+   "parityTest": "parity/routes.web/team.invitation.show",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/invitations/{uuid}",
+   "name": "team.invitation.show",
+   "handler": "Controller@showInvitation",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:team.invitation.accept",
+   "source": "routes/web.php:408",
+   "milestone": "DP10",
+   "component": "lumen membership/policy/billing + apps/deploy-web",
+   "parityTest": "parity/routes.web/team.invitation.accept",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/invitations/{uuid}",
+   "name": "team.invitation.accept",
+   "handler": "Controller@acceptInvitation",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:project.index",
+   "source": "routes/web.php:411",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/project.index",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/projects",
+   "name": "project.index",
+   "handler": "ProjectIndex",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.canvas.index",
+   "source": "routes/web.php:412",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.canvas.index",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/projects/canvas",
+   "name": "project.canvas.index",
+   "handler": "ProjectsCanvas",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.icon",
+   "source": "routes/web.php:413",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/project.icon",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/icon",
+   "name": "project.icon",
+   "handler": "ProjectIconController",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:project.files.download",
+   "source": "routes/web.php:414",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/project.files.download",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/files/download/{token}",
+   "name": "project.files.download",
+   "handler": "FileBrowserDownloadController",
+   "middleware": [
+    "auth",
+    "verified",
+    "can.access.terminal"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:project.show",
+   "source": "routes/web.php:416",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/project.show",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}",
+   "name": "project.show",
+   "handler": "ProjectShow",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.canvas",
+   "source": "routes/web.php:417",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.canvas",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/canvas",
+   "name": "project.canvas",
+   "handler": "ProjectCanvas",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.edit",
+   "source": "routes/web.php:418",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/project.edit",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/edit",
+   "name": "project.edit",
+   "handler": "ProjectEdit",
+   "middleware": [
+    "auth",
+    "verified",
+    "can.update.resource"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.resource.index",
+   "source": "routes/web.php:421",
+   "milestone": "DP6",
+   "component": "apps/deploy-core-worker + lumen integrations",
+   "parityTest": "parity/routes.web/project.resource.index",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}",
+   "name": "project.resource.index",
+   "handler": "ResourceIndex",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.clone-me",
+   "source": "routes/web.php:422",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.clone-me",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/clone",
+   "name": "project.clone-me",
+   "handler": "ProjectCloneMe",
+   "middleware": [
+    "auth",
+    "verified",
+    "can.create.resources"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.resource.create",
+   "source": "routes/web.php:423",
+   "milestone": "DP6",
+   "component": "apps/deploy-core-worker + lumen integrations",
+   "parityTest": "parity/routes.web/project.resource.create",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/new",
+   "name": "project.resource.create",
+   "handler": "ResourceCreate",
+   "middleware": [
+    "auth",
+    "verified",
+    "can.create.resources"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.environment.edit",
+   "source": "routes/web.php:424",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.environment.edit",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/edit",
+   "name": "project.environment.edit",
+   "handler": "EnvironmentEdit",
+   "middleware": [
+    "auth",
+    "verified",
+    "can.update.resource"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.environment.canvas",
+   "source": "routes/web.php:425",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.environment.canvas",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/canvas",
+   "name": "project.environment.canvas",
+   "handler": "EnvironmentCanvas",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.application.configuration",
+   "source": "routes/web.php:428",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.application.configuration",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}",
+   "name": "project.application.configuration",
+   "handler": "ApplicationConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.application.domains",
+   "source": "routes/web.php:429",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.application.domains",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/domains",
+   "name": "project.application.domains",
+   "handler": "ApplicationConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.application.maintenance",
+   "source": "routes/web.php:430",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.application.maintenance",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/maintenance",
+   "name": "project.application.maintenance",
+   "handler": "ApplicationConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.application.swarm",
+   "source": "routes/web.php:431",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.application.swarm",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/swarm",
+   "name": "project.application.swarm",
+   "handler": "ApplicationConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.application.advanced",
+   "source": "routes/web.php:432",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.application.advanced",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/advanced",
+   "name": "project.application.advanced",
+   "handler": "ApplicationConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.application.environment-variables",
+   "source": "routes/web.php:433",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.application.environment-variables",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/environment-variables",
+   "name": "project.application.environment-variables",
+   "handler": "ApplicationConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.application.persistent-storage",
+   "source": "routes/web.php:434",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.application.persistent-storage",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/persistent-storage",
+   "name": "project.application.persistent-storage",
+   "handler": "ApplicationConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.application.backup.index",
+   "source": "routes/web.php:435",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.application.backup.index",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/backups",
+   "name": "project.application.backup.index",
+   "handler": "ApplicationBackupIndex",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.application.backup.show",
+   "source": "routes/web.php:436",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.application.backup.show",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/backups/{backup_uuid}",
+   "name": "project.application.backup.show",
+   "handler": "ApplicationBackupShow",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:redirect-project-project_uuid-environment-environment_uuid-application-application_uuid-backups-backup_uuid-s3",
+   "source": "routes/web.php:438",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/redirect-project-project_uuid-environment-environment_uuid-application-application_uuid-backups-backup_uuid-s3",
+   "taskKey": null,
+   "status": "planned",
+   "method": "REDIRECT",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/backups/{backup_uuid}/s3",
+   "name": null,
+   "handler": "unknown",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:redirect-project-project_uuid-environment-environment_uuid-application-application_uuid-backups-backup_uuid-retention",
+   "source": "routes/web.php:439",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/redirect-project-project_uuid-environment-environment_uuid-application-application_uuid-backups-backup_uuid-retention",
+   "taskKey": null,
+   "status": "planned",
+   "method": "REDIRECT",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/backups/{backup_uuid}/retention",
+   "name": null,
+   "handler": "unknown",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:project.application.backup.executions",
+   "source": "routes/web.php:440",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.application.backup.executions",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/backups/{backup_uuid}/executions",
+   "name": "project.application.backup.executions",
+   "handler": "ApplicationBackupShow",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.application.backup.danger",
+   "source": "routes/web.php:441",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.application.backup.danger",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/backups/{backup_uuid}/danger",
+   "name": "project.application.backup.danger",
+   "handler": "ApplicationBackupShow",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.application.source",
+   "source": "routes/web.php:442",
+   "milestone": "DP6",
+   "component": "apps/deploy-core-worker + lumen integrations",
+   "parityTest": "parity/routes.web/project.application.source",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/source",
+   "name": "project.application.source",
+   "handler": "ApplicationConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.application.servers",
+   "source": "routes/web.php:443",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.application.servers",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/servers",
+   "name": "project.application.servers",
+   "handler": "ApplicationConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.application.scheduled-tasks.show",
+   "source": "routes/web.php:444",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/routes.web/project.application.scheduled-tasks.show",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/scheduled-tasks",
+   "name": "project.application.scheduled-tasks.show",
+   "handler": "ApplicationConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.application.webhooks",
+   "source": "routes/web.php:445",
+   "milestone": "DP6",
+   "component": "apps/deploy-core-worker + lumen integrations",
+   "parityTest": "parity/routes.web/project.application.webhooks",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/webhooks",
+   "name": "project.application.webhooks",
+   "handler": "ApplicationConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.application.preview-deployments",
+   "source": "routes/web.php:446",
+   "milestone": "DP6",
+   "component": "apps/deploy-core-worker + lumen integrations",
+   "parityTest": "parity/routes.web/project.application.preview-deployments",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/preview-deployments",
+   "name": "project.application.preview-deployments",
+   "handler": "ApplicationConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.application.healthcheck",
+   "source": "routes/web.php:447",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.application.healthcheck",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/healthcheck",
+   "name": "project.application.healthcheck",
+   "handler": "ApplicationConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.application.rollback",
+   "source": "routes/web.php:448",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.application.rollback",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/rollback",
+   "name": "project.application.rollback",
+   "handler": "ApplicationConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.application.resource-limits",
+   "source": "routes/web.php:449",
+   "milestone": "DP6",
+   "component": "apps/deploy-core-worker + lumen integrations",
+   "parityTest": "parity/routes.web/project.application.resource-limits",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/resource-limits",
+   "name": "project.application.resource-limits",
+   "handler": "ApplicationConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.application.resource-operations",
+   "source": "routes/web.php:450",
+   "milestone": "DP6",
+   "component": "apps/deploy-core-worker + lumen integrations",
+   "parityTest": "parity/routes.web/project.application.resource-operations",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/resource-operations",
+   "name": "project.application.resource-operations",
+   "handler": "ApplicationConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.application.metrics",
+   "source": "routes/web.php:451",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.application.metrics",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/metrics",
+   "name": "project.application.metrics",
+   "handler": "ApplicationConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.application.analytics",
+   "source": "routes/web.php:452",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.application.analytics",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/analytics",
+   "name": "project.application.analytics",
+   "handler": "ApplicationConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.application.vulnerabilities",
+   "source": "routes/web.php:453",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.application.vulnerabilities",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/vulnerabilities",
+   "name": "project.application.vulnerabilities",
+   "handler": "ApplicationConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.application.vulnerabilities.sbom",
+   "source": "routes/web.php:454",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.application.vulnerabilities.sbom",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/vulnerabilities/sbom/{scan_uuid}/{format}",
+   "name": "project.application.vulnerabilities.sbom",
+   "handler": "ImageScanSbomController",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:project.application.tags",
+   "source": "routes/web.php:455",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/routes.web/project.application.tags",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/tags",
+   "name": "project.application.tags",
+   "handler": "ApplicationConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.application.danger",
+   "source": "routes/web.php:456",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.application.danger",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/danger",
+   "name": "project.application.danger",
+   "handler": "ApplicationConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.application.deployment.index",
+   "source": "routes/web.php:458",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.application.deployment.index",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/deployment",
+   "name": "project.application.deployment.index",
+   "handler": "DeploymentIndex",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.application.deployment.show",
+   "source": "routes/web.php:459",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.application.deployment.show",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/deployment/{deployment_uuid}",
+   "name": "project.application.deployment.show",
+   "handler": "DeploymentShow",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.application.logs",
+   "source": "routes/web.php:460",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.application.logs",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/logs",
+   "name": "project.application.logs",
+   "handler": "Logs",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.application.command",
+   "source": "routes/web.php:461",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.application.command",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/terminal",
+   "name": "project.application.command",
+   "handler": "ExecuteContainerCommand",
+   "middleware": [
+    "auth",
+    "verified",
+    "can.access.terminal"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.application.files",
+   "source": "routes/web.php:462",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.application.files",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/files",
+   "name": "project.application.files",
+   "handler": "FileBrowser",
+   "middleware": [
+    "auth",
+    "verified",
+    "can.access.terminal"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.application.scheduled-tasks",
+   "source": "routes/web.php:464",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/routes.web/project.application.scheduled-tasks",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}/tasks/{task_uuid}",
+   "name": "project.application.scheduled-tasks",
+   "handler": "closure",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:project.database.configuration",
+   "source": "routes/web.php:467",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.database.configuration",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/database/{database_uuid}",
+   "name": "project.database.configuration",
+   "handler": "DatabaseConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.database.environment-variables",
+   "source": "routes/web.php:468",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.database.environment-variables",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/database/{database_uuid}/environment-variables",
+   "name": "project.database.environment-variables",
+   "handler": "DatabaseConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.database.servers",
+   "source": "routes/web.php:469",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.database.servers",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/database/{database_uuid}/servers",
+   "name": "project.database.servers",
+   "handler": "DatabaseConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.database.import-backup",
+   "source": "routes/web.php:471",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.database.import-backup",
+   "taskKey": null,
+   "status": "planned",
+   "method": "REDIRECT",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/database/{database_uuid}/import-backup",
+   "name": "project.database.import-backup",
+   "handler": "unknown",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:project.database.persistent-storage",
+   "source": "routes/web.php:472",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.database.persistent-storage",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/database/{database_uuid}/persistent-storage",
+   "name": "project.database.persistent-storage",
+   "handler": "DatabaseConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.database.healthcheck",
+   "source": "routes/web.php:473",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.database.healthcheck",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/database/{database_uuid}/healthcheck",
+   "name": "project.database.healthcheck",
+   "handler": "DatabaseConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.database.webhooks",
+   "source": "routes/web.php:474",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.database.webhooks",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/database/{database_uuid}/webhooks",
+   "name": "project.database.webhooks",
+   "handler": "DatabaseConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.database.resource-limits",
+   "source": "routes/web.php:475",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.database.resource-limits",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/database/{database_uuid}/resource-limits",
+   "name": "project.database.resource-limits",
+   "handler": "DatabaseConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.database.resource-operations",
+   "source": "routes/web.php:476",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.database.resource-operations",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/database/{database_uuid}/resource-operations",
+   "name": "project.database.resource-operations",
+   "handler": "DatabaseConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.database.metrics",
+   "source": "routes/web.php:477",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.database.metrics",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/database/{database_uuid}/metrics",
+   "name": "project.database.metrics",
+   "handler": "DatabaseConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.database.vulnerabilities",
+   "source": "routes/web.php:478",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.database.vulnerabilities",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/database/{database_uuid}/vulnerabilities",
+   "name": "project.database.vulnerabilities",
+   "handler": "DatabaseConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.database.vulnerabilities.sbom",
+   "source": "routes/web.php:479",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.database.vulnerabilities.sbom",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/database/{database_uuid}/vulnerabilities/sbom/{scan_uuid}/{format}",
+   "name": "project.database.vulnerabilities.sbom",
+   "handler": "ImageScanSbomController",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:project.database.tags",
+   "source": "routes/web.php:480",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/routes.web/project.database.tags",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/database/{database_uuid}/tags",
+   "name": "project.database.tags",
+   "handler": "DatabaseConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.database.danger",
+   "source": "routes/web.php:481",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.database.danger",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/database/{database_uuid}/danger",
+   "name": "project.database.danger",
+   "handler": "DatabaseConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.database.logs",
+   "source": "routes/web.php:483",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.database.logs",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/database/{database_uuid}/logs",
+   "name": "project.database.logs",
+   "handler": "Logs",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.database.command",
+   "source": "routes/web.php:484",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.database.command",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/database/{database_uuid}/terminal",
+   "name": "project.database.command",
+   "handler": "ExecuteContainerCommand",
+   "middleware": [
+    "auth",
+    "verified",
+    "can.access.terminal"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.database.files",
+   "source": "routes/web.php:485",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.database.files",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/database/{database_uuid}/files",
+   "name": "project.database.files",
+   "handler": "FileBrowser",
+   "middleware": [
+    "auth",
+    "verified",
+    "can.access.terminal"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.database.backup.index",
+   "source": "routes/web.php:486",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.database.backup.index",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/database/{database_uuid}/backups",
+   "name": "project.database.backup.index",
+   "handler": "DatabaseBackupIndex",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:get-project-project_uuid-environment-environment_uuid-database-database_uuid-backups-backup_uuid-section",
+   "source": "routes/web.php:488",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/get-project-project_uuid-environment-environment_uuid-database-database_uuid-backups-backup_uuid-section",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/database/{database_uuid}/backups/{backup_uuid}/{section?}",
+   "name": null,
+   "handler": "closure",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:project.service.configuration",
+   "source": "routes/web.php:494",
+   "milestone": "DP8",
+   "component": "apps/deploy-core-worker (catalog)",
+   "parityTest": "parity/routes.web/project.service.configuration",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}",
+   "name": "project.service.configuration",
+   "handler": "ServiceConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.service.domains",
+   "source": "routes/web.php:495",
+   "milestone": "DP8",
+   "component": "apps/deploy-core-worker (catalog)",
+   "parityTest": "parity/routes.web/project.service.domains",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/domains",
+   "name": "project.service.domains",
+   "handler": "ServiceConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.service.maintenance",
+   "source": "routes/web.php:496",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.service.maintenance",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/maintenance",
+   "name": "project.service.maintenance",
+   "handler": "ServiceConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.service.logs",
+   "source": "routes/web.php:497",
+   "milestone": "DP8",
+   "component": "apps/deploy-core-worker (catalog)",
+   "parityTest": "parity/routes.web/project.service.logs",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/logs",
+   "name": "project.service.logs",
+   "handler": "Logs",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.service.analytics",
+   "source": "routes/web.php:498",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.service.analytics",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/analytics",
+   "name": "project.service.analytics",
+   "handler": "ServiceConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.service.vulnerabilities",
+   "source": "routes/web.php:499",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.service.vulnerabilities",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/vulnerabilities",
+   "name": "project.service.vulnerabilities",
+   "handler": "ServiceConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.service.vulnerabilities.sbom",
+   "source": "routes/web.php:500",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.service.vulnerabilities.sbom",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/vulnerabilities/sbom/{scan_uuid}/{format}",
+   "name": "project.service.vulnerabilities.sbom",
+   "handler": "ImageScanSbomController",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:project.service.environment-variables",
+   "source": "routes/web.php:501",
+   "milestone": "DP8",
+   "component": "apps/deploy-core-worker (catalog)",
+   "parityTest": "parity/routes.web/project.service.environment-variables",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/environment-variables",
+   "name": "project.service.environment-variables",
+   "handler": "ServiceConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.service.storages",
+   "source": "routes/web.php:502",
+   "milestone": "DP8",
+   "component": "apps/deploy-core-worker (catalog)",
+   "parityTest": "parity/routes.web/project.service.storages",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/storages",
+   "name": "project.service.storages",
+   "handler": "ServiceConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.service.import-backup",
+   "source": "routes/web.php:504",
+   "milestone": "DP8",
+   "component": "apps/deploy-core-worker (catalog)",
+   "parityTest": "parity/routes.web/project.service.import-backup",
+   "taskKey": null,
+   "status": "planned",
+   "method": "REDIRECT",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/import-backup",
+   "name": "project.service.import-backup",
+   "handler": "unknown",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:project.service.import-backup.database",
+   "source": "routes/web.php:505",
+   "milestone": "DP8",
+   "component": "apps/deploy-core-worker (catalog)",
+   "parityTest": "parity/routes.web/project.service.import-backup.database",
+   "taskKey": null,
+   "status": "planned",
+   "method": "REDIRECT",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/import-backup/{stack_service_uuid}",
+   "name": "project.service.import-backup.database",
+   "handler": "unknown",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:project.service.volume-backups.index",
+   "source": "routes/web.php:506",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.service.volume-backups.index",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/storage-backups",
+   "name": "project.service.volume-backups.index",
+   "handler": "Index",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.service.volume-backups.show",
+   "source": "routes/web.php:507",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.service.volume-backups.show",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/storage-backups/{backup_uuid}",
+   "name": "project.service.volume-backups.show",
+   "handler": "Show",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:redirect-project-project_uuid-environment-environment_uuid-service-service_uuid-storage-backups-backup_uuid-s3",
+   "source": "routes/web.php:509",
+   "milestone": "DP8",
+   "component": "apps/deploy-core-worker (catalog)",
+   "parityTest": "parity/routes.web/redirect-project-project_uuid-environment-environment_uuid-service-service_uuid-storage-backups-backup_uuid-s3",
+   "taskKey": null,
+   "status": "planned",
+   "method": "REDIRECT",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/storage-backups/{backup_uuid}/s3",
+   "name": null,
+   "handler": "unknown",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:redirect-project-project_uuid-environment-environment_uuid-service-service_uuid-storage-backups-backup_uuid-retention",
+   "source": "routes/web.php:510",
+   "milestone": "DP8",
+   "component": "apps/deploy-core-worker (catalog)",
+   "parityTest": "parity/routes.web/redirect-project-project_uuid-environment-environment_uuid-service-service_uuid-storage-backups-backup_uuid-retention",
+   "taskKey": null,
+   "status": "planned",
+   "method": "REDIRECT",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/storage-backups/{backup_uuid}/retention",
+   "name": null,
+   "handler": "unknown",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:project.service.volume-backups.executions",
+   "source": "routes/web.php:511",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.service.volume-backups.executions",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/storage-backups/{backup_uuid}/executions",
+   "name": "project.service.volume-backups.executions",
+   "handler": "Show",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.service.volume-backups.danger",
+   "source": "routes/web.php:512",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/project.service.volume-backups.danger",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/storage-backups/{backup_uuid}/danger",
+   "name": "project.service.volume-backups.danger",
+   "handler": "Show",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.service.scheduled-tasks.show",
+   "source": "routes/web.php:513",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/routes.web/project.service.scheduled-tasks.show",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/scheduled-tasks",
+   "name": "project.service.scheduled-tasks.show",
+   "handler": "ServiceConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.service.webhooks",
+   "source": "routes/web.php:514",
+   "milestone": "DP8",
+   "component": "apps/deploy-core-worker (catalog)",
+   "parityTest": "parity/routes.web/project.service.webhooks",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/webhooks",
+   "name": "project.service.webhooks",
+   "handler": "ServiceConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.service.resource-operations",
+   "source": "routes/web.php:515",
+   "milestone": "DP8",
+   "component": "apps/deploy-core-worker (catalog)",
+   "parityTest": "parity/routes.web/project.service.resource-operations",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/resource-operations",
+   "name": "project.service.resource-operations",
+   "handler": "ServiceConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.service.tags",
+   "source": "routes/web.php:516",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/routes.web/project.service.tags",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/tags",
+   "name": "project.service.tags",
+   "handler": "ServiceConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.service.danger",
+   "source": "routes/web.php:517",
+   "milestone": "DP8",
+   "component": "apps/deploy-core-worker (catalog)",
+   "parityTest": "parity/routes.web/project.service.danger",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/danger",
+   "name": "project.service.danger",
+   "handler": "ServiceConfiguration",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.service.command",
+   "source": "routes/web.php:518",
+   "milestone": "DP8",
+   "component": "apps/deploy-core-worker (catalog)",
+   "parityTest": "parity/routes.web/project.service.command",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/terminal",
+   "name": "project.service.command",
+   "handler": "ExecuteContainerCommand",
+   "middleware": [
+    "auth",
+    "verified",
+    "can.access.terminal"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.service.files",
+   "source": "routes/web.php:519",
+   "milestone": "DP8",
+   "component": "apps/deploy-core-worker (catalog)",
+   "parityTest": "parity/routes.web/project.service.files",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/files",
+   "name": "project.service.files",
+   "handler": "FileBrowser",
+   "middleware": [
+    "auth",
+    "verified",
+    "can.access.terminal"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.service.database.backups",
+   "source": "routes/web.php:520",
+   "milestone": "DP8",
+   "component": "apps/deploy-core-worker (catalog)",
+   "parityTest": "parity/routes.web/project.service.database.backups",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/{stack_service_uuid}/backups",
+   "name": "project.service.database.backups",
+   "handler": "ServiceDatabaseBackups",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.service.database.backup.show",
+   "source": "routes/web.php:521",
+   "milestone": "DP8",
+   "component": "apps/deploy-core-worker (catalog)",
+   "parityTest": "parity/routes.web/project.service.database.backup.show",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/{stack_service_uuid}/backups/{backup_uuid}",
+   "name": "project.service.database.backup.show",
+   "handler": "ServiceDatabaseBackups",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:redirect-project-project_uuid-environment-environment_uuid-service-service_uuid-stack_service_uuid-backups-backup_uuid-s3",
+   "source": "routes/web.php:522",
+   "milestone": "DP8",
+   "component": "apps/deploy-core-worker (catalog)",
+   "parityTest": "parity/routes.web/redirect-project-project_uuid-environment-environment_uuid-service-service_uuid-stack_service_uuid-backups-backup_uuid-s3",
+   "taskKey": null,
+   "status": "planned",
+   "method": "REDIRECT",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/{stack_service_uuid}/backups/{backup_uuid}/s3",
+   "name": null,
+   "handler": "unknown",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:redirect-project-project_uuid-environment-environment_uuid-service-service_uuid-stack_service_uuid-backups-backup_uuid-retention",
+   "source": "routes/web.php:523",
+   "milestone": "DP8",
+   "component": "apps/deploy-core-worker (catalog)",
+   "parityTest": "parity/routes.web/redirect-project-project_uuid-environment-environment_uuid-service-service_uuid-stack_service_uuid-backups-backup_uuid-retention",
+   "taskKey": null,
+   "status": "planned",
+   "method": "REDIRECT",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/{stack_service_uuid}/backups/{backup_uuid}/retention",
+   "name": null,
+   "handler": "unknown",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:project.service.database.backup.executions",
+   "source": "routes/web.php:524",
+   "milestone": "DP8",
+   "component": "apps/deploy-core-worker (catalog)",
+   "parityTest": "parity/routes.web/project.service.database.backup.executions",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/{stack_service_uuid}/backups/{backup_uuid}/executions",
+   "name": "project.service.database.backup.executions",
+   "handler": "ServiceDatabaseBackups",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.service.database.backup.danger",
+   "source": "routes/web.php:525",
+   "milestone": "DP8",
+   "component": "apps/deploy-core-worker (catalog)",
+   "parityTest": "parity/routes.web/project.service.database.backup.danger",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/{stack_service_uuid}/backups/{backup_uuid}/danger",
+   "name": "project.service.database.backup.danger",
+   "handler": "ServiceDatabaseBackups",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.service.database.import",
+   "source": "routes/web.php:526",
+   "milestone": "DP8",
+   "component": "apps/deploy-core-worker (catalog)",
+   "parityTest": "parity/routes.web/project.service.database.import",
+   "taskKey": null,
+   "status": "planned",
+   "method": "REDIRECT",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/{stack_service_uuid}/import",
+   "name": "project.service.database.import",
+   "handler": "unknown",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:project.service.index.advanced",
+   "source": "routes/web.php:527",
+   "milestone": "DP8",
+   "component": "apps/deploy-core-worker (catalog)",
+   "parityTest": "parity/routes.web/project.service.index.advanced",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/{stack_service_uuid}/advanced",
+   "name": "project.service.index.advanced",
+   "handler": "ServiceIndex",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.service.index",
+   "source": "routes/web.php:528",
+   "milestone": "DP8",
+   "component": "apps/deploy-core-worker (catalog)",
+   "parityTest": "parity/routes.web/project.service.index",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/{stack_service_uuid}",
+   "name": "project.service.index",
+   "handler": "ServiceIndex",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:project.service.scheduled-tasks",
+   "source": "routes/web.php:530",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/routes.web/project.service.scheduled-tasks",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}/tasks/{task_uuid}",
+   "name": "project.service.scheduled-tasks",
+   "handler": "closure",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:server.index",
+   "source": "routes/web.php:534",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/server.index",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/servers",
+   "name": "server.index",
+   "handler": "ServerIndex",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.canvas.index",
+   "source": "routes/web.php:535",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/server.canvas.index",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/servers/canvas",
+   "name": "server.canvas.index",
+   "handler": "ServerCanvas",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:registries.index",
+   "source": "routes/web.php:536",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/registries.index",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/registries",
+   "name": "registries.index",
+   "handler": "ServerDockerRegistries",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.create",
+   "source": "routes/web.php:537",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/server.create",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/servers/new",
+   "name": "server.create",
+   "handler": "ServerCreatePage",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide",
+    "can:create",
+    ".Server::class"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.create.token",
+   "source": "routes/web.php:538",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/server.create.token",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/servers/new/{type}/{token_uuid}",
+   "name": "server.create.token",
+   "handler": "ServerCreatePage",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide",
+    "can:create",
+    ".Server::class"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.create.type",
+   "source": "routes/web.php:539",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/server.create.type",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/servers/new/{type}",
+   "name": "server.create.type",
+   "handler": "ServerCreatePage",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide",
+    "can:create",
+    ".Server::class"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.show",
+   "source": "routes/web.php:542",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/server.show",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}",
+   "name": "server.show",
+   "handler": "ServerShow",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.canvas",
+   "source": "routes/web.php:543",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/server.canvas",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}/canvas",
+   "name": "server.canvas",
+   "handler": "ServerCanvas",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.advanced",
+   "source": "routes/web.php:544",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/server.advanced",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}/advanced",
+   "name": "server.advanced",
+   "handler": "ServerAdvanced",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.swarm",
+   "source": "routes/web.php:545",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/server.swarm",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}/swarm",
+   "name": "server.swarm",
+   "handler": "ServerSwarm",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.sentinel",
+   "source": "routes/web.php:546",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/server.sentinel",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}/sentinel",
+   "name": "server.sentinel",
+   "handler": "SentinelShow",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.sentinel.logs",
+   "source": "routes/web.php:547",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/server.sentinel.logs",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}/sentinel/logs",
+   "name": "server.sentinel.logs",
+   "handler": "SentinelLogs",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.private-key",
+   "source": "routes/web.php:548",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/server.private-key",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}/private-key",
+   "name": "server.private-key",
+   "handler": "PrivateKeyShow",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.cloud-provider-token",
+   "source": "routes/web.php:549",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/server.cloud-provider-token",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}/cloud-provider-token",
+   "name": "server.cloud-provider-token",
+   "handler": "CloudProviderTokenShow",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.ca-certificate",
+   "source": "routes/web.php:550",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/server.ca-certificate",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}/ca-certificate",
+   "name": "server.ca-certificate",
+   "handler": "CaCertificateShow",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.resources",
+   "source": "routes/web.php:551",
+   "milestone": "DP6",
+   "component": "apps/deploy-core-worker + lumen integrations",
+   "parityTest": "parity/routes.web/server.resources",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}/resources",
+   "name": "server.resources",
+   "handler": "ResourcesShow",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.cloudflare-tunnel",
+   "source": "routes/web.php:552",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/server.cloudflare-tunnel",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}/cloudflare-tunnel",
+   "name": "server.cloudflare-tunnel",
+   "handler": "CloudflareTunnel",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.destinations",
+   "source": "routes/web.php:553",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/server.destinations",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}/destinations",
+   "name": "server.destinations",
+   "handler": "ServerDestinations",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.log-drains",
+   "source": "routes/web.php:554",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/server.log-drains",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}/log-drains",
+   "name": "server.log-drains",
+   "handler": "LogDrains",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.metrics",
+   "source": "routes/web.php:555",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/server.metrics",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}/metrics",
+   "name": "server.metrics",
+   "handler": "ServerCharts",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.analytics",
+   "source": "routes/web.php:556",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/server.analytics",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}/analytics",
+   "name": "server.analytics",
+   "handler": "ServerAnalytics",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.delete",
+   "source": "routes/web.php:557",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/server.delete",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}/danger",
+   "name": "server.delete",
+   "handler": "DeleteServer",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.transfer",
+   "source": "routes/web.php:558",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/server.transfer",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}/transfer",
+   "name": "server.transfer",
+   "handler": "ServerTransfer",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.proxy",
+   "source": "routes/web.php:559",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/server.proxy",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}/proxy",
+   "name": "server.proxy",
+   "handler": "ProxyShow",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.proxy.certificates",
+   "source": "routes/web.php:560",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/server.proxy.certificates",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}/proxy/certificates",
+   "name": "server.proxy.certificates",
+   "handler": "ProxyCertificatesShow",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.proxy.dynamic-confs",
+   "source": "routes/web.php:561",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/server.proxy.dynamic-confs",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}/proxy/dynamic",
+   "name": "server.proxy.dynamic-confs",
+   "handler": "ProxyDynamicConfigurations",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.proxy.logs",
+   "source": "routes/web.php:562",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/server.proxy.logs",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}/proxy/logs",
+   "name": "server.proxy.logs",
+   "handler": "ProxyLogs",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.command",
+   "source": "routes/web.php:563",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/server.command",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}/terminal",
+   "name": "server.command",
+   "handler": "ExecuteContainerCommand",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide",
+    "can.access.terminal"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.docker-cleanup",
+   "source": "routes/web.php:564",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/server.docker-cleanup",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}/docker-cleanup",
+   "name": "server.docker-cleanup",
+   "handler": "DockerCleanup",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.docker-images",
+   "source": "routes/web.php:565",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/server.docker-images",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}/images",
+   "name": "server.docker-images",
+   "handler": "DockerImages",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.github-runners",
+   "source": "routes/web.php:566",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/server.github-runners",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}/github-runners",
+   "name": "server.github-runners",
+   "handler": "GithubRunners",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.registries",
+   "source": "routes/web.php:567",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/server.registries",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}/registries",
+   "name": "server.registries",
+   "handler": "ServerRegistries",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide",
+    "can.update.resource"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.security",
+   "source": "routes/web.php:568",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/server.security",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}/security",
+   "name": "server.security",
+   "handler": "ServerSecurityIndex",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide",
+    "can.update.resource"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.security.patches",
+   "source": "routes/web.php:569",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/server.security.patches",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}/security/patches",
+   "name": "server.security.patches",
+   "handler": "ServerSecurityPatches",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide",
+    "can.update.resource"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.security.vulnerabilities",
+   "source": "routes/web.php:570",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/server.security.vulnerabilities",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}/security/vulnerabilities",
+   "name": "server.security.vulnerabilities",
+   "handler": "ServerImageScanning",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide",
+    "can.update.resource"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:server.security.image-scanning",
+   "source": "routes/web.php:572",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/server.security.image-scanning",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}/security/image-scanning",
+   "name": "server.security.image-scanning",
+   "handler": "closure",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:server.security.{$page}",
+   "source": "routes/web.php:575",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/server.security.{$page}",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/server/{server_uuid}/security/{$page}",
+   "name": "server.security.{$page}",
+   "handler": "closure",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:destination.index",
+   "source": "routes/web.php:579",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/destination.index",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/destinations",
+   "name": "destination.index",
+   "handler": "DestinationIndex",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:destination.show",
+   "source": "routes/web.php:580",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/destination.show",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/destination/{destination_uuid}",
+   "name": "destination.show",
+   "handler": "DestinationShow",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:destination.danger",
+   "source": "routes/web.php:581",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/destination.danger",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/destination/{destination_uuid}/danger",
+   "name": "destination.danger",
+   "handler": "DestinationShow",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:destination.resources",
+   "source": "routes/web.php:582",
+   "milestone": "DP6",
+   "component": "apps/deploy-core-worker + lumen integrations",
+   "parityTest": "parity/routes.web/destination.resources",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/destination/{destination_uuid}/resources",
+   "name": "destination.resources",
+   "handler": "DestinationResources",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:security.private-key.index",
+   "source": "routes/web.php:585",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/security.private-key.index",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/security/private-key",
+   "name": "security.private-key.index",
+   "handler": "SecurityPrivateKeyIndex",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:security.private-key.show",
+   "source": "routes/web.php:587",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/security.private-key.show",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/security/private-key/{private_key_uuid}",
+   "name": "security.private-key.show",
+   "handler": "closure",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:security.cloud-tokens",
+   "source": "routes/web.php:591",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/security.cloud-tokens",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/security/cloud-tokens",
+   "name": "security.cloud-tokens",
+   "handler": "CloudTokens",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:security.integration-tokens",
+   "source": "routes/web.php:592",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/security.integration-tokens",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/security/integration-tokens",
+   "name": "security.integration-tokens",
+   "handler": "IntegrationTokens",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:security.cloud-tokens.show",
+   "source": "routes/web.php:593",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/security.cloud-tokens.show",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/security/cloud-tokens/{cloud_token_uuid}",
+   "name": "security.cloud-tokens.show",
+   "handler": "SecurityCloudProviderTokenShow",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:security.cloud-init-scripts",
+   "source": "routes/web.php:594",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/security.cloud-init-scripts",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/security/cloud-init-scripts",
+   "name": "security.cloud-init-scripts",
+   "handler": "CloudInitScripts",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:security.cloud-init-scripts.show",
+   "source": "routes/web.php:595",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/security.cloud-init-scripts.show",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/security/cloud-init-scripts/{cloud_init_script_uuid}",
+   "name": "security.cloud-init-scripts.show",
+   "handler": "SecurityCloudInitScriptShow",
+   "middleware": [
+    "auth",
+    "verified",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:security.api-tokens",
+   "source": "routes/web.php:597",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + lumen notifications",
+   "parityTest": "parity/routes.web/security.api-tokens",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/security/api-tokens",
+   "name": "security.api-tokens",
+   "handler": "ApiTokens",
+   "middleware": [
+    "auth",
+    "verified"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:team.select",
+   "source": "routes/web.php:601",
+   "milestone": "DP10",
+   "component": "lumen membership/policy/billing + apps/deploy-web",
+   "parityTest": "parity/routes.web/team.select",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/select-team",
+   "name": "team.select",
+   "handler": "SelectTeam",
+   "middleware": [
+    "auth"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:terminal.session.end",
+   "source": "routes/web.php:605",
+   "milestone": "DP4",
+   "component": "apps/ssh-executor + apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/terminal.session.end",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/terminal/session/end",
+   "name": "terminal.session.end",
+   "handler": "closure",
+   "middleware": [],
+   "visual": false
+  },
+  {
+   "id": "routes.web:source.all",
+   "source": "routes/web.php:616",
+   "milestone": "DP6",
+   "component": "apps/deploy-core-worker + lumen integrations",
+   "parityTest": "parity/routes.web/source.all",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/sources",
+   "name": "source.all",
+   "handler": "closure",
+   "middleware": [
+    "auth",
+    "access.team-wide"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:source.github.show",
+   "source": "routes/web.php:623",
+   "milestone": "DP6",
+   "component": "apps/deploy-core-worker + lumen integrations",
+   "parityTest": "parity/routes.web/source.github.show",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/source/github/{github_app_uuid}",
+   "name": "source.github.show",
+   "handler": "GitHubChange",
+   "middleware": [
+    "auth",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:source.github.danger",
+   "source": "routes/web.php:624",
+   "milestone": "DP6",
+   "component": "apps/deploy-core-worker + lumen integrations",
+   "parityTest": "parity/routes.web/source.github.danger",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/source/github/{github_app_uuid}/danger",
+   "name": "source.github.danger",
+   "handler": "GitHubChange",
+   "middleware": [
+    "auth",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:source.github.permissions",
+   "source": "routes/web.php:625",
+   "milestone": "DP10",
+   "component": "lumen membership/policy/billing + apps/deploy-web",
+   "parityTest": "parity/routes.web/source.github.permissions",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/source/github/{github_app_uuid}/permissions",
+   "name": "source.github.permissions",
+   "handler": "GitHubChange",
+   "middleware": [
+    "auth",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:source.github.resources",
+   "source": "routes/web.php:626",
+   "milestone": "DP6",
+   "component": "apps/deploy-core-worker + lumen integrations",
+   "parityTest": "parity/routes.web/source.github.resources",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/source/github/{github_app_uuid}/resources",
+   "name": "source.github.resources",
+   "handler": "GitHubChange",
+   "middleware": [
+    "auth",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:source.gitlab.show",
+   "source": "routes/web.php:627",
+   "milestone": "DP6",
+   "component": "apps/deploy-core-worker + lumen integrations",
+   "parityTest": "parity/routes.web/source.gitlab.show",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/source/gitlab/{gitlab_app_uuid}",
+   "name": "source.gitlab.show",
+   "handler": "GitLabChange",
+   "middleware": [
+    "auth",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:source.gitea.show",
+   "source": "routes/web.php:628",
+   "milestone": "DP6",
+   "component": "apps/deploy-core-worker + lumen integrations",
+   "parityTest": "parity/routes.web/source.gitea.show",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/source/gitea/{gitea_app_uuid}",
+   "name": "source.gitea.show",
+   "handler": "GiteaChange",
+   "middleware": [
+    "auth",
+    "access.team-wide"
+   ],
+   "visual": true
+  },
+  {
+   "id": "routes.web:upload.backup",
+   "source": "routes/web.php:632",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/upload.backup",
+   "taskKey": null,
+   "status": "planned",
+   "method": "POST",
+   "path": "/upload/backup/{databaseUuid}",
+   "name": "upload.backup",
+   "handler": "UploadController@upload",
+   "middleware": [
+    "auth"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:get-download-backup-executionId",
+   "source": "routes/web.php:633",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/get-download-backup-executionId",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/download/backup/{executionId}",
+   "name": null,
+   "handler": "closure",
+   "middleware": [
+    "auth"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:download.volume-backup",
+   "source": "routes/web.php:677",
+   "milestone": "DP11",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/routes.web/download.volume-backup",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/download/volume-backup/{executionId}",
+   "name": "download.volume-backup",
+   "handler": "closure",
+   "middleware": [
+    "auth"
+   ],
+   "visual": false
+  },
+  {
+   "id": "routes.web:any-any",
+   "source": "routes/web.php:721",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/routes.web/any-any",
+   "taskKey": null,
+   "status": "planned",
+   "method": "ANY",
+   "path": "/{any}",
+   "name": null,
+   "handler": "closure",
+   "middleware": [],
+   "visual": false
+  }
+ ]
+}
