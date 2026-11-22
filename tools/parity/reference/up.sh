@@ -31,9 +31,27 @@ fi
 ROOT_USER_EMAIL="${ROOT_USER_EMAIL:-root@example.com}"
 
 image="docker.io/coollabsio/coolify:${COOLIFY_REF}"
+dockerfile="$COOLIFY_DIR/docker/production/Dockerfile"
+# BUILD-ENVIRONMENT FALLBACK, not an app change. The Dockerfile fetches
+# nginx.org's apk signing key at build time; on 2026-11-23 that URL answered
+# 404 (upstream main has the same line). When it does not answer, the build
+# uses the same key vendored here — byte-identical to every archived copy
+# from 2019 to 2026-10 — checked by its sha256, and says so.
+NGINX_KEY_URL=https://nginx.org/keys/nginx_signing.rsa.pub
+NGINX_KEY_SHA256=ff7cf138acc09f2a5029300ab713fe6a1440605fca72e2bab76a4da9206fec87
+here="$(cd "$(dirname "$0")" && pwd)"
+if [ "$(curl -s -o /dev/null -w '%{http_code}' "$NGINX_KEY_URL")" != "200" ]; then
+  echo "::warning::$NGINX_KEY_URL is not answering; building with the vendored key (sha256 $NGINX_KEY_SHA256)"
+  echo "$NGINX_KEY_SHA256  $here/nginx_signing.rsa.pub" | sha256sum -c - >/dev/null
+  key_b64="$(base64 -w0 "$here/nginx_signing.rsa.pub")"
+  patched="$OUT/Dockerfile.reference"
+  sed "s#curl -fsSL $NGINX_KEY_URL -o /etc/apk/keys/nginx_signing.rsa.pub#echo $key_b64 | base64 -d > /etc/apk/keys/nginx_signing.rsa.pub#g" "$dockerfile" > "$patched"
+  grep -q "$NGINX_KEY_URL" "$patched" && { echo "could not patch the key fetch" >&2; exit 1; }
+  dockerfile="$patched"
+fi
 if ! docker image inspect "$image" >/dev/null 2>&1; then
   echo "building $image from source (docker/production/Dockerfile)"
-  docker build -q -f "$COOLIFY_DIR/docker/production/Dockerfile" \
+  docker build -q -f "$dockerfile" \
     --build-arg COOLIFY_VERSION="$COOLIFY_REF" \
     --build-arg GIT_SHA="$COOLIFY_REF" \
     -t "$image" "$COOLIFY_DIR"
