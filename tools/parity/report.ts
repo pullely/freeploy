@@ -59,5 +59,23 @@ if (report?.routes?.some((r: { status: string }) => r.status === "fail")) {
   }
   L.push("");
 }
+const apiRef = read(join(out, "api-report.reference.json"));
+const apiTgt = read(join(parity, "api-report.json"));
+if (apiRef || apiTgt) {
+  const a = (apiTgt ?? apiRef).summary;
+  L.push("## API contract (openapi.json)");
+  L.push("");
+  L.push("| | Value |");
+  L.push("|---|---|");
+  L.push(`| Operations in the contract | ${a.operations} |`);
+  L.push(`| Read checks needing a fixture | ${a.needsFixture} |`);
+  if (apiRef) {
+    const r = apiRef.summary;
+    L.push(`| Reference: GET answers with an undocumented status | ${r.referenceUndocumentedStatus} |`);
+    L.push(`| Reference: GET bodies not matching their documented schema | ${r.referenceSchemaErrors} |`);
+  }
+  L.push(`| Freeploy: operations passing (unauth + read shape) | ${apiTgt?.summary.target ? `${apiTgt.summary.pass} of ${apiTgt.summary.operations} (${pct(apiTgt.summary.pass, apiTgt.summary.operations)})` : "no target"} |`);
+  L.push("");
+}
 writeFileSync(join(parity, "HARNESS.md"), L.join("\n"));
 console.log("wrote HARNESS.md");
