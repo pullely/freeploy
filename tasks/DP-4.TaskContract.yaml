@@ -1,0 +1,16 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-4
+  title: "DP1: API contract tests from Coolify's openapi.json"
+spec:
+  goal: The parity workflow runs every operation in Coolify's openapi.json against the reference — unauthenticated for every method, and authenticated GETs with fixture ids validated against their documented status and schema — and, when a Freeploy target is set, requires the same status and response shape from Freeploy; results land in api-report.json and HARNESS.md.
+  affects:
+    - tools/parity/**
+    - .github/workflows/parity.yml
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - tools/parity self-tests pass, including the schema validator, the {uuid} mapping and the shape comparison
+    - the parity workflow's visual job runs the contract against the reference and HARNESS.md shows the API section
+  gates: []

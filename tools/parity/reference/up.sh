@@ -78,6 +78,15 @@ set_env ROOT_USERNAME "'Parity Root'"
 set_env ROOT_USER_EMAIL "'$ROOT_USER_EMAIL'"
 set_env ROOT_USER_PASSWORD "'$ROOT_USER_PASSWORD'"
 set_env AUTOUPDATE "false"
+# Operator config, not an app change: the contract run makes ~700 API calls a
+# minute from one IP, and the default limit (200/min, config/api.php) would
+# answer most of them with 429.
+set_env API_RATE_LIMIT "100000"
+# Same reason for ThrottleFailedApiRequests: the unauthenticated contract
+# sweep is ~330 deliberate 401s from one IP, which that middleware blocks for
+# 1, 5, then 15 minutes. Its own behaviour is a parity scenario of its own
+# (DP9: api.failed-request-throttle), measured with it switched on.
+set_env API_FAILED_REQUEST_RATE_LIMIT "0"
 set_env LATEST_IMAGE "$COOLIFY_REF"
 set_env APP_PORT "$APP_PORT"
 

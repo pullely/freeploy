@@ -101,6 +101,11 @@ jobs:
           node tools/parity/visual/capture.ts --system reference --base "$(grep ^REFERENCE_URL= $OUT/reference.env | cut -d= -f2-)" \
             --env-file "$OUT/reference.env" --user-env REFERENCE_EMAIL --password-env REFERENCE_PASSWORD \
             --ids "$OUT/reference.ids.json" --out "$OUT" ${{ inputs.only && format('--only ''{0}''', inputs.only) || '' }}
+      - name: API contract (openapi.json) against the reference
+        run: |
+          node tools/parity/api/contract.ts --env-file "$OUT/reference.env" \
+            --ref-base "$(grep ^REFERENCE_URL= $OUT/reference.env | cut -d= -f2-)" --ref-token-env REFERENCE_TOKEN \
+            --ref-ids "$OUT/reference.ids.json" --report "$OUT/api-report.reference.json"
       - name: seed and capture Freeploy
         if: env.PARITY_TARGET_URL != ''
         env:
@@ -110,6 +115,10 @@ jobs:
         run: |
           node tools/parity/fixtures/apply.ts --base "$PARITY_TARGET_URL" --token-env TARGET_TOKEN \
             --fixtures tools/parity/fixtures/base.json --out "$OUT/target.ids.json"
+          node tools/parity/api/contract.ts --env-file "$OUT/reference.env" \
+            --ref-base "$(grep ^REFERENCE_URL= $OUT/reference.env | cut -d= -f2-)" --ref-token-env REFERENCE_TOKEN \
+            --ref-ids "$OUT/reference.ids.json" --target-base "$PARITY_TARGET_URL" --target-token-env TARGET_TOKEN \
+            --target-ids "$OUT/target.ids.json" --report specs/epics/freeploy-coolify-parity/parity/api-report.json
           node tools/parity/visual/capture.ts --system target --base "$PARITY_TARGET_URL" \
             --user-env TARGET_EMAIL --password-env TARGET_PASSWORD --ids "$OUT/target.ids.json" --out "$OUT" \
             ${{ inputs.only && format('--only ''{0}''', inputs.only) || '' }}
@@ -128,6 +137,8 @@ jobs:
           path: |
             specs/epics/freeploy-coolify-parity/parity/visual-report.json
             specs/epics/freeploy-coolify-parity/parity/HARNESS.md
+            specs/epics/freeploy-coolify-parity/parity/api-report.json
+            tools/parity/out/api-report.reference.json
             tools/parity/out/reference
             tools/parity/out/target
             tools/parity/out/diff
