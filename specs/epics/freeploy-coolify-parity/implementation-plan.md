@@ -14,7 +14,7 @@ and the parity gates that must be green (`parity/visual`, `parity/dom`,
 `parity/api`, `parity/commands`, `parity/behaviour`). Rows move
 `planned → in_progress → ported → verified` in the PRs that touch them.
 
-## DP0 — the spec
+## DP0 — the spec ✅
 
 The doc set, the task contracts and the generated parity inventory
 (`tools/parity/inventory.ts` run against Coolify at `91b7e3e`) — task DP-1.

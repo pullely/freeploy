@@ -33,3 +33,20 @@ apps/notifications-worker/wrangler.jsonc
 apps/admin-worker/wrangler.jsonc
 apps/integrations-worker/wrangler.jsonc
 apps/webhooks-worker/wrangler.jsonc
+
+# Freeploy (DP-2): never commit secrets, local env, keys or real-data artefacts
+.env*
+!.env.example
+.dev.vars
+.dev.vars.*
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+*.p12
+values*.yaml
+*-values.yaml
+cf-token.txt
+tools/parity/out/
+tools/parity/artifacts/
+**/screenshots/real/

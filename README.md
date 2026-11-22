@@ -1,11 +1,41 @@
 # Freeploy
 
-`pullely/freeploy` — a multi-tenant SaaS on Cloudflare Workers
-and Supabase Postgres, run as an [Orun](https://github.com/sourceplane/orun)
+**Freeploy**: free hosted deploys to your own servers.
+
+Add a server by IP and SSH key, then deploy applications (Nixpacks, static,
+Dockerfile, Docker image, Docker Compose), databases (PostgreSQL, MySQL,
+MariaDB, MongoDB, Redis, KeyDB, Dragonfly, ClickHouse) and hundreds of
+one-click services to it, with preview deployments, backups to S3, scheduled
+tasks, notifications, a web terminal and a REST API. Many independent teams
+share one hosted control plane; each team's servers, keys and resources
+belong to that team alone.
+
+Freeploy is a multi-tenant port of [Coolify](https://github.com/coollabsio/coolify)
+(Apache-2.0), not affiliated with coollabs.io. It reproduces its
+features and screens at a pinned commit on a different architecture:
+Cloudflare Workers, Workflows, Queues and Durable Objects for the control
+plane, Supabase Postgres through Hyperdrive for data, and a small SSH executor
+that reaches your servers exactly the way the original does. See
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for attribution and
+[the epic](specs/epics/freeploy-coolify-parity/README.md) for the design and
+the parity plan.
+
+Status: **in development.** Progress, milestone by milestone, is in
+[IMPLEMENTATION-STATUS.md](specs/epics/freeploy-coolify-parity/IMPLEMENTATION-STATUS.md)
+and the [parity report](specs/epics/freeploy-coolify-parity/parity/README.md).
+
+## Platform
+
+`pullely/freeploy` runs on the Lumen baseline: a multi-tenant SaaS on
+Cloudflare Workers and Supabase Postgres, run as an [Orun](https://github.com/sourceplane/orun)
 component-native desired-state repo. Identity, organizations, projects, RBAC,
 audit, metering, billing, webhooks and notifications are separate
-bounded-context Workers behind one public edge API, with a Next.js console on
-Workers + Static Assets.
+bounded-context Workers behind one public edge API.
+
+## Licence and security
+
+Apache License 2.0 — see [LICENSE](LICENSE). Report vulnerabilities privately
+as described in [SECURITY.md](SECURITY.md). Contributions: [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Live deployment
 

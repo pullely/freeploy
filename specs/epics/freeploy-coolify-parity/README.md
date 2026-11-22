@@ -30,7 +30,7 @@ are replaced and attribution is kept in `THIRD_PARTY_NOTICES.md`.
 
 | Field | Value |
 |-------|-------|
-| Status | Draft |
+| Status | In progress |
 | Cluster | **DP** (DP0–DP13) |
 | Owner(s) | `apps/deploy-core-worker` (the `deploy` resource) · `apps/ssh-executor` + `SshSession` DO (server access) · `packages/contracts` + `packages/sdk` (the wire) · `apps/deploy-web` (the exact UI port) · `tools/parity` (the measure) |
 | Builds on | `lumen baseline-v33` — extends identity (2FA, passkeys), membership + policy (Coolify roles), config, notifications, webhooks, billing (Polar), metering, events/audit, integrations, api-edge |
