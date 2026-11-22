@@ -75,7 +75,9 @@ jobs:
   reference:
     name: parity · visual
     needs: unit
-    runs-on: ubuntu-latest
+    # Pinned: ubuntu-latest moved to 26.04, which Playwright 1.56 has no
+    # Chromium build for.
+    runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
