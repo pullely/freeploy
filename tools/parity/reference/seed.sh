@@ -18,7 +18,7 @@ umask 077
 token=$(docker exec coolify php artisan tinker --execute '
 $s = \App\Models\InstanceSettings::get();
 $s->is_api_enabled = true; $s->allowed_ips = null;
-// Coolify's "Love Coolify? Support our work" popup is an instance setting.
+// The "Love Coolify? Support our work" popup is an instance setting.
 // Freeploy never shows it (no affiliation with coollabs.io; the operator
 // setting defaults off), so the reference turns it off to compare like with like.
 $s->is_sponsorship_popup_enabled = false; $s->save();
