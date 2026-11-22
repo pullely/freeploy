@@ -16,7 +16,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { chromium, type Page } from "playwright";
 import { prepareMasks, MASK_SELECTOR } from "./masks.ts";
-import { resolvePath } from "./paths.ts";
+import { resolvePath, safeId } from "./paths.ts";
 
 const args = process.argv.slice(2);
 const opt = (k: string, d?: string) => {
@@ -80,7 +80,7 @@ async function main() {
   const routes: RouteRow[] = JSON.parse(readFileSync(routesFile, "utf8")).rows;
   const targets = routes.filter((r) => r.visual && r.method === "GET" && (!only || only.test(r.id)));
   const browser = await chromium.launch();
-  const captured: Array<{ id: string; url: string; shots: string[]; status: number | null }> = [];
+  const captured: Array<{ id: string; dir: string; url: string; shots: string[]; status: number | null }> = [];
   const skipped: Array<{ id: string; reason: string }> = [];
   try {
     for (const theme of THEMES) {
@@ -101,7 +101,7 @@ async function main() {
             if (theme === "light" && vp === "desktop") skipped.push({ id: r.id, reason: `missing fixture: ${missing.join(", ")}` });
             continue;
           }
-          const dir = join(outDir, r.id);
+          const dir = join(outDir, safeId(r.id));
           mkdirSync(dir, { recursive: true });
           let status: number | null = null;
           try {
@@ -112,7 +112,7 @@ async function main() {
             const file = join(dir, `${vp}-${theme}.png`);
             await page.screenshot({ path: file, fullPage: true, animations: "disabled", mask: [page.locator(MASK_SELECTOR)], maskColor: "#ff00ff" });
             writeFileSync(join(dir, `${vp}-${theme}.dom.json`), JSON.stringify(await domExtract(page), null, 1));
-            const entry = captured.find((c) => c.id === r.id) ?? captured[captured.push({ id: r.id, url, shots: [], status }) - 1];
+            const entry = captured.find((c) => c.id === r.id) ?? captured[captured.push({ id: r.id, dir: safeId(r.id), url, shots: [], status }) - 1];
             entry.shots.push(`${vp}-${theme}`);
           } catch (e) {
             if (theme === "light" && vp === "desktop") skipped.push({ id: r.id, reason: `error: ${(e as Error).message.split("\n")[0]}` });

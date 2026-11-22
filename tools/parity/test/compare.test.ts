@@ -5,7 +5,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { PNG } from "pngjs";
 import { comparePng, compareDom, PIXEL_GATE } from "../visual/compare.ts";
-import { resolvePath } from "../visual/paths.ts";
+import { resolvePath, safeId } from "../visual/paths.ts";
 
 function solid(w: number, h: number, rgb: [number, number, number]): PNG {
   const p = new PNG({ width: w, height: h });
@@ -53,4 +53,9 @@ test("route params resolve from fixtures; missing ones are reported", () => {
   assert.deepEqual(resolvePath("/project/{project_uuid}/edit", { project_uuid: "p1" }), { url: "/project/p1/edit", missing: [] });
   assert.deepEqual(resolvePath("/tags/{tagName?}", {}), { url: "/tags", missing: [] });
   assert.equal(resolvePath("/server/{server_uuid}", {}).url, null);
+});
+
+test("route ids become artefact-safe directory names", () => {
+  assert.equal(safeId("routes.web:admin.index"), "routes.web__admin.index");
+  assert.doesNotMatch(safeId('a:b"c<d>e|f*g?h'), /[:"<>|*?]/);
 });

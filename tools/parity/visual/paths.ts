@@ -12,3 +12,8 @@ export function resolvePath(path: string, values: Record<string, string>): { url
     });
   return { url: missing.length ? null : url || "/", missing };
 }
+
+/** A route id as a directory name: artefact stores and NTFS refuse `: " < > | * ?`. */
+export function safeId(id: string): string {
+  return id.replace(/[:"<>|*?\\/\r\n]/g, "__");
+}
