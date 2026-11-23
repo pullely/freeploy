@@ -12,3 +12,19 @@ export function applyStoredTheme(): void {
   document.documentElement.classList.toggle("dark", isDark);
   document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
 }
+
+/**
+ * The <html> attributes and CSS variables Coolify's base layout sets before
+ * render (layouts/base.blade.php): navigation style, item style, UI scale and
+ * the default theme colour, as on the reference.
+ */
+export function applyLayoutDefaults(): void {
+  const html = document.documentElement;
+  html.lang = "en";
+  html.setAttribute("data-nav-style", "default");
+  html.setAttribute("data-nav-items", "3d");
+  html.setAttribute("data-ui-scale", "100");
+  html.style.setProperty("--theme-base-color", "oklch(49.65% 0.2709 289.33)");
+  html.style.setProperty("--theme-accent-foreground", "oklch(100% 0 0)");
+  document.body.className = "dark:text-inherit text-black";
+}
