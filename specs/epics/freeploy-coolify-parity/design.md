@@ -3,7 +3,7 @@
 The source is the spec. For every surface, the Coolify code at
 `coollabsio/coolify@91b7e3e` (the model, the Livewire component, the Blade
 view, the Action, the Job, the helper) is what Freeploy must do; this document
-says **where** each piece lives in Lumen and **how** "exact" is measured. The
+says **where** each piece lives in Freeploy and **how** "exact" is measured. The
 generated inventory in `parity/` lists every unit by id and is the checklist.
 Files derived from Coolify carry
 `// Derived from coollabsio/coolify@91b7e3e:<path> (Apache-2.0), modified.`
@@ -19,7 +19,7 @@ flowchart LR
     RT["OrgRealtime DO<br/>(one per org)"]
     SSH["SshSession DO<br/>(one per server)"]
     EXE["apps/ssh-executor<br/>Go · Cloudflare Container"]
-    LUMEN["Lumen workers<br/>identity · membership · policy · config<br/>notifications · webhooks · billing<br/>metering · events · integrations"]
+    LUMEN["Freeploy workers<br/>identity · membership · policy · config<br/>notifications · webhooks · billing<br/>metering · events · integrations"]
     R2[("R2<br/>logs · downloads · SBOMs · avatars")]
     KV[("KV caches")]
     HD["Hyperdrive"]
@@ -48,15 +48,15 @@ same table and column names, so a Coolify query, model or fixture reads the
 same against Freeploy. Three rules apply to every table:
 
 1. `team_id` becomes `org_id uuid not null references identity.organizations`
-   (Lumen's org). Tables Coolify scopes only through a parent (for example
+   (Freeploy's org). Tables Coolify scopes only through a parent (for example
    `application_settings` through `applications.team_id` via
    environment → project) **also** get `org_id`, denormalised, so every row can
    be filtered by org without a join. 28 of the 88 tables have `team_id` today;
    after DP2 all 88 have `org_id`.
 2. Coolify's `uuid` column stays and is the **public id** on every route and in
-   `/api/v1` (Coolify's ids are cuid2 strings, not Lumen prefixed ids). The
+   `/api/v1` (Coolify's ids are cuid2 strings, not Freeploy prefixed ids). The
    bigint `id` stays internal. No new prefix is minted for ported resources;
-   new Freeploy-only objects use Lumen prefixed ids (`dpl_…`).
+   new Freeploy-only objects use Freeploy prefixed ids (`dpl_…`).
 3. Columns Coolify encrypts (Laravel `encrypted` casts: private keys, env
    values, S3 secrets, notification tokens, webhook secrets, OAuth secrets) are
    stored as **envelopes**: AES-256-GCM ciphertext under a per-org data key,
@@ -89,12 +89,12 @@ image_scans, image_sboms, github_runner_*,
   managed_dns_records, ssl_certificates,
   cloud_provider_tokens, resource_links, …   DP11 features
 subscriptions, audit_events, passkeys,
-  oauth_identities, oauth_settings           mapped onto Lumen billing, events and identity
+  oauth_identities, oauth_settings           mapped onto Freeploy billing, events and identity
 ```
 
 `teams`, `users`, `team_user`, `team_invitations`, `sessions`,
-`password_reset_tokens` are **not** ported as tables: they are Lumen's
-identity and membership. A view `deploy.teams` maps Lumen orgs to Coolify's
+`password_reset_tokens` are **not** ported as tables: they are Freeploy's
+identity and membership. A view `deploy.teams` maps Freeploy orgs to Coolify's
 team shape (including `personal_team`, `show_boarding`) so ported queries keep
 working. `instance_settings` becomes `deploy.platform_settings`, readable and
 writable only by platform-admin (§3.4).
@@ -111,12 +111,12 @@ user-visible brand.)
 
 ## 2. The API
 
-### 2.1 Console facade (Lumen conventions)
+### 2.1 Console facade (Freeploy conventions)
 
 `apps/api-edge` gains `deploy-facade.ts`, forwarding
-`/v1/organizations/{org}/deploy/*` to `deploy-core-worker` after Lumen's actor
-resolution, policy check and rate limit. Envelopes are Lumen's
-`{ data, meta }` and errors Lumen's `{ error: { code, message, details } }`;
+`/v1/organizations/{org}/deploy/*` to `deploy-core-worker` after Freeploy's actor
+resolution, policy check and rate limit. Envelopes are Freeploy's
+`{ data, meta }` and errors Freeploy's `{ error: { code, message, details } }`;
 validation errors carry Coolify's exact messages in `details.fields`.
 
 ```
@@ -138,7 +138,7 @@ SPA and the facade are generated from the same inventory row.
 `openapi.json`** (copied verbatim to `parity/openapi.json`; 292 operations,
 349 routes in `routes/api.php`) with the same paths, bodies, status codes
 and error texts. Auth is a bearer API token (Coolify's Sanctum abilities:
-`read`, `write`, `deploy`, `read:sensitive`, `root`), stored as a Lumen
+`read`, `write`, `deploy`, `read:sensitive`, `root`), stored as a Freeploy
 identity API key bound to **one org**; `root` maps to org owner, never to
 platform-admin. `/api/v1/sentinel/push` and `/api/v1/deploy` webhooks match
 Coolify's endpoints.
@@ -149,8 +149,8 @@ Coolify's endpoints.
 
 A Vite + React + TypeScript SPA served by Workers Static Assets. Styling is
 Coolify's own Tailwind v4 setup copied verbatim (`resources/css/app.css`,
-`utilities.css`, `fonts.css`, fonts, theme tokens). It replaces Lumen's
-`web-console-next` as the product's surface; Lumen's console keeps the
+`utilities.css`, `fonts.css`, fonts, theme tokens). It replaces Freeploy's
+`web-console-next` as the product's surface; Freeploy's console keeps the
 account pages it already owns (and is linked from Settings).
 
 - **URLs** are exactly `routes/web.php` (290 routes in `parity/routes.web.json`),
@@ -193,7 +193,7 @@ and their membership of that org.
 
 Coolify's instance-scoped features (`/settings/*`, `/admin`, self-update,
 instance backups, root-team powers) are reproduced with the same UI under the
-Lumen operator role, enforced in `policy-worker`; no customer org can reach
+Freeploy operator role, enforced in `policy-worker`; no customer org can reach
 them (tests in DP12).
 
 ## 4. Events, secrets, and integrations
@@ -234,13 +234,13 @@ them (tests in DP12).
 ### 4.3 Integrations and notifications
 
 - Sources: GitHub Apps (manifest flow), GitLab, Gitea, Bitbucket, deploy keys,
-  in `deploy-core-worker`, with webhook ingress through Lumen's
+  in `deploy-core-worker`, with webhook ingress through Freeploy's
   `webhooks-worker` verifier.
 - Notifications: the six channels × every event in `parity/notifications.json`
-  (207 rows). Email goes through Lumen's `notifications-worker`; Discord,
+  (207 rows). Email goes through Freeploy's `notifications-worker`; Discord,
   Telegram, Slack, Pushover and webhook are sent by `deploy-core-worker` with
   payloads byte-equal to Coolify's.
-- Billing: Coolify's Subscription pages over Lumen's Polar billing; metering
+- Billing: Coolify's Subscription pages over Freeploy's Polar billing; metering
   counts servers and resources per org.
 - Hetzner: cloud-provider tokens are org-scoped encrypted credentials.
 

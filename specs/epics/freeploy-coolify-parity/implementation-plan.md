@@ -23,7 +23,7 @@ SECURITY, CONTRIBUTING, README with the non-affiliation line, topics, secret
 scanning, push protection, branch protection) — task DP-2.
 
 - Coolify sources: the whole tree at `91b7e3e`, read by `tools/parity/inventory.ts`.
-- Lumen components: `specs/epics/freeploy-coolify-parity/**`, `tasks/**`, `tools/parity/**`, repo root docs.
+- Freeploy components: `specs/epics/freeploy-coolify-parity/**`, `tasks/**`, `tools/parity/**`, repo root docs.
 
 **Done when**
 - `task_get DP-1` and `task_get DP-2` read `done`
@@ -42,7 +42,7 @@ scenario runner; and the CI workflow that publishes `parity/visual-report.json`
 and side-by-side images as artefacts and regenerates `parity/README.md`.
 
 - Coolify sources: `scripts/install.sh`, `docker-compose*.yml`, `openapi.json`, `routes/web.php`, `bootstrap/helpers/*.php`, `database/seeders/**`.
-- Lumen components: `tools/parity/**`, `.github/workflows/parity.yml`, `package.json` scripts (`parity:*`).
+- Freeploy components: `tools/parity/**`, `.github/workflows/parity.yml`, `package.json` scripts (`parity:*`).
 
 **Done when**
 - the parity workflow runs in CI against the reference and an empty Freeploy stage
@@ -59,7 +59,7 @@ binding, health, org guard middleware); `api-edge` `deploy-facade.ts`; wire
 types in `packages/contracts`; cross-org isolation tests.
 
 - Coolify sources: `database/migrations/**`, `app/Models/**` (casts, relations), `config/database.php`.
-- Lumen components: `packages/db`, `packages/contracts`, `apps/deploy-core-worker`, `apps/api-edge`, `intent.yaml`.
+- Freeploy components: `packages/db`, `packages/contracts`, `apps/deploy-core-worker`, `apps/api-edge`, `intent.yaml`.
 
 **Done when**
 - the migrations apply on stage and prod (db-migrate converged in `runs_list`)
@@ -71,11 +71,11 @@ types in `packages/contracts`; cross-org isolation tests.
 `apps/deploy-web` on Coolify's CSS, fonts and theme; navbar, sidebar, team
 switcher; all 145 Blade components ported with a component-gallery route;
 auth pages (login, register, verify email, forgot/force reset, 2FA, passkeys)
-backed by Lumen identity extended with TOTP and WebAuthn; profile and
+backed by Freeploy identity extended with TOTP and WebAuthn; profile and
 appearance; the brand swap.
 
 - Coolify sources: `resources/css/**`, `resources/views/components/**`, `resources/views/layouts/**`, `resources/views/auth/**`, `app/Livewire/Profile/**`, `app/Actions/Fortify/**`, `lang/**`.
-- Lumen components: `apps/deploy-web`, `apps/identity-worker`, `apps/api-edge`.
+- Freeploy components: `apps/deploy-web`, `apps/identity-worker`, `apps/api-edge`.
 
 **Done when**
 - visual gate (≤ 0.5%, desktop/mobile, light/dark) passes on auth, profile and component-gallery routes
@@ -91,7 +91,7 @@ destinations; resources; Sentinel push and metrics; Docker cleanup; server and
 container terminal over PTY.
 
 - Coolify sources: `bootstrap/helpers/remoteProcess.php`, `docker.php`, `proxy.php`, `app/Actions/Server/**`, `app/Actions/Proxy/**`, `app/Jobs/*Server*`, `app/Livewire/Server/**`, `app/Livewire/Security/PrivateKey/**`, `app/Livewire/Terminal/**`.
-- Lumen components: `apps/ssh-executor`, `apps/deploy-core-worker`, `apps/api-edge`, `apps/deploy-web`.
+- Freeploy components: `apps/ssh-executor`, `apps/deploy-core-worker`, `apps/api-edge`, `apps/deploy-web`.
 
 **Done when**
 - command golden tests pass for every DP4 helper and action
@@ -108,7 +108,7 @@ shared); persistent storage and file mounts; health check; resource limits;
 rollback; resource operations (clone, move); projects and environments.
 
 - Coolify sources: `app/Jobs/ApplicationDeploymentJob.php`, `app/Actions/Application/**`, `app/Livewire/Project/**`, `bootstrap/helpers/applications.php`, `shared.php`, `docker.php`.
-- Lumen components: `apps/deploy-core-worker`, `apps/ssh-executor`, `apps/api-edge`, `apps/deploy-web`.
+- Freeploy components: `apps/deploy-core-worker`, `apps/ssh-executor`, `apps/api-edge`, `apps/deploy-web`.
 
 **Done when**
 - each build pack deploys on a test VM and the final container state matches the reference's (`docker ps`, labels, networks, volumes)
@@ -123,7 +123,7 @@ deployments and their cleanup; commit statuses
 (`ApplicationPullRequestUpdateJob`, `SyncGithubDeploymentJob`).
 
 - Coolify sources: `app/Livewire/Source/**`, `app/Http/Controllers/Webhook/**`, `app/Jobs/*PullRequest*`, `app/Jobs/SyncGithub*`, `bootstrap/helpers/github.php`.
-- Lumen components: `apps/deploy-core-worker`, `apps/webhooks-worker` (verifier), `apps/integrations-worker`, `apps/deploy-web`.
+- Freeploy components: `apps/deploy-core-worker`, `apps/webhooks-worker` (verifier), `apps/integrations-worker`, `apps/deploy-web`.
 
 **Done when**
 - opening a PR on a test repository creates a preview, updates the commit status, and closing it cleans the preview up
@@ -136,7 +136,7 @@ create, start/stop, public ports, SSL, custom config; backups to S3 with
 retention and executions; restore; S3 storages with validation.
 
 - Coolify sources: `app/Actions/Database/**`, `bootstrap/helpers/databases.php`, `app/Jobs/DatabaseBackupJob.php`, `app/Livewire/Project/Database/**`, `app/Livewire/Storage/**`.
-- Lumen components: `apps/deploy-core-worker`, `apps/ssh-executor`, `apps/deploy-web`.
+- Freeploy components: `apps/deploy-core-worker`, `apps/ssh-executor`, `apps/deploy-web`.
 
 **Done when**
 - per engine on a test VM: backup to S3 → wipe → restore round-trips the data
@@ -149,7 +149,7 @@ The 390 compose templates, the compose parser and magic variables
 and terminal.
 
 - Coolify sources: `templates/compose/*.yaml`, `bootstrap/helpers/parsers.php`, `services.php`, `app/Actions/Service/**`, `app/Livewire/Project/Service/**`.
-- Lumen components: `apps/deploy-core-worker` (catalog), `apps/ssh-executor`, `apps/deploy-web`.
+- Freeploy components: `apps/deploy-core-worker` (catalog), `apps/ssh-executor`, `apps/deploy-web`.
 
 **Done when**
 - every template's rendered compose is byte-equal to Coolify's parser output (golden per template)
@@ -163,7 +163,7 @@ Pushover, webhook × every event); API tokens with expiry warnings; the rest of
 `/api/v1`.
 
 - Coolify sources: `app/Notifications/**`, `app/Livewire/Notifications/**`, `app/Livewire/SharedVariables/**`, `app/Livewire/Tags/**`, `app/Http/Controllers/Api/**`, `openapi.json`.
-- Lumen components: `apps/deploy-core-worker`, `apps/notifications-worker`, `apps/identity-worker` (API keys), `apps/api-edge`, `apps/deploy-web`.
+- Freeploy components: `apps/deploy-core-worker`, `apps/notifications-worker`, `apps/identity-worker` (API keys), `apps/api-edge`, `apps/deploy-web`.
 
 **Done when**
 - the API contract passes for 100% of `openapi.json` operations
@@ -173,10 +173,10 @@ Pushover, webhook × every event); API tokens with expiry warnings; the rest of
 
 Members, roles (owner, admin, member, viewer per Coolify's permission matrix),
 invitations and invite links, danger zone, audit log, onboarding (Boarding),
-subscription pages on Lumen billing (Polar).
+subscription pages on Freeploy billing (Polar).
 
 - Coolify sources: `app/Livewire/Team/**`, `app/Policies/**`, `app/Livewire/Boarding/**`, `app/Livewire/Subscription/**`.
-- Lumen components: `apps/membership-worker`, `apps/policy-worker`, `apps/billing-worker`, `apps/events-worker`, `apps/deploy-web`.
+- Freeploy components: `apps/membership-worker`, `apps/policy-worker`, `apps/billing-worker`, `apps/events-worker`, `apps/deploy-web`.
 
 **Done when**
 - visual gate passes on every team, Boarding and subscription route
@@ -190,7 +190,7 @@ drains, traffic analytics, Sysbox, registries, maintenance mode, Cloudflare
 Tunnel, the Hetzner cloud provider.
 
 - Coolify sources: `resources/js/**/*.svelte`, `app/Livewire/**` for each feature, the matching Actions and Jobs.
-- Lumen components: `apps/deploy-core-worker`, `apps/ssh-executor`, `apps/deploy-web`.
+- Freeploy components: `apps/deploy-core-worker`, `apps/ssh-executor`, `apps/deploy-web`.
 
 **Done when**
 - each feature runs end to end against the reference with the same outcome
@@ -202,7 +202,7 @@ Instance-level settings, updates, admin view and operator backups as
 platform-admin features with Coolify's UI.
 
 - Coolify sources: `app/Livewire/Settings/**`, `app/Livewire/Admin/**`, `app/Jobs/UpdateCoolifyJob.php`, instance backup actions.
-- Lumen components: `apps/policy-worker`, `apps/admin-worker`, `apps/deploy-core-worker`, `apps/deploy-web`.
+- Freeploy components: `apps/policy-worker`, `apps/admin-worker`, `apps/deploy-core-worker`, `apps/deploy-web`.
 
 **Done when**
 - visual gate passes on every settings and admin route

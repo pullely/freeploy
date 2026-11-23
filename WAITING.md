@@ -26,7 +26,7 @@ The agent re-checks every entry at the start of each loop iteration.
 - **Seen:** 2026-11-23, bootstrap phase `03-infrastructure`, run 45062761473 (`supabase · stage · Terraform`): `organization members have reached their maximum limits for the number of active free projects … nexara-orun (2 project limit)` — `entitlement_required`, `free_project_limit`. The `freeploy-stage` project could not be created; `freeploy-prod` would hit the same limit. Phases 04-workers, 05-edge, 06-console and 08-docs cannot land until it is created (Hyperdrive and db-migrate need it), so stage and prod are not live.
 - **Need:** the Supabase organisation behind `nexara-orun` on a paid plan (Pro). A free plan is also unsuitable for this product (paused databases broke openproduct-crm's M1). Pausing or deleting the org's two existing free projects would also lift the limit, but that is the owner's call; the agent will not touch them.
 - **Steps:** Supabase dashboard → organisation `nexara-orun` → Billing → upgrade to Pro. Do not reconnect or rotate the `nexara-orun` connection.
-- **Unblocked when:** the person says so here (or the next resume of `orun baseline new lumen … --resume` gets past `03-infrastructure`). The agent then re-runs the same bootstrap command, which resumes at phase 03.
+- **Unblocked when:** the person says so here (or the next resume of `orun baseline new freeploy … --resume` gets past `03-infrastructure`). The agent then re-runs the same bootstrap command, which resumes at phase 03.
 
 ## W5 — Domain `freeploy.dev`
 

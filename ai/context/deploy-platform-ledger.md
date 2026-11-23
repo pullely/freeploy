@@ -20,7 +20,7 @@ _Written when the epic closes; until then see "Where it stands"._
 | GitHub connection | `int_790b2b93a1884aadbf11f46288648eb5` — `pullely` (a user account) |
 | workers.dev subdomain | `nexo-7be` (see Decisions, 2026-11-23) |
 | Repository | <https://github.com/pullely/freeploy> (public) |
-| Baseline | `sourceplane/lumen@baseline-v33` |
+| Baseline | `sourceplane/freeploy@baseline-v33` |
 | `COOLIFY_REF` | `91b7e3e509dee1eb5cee7c41fe151be03b03092e` (2026-11-20) |
 | Epic | `freeploy-coolify-parity`, cluster DP, milestones DP0–DP13 |
 

@@ -3,7 +3,7 @@
 // Reads a checkout of coollabsio/coolify pinned at COOLIFY_REF and writes one
 // machine-readable JSON file per surface, plus a rendered README, into
 // specs/epics/freeploy-coolify-parity/parity/. Every row carries: id, Coolify
-// source path, target milestone, target Lumen component, parity test id, the
+// source path, target milestone, target Freeploy component, parity test id, the
 // Orunbase task key (null until minted) and a status.
 //
 // The inventory is generated, never hand-edited, except for the `status`,
@@ -134,17 +134,17 @@ function braceDelta(line: string): number {
 // visible in the README's "unmapped" count so the rules can be tightened.
 
 const MILESTONE_RULES: Array<[RegExp, string, string]> = [
-  // [pattern, milestone, Lumen component]
+  // [pattern, milestone, Freeploy component]
   [/admin|instance-?settings|settings\/(updates|backup|advanced|oauth|email|index|scheduled-jobs)|update-?coolify|upgrade|coolify-?task|cleanup-?instance|cleanup-?stuck|instance/, "DP12", "apps/deploy-core-worker (platform-admin)"],
   [/canvas|image-?scan|sbom|vulnerab|swarm|transfer|migrat(e|ion)-?to|volume-?(backup|clone|recover)|github-?runner|runner|managed-?dns|dns-?record|log-?drain|traffic|analytics|sysbox|registr(y|ies)|docker-?registr|maintenance|cloudflare-?tunnel|tunnel|hetzner|cloud-?provider|metrics/, "DP11", "apps/deploy-core-worker + apps/ssh-executor"],
-  [/subscription|pricing|billing|stripe|team|member|invit|audit|boarding|onboarding|role|permission/, "DP10", "lumen membership/policy/billing + apps/deploy-web"],
-  [/scheduled-?task|shared-?variable|tag|notification|discord|telegram|slack|pushover|webhook-?notif|email-?notif|api-?token|security\/api|\/api\/v1|api\.php|openapi/, "DP9", "apps/deploy-core-worker + lumen notifications"],
+  [/subscription|pricing|billing|stripe|team|member|invit|audit|boarding|onboarding|role|permission/, "DP10", "freeploy membership/policy/billing + apps/deploy-web"],
+  [/scheduled-?task|shared-?variable|tag|notification|discord|telegram|slack|pushover|webhook-?notif|email-?notif|api-?token|security\/api|\/api\/v1|api\.php|openapi/, "DP9", "apps/deploy-core-worker + freeploy notifications"],
   [/service|template|compose|parser|magic/, "DP8", "apps/deploy-core-worker (catalog)"],
   [/database|postgres|mysql|mariadb|mongo|redis|keydb|dragonfly|clickhouse|backup|s3|storage/, "DP7", "apps/deploy-core-worker + apps/ssh-executor"],
-  [/source|github|gitlab|gitea|bitbucket|deploy-?key|preview|pull-?request|webhook/, "DP6", "apps/deploy-core-worker + lumen integrations"],
+  [/source|github|gitlab|gitea|bitbucket|deploy-?key|preview|pull-?request|webhook/, "DP6", "apps/deploy-core-worker + freeploy integrations"],
   [/application|deployment|build-?pack|nixpacks|dockerfile|docker-?image|rollback|healthcheck|domain|resource-?(limit|operation)|environment-?variable|env/, "DP5", "apps/deploy-core-worker + apps/ssh-executor"],
   [/server|ssh|private-?key|security\/private|proxy|traefik|caddy|destination|sentinel|docker-?cleanup|terminal|remote-?process|validate-?and-?install|docker\.php/, "DP4", "apps/ssh-executor + apps/deploy-core-worker"],
-  [/auth|login|register|password|verify|two-?factor|2fa|passkey|profile|appearance|layout|navbar|sidebar|components\/|forms?\/|modal|dropdown|toast|theme|dashboard|^views\.components/, "DP3", "apps/deploy-web + lumen identity"],
+  [/auth|login|register|password|verify|two-?factor|2fa|passkey|profile|appearance|layout|navbar|sidebar|components\/|forms?\/|modal|dropdown|toast|theme|dashboard|^views\.components/, "DP3", "apps/deploy-web + freeploy identity"],
   [/project|environment|resource/, "DP5", "apps/deploy-core-worker"],
 ];
 
@@ -559,7 +559,7 @@ function notifications(): Inventory {
   // Notification payloads are a DP9 gate regardless of which area emits them.
   for (const r of rows) {
     r.milestone = "DP9";
-    r.component = "lumen notifications + apps/deploy-core-worker";
+    r.component = "freeploy notifications + apps/deploy-core-worker";
   }
   return inv("notifications", "app/Notifications/** × channels", rows);
 }

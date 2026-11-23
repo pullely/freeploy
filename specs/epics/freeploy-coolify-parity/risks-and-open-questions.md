@@ -76,11 +76,11 @@ denormalised and maintained by the ported write paths, so isolation can be
 enforced and tested per table without trusting a join. Cost: a column and an
 index per table; worth it because tenancy is the security boundary.
 
-## DP-J — Tables Lumen already owns (RESOLVED)
+## DP-J — Tables Freeploy already owns (RESOLVED)
 
 `teams`, `users`, `team_user`, `team_invitations`, `sessions`,
 `password_reset_tokens`, `personal_access_tokens`, `subscriptions`,
-`audit_events`, `passkeys` and `oauth_identities` map onto Lumen's identity,
+`audit_events`, `passkeys` and `oauth_identities` map onto Freeploy's identity,
 membership, billing and events instead of being duplicated. A `deploy.teams`
 view keeps Coolify's team shape for ported queries.
 

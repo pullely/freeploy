@@ -44,7 +44,7 @@ Logos under `public/svgs` (or the equivalent in `apps/deploy-web`) belong to
 their respective projects and are shown only where Coolify shows them, to
 identify a one-click service.
 
-## Lumen baseline
+## Freeploy baseline
 
 The platform scaffolding (Workers, packages, CI) comes from the Sourceplane
-Lumen baseline (`sourceplane/lumen@baseline-v33`).
+Freeploy baseline (`sourceplane/freeploy@baseline-v33`).
