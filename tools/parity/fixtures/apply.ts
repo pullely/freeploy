@@ -39,7 +39,9 @@ interface Step {
   optional?: boolean;
 }
 
-const ids: Record<string, string> = {};
+// Literal route parameters that name a kind rather than an object
+// (`/servers/new/{type}`, `/settings/oauth/{provider}`) come from `constants`.
+const ids: Record<string, string> = { ...(fixtures.constants ?? {}) };
 
 function generatedKey(): string {
   const dir = mkdtempSync(join(tmpdir(), "parity-key-"));
@@ -86,6 +88,7 @@ for (const raw of fixtures.steps as Step[]) {
     const { status, json } = await call("GET", step.find.path);
     if (status >= 400) throw new Error(`${step.name}: GET ${step.find.path} → ${status}`);
     const list = Array.isArray(json) ? json : ((json as { data?: unknown[] }).data ?? []);
+    // An empty `where` takes the first element.
     result = list.find((o) => Object.entries(step.find!.where).every(([k, v]) => (o as Record<string, unknown>)[k] === v));
     if (!result) throw new Error(`${step.name}: nothing in ${step.find.path} matches ${JSON.stringify(step.find.where)}`);
   } else {

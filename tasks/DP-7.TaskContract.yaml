@@ -1,0 +1,15 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-7
+  title: "DP1: fixtures for the routes that had none — applications, databases, services, storages, backups, sources"
+spec:
+  goal: The parity fixtures create, through Coolify's /api/v1 and without deploying anything, an application, a scheduled task, PostgreSQL and Redis databases, a database backup schedule, an S3 storage, a one-click service, a cloud-init script and a GitHub App, plus literal route kinds, so far more of the 188 visual routes and the API reads are captured.
+  affects:
+    - tools/parity/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - the parity visual job captures more routes than DP-3's 91, and every remaining skip is listed with its reason
+    - the API contract reports fewer reads needing a fixture than DP-4's 52
+  gates: []

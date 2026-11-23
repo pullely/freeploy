@@ -1,12 +1,255 @@
 {
-  "$comment": "Deterministic parity fixtures (DP1). Names are fixed so both systems are seeded identically; uuids are whatever each system assigns and are captured into <system>.ids.json for route substitution. All values are fake. A step's `capture` maps a fixture name to a JSON path in the response; `{{name}}` in a later path or body is replaced by it. `find` looks an existing object up instead of creating it.",
-  "steps": [
-    { "name": "localhost_server", "find": { "path": "/api/v1/servers", "where": { "name": "localhost" } }, "capture": { "server_uuid": "uuid" } },
-    { "name": "project", "method": "POST", "path": "/api/v1/projects", "body": { "name": "parity-project", "description": "Parity fixture project" }, "capture": { "project_uuid": "uuid" } },
-    { "name": "environment", "find": { "path": "/api/v1/projects/{{project_uuid}}/environments", "where": { "name": "production" } }, "capture": { "environment_uuid": "uuid" } },
-    { "name": "staging_environment", "method": "POST", "path": "/api/v1/projects/{{project_uuid}}/environments", "body": { "name": "staging" }, "capture": { "staging_environment_uuid": "uuid" } },
-    { "name": "private_key", "method": "POST", "path": "/api/v1/security/keys", "body": { "name": "parity-key", "description": "Parity fixture key (fake, generated per run)", "private_key": "{{generated_ed25519}}" }, "capture": { "private_key_uuid": "uuid" } },
-    { "name": "tag_frontend", "method": "POST", "path": "/api/v1/tags", "body": { "name": "frontend" }, "optional": true },
-    { "name": "tag_backend", "method": "POST", "path": "/api/v1/tags", "body": { "name": "backend" }, "optional": true }
-  ]
+ "$comment": "Deterministic parity fixtures (DP1). Names are fixed so both systems are seeded identically; uuids are whatever each system assigns and are captured into <system>.ids.json for route substitution. All values are fake. A step's `capture` maps a fixture name to a JSON path in the response; `{{name}}` in a later path or body is replaced by it. `find` looks an existing object up instead of creating it.",
+ "steps": [
+  {
+   "name": "localhost_server",
+   "find": {
+    "path": "/api/v1/servers",
+    "where": {
+     "name": "localhost"
+    }
+   },
+   "capture": {
+    "server_uuid": "uuid"
+   }
+  },
+  {
+   "name": "project",
+   "method": "POST",
+   "path": "/api/v1/projects",
+   "body": {
+    "name": "parity-project",
+    "description": "Parity fixture project"
+   },
+   "capture": {
+    "project_uuid": "uuid"
+   }
+  },
+  {
+   "name": "environment",
+   "find": {
+    "path": "/api/v1/projects/{{project_uuid}}/environments",
+    "where": {
+     "name": "production"
+    }
+   },
+   "capture": {
+    "environment_uuid": "uuid"
+   }
+  },
+  {
+   "name": "staging_environment",
+   "method": "POST",
+   "path": "/api/v1/projects/{{project_uuid}}/environments",
+   "body": {
+    "name": "staging"
+   },
+   "capture": {
+    "staging_environment_uuid": "uuid"
+   }
+  },
+  {
+   "name": "private_key",
+   "method": "POST",
+   "path": "/api/v1/security/keys",
+   "body": {
+    "name": "parity-key",
+    "description": "Parity fixture key (fake, generated per run)",
+    "private_key": "{{generated_ed25519}}"
+   },
+   "capture": {
+    "private_key_uuid": "uuid"
+   }
+  },
+  {
+   "name": "tag_frontend",
+   "method": "POST",
+   "path": "/api/v1/tags",
+   "body": {
+    "name": "frontend"
+   },
+   "optional": true
+  },
+  {
+   "name": "tag_backend",
+   "method": "POST",
+   "path": "/api/v1/tags",
+   "body": {
+    "name": "backend"
+   },
+   "optional": true
+  },
+  {
+   "name": "destination",
+   "find": {
+    "path": "/api/v1/servers/{{server_uuid}}/destinations",
+    "where": {}
+   },
+   "capture": {
+    "destination_uuid": "uuid"
+   },
+   "optional": true
+  },
+  {
+   "name": "application",
+   "method": "POST",
+   "path": "/api/v1/applications/dockerimage",
+   "body": {
+    "project_uuid": "{{project_uuid}}",
+    "server_uuid": "{{server_uuid}}",
+    "environment_uuid": "{{environment_uuid}}",
+    "docker_registry_image_name": "nginx",
+    "docker_registry_image_tag": "1.27-alpine",
+    "ports_exposes": "80",
+    "name": "parity-app",
+    "description": "Parity fixture application",
+    "instant_deploy": false
+   },
+   "capture": {
+    "application_uuid": "uuid"
+   }
+  },
+  {
+   "name": "application_task",
+   "method": "POST",
+   "path": "/api/v1/applications/{{application_uuid}}/scheduled-tasks",
+   "body": {
+    "name": "parity-task",
+    "command": "echo parity",
+    "frequency": "0 3 * * *"
+   },
+   "capture": {
+    "task_uuid": "uuid"
+   },
+   "optional": true
+  },
+  {
+   "name": "postgres",
+   "method": "POST",
+   "path": "/api/v1/databases/postgresql",
+   "body": {
+    "server_uuid": "{{server_uuid}}",
+    "project_uuid": "{{project_uuid}}",
+    "environment_uuid": "{{environment_uuid}}",
+    "name": "parity-postgres",
+    "description": "Parity fixture database",
+    "postgres_user": "parity",
+    "postgres_password": "parity-fixture-password",
+    "postgres_db": "parity",
+    "instant_deploy": false
+   },
+   "capture": {
+    "database_uuid": "uuid"
+   }
+  },
+  {
+   "name": "redis",
+   "method": "POST",
+   "path": "/api/v1/databases/redis",
+   "body": {
+    "server_uuid": "{{server_uuid}}",
+    "project_uuid": "{{project_uuid}}",
+    "environment_uuid": "{{environment_uuid}}",
+    "name": "parity-redis",
+    "instant_deploy": false
+   },
+   "capture": {
+    "redis_uuid": "uuid"
+   },
+   "optional": true
+  },
+  {
+   "name": "s3_storage",
+   "method": "POST",
+   "path": "/api/v1/s3-storages",
+   "body": {
+    "name": "parity-s3",
+    "description": "Parity fixture S3 (fake endpoint)",
+    "endpoint": "https://s3.example.com",
+    "bucket": "parity",
+    "region": "us-east-1",
+    "key": "PARITYFAKEKEY",
+    "secret": "parity-fake-secret"
+   },
+   "capture": {
+    "storage_uuid": "uuid"
+   },
+   "optional": true
+  },
+  {
+   "name": "postgres_backup",
+   "method": "POST",
+   "path": "/api/v1/databases/{{database_uuid}}/backups",
+   "body": {
+    "frequency": "0 2 * * *",
+    "enabled": false
+   },
+   "capture": {
+    "backup_uuid": "uuid"
+   },
+   "optional": true
+  },
+  {
+   "name": "service",
+   "method": "POST",
+   "path": "/api/v1/services",
+   "body": {
+    "type": "uptime-kuma",
+    "name": "parity-service",
+    "project_uuid": "{{project_uuid}}",
+    "environment_uuid": "{{environment_uuid}}",
+    "server_uuid": "{{server_uuid}}",
+    "instant_deploy": false
+   },
+   "capture": {
+    "service_uuid": "uuid"
+   }
+  },
+  {
+   "name": "service_detail",
+   "method": "GET",
+   "path": "/api/v1/services/{{service_uuid}}",
+   "capture": {
+    "stack_service_uuid": "applications.0.uuid"
+   },
+   "optional": true
+  },
+  {
+   "name": "cloud_init_script",
+   "method": "POST",
+   "path": "/api/v1/cloud-init-scripts",
+   "body": {
+    "name": "parity-init",
+    "script": "#!/bin/sh\necho parity"
+   },
+   "capture": {
+    "cloud_init_script_uuid": "uuid"
+   },
+   "optional": true
+  },
+  {
+   "name": "github_app",
+   "method": "POST",
+   "path": "/api/v1/github-apps",
+   "body": {
+    "name": "parity-github-app",
+    "html_url": "https://github.com",
+    "api_url": "https://api.github.com",
+    "app_id": 123456,
+    "installation_id": 654321,
+    "client_id": "Iv1.parityfake",
+    "client_secret": "parity-fake-client-secret",
+    "webhook_secret": "parity-fake-webhook",
+    "private_key_uuid": "{{private_key_uuid}}"
+   },
+   "capture": {
+    "github_app_uuid": "uuid"
+   },
+   "optional": true
+  }
+ ],
+ "constants": {
+  "type": "hetzner",
+  "provider": "github"
+ }
 }
