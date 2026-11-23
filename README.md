@@ -26,7 +26,7 @@ and the [parity report](specs/epics/freeploy-coolify-parity/parity/README.md).
 
 ## Platform
 
-`pullely/freeploy` runs on the Lumen baseline: a multi-tenant SaaS on
+`pullely/freeploy` runs on the Freeploy baseline: a multi-tenant SaaS on
 Cloudflare Workers and Supabase Postgres, run as an [Orun](https://github.com/sourceplane/orun)
 component-native desired-state repo. Identity, organizations, projects, RBAC,
 audit, metering, billing, webhooks and notifications are separate

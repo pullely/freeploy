@@ -8,7 +8,7 @@
    "id": "helpers.files:api",
    "source": "bootstrap/helpers/api.php",
    "milestone": "DP9",
-   "component": "apps/deploy-core-worker + lumen notifications",
+   "component": "apps/deploy-core-worker + freeploy notifications",
    "parityTest": "parity/helpers.files/api",
    "taskKey": null,
    "status": "planned"
@@ -26,7 +26,7 @@
    "id": "helpers.files:audit",
    "source": "bootstrap/helpers/audit.php",
    "milestone": "DP10",
-   "component": "lumen membership/policy/billing + apps/deploy-web",
+   "component": "freeploy membership/policy/billing + apps/deploy-web",
    "parityTest": "parity/helpers.files/audit",
    "taskKey": null,
    "status": "planned"
@@ -35,7 +35,7 @@
    "id": "helpers.files:auth",
    "source": "bootstrap/helpers/auth.php",
    "milestone": "DP3",
-   "component": "apps/deploy-web + lumen identity",
+   "component": "apps/deploy-web + freeploy identity",
    "parityTest": "parity/helpers.files/auth",
    "taskKey": null,
    "status": "planned"
@@ -89,7 +89,7 @@
    "id": "helpers.files:gitea",
    "source": "bootstrap/helpers/gitea.php",
    "milestone": "DP6",
-   "component": "apps/deploy-core-worker + lumen integrations",
+   "component": "apps/deploy-core-worker + freeploy integrations",
    "parityTest": "parity/helpers.files/gitea",
    "taskKey": null,
    "status": "planned"
@@ -98,7 +98,7 @@
    "id": "helpers.files:github",
    "source": "bootstrap/helpers/github.php",
    "milestone": "DP6",
-   "component": "apps/deploy-core-worker + lumen integrations",
+   "component": "apps/deploy-core-worker + freeploy integrations",
    "parityTest": "parity/helpers.files/github",
    "taskKey": null,
    "status": "planned"
@@ -107,7 +107,7 @@
    "id": "helpers.files:gitlab",
    "source": "bootstrap/helpers/gitlab.php",
    "milestone": "DP6",
-   "component": "apps/deploy-core-worker + lumen integrations",
+   "component": "apps/deploy-core-worker + freeploy integrations",
    "parityTest": "parity/helpers.files/gitlab",
    "taskKey": null,
    "status": "planned"
@@ -116,7 +116,7 @@
    "id": "helpers.files:notifications",
    "source": "bootstrap/helpers/notifications.php",
    "milestone": "DP9",
-   "component": "apps/deploy-core-worker + lumen notifications",
+   "component": "apps/deploy-core-worker + freeploy notifications",
    "parityTest": "parity/helpers.files/notifications",
    "taskKey": null,
    "status": "planned"
@@ -179,7 +179,7 @@
    "id": "helpers.files:subscriptions",
    "source": "bootstrap/helpers/subscriptions.php",
    "milestone": "DP10",
-   "component": "lumen membership/policy/billing + apps/deploy-web",
+   "component": "freeploy membership/policy/billing + apps/deploy-web",
    "parityTest": "parity/helpers.files/subscriptions",
    "taskKey": null,
    "status": "planned"

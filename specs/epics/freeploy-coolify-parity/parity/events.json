@@ -246,7 +246,7 @@
    "id": "events:scheduled-task-done",
    "source": "app/Events/ScheduledTaskDone.php",
    "milestone": "DP9",
-   "component": "apps/deploy-core-worker + lumen notifications",
+   "component": "apps/deploy-core-worker + freeploy notifications",
    "parityTest": "parity/events/scheduled-task-done",
    "taskKey": null,
    "status": "planned",
