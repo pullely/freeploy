@@ -19,6 +19,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync, copyFileSync } from "node:fs";
 import { join, relative, basename, extname, dirname } from "node:path";
 import { execFileSync } from "node:child_process";
+import { splitStatements, parseChain, phpString, type Call } from "./chain.ts";
 
 type Status = "planned" | "in_progress" | "ported" | "verified" | "deferred";
 
@@ -400,7 +401,7 @@ function models(): Inventory {
   return inv("models", "app/Models/**", rows);
 }
 
-interface Column { name: string; type: string; modifiers: string[] }
+interface Column { name: string; type: string; args: string[]; chain: Call[]; modifiers: string[] }
 
 /**
  * Fold every migration, in filename order, into the final schema: create adds a
@@ -411,7 +412,6 @@ interface Column { name: string; type: string; modifiers: string[] }
 function migrations(): { files: Inventory; tables: Inventory } {
   const files = walk("database/migrations", (p) => p.endsWith(".php"));
   const tables = new Map<string, { columns: Map<string, Column>; createdIn: string; touchedBy: string[]; raw: string[] }>();
-  const colRe = /\$table->(\w+)\(\s*(?:['"](\w+)['"])?([^;]*)\)((?:->\w+\([^;]*?\))*)\s*;/g;
   for (const f of files) {
     const src = stripPhpComments(read(f));
     const up = src.match(/function\s+up\s*\(\)\s*(?::\s*void)?\s*\{([\s\S]*?)\n\s{4}\}/)?.[1] ?? src;
@@ -420,32 +420,40 @@ function migrations(): { files: Inventory; tables: Inventory } {
       if (op === "create" || !tables.has(name)) tables.set(name, { columns: new Map(), createdIn: f, touchedBy: [], raw: [] });
       const t = tables.get(name)!;
       if (op === "table") t.touchedBy.push(f);
-      for (const c of body.matchAll(colRe)) {
-        const [, type, col, , mods] = c;
-        const modifiers = [...(mods ?? "").matchAll(/->(\w+)\(/g)].map((x) => x[1]);
+      for (const stmt of splitStatements(body)) {
+        const p = parseChain(stmt);
+        if (!p) continue;
+        const type = p.method;
+        const col = phpString(p.args[0]) ?? undefined;
+        const modifiers = p.chain.map((x) => x.method);
+        const column = (name: string, t = type, args = p.args): Column => ({ name, type: t, args, chain: p.chain, modifiers });
         if (type === "dropColumn" || type === "dropColumnIfExists") {
-          for (const d of (c[0].match(/\(([\s\S]*)\)/)?.[1] ?? "").matchAll(/['"](\w+)['"]/g)) t.columns.delete(d[1]);
+          for (const a of p.args) for (const d of a.matchAll(/['"](\w+)['"]/g)) t.columns.delete(d[1]);
         } else if (type === "renameColumn") {
-          const names = [...c[0].matchAll(/['"](\w+)['"]/g)].map((x) => x[1]);
-          const old = t.columns.get(names[0]);
-          if (old && names[1]) {
-            t.columns.delete(names[0]);
-            t.columns.set(names[1], { ...old, name: names[1] });
+          const [from, to] = [phpString(p.args[0]), phpString(p.args[1])];
+          const old = from ? t.columns.get(from) : undefined;
+          if (old && to) {
+            t.columns.delete(from!);
+            t.columns.set(to, { ...old, name: to });
           }
         } else if (type === "id" || type === "bigIncrements" || type === "increments") {
-          t.columns.set(col ?? "id", { name: col ?? "id", type, modifiers });
+          t.columns.set(col ?? "id", column(col ?? "id"));
         } else if (type === "timestamps" || type === "timestampsTz") {
-          t.columns.set("created_at", { name: "created_at", type: "timestamp", modifiers: ["nullable"] });
-          t.columns.set("updated_at", { name: "updated_at", type: "timestamp", modifiers: ["nullable"] });
-        } else if (type === "softDeletes") {
-          t.columns.set("deleted_at", { name: "deleted_at", type: "timestamp", modifiers: ["nullable"] });
+          const ts = type === "timestampsTz" ? "timestampTz" : "timestamp";
+          t.columns.set("created_at", { name: "created_at", type: ts, args: [], chain: [{ method: "nullable", args: [] }], modifiers: ["nullable"] });
+          t.columns.set("updated_at", { name: "updated_at", type: ts, args: [], chain: [{ method: "nullable", args: [] }], modifiers: ["nullable"] });
+        } else if (type === "softDeletes" || type === "softDeletesTz") {
+          t.columns.set("deleted_at", { name: "deleted_at", type: "timestamp", args: [], chain: [{ method: "nullable", args: [] }], modifiers: ["nullable"] });
         } else if (type === "morphs" || type === "nullableMorphs" || type === "uuidMorphs") {
-          t.columns.set(`${col}_id`, { name: `${col}_id`, type: "unsignedBigInteger", modifiers: type === "nullableMorphs" ? ["nullable"] : [] });
-          t.columns.set(`${col}_type`, { name: `${col}_type`, type: "string", modifiers: type === "nullableMorphs" ? ["nullable"] : [] });
-        } else if (col && !/^(index|unique|primary|foreign|dropForeign|dropIndex|dropUnique|dropPrimary)$/.test(type)) {
-          const prev = t.columns.get(col);
-          if (modifiers.includes("change") && prev) t.columns.set(col, { name: col, type, modifiers });
-          else t.columns.set(col, { name: col, type, modifiers });
+          const nullable = type === "nullableMorphs" ? [{ method: "nullable", args: [] }] : [];
+          t.columns.set(`${col}_id`, { name: `${col}_id`, type: type === "uuidMorphs" ? "uuid" : "unsignedBigInteger", args: [], chain: nullable, modifiers: nullable.map((x) => x.method) });
+          t.columns.set(`${col}_type`, { name: `${col}_type`, type: "string", args: [], chain: nullable, modifiers: nullable.map((x) => x.method) });
+        } else if (type === "dropMorphs") {
+          if (col) { t.columns.delete(`${col}_id`); t.columns.delete(`${col}_type`); }
+        } else if (type === "rememberToken") {
+          t.columns.set("remember_token", { name: "remember_token", type: "string", args: ["'remember_token'", "100"], chain: [{ method: "nullable", args: [] }], modifiers: ["nullable"] });
+        } else if (col && !/^(index|unique|primary|foreign|dropForeign|dropIndex|dropUnique|dropPrimary|dropIfExists|renameIndex|fullText|spatialIndex)$/.test(type)) {
+          t.columns.set(col, column(col));
         }
       }
     }

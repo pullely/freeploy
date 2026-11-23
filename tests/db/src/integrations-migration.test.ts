@@ -26,10 +26,11 @@ describe("Integrations Migration Verification", () => {
     );
   });
 
-  it("orders the integrations migrations at the manifest tail", () => {
+  it("orders the integrations migrations consecutively, after every earlier context", () => {
+    // Later contexts (deploy, 500_*) follow; what matters is 180 → 190 in order.
     const ids = manifest.migrations.map((m) => m.id);
-    expect(ids.indexOf("180_integrations_foundation")).toBe(ids.length - 2);
-    expect(ids.indexOf("190_integrations_delivery_attribution")).toBe(ids.length - 1);
+    expect(ids.indexOf("190_integrations_delivery_attribution")).toBe(ids.indexOf("180_integrations_foundation") + 1);
+    expect(ids.indexOf("180_integrations_foundation")).toBeGreaterThan(ids.indexOf("170_membership_org_parent"));
   });
 
   it("manifest checksums match the on-disk up.sql files", () => {

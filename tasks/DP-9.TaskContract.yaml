@@ -1,0 +1,19 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-9
+  title: "DP2: the deploy schema — Coolify's final schema, org_id on every table, RLS-enforced"
+spec:
+  goal: Migration 500_deploy_core creates schema deploy from Coolify's folded final schema at 91b7e3e (75 tables; the 13 Lumen-owned ones excluded), same table and column names and Laravel's Postgres types and defaults, team_id renamed org_id and org_id on every table, row-level security forced on every table for role deploy_app; it is generated, registered, and proven isolated table by table against a real Postgres.
+  affects:
+    - packages/db/**
+    - tests/db/**
+    - tools/parity/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+    - pnpm-lock.yaml
+  doneWhen:
+    - tests/db's deploy-isolation suite passes for every deploy table (own read/write, other org sees and changes nothing, cannot write another org's row, no org sees nothing, operator sees all)
+    - the committed 500_deploy_core/up.sql equals the generator's output and its checksum is in the manifest
+    - db-migrate applies 500_deploy_core on stage and prod after the merge
+  gates: []
