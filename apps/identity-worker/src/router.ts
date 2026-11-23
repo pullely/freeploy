@@ -1,6 +1,7 @@
 import type { Env } from "./env.js";
 import { handleHealth } from "./handlers/health.js";
 import { handleLoginStart } from "./handlers/login-start.js";
+import { handlePasswordLogin, handlePasswordRegister } from "./handlers/password-auth.js";
 import { handleLoginComplete } from "./handlers/login-complete.js";
 import { handleSession } from "./handlers/session.js";
 import { handleResolveBearer } from "./handlers/resolve-bearer.js";
@@ -39,6 +40,16 @@ export async function route(request: Request, env: Env): Promise<Response> {
     if (url.pathname === "/v1/auth/login/start") {
       if (request.method !== "POST") return methodNotAllowed(requestId);
       return handleLoginStart(request, env, requestId);
+    }
+
+    if (url.pathname === "/v1/auth/password/login") {
+      if (request.method !== "POST") return methodNotAllowed(requestId);
+      return handlePasswordLogin(request, env, requestId);
+    }
+
+    if (url.pathname === "/v1/auth/password/register") {
+      if (request.method !== "POST") return methodNotAllowed(requestId);
+      return handlePasswordRegister(request, env, requestId);
     }
 
     if (url.pathname === "/v1/auth/login/complete") {

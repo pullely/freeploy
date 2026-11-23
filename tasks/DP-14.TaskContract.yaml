@@ -1,0 +1,22 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-14
+  title: "DP3: email + password sign-in and registration, with Coolify's rules, messages and throttles"
+spec:
+  goal: identity-worker signs users in and registers them with email and password exactly as Coolify does (Fortify login, CreateNewUser rules, Laravel's messages, the login and registration throttles), api-edge exposes it, and deploy-web's /login submits to it and shows failures in Coolify's error alert; the messages and the email-identity helper are verified byte for byte against the reference.
+  affects:
+    - apps/identity-worker/**
+    - apps/api-edge/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/identity-worker/**
+    - tests/db/**
+    - tools/parity/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - POST /v1/auth/password/login and /register answer through api-edge on stage with Laravel's messages, and a registered user can sign in on deploy-web stage
+    - the command goldens verify the `__` messages and normalize_email_identity against the reference (0 failing)
+    - 530_identity_password_credentials applies on stage and prod
+  gates: []

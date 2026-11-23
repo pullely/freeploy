@@ -2,7 +2,14 @@
 // Derived from coollabsio/coolify@91b7e3e (Apache-2.0): DOM, classes and copy are Coolify's;
 // Livewire/Alpine attributes and scripts dropped, brand swapped. Regenerate, do not hand-edit;
 // behaviour lives in the page component that renders this.
-export function LoginMarkup() {
+import type { ReactNode, FormEventHandler } from "react";
+
+export interface LoginMarkupProps {
+  alert?: ReactNode;
+  onSubmit?: FormEventHandler<HTMLFormElement>;
+}
+
+export function LoginMarkup(props: LoginMarkupProps) {
   return (
     <main className="h-full bg-neutral-50 dark:bg-base">
       <section className="auth-shell application-settings-form">
@@ -14,7 +21,8 @@ export function LoginMarkup() {
             </div>
             <div className="auth-card-body">
               <div className="flex flex-col gap-4">
-                <form action="/login" method="POST" className="flex flex-col gap-4">
+                {props.alert}
+                <form action="/login" method="POST" className="flex flex-col gap-4" onSubmit={props.onSubmit}>
                   <input type="hidden" name="_token" defaultValue="" autoComplete="off" />
                   
                   <div className="w-full">

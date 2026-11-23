@@ -8,6 +8,8 @@ const LOGOUT_PATH = "/v1/auth/logout";
 const AUTH_ROUTES: Record<string, string> = {
   "/v1/auth/login/start": "POST",
   "/v1/auth/login/complete": "POST",
+  "/v1/auth/password/login": "POST",
+  "/v1/auth/password/register": "POST",
   "/v1/auth/session": "GET",
   "/v1/auth/resolve": "GET",
   "/v1/auth/logout": "POST",

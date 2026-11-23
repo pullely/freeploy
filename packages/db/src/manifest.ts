@@ -210,5 +210,14 @@ export const manifest: MigrationManifest = {
       description:
         "Deploy schema delta (DP2): columns the first fold missed (migrations that loop over table lists) or kept after Coolify dropped them, generated against the frozen 500_deploy_core",
     },
+    {
+      id: "530_identity_password_credentials",
+      context: "identity",
+      path: "530_identity_password_credentials/up.sql",
+      checksum:
+        "3320ab55d38b835a056d6bda4b810778b337a5e913c3900c97a84132561fb248",
+      description:
+        "Email + password sign-in (freeploy-coolify-parity DP3) — one PBKDF2-SHA256 credential per user, and an index for the attempt counts that throttle sign-in and registration",
+    },
   ],
 };
