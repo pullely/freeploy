@@ -57,7 +57,8 @@ async function domExtract(page: Page) {
     const norm = (s: string) =>
       s
         .replace(/\b(Coolify Cloud|Coolify|Freeploy)\b/g, "PRODUCT")
-        .replace(/\b[a-z0-9]{20,32}\b/g, "<id>")
+        .replace(/\b(?=[a-z0-9]*\d)(?=[a-z0-9]*[a-z])[a-z0-9]{20,32}\b/g, "<id>")
+        .replace(/\b\d{1,3}(\.\d{1,3}){3}\b/g, "<ip>")
         .replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi, "<id>")
         .replace(/\b\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}(:\d{2})?\S*/g, "<time>")
         .replace(/\b\d+ (seconds?|minutes?|hours?|days?) ago\b/g, "<ago>");
