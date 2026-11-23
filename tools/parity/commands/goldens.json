@@ -1,0 +1,243 @@
+{
+  "caddyTrafficAppKey.service": {
+    "ok": true,
+    "type": "string",
+    "value": "k8s0c4wgo8kkg4k0c0cwss8c-web-app-c13f"
+  },
+  "caddyTrafficAppKey.uuid": {
+    "ok": true,
+    "type": "string",
+    "value": "k8s0c4wgo8kkg4k0c0cwss8c"
+  },
+  "composeProjectMountsCommand.simple": {
+    "ok": true,
+    "type": "string",
+    "value": "docker ps -aq --filter 'label=com.docker.compose.project=proj-1' | xargs -r docker inspect --format '{\"name\":{{json .Name}},\"service\":{{json (index .Config.Labels \"com.docker.compose.service\")}},\"imageVolumes\":{{json .Config.Volumes}},\"mounts\":{{json .Mounts}}}' 2>/dev/null || true"
+  },
+  "composeServiceVolumeTargets.mixed": {
+    "ok": true,
+    "type": "array",
+    "value": [
+      "/var/lib/data",
+      "/cache",
+      "/opt"
+    ]
+  },
+  "composeServiceVolumeTargets.variable": {
+    "ok": true,
+    "type": "null",
+    "value": null
+  },
+  "containerIdsByOwnerScript.application": {
+    "ok": true,
+    "type": "string",
+    "value": "container_ids=$({ docker ps -a --filter 'label=coolify.applicationUuid=k8s0c4wgo8kkg4k0c0cwss8c' --format '{{.ID}}'; docker ps -a --filter 'label=coolify.applicationId' --filter 'label=com.docker.compose.project=k8s0c4wgo8kkg4k0c0cwss8c' --format '{{.ID}}'; docker ps -a --filter 'label=coolify.applicationId' --filter 'name=k8s0c4wgo8kkg4k0c0cwss8c' --format '{{.ID}}'; } | sort -u)"
+  },
+  "dockerCommandIgnoringError.simple": {
+    "ok": true,
+    "type": "string",
+    "value": "bash -c 'output=$(docker volume rm v1 2>&1); exit_code=$?; if [ \"$exit_code\" -ne 0 ] && printf '\\''%s'\\'' \"$output\" | grep -Eq '\\''no such volume'\\''; then exit 0; fi; if [ \"$exit_code\" -ne 0 ]; then printf '\\''%s\\n'\\'' \"$output\" >&2; else printf '\\''%s\\n'\\'' \"$output\"; fi; exit $exit_code'"
+  },
+  "dockerEngineVersionFromJson.server": {
+    "ok": true,
+    "type": "string",
+    "value": "28.0.4"
+  },
+  "dockerNetworkEnsureCommand.bridge": {
+    "ok": true,
+    "type": "string",
+    "value": "docker network inspect 'coolify' >/dev/null 2>&1 || docker network create --attachable 'coolify'"
+  },
+  "dockerNetworkEnsureCommand.overlay": {
+    "ok": true,
+    "type": "string",
+    "value": "docker network inspect 'coolify-overlay' >/dev/null 2>&1 || docker network create --driver overlay --attachable 'coolify-overlay' >/dev/null"
+  },
+  "dockerNetworkRemoveCommand.simple": {
+    "ok": true,
+    "type": "string",
+    "value": "bash -c 'output=$(docker network rm '\\''coolify-net'\\'' 2>&1); exit_code=$?; if [ \"$exit_code\" -ne 0 ] && printf '\\''%s'\\'' \"$output\" | grep -Eq '\\''network .* not found'\\''; then exit 0; fi; if [ \"$exit_code\" -ne 0 ]; then printf '\\''%s\\n'\\'' \"$output\" >&2; else printf '\\''%s\\n'\\'' \"$output\"; fi; exit $exit_code'"
+  },
+  "dockerProxyNetworkEnsureCommand.simple": {
+    "ok": true,
+    "type": "string",
+    "value": "sh -c 'net='\\''coolify'\\''\ndocker network inspect \"$net\" >/dev/null 2>&1 && exit 0\nif docker network create --attachable --ipv6 \"$net\" >/dev/null 2>&1; then\n    case \"$(docker network inspect --format '\\''{{range .IPAM.Config}}{{.Gateway}} {{end}}'\\'' \"$net\" 2>/dev/null)\" in\n        */*) docker network rm \"$net\" >/dev/null 2>&1 && docker network create --attachable \"$net\" >/dev/null ;;\n    esac\nelse\n    docker network create --attachable \"$net\" >/dev/null\nfi\nexit 0'"
+  },
+  "dockerPsByOwnerCommands.application": {
+    "ok": true,
+    "type": "array",
+    "value": [
+      "docker ps -a --filter 'label=coolify.applicationUuid=k8s0c4wgo8kkg4k0c0cwss8c' --format '{{json .}}'",
+      "docker ps -a --filter 'label=coolify.applicationId' --filter 'label=com.docker.compose.project=k8s0c4wgo8kkg4k0c0cwss8c' --format '{{json .}}'",
+      "docker ps -a --filter 'label=coolify.applicationId' --filter 'name=k8s0c4wgo8kkg4k0c0cwss8c' --format '{{json .}}'"
+    ]
+  },
+  "dockerPsByOwnerCommands.database.legacy": {
+    "ok": true,
+    "type": "array",
+    "value": [
+      "docker ps -a --filter 'label=coolify.databaseUuid=d1' --filter 'a=b' --format '{{json .}}'",
+      "docker ps -a --filter 'label=coolify.databaseId' --filter 'label=com.docker.compose.project=d1' --format '{{json .}}'"
+    ]
+  },
+  "dockerPsByOwnerCommands.service.filters": {
+    "ok": true,
+    "type": "array",
+    "value": [
+      "docker ps --filter 'label=coolify.serviceUuid=s1' --filter 'status=running' --format '{{.Names}}'",
+      "docker ps --filter 'label=coolify.serviceId' --filter 'label=com.docker.compose.project=s1' --filter 'status=running' --format '{{.Names}}'"
+    ]
+  },
+  "dockerReadOnlyFileMountOption.simple": {
+    "ok": true,
+    "type": "string",
+    "value": "--mount 'type=bind,source=/data/coolify/a b,target=/etc/x.conf,readonly'"
+  },
+  "dockerRemoveCommand.simple": {
+    "ok": true,
+    "type": "string",
+    "value": "bash -c 'output=$(docker rm -f '\\''app-123'\\'' 2>&1); exit_code=$?; if [ \"$exit_code\" -ne 0 ] && printf '\\''%s'\\'' \"$output\" | grep -Eq '\\''No such container:'\\''; then exit 0; fi; if [ \"$exit_code\" -ne 0 ]; then printf '\\''%s\\n'\\'' \"$output\" >&2; else printf '\\''%s\\n'\\'' \"$output\"; fi; exit $exit_code'"
+  },
+  "dockerRemoveCommandWithTimeout.custom": {
+    "ok": true,
+    "type": "string",
+    "value": "bash -c 'if command -v timeout >/dev/null 2>&1; then output=$(timeout -k 2s 5s docker rm -f '\\''it'\\''\\'\\'''\\''s'\\'' 2>&1); exit_code=$?; else output='\\'''\\''; exit_code=124; fi; if [ \"$exit_code\" -eq 124 ]; then echo '\\''__COOLIFY_CONTAINER_REMOVE_TIMEOUT__'\\''; elif [ \"$exit_code\" -ne 0 ] && printf '\\''%s'\\'' \"$output\" | grep -q '\\''No such container:'\\''; then exit 0; elif [ \"$exit_code\" -ne 0 ]; then printf '\\''%s\\n'\\'' \"$output\" >&2; else printf '\\''%s\\n'\\'' \"$output\"; fi; exit $exit_code'"
+  },
+  "dockerRemoveCommandWithTimeout.default": {
+    "ok": true,
+    "type": "string",
+    "value": "bash -c 'if command -v timeout >/dev/null 2>&1; then output=$(timeout -k 10s 60s docker rm -f '\\''app-123'\\'' 2>&1); exit_code=$?; else output='\\'''\\''; exit_code=124; fi; if [ \"$exit_code\" -eq 124 ]; then echo '\\''__COOLIFY_CONTAINER_REMOVE_TIMEOUT__'\\''; elif [ \"$exit_code\" -ne 0 ] && printf '\\''%s'\\'' \"$output\" | grep -q '\\''No such container:'\\''; then exit 0; elif [ \"$exit_code\" -ne 0 ]; then printf '\\''%s\\n'\\'' \"$output\" >&2; else printf '\\''%s\\n'\\'' \"$output\"; fi; exit $exit_code'"
+  },
+  "dockerStopCommand.new": {
+    "ok": true,
+    "type": "string",
+    "value": "docker stop --timeout=30 abc def"
+  },
+  "dockerStopCommand.old": {
+    "ok": true,
+    "type": "string",
+    "value": "docker stop --time=10 abc"
+  },
+  "dockerStopTimeoutOption.new": {
+    "ok": true,
+    "type": "string",
+    "value": "--timeout"
+  },
+  "dockerStopTimeoutOption.old": {
+    "ok": true,
+    "type": "string",
+    "value": "--time"
+  },
+  "escapeShellValue.empty": {
+    "ok": true,
+    "type": "string",
+    "value": "''"
+  },
+  "escapeShellValue.plain": {
+    "ok": true,
+    "type": "string",
+    "value": "'hello world'"
+  },
+  "escapeShellValue.quote": {
+    "ok": true,
+    "type": "string",
+    "value": "'it'\\''s a \"test\" $HOME `id`'"
+  },
+  "isDockerPredefinedNetwork.bridge": {
+    "ok": true,
+    "type": "bool",
+    "value": false
+  },
+  "isDockerPredefinedNetwork.custom": {
+    "ok": true,
+    "type": "bool",
+    "value": false
+  },
+  "isUsableDockerNetworkName.bad": {
+    "ok": true,
+    "type": "bool",
+    "value": false
+  },
+  "parseDockerEngineVersion.full": {
+    "ok": true,
+    "type": "string",
+    "value": "28.1.1"
+  },
+  "parseDockerEngineVersion.none": {
+    "ok": true,
+    "type": "null",
+    "value": null
+  },
+  "parseDockerEngineVersion.short": {
+    "ok": true,
+    "type": "string",
+    "value": "27.5.0"
+  },
+  "remoteCommandWithTimeout.custom": {
+    "ok": true,
+    "type": "string",
+    "value": "timeout -k 5s 5s echo 'hi'"
+  },
+  "remoteCommandWithTimeout.default": {
+    "ok": true,
+    "type": "string",
+    "value": "timeout -k 5s 20s docker ps"
+  },
+  "remove_iip.ip": {
+    "ok": true,
+    "type": "string",
+    "value": "connect to 10.0.0.12 port 22 as root@192.168.1.5"
+  },
+  "sanitize_utf8_text.invalid": {
+    "ok": true,
+    "type": "string",
+    "value": "ok\u0000text"
+  },
+  "traefikAccessLogCommands.off": {
+    "ok": true,
+    "type": "array",
+    "value": []
+  },
+  "traefikAccessLogCommands.on": {
+    "ok": true,
+    "type": "array",
+    "value": [
+      "--accesslog=true",
+      "--accesslog.filepath=/traefik/access.log",
+      "--accesslog.format=json",
+      "--accesslog.fields.headers.names.Cf-Connecting-Ip=keep",
+      "--accesslog.fields.headers.names.Cf-Ipcountry=keep",
+      "--accesslog.fields.headers.names.Cf-Cache-Status=keep",
+      "--accesslog.fields.headers.names.Cf-Verified-Bot=keep",
+      "--accesslog.fields.headers.names.Cf-Ray=keep",
+      "--accesslog.fields.headers.names.X-Forwarded-For=keep",
+      "--accesslog.fields.headers.names.User-Agent=keep",
+      "--accesslog.fields.headers.names.Referer=keep"
+    ]
+  },
+  "traefikAccessLogRotationScript.default": {
+    "ok": true,
+    "type": "string",
+    "value": "log=\"${TRAEFIK_ACCESS_LOG:-/traefik/access.log}\"\nmax_bytes=\"${TRAEFIK_ACCESS_LOG_MAX_BYTES:-20971520}\"\ninterval=\"${TRAEFIK_ACCESS_LOG_ROTATE_INTERVAL:-60}\"\nkeep=5\nwhile true; do\n  size=$(stat -c %s \"$log\" 2>/dev/null || echo 0)\n  if [ \"$size\" -gt \"$max_bytes\" ]; then\n    rm -f \"$log.$keep.gz\"\n    i=$((keep - 1))\n    while [ \"$i\" -ge 1 ]; do\n      if [ -f \"$log.$i.gz\" ]; then mv -f \"$log.$i.gz\" \"$log.$((i + 1)).gz\"; fi\n      i=$((i - 1))\n    done\n    if cp \"$log\" \"$log.1\"; then\n      : > \"$log\"\n      gzip -f \"$log.1\"\n    fi\n  fi\n  sleep \"$interval\"\ndone"
+  },
+  "traefikSafeServiceNameSegment.dots": {
+    "ok": true,
+    "type": "string",
+    "value": "api-test-9df9"
+  },
+  "traefikSafeServiceNameSegment.symbols": {
+    "ok": true,
+    "type": "string",
+    "value": "service-8a7a"
+  },
+  "traefikSafeServiceNameSegment.underscore": {
+    "ok": true,
+    "type": "string",
+    "value": "my-web-app-fac1"
+  },
+  "traefikServiceNameHash.api": {
+    "ok": true,
+    "type": "string",
+    "value": "8a5d"
+  }
+}

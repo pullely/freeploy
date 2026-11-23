@@ -77,5 +77,15 @@ if (apiRef || apiTgt) {
   L.push(`| Freeploy: operations passing (unauth + read shape) | ${apiTgt?.summary.target ? `${apiTgt.summary.pass} of ${apiTgt.summary.operations} (${pct(apiTgt.summary.pass, apiTgt.summary.operations)})` : "no target"} |`);
   L.push("");
 }
+const cmd = read(join(parity, "commands-report.json"));
+if (cmd) {
+  const c = cmd.summary;
+  L.push("## Command goldens (bootstrap/helpers, byte for byte)");
+  L.push("");
+  L.push(`| Cases | Verified | Failing | Pending (helper not ported yet) | Reference errors |`);
+  L.push("|---:|---:|---:|---:|---:|");
+  L.push(`| ${c.cases} | ${c.verified} | ${c.fail} | ${c.pending} | ${c.referenceErrors} |`);
+  L.push("");
+}
 writeFileSync(join(parity, "HARNESS.md"), L.join("\n"));
 console.log("wrote HARNESS.md");
