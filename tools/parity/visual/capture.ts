@@ -42,7 +42,7 @@ const outDir = join(opt("out", "tools/parity/out")!, system);
 export const VIEWPORTS = { desktop: { width: 1440, height: 900 }, mobile: { width: 390, height: 844 } } as const;
 export const THEMES = ["light", "dark"] as const;
 
-interface RouteRow { id: string; path: string; method: string; visual: boolean; name: string | null; middleware: string[] }
+interface RouteRow { id: string; path: string; method: string; visual: boolean; name: string | null; middleware: string[]; guest?: boolean }
 
 async function login(page: Page) {
   if (!email || !password) throw new Error("no credentials for " + system);
@@ -95,6 +95,8 @@ async function main() {
           }
         }, theme);
         const page = await ctx.newPage();
+        // Guest pages (Fortify's login, register, password reset) first, signed out.
+        for (const r of targets.filter((x) => x.guest)) await shoot(page, r, vp, theme);
         try {
           await login(page);
         } catch (e) {
@@ -105,45 +107,47 @@ async function main() {
           for (const r of targets) if (theme === "light" && vp === "desktop") skipped.push({ id: r.id, reason: `target login failed: ${(e as Error).message.split("\n")[0].slice(0, 120)}` });
           continue;
         }
-        for (const r of targets) {
-          const { url, missing } = resolvePath(r.path, ids);
-          if (!url) {
-            if (theme === "light" && vp === "desktop") skipped.push({ id: r.id, reason: `missing fixture: ${missing.join(", ")}` });
-            continue;
-          }
-          const dir = join(outDir, safeId(r.id));
-          mkdirSync(dir, { recursive: true });
-          let status: number | null = null;
-          try {
-            const res = await page.goto(base + url, { waitUntil: "networkidle", timeout: 45_000 });
-            status = res?.status() ?? null;
-            // A redirect is not a capture of this route: it would compare
-            // the page it landed on and overstate coverage.
-            const landed = new URL(page.url()).pathname.replace(/\/$/, "") || "/";
-            const wanted = new URL(base + url).pathname.replace(/\/$/, "") || "/";
-            if (landed !== wanted) {
-              if (theme === "light" && vp === "desktop") skipped.push({ id: r.id, reason: `redirected to ${landed}` });
-              continue;
-            }
-            await page.waitForTimeout(400);
-            await prepareMasks(page);
-            const file = join(dir, `${vp}-${theme}.png`);
-            await page.screenshot({ path: file, fullPage: true, animations: "disabled", mask: [page.locator(MASK_SELECTOR)], maskColor: "#ff00ff" });
-            writeFileSync(join(dir, `${vp}-${theme}.dom.json`), JSON.stringify(await domExtract(page), null, 1));
-            // The rendered markup, once per route: the starting point for the exact React port (DP3+).
-            if (vp === "desktop" && theme === "light") writeFileSync(join(dir, "desktop-light.html"), await page.content());
-            const entry = captured.find((c) => c.id === r.id) ?? captured[captured.push({ id: r.id, dir: safeId(r.id), url, shots: [], status }) - 1];
-            entry.shots.push(`${vp}-${theme}`);
-          } catch (e) {
-            if (theme === "light" && vp === "desktop") skipped.push({ id: r.id, reason: `error: ${(e as Error).message.split("\n")[0]}` });
-          }
-        }
+        for (const r of targets.filter((x) => !x.guest)) await shoot(page, r, vp, theme);
         await ctx.close();
       }
     }
   } finally {
     await browser.close();
   }
+
+  async function shoot(page: Page, r: RouteRow, vp: string, theme: string): Promise<void> {
+    const first = theme === "light" && vp === "desktop";
+    const { url, missing } = resolvePath(r.path, ids);
+    if (!url) {
+      if (first) skipped.push({ id: r.id, reason: `missing fixture: ${missing.join(", ")}` });
+      return;
+    }
+    const dir = join(outDir, safeId(r.id));
+    mkdirSync(dir, { recursive: true });
+    try {
+      const res = await page.goto(base + url, { waitUntil: "networkidle", timeout: 45_000 });
+      const status = res?.status() ?? null;
+      // A redirect is not a capture of this route: it would compare the page
+      // it landed on and overstate coverage.
+      const landed = new URL(page.url()).pathname.replace(/\/$/, "") || "/";
+      const wanted = new URL(base + url).pathname.replace(/\/$/, "") || "/";
+      if (landed !== wanted) {
+        if (first) skipped.push({ id: r.id, reason: `redirected to ${landed}` });
+        return;
+      }
+      await page.waitForTimeout(400);
+      await prepareMasks(page);
+      await page.screenshot({ path: join(dir, `${vp}-${theme}.png`), fullPage: true, animations: "disabled", mask: [page.locator(MASK_SELECTOR)], maskColor: "#ff00ff" });
+      writeFileSync(join(dir, `${vp}-${theme}.dom.json`), JSON.stringify(await domExtract(page), null, 1));
+      // The rendered markup, once per route: the starting point for the exact React port (DP3+).
+      if (first) writeFileSync(join(dir, "desktop-light.html"), await page.content());
+      const entry = captured.find((c) => c.id === r.id) ?? captured[captured.push({ id: r.id, dir: safeId(r.id), url, shots: [], status }) - 1]!;
+      entry.shots.push(`${vp}-${theme}`);
+    } catch (e) {
+      if (first) skipped.push({ id: r.id, reason: `error: ${(e as Error).message.split("\n")[0]}` });
+    }
+  }
+
   mkdirSync(outDir, { recursive: true });
   writeFileSync(join(outDir, "capture.json"), JSON.stringify({ system, base, captured, skipped }, null, 1));
   console.log(`${system}: ${captured.length} routes captured, ${skipped.length} skipped`);

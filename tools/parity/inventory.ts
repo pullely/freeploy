@@ -246,7 +246,27 @@ function webRoutes(): Inventory {
       visual: r.method === "GET" && /^[A-Z]/.test(r.handler.split("\\").pop() ?? "") && !/Controller/.test(r.handler),
     });
   });
-  return inv("routes.web", "routes/web.php", dedupe(rows));
+  // Fortify registers the auth pages itself (app/Providers/FortifyServiceProvider.php,
+  // config/fortify.php features), so routes/web.php never lists them. `guest`
+  // pages are captured signed out.
+  const fortify = (name: string, path: string, view: string, guest: boolean) =>
+    row("routes.web", name, `app/Providers/FortifyServiceProvider.php (${view})`, `${path} ${name} auth`, {
+      method: "GET",
+      path,
+      name,
+      handler: `Fortify:${view}`,
+      middleware: guest ? ["guest"] : ["auth"],
+      visual: true,
+      guest,
+    });
+  rows.push(
+    fortify("login", "/login", "auth.login", true),
+    fortify("register", "/register", "auth.register", true),
+    fortify("password.request", "/forgot-password", "auth.forgot-password", true),
+    fortify("password.reset", "/reset-password/{token}", "auth.reset-password", true),
+    fortify("password.confirm", "/user/confirm-password", "auth.confirm-password", false),
+  );
+  return inv("routes.web", "routes/web.php + Fortify views", dedupe(rows));
 }
 
 function apiRoutes(): Inventory {
