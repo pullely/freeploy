@@ -12,7 +12,8 @@ import { fileURLToPath } from "node:url";
 import { PGlite } from "@electric-sql/pglite";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const SQL = readFileSync(resolve(__dirname, "../../../packages/db/src/migrations/500_deploy_core/up.sql"), "utf8");
+const SQL500 = readFileSync(resolve(__dirname, "../../../packages/db/src/migrations/500_deploy_core/up.sql"), "utf8");
+const SQL = [SQL500, ...["510_deploy_org_keys", "520_deploy_schema_fold_fixes"].map((m) => readFileSync(resolve(__dirname, `../../../packages/db/src/migrations/${m}/up.sql`), "utf8"))].join("\n");
 const ORG_A = "00000000-0000-4000-8000-00000000000a";
 const ORG_B = "00000000-0000-4000-8000-00000000000b";
 
@@ -127,7 +128,12 @@ describe("cross-org isolation, table by table", () => {
     expect((other.rows[0] as { n: number }).n).toBe(0);
     const upd = await asOrg(ORG_B, () => db.query(`UPDATE deploy.${table} SET org_id = '${ORG_B}'`));
     expect(upd.affectedRows ?? 0).toBe(0);
-    const del = await asOrg(ORG_B, () => db.query(`DELETE FROM deploy.${table}`));
+    // Tables whose rows are never deleted (deploy.org_keys: keys are retired) grant
+    // deploy_app no DELETE at all; "not permitted" is as safe as "0 rows".
+    const del = await asOrg(ORG_B, () => db.query(`DELETE FROM deploy.${table}`)).catch((e: Error) => {
+      if (/permission denied/.test(e.message)) return { affectedRows: 0 };
+      throw e;
+    });
     expect(del.affectedRows ?? 0).toBe(0);
     // 3. org B cannot write a row that claims org A
     await expect(asOrg(ORG_B, () => db.exec(insertSql(table, ORG_A, 2)))).rejects.toThrow(/row-level security/);
@@ -148,7 +154,7 @@ describe("deploy migration registration", () => {
     expect(BOUNDED_CONTEXTS).toContain("deploy");
     const entry = manifest.migrations.find((m) => m.id === "500_deploy_core")!;
     expect(entry.context).toBe("deploy");
-    expect(entry.checksum).toBe(createHash("sha256").update(SQL).digest("hex"));
+    expect(entry.checksum).toBe(createHash("sha256").update(SQL500).digest("hex"));
   });
 
   it("the committed SQL is exactly what the generator produces", async () => {

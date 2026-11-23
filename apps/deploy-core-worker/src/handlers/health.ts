@@ -12,6 +12,7 @@ export function handleHealth(env: Env, requestId: string): Response {
         database: { configured: !!env.PLATFORM_DB },
         membership: { configured: !!env.MEMBERSHIP_WORKER },
         policy: { configured: !!env.POLICY_WORKER },
+        encryption: { configured: !!env.DEPLOY_ENCRYPTION_KEY },
       },
     },
     requestId,

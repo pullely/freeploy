@@ -1,0 +1,20 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-11
+  title: "DP2: envelope encryption of Coolify's encrypted columns, the schema fold's loop fix — closes DP2"
+spec:
+  goal: Every column Coolify encrypts on a deploy table is stored as an AES-256-GCM ciphertext under a per-org data key wrapped by the platform KEK (deploy.org_keys, RLS-confined), the columns the first schema fold missed are added by a generated delta migration, and DP2 is marked done.
+  affects:
+    - packages/db/**
+    - tests/db/**
+    - tools/parity/**
+    - apps/deploy-core-worker/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - tests/db proves round-trip, per-org keys stored only wrapped and RLS-confined, and that a value does not decrypt under another org, column, KEK or after tampering
+    - the encrypted-column list equals Coolify's encrypted casts minus the excluded ones, each with a stated reason
+    - 510 and 520 apply on stage and prod; DEPLOY_ENCRYPTION_KEY is seeded for both and deploy-core-worker reports encryption configured
+    - DP2 is ✅ in implementation-plan.md and IMPLEMENTATION-STATUS.md
+  gates: []

@@ -1153,12 +1153,17 @@
       {
        "method": "default",
        "args": [
-        "10"
+        "0"
        ]
+      },
+      {
+       "method": "change",
+       "args": []
       }
      ],
      "modifiers": [
-      "default"
+      "default",
+      "change"
      ]
     },
     {
@@ -1277,6 +1282,7 @@
     "database/migrations/2026_08_28_193100_add_domain_dns_statuses_to_application_previews_table.php",
     "database/migrations/2026_08_31_073116_add_restart_limit_to_application_previews.php",
     "database/migrations/2026_09_02_132544_add_domain_port_overrides_to_application_previews_table.php",
+    "database/migrations/2026_09_15_105627_make_restart_limits_opt_in.php",
     "database/migrations/2026_10_28_103619_add_keeps_production_values_to_application_previews_table.php",
     "database/migrations/2026_11_17_161116_add_is_same_repository_to_application_previews_table.php"
    ],
@@ -2068,6 +2074,24 @@
      ]
     },
     {
+     "name": "include_coolify_default_variables",
+     "type": "boolean",
+     "args": [
+      "'include_coolify_default_variables'"
+     ],
+     "chain": [
+      {
+       "method": "default",
+       "args": [
+        "true"
+       ]
+      }
+     ],
+     "modifiers": [
+      "default"
+     ]
+    },
+    {
      "name": "is_permanent_redirect_enabled",
      "type": "boolean",
      "args": [
@@ -2208,6 +2232,7 @@
     "database/migrations/2026_09_25_105051_add_redact_all_env_values_in_logs_to_resources.php",
     "database/migrations/2026_10_11_145529_add_traefik_certificate_resolver_to_application_and_service_settings.php",
     "database/migrations/2026_10_12_154805_add_application_id_index_to_application_settings_table.php",
+    "database/migrations/2026_10_18_103517_add_include_coolify_default_variables_to_resources.php",
     "database/migrations/2026_10_19_191912_add_is_permanent_redirect_enabled_to_redirect_settings.php",
     "database/migrations/2026_10_23_224202_add_rolling_update_drain_seconds_to_application_settings.php",
     "database/migrations/2026_10_29_100000_create_image_scanning_tables.php",
@@ -3901,6 +3926,29 @@
      ]
     },
     {
+     "name": "max_restart_count",
+     "type": "integer",
+     "args": [
+      "'max_restart_count'"
+     ],
+     "chain": [
+      {
+       "method": "default",
+       "args": [
+        "0"
+       ]
+      },
+      {
+       "method": "change",
+       "args": []
+      }
+     ],
+     "modifiers": [
+      "default",
+      "change"
+     ]
+    },
+    {
      "name": "http_basic_auth_hash_algorithm",
      "type": "string",
      "args": [
@@ -4086,6 +4134,8 @@
     "database/migrations/2026_08_30_193506_add_container_present_to_applications_table.php",
     "database/migrations/2026_08_30_220617_add_restart_limit_reached_to_applications_table.php",
     "database/migrations/2026_09_02_064120_add_domain_port_overrides_to_applications_table.php",
+    "database/migrations/2026_09_15_105627_make_restart_limits_opt_in.php",
+    "database/migrations/2026_10_01_161644_add_maintenance_mode_to_applications_and_services_tables.php",
     "database/migrations/2026_10_02_170101_add_http_basic_auth_hash_options_to_applications_table.php",
     "database/migrations/2026_10_19_210000_change_http_basic_auth_password_to_text_in_applications.php",
     "database/migrations/2026_10_26_081954_add_git_https_credentials_to_applications_table.php",
@@ -4957,6 +5007,24 @@
      "modifiers": [
       "default"
      ]
+    },
+    {
+     "name": "image_vulnerabilities_discord_notifications",
+     "type": "boolean",
+     "args": [
+      "'image_vulnerabilities_discord_notifications'"
+     ],
+     "chain": [
+      {
+       "method": "default",
+       "args": [
+        "false"
+       ]
+      }
+     ],
+     "modifiers": [
+      "default"
+     ]
     }
    ],
    "hasTeamId": true,
@@ -4964,7 +5032,9 @@
     "database/migrations/2025_03_21_104103_disable_discord_here.php",
     "database/migrations/2025_05_26_100258_add_server_patch_notifications.php",
     "database/migrations/2025_11_17_092707_add_traefik_outdated_to_notification_settings.php",
-    "database/migrations/2026_08_31_092838_add_restart_limit_reached_notifications_to_discord_notification_settings_table.php"
+    "database/migrations/2026_08_31_092838_add_restart_limit_reached_notifications_to_discord_notification_settings_table.php",
+    "database/migrations/2026_10_12_121520_add_failure_count_to_notification_settings_tables.php",
+    "database/migrations/2026_10_29_100000_create_image_scanning_tables.php"
    ],
    "raw": []
   },
@@ -5808,6 +5878,88 @@
      "modifiers": [
       "default"
      ]
+    },
+    {
+     "name": "image_vulnerabilities_email_notifications",
+     "type": "boolean",
+     "args": [
+      "'image_vulnerabilities_email_notifications'"
+     ],
+     "chain": [
+      {
+       "method": "default",
+       "args": [
+        "true"
+       ]
+      }
+     ],
+     "modifiers": [
+      "default"
+     ]
+    },
+    {
+     "name": "smtp_server_name",
+     "type": "string",
+     "args": [
+      "'smtp_server_name'"
+     ],
+     "chain": [
+      {
+       "method": "nullable",
+       "args": []
+      }
+     ],
+     "modifiers": [
+      "nullable"
+     ]
+    },
+    {
+     "name": "smtp_servers",
+     "type": "text",
+     "args": [
+      "'smtp_servers'"
+     ],
+     "chain": [
+      {
+       "method": "nullable",
+       "args": []
+      }
+     ],
+     "modifiers": [
+      "nullable"
+     ]
+    },
+    {
+     "name": "resend_from_address",
+     "type": "text",
+     "args": [
+      "'resend_from_address'"
+     ],
+     "chain": [
+      {
+       "method": "nullable",
+       "args": []
+      }
+     ],
+     "modifiers": [
+      "nullable"
+     ]
+    },
+    {
+     "name": "resend_from_name",
+     "type": "text",
+     "args": [
+      "'resend_from_name'"
+     ],
+     "chain": [
+      {
+       "method": "nullable",
+       "args": []
+      }
+     ],
+     "modifiers": [
+      "nullable"
+     ]
     }
    ],
    "hasTeamId": true,
@@ -5816,7 +5968,11 @@
     "database/migrations/2025_11_12_131252_add_traefik_outdated_to_email_notification_settings.php",
     "database/migrations/2026_08_19_090916_add_smtp_ehlo_domain_to_email_settings.php",
     "database/migrations/2026_08_31_092837_add_restart_limit_reached_notifications_to_email_notification_settings_table.php",
-    "database/migrations/2026_10_18_120000_add_deployment_commit_details_to_email_notification_settings.php"
+    "database/migrations/2026_10_12_121520_add_failure_count_to_notification_settings_tables.php",
+    "database/migrations/2026_10_18_120000_add_deployment_commit_details_to_email_notification_settings.php",
+    "database/migrations/2026_10_29_100000_create_image_scanning_tables.php",
+    "database/migrations/2026_11_03_225251_add_named_smtp_servers_to_email_settings.php",
+    "database/migrations/2026_11_04_103949_add_resend_sender_to_email_settings.php"
    ],
    "raw": []
   },
@@ -10622,6 +10778,38 @@
      ]
     },
     {
+     "name": "smtp_server_name",
+     "type": "string",
+     "args": [
+      "'smtp_server_name'"
+     ],
+     "chain": [
+      {
+       "method": "nullable",
+       "args": []
+      }
+     ],
+     "modifiers": [
+      "nullable"
+     ]
+    },
+    {
+     "name": "smtp_servers",
+     "type": "text",
+     "args": [
+      "'smtp_servers'"
+     ],
+     "chain": [
+      {
+       "method": "nullable",
+       "args": []
+      }
+     ],
+     "modifiers": [
+      "nullable"
+     ]
+    },
+    {
      "name": "auto_update_target_version",
      "type": "string",
      "args": [
@@ -10642,6 +10830,38 @@
      "type": "timestamp",
      "args": [
       "'auto_update_started_at'"
+     ],
+     "chain": [
+      {
+       "method": "nullable",
+       "args": []
+      }
+     ],
+     "modifiers": [
+      "nullable"
+     ]
+    },
+    {
+     "name": "resend_from_address",
+     "type": "text",
+     "args": [
+      "'resend_from_address'"
+     ],
+     "chain": [
+      {
+       "method": "nullable",
+       "args": []
+      }
+     ],
+     "modifiers": [
+      "nullable"
+     ]
+    },
+    {
+     "name": "resend_from_name",
+     "type": "text",
+     "args": [
+      "'resend_from_name'"
      ],
      "chain": [
       {
@@ -10691,7 +10911,9 @@
     "database/migrations/2026_10_23_090005_add_server_validation_limits_to_instance_settings_table.php",
     "database/migrations/2026_11_01_142702_add_update_channel_to_instance_settings_table.php",
     "database/migrations/2026_11_03_194650_add_notification_sender_to_instance_settings_table.php",
+    "database/migrations/2026_11_03_225251_add_named_smtp_servers_to_email_settings.php",
     "database/migrations/2026_11_04_080000_add_auto_update_attempt_to_instance_settings_table.php",
+    "database/migrations/2026_11_04_103949_add_resend_sender_to_email_settings.php",
     "database/migrations/2026_11_08_120000_drop_image_scanning_columns_from_instance_settings.php"
    ],
    "raw": []
@@ -13267,13 +13489,33 @@
      "modifiers": [
       "default"
      ]
+    },
+    {
+     "name": "image_vulnerabilities_pushover_notifications",
+     "type": "boolean",
+     "args": [
+      "'image_vulnerabilities_pushover_notifications'"
+     ],
+     "chain": [
+      {
+       "method": "default",
+       "args": [
+        "false"
+       ]
+      }
+     ],
+     "modifiers": [
+      "default"
+     ]
     }
    ],
    "hasTeamId": true,
    "touchedBy": [
     "database/migrations/2025_05_26_100258_add_server_patch_notifications.php",
     "database/migrations/2025_11_17_092707_add_traefik_outdated_to_notification_settings.php",
-    "database/migrations/2026_08_31_092842_add_restart_limit_reached_notifications_to_pushover_notification_settings_table.php"
+    "database/migrations/2026_08_31_092842_add_restart_limit_reached_notifications_to_pushover_notification_settings_table.php",
+    "database/migrations/2026_10_12_121520_add_failure_count_to_notification_settings_tables.php",
+    "database/migrations/2026_10_29_100000_create_image_scanning_tables.php"
    ],
    "raw": []
   },
@@ -13986,6 +14228,7 @@
     "database/migrations/2025_02_27_125249_add_index_to_scheduled_task_executions.php",
     "database/migrations/2025_03_14_140150_add_storage_deletion_tracking_to_backup_executions.php",
     "database/migrations/2025_10_07_120723_add_s3_uploaded_to_scheduled_database_backup_executions_table.php",
+    "database/migrations/2026_10_28_204953_add_worker_host_to_scheduled_job_executions.php",
     "database/migrations/2026_11_15_120000_cascade_database_backup_executions_on_schedule_delete.php"
    ],
    "raw": []
@@ -14526,7 +14769,8 @@
     "database/migrations/2025_07_16_202201_add_timeout_to_scheduled_database_backups_table.php",
     "database/migrations/2025_08_17_102422_add_disable_local_backup_to_scheduled_database_backups_table.php",
     "database/migrations/2026_08_20_150000_add_missing_backup_notification_fields_to_scheduled_database_backups_table.php",
-    "database/migrations/2026_09_29_083244_create_notification_throttles_table.php"
+    "database/migrations/2026_09_29_083244_create_notification_throttles_table.php",
+    "database/migrations/2026_10_02_055938_remove_next_run_at_from_scheduled_jobs.php"
    ],
    "raw": []
   },
@@ -15044,7 +15288,8 @@
     "database/migrations/2025_11_09_000002_improve_scheduled_task_executions_tracking.php",
     "database/migrations/2025_11_09_000002_improve_scheduled_task_executions_tracking.php",
     "database/migrations/2025_11_09_000002_improve_scheduled_task_executions_tracking.php",
-    "database/migrations/2025_11_09_000002_improve_scheduled_task_executions_tracking.php"
+    "database/migrations/2025_11_09_000002_improve_scheduled_task_executions_tracking.php",
+    "database/migrations/2026_10_28_204953_add_worker_host_to_scheduled_job_executions.php"
    ],
    "raw": []
   },
@@ -15258,6 +15503,7 @@
    "hasTeamId": true,
    "touchedBy": [
     "database/migrations/2025_11_09_000001_add_timeout_to_scheduled_tasks_table.php",
+    "database/migrations/2026_10_02_055938_remove_next_run_at_from_scheduled_jobs.php",
     "database/migrations/2026_11_03_192735_add_failure_tracking_to_scheduled_tasks_table.php",
     "database/migrations/2026_11_03_202635_add_use_shell_to_scheduled_tasks_table.php",
     "database/migrations/2026_11_09_120000_drop_unused_failure_columns_from_scheduled_tasks.php"
@@ -15615,7 +15861,8 @@
    ],
    "hasTeamId": false,
    "touchedBy": [
-    "database/migrations/2026_10_03_172204_add_recovery_bounds_to_scheduled_volume_backup_executions_table.php"
+    "database/migrations/2026_10_03_172204_add_recovery_bounds_to_scheduled_volume_backup_executions_table.php",
+    "database/migrations/2026_10_28_204953_add_worker_host_to_scheduled_job_executions.php"
    ],
    "raw": []
   },
@@ -16079,6 +16326,7 @@
    "hasTeamId": true,
    "touchedBy": [
     "database/migrations/2026_08_15_000000_increase_default_volume_backup_timeout.php",
+    "database/migrations/2026_10_02_055938_remove_next_run_at_from_scheduled_jobs.php",
     "database/migrations/2026_10_07_072758_add_missing_backup_notification_days_to_scheduled_volume_backups_table.php"
    ],
    "raw": []
@@ -19224,12 +19472,17 @@
       {
        "method": "default",
        "args": [
-        "10"
+        "0"
        ]
+      },
+      {
+       "method": "change",
+       "args": []
       }
      ],
      "modifiers": [
-      "default"
+      "default",
+      "change"
      ]
     },
     {
@@ -19370,6 +19623,7 @@
     "database/migrations/2026_08_17_000000_add_is_force_https_enabled_to_service_applications_table.php",
     "database/migrations/2026_08_31_073117_add_restart_limit_to_service_applications.php",
     "database/migrations/2026_09_01_210751_add_domain_port_overrides_to_service_applications_table.php",
+    "database/migrations/2026_09_15_105627_make_restart_limits_opt_in.php",
     "database/migrations/2026_10_11_145529_add_traefik_certificate_resolver_to_application_and_service_settings.php",
     "database/migrations/2026_10_19_191912_add_is_permanent_redirect_enabled_to_redirect_settings.php",
     "database/migrations/2026_11_03_192547_add_is_removed_from_compose_to_service_parts.php"
@@ -19783,6 +20037,7 @@
     "database/migrations/2024_03_04_092244_add_gzip_enabled_and_stripprefix_settings.php",
     "database/migrations/2024_11_02_213214_add_last_online_at_to_resources.php",
     "database/migrations/2025_04_30_134146_add_is_migrated_to_services.php",
+    "database/migrations/2026_02_27_000000_add_public_port_timeout_to_databases.php",
     "database/migrations/2026_08_31_073118_add_restart_limit_to_service_databases.php",
     "database/migrations/2026_09_04_132827_remove_restart_limits_from_databases.php",
     "database/migrations/2026_11_03_192547_add_is_removed_from_compose_to_service_parts.php"
@@ -20074,6 +20329,24 @@
      "modifiers": [
       "default"
      ]
+    },
+    {
+     "name": "include_coolify_default_variables",
+     "type": "boolean",
+     "args": [
+      "'include_coolify_default_variables'"
+     ],
+     "chain": [
+      {
+       "method": "default",
+       "args": [
+        "true"
+       ]
+      }
+     ],
+     "modifiers": [
+      "default"
+     ]
     }
    ],
    "hasTeamId": false,
@@ -20087,7 +20360,9 @@
     "database/migrations/2024_04_16_083919_add_service_type_on_creation.php",
     "database/migrations/2024_05_15_151236_add_container_escape_toggle.php",
     "database/migrations/2024_08_27_090528_add_compose_parsing_version_to_services.php",
-    "database/migrations/2026_09_25_105051_add_redact_all_env_values_in_logs_to_resources.php"
+    "database/migrations/2026_09_25_105051_add_redact_all_env_values_in_logs_to_resources.php",
+    "database/migrations/2026_10_01_161644_add_maintenance_mode_to_applications_and_services_tables.php",
+    "database/migrations/2026_10_18_103517_add_include_coolify_default_variables_to_resources.php"
    ],
    "raw": [
     "CREATE INDEX IF NOT EXISTS services_server_id_index ON services (server_id)",
@@ -20845,13 +21120,33 @@
      "modifiers": [
       "default"
      ]
+    },
+    {
+     "name": "image_vulnerabilities_slack_notifications",
+     "type": "boolean",
+     "args": [
+      "'image_vulnerabilities_slack_notifications'"
+     ],
+     "chain": [
+      {
+       "method": "default",
+       "args": [
+        "false"
+       ]
+      }
+     ],
+     "modifiers": [
+      "default"
+     ]
     }
    ],
    "hasTeamId": true,
    "touchedBy": [
     "database/migrations/2025_05_26_100258_add_server_patch_notifications.php",
     "database/migrations/2025_11_17_092707_add_traefik_outdated_to_notification_settings.php",
-    "database/migrations/2026_08_31_092841_add_restart_limit_reached_notifications_to_slack_notification_settings_table.php"
+    "database/migrations/2026_08_31_092841_add_restart_limit_reached_notifications_to_slack_notification_settings_table.php",
+    "database/migrations/2026_10_12_121520_add_failure_count_to_notification_settings_tables.php",
+    "database/migrations/2026_10_29_100000_create_image_scanning_tables.php"
    ],
    "raw": []
   },
@@ -21562,34 +21857,16 @@
      ]
     },
     {
-     "name": "max_restart_count",
-     "type": "integer",
-     "args": [
-      "'max_restart_count'"
-     ],
-     "chain": [
-      {
-       "method": "default",
-       "args": [
-        "10"
-       ]
-      }
-     ],
-     "modifiers": [
-      "default"
-     ]
-    },
-    {
-     "name": "restart_limit_reached",
+     "name": "include_coolify_default_variables",
      "type": "boolean",
      "args": [
-      "'restart_limit_reached'"
+      "'include_coolify_default_variables'"
      ],
      "chain": [
       {
        "method": "default",
        "args": [
-        "false"
+        "true"
        ]
       }
      ],
@@ -21606,7 +21883,15 @@
     "database/migrations/2025_10_03_154100_update_clickhouse_image.php",
     "database/migrations/2025_11_28_000001_migrate_clickhouse_to_official_image.php",
     "database/migrations/2025_11_28_000001_migrate_clickhouse_to_official_image.php",
-    "database/migrations/2026_08_31_073126_add_restart_limit_to_standalone_clickhouses.php"
+    "database/migrations/2025_12_17_000002_add_restart_tracking_to_standalone_databases.php",
+    "database/migrations/2025_12_17_000002_add_restart_tracking_to_standalone_databases.php",
+    "database/migrations/2025_12_17_000002_add_restart_tracking_to_standalone_databases.php",
+    "database/migrations/2026_02_27_000000_add_public_port_timeout_to_databases.php",
+    "database/migrations/2026_05_31_000000_add_health_check_to_standalone_databases.php",
+    "database/migrations/2026_08_31_073126_add_restart_limit_to_standalone_clickhouses.php",
+    "database/migrations/2026_09_04_132827_remove_restart_limits_from_databases.php",
+    "database/migrations/2026_10_13_101731_add_redact_all_env_values_in_logs_to_standalone_databases.php",
+    "database/migrations/2026_10_18_103517_add_include_coolify_default_variables_to_resources.php"
    ],
    "raw": [
     "ALTER TABLE standalone_clickhouses SET (fillfactor = 85)"
@@ -22189,16 +22474,16 @@
      ]
     },
     {
-     "name": "max_restart_count",
-     "type": "integer",
+     "name": "legacy_password_quoting",
+     "type": "boolean",
      "args": [
-      "'max_restart_count'"
+      "'legacy_password_quoting'"
      ],
      "chain": [
       {
        "method": "default",
        "args": [
-        "10"
+        "false"
        ]
       }
      ],
@@ -22207,16 +22492,16 @@
      ]
     },
     {
-     "name": "restart_limit_reached",
+     "name": "include_coolify_default_variables",
      "type": "boolean",
      "args": [
-      "'restart_limit_reached'"
+      "'include_coolify_default_variables'"
      ],
      "chain": [
       {
        "method": "default",
        "args": [
-        "false"
+        "true"
        ]
       }
      ],
@@ -22231,7 +22516,16 @@
     "database/migrations/2024_08_16_105649_add_custom_docker_options_to_dbs.php",
     "database/migrations/2024_11_02_213214_add_last_online_at_to_resources.php",
     "database/migrations/2025_01_27_102616_add_ssl_fields_to_database_tables.php",
-    "database/migrations/2026_08_31_073125_add_restart_limit_to_standalone_dragonflies.php"
+    "database/migrations/2025_12_17_000002_add_restart_tracking_to_standalone_databases.php",
+    "database/migrations/2025_12_17_000002_add_restart_tracking_to_standalone_databases.php",
+    "database/migrations/2025_12_17_000002_add_restart_tracking_to_standalone_databases.php",
+    "database/migrations/2026_02_27_000000_add_public_port_timeout_to_databases.php",
+    "database/migrations/2026_05_31_000000_add_health_check_to_standalone_databases.php",
+    "database/migrations/2026_08_31_073125_add_restart_limit_to_standalone_dragonflies.php",
+    "database/migrations/2026_09_04_132827_remove_restart_limits_from_databases.php",
+    "database/migrations/2026_10_02_120000_add_legacy_password_quoting_to_keydb_and_dragonfly.php",
+    "database/migrations/2026_10_13_101731_add_redact_all_env_values_in_logs_to_standalone_databases.php",
+    "database/migrations/2026_10_18_103517_add_include_coolify_default_variables_to_resources.php"
    ],
    "raw": [
     "ALTER TABLE standalone_dragonflies SET (fillfactor = 85)"
@@ -22737,16 +23031,16 @@
      ]
     },
     {
-     "name": "max_restart_count",
-     "type": "integer",
+     "name": "legacy_password_quoting",
+     "type": "boolean",
      "args": [
-      "'max_restart_count'"
+      "'legacy_password_quoting'"
      ],
      "chain": [
       {
        "method": "default",
        "args": [
-        "10"
+        "false"
        ]
       }
      ],
@@ -22755,16 +23049,16 @@
      ]
     },
     {
-     "name": "restart_limit_reached",
+     "name": "include_coolify_default_variables",
      "type": "boolean",
      "args": [
-      "'restart_limit_reached'"
+      "'include_coolify_default_variables'"
      ],
      "chain": [
       {
        "method": "default",
        "args": [
-        "false"
+        "true"
        ]
       }
      ],
@@ -22779,7 +23073,16 @@
     "database/migrations/2024_08_16_105649_add_custom_docker_options_to_dbs.php",
     "database/migrations/2024_11_02_213214_add_last_online_at_to_resources.php",
     "database/migrations/2025_01_27_102616_add_ssl_fields_to_database_tables.php",
-    "database/migrations/2026_08_31_073124_add_restart_limit_to_standalone_keydbs.php"
+    "database/migrations/2025_12_17_000002_add_restart_tracking_to_standalone_databases.php",
+    "database/migrations/2025_12_17_000002_add_restart_tracking_to_standalone_databases.php",
+    "database/migrations/2025_12_17_000002_add_restart_tracking_to_standalone_databases.php",
+    "database/migrations/2026_02_27_000000_add_public_port_timeout_to_databases.php",
+    "database/migrations/2026_05_31_000000_add_health_check_to_standalone_databases.php",
+    "database/migrations/2026_08_31_073124_add_restart_limit_to_standalone_keydbs.php",
+    "database/migrations/2026_09_04_132827_remove_restart_limits_from_databases.php",
+    "database/migrations/2026_10_02_120000_add_legacy_password_quoting_to_keydb_and_dragonfly.php",
+    "database/migrations/2026_10_13_101731_add_redact_all_env_values_in_logs_to_standalone_databases.php",
+    "database/migrations/2026_10_18_103517_add_include_coolify_default_variables_to_resources.php"
    ],
    "raw": [
     "ALTER TABLE standalone_keydbs SET (fillfactor = 85)"
@@ -23317,34 +23620,16 @@
      ]
     },
     {
-     "name": "max_restart_count",
-     "type": "integer",
-     "args": [
-      "'max_restart_count'"
-     ],
-     "chain": [
-      {
-       "method": "default",
-       "args": [
-        "10"
-       ]
-      }
-     ],
-     "modifiers": [
-      "default"
-     ]
-    },
-    {
-     "name": "restart_limit_reached",
+     "name": "include_coolify_default_variables",
      "type": "boolean",
      "args": [
-      "'restart_limit_reached'"
+      "'include_coolify_default_variables'"
      ],
      "chain": [
       {
        "method": "default",
        "args": [
-        "false"
+        "true"
        ]
       }
      ],
@@ -23362,7 +23647,15 @@
     "database/migrations/2024_08_16_105649_add_custom_docker_options_to_dbs.php",
     "database/migrations/2024_11_02_213214_add_last_online_at_to_resources.php",
     "database/migrations/2025_01_27_102616_add_ssl_fields_to_database_tables.php",
-    "database/migrations/2026_08_31_073123_add_restart_limit_to_standalone_mariadbs.php"
+    "database/migrations/2025_12_17_000002_add_restart_tracking_to_standalone_databases.php",
+    "database/migrations/2025_12_17_000002_add_restart_tracking_to_standalone_databases.php",
+    "database/migrations/2025_12_17_000002_add_restart_tracking_to_standalone_databases.php",
+    "database/migrations/2026_02_27_000000_add_public_port_timeout_to_databases.php",
+    "database/migrations/2026_05_31_000000_add_health_check_to_standalone_databases.php",
+    "database/migrations/2026_08_31_073123_add_restart_limit_to_standalone_mariadbs.php",
+    "database/migrations/2026_09_04_132827_remove_restart_limits_from_databases.php",
+    "database/migrations/2026_10_13_101731_add_redact_all_env_values_in_logs_to_standalone_databases.php",
+    "database/migrations/2026_10_18_103517_add_include_coolify_default_variables_to_resources.php"
    ],
    "raw": [
     "ALTER TABLE standalone_mariadbs SET (fillfactor = 85)"
@@ -23933,34 +24226,16 @@
      ]
     },
     {
-     "name": "max_restart_count",
-     "type": "integer",
-     "args": [
-      "'max_restart_count'"
-     ],
-     "chain": [
-      {
-       "method": "default",
-       "args": [
-        "10"
-       ]
-      }
-     ],
-     "modifiers": [
-      "default"
-     ]
-    },
-    {
-     "name": "restart_limit_reached",
+     "name": "include_coolify_default_variables",
      "type": "boolean",
      "args": [
-      "'restart_limit_reached'"
+      "'include_coolify_default_variables'"
      ],
      "chain": [
       {
        "method": "default",
        "args": [
-        "false"
+        "true"
        ]
       }
      ],
@@ -23980,7 +24255,15 @@
     "database/migrations/2024_11_02_213214_add_last_online_at_to_resources.php",
     "database/migrations/2025_01_27_102616_add_ssl_fields_to_database_tables.php",
     "database/migrations/2025_03_26_104103_disable_mongodb_ssl_by_default.php",
-    "database/migrations/2026_08_31_073121_add_restart_limit_to_standalone_mongodbs.php"
+    "database/migrations/2025_12_17_000002_add_restart_tracking_to_standalone_databases.php",
+    "database/migrations/2025_12_17_000002_add_restart_tracking_to_standalone_databases.php",
+    "database/migrations/2025_12_17_000002_add_restart_tracking_to_standalone_databases.php",
+    "database/migrations/2026_02_27_000000_add_public_port_timeout_to_databases.php",
+    "database/migrations/2026_05_31_000000_add_health_check_to_standalone_databases.php",
+    "database/migrations/2026_08_31_073121_add_restart_limit_to_standalone_mongodbs.php",
+    "database/migrations/2026_09_04_132827_remove_restart_limits_from_databases.php",
+    "database/migrations/2026_10_13_101731_add_redact_all_env_values_in_logs_to_standalone_databases.php",
+    "database/migrations/2026_10_18_103517_add_include_coolify_default_variables_to_resources.php"
    ],
    "raw": [
     "ALTER TABLE standalone_mongodbs SET (fillfactor = 85)"
@@ -24555,34 +24838,16 @@
      ]
     },
     {
-     "name": "max_restart_count",
-     "type": "integer",
-     "args": [
-      "'max_restart_count'"
-     ],
-     "chain": [
-      {
-       "method": "default",
-       "args": [
-        "10"
-       ]
-      }
-     ],
-     "modifiers": [
-      "default"
-     ]
-    },
-    {
-     "name": "restart_limit_reached",
+     "name": "include_coolify_default_variables",
      "type": "boolean",
      "args": [
-      "'restart_limit_reached'"
+      "'include_coolify_default_variables'"
      ],
      "chain": [
       {
        "method": "default",
        "args": [
-        "false"
+        "true"
        ]
       }
      ],
@@ -24601,7 +24866,15 @@
     "database/migrations/2024_08_16_105649_add_custom_docker_options_to_dbs.php",
     "database/migrations/2024_11_02_213214_add_last_online_at_to_resources.php",
     "database/migrations/2025_01_27_102616_add_ssl_fields_to_database_tables.php",
-    "database/migrations/2026_08_31_073122_add_restart_limit_to_standalone_mysqls.php"
+    "database/migrations/2025_12_17_000002_add_restart_tracking_to_standalone_databases.php",
+    "database/migrations/2025_12_17_000002_add_restart_tracking_to_standalone_databases.php",
+    "database/migrations/2025_12_17_000002_add_restart_tracking_to_standalone_databases.php",
+    "database/migrations/2026_02_27_000000_add_public_port_timeout_to_databases.php",
+    "database/migrations/2026_05_31_000000_add_health_check_to_standalone_databases.php",
+    "database/migrations/2026_08_31_073122_add_restart_limit_to_standalone_mysqls.php",
+    "database/migrations/2026_09_04_132827_remove_restart_limits_from_databases.php",
+    "database/migrations/2026_10_13_101731_add_redact_all_env_values_in_logs_to_standalone_databases.php",
+    "database/migrations/2026_10_18_103517_add_include_coolify_default_variables_to_resources.php"
    ],
    "raw": [
     "ALTER TABLE standalone_mysqls SET (fillfactor = 85)"
@@ -25220,34 +25493,16 @@
      ]
     },
     {
-     "name": "max_restart_count",
-     "type": "integer",
-     "args": [
-      "'max_restart_count'"
-     ],
-     "chain": [
-      {
-       "method": "default",
-       "args": [
-        "10"
-       ]
-      }
-     ],
-     "modifiers": [
-      "default"
-     ]
-    },
-    {
-     "name": "restart_limit_reached",
+     "name": "include_coolify_default_variables",
      "type": "boolean",
      "args": [
-      "'restart_limit_reached'"
+      "'include_coolify_default_variables'"
      ],
      "chain": [
       {
        "method": "default",
        "args": [
-        "false"
+        "true"
        ]
       }
      ],
@@ -25267,7 +25522,15 @@
     "database/migrations/2024_08_16_105649_add_custom_docker_options_to_dbs.php",
     "database/migrations/2024_11_02_213214_add_last_online_at_to_resources.php",
     "database/migrations/2025_01_27_102616_add_ssl_fields_to_database_tables.php",
-    "database/migrations/2026_08_31_073119_add_restart_limit_to_standalone_postgresqls.php"
+    "database/migrations/2025_12_17_000002_add_restart_tracking_to_standalone_databases.php",
+    "database/migrations/2025_12_17_000002_add_restart_tracking_to_standalone_databases.php",
+    "database/migrations/2025_12_17_000002_add_restart_tracking_to_standalone_databases.php",
+    "database/migrations/2026_02_27_000000_add_public_port_timeout_to_databases.php",
+    "database/migrations/2026_05_31_000000_add_health_check_to_standalone_databases.php",
+    "database/migrations/2026_08_31_073119_add_restart_limit_to_standalone_postgresqls.php",
+    "database/migrations/2026_09_04_132827_remove_restart_limits_from_databases.php",
+    "database/migrations/2026_10_13_101731_add_redact_all_env_values_in_logs_to_standalone_databases.php",
+    "database/migrations/2026_10_18_103517_add_include_coolify_default_variables_to_resources.php"
    ],
    "raw": [
     "ALTER TABLE standalone_postgresqls SET (fillfactor = 85)",
@@ -25775,42 +26038,6 @@
      ]
     },
     {
-     "name": "max_restart_count",
-     "type": "integer",
-     "args": [
-      "'max_restart_count'"
-     ],
-     "chain": [
-      {
-       "method": "default",
-       "args": [
-        "10"
-       ]
-      }
-     ],
-     "modifiers": [
-      "default"
-     ]
-    },
-    {
-     "name": "restart_limit_reached",
-     "type": "boolean",
-     "args": [
-      "'restart_limit_reached'"
-     ],
-     "chain": [
-      {
-       "method": "default",
-       "args": [
-        "false"
-       ]
-      }
-     ],
-     "modifiers": [
-      "default"
-     ]
-    },
-    {
      "name": "legacy_password_quoting",
      "type": "boolean",
      "args": [
@@ -25821,6 +26048,24 @@
        "method": "default",
        "args": [
         "false"
+       ]
+      }
+     ],
+     "modifiers": [
+      "default"
+     ]
+    },
+    {
+     "name": "include_coolify_default_variables",
+     "type": "boolean",
+     "args": [
+      "'include_coolify_default_variables'"
+     ],
+     "chain": [
+      {
+       "method": "default",
+       "args": [
+        "true"
        ]
       }
      ],
@@ -25840,8 +26085,16 @@
     "database/migrations/2024_10_16_120026_move_redis_password_to_envs.php",
     "database/migrations/2024_11_02_213214_add_last_online_at_to_resources.php",
     "database/migrations/2025_01_27_102616_add_ssl_fields_to_database_tables.php",
+    "database/migrations/2025_12_17_000002_add_restart_tracking_to_standalone_databases.php",
+    "database/migrations/2025_12_17_000002_add_restart_tracking_to_standalone_databases.php",
+    "database/migrations/2025_12_17_000002_add_restart_tracking_to_standalone_databases.php",
+    "database/migrations/2026_02_27_000000_add_public_port_timeout_to_databases.php",
+    "database/migrations/2026_05_31_000000_add_health_check_to_standalone_databases.php",
     "database/migrations/2026_08_31_073120_add_restart_limit_to_standalone_redis.php",
+    "database/migrations/2026_09_04_132827_remove_restart_limits_from_databases.php",
     "database/migrations/2026_10_05_204113_add_legacy_password_quoting_to_standalone_redis.php",
+    "database/migrations/2026_10_13_101731_add_redact_all_env_values_in_logs_to_standalone_databases.php",
+    "database/migrations/2026_10_18_103517_add_include_coolify_default_variables_to_resources.php",
     "database/migrations/2026_11_06_113843_set_valkey_as_standalone_redis_default_image.php"
    ],
    "raw": [
@@ -26421,10 +26674,30 @@
      "modifiers": [
       "default"
      ]
+    },
+    {
+     "name": "include_coolify_default_variables",
+     "type": "boolean",
+     "args": [
+      "'include_coolify_default_variables'"
+     ],
+     "chain": [
+      {
+       "method": "default",
+       "args": [
+        "true"
+       ]
+      }
+     ],
+     "modifiers": [
+      "default"
+     ]
     }
    ],
    "hasTeamId": false,
    "touchedBy": [
+    "database/migrations/2026_10_13_101731_add_redact_all_env_values_in_logs_to_standalone_databases.php",
+    "database/migrations/2026_10_18_103517_add_include_coolify_default_variables_to_resources.php",
     "database/migrations/2026_10_30_171359_drop_image_default_from_standalone_sqlites_table.php"
    ],
    "raw": []
@@ -28253,6 +28526,24 @@
      ]
     },
     {
+     "name": "image_vulnerabilities_telegram_notifications",
+     "type": "boolean",
+     "args": [
+      "'image_vulnerabilities_telegram_notifications'"
+     ],
+     "chain": [
+      {
+       "method": "default",
+       "args": [
+        "false"
+       ]
+      }
+     ],
+     "modifiers": [
+      "default"
+     ]
+    },
+    {
      "name": "telegram_notifications_image_vulnerabilities_thread_id",
      "type": "text",
      "args": [
@@ -28275,6 +28566,8 @@
     "database/migrations/2025_11_12_133400_add_traefik_outdated_thread_id_to_telegram_notification_settings.php",
     "database/migrations/2025_11_17_092707_add_traefik_outdated_to_notification_settings.php",
     "database/migrations/2026_08_31_092840_add_restart_limit_reached_notifications_to_telegram_notification_settings_table.php",
+    "database/migrations/2026_10_12_121520_add_failure_count_to_notification_settings_tables.php",
+    "database/migrations/2026_10_29_100000_create_image_scanning_tables.php",
     "database/migrations/2026_10_29_100000_create_image_scanning_tables.php"
    ],
    "raw": []
@@ -29292,12 +29585,32 @@
      "modifiers": [
       "default"
      ]
+    },
+    {
+     "name": "image_vulnerabilities_webhook_notifications",
+     "type": "boolean",
+     "args": [
+      "'image_vulnerabilities_webhook_notifications'"
+     ],
+     "chain": [
+      {
+       "method": "default",
+       "args": [
+        "false"
+       ]
+      }
+     ],
+     "modifiers": [
+      "default"
+     ]
     }
    ],
    "hasTeamId": true,
    "touchedBy": [
     "database/migrations/2025_11_17_092707_add_traefik_outdated_to_notification_settings.php",
-    "database/migrations/2026_08_31_092843_add_restart_limit_reached_notifications_to_webhook_notification_settings_table.php"
+    "database/migrations/2026_08_31_092843_add_restart_limit_reached_notifications_to_webhook_notification_settings_table.php",
+    "database/migrations/2026_10_12_121520_add_failure_count_to_notification_settings_tables.php",
+    "database/migrations/2026_10_29_100000_create_image_scanning_tables.php"
    ],
    "raw": []
   }
