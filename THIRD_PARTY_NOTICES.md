@@ -38,6 +38,19 @@ Files under `specs/epics/freeploy-coolify-parity/parity/*.json` are generated
 inventories that quote Coolify paths, identifiers and UI strings for the
 purpose of measuring parity.
 
+### Fonts
+
+`apps/deploy-web/public/fonts/` carries the font files Coolify ships
+(`resources/fonts/`): **Inter** (Copyright 2016 The Inter Project Authors) and
+**Geist Sans / Geist Mono** (Copyright 2024 Vercel, in collaboration with
+basement.studio), both under the SIL Open Font License 1.1
+(<https://openfontlicense.org>).
+
+### Vendored views
+
+`apps/deploy-web/coolify/views/` is a verbatim copy of Coolify's
+`resources/views/**`, used only as a Tailwind class source; it is not served.
+
 ### Third-party service logos
 
 Logos under `public/svgs` (or the equivalent in `apps/deploy-web`) belong to

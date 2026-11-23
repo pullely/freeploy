@@ -130,6 +130,8 @@ async function main() {
             const file = join(dir, `${vp}-${theme}.png`);
             await page.screenshot({ path: file, fullPage: true, animations: "disabled", mask: [page.locator(MASK_SELECTOR)], maskColor: "#ff00ff" });
             writeFileSync(join(dir, `${vp}-${theme}.dom.json`), JSON.stringify(await domExtract(page), null, 1));
+            // The rendered markup, once per route: the starting point for the exact React port (DP3+).
+            if (vp === "desktop" && theme === "light") writeFileSync(join(dir, "desktop-light.html"), await page.content());
             const entry = captured.find((c) => c.id === r.id) ?? captured[captured.push({ id: r.id, dir: safeId(r.id), url, shots: [], status }) - 1];
             entry.shots.push(`${vp}-${theme}`);
           } catch (e) {
