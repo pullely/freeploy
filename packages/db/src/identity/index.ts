@@ -26,3 +26,4 @@ export type {
 } from "./types.js";
 
 export { createIdentityRepository } from "./repository.js";
+export { createPasswordStore } from "./passwords.js";

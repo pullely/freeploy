@@ -1,48 +1,584 @@
 {
   "$comment": "Command-golden cases (DP1). Each case calls one Coolify helper with literal arguments inside the reference container (emit.php) and records the exact return value. The TypeScript port registered for the same id (ports.ts) must return the same value byte for byte. Only helpers whose output depends on their arguments alone belong here; helpers that read models get model-fixture cases in the milestone that ports them (DP4 servers, DP5 applications, DP7 databases, DP8 services).",
   "cases": [
-    { "id": "escapeShellValue.plain", "fn": "escapeShellValue", "args": ["hello world"] },
-    { "id": "escapeShellValue.quote", "fn": "escapeShellValue", "args": ["it's a \"test\" $HOME `id`"] },
-    { "id": "escapeShellValue.empty", "fn": "escapeShellValue", "args": [""] },
-    { "id": "traefikServiceNameHash.api", "fn": "traefikServiceNameHash", "args": ["api"] },
-    { "id": "traefikSafeServiceNameSegment.dots", "fn": "traefikSafeServiceNameSegment", "args": ["api.test"] },
-    { "id": "traefikSafeServiceNameSegment.underscore", "fn": "traefikSafeServiceNameSegment", "args": ["my_web__app"] },
-    { "id": "traefikSafeServiceNameSegment.symbols", "fn": "traefikSafeServiceNameSegment", "args": ["***"] },
-    { "id": "caddyTrafficAppKey.uuid", "fn": "caddyTrafficAppKey", "args": ["k8s0c4wgo8kkg4k0c0cwss8c"] },
-    { "id": "caddyTrafficAppKey.service", "fn": "caddyTrafficAppKey", "args": ["k8s0c4wgo8kkg4k0c0cwss8c", "web.app"] },
-    { "id": "dockerPsByOwnerCommands.application", "fn": "dockerPsByOwnerCommands", "args": ["application", "k8s0c4wgo8kkg4k0c0cwss8c"] },
-    { "id": "dockerPsByOwnerCommands.service.filters", "fn": "dockerPsByOwnerCommands", "args": ["service", "s1", ["status=running"], "{{.Names}}", false] },
-    { "id": "dockerPsByOwnerCommands.database.legacy", "fn": "dockerPsByOwnerCommands", "args": ["database", "d1", ["a=b"], "{{json .}}", true, []] },
-    { "id": "containerIdsByOwnerScript.application", "fn": "containerIdsByOwnerScript", "args": ["application", "k8s0c4wgo8kkg4k0c0cwss8c"] },
-    { "id": "parseDockerEngineVersion.full", "fn": "parseDockerEngineVersion", "args": ["Docker version 28.1.1, build 4eba377"] },
-    { "id": "parseDockerEngineVersion.short", "fn": "parseDockerEngineVersion", "args": ["27.5"] },
-    { "id": "parseDockerEngineVersion.none", "fn": "parseDockerEngineVersion", "args": ["no version here"] },
-    { "id": "dockerEngineVersionFromJson.server", "fn": "dockerEngineVersionFromJson", "args": ["{\"Server\":{\"Version\":\"28.0.4\"}}"] },
-    { "id": "dockerStopTimeoutOption.new", "fn": "dockerStopTimeoutOption", "args": ["28.0.0"] },
-    { "id": "dockerStopTimeoutOption.old", "fn": "dockerStopTimeoutOption", "args": ["27.3.1"] },
-    { "id": "dockerStopCommand.new", "fn": "dockerStopCommand", "args": [30, "abc def", "28.1.0"] },
-    { "id": "dockerStopCommand.old", "fn": "dockerStopCommand", "args": [10, "abc", "26.0.0"] },
-    { "id": "dockerRemoveCommandWithTimeout.default", "fn": "dockerRemoveCommandWithTimeout", "args": ["app-123"] },
-    { "id": "dockerRemoveCommandWithTimeout.custom", "fn": "dockerRemoveCommandWithTimeout", "args": ["it's", 5, 2] },
-    { "id": "dockerRemoveCommand.simple", "fn": "dockerRemoveCommand", "args": ["app-123"] },
-    { "id": "dockerReadOnlyFileMountOption.simple", "fn": "dockerReadOnlyFileMountOption", "args": ["/data/coolify/a b", "/etc/x.conf"] },
-    { "id": "composeProjectMountsCommand.simple", "fn": "composeProjectMountsCommand", "args": ["proj-1"] },
-    { "id": "composeServiceVolumeTargets.mixed", "fn": "composeServiceVolumeTargets", "args": [["data:/var/lib/data:rw", { "target": "/cache/" }, "/host:/opt"]] },
-    { "id": "composeServiceVolumeTargets.variable", "fn": "composeServiceVolumeTargets", "args": [["${DATA_PATH}"]] },
-    { "id": "dockerNetworkRemoveCommand.simple", "fn": "dockerNetworkRemoveCommand", "args": ["coolify-net"] },
-    { "id": "dockerCommandIgnoringError.simple", "fn": "dockerCommandIgnoringError", "args": ["docker volume rm v1", "no such volume"] },
-    { "id": "remoteCommandWithTimeout.default", "fn": "remoteCommandWithTimeout", "args": ["docker ps"] },
-    { "id": "remoteCommandWithTimeout.custom", "fn": "remoteCommandWithTimeout", "args": ["echo 'hi'", 5] },
-    { "id": "remove_iip.ip", "fn": "remove_iip", "args": ["connect to 10.0.0.12 port 22 as root@192.168.1.5"] },
-    { "id": "sanitize_utf8_text.invalid", "fn": "sanitize_utf8_text", "args": ["ok\u0000text"] },
-    { "id": "traefikAccessLogCommands.on", "fn": "traefikAccessLogCommands", "args": [true] },
-    { "id": "traefikAccessLogCommands.off", "fn": "traefikAccessLogCommands", "args": [false] },
-    { "id": "traefikAccessLogRotationScript.default", "fn": "traefikAccessLogRotationScript", "args": [] },
-    { "id": "isDockerPredefinedNetwork.bridge", "fn": "isDockerPredefinedNetwork", "args": ["bridge"] },
-    { "id": "isDockerPredefinedNetwork.custom", "fn": "isDockerPredefinedNetwork", "args": ["coolify"] },
-    { "id": "isUsableDockerNetworkName.bad", "fn": "isUsableDockerNetworkName", "args": ["bad name;rm"] },
-    { "id": "dockerNetworkEnsureCommand.bridge", "fn": "dockerNetworkEnsureCommand", "args": ["coolify"] },
-    { "id": "dockerNetworkEnsureCommand.overlay", "fn": "dockerNetworkEnsureCommand", "args": ["coolify-overlay", true, true] },
-    { "id": "dockerProxyNetworkEnsureCommand.simple", "fn": "dockerProxyNetworkEnsureCommand", "args": ["coolify"] }
+    {
+      "id": "escapeShellValue.plain",
+      "fn": "escapeShellValue",
+      "args": [
+        "hello world"
+      ]
+    },
+    {
+      "id": "escapeShellValue.quote",
+      "fn": "escapeShellValue",
+      "args": [
+        "it's a \"test\" $HOME `id`"
+      ]
+    },
+    {
+      "id": "escapeShellValue.empty",
+      "fn": "escapeShellValue",
+      "args": [
+        ""
+      ]
+    },
+    {
+      "id": "traefikServiceNameHash.api",
+      "fn": "traefikServiceNameHash",
+      "args": [
+        "api"
+      ]
+    },
+    {
+      "id": "traefikSafeServiceNameSegment.dots",
+      "fn": "traefikSafeServiceNameSegment",
+      "args": [
+        "api.test"
+      ]
+    },
+    {
+      "id": "traefikSafeServiceNameSegment.underscore",
+      "fn": "traefikSafeServiceNameSegment",
+      "args": [
+        "my_web__app"
+      ]
+    },
+    {
+      "id": "traefikSafeServiceNameSegment.symbols",
+      "fn": "traefikSafeServiceNameSegment",
+      "args": [
+        "***"
+      ]
+    },
+    {
+      "id": "caddyTrafficAppKey.uuid",
+      "fn": "caddyTrafficAppKey",
+      "args": [
+        "k8s0c4wgo8kkg4k0c0cwss8c"
+      ]
+    },
+    {
+      "id": "caddyTrafficAppKey.service",
+      "fn": "caddyTrafficAppKey",
+      "args": [
+        "k8s0c4wgo8kkg4k0c0cwss8c",
+        "web.app"
+      ]
+    },
+    {
+      "id": "dockerPsByOwnerCommands.application",
+      "fn": "dockerPsByOwnerCommands",
+      "args": [
+        "application",
+        "k8s0c4wgo8kkg4k0c0cwss8c"
+      ]
+    },
+    {
+      "id": "dockerPsByOwnerCommands.service.filters",
+      "fn": "dockerPsByOwnerCommands",
+      "args": [
+        "service",
+        "s1",
+        [
+          "status=running"
+        ],
+        "{{.Names}}",
+        false
+      ]
+    },
+    {
+      "id": "dockerPsByOwnerCommands.database.legacy",
+      "fn": "dockerPsByOwnerCommands",
+      "args": [
+        "database",
+        "d1",
+        [
+          "a=b"
+        ],
+        "{{json .}}",
+        true,
+        []
+      ]
+    },
+    {
+      "id": "containerIdsByOwnerScript.application",
+      "fn": "containerIdsByOwnerScript",
+      "args": [
+        "application",
+        "k8s0c4wgo8kkg4k0c0cwss8c"
+      ]
+    },
+    {
+      "id": "parseDockerEngineVersion.full",
+      "fn": "parseDockerEngineVersion",
+      "args": [
+        "Docker version 28.1.1, build 4eba377"
+      ]
+    },
+    {
+      "id": "parseDockerEngineVersion.short",
+      "fn": "parseDockerEngineVersion",
+      "args": [
+        "27.5"
+      ]
+    },
+    {
+      "id": "parseDockerEngineVersion.none",
+      "fn": "parseDockerEngineVersion",
+      "args": [
+        "no version here"
+      ]
+    },
+    {
+      "id": "dockerEngineVersionFromJson.server",
+      "fn": "dockerEngineVersionFromJson",
+      "args": [
+        "{\"Server\":{\"Version\":\"28.0.4\"}}"
+      ]
+    },
+    {
+      "id": "dockerStopTimeoutOption.new",
+      "fn": "dockerStopTimeoutOption",
+      "args": [
+        "28.0.0"
+      ]
+    },
+    {
+      "id": "dockerStopTimeoutOption.old",
+      "fn": "dockerStopTimeoutOption",
+      "args": [
+        "27.3.1"
+      ]
+    },
+    {
+      "id": "dockerStopCommand.new",
+      "fn": "dockerStopCommand",
+      "args": [
+        30,
+        "abc def",
+        "28.1.0"
+      ]
+    },
+    {
+      "id": "dockerStopCommand.old",
+      "fn": "dockerStopCommand",
+      "args": [
+        10,
+        "abc",
+        "26.0.0"
+      ]
+    },
+    {
+      "id": "dockerRemoveCommandWithTimeout.default",
+      "fn": "dockerRemoveCommandWithTimeout",
+      "args": [
+        "app-123"
+      ]
+    },
+    {
+      "id": "dockerRemoveCommandWithTimeout.custom",
+      "fn": "dockerRemoveCommandWithTimeout",
+      "args": [
+        "it's",
+        5,
+        2
+      ]
+    },
+    {
+      "id": "dockerRemoveCommand.simple",
+      "fn": "dockerRemoveCommand",
+      "args": [
+        "app-123"
+      ]
+    },
+    {
+      "id": "dockerReadOnlyFileMountOption.simple",
+      "fn": "dockerReadOnlyFileMountOption",
+      "args": [
+        "/data/coolify/a b",
+        "/etc/x.conf"
+      ]
+    },
+    {
+      "id": "composeProjectMountsCommand.simple",
+      "fn": "composeProjectMountsCommand",
+      "args": [
+        "proj-1"
+      ]
+    },
+    {
+      "id": "composeServiceVolumeTargets.mixed",
+      "fn": "composeServiceVolumeTargets",
+      "args": [
+        [
+          "data:/var/lib/data:rw",
+          {
+            "target": "/cache/"
+          },
+          "/host:/opt"
+        ]
+      ]
+    },
+    {
+      "id": "composeServiceVolumeTargets.variable",
+      "fn": "composeServiceVolumeTargets",
+      "args": [
+        [
+          "${DATA_PATH}"
+        ]
+      ]
+    },
+    {
+      "id": "dockerNetworkRemoveCommand.simple",
+      "fn": "dockerNetworkRemoveCommand",
+      "args": [
+        "coolify-net"
+      ]
+    },
+    {
+      "id": "dockerCommandIgnoringError.simple",
+      "fn": "dockerCommandIgnoringError",
+      "args": [
+        "docker volume rm v1",
+        "no such volume"
+      ]
+    },
+    {
+      "id": "remoteCommandWithTimeout.default",
+      "fn": "remoteCommandWithTimeout",
+      "args": [
+        "docker ps"
+      ]
+    },
+    {
+      "id": "remoteCommandWithTimeout.custom",
+      "fn": "remoteCommandWithTimeout",
+      "args": [
+        "echo 'hi'",
+        5
+      ]
+    },
+    {
+      "id": "remove_iip.ip",
+      "fn": "remove_iip",
+      "args": [
+        "connect to 10.0.0.12 port 22 as root@192.168.1.5"
+      ]
+    },
+    {
+      "id": "sanitize_utf8_text.invalid",
+      "fn": "sanitize_utf8_text",
+      "args": [
+        "ok\u0000text"
+      ]
+    },
+    {
+      "id": "traefikAccessLogCommands.on",
+      "fn": "traefikAccessLogCommands",
+      "args": [
+        true
+      ]
+    },
+    {
+      "id": "traefikAccessLogCommands.off",
+      "fn": "traefikAccessLogCommands",
+      "args": [
+        false
+      ]
+    },
+    {
+      "id": "traefikAccessLogRotationScript.default",
+      "fn": "traefikAccessLogRotationScript",
+      "args": []
+    },
+    {
+      "id": "isDockerPredefinedNetwork.bridge",
+      "fn": "isDockerPredefinedNetwork",
+      "args": [
+        "bridge"
+      ]
+    },
+    {
+      "id": "isDockerPredefinedNetwork.custom",
+      "fn": "isDockerPredefinedNetwork",
+      "args": [
+        "coolify"
+      ]
+    },
+    {
+      "id": "isUsableDockerNetworkName.bad",
+      "fn": "isUsableDockerNetworkName",
+      "args": [
+        "bad name;rm"
+      ]
+    },
+    {
+      "id": "dockerNetworkEnsureCommand.bridge",
+      "fn": "dockerNetworkEnsureCommand",
+      "args": [
+        "coolify"
+      ]
+    },
+    {
+      "id": "dockerNetworkEnsureCommand.overlay",
+      "fn": "dockerNetworkEnsureCommand",
+      "args": [
+        "coolify-overlay",
+        true,
+        true
+      ]
+    },
+    {
+      "id": "dockerProxyNetworkEnsureCommand.simple",
+      "fn": "dockerProxyNetworkEnsureCommand",
+      "args": [
+        "coolify"
+      ]
+    },
+    {
+      "id": "trans.auth.failed",
+      "fn": "__",
+      "args": [
+        "auth.failed",
+        {}
+      ]
+    },
+    {
+      "id": "trans.auth.password",
+      "fn": "__",
+      "args": [
+        "auth.password",
+        {}
+      ]
+    },
+    {
+      "id": "trans.auth.throttle",
+      "fn": "__",
+      "args": [
+        "auth.throttle",
+        {
+          "seconds": 42,
+          "minutes": 1
+        }
+      ]
+    },
+    {
+      "id": "trans.required.email",
+      "fn": "__",
+      "args": [
+        "validation.required",
+        {
+          "attribute": "email"
+        }
+      ]
+    },
+    {
+      "id": "trans.required.name",
+      "fn": "__",
+      "args": [
+        "validation.required",
+        {
+          "attribute": "name"
+        }
+      ]
+    },
+    {
+      "id": "trans.required.password",
+      "fn": "__",
+      "args": [
+        "validation.required",
+        {
+          "attribute": "password"
+        }
+      ]
+    },
+    {
+      "id": "trans.email.email",
+      "fn": "__",
+      "args": [
+        "validation.email",
+        {
+          "attribute": "email"
+        }
+      ]
+    },
+    {
+      "id": "trans.max.string.name",
+      "fn": "__",
+      "args": [
+        "validation.max.string",
+        {
+          "attribute": "name",
+          "max": 255
+        }
+      ]
+    },
+    {
+      "id": "trans.max.string.email",
+      "fn": "__",
+      "args": [
+        "validation.max.string",
+        {
+          "attribute": "email",
+          "max": 255
+        }
+      ]
+    },
+    {
+      "id": "trans.unique.email",
+      "fn": "__",
+      "args": [
+        "validation.unique",
+        {
+          "attribute": "email"
+        }
+      ]
+    },
+    {
+      "id": "trans.confirmed.password",
+      "fn": "__",
+      "args": [
+        "validation.confirmed",
+        {
+          "attribute": "password"
+        }
+      ]
+    },
+    {
+      "id": "trans.min.string.password",
+      "fn": "__",
+      "args": [
+        "validation.min.string",
+        {
+          "attribute": "password",
+          "min": 8
+        }
+      ]
+    },
+    {
+      "id": "trans.password.mixed",
+      "fn": "__",
+      "args": [
+        "validation.password.mixed",
+        {
+          "attribute": "password"
+        }
+      ]
+    },
+    {
+      "id": "trans.password.letters",
+      "fn": "__",
+      "args": [
+        "validation.password.letters",
+        {
+          "attribute": "password"
+        }
+      ]
+    },
+    {
+      "id": "trans.password.numbers",
+      "fn": "__",
+      "args": [
+        "validation.password.numbers",
+        {
+          "attribute": "password"
+        }
+      ]
+    },
+    {
+      "id": "trans.password.symbols",
+      "fn": "__",
+      "args": [
+        "validation.password.symbols",
+        {
+          "attribute": "password"
+        }
+      ]
+    },
+    {
+      "id": "trans.password.uncompromised",
+      "fn": "__",
+      "args": [
+        "validation.password.uncompromised",
+        {
+          "attribute": "password"
+        }
+      ]
+    },
+    {
+      "id": "trans.passwords.reset",
+      "fn": "__",
+      "args": [
+        "passwords.reset",
+        {}
+      ]
+    },
+    {
+      "id": "trans.passwords.sent",
+      "fn": "__",
+      "args": [
+        "passwords.sent",
+        {}
+      ]
+    },
+    {
+      "id": "trans.passwords.throttled",
+      "fn": "__",
+      "args": [
+        "passwords.throttled",
+        {}
+      ]
+    },
+    {
+      "id": "trans.passwords.token",
+      "fn": "__",
+      "args": [
+        "passwords.token",
+        {}
+      ]
+    },
+    {
+      "id": "trans.passwords.user",
+      "fn": "__",
+      "args": [
+        "passwords.user",
+        {}
+      ]
+    },
+    {
+      "id": "normalize_email_identity.0",
+      "fn": "normalize_email_identity",
+      "args": [
+        "John.Doe+tag@Gmail.com"
+      ]
+    },
+    {
+      "id": "normalize_email_identity.1",
+      "fn": "normalize_email_identity",
+      "args": [
+        "  User@Example.COM "
+      ]
+    },
+    {
+      "id": "normalize_email_identity.2",
+      "fn": "normalize_email_identity",
+      "args": [
+        "plain"
+      ]
+    },
+    {
+      "id": "normalize_email_identity.3",
+      "fn": "normalize_email_identity",
+      "args": [
+        "x@googlemail.com"
+      ]
+    },
+    {
+      "id": "normalize_email_identity.null",
+      "fn": "normalize_email_identity",
+      "args": [
+        null
+      ]
+    }
   ]
 }
