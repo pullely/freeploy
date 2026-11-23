@@ -1,8 +1,8 @@
 {
  "name": "routes.web",
  "coolifyRef": "91b7e3e",
- "generatedFrom": "routes/web.php",
- "count": 290,
+ "generatedFrom": "routes/web.php + Fortify views",
+ "count": 295,
  "rows": [
   {
    "id": "routes.web:password.forgot",
@@ -5540,6 +5540,96 @@
    "handler": "closure",
    "middleware": [],
    "visual": false
+  },
+  {
+   "id": "routes.web:login",
+   "source": "app/Providers/FortifyServiceProvider.php (auth.login)",
+   "milestone": "DP3",
+   "component": "apps/deploy-web + freeploy identity",
+   "parityTest": "parity/routes.web/login",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/login",
+   "name": "login",
+   "handler": "Fortify:auth.login",
+   "middleware": [
+    "guest"
+   ],
+   "visual": true,
+   "guest": true
+  },
+  {
+   "id": "routes.web:register",
+   "source": "app/Providers/FortifyServiceProvider.php (auth.register)",
+   "milestone": "DP3",
+   "component": "apps/deploy-web + freeploy identity",
+   "parityTest": "parity/routes.web/register",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/register",
+   "name": "register",
+   "handler": "Fortify:auth.register",
+   "middleware": [
+    "guest"
+   ],
+   "visual": true,
+   "guest": true
+  },
+  {
+   "id": "routes.web:password.request",
+   "source": "app/Providers/FortifyServiceProvider.php (auth.forgot-password)",
+   "milestone": "DP3",
+   "component": "apps/deploy-web + freeploy identity",
+   "parityTest": "parity/routes.web/password.request",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/forgot-password",
+   "name": "password.request",
+   "handler": "Fortify:auth.forgot-password",
+   "middleware": [
+    "guest"
+   ],
+   "visual": true,
+   "guest": true
+  },
+  {
+   "id": "routes.web:password.reset",
+   "source": "app/Providers/FortifyServiceProvider.php (auth.reset-password)",
+   "milestone": "DP3",
+   "component": "apps/deploy-web + freeploy identity",
+   "parityTest": "parity/routes.web/password.reset",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/reset-password/{token}",
+   "name": "password.reset",
+   "handler": "Fortify:auth.reset-password",
+   "middleware": [
+    "guest"
+   ],
+   "visual": true,
+   "guest": true
+  },
+  {
+   "id": "routes.web:password.confirm",
+   "source": "app/Providers/FortifyServiceProvider.php (auth.confirm-password)",
+   "milestone": "DP3",
+   "component": "apps/deploy-web + freeploy identity",
+   "parityTest": "parity/routes.web/password.confirm",
+   "taskKey": null,
+   "status": "planned",
+   "method": "GET",
+   "path": "/user/confirm-password",
+   "name": "password.confirm",
+   "handler": "Fortify:auth.confirm-password",
+   "middleware": [
+    "auth"
+   ],
+   "visual": true,
+   "guest": false
   }
  ]
 }

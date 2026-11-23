@@ -1,0 +1,19 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-12
+  title: "DP3: deploy-web — the console shell on Coolify's own CSS, and the exact /login"
+spec:
+  goal: apps/deploy-web (Vite + React SPA on Workers Static Assets) is deployed on stage and prod, built from Coolify's own Tailwind v4 CSS, fonts and class sources, with Coolify's URL structure; the parity harness captures the reference's rendered HTML and targets deploy-web; /login is ported from the reference markup with the brand swapped.
+  affects:
+    - apps/deploy-web/**
+    - tools/parity/**
+    - .github/workflows/parity.yml
+    - THIRD_PARTY_NOTICES.md
+    - pnpm-lock.yaml
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - deploy-web serves https://freeploy-deploy-web-{stage,prod}.nexo-7be.workers.dev with the Freeploy title
+    - the parity run captures the reference's /login HTML and compares deploy-web stage's /login against it
+  gates: []

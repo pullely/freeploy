@@ -21,7 +21,11 @@ $s->is_api_enabled = true; $s->allowed_ips = null;
 // The "Love Coolify? Support our work" popup is an instance setting.
 // Freeploy never shows it (no affiliation with coollabs.io; the operator
 // setting defaults off), so the reference turns it off to compare like with like.
-$s->is_sponsorship_popup_enabled = false; $s->save();
+$s->is_sponsorship_popup_enabled = false;
+// Freeploy is a SaaS with open sign-up, so the reference allows registration
+// too (the predefined root user turns it off): /login then shows the same
+// Register link and /register renders instead of redirecting.
+$s->is_registration_enabled = true; $s->save();
 // The same as "Skip setup" on /onboarding: otherwise every page redirects there.
 \App\Models\Team::find(0)->forceFill(["show_boarding" => false])->save();
 $u = \App\Models\User::find(0);
