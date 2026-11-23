@@ -30,7 +30,7 @@ scanning, push protection, branch protection) — task DP-2.
 - the inventory counts are within ±5% of the brief (`node tools/parity/inventory.ts --check` exits 0)
 - `gh repo view pullely/freeploy --json visibility` is `PUBLIC`
 
-## DP1 — parity harness
+## DP1 — parity harness ✅
 
 `tools/parity` grows the harness: a script that brings up Coolify at
 `91b7e3e` on a Docker runner with its own installer and seeds deterministic
