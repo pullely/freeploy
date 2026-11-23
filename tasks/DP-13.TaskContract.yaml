@@ -1,0 +1,15 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-13
+  title: "DP3: deploy-web live on stage and prod, and measured as the parity target"
+spec:
+  goal: deploy-web's verify-deploy lane tolerates a first deploy's route propagation so stage and prod both converge, and the parity harness's UI target is deploy-web stage, so /login is measured against the reference.
+  affects:
+    - apps/deploy-web/component.yaml
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - https://freeploy-deploy-web-stage.nexo-7be.workers.dev and https://freeploy-deploy-web-prod.nexo-7be.workers.dev serve the Freeploy title
+    - a parity run on main reports /login against deploy-web stage
+  gates: []

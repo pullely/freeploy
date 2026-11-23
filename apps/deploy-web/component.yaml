@@ -93,7 +93,9 @@ spec:
     # `${WORKERS_DEV_SUBDOMAIN}` is exported by the composition's deploy/smoke
     # step from the `workersDevSubdomain` parameter above (BF3: no duplicated
     # subdomain literal here).
-    smokeCommand: "html=$(curl -sfL \"${DEPLOYED_URL}/\") && echo \"${html}\" | grep -q '<title>Freeploy</title>' && health=$(curl -sf \"https://freeploy-api-edge-${ORUN_ENVIRONMENT}.${WORKERS_DEV_SUBDOMAIN}.workers.dev/health\") && echo \"${health}\" | grep -q ok"
+    # A first deploy's workers.dev route can take a few seconds to answer, so the
+    # smoke retries for up to a minute before it fails the lane.
+    smokeCommand: "for i in $(seq 1 12); do html=$(curl -sfL \"${DEPLOYED_URL}/\") && break; sleep 5; done; echo \"${html}\" | grep -q '<title>Freeploy</title>' && health=$(curl -sf \"https://freeploy-api-edge-${ORUN_ENVIRONMENT}.${WORKERS_DEV_SUBDOMAIN}.workers.dev/health\") && echo \"${health}\" | grep -q ok"
   labels:
     team: platform
     layer: delivery
