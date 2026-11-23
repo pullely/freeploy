@@ -16,6 +16,8 @@ import { POLICY_VERSION } from "@saas/contracts/policy";
 
 const ORG_ROLE_PERMISSIONS: Record<OrganizationRole, readonly string[]> = {
   owner: [
+    "deploy.resource.read",
+    "deploy.resource.write",
     "organization.read",
     "organization.settings.update",
     "organization.invitation.create",
@@ -59,6 +61,8 @@ const ORG_ROLE_PERMISSIONS: Record<OrganizationRole, readonly string[]> = {
     "project.repo_link.write",
   ],
   admin: [
+    "deploy.resource.read",
+    "deploy.resource.write",
     "organization.read",
     "organization.settings.update",
     "organization.invitation.create",
@@ -100,6 +104,8 @@ const ORG_ROLE_PERMISSIONS: Record<OrganizationRole, readonly string[]> = {
     "project.repo_link.write",
   ],
   builder: [
+    "deploy.resource.read",
+    "deploy.resource.write",
     "organization.read",
     "project.create",
     "project.list",
@@ -116,6 +122,7 @@ const ORG_ROLE_PERMISSIONS: Record<OrganizationRole, readonly string[]> = {
     "organization.integration.read",
   ],
   viewer: [
+    "deploy.resource.read",
     "organization.read",
     "project.list",
     "project.read",

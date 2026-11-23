@@ -57,7 +57,8 @@ export type RouteFamily =
   | "billing"
   | "audit"
   | "notifications"
-  | "integrations";
+  | "integrations"
+  | "deploy";
 
 interface BucketLimits {
   /** Bucket capacity (max tokens). */
@@ -117,6 +118,12 @@ const LIMITS: Record<RouteFamily, FamilyConfig> = {
     org: { limit: 300, windowSec: 60 },
   },
   integrations: {
+    identity: { limit: 60, windowSec: 60 },
+    org: { limit: 300, windowSec: 60 },
+  },
+  // The deploy console facade (DP2). Coolify's own /api/v1 limit (200/min per
+  // token, config/api.php) is matched in DP9 with its own family.
+  deploy: {
     identity: { limit: 60, windowSec: 60 },
     org: { limit: 300, windowSec: 60 },
   },
