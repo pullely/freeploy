@@ -20,7 +20,8 @@
     "./notifications": "./src/notifications/index.ts",
     "./support": "./src/support/index.ts",
     "./integrations": "./src/integrations/index.ts",
-    "./runner": "./src/runner/index.ts"
+    "./runner": "./src/runner/index.ts",
+    "./deploy": "./src/deploy/index.ts"
   },
   "bin": {
     "db-migrate": "./dist/runner/cli.js"

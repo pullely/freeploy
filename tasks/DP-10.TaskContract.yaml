@@ -1,0 +1,22 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-10
+  title: "DP2: deploy-core-worker and the api-edge deploy facade"
+spec:
+  goal: A new deploy-core-worker (the deploy bounded context) is deployed on stage and prod behind api-edge's /v1/organizations/{org}/deploy/* facade, with membership + policy (deploy.resource.read/write) deny-by-default and every database access through withOrg (RLS-confined transactions as deploy_app); its first route lists the org's Coolify projects.
+  affects:
+    - apps/deploy-core-worker/**
+    - apps/api-edge/**
+    - packages/db/**
+    - packages/policy-engine/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - .gitignore
+    - pnpm-lock.yaml
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - deploy-core-worker deploys to stage and prod on the merge and api-edge's deploy route answers through it (401 without a session)
+    - tests prove routing, 401/404/405/503 paths, deny-by-default on membership and policy, and withOrg confinement against a real Postgres
+  gates: []
