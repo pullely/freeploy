@@ -9,10 +9,11 @@ const MESSAGES: Record<string, string> = {
   "auth.password": "The provided password is incorrect.",
   "auth.throttle": "Too many login attempts. Please try again in :seconds seconds.",
   "passwords.reset": "Your password has been reset.",
-  "passwords.sent": "We have emailed your password reset link.",
+  // Coolify overrides both with one message, so an address's existence is not revealed.
+  "passwords.sent": "If an account exists with this email address, you will receive a password reset link shortly.",
   "passwords.throttled": "Please wait before retrying.",
   "passwords.token": "This password reset token is invalid.",
-  "passwords.user": "We can't find a user with that email address.",
+  "passwords.user": "If an account exists with this email address, you will receive a password reset link shortly.",
   "validation.required": "The :attribute field is required.",
   "validation.string": "The :attribute field must be a string.",
   "validation.email": "The :attribute field must be a valid email address.",

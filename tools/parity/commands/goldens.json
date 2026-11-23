@@ -158,6 +158,31 @@
     "type": "bool",
     "value": false
   },
+  "normalize_email_identity.0": {
+    "ok": true,
+    "type": "string",
+    "value": "johndoe@gmail.com"
+  },
+  "normalize_email_identity.1": {
+    "ok": true,
+    "type": "string",
+    "value": "user@example.com"
+  },
+  "normalize_email_identity.2": {
+    "ok": true,
+    "type": "null",
+    "value": null
+  },
+  "normalize_email_identity.3": {
+    "ok": true,
+    "type": "string",
+    "value": "x@googlemail.com"
+  },
+  "normalize_email_identity.null": {
+    "ok": true,
+    "type": "null",
+    "value": null
+  },
   "parseDockerEngineVersion.full": {
     "ok": true,
     "type": "string",
@@ -239,5 +264,115 @@
     "ok": true,
     "type": "string",
     "value": "8a5d"
+  },
+  "trans.auth.failed": {
+    "ok": true,
+    "type": "string",
+    "value": "These credentials do not match our records."
+  },
+  "trans.auth.password": {
+    "ok": true,
+    "type": "string",
+    "value": "The provided password is incorrect."
+  },
+  "trans.auth.throttle": {
+    "ok": true,
+    "type": "string",
+    "value": "Too many login attempts. Please try again in 42 seconds."
+  },
+  "trans.confirmed.password": {
+    "ok": true,
+    "type": "string",
+    "value": "The password field confirmation does not match."
+  },
+  "trans.email.email": {
+    "ok": true,
+    "type": "string",
+    "value": "The email field must be a valid email address."
+  },
+  "trans.max.string.email": {
+    "ok": true,
+    "type": "string",
+    "value": "The email field must not be greater than 255 characters."
+  },
+  "trans.max.string.name": {
+    "ok": true,
+    "type": "string",
+    "value": "The name field must not be greater than 255 characters."
+  },
+  "trans.min.string.password": {
+    "ok": true,
+    "type": "string",
+    "value": "The password field must be at least 8 characters."
+  },
+  "trans.password.letters": {
+    "ok": true,
+    "type": "string",
+    "value": "The password field must contain at least one letter."
+  },
+  "trans.password.mixed": {
+    "ok": true,
+    "type": "string",
+    "value": "The password field must contain at least one uppercase and one lowercase letter."
+  },
+  "trans.password.numbers": {
+    "ok": true,
+    "type": "string",
+    "value": "The password field must contain at least one number."
+  },
+  "trans.password.symbols": {
+    "ok": true,
+    "type": "string",
+    "value": "The password field must contain at least one symbol."
+  },
+  "trans.password.uncompromised": {
+    "ok": true,
+    "type": "string",
+    "value": "The given password has appeared in a data leak. Please choose a different password."
+  },
+  "trans.passwords.reset": {
+    "ok": true,
+    "type": "string",
+    "value": "Your password has been reset."
+  },
+  "trans.passwords.sent": {
+    "ok": true,
+    "type": "string",
+    "value": "If an account exists with this email address, you will receive a password reset link shortly."
+  },
+  "trans.passwords.throttled": {
+    "ok": true,
+    "type": "string",
+    "value": "Please wait before retrying."
+  },
+  "trans.passwords.token": {
+    "ok": true,
+    "type": "string",
+    "value": "This password reset token is invalid."
+  },
+  "trans.passwords.user": {
+    "ok": true,
+    "type": "string",
+    "value": "If an account exists with this email address, you will receive a password reset link shortly."
+  },
+  "trans.required.email": {
+    "ok": true,
+    "type": "string",
+    "value": "The email field is required."
+  },
+  "trans.required.name": {
+    "ok": true,
+    "type": "string",
+    "value": "The name field is required."
+  },
+  "trans.required.password": {
+    "ok": true,
+    "type": "string",
+    "value": "The password field is required."
+  },
+  "trans.unique.email": {
+    "ok": true,
+    "type": "string",
+    "value": "The email has already been taken."
   }
 }
