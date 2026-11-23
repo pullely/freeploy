@@ -1,7 +1,8 @@
 // Password hashing for email + password sign-in (DP3). PBKDF2-SHA256 through
-// WebCrypto (available in Workers), 210,000 iterations, 16-byte salt.
+// WebCrypto, 100,000 iterations (the most Cloudflare Workers' PBKDF2 allows;
+// more throws at runtime), 16-byte salt.
 // Stored as pbkdf2-sha256$<iterations>$<salt b64>$<hash b64>.
-const ITERATIONS = 210_000;
+const ITERATIONS = 100_000;
 const enc = new TextEncoder();
 const b64 = (u: Uint8Array) => btoa(String.fromCharCode(...u));
 const unb64 = (s: string) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));

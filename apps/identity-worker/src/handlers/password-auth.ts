@@ -132,9 +132,11 @@ export async function handlePasswordRegister(request: Request, env: Env, request
 
     const email = String(body.email);
     const now = new Date();
+    // Hash first: a failure must not leave an account without a credential.
+    const passwordHash = await hashPassword(String(body.password));
     const created = await repo.createUser({ id: generateUserId(), email, emailLower: email.toLowerCase(), displayName: String(body.name), createdAt: now });
     if (!created.ok) return errorResponse("internal_error", "Failed to create user", 500, requestId);
-    await store.set(created.value.id, await hashPassword(String(body.password)));
+    await store.set(created.value.id, passwordHash);
     await ensurePersonalOrg(env, requestId, created.value);
     const session = await issueSession(db, request, requestId, created.value, "password");
     if (!session) return errorResponse("internal_error", "Failed to create session", 500, requestId);

@@ -1,0 +1,18 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-15
+  title: "DP3: registration works on Workers, and /register is ported"
+spec:
+  goal: Registration succeeds on stage and prod (PBKDF2 within Workers' 100k-iteration cap, hash before the account), the reference has transactional email configured like Freeploy, and deploy-web's /register is ported from the reference markup and registers through identity.
+  affects:
+    - apps/identity-worker/**
+    - apps/deploy-web/**
+    - tests/identity-worker/**
+    - tools/parity/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - a new account registers and signs in through api-edge on stage
+    - /login and /register on deploy-web stage pass the visual and DOM gate against the reference with email configured
+  gates: []
