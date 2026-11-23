@@ -20,6 +20,10 @@ describe("password hashing", () => {
     expect(await verifyPassword("anything", "md5$abc")).toBe(false);
   });
 
+  it("defaults to 100,000 iterations, the most Workers' PBKDF2 accepts", async () => {
+    expect(await hashPassword("x")).toMatch(/^pbkdf2-sha256\$100000\$/);
+  });
+
   it("salts every hash", async () => {
     expect(await hashPassword("same", 1000)).not.toBe(await hashPassword("same", 1000));
   });
