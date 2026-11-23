@@ -1,0 +1,16 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-6
+  title: "DP1: command goldens — Coolify's helpers as byte-for-byte fixtures"
+spec:
+  goal: The parity workflow runs a set of Coolify bootstrap/helpers functions inside the reference container with literal arguments, commits their outputs as goldens, fails if the reference stops reproducing them, and checks every registered TypeScript port against them byte for byte (unported helpers report pending).
+  affects:
+    - tools/parity/**
+    - .github/workflows/parity.yml
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - tools/parity/commands/goldens.json is committed from the reference's own output and a later run reproduces it exactly
+    - the checker's self-tests show a correct port verifies, a one-byte difference fails and an unported helper is pending
+  gates: []
