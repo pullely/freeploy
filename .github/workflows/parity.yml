@@ -45,6 +45,7 @@ env:
   COOLIFY_DIR: ${{ github.workspace }}/ref/coolify
   OUT: tools/parity/out
   PARITY_TARGET_URL: ${{ vars.PARITY_TARGET_URL }}
+  PARITY_TARGET_API_URL: ${{ vars.PARITY_TARGET_API_URL }}
 
 jobs:
   unit:
@@ -117,15 +118,23 @@ jobs:
           TARGET_PASSWORD: ${{ secrets.PARITY_TARGET_PASSWORD }}
           TARGET_TOKEN: ${{ secrets.PARITY_TARGET_TOKEN }}
         run: |
-          node tools/parity/fixtures/apply.ts --base "$PARITY_TARGET_URL" --token-env TARGET_TOKEN \
-            --fixtures tools/parity/fixtures/base.json --out "$OUT/target.ids.json"
+          # A target without Coolify's /api/v1 yet (Freeploy before DP9) seeds
+          # nothing; the report then shows every read and route as missing.
+          node tools/parity/fixtures/apply.ts --base "$PARITY_TARGET_API_URL" --token-env TARGET_TOKEN \
+            --fixtures tools/parity/fixtures/base.json --out "$OUT/target.ids.json" \
+            || { echo "::warning::target fixtures not applied (no /api/v1 on the target yet)"; echo '{}' > "$OUT/target.ids.json"; }
           node tools/parity/api/contract.ts --env-file "$OUT/reference.env" \
             --ref-base "$(grep ^REFERENCE_URL= $OUT/reference.env | cut -d= -f2-)" --ref-token-env REFERENCE_TOKEN \
-            --ref-ids "$OUT/reference.ids.json" --target-base "$PARITY_TARGET_URL" --target-token-env TARGET_TOKEN \
+            --ref-ids "$OUT/reference.ids.json" --target-base "$PARITY_TARGET_API_URL" --target-token-env TARGET_TOKEN \
             --target-ids "$OUT/target.ids.json" --report specs/epics/freeploy-coolify-parity/parity/api-report.json
           node tools/parity/visual/capture.ts --system target --base "$PARITY_TARGET_URL" \
             --user-env TARGET_EMAIL --password-env TARGET_PASSWORD --ids "$OUT/target.ids.json" --out "$OUT" \
             ${{ inputs.only && format('--only ''{0}''', inputs.only) || '' }}
+      - name: behaviour scenarios on the reference (its own host is the localhost server)
+        run: |
+          node tools/parity/behaviour/run.ts --system reference --env-file "$OUT/reference.env" \
+            --base "$(grep ^REFERENCE_URL= $OUT/reference.env | cut -d= -f2-)" --token-env REFERENCE_TOKEN \
+            --ids "$OUT/reference.ids.json" --docker local --out "$OUT"
       - name: compare and report
         if: always()
         run: |
@@ -144,6 +153,7 @@ jobs:
             specs/epics/freeploy-coolify-parity/parity/api-report.json
             tools/parity/out/api-report.reference.json
             tools/parity/out/goldens.reference.json
+            tools/parity/out/behaviour
             specs/epics/freeploy-coolify-parity/parity/commands-report.json
             tools/parity/out/reference
             tools/parity/out/target

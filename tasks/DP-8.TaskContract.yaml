@@ -1,0 +1,17 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-8
+  title: "DP1: behaviour scenarios on the reference, the harness pointed at stage — closes DP1"
+spec:
+  goal: The parity workflow runs behaviour scenarios on the reference (deploy the fixture application on the runner and record its normalised container state), runs the whole harness against Freeploy stage — reporting every route and read missing while stage serves no Coolify surface — and DP1 is marked done.
+  affects:
+    - tools/parity/**
+    - .github/workflows/parity.yml
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - the reference runs application.dockerimage.deploy to a finished deployment and its container state is in the artefact
+    - the parity run captures the stage target and HARNESS.md reports its routes as missing rather than failing the run
+    - DP1 is ✅ in implementation-plan.md and IMPLEMENTATION-STATUS.md
+  gates: []

@@ -95,7 +95,16 @@ async function main() {
           }
         }, theme);
         const page = await ctx.newPage();
-        await login(page);
+        try {
+          await login(page);
+        } catch (e) {
+          // A target that does not serve Coolify's login yet (Freeploy before
+          // DP3) is measured as rendering nothing: every route "missing".
+          if (system === "reference") throw e;
+          await ctx.close();
+          for (const r of targets) if (theme === "light" && vp === "desktop") skipped.push({ id: r.id, reason: `target login failed: ${(e as Error).message.split("\n")[0].slice(0, 120)}` });
+          continue;
+        }
         for (const r of targets) {
           const { url, missing } = resolvePath(r.path, ids);
           if (!url) {

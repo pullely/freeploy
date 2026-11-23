@@ -87,5 +87,20 @@ if (cmd) {
   L.push(`| ${c.cases} | ${c.verified} | ${c.fail} | ${c.pending} | ${c.referenceErrors} |`);
   L.push("");
 }
+const behDir = join(out, "behaviour", "reference");
+if (existsSync(behDir)) {
+  const { readdirSync } = await import("node:fs");
+  const files = readdirSync(behDir).filter((f) => f.endsWith(".json"));
+  L.push("## Behaviour scenarios");
+  L.push("");
+  L.push("| Scenario | Reference | Freeploy |");
+  L.push("|---|---|---|");
+  for (const f of files) {
+    const r = read(join(behDir, f));
+    const t = read(join(out, "behaviour", "target", f));
+    L.push(`| \`${r.id}\` | ${r.ok ? `ran (${r.seconds}s)` : `failed: ${r.error}`} | ${t ? (t.ok ? "ran" : "failed") : "not run — needs a test server (WAITING.md W1)"} |`);
+  }
+  L.push("");
+}
 writeFileSync(join(parity, "HARNESS.md"), L.join("\n"));
 console.log("wrote HARNESS.md");
