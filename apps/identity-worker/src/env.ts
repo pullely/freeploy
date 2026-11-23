@@ -31,4 +31,6 @@ export interface Env {
   OAUTH_REDIRECT_BASE_URL?: string;
   /** Comma-separated console origins allowed as post-login redirect targets. */
   OAUTH_ALLOWED_CONSOLE_ORIGINS?: string;
+  /** The console (deploy-web) origin password-reset links point at. Never taken from a request. */
+  DEPLOY_WEB_URL?: string;
 }

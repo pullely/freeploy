@@ -1,6 +1,7 @@
 import { pageFor } from "./routes";
 import { LoginPage } from "./pages/Login";
 import { RegisterPage } from "./pages/Register";
+import { ForgotPasswordPage } from "./pages/ForgotPassword";
 
 export function App() {
   switch (pageFor(window.location.pathname)) {
@@ -8,6 +9,8 @@ export function App() {
       return <LoginPage />;
     case "register":
       return <RegisterPage />;
+    case "forgot-password":
+      return <ForgotPasswordPage />;
     default:
       return <NotPorted />;
   }

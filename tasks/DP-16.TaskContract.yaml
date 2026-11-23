@@ -1,0 +1,23 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-16
+  title: "DP3: forgot and reset password — Coolify's flow, messages and email"
+spec:
+  goal: Users can request a password reset link and set a new password exactly as in Coolify (Fortify rules, Laravel broker semantics with 10-minute tokens and a 60-second throttle, the same status sentence whether or not the address exists, all sessions revoked on reset, Coolify's email copy), and deploy-web's /forgot-password and /reset-password/{token} are ported from the reference.
+  affects:
+    - apps/identity-worker/**
+    - apps/notifications-worker/**
+    - apps/api-edge/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/identity-worker/**
+    - tests/notifications-worker/**
+    - tests/db/**
+    - tools/parity/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - POST /v1/auth/password/forgot answers Coolify's status sentence on stage, and /reset rejects a bad token with passwords.token
+    - /forgot-password and /reset-password/{token} on deploy-web stage pass the visual and DOM gate
+  gates: []
