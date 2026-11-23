@@ -95,7 +95,7 @@ for (const raw of fixtures.steps as Step[]) {
     const { status, json } = await call(step.method ?? "POST", step.path!, step.body);
     if (status >= 400) {
       if (step.optional) {
-        console.log(`· ${step.name}: ${status} (optional, skipped)`);
+        console.log(`· ${step.name}: ${status} (optional, skipped) ${JSON.stringify(json).slice(0, 300)}`);
         continue;
       }
       throw new Error(`${step.name}: ${step.method} ${step.path} → ${status} ${JSON.stringify(json).slice(0, 300)}`);

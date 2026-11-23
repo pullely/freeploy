@@ -164,8 +164,8 @@
    "path": "/api/v1/s3-storages",
    "body": {
     "name": "parity-s3",
-    "description": "Parity fixture S3 (fake endpoint)",
-    "endpoint": "https://s3.example.com",
+    "description": "Parity fixture S3 (real public endpoint, fake keys; never connected)",
+    "endpoint": "https://s3.us-east-1.amazonaws.com",
     "bucket": "parity",
     "region": "us-east-1",
     "key": "PARITYFAKEKEY",
