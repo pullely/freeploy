@@ -92,6 +92,14 @@ subscriptions, audit_events, passkeys,
   oauth_identities, oauth_settings           mapped onto Freeploy billing, events and identity
 ```
 
+**Tenancy is enforced by Postgres, not only by queries.** Row-level security
+is enabled and *forced* on every `deploy` table, with one policy:
+`org_id = deploy.current_org()` (from `SET LOCAL deploy.org_id`) or the
+platform-admin flag. `deploy-core-worker` runs every transaction as role
+`deploy_app` (`NOLOGIN NOBYPASSRLS`). So a query that forgets its org sees
+nothing and can write nothing. `tests/db/src/deploy-isolation.test.ts` proves
+this for every table against a real Postgres (PGlite).
+
 `teams`, `users`, `team_user`, `team_invitations`, `sessions`,
 `password_reset_tokens` are **not** ported as tables: they are Freeploy's
 identity and membership. A view `deploy.teams` maps Freeploy orgs to Coolify's
