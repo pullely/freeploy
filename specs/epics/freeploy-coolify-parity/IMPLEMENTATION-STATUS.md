@@ -8,7 +8,7 @@ the code departed from `design.md`.
 | DP0 — the spec | ✅ Done 2026-11-23 | DP-1 [#4](https://github.com/pullely/freeploy/pull/4) (merge `48fa9ca`) · DP-2 (this PR) |
 | DP1 — parity harness | ✅ Done 2026-11-23 | DP-3 [#6](https://github.com/pullely/freeploy/pull/6) · DP-4 [#7](https://github.com/pullely/freeploy/pull/7) · DP-6 [#14](https://github.com/pullely/freeploy/pull/14) · DP-7 [#15](https://github.com/pullely/freeploy/pull/15) · DP-8 (this PR) |
 | DP2 — data model | ✅ Done 2026-11-24 | DP-9 [#17](https://github.com/pullely/freeploy/pull/17) · DP-10 [#18](https://github.com/pullely/freeploy/pull/18) · DP-11 (this PR) |
-| DP3 — UI shell | | |
+| DP3 — UI shell | In progress | DP-12 [#20](https://github.com/pullely/freeploy/pull/20) · DP-13 (this PR) |
 | DP4 — servers over SSH | | |
 | DP5 — applications | | |
 | DP6 — sources and previews | | |
