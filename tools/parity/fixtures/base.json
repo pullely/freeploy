@@ -164,7 +164,7 @@
    "path": "/api/v1/s3-storages",
    "body": {
     "name": "parity-s3",
-    "description": "Parity fixture S3 (real public endpoint, fake keys; never connected)",
+    "description": "Parity fixture S3 with fake keys",
     "endpoint": "https://s3.us-east-1.amazonaws.com",
     "bucket": "parity",
     "region": "us-east-1",
@@ -244,6 +244,20 @@
    },
    "capture": {
     "github_app_uuid": "uuid"
+   },
+   "optional": true
+  },
+  {
+   "name": "gitlab_app",
+   "method": "POST",
+   "path": "/api/v1/gitlab-apps",
+   "body": {
+    "name": "parity-gitlab",
+    "html_url": "https://gitlab.com",
+    "api_url": "https://gitlab.com/api/v4"
+   },
+   "capture": {
+    "gitlab_app_uuid": "uuid"
    },
    "optional": true
   }
