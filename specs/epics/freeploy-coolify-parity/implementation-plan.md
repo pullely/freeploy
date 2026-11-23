@@ -49,7 +49,7 @@ and side-by-side images as artefacts and regenerates `parity/README.md`.
 - the parity report renders with per-route visual %, API %, command and behaviour results
 - a deliberately broken fixture makes the relevant gate fail (the harness can say no)
 
-## DP2 — data model
+## DP2 — data model ✅
 
 Migrations in `packages/db` create the `deploy` schema from the folded final
 schema (`parity/migrations.json`, 88 tables), `team_id → org_id`, `org_id`

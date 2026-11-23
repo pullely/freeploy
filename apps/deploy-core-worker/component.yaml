@@ -37,6 +37,12 @@ spec:
     - component: db
     # The deploy schema (500_deploy_core) must exist before this serves it.
     - component: db-migrate
+  # Runtime secrets: the platform key-encryption key that wraps each org's
+  # data key (packages/db/src/deploy/crypto.ts). Seeded per environment with a
+  # random 32 bytes; pushed to the Worker by the secrets-live step.
+  optionalSecretEnv:
+    DEPLOY_ENCRYPTION_KEY: "secret://ws_65T3WPCP/freeploy/{{ .environment }}/DEPLOY_ENCRYPTION_KEY"
+
   subscribe:
     environments:
       - name: dev
@@ -89,6 +95,9 @@ spec:
     owner: sourceplane
     repo: freeploy
 
+    # Runtime worker secrets, pushed by the secrets-live step from the
+    # values orun resolves for the optionalSecretEnv references above.
+    runtimeSecrets: "DEPLOY_ENCRYPTION_KEY"
     turboFilter: "@saas/deploy-core-worker"
     wranglerConfig: wrangler.jsonc
     wranglerTemplate: wrangler.template.jsonc

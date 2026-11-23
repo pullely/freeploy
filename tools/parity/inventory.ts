@@ -20,6 +20,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSy
 import { join, relative, basename, extname, dirname } from "node:path";
 import { execFileSync } from "node:child_process";
 import { splitStatements, parseChain, phpString, type Call } from "./chain.ts";
+import { expandLoops } from "./expand.ts";
 
 type Status = "planned" | "in_progress" | "ported" | "verified" | "deferred";
 
@@ -413,7 +414,9 @@ function migrations(): { files: Inventory; tables: Inventory } {
   const files = walk("database/migrations", (p) => p.endsWith(".php"));
   const tables = new Map<string, { columns: Map<string, Column>; createdIn: string; touchedBy: string[]; raw: string[] }>();
   for (const f of files) {
-    const src = stripPhpComments(read(f));
+    // Loops over table lists (foreach ([...] as $t) Schema::table($t, …)) are
+    // unrolled first so every table they touch is folded.
+    const src = expandLoops(stripPhpComments(read(f)));
     const up = src.match(/function\s+up\s*\(\)\s*(?::\s*void)?\s*\{([\s\S]*?)\n\s{4}\}/)?.[1] ?? src;
     for (const m of up.matchAll(/Schema::(create|table)\(\s*['"](\w+)['"]\s*,\s*function\s*\([^)]*\)\s*(?:use\s*\([^)]*\)\s*)?\{([\s\S]*?)\n\s*\}\s*\);/g)) {
       const [, op, name, body] = m;

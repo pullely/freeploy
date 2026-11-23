@@ -2,7 +2,7 @@
  "name": "settings",
  "coolifyRef": "91b7e3e",
  "generatedFrom": "instance/team/server/application/database/service settings (folded schema)",
- "count": 687,
+ "count": 698,
  "rows": [
   {
    "id": "settings:application_settings.is_static",
@@ -636,6 +636,22 @@
    ]
   },
   {
+   "id": "settings:application_settings.include_coolify_default_variables",
+   "source": "database/migrations/2023_03_27_081717_create_application_settings_table.php",
+   "milestone": "DP5",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/settings/application_settings.include_coolify_default_variables",
+   "taskKey": null,
+   "status": "planned",
+   "scope": "application",
+   "table": "application_settings",
+   "column": "include_coolify_default_variables",
+   "type": "boolean",
+   "modifiers": [
+    "default"
+   ]
+  },
+  {
    "id": "settings:application_settings.is_permanent_redirect_enabled",
    "source": "database/migrations/2023_03_27_081717_create_application_settings_table.php",
    "milestone": "DP5",
@@ -1018,6 +1034,22 @@
    "scope": "team",
    "table": "discord_notification_settings",
    "column": "restart_limit_reached_discord_notifications",
+   "type": "boolean",
+   "modifiers": [
+    "default"
+   ]
+  },
+  {
+   "id": "settings:discord_notification_settings.image_vulnerabilities_discord_notifications",
+   "source": "database/migrations/2024_12_05_212416_create_discord_notification_settings_table.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + freeploy notifications",
+   "parityTest": "parity/settings/discord_notification_settings.image_vulnerabilities_discord_notifications",
+   "taskKey": null,
+   "status": "planned",
+   "scope": "team",
+   "table": "discord_notification_settings",
+   "column": "image_vulnerabilities_discord_notifications",
    "type": "boolean",
    "modifiers": [
     "default"
@@ -1518,6 +1550,86 @@
    "type": "boolean",
    "modifiers": [
     "default"
+   ]
+  },
+  {
+   "id": "settings:email_notification_settings.image_vulnerabilities_email_notifications",
+   "source": "database/migrations/2024_12_05_212355_create_email_notification_settings_table.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + freeploy notifications",
+   "parityTest": "parity/settings/email_notification_settings.image_vulnerabilities_email_notifications",
+   "taskKey": null,
+   "status": "planned",
+   "scope": "team",
+   "table": "email_notification_settings",
+   "column": "image_vulnerabilities_email_notifications",
+   "type": "boolean",
+   "modifiers": [
+    "default"
+   ]
+  },
+  {
+   "id": "settings:email_notification_settings.smtp_server_name",
+   "source": "database/migrations/2024_12_05_212355_create_email_notification_settings_table.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + freeploy notifications",
+   "parityTest": "parity/settings/email_notification_settings.smtp_server_name",
+   "taskKey": null,
+   "status": "planned",
+   "scope": "team",
+   "table": "email_notification_settings",
+   "column": "smtp_server_name",
+   "type": "string",
+   "modifiers": [
+    "nullable"
+   ]
+  },
+  {
+   "id": "settings:email_notification_settings.smtp_servers",
+   "source": "database/migrations/2024_12_05_212355_create_email_notification_settings_table.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + freeploy notifications",
+   "parityTest": "parity/settings/email_notification_settings.smtp_servers",
+   "taskKey": null,
+   "status": "planned",
+   "scope": "team",
+   "table": "email_notification_settings",
+   "column": "smtp_servers",
+   "type": "text",
+   "modifiers": [
+    "nullable"
+   ]
+  },
+  {
+   "id": "settings:email_notification_settings.resend_from_address",
+   "source": "database/migrations/2024_12_05_212355_create_email_notification_settings_table.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + freeploy notifications",
+   "parityTest": "parity/settings/email_notification_settings.resend_from_address",
+   "taskKey": null,
+   "status": "planned",
+   "scope": "team",
+   "table": "email_notification_settings",
+   "column": "resend_from_address",
+   "type": "text",
+   "modifiers": [
+    "nullable"
+   ]
+  },
+  {
+   "id": "settings:email_notification_settings.resend_from_name",
+   "source": "database/migrations/2024_12_05_212355_create_email_notification_settings_table.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + freeploy notifications",
+   "parityTest": "parity/settings/email_notification_settings.resend_from_name",
+   "taskKey": null,
+   "status": "planned",
+   "scope": "team",
+   "table": "email_notification_settings",
+   "column": "resend_from_name",
+   "type": "text",
+   "modifiers": [
+    "nullable"
    ]
   },
   {
@@ -2446,6 +2558,38 @@
    ]
   },
   {
+   "id": "settings:instance_settings.smtp_server_name",
+   "source": "database/migrations/2023_03_20_112814_create_instance_settings_table.php",
+   "milestone": "DP12",
+   "component": "apps/deploy-core-worker (platform-admin)",
+   "parityTest": "parity/settings/instance_settings.smtp_server_name",
+   "taskKey": null,
+   "status": "planned",
+   "scope": "instance",
+   "table": "instance_settings",
+   "column": "smtp_server_name",
+   "type": "string",
+   "modifiers": [
+    "nullable"
+   ]
+  },
+  {
+   "id": "settings:instance_settings.smtp_servers",
+   "source": "database/migrations/2023_03_20_112814_create_instance_settings_table.php",
+   "milestone": "DP12",
+   "component": "apps/deploy-core-worker (platform-admin)",
+   "parityTest": "parity/settings/instance_settings.smtp_servers",
+   "taskKey": null,
+   "status": "planned",
+   "scope": "instance",
+   "table": "instance_settings",
+   "column": "smtp_servers",
+   "type": "text",
+   "modifiers": [
+    "nullable"
+   ]
+  },
+  {
    "id": "settings:instance_settings.auto_update_target_version",
    "source": "database/migrations/2023_03_20_112814_create_instance_settings_table.php",
    "milestone": "DP12",
@@ -2473,6 +2617,38 @@
    "table": "instance_settings",
    "column": "auto_update_started_at",
    "type": "timestamp",
+   "modifiers": [
+    "nullable"
+   ]
+  },
+  {
+   "id": "settings:instance_settings.resend_from_address",
+   "source": "database/migrations/2023_03_20_112814_create_instance_settings_table.php",
+   "milestone": "DP12",
+   "component": "apps/deploy-core-worker (platform-admin)",
+   "parityTest": "parity/settings/instance_settings.resend_from_address",
+   "taskKey": null,
+   "status": "planned",
+   "scope": "instance",
+   "table": "instance_settings",
+   "column": "resend_from_address",
+   "type": "text",
+   "modifiers": [
+    "nullable"
+   ]
+  },
+  {
+   "id": "settings:instance_settings.resend_from_name",
+   "source": "database/migrations/2023_03_20_112814_create_instance_settings_table.php",
+   "milestone": "DP12",
+   "component": "apps/deploy-core-worker (platform-admin)",
+   "parityTest": "parity/settings/instance_settings.resend_from_name",
+   "taskKey": null,
+   "status": "planned",
+   "scope": "instance",
+   "table": "instance_settings",
+   "column": "resend_from_name",
+   "type": "text",
    "modifiers": [
     "nullable"
    ]
@@ -2777,6 +2953,22 @@
    "scope": "team",
    "table": "pushover_notification_settings",
    "column": "restart_limit_reached_pushover_notifications",
+   "type": "boolean",
+   "modifiers": [
+    "default"
+   ]
+  },
+  {
+   "id": "settings:pushover_notification_settings.image_vulnerabilities_pushover_notifications",
+   "source": "database/migrations/2024_12_11_135026_create_pushover_notification_settings_table.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + freeploy notifications",
+   "parityTest": "parity/settings/pushover_notification_settings.image_vulnerabilities_pushover_notifications",
+   "taskKey": null,
+   "status": "planned",
+   "scope": "team",
+   "table": "pushover_notification_settings",
+   "column": "image_vulnerabilities_pushover_notifications",
    "type": "boolean",
    "modifiers": [
     "default"
@@ -4567,7 +4759,8 @@
    "column": "max_restart_count",
    "type": "integer",
    "modifiers": [
-    "default"
+    "default",
+    "change"
    ]
   },
   {
@@ -5202,6 +5395,22 @@
    ]
   },
   {
+   "id": "settings:services.include_coolify_default_variables",
+   "source": "database/migrations/2023_03_27_083621_create_services_table.php",
+   "milestone": "DP8",
+   "component": "apps/deploy-core-worker (catalog)",
+   "parityTest": "parity/settings/services.include_coolify_default_variables",
+   "taskKey": null,
+   "status": "planned",
+   "scope": "service",
+   "table": "services",
+   "column": "include_coolify_default_variables",
+   "type": "boolean",
+   "modifiers": [
+    "default"
+   ]
+  },
+  {
    "id": "settings:slack_notification_settings.team_id",
    "source": "database/migrations/2024_12_06_142014_create_slack_notification_settings_table.php",
    "milestone": "DP9",
@@ -5485,6 +5694,22 @@
    "scope": "team",
    "table": "slack_notification_settings",
    "column": "restart_limit_reached_slack_notifications",
+   "type": "boolean",
+   "modifiers": [
+    "default"
+   ]
+  },
+  {
+   "id": "settings:slack_notification_settings.image_vulnerabilities_slack_notifications",
+   "source": "database/migrations/2024_12_06_142014_create_slack_notification_settings_table.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + freeploy notifications",
+   "parityTest": "parity/settings/slack_notification_settings.image_vulnerabilities_slack_notifications",
+   "taskKey": null,
+   "status": "planned",
+   "scope": "team",
+   "table": "slack_notification_settings",
+   "column": "image_vulnerabilities_slack_notifications",
    "type": "boolean",
    "modifiers": [
     "default"
@@ -5903,32 +6128,16 @@
    ]
   },
   {
-   "id": "settings:standalone_clickhouses.max_restart_count",
+   "id": "settings:standalone_clickhouses.include_coolify_default_variables",
    "source": "database/migrations/2024_04_10_091519_create_standalone_clickhouses_table.php",
    "milestone": "DP7",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
-   "parityTest": "parity/settings/standalone_clickhouses.max_restart_count",
+   "parityTest": "parity/settings/standalone_clickhouses.include_coolify_default_variables",
    "taskKey": null,
    "status": "planned",
    "scope": "database",
    "table": "standalone_clickhouses",
-   "column": "max_restart_count",
-   "type": "integer",
-   "modifiers": [
-    "default"
-   ]
-  },
-  {
-   "id": "settings:standalone_clickhouses.restart_limit_reached",
-   "source": "database/migrations/2024_04_10_091519_create_standalone_clickhouses_table.php",
-   "milestone": "DP7",
-   "component": "apps/deploy-core-worker + apps/ssh-executor",
-   "parityTest": "parity/settings/standalone_clickhouses.restart_limit_reached",
-   "taskKey": null,
-   "status": "planned",
-   "scope": "database",
-   "table": "standalone_clickhouses",
-   "column": "restart_limit_reached",
+   "column": "include_coolify_default_variables",
    "type": "boolean",
    "modifiers": [
     "default"
@@ -6371,32 +6580,32 @@
    ]
   },
   {
-   "id": "settings:standalone_dragonflies.max_restart_count",
+   "id": "settings:standalone_dragonflies.legacy_password_quoting",
    "source": "database/migrations/2024_04_10_082220_create_standalone_dragonflies_table.php",
    "milestone": "DP7",
    "component": "apps/deploy-core-worker",
-   "parityTest": "parity/settings/standalone_dragonflies.max_restart_count",
+   "parityTest": "parity/settings/standalone_dragonflies.legacy_password_quoting",
    "taskKey": null,
    "status": "planned",
    "scope": "database",
    "table": "standalone_dragonflies",
-   "column": "max_restart_count",
-   "type": "integer",
+   "column": "legacy_password_quoting",
+   "type": "boolean",
    "modifiers": [
     "default"
    ]
   },
   {
-   "id": "settings:standalone_dragonflies.restart_limit_reached",
+   "id": "settings:standalone_dragonflies.include_coolify_default_variables",
    "source": "database/migrations/2024_04_10_082220_create_standalone_dragonflies_table.php",
    "milestone": "DP7",
    "component": "apps/deploy-core-worker",
-   "parityTest": "parity/settings/standalone_dragonflies.restart_limit_reached",
+   "parityTest": "parity/settings/standalone_dragonflies.include_coolify_default_variables",
    "taskKey": null,
    "status": "planned",
    "scope": "database",
    "table": "standalone_dragonflies",
-   "column": "restart_limit_reached",
+   "column": "include_coolify_default_variables",
    "type": "boolean",
    "modifiers": [
     "default"
@@ -6813,32 +7022,32 @@
    ]
   },
   {
-   "id": "settings:standalone_keydbs.max_restart_count",
+   "id": "settings:standalone_keydbs.legacy_password_quoting",
    "source": "database/migrations/2024_04_10_071920_create_standalone_keydbs_table.php",
    "milestone": "DP7",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
-   "parityTest": "parity/settings/standalone_keydbs.max_restart_count",
+   "parityTest": "parity/settings/standalone_keydbs.legacy_password_quoting",
    "taskKey": null,
    "status": "planned",
    "scope": "database",
    "table": "standalone_keydbs",
-   "column": "max_restart_count",
-   "type": "integer",
+   "column": "legacy_password_quoting",
+   "type": "boolean",
    "modifiers": [
     "default"
    ]
   },
   {
-   "id": "settings:standalone_keydbs.restart_limit_reached",
+   "id": "settings:standalone_keydbs.include_coolify_default_variables",
    "source": "database/migrations/2024_04_10_071920_create_standalone_keydbs_table.php",
    "milestone": "DP7",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
-   "parityTest": "parity/settings/standalone_keydbs.restart_limit_reached",
+   "parityTest": "parity/settings/standalone_keydbs.include_coolify_default_variables",
    "taskKey": null,
    "status": "planned",
    "scope": "database",
    "table": "standalone_keydbs",
-   "column": "restart_limit_reached",
+   "column": "include_coolify_default_variables",
    "type": "boolean",
    "modifiers": [
     "default"
@@ -7286,32 +7495,16 @@
    ]
   },
   {
-   "id": "settings:standalone_mariadbs.max_restart_count",
+   "id": "settings:standalone_mariadbs.include_coolify_default_variables",
    "source": "database/migrations/2023_10_24_120523_create_standalone_mariadbs_table.php",
    "milestone": "DP7",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
-   "parityTest": "parity/settings/standalone_mariadbs.max_restart_count",
+   "parityTest": "parity/settings/standalone_mariadbs.include_coolify_default_variables",
    "taskKey": null,
    "status": "planned",
    "scope": "database",
    "table": "standalone_mariadbs",
-   "column": "max_restart_count",
-   "type": "integer",
-   "modifiers": [
-    "default"
-   ]
-  },
-  {
-   "id": "settings:standalone_mariadbs.restart_limit_reached",
-   "source": "database/migrations/2023_10_24_120523_create_standalone_mariadbs_table.php",
-   "milestone": "DP7",
-   "component": "apps/deploy-core-worker + apps/ssh-executor",
-   "parityTest": "parity/settings/standalone_mariadbs.restart_limit_reached",
-   "taskKey": null,
-   "status": "planned",
-   "scope": "database",
-   "table": "standalone_mariadbs",
-   "column": "restart_limit_reached",
+   "column": "include_coolify_default_variables",
    "type": "boolean",
    "modifiers": [
     "default"
@@ -7778,32 +7971,16 @@
    ]
   },
   {
-   "id": "settings:standalone_mongodbs.max_restart_count",
+   "id": "settings:standalone_mongodbs.include_coolify_default_variables",
    "source": "database/migrations/2023_10_19_101331_create_standalone_mongodbs_table.php",
    "milestone": "DP7",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
-   "parityTest": "parity/settings/standalone_mongodbs.max_restart_count",
+   "parityTest": "parity/settings/standalone_mongodbs.include_coolify_default_variables",
    "taskKey": null,
    "status": "planned",
    "scope": "database",
    "table": "standalone_mongodbs",
-   "column": "max_restart_count",
-   "type": "integer",
-   "modifiers": [
-    "default"
-   ]
-  },
-  {
-   "id": "settings:standalone_mongodbs.restart_limit_reached",
-   "source": "database/migrations/2023_10_19_101331_create_standalone_mongodbs_table.php",
-   "milestone": "DP7",
-   "component": "apps/deploy-core-worker + apps/ssh-executor",
-   "parityTest": "parity/settings/standalone_mongodbs.restart_limit_reached",
-   "taskKey": null,
-   "status": "planned",
-   "scope": "database",
-   "table": "standalone_mongodbs",
-   "column": "restart_limit_reached",
+   "column": "include_coolify_default_variables",
    "type": "boolean",
    "modifiers": [
     "default"
@@ -8283,32 +8460,16 @@
    ]
   },
   {
-   "id": "settings:standalone_mysqls.max_restart_count",
+   "id": "settings:standalone_mysqls.include_coolify_default_variables",
    "source": "database/migrations/2023_10_24_103548_create_standalone_mysqls_table.php",
    "milestone": "DP7",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
-   "parityTest": "parity/settings/standalone_mysqls.max_restart_count",
+   "parityTest": "parity/settings/standalone_mysqls.include_coolify_default_variables",
    "taskKey": null,
    "status": "planned",
    "scope": "database",
    "table": "standalone_mysqls",
-   "column": "max_restart_count",
-   "type": "integer",
-   "modifiers": [
-    "default"
-   ]
-  },
-  {
-   "id": "settings:standalone_mysqls.restart_limit_reached",
-   "source": "database/migrations/2023_10_24_103548_create_standalone_mysqls_table.php",
-   "milestone": "DP7",
-   "component": "apps/deploy-core-worker + apps/ssh-executor",
-   "parityTest": "parity/settings/standalone_mysqls.restart_limit_reached",
-   "taskKey": null,
-   "status": "planned",
-   "scope": "database",
-   "table": "standalone_mysqls",
-   "column": "restart_limit_reached",
+   "column": "include_coolify_default_variables",
    "type": "boolean",
    "modifiers": [
     "default"
@@ -8823,32 +8984,16 @@
    ]
   },
   {
-   "id": "settings:standalone_postgresqls.max_restart_count",
+   "id": "settings:standalone_postgresqls.include_coolify_default_variables",
    "source": "database/migrations/2023_08_07_142950_create_standalone_postgresqls_table.php",
    "milestone": "DP7",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
-   "parityTest": "parity/settings/standalone_postgresqls.max_restart_count",
+   "parityTest": "parity/settings/standalone_postgresqls.include_coolify_default_variables",
    "taskKey": null,
    "status": "planned",
    "scope": "database",
    "table": "standalone_postgresqls",
-   "column": "max_restart_count",
-   "type": "integer",
-   "modifiers": [
-    "default"
-   ]
-  },
-  {
-   "id": "settings:standalone_postgresqls.restart_limit_reached",
-   "source": "database/migrations/2023_08_07_142950_create_standalone_postgresqls_table.php",
-   "milestone": "DP7",
-   "component": "apps/deploy-core-worker + apps/ssh-executor",
-   "parityTest": "parity/settings/standalone_postgresqls.restart_limit_reached",
-   "taskKey": null,
-   "status": "planned",
-   "scope": "database",
-   "table": "standalone_postgresqls",
-   "column": "restart_limit_reached",
+   "column": "include_coolify_default_variables",
    "type": "boolean",
    "modifiers": [
     "default"
@@ -9253,38 +9398,6 @@
    ]
   },
   {
-   "id": "settings:standalone_redis.max_restart_count",
-   "source": "database/migrations/2023_10_12_132430_create_standalone_redis_table.php",
-   "milestone": "DP7",
-   "component": "apps/deploy-core-worker + apps/ssh-executor",
-   "parityTest": "parity/settings/standalone_redis.max_restart_count",
-   "taskKey": null,
-   "status": "planned",
-   "scope": "database",
-   "table": "standalone_redis",
-   "column": "max_restart_count",
-   "type": "integer",
-   "modifiers": [
-    "default"
-   ]
-  },
-  {
-   "id": "settings:standalone_redis.restart_limit_reached",
-   "source": "database/migrations/2023_10_12_132430_create_standalone_redis_table.php",
-   "milestone": "DP7",
-   "component": "apps/deploy-core-worker + apps/ssh-executor",
-   "parityTest": "parity/settings/standalone_redis.restart_limit_reached",
-   "taskKey": null,
-   "status": "planned",
-   "scope": "database",
-   "table": "standalone_redis",
-   "column": "restart_limit_reached",
-   "type": "boolean",
-   "modifiers": [
-    "default"
-   ]
-  },
-  {
    "id": "settings:standalone_redis.legacy_password_quoting",
    "source": "database/migrations/2023_10_12_132430_create_standalone_redis_table.php",
    "milestone": "DP7",
@@ -9295,6 +9408,22 @@
    "scope": "database",
    "table": "standalone_redis",
    "column": "legacy_password_quoting",
+   "type": "boolean",
+   "modifiers": [
+    "default"
+   ]
+  },
+  {
+   "id": "settings:standalone_redis.include_coolify_default_variables",
+   "source": "database/migrations/2023_10_12_132430_create_standalone_redis_table.php",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker + apps/ssh-executor",
+   "parityTest": "parity/settings/standalone_redis.include_coolify_default_variables",
+   "taskKey": null,
+   "status": "planned",
+   "scope": "database",
+   "table": "standalone_redis",
+   "column": "include_coolify_default_variables",
    "type": "boolean",
    "modifiers": [
     "default"
@@ -9771,6 +9900,22 @@
    "table": "standalone_sqlites",
    "column": "last_online_at",
    "type": "timestamp",
+   "modifiers": [
+    "default"
+   ]
+  },
+  {
+   "id": "settings:standalone_sqlites.include_coolify_default_variables",
+   "source": "database/migrations/2026_09_18_145710_create_standalone_sqlites_table.php",
+   "milestone": "DP7",
+   "component": "apps/deploy-core-worker",
+   "parityTest": "parity/settings/standalone_sqlites.include_coolify_default_variables",
+   "taskKey": null,
+   "status": "planned",
+   "scope": "database",
+   "table": "standalone_sqlites",
+   "column": "include_coolify_default_variables",
+   "type": "boolean",
    "modifiers": [
     "default"
    ]
@@ -10668,6 +10813,22 @@
    ]
   },
   {
+   "id": "settings:telegram_notification_settings.image_vulnerabilities_telegram_notifications",
+   "source": "database/migrations/2024_12_05_212440_create_telegram_notification_settings_table.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + freeploy notifications",
+   "parityTest": "parity/settings/telegram_notification_settings.image_vulnerabilities_telegram_notifications",
+   "taskKey": null,
+   "status": "planned",
+   "scope": "team",
+   "table": "telegram_notification_settings",
+   "column": "image_vulnerabilities_telegram_notifications",
+   "type": "boolean",
+   "modifiers": [
+    "default"
+   ]
+  },
+  {
    "id": "settings:telegram_notification_settings.telegram_notifications_image_vulnerabilities_thread_id",
    "source": "database/migrations/2024_12_05_212440_create_telegram_notification_settings_table.php",
    "milestone": "DP9",
@@ -10967,6 +11128,22 @@
    "scope": "team",
    "table": "webhook_notification_settings",
    "column": "restart_limit_reached_webhook_notifications",
+   "type": "boolean",
+   "modifiers": [
+    "default"
+   ]
+  },
+  {
+   "id": "settings:webhook_notification_settings.image_vulnerabilities_webhook_notifications",
+   "source": "database/migrations/2025_11_16_000001_create_webhook_notification_settings_table.php",
+   "milestone": "DP9",
+   "component": "apps/deploy-core-worker + freeploy notifications",
+   "parityTest": "parity/settings/webhook_notification_settings.image_vulnerabilities_webhook_notifications",
+   "taskKey": null,
+   "status": "planned",
+   "scope": "team",
+   "table": "webhook_notification_settings",
+   "column": "image_vulnerabilities_webhook_notifications",
    "type": "boolean",
    "modifiers": [
     "default"

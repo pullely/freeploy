@@ -97,15 +97,16 @@ export function enumCheck(table: string, c: Column): string | null {
   return values.length ? `CONSTRAINT ${table}_${c.name}_check CHECK (${q(c.name)} IN (${values.join(", ")}))` : null;
 }
 
-export function tableSql(table: string, columns: Column[]): string {
-  const cols: string[] = [];
-  const extra: string[] = [];
+/** One column definition per Coolify column (team_id → org_id is added by the caller), plus enum CHECKs. */
+export function columnDefs(table: string, columns: Column[]): { defs: { name: string; def: string }[]; checks: string[]; hasId: boolean } {
+  const defs: { name: string; def: string }[] = [];
+  const checks: string[] = [];
   let hasId = false;
   for (const c of columns) {
-    if (c.name === "team_id") continue; // becomes org_id below
+    if (c.name === "team_id") continue; // becomes org_id
     const isId = ["id", "bigIncrements", "increments"].includes(c.type);
     hasId ||= isId;
-    let def = `  ${q(c.name)} ${pgType(c)}`;
+    let def = `${q(c.name)} ${pgType(c)}`;
     if (isId) def += " PRIMARY KEY";
     else {
       if (!has(c, "nullable")) def += " NOT NULL";
@@ -113,21 +114,35 @@ export function tableSql(table: string, columns: Column[]): string {
       if (d !== undefined) def += ` DEFAULT ${pgDefault(d, c)}`;
       else if (has(c, "useCurrent")) def += " DEFAULT CURRENT_TIMESTAMP";
     }
-    cols.push(def);
+    defs.push({ name: c.name, def });
     const chk = enumCheck(table, c);
-    if (chk) extra.push(`  ${chk}`);
+    if (chk) checks.push(chk);
   }
-  cols.push("  org_id UUID NOT NULL");
-  const lines = [`CREATE TABLE IF NOT EXISTS deploy.${table} (`, [...cols, ...extra].join(",\n"), ");"];
-  lines.push(`COMMENT ON COLUMN deploy.${table}.org_id IS 'Owning Lumen organization (Coolify team_id). Enforced by RLS.';`);
-  lines.push(`CREATE INDEX IF NOT EXISTS ${table}_org_id_idx ON deploy.${table} (org_id);`);
+  return { defs, checks, hasId };
+}
+
+export function indexSql(table: string, columns: Column[], only?: Set<string>): string[] {
+  const lines: string[] = [];
   for (const c0 of columns) {
+    if (only && !only.has(c0.name)) continue;
     // An index or uniqueness on team_id is one on org_id (e.g. one notification-settings row per team).
     const c = c0.name === "team_id" ? { ...c0, name: "org_id" } : c0;
     if (c0.name === "team_id" && !has(c0, "unique")) continue; // org_id is already indexed
     if (c.name === "uuid" || has(c, "unique")) lines.push(`CREATE UNIQUE INDEX IF NOT EXISTS ${table}_${c.name}_unique ON deploy.${table} (${q(c.name)});`);
     else if (c.type === "foreignId" || has(c, "index") || has(c, "constrained")) lines.push(`CREATE INDEX IF NOT EXISTS ${table}_${c.name}_idx ON deploy.${table} (${q(c.name)});`);
   }
+  return lines;
+}
+
+export function tableSql(table: string, columns: Column[]): string {
+  const { defs, checks, hasId } = columnDefs(table, columns);
+  const cols = defs.map((d) => `  ${d.def}`);
+  const extra = checks.map((c) => `  ${c}`);
+  cols.push("  org_id UUID NOT NULL");
+  const lines = [`CREATE TABLE IF NOT EXISTS deploy.${table} (`, [...cols, ...extra].join(",\n"), ");"];
+  lines.push(`COMMENT ON COLUMN deploy.${table}.org_id IS 'Owning Lumen organization (Coolify team_id). Enforced by RLS.';`);
+  lines.push(`CREATE INDEX IF NOT EXISTS ${table}_org_id_idx ON deploy.${table} (org_id);`);
+  lines.push(...indexSql(table, columns));
   lines.push(`ALTER TABLE deploy.${table} ENABLE ROW LEVEL SECURITY;`);
   lines.push(`ALTER TABLE deploy.${table} FORCE ROW LEVEL SECURITY;`);
   lines.push(`DROP POLICY IF EXISTS tenant_isolation ON deploy.${table};`);
@@ -179,18 +194,139 @@ GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA deploy TO deploy_app;
   return { sql: [header, ...body, grants].join("\n\n"), tables };
 }
 
+const encOut = join(root, "packages/db/src/deploy/encrypted-columns.ts");
+const deltaOut = join(root, "packages/db/src/migrations/520_deploy_schema_fold_fixes/up.sql");
+
+/** Columns of each table in a generated (frozen) schema file. */
+export function frozenColumns(sql: string): Map<string, Set<string>> {
+  const out = new Map<string, Set<string>>();
+  for (const m of sql.matchAll(/CREATE TABLE IF NOT EXISTS deploy\.(\w+) \(\n([\s\S]*?)\n\);/g)) {
+    out.set(m[1]!, new Set([...m[2]!.matchAll(/^ {2}"([^"]+)"/gm)].map((x) => x[1]!)));
+  }
+  return out;
+}
+
+/**
+ * 500_deploy_core is applied on stage and prod and therefore frozen. When the
+ * fold improves (DP-11: loops over table lists, modifier args), the difference
+ * between the full schema and the frozen one is emitted as 520, column by column.
+ */
+export function generateDelta(frozenSql: string): string {
+  const frozen = frozenColumns(frozenSql);
+  const rows = inventory.rows.filter((r: { table: string }) => !LUMEN_OWNED.has(r.table));
+  const parts: string[] = [];
+  for (const r of rows as { table: string; columns: Column[] }[]) {
+    const have = frozen.get(r.table);
+    if (!have) {
+      parts.push(`-- ${r.table}: new\n${tableSql(r.table, r.columns)}`);
+      continue;
+    }
+    const { defs, checks } = columnDefs(r.table, r.columns);
+    const want = new Set(defs.map((d) => d.name));
+    const added = defs.filter((d) => !have.has(d.name));
+    const removed = [...have].filter((c) => c !== "org_id" && !want.has(c));
+    if (!added.length && !removed.length) continue;
+    const lines = [`-- ${r.table}`];
+    for (const d of added) lines.push(`ALTER TABLE deploy.${r.table} ADD COLUMN IF NOT EXISTS ${d.def};`);
+    for (const c of removed) lines.push(`ALTER TABLE deploy.${r.table} DROP COLUMN IF EXISTS ${q(c)};`);
+    const addedNames = new Set(added.map((d) => d.name));
+    for (const chk of checks) {
+      const col = chk.match(/CHECK \("([^"]+)"/)?.[1];
+      if (col && addedNames.has(col)) lines.push(`ALTER TABLE deploy.${r.table} ADD ${chk};`);
+    }
+    lines.push(...indexSql(r.table, r.columns, addedNames));
+    parts.push(lines.join("\n"));
+  }
+  return `-- 520_deploy_schema_fold_fixes
+-- GENERATED by packages/db/scripts/generate-deploy-schema.ts — do not edit by hand.
+-- 500_deploy_core is applied and frozen. This is the difference between it and the
+-- schema the improved fold of coollabsio/coolify@${inventory.coolifyRef}:database/migrations/**
+-- produces (loops over table lists unrolled, modifier arguments kept), column by column.
+-- Bounded context: deploy
+
+${parts.join("\n\n")}
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA deploy TO deploy_app;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA deploy TO deploy_app;
+REVOKE DELETE ON deploy.org_keys FROM deploy_app;
+`;
+}
+
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const { sql, tables } = generate();
+  const { tables } = generate();
+  const enc = encryptedColumnsSource(new Set(tables));
+  const frozen = readFileSync(out, "utf8");
+  const delta = generateDelta(frozen);
   if (process.argv.includes("--check")) {
-    const current = readFileSync(out, "utf8");
-    if (current !== sql) {
-      console.error("500_deploy_core/up.sql is not what the generator produces; re-run it");
+    let current = "";
+    try {
+      current = readFileSync(deltaOut, "utf8");
+    } catch {
+      /* missing */
+    }
+    if (current !== delta || readFileSync(encOut, "utf8") !== enc) {
+      console.error("520_deploy_schema_fold_fixes/up.sql or deploy/encrypted-columns.ts is not what the generator produces; re-run it");
       process.exit(1);
     }
-    console.log(`up to date: ${tables.length} tables`);
+    console.log(`up to date: ${tables.length} tables; 500 frozen, 520 delta current`);
   } else {
-    mkdirSync(dirname(out), { recursive: true });
-    writeFileSync(out, sql);
-    console.log(`wrote ${tables.length} tables, sha256 ${createHash("sha256").update(sql).digest("hex")}`);
+    mkdirSync(dirname(deltaOut), { recursive: true });
+    writeFileSync(deltaOut, delta);
+    writeFileSync(encOut, enc);
+    console.log(`500 frozen; wrote 520 delta (sha256 ${createHash("sha256").update(delta).digest("hex")}) and encrypted-columns`);
   }
+}
+
+// ── encrypted columns ────────────────────────────────────────────────────────
+// Every Coolify model column with an `encrypted` / `encrypted:*` cast, mapped to
+// its deploy table (Laravel's table name: $table, else snake_case plural).
+// Written to packages/db/src/deploy/encrypted-columns.ts; the ported write
+// paths encrypt exactly these, and a test holds the list to Coolify's casts.
+export function laravelTable(cls: string, explicit: string | null): string {
+  if (explicit) return explicit;
+  const snake = cls.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
+  // Laravel's Str::plural leaves words that are already plural or uncountable.
+  if (/(settings|redis|_data|_info)$/.test(snake)) return snake;
+  if (/[^aeiou]y$/.test(snake)) return snake.slice(0, -1) + "ies";
+  if (/(s|x|z|ch|sh)$/.test(snake)) return snake + "es";
+  return snake + "s";
+}
+
+export function encryptedColumns(tables: Set<string>): { columns: Record<string, string[]>; excluded: string[] } {
+  const models = JSON.parse(readFileSync(join(root, "specs/epics/freeploy-coolify-parity/parity/models.json"), "utf8"));
+  const columns: Record<string, string[]> = {};
+  const excluded: string[] = [];
+  for (const m of models.rows) {
+    const table = laravelTable(m.class, m.table);
+    for (const [col, cast] of Object.entries<string>(m.casts ?? {})) {
+      if (!/^encrypted/.test(cast)) continue;
+      if (!tables.has(table)) {
+        excluded.push(`${table}.${col} (${m.class}: table owned by Lumen)`);
+        continue;
+      }
+      const folded = inventory.rows.find((r: { table: string }) => r.table === table);
+      if (!folded?.columns.some((c: Column) => c.name === col)) {
+        // Coolify casts a column its own migrations never create: nothing to encrypt.
+        excluded.push(`${table}.${col} (${m.class}: cast on a column Coolify's schema does not have)`);
+        continue;
+      }
+      (columns[table] ??= []).push(col);
+    }
+  }
+  for (const t of Object.keys(columns)) columns[t]!.sort();
+  return { columns: Object.fromEntries(Object.entries(columns).sort(([a], [b]) => a.localeCompare(b))), excluded: excluded.sort() };
+}
+
+export function encryptedColumnsSource(tables: Set<string>): string {
+  const { columns, excluded } = encryptedColumns(tables);
+  return `// GENERATED by packages/db/scripts/generate-deploy-schema.ts — do not edit.
+// Derived from coollabsio/coolify@${inventory.coolifyRef}:app/Models/** (Apache-2.0): every column with an
+// \`encrypted\` cast. Values in these columns are stored as fp1 ciphertexts (deploy/crypto.ts).
+// Not here because Lumen owns the table: ${excluded.join("; ") || "none"}.
+export const ENCRYPTED_COLUMNS: Readonly<Record<string, readonly string[]>> = ${JSON.stringify(columns, null, 2)};
+
+export function isEncryptedColumn(table: string, column: string): boolean {
+  return ENCRYPTED_COLUMNS[table]?.includes(column) ?? false;
+}
+`;
 }

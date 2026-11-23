@@ -47,3 +47,6 @@ export async function listProjects(tx: SqlExecutor): Promise<DeployProjectRow[]>
   );
   return r.rows;
 }
+
+export { loadKek, orgDek, encryptField, decryptField, isEncrypted, CryptoError, type OrgDek } from "./crypto.js";
+export { ENCRYPTED_COLUMNS, isEncryptedColumn } from "./encrypted-columns.js";
