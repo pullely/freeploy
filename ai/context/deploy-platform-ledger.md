@@ -42,9 +42,10 @@ _Written when the epic closes; until then see "Where it stands"._
 ## Decisions
 
 - **2026-11-23 — milestone table pre-approved** by the user in the prompt; the software-factory §2 stop was not taken.
-- **2026-11-23 — subdomain `nexo-7be`.** The connection API carries no workersSubdomain for a hand-run build; taken from the 2026-09-22 Nexo build on the same Cloudflare account, and confirmed when `/health` answers.
+- **2026-11-23 — subdomain `nexo-7be`.** The connection API carries no workersSubdomain for a hand-run build; taken from the 2026-09-22 Nexo build on the same Cloudflare account. Confirmed: `/health` answers 200 on stage and prod.
 - **2026-11-23 — connections bound explicitly** with `ORUN_CONNECTIONS` because the workspace inherits three Cloudflare and two Supabase connections.
 - **2026-11-23 — every `deploy` table gets `org_id`** (risks DP-I).
+- **2026-11-23 — Supabase stays on the free plan for now**: the owner freed two slots instead of upgrading (risks DP-H).
 - **2026-11-23 — reference Coolify runs on GitHub-hosted runners** (no Docker on the build machine; risks DP-K).
 
 ## Deviations from exact parity
@@ -54,6 +55,26 @@ None yet. Each deviation gets a screenshot and a line here.
 ## Open risks and deferred items
 
 See `specs/epics/freeploy-coolify-parity/risks-and-open-questions.md` and `WAITING.md`.
+
+## Live
+
+| | URL |
+|---|---|
+| edge API, stage | https://freeploy-api-edge-stage.nexo-7be.workers.dev/health |
+| edge API, prod | https://freeploy-api-edge-prod.nexo-7be.workers.dev/health |
+| console, stage | https://freeploy-web-console-next-stage.nexo-7be.workers.dev |
+| console, prod | https://freeploy-web-console-next-prod.nexo-7be.workers.dev |
+
+Bootstrap: lumen baseline-v33, phases landed as #1–#3 and #8–#12; repo gate 44 components × 3 envs → 92 jobs. Generated manifest: `ai/context/deployment.md`.
+
+## Landed (epic EP-6)
+
+| Task | Milestone | PR |
+|---|---|---|
+| DP-1 the spec | DP0 | #4 |
+| DP-2 public repo | DP0 | #5 |
+| DP-3 parity harness: reference + visual/DOM | DP1 | #6 |
+| DP-4 API contract | DP1 | #7 |
 
 ## Where it stands
 

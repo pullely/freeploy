@@ -64,9 +64,11 @@ are offered upstream.
 ## DP-H — Free-plan databases (RISK)
 
 A free Supabase plan can pause or become unreachable (it broke
-openproduct-crm's M1). The org behind `nexara-orun` must be on a paid plan;
-until confirmed, code is tested against local Postgres and only stage
-verification is parked.
+openproduct-crm's M1). The org behind `nexara-orun` is still on the free plan
+(2026-11-23): the owner freed two project slots so stage and prod could be
+created, but free projects pause after inactivity. Until the org is on a paid
+plan, a paused database blocks deploy verification only; code is tested
+against local Postgres.
 
 ## DP-I — Every table gets `org_id` (RESOLVED)
 

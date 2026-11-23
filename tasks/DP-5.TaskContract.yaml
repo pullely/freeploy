@@ -1,0 +1,16 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-5
+  title: "DP0: record the live bootstrap — stage and prod up, W4 resolved"
+spec:
+  goal: The repo records that the Lumen bootstrap finished and stage and prod are live, that WAITING.md W4 is resolved with the free-plan risk still open, and the ledger lists the live URLs and the tasks landed so far.
+  affects:
+    - WAITING.md
+    - ai/context/deploy-platform-ledger.md
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - WAITING.md marks W4 resolved and names the remaining free-plan risk
+    - the ledger lists the four live URLs and the landed tasks DP-1…DP-4
+  gates: []
