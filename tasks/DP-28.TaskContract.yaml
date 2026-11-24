@@ -1,0 +1,15 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-28
+  title: "DP4: the command layer — Coolify's docker, proxy and remoteProcess helpers in TypeScript, byte-equal"
+spec:
+  goal: The command strings Freeploy will run over SSH are produced by TypeScript ports of Coolify's bootstrap/helpers (docker.php, proxy.php, remoteProcess.php), held byte-equal to Coolify's own output by the command goldens; every golden case in the harness passes and none is pending.
+  affects:
+    - apps/deploy-core-worker/**
+    - tools/parity/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - tools/parity/commands/check.ts reports every case verified, none pending or failing, in CI
+  gates: []
