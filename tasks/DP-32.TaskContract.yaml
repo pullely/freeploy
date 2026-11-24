@@ -1,0 +1,13 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-32
+  title: "DP3 fix: /profile/passkeys/confirm, Coolify's route behind 'Add passkey'"
+spec:
+  goal: GET /profile/passkeys/confirm behaves as in Coolify (password.confirm, then /profile with status passkey-add opening the passkey form), so the Add passkey link works whichever version of the section the user clicks; a user adds a passkey on stage and signs in with it.
+  affects:
+    - apps/deploy-web/**
+    - tasks/**
+  doneWhen:
+    - on deploy-web stage a user adds a passkey from /profile and signs in with it
+  gates: []

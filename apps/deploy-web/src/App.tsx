@@ -5,6 +5,7 @@ import { ForgotPasswordPage } from "./pages/ForgotPassword";
 import { ResetPasswordPage } from "./pages/ResetPassword";
 import { ConfirmPasswordPage } from "./pages/ConfirmPassword";
 import { NotPortedPage } from "./pages/NotPorted";
+import { PasskeysConfirmPage } from "./pages/PasskeysConfirm";
 import { VerifyEmailPage, EmailVerifyLinkPage } from "./pages/VerifyEmail";
 import { TwoFactorChallengePage } from "./pages/TwoFactorChallenge";
 import { lazy, Suspense } from "react";
@@ -30,6 +31,8 @@ export function App() {
           <TwoFactorRequiredPage />
         </Suspense>
       );
+    case "profile.passkeys.confirm":
+      return <PasskeysConfirmPage />;
     case "verify.email":
       return <VerifyEmailPage />;
     case "verify.verify":

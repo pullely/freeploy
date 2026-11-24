@@ -20,6 +20,7 @@ test("routes/web.php paths map to ported pages; the rest are not ported", () => 
   assert.equal(pageFor("/user/confirm-password"), "password.confirm");
   assert.equal(pageFor("/two-factor-challenge"), "two-factor.login");
   assert.equal(pageFor("/verify"), "verify.email");
+  assert.equal(pageFor("/profile/passkeys/confirm"), "profile.passkeys.confirm");
   assert.equal(pageFor("/email/verify/usr_1/abc"), "verify.verify");
 });
 
