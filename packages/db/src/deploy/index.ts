@@ -3,7 +3,7 @@
 // with deploy.org_id set for that transaction only. Row-level security on
 // every deploy table (500_deploy_core) then confines the transaction to that
 // org: a query that forgets an org filter still sees only its org's rows.
-import type { SqlExecutor, SqlRow, TransactionalSqlExecutor } from "../hyperdrive/executor.js";
+import type { SqlExecutor, TransactionalSqlExecutor } from "../hyperdrive/executor.js";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -31,22 +31,33 @@ export async function asPlatformAdmin<T>(db: TransactionalSqlExecutor, fn: (tx: 
   });
 }
 
-export interface DeployProjectRow extends SqlRow {
-  id: string | number;
-  uuid: string;
-  name: string;
-  description: string | null;
-  created_at: string | Date | null;
-  updated_at: string | Date | null;
-}
-
-/** Coolify's ProjectController@projects: the team's projects (here, the org's). */
-export async function listProjects(tx: SqlExecutor): Promise<DeployProjectRow[]> {
-  const r = await tx.execute<DeployProjectRow>(
-    'SELECT id, uuid, name, description, created_at, updated_at FROM deploy.projects ORDER BY id',
-  );
-  return r.rows;
-}
+export {
+  listProjects,
+  listProjectsWithCounts,
+  findProjectByUuid,
+  insertProject,
+  updateProject,
+  deleteProject,
+  projectHasResources,
+  type DeployProjectRow,
+  type DeployProjectListRow,
+  type NewProject,
+  type ProjectChanges,
+} from "./projects.js";
+export {
+  listEnvironments,
+  findEnvironmentByUuid,
+  insertEnvironment,
+  updateEnvironment,
+  deleteEnvironment,
+  environmentNameExists,
+  environmentHasResources,
+  ENVIRONMENT_RESOURCE_TABLES,
+  type DeployEnvironmentRow,
+  type DeployEnvironmentListRow,
+  type NewEnvironment,
+  type EnvironmentChanges,
+} from "./environments.js";
 
 export { loadKek, orgDek, encryptField, decryptField, isEncrypted, CryptoError, type OrgDek } from "./crypto.js";
 export { ENCRYPTED_COLUMNS, isEncryptedColumn } from "./encrypted-columns.js";

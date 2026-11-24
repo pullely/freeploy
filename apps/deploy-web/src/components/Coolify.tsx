@@ -75,8 +75,8 @@ export function StatusBadge({ label, type = "neutral" }: { label: string; type?:
   );
 }
 
-/** <x-empty> (base or sm size, with an icon name). */
-export function Empty({ title, description, iconName, size = "base" }: { title: string; description?: string; iconName?: string; size?: "sm" | "base" }) {
+/** <x-empty> (base or sm size, with an icon name); `children` is its contents slot (the footer). */
+export function Empty({ title, description, iconName, size = "base", children }: { title: string; description?: string; iconName?: string; size?: "sm" | "base"; children?: ReactNode }) {
   const sm = size === "sm";
   return (
     <div className="empty-state w-full">
@@ -88,6 +88,7 @@ export function Empty({ title, description, iconName, size = "base" }: { title: 
         ) : null}
         <h2 className="empty-state-title">{title}</h2>
         {description ? <p className={`empty-state-description ${sm ? "text-[12px]" : "text-[13px]"}`}>{description}</p> : null}
+        {children ? <div className="mt-4 flex flex-wrap items-center justify-center gap-2">{children}</div> : null}
       </div>
     </div>
   );

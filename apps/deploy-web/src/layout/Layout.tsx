@@ -11,7 +11,7 @@ import { LayoutMarkup } from "./generated/LayoutMarkup";
 import { clearSession, edgeBase, getJson, postJson, sessionToken } from "../lib/api";
 import { appearance, type PageWidth } from "../theme";
 import { useDisclosures } from "./disclosures";
-import { activeSubmenu, childActive, sidebarMenu, type NavSwap } from "./sidebar";
+import { activeSubmenu, childActive, mainMenuActive, sidebarMenu, type NavSwap } from "./sidebar";
 import { Toasts } from "./Toasts";
 import { showMonthlyReminder } from "../lib/reminder";
 
@@ -136,7 +136,7 @@ export function Layout(props: LayoutProps) {
       pageTitle={props.title}
       pageHref={props.href}
       searchTitle={props.searchTitle ?? "Search (Press / or Ctrl+K)"}
-      nav={(href) => (href === here || childActive(path, href) ? { className: "menu-item menu-item-active", "aria-current": "page" } : { className: "menu-item" })}
+      nav={(href) => (href === here || childActive(path, href) || mainMenuActive(path, href) ? { className: "menu-item menu-item-active", "aria-current": "page" } : { className: "menu-item" })}
       desktopMenu={sidebarMenu(desktopNav, active, setDesktopNav)}
       mobileMenu={sidebarMenu(mobileNav, active, setMobileNav)}
       mainClass={pageWidth === "centered" ? MAIN : `${MAIN} app-main-wide`}

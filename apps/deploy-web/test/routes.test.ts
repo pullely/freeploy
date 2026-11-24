@@ -62,6 +62,28 @@ test("routes/web.php paths map to ported pages; the rest are not ported", () => 
   assert.equal(pageFor("/destination/abc123def456ghi789jkl012/resources/more"), "not-ported");
 });
 
+test("the project and environment routes map to their pages; canvas, clone and new are not ported", () => {
+  const project = "/project/abc123def456ghi789jkl012";
+  const environment = `${project}/environment/mno345pqr678stu901vwx234`;
+  assert.equal(pageFor("/projects"), "project.index");
+  assert.equal(pageFor("/projects/"), "project.index");
+  assert.equal(pageFor("/projects/canvas"), "not-ported");
+  assert.equal(pageFor(project), "project.show");
+  assert.equal(pageFor(`${project}/`), "project.show");
+  assert.equal(pageFor(`${project}/edit`), "project.edit");
+  assert.equal(pageFor(`${project}/canvas`), "not-ported");
+  assert.equal(pageFor(`${project}/icon`), "not-ported");
+  assert.equal(pageFor(`${project}/environment`), "not-ported");
+  assert.equal(pageFor(environment), "project.resource.index");
+  assert.equal(pageFor(`${environment}/`), "project.resource.index");
+  assert.equal(pageFor(`${environment}/edit`), "project.environment.edit");
+  assert.equal(pageFor(`${environment}/new`), "not-ported");
+  assert.equal(pageFor(`${environment}/clone`), "not-ported");
+  assert.equal(pageFor(`${environment}/canvas`), "not-ported");
+  assert.equal(pageFor(`${environment}/application/app1`), "not-ported");
+  assert.equal(pageFor("/shared-variables/projects"), "not-ported");
+});
+
 test("a dismissed reminder stays hidden for the rest of the calendar month", () => {
   const now = new Date(2026, 10, 24);
   assert.equal(showMonthlyReminder(null, now), true);

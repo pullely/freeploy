@@ -1,0 +1,20 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-46
+  title: "DP5: projects and environments (API and pages)"
+spec:
+  goal: An org lists, creates, renames and deletes its projects and their environments as in Coolify — a new project gets its settings row and a "production" environment, an environment name is stored lower case and is unique in its project, and a project or environment that still has resources cannot be deleted — with Coolify's rules and Laravel's messages word for word and every query confined to the org by row-level security; /projects, /project/{uuid}, /project/{uuid}/edit, /project/{uuid}/environment/{env_uuid} (its header and "No resources yet" state only) and /project/{uuid}/environment/{env_uuid}/edit are ported from the Blade views. Resources, the canvas views, cloning, shared variables and project icons are not part of this task; their links lead to the not-ported notice.
+  affects:
+    - apps/deploy-core-worker/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - on stage a signed-in org owner creates a project on /projects, lands on its production environment, adds a second environment, renames both and deletes them, and each change is there after a reload
+    - on stage POST /v1/organizations/{org}/deploy/projects/{uuid}/environments with a name the project already has answers 409 "Duplicate entry found. Please use a different name.", and a member without deploy.resource.write gets 404 on every write and canWrite false on the list
+    - /projects, /project/{uuid}, /project/{uuid}/edit, /project/{uuid}/environment/{env_uuid} and its /edit pass the stage DOM gate or each difference is listed with its cause
+  gates: []

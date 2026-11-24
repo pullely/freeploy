@@ -77,6 +77,13 @@ export const SUBMENUS: ReadonlyArray<{ label: string; children: SubmenuChild[] }
   },
 ];
 
+/**
+ * Main menu entries that are current on more than their own path: the entry's
+ * `'active' => request()->is(...)` patterns (Projects is current on every
+ * project and environment page).
+ */
+export const MAIN_MENU: ReadonlyArray<SubmenuChild> = [{ href: "/projects", is: ["projects", "projects/*", "project/*"] }];
+
 /** Laravel's Request::is: the decoded path without its slashes ('/' for the root), `*` matching anything. */
 export function requestIs(pathname: string, patterns: string[]): boolean {
   let path = pathname.replace(/^\/+|\/+$/g, "");
@@ -102,6 +109,12 @@ export function activeSubmenu(pathname: string): string {
 export function childActive(pathname: string, href: string): boolean {
   const child = SUBMENUS.flatMap((s) => s.children).find((c) => c.href === href);
   return child ? requestIs(pathname, child.is) : false;
+}
+
+/** Whether a main menu entry with patterns of its own is the current one. */
+export function mainMenuActive(pathname: string, href: string): boolean {
+  const entry = MAIN_MENU.find((m) => m.href === href);
+  return entry ? requestIs(pathname, entry.is) : false;
 }
 
 export type NavSwap = "" | "forward" | "back";
