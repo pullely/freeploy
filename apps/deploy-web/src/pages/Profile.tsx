@@ -20,10 +20,10 @@ import { EnabledBadge, EnabledBody, PendingSetup, type TwoFactorState } from "./
  * Fortify's password.confirm middleware: a 423 sends the user to
  * /user/confirm-password, which returns them here (redirect()->intended()).
  */
-function requirePasswordConfirmation(status: number): boolean {
+function requirePasswordConfirmation(status: number, intended = window.location.pathname): boolean {
   if (status !== 423) return false;
   try {
-    sessionStorage.setItem("freeploy.intended", window.location.pathname);
+    sessionStorage.setItem("freeploy.intended", intended);
   } catch {
     /* storage blocked: the confirm page falls back to / */
   }

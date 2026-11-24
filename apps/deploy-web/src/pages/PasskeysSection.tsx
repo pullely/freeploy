@@ -106,7 +106,7 @@ export async function passkeysAvailable(): Promise<boolean> {
 }
 
 /** Rendered only where passkeys are available; elsewhere the generated "not available" callout stays. */
-export function PasskeysSection({ requirePasswordConfirmation }: { requirePasswordConfirmation: (status: number) => boolean }) {
+export function PasskeysSection({ requirePasswordConfirmation }: { requirePasswordConfirmation: (status: number, intended?: string) => boolean }) {
   const available = true;
   const [list, setList] = useState<Passkey[]>([]);
   // Coolify shows the form after the password confirmation round trip (status 'passkey-add').
@@ -124,14 +124,10 @@ export function PasskeysSection({ requirePasswordConfirmation }: { requirePasswo
 
   async function add(e: FormEvent) {
     e.preventDefault();
-    try {
-      sessionStorage.setItem("freeploy.intended", "/profile?status=passkey-add");
-    } catch {
-      /* storage blocked */
-    }
     const opts = await postJson<{ options: Parameters<typeof startRegistration>[0]["optionsJSON"]; state: string }>("/v1/auth/passkeys/options", {});
     if (!opts.ok) {
-      if (!requirePasswordConfirmation(opts.error.status)) notify.error(summarize(opts.error.messages));
+      // Coolify's /profile/passkeys/confirm returns with status 'passkey-add', which opens the form.
+      if (!requirePasswordConfirmation(opts.error.status, "/profile?status=passkey-add")) notify.error(summarize(opts.error.messages));
       return;
     }
     setShowForm(true);
@@ -145,7 +141,7 @@ export function PasskeysSection({ requirePasswordConfirmation }: { requirePasswo
       if (!browserSupportsWebAuthn()) throw new Error("This browser does not support passkeys.");
       const opts = await postJson<{ options: Parameters<typeof startRegistration>[0]["optionsJSON"]; state: string }>("/v1/auth/passkeys/options", {});
       if (!opts.ok) {
-        if (!requirePasswordConfirmation(opts.error.status)) throw new Error(summarize(opts.error.messages));
+        if (!requirePasswordConfirmation(opts.error.status, "/profile?status=passkey-add")) throw new Error(summarize(opts.error.messages));
         return;
       }
       const response = await startRegistration({ optionsJSON: opts.data.options });
