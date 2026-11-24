@@ -2,21 +2,32 @@
 // Derived from coollabsio/coolify@91b7e3e (Apache-2.0): DOM, classes and copy are Coolify's;
 // Livewire/Alpine attributes and scripts dropped, brand swapped. Regenerate, do not hand-edit;
 // behaviour lives in the page component that renders this.
-export function ProfilePortalMarkup() {
+import type { ReactNode, FormEventHandler } from "react";
+
+export interface ProfilePortalMarkupProps {
+  emailOpen: boolean;
+  verifying: boolean;
+  pendingEmail: string;
+  onEmailClose: () => void;
+  verifyForm: ReactNode;
+  onSendCode: FormEventHandler<HTMLFormElement>;
+}
+
+export function ProfilePortalMarkup(props: ProfilePortalMarkupProps) {
   return (
     <>
-      <div className="fixed inset-0 z-99 flex h-screen w-screen items-center justify-center p-4" data-teleport-target="true" style={{ "display": "none" }}>
+      <div className="fixed inset-0 z-99 flex h-screen w-screen items-center justify-center p-4" data-teleport-target="true" style={props.emailOpen ? undefined : { "display": "none" }}>
         <div className="absolute inset-0 h-full w-full bg-black/55 backdrop-blur-[3px]" />
         {" "}
-        <div className="application-settings-form application-settings-section relative w-full max-w-xl overflow-hidden" style={{ "boxShadow": "0 0 0 1px var(--coollabs-hairline), var(--shadow-modal)", "display": "none" }}>
+        <div className="application-settings-form application-settings-section relative w-full max-w-xl overflow-hidden" style={{ "boxShadow": "0 0 0 1px var(--coollabs-hairline), var(--shadow-modal)", ...(props.emailOpen ? {} : { "display": "none" }) }}>
           <header>
             <div>
-              <h3>Change email</h3>
+              <h3>{props.verifying ? "Verify new email" : "Change email"}</h3>
               {" "}
-              <p className="mt-1 text-xs text-neutral-500 dark:text-fg-dim">{" "}A six-digit verification code will be sent to the new address.{" "}</p>
+              <p className="mt-1 text-xs text-neutral-500 dark:text-fg-dim">{" "}{props.verifying ? `Code sent to ${props.pendingEmail}.` : "A six-digit verification code will be sent to the new address."}{" "}</p>
             </div>
             {" "}
-            <button type="button" className="icon-button shrink-0" aria-label="Close">
+            <button type="button" className="icon-button shrink-0" aria-label="Close" onClick={props.onEmailClose}>
               <svg className="size-4" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path d="M18.4697 19.5303C18.7626 19.8232 19.2374 19.8232 19.5303 19.5303C19.8232 19.2374 19.8232 18.7626 19.5303 18.4697L13.0607 12L19.5303 5.53033C19.8232 5.23744 19.8232 4.76256 19.5303 4.46967C19.2374 4.17678 18.7626 4.17678 18.4697 4.46967L12 10.9393L5.53033 4.46967C5.23744 4.17678 4.76256 4.17678 4.46967 4.46967C4.17678 4.76256 4.17678 5.23744 4.46967 5.53033L10.9393 12L4.46967 18.4697C4.17678 18.7626 4.17678 19.2374 4.46967 19.5303C4.76256 19.8232 5.23744 19.8232 5.53033 19.5303L12 13.0607L18.4697 19.5303Z" fill="currentColor" />
               </svg>
@@ -24,7 +35,7 @@ export function ProfilePortalMarkup() {
           </header>
           {" "}
           {" "}
-          <form className="application-settings-section-body space-y-4">
+          {props.verifying ? props.verifyForm : (<><form className="application-settings-section-body space-y-4" onSubmit={props.onSendCode}>
             <div className="w-full">
               {" "}
               <div className="mb-1.5 flex h-4 w-full items-center gap-1.5">
@@ -52,7 +63,7 @@ export function ProfilePortalMarkup() {
               <button {...({ "ishighlighted": "" } as object)} className="button" type="submit">{" "}Send code{" "}</button>
               {" "}
             </div>
-          </form>
+          </form></>)}
           {" "}
         </div>
       </div>

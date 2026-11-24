@@ -1,0 +1,50 @@
+[
+  {
+    "find": "(<div className=\"fixed inset-0 z-99 flex h-screen w-screen items-center justify-center p-4\" data-teleport-target=\"true\") style=\\{\\{ \"display\": \"none\" \\}\\}>",
+    "replace": "$1 style={props.emailOpen ? undefined : { \"display\": \"none\" }}>",
+    "props": [
+      "emailOpen: boolean"
+    ]
+  },
+  {
+    "find": "(\"boxShadow\": \"[^\"]*\"), \"display\": \"none\" \\}\\}",
+    "replace": "$1, ...(props.emailOpen ? {} : { \"display\": \"none\" }) }}"
+  },
+  {
+    "find": "<h3>Change email</h3>",
+    "replace": "<h3>{props.verifying ? \"Verify new email\" : \"Change email\"}</h3>",
+    "props": [
+      "verifying: boolean"
+    ]
+  },
+  {
+    "find": ">\\{\" \"\\}A six-digit verification code will be sent to the new address\\.\\{\" \"\\}<",
+    "replace": ">{\" \"}{props.verifying ? `Code sent to ${props.pendingEmail}.` : \"A six-digit verification code will be sent to the new address.\"}{\" \"}<",
+    "props": [
+      "pendingEmail: string"
+    ]
+  },
+  {
+    "find": "<button type=\"button\" className=\"icon-button shrink-0\" aria-label=\"Close\">",
+    "replace": "<button type=\"button\" className=\"icon-button shrink-0\" aria-label=\"Close\" onClick={props.onEmailClose}>",
+    "props": [
+      "onEmailClose: () => void"
+    ]
+  },
+  {
+    "find": "(<form className=\"application-settings-section-body space-y-4\">[\\s\\S]*?</form>)",
+    "replace": "{props.verifying ? props.verifyForm : (<>$1</>)}",
+    "once": true,
+    "props": [
+      "verifyForm: ReactNode"
+    ]
+  },
+  {
+    "find": "<form className=\"application-settings-section-body space-y-4\">",
+    "replace": "<form className=\"application-settings-section-body space-y-4\" onSubmit={props.onSendCode}>",
+    "once": true,
+    "props": [
+      "onSendCode: FormEventHandler<HTMLFormElement>"
+    ]
+  }
+]

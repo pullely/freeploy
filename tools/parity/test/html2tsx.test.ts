@@ -67,3 +67,4 @@ test("a Livewire-bound control keeps its binding as data-wire-model", () => {
   assert.match(out, /data-wire-model="endpointParts\.host"/);
   assert.doesNotMatch(out, /wire:/);
 });
+

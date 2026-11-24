@@ -246,5 +246,14 @@ export const manifest: MigrationManifest = {
       description:
         "Passkeys (freeploy-coolify-parity DP3) — named WebAuthn credentials per user with public key, counter and last use",
     },
+    {
+      id: "570_identity_email_verification",
+      context: "identity",
+      path: "570_identity_email_verification/up.sql",
+      checksum:
+        "a614d2df099065d5bb2ac62b32e992ae4e8445670c6b43dbdb339cc79214391c",
+      description:
+        "Email verification and email change (freeploy-coolify-parity DP3) — users.email_verified_at (existing accounts verified), pending changes with hashed 6-digit codes",
+    },
   ],
 };

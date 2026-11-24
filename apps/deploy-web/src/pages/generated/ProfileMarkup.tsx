@@ -16,6 +16,8 @@ export interface ProfileMarkupProps {
   onEnableTwoFactor: FormEventHandler<HTMLFormElement>;
   twoFactorBody?: ReactNode;
   passkeys?: ReactNode;
+  onChangeEmail: () => void;
+  emailDialogOpen: boolean;
 }
 
 export function ProfileMarkup(props: ProfileMarkupProps) {
@@ -121,7 +123,7 @@ export function ProfileMarkup(props: ProfileMarkupProps) {
                     {" "}
                   </div>
                   {" "}
-                  <button className="button" type="button">{" "}Change{" "}</button>
+                  <button className="button" type="button" onClick={props.onChangeEmail} disabled={props.emailDialogOpen}>{" "}Change{" "}</button>
                   {" "}
                 </div>
               </div>

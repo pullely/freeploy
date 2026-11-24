@@ -93,6 +93,39 @@ const renderPasswordReset: TemplateRenderer = (data, opts) => {
   return { subject: `${brand}: Reset Password`, html, text };
 };
 
+// Derived from coollabsio/coolify@91b7e3e:resources/views/emails/email-verification.blade.php
+// and User::sendVerificationEmail() (Apache-2.0), modified: subject and copy, brand swapped.
+const renderEmailVerification: TemplateRenderer = (data, opts) => {
+  const brand = opts.brandName ?? "Freeploy";
+  const url = str(data, "url");
+  return {
+    subject: `${brand}: Verify your email.`,
+    text: `Verify your email here (${url}).`,
+    html: htmlShell(`${brand}: Verify your email.`, `<p>Verify your email <a href="${escapeHtml(url)}">here</a>.</p>`, brand),
+  };
+};
+
+// Derived from coollabsio/coolify@91b7e3e:resources/views/emails/email-change-verification.blade.php
+// and app/Notifications/TransactionalEmails/EmailChangeVerification.php (Apache-2.0), modified.
+const renderEmailChange: TemplateRenderer = (data, opts) => {
+  const brand = opts.brandName ?? "Freeploy";
+  const newEmail = str(data, "newEmail");
+  const code = str(data, "code");
+  const minutes = str(data, "expiryMinutes");
+  const lines = [
+    `You have requested to change your email address to: ${newEmail}`,
+    "Please use the following verification code to confirm this change:",
+    `Verification Code: ${code}`,
+    `This code is valid for ${minutes} minutes.`,
+    "If you did not request this change, please ignore this email and your email address will remain unchanged.",
+  ];
+  return {
+    subject: `${brand}: Verify Your New Email Address`,
+    text: lines.join("\n\n"),
+    html: htmlShell(`${brand}: Verify Your New Email Address`, lines.map((l) => `<p>${escapeHtml(l)}</p>`).join(""), brand),
+  };
+};
+
 const renderMagicLink: TemplateRenderer = (data, opts) => {
   const code = str(data, "code");
   const expires = formatTimestamp(str(data, "expiresAt"));
@@ -188,6 +221,8 @@ const renderInvitationAccepted: TemplateRenderer = (data, opts) => {
 const TEMPLATES: Record<string, TemplateRenderer> = {
   "auth.magic_link": renderMagicLink,
   "auth.password_reset": renderPasswordReset,
+  "auth.email_verification": renderEmailVerification,
+  "auth.email_change": renderEmailChange,
   "invitation.created": renderInvitationCreated,
   "invitation.accepted": renderInvitationAccepted,
 };

@@ -1,6 +1,8 @@
 import type { Env } from "../env.js";
 import type { IdentityRepository } from "@saas/db/identity";
 import { createSqlExecutor } from "@saas/db/hyperdrive";
+import { createEmailStore } from "@saas/db/identity";
+import { hexToUuid } from "@saas/db/ids";
 import { createIdentityRepository } from "@saas/db/identity";
 import { createAuthService } from "../services/auth.js";
 import { errorResponse } from "../http.js";
@@ -137,6 +139,9 @@ export async function handleOAuthCallback(
     // M0 / Solo profile: provision the user's invisible personal workspace
     // before handing the token back to the console. No-op off the profile.
     await ensurePersonalOrg(env, requestId, result.user);
+    // A magic link or an OAuth provider proves the address.
+    const verifiedId = hexToUuid(result.user.id.slice(4));
+    if (verifiedId && executor) await createEmailStore(executor).markVerified(verifiedId);
 
     const fragment =
       `token=${encodeURIComponent(result.token)}` +

@@ -75,5 +75,14 @@
     "props": [
       "passkeys?: ReactNode"
     ]
+  },
+  {
+    "find": "<button className=\"button\" type=\"button\">\\{\" \"\\}Change\\{\" \"\\}</button>",
+    "replace": "<button className=\"button\" type=\"button\" onClick={props.onChangeEmail} disabled={props.emailDialogOpen}>{\" \"}Change{\" \"}</button>",
+    "once": true,
+    "props": [
+      "onChangeEmail: () => void",
+      "emailDialogOpen: boolean"
+    ]
   }
 ]
