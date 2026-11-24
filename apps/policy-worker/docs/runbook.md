@@ -33,3 +33,10 @@ exercised through `api-edge` (this Worker has no public URL).
 - **Smoke fails right after a first deploy**: a brand-new workers.dev
   route can 4xx for a few seconds; the lane already retries — persistent
   failure means a real regression.
+- **A worker's authorized routes all answer 404 (deny) for an owner**: the
+  deployed policy-worker predates the action it is asked about. `orun plan
+  --changed` does not yet redeploy a dependent when only a `dependsOn`
+  package changed, so a change to `packages/policy-engine` alone leaves this
+  Worker on its old copy (Freeploy DP-38: `deploy.resource.*`, added in #18,
+  was denied on stage and prod until this Worker was redeployed). Land any
+  change under `apps/policy-worker` to redeploy it.
