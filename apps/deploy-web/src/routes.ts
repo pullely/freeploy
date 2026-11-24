@@ -1,7 +1,7 @@
 // The URL structure is routes/web.php's, one to one (design §3.1). A route
 // whose page is not ported yet renders NotPorted, which the parity harness
 // reports as a failing (not missing) route once deploy-web is the target.
-export type PageKey = "login" | "register" | "forgot-password" | "reset-password" | "profile.appearance" | "profile" | "profile.passkeys.confirm" | "password.confirm" | "verify.email" | "two-factor.required" | "verify.verify" | "two-factor.login" | "not-ported";
+export type PageKey = "login" | "register" | "forgot-password" | "reset-password" | "profile.appearance" | "profile" | "profile.passkeys.confirm" | "password.confirm" | "verify.email" | "two-factor.required" | "verify.verify" | "two-factor.login" | "security.private-key.index" | "security.private-key.show" | "not-ported";
 
 const ROUTES: Array<[RegExp, PageKey]> = [
   [/^\/login\/?$/, "login"],
@@ -16,6 +16,9 @@ const ROUTES: Array<[RegExp, PageKey]> = [
   [/^\/two-factor-required\/?$/, "two-factor.required"],
   [/^\/email\/verify\/[^/]+\/[^/]+\/?$/, "verify.verify"],
   [/^\/two-factor-challenge\/?$/, "two-factor.login"],
+  [/^\/security\/private-key\/?$/, "security.private-key.index"],
+  // Coolify redirects the old show page to the index, whose dialog edits the key.
+  [/^\/security\/private-key\/[^/]+\/?$/, "security.private-key.show"],
 ];
 
 export function pageFor(pathname: string): PageKey {

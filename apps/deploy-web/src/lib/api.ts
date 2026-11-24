@@ -53,6 +53,8 @@ export interface ApiError {
   status: number;
   /** Messages in Laravel's `$errors->all()` order. */
   messages: string[];
+  /** The messages per field, when the edge answered a validation error. */
+  fields?: Record<string, string[]>;
 }
 
 /** Laravel's ValidationException message: the first error, then "(and N more error[s])". */
@@ -74,5 +76,5 @@ export async function postJson<T>(path: string, body: unknown, method: "POST" | 
   if (res.ok && json?.data !== undefined) return { ok: true, data: json.data };
   const fields = json?.error?.details?.fields;
   const messages = fields ? Object.values(fields).flat() : [json?.error?.message ?? "Something went wrong."];
-  return { ok: false, error: { status: res.status, messages } };
+  return { ok: false, error: { status: res.status, messages, ...(fields ? { fields } : {}) } };
 }

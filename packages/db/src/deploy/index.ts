@@ -50,3 +50,22 @@ export async function listProjects(tx: SqlExecutor): Promise<DeployProjectRow[]>
 
 export { loadKek, orgDek, encryptField, decryptField, isEncrypted, CryptoError, type OrgDek } from "./crypto.js";
 export { ENCRYPTED_COLUMNS, isEncryptedColumn } from "./encrypted-columns.js";
+export {
+  listPrivateKeys,
+  findPrivateKeyByUuid,
+  insertPrivateKey,
+  updatePrivateKey,
+  deletePrivateKey,
+  privateKeyFingerprintExists,
+  privateKeyIsInUse,
+  privateKeyUsages,
+  PRIVATE_KEY_USAGE_TYPES,
+  type DeployPrivateKeyRow,
+  type DeployPrivateKeyWithSecretRow,
+  type DeployPrivateKeyListRow,
+  type NewPrivateKey,
+  type PrivateKeyChanges,
+  type PrivateKeyUsageType,
+  type PrivateKeyUsageRow,
+  type PrivateKeyUsages,
+} from "./private-keys.js";

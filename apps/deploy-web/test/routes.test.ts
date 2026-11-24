@@ -22,6 +22,11 @@ test("routes/web.php paths map to ported pages; the rest are not ported", () => 
   assert.equal(pageFor("/verify"), "verify.email");
   assert.equal(pageFor("/profile/passkeys/confirm"), "profile.passkeys.confirm");
   assert.equal(pageFor("/email/verify/usr_1/abc"), "verify.verify");
+  assert.equal(pageFor("/security/private-key"), "security.private-key.index");
+  assert.equal(pageFor("/security/private-key/"), "security.private-key.index");
+  assert.equal(pageFor("/security/private-key/abc123def456ghi789jkl012"), "security.private-key.show");
+  assert.equal(pageFor("/security/private-key/abc/rotate"), "not-ported");
+  assert.equal(pageFor("/security/api-tokens"), "not-ported");
 });
 
 test("a dismissed reminder stays hidden for the rest of the calendar month", () => {
