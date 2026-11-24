@@ -974,11 +974,11 @@ describe("what needs the SSH executor", () => {
 });
 
 describe("routing and authorization", () => {
-  it("there is no list and no delete; unknown paths are 404", async () => {
+  it("there is no list; unknown paths are 404 (the application's DELETE is the Danger Zone's: application-resources.test.ts)", async () => {
     const t = setup();
     const uuid = await t.create();
     expect((await t.call("GET")).status).toBe(405);
-    expect((await t.call("DELETE", uuid)).status).toBe(405);
+    expect((await t.call("DELETE")).status).toBe(405);
     expect((await t.call("PUT", uuid)).status).toBe(405);
     expect((await t.call("POST", `${uuid}/delete`)).status).toBe(404);
     expect((await t.call("GET", `${uuid}/deploy/more`)).status).toBe(404);
@@ -1014,7 +1014,8 @@ describe("routing and authorization", () => {
       expect([path, (await route(new Request(`${BASE}${path}`, { method, headers }), bare)).status]).toEqual([path, 503]);
     }
     expect((await route(new Request(`${BASE}/applications/app1/deploy/more`, { headers }), bare)).status).toBe(404);
-    expect((await route(new Request(`${BASE}/applications/app1`, { method: "DELETE", headers }), bare)).status).toBe(405);
+    expect((await route(new Request(`${BASE}/applications/app1`, { method: "PUT", headers }), bare)).status).toBe(405);
+    expect((await route(new Request(`${BASE}/applications`, { method: "DELETE", headers }), bare)).status).toBe(405);
     expect((await route(new Request(`${BASE}/projects/prj1/environments/env1/new`, { method: "POST", headers }), bare)).status).toBe(405);
     // Another fourth segment is still the projects handler's 404.
     expect((await route(new Request(`${BASE}/projects/prj1/environments/env1/canvas`, { headers }), bare)).status).toBe(404);

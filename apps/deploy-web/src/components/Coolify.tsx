@@ -1,7 +1,7 @@
 // Derived from coollabsio/coolify@91b7e3e:resources/views/components/{helper,modal-input,
 // modal-confirmation,status-badge,empty,callout,copy-button,loading,danger-zone,unsaved-bar,deprecated-badge}.blade.php,
 // resources/views/components/application/{settings-section,settings-subsection}.blade.php and
-// resources/views/components/forms/{input,textarea,button,listbox,collapsible}.blade.php (Apache-2.0), modified.
+// resources/views/components/forms/{input,textarea,button,listbox,collapsible,checkbox}.blade.php (Apache-2.0), modified.
 //
 // Coolify's Blade components as React components: the same DOM, classes and copy;
 // Alpine's state (open, step, …) as React state. Overlays teleport to <body>
@@ -493,10 +493,54 @@ export function ModalInput(props: {
   );
 }
 
+/** <x-forms.checkbox>: the label (with its helper) and the box. */
+export function Checkbox(props: { id: string; label: ReactNode; helper?: string; checked: boolean; onChange: (checked: boolean) => void; disabled?: boolean; fullWidth?: boolean }) {
+  const disabled = props.disabled ?? false;
+  return (
+    <div
+      className={`form-control group flex min-h-9 max-w-full items-center rounded-lg px-2.5 py-1.5 transition-colors${props.fullWidth ? " w-full" : ""}${
+        disabled ? " opacity-55" : " cursor-pointer hover:bg-neutral-100/80 dark:hover:bg-white/[0.035]"
+      }`}
+    >
+      <label htmlFor={props.id} className={`label flex w-full max-w-full min-w-0 items-center gap-3 px-0 ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`}>
+        <span className="flex min-w-0 grow items-center gap-1.5 break-words text-[12px] text-neutral-600 dark:text-fg-dim">
+          {props.label}
+          {props.helper ? <Helper helper={props.helper} /> : null}
+        </span>
+        <span className="relative flex size-[18px] shrink-0">
+          <input
+            type="checkbox"
+            id={props.id}
+            disabled={disabled}
+            checked={props.checked}
+            onChange={(e) => props.onChange(e.target.checked)}
+            className="peer absolute inset-0 z-10 m-0 h-full w-full cursor-pointer appearance-none opacity-0 disabled:cursor-not-allowed"
+          />
+          <span className="pointer-events-none absolute inset-0 rounded-[5px] border border-neutral-300 bg-white shadow-[inset_0_1px_1px_rgb(0_0_0/0.04)] transition-[color,background-color,border-color,box-shadow] duration-150 ease-out group-hover:border-neutral-400 peer-checked:border-coollabs peer-checked:bg-coollabs peer-focus-visible:ring-2 peer-focus-visible:ring-coollabs/25 peer-focus-visible:ring-offset-2 peer-disabled:opacity-50 dark:border-white/[0.14] dark:bg-white/[0.045] dark:shadow-none dark:group-hover:border-white/[0.22] dark:peer-checked:border-brand dark:peer-checked:bg-brand dark:peer-focus-visible:ring-brand-light/30 dark:peer-focus-visible:ring-offset-base" />
+          <svg className="pointer-events-none absolute inset-0 m-auto size-3 scale-75 text-white opacity-0 transition-[opacity,transform] peer-checked:scale-100 peer-checked:opacity-100" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+            <path d="m2.25 6.15 2.35 2.3 5.15-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </span>
+      </label>
+    </div>
+  );
+}
+
+/** One of <x-modal-confirmation>'s checkboxes: an action the user may leave out. */
+export interface ConfirmationCheckbox {
+  id: string;
+  label: string;
+  /** Listed among the actions when the box is not checked. */
+  defaultWarning?: string;
+  /** Whether the box starts checked ($this->{$id}). */
+  checked?: boolean;
+}
+
 /**
- * <x-modal-confirmation> without checkboxes and without the password step
- * (confirmWithPassword false, as the private key dialogs pass): step 2, the
- * actions, optionally the text to type, then the submit.
+ * <x-modal-confirmation> without the password step (confirmWithPassword
+ * false, as the private key dialogs pass): with `checkboxes`, step 1 chooses
+ * among them; then step 2, the actions, optionally the text to type, and the
+ * submit, which gets the ids of the checked boxes.
  */
 export function ModalConfirmation(props: {
   title: string;
@@ -513,14 +557,22 @@ export function ModalConfirmation(props: {
   /** Replaces the default warning ({!! $warningMessage !!}: plain text here). */
   warningMessage?: string;
   step2ButtonText?: string;
-  onSubmit: () => Promise<void>;
+  checkboxes?: ConfirmationCheckbox[];
+  onSubmit: (selectedActions: string[]) => Promise<void>;
   /** Opens the dialog from outside ($dispatch('confirm-old-key-deletion')). */
   openRequest?: number;
 }) {
+  const checkboxes = props.checkboxes ?? [];
+  const initialStep = checkboxes.length ? 1 : 2;
+  const initiallySelected = () => checkboxes.filter((c) => c.checked).map((c) => c.id);
   const [open, setOpen] = useState(false);
+  const [step, setStep] = useState(initialStep);
+  const [selected, setSelected] = useState<string[]>(initiallySelected);
   const [typed, setTyped] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const reset = () => {
+    setStep(initialStep);
+    setSelected(initiallySelected());
     setTyped("");
     setSubmitting(false);
   };
@@ -542,7 +594,7 @@ export function ModalConfirmation(props: {
     setSubmitting(true);
     setOpen(false);
     try {
-      await props.onSubmit();
+      await props.onSubmit(selected);
     } finally {
       reset();
     }
@@ -581,7 +633,27 @@ export function ModalConfirmation(props: {
               </button>
             </header>
             <div className="application-settings-section-body min-h-0 flex-1 overflow-y-auto">
-              <div>
+              {checkboxes.length ? (
+                <div style={shown(step === 1)}>
+                  {checkboxes.map((checkbox) => (
+                    <div key={checkbox.id} className="flex justify-between items-center mb-2">
+                      <Checkbox
+                        fullWidth
+                        id={checkbox.id}
+                        label={checkbox.label}
+                        checked={selected.includes(checkbox.id)}
+                        onChange={(checked) => setSelected([...selected.filter((id) => id !== checkbox.id), ...(checked ? [checkbox.id] : [])])}
+                      />
+                    </div>
+                  ))}
+                  <div className="mt-4 flex flex-wrap justify-end gap-2 border-t border-neutral-200 pt-4 dark:border-white/[0.08]">
+                    <button className="button button-error w-auto" type="button" onClick={() => setStep(2)}>
+                      <span>Continue</span>
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+              <div style={shown(step === 2)}>
                 <DangerCallout title="Warning">{props.warningMessage ?? "This operation is permanent and cannot be undone. Please think again before proceeding!"}</DangerCallout>
                 <div className="mb-2 text-[12px] font-medium text-neutral-700 dark:text-fg-dim">The following actions will be performed:</div>
                 <ul className="mb-4 space-y-2">
@@ -593,6 +665,17 @@ export function ModalConfirmation(props: {
                       <span>{a}</span>
                     </li>
                   ))}
+                  {checkboxes.map((checkbox) => {
+                    const line = selected.includes(checkbox.id) ? checkbox.label : checkbox.defaultWarning;
+                    return line ? (
+                      <li key={checkbox.id} className="flex items-start gap-2 text-[12px] leading-5 text-red-600 dark:text-red-400">
+                        <span className="shrink-0" aria-hidden="true">
+                          -
+                        </span>
+                        <span>{line}</span>
+                      </li>
+                    ) : null;
+                  })}
                 </ul>
                 {needsText ? (
                   <div className="mb-4">
@@ -611,9 +694,15 @@ export function ModalConfirmation(props: {
                   </div>
                 ) : null}
                 <div className="mt-4 flex flex-wrap justify-end gap-2 border-t border-neutral-200 pt-4 dark:border-white/[0.08]">
-                  <button className="button" type="button" onClick={() => (setOpen(false), reset())}>
-                    Cancel
-                  </button>
+                  {checkboxes.length ? (
+                    <button className="button" type="button" onClick={() => setStep(1)}>
+                      Back
+                    </button>
+                  ) : (
+                    <button className="button" type="button" onClick={() => (setOpen(false), reset())}>
+                      Cancel
+                    </button>
+                  )}
                   <button
                     className="button button-error w-auto"
                     type="button"
@@ -844,7 +933,7 @@ export function Listbox(props: {
             {open
               ? visible.map((o) => (
                   <div key={o.value}>
-                    <button type="button" className={o.disabled ? "listbox-option listbox-option-disabled" : "listbox-option"} role="option" aria-selected={isSelected(o)} onClick={() => choose(o)}>
+                    <button type="button" className={o.disabled ? "listbox-option listbox-option-disabled" : "listbox-option"} role="option" aria-selected={isSelected(o)} aria-disabled={o.disabled || undefined} onClick={() => (o.disabled ? undefined : choose(o))}>
                       <span className="flex min-w-0 items-center gap-2 text-left">
                         <span className="flex min-w-0 flex-col items-start">
                           <span className="flex min-w-0 items-baseline gap-2">
