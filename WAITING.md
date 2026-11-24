@@ -15,11 +15,13 @@ The agent re-checks every entry at the start of each loop iteration.
 - **Steps:** add it as workspace secret `TEST_HETZNER_TOKEN`.
 - **Unblocked when:** `secrets_list` shows `TEST_HETZNER_TOKEN`.
 
-## W3 — Containers + Hyperdrive scope on the `nexo` Cloudflare connection (confirm before DP4)
+## W3 — Containers scope on the `nexo` Cloudflare connection (BLOCKS DP4's executor)
 
-- **Need:** the `nexo` connection's token (Cloudflare account "Nexo@sourceplane.ai") must allow Workers, KV, D1, Hyperdrive and **Containers**. The baseline's Hyperdrive mint succeeded if phase 03 passed; Containers is first needed by DP4's `ssh-executor`.
-- **Steps (only if a mint is refused with `parent_grant_insufficient`):** in the Cloudflare dashboard widen the account API token with "Workers Containers: Edit" (and "Hyperdrive: Edit"), then in Orunbase re-save it on the existing `nexo` connection. Do not create a new connection.
-- **Unblocked when:** the DP4 deploy of `ssh-executor` succeeds.
+- **Tested 2026-11-24 (DP-31, #39):** the first Container deploy (`deploy-core-worker` on stage, the `SshSession` Durable Object with `apps/ssh-executor`'s image) failed: Wrangler's request to the Cloudflare API `/accounts/{id}/containers/me` was refused on all three attempts. The image built; the account or token cannot use Containers.
+- **Need:** Cloudflare Containers on the account behind `nexo`: the **Workers Paid** plan (Containers are not on the free plan), and the account API token with **"Workers Containers: Edit"** (plus "Workers Scripts: Edit" it already has).
+- **Steps:** in the Cloudflare dashboard, confirm the account is on Workers Paid; widen the account API token with "Workers Containers: Edit"; in Orunbase re-save it on the **existing** `nexo` connection. Do not create a new connection.
+- **Meanwhile:** the stage `containers` entry and `SSH_SESSION` binding are held back (DP-31 follow-up), so deploys are green; the executor, its client and the Durable Object class are in place and tested.
+- **Unblocked when:** the agent restores the two entries and the stage deploy of `deploy-core-worker` succeeds.
 
 ## W4 — ✅ Supabase project slots for `nexara-orun` (resolved 2026-11-23; a risk remains)
 

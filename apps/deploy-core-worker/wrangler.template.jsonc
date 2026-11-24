@@ -26,18 +26,10 @@
       "vars": {
         "ENVIRONMENT": "stage"
       },
-      // DP4: ssh-executor as a Cloudflare Container behind the SshSession Durable
-      // Object, stage first (WAITING W3: the nexo token needs the Containers scope).
-      "containers": [
-        {
-          "class_name": "SshSession",
-          "image": "../ssh-executor/Dockerfile",
-          "max_instances": 10
-        }
-      ],
-      "durable_objects": {
-        "bindings": [{ "name": "SSH_SESSION", "class_name": "SshSession" }]
-      },
+      // DP4: the SshSession container (ssh-executor) is held back until the nexo
+      // token can use Cloudflare Containers (WAITING W3): the first deploy was refused
+      // by /accounts/{id}/containers/me. Restore the "containers" entry and the
+      // SSH_SESSION Durable Object binding here once W3 is resolved.
       "hyperdrive": [
         {
           "binding": "PLATFORM_DB",
