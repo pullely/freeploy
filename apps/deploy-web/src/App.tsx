@@ -4,6 +4,7 @@ import { RegisterPage } from "./pages/Register";
 import { ForgotPasswordPage } from "./pages/ForgotPassword";
 import { ResetPasswordPage } from "./pages/ResetPassword";
 import { ConfirmPasswordPage } from "./pages/ConfirmPassword";
+import { NotPortedPage } from "./pages/NotPorted";
 import { TwoFactorChallengePage } from "./pages/TwoFactorChallenge";
 import { lazy, Suspense } from "react";
 
@@ -38,10 +39,6 @@ export function App() {
         </Suspense>
       );
     default:
-      return <NotPorted />;
+      return <NotPortedPage />;
   }
-}
-
-function NotPorted() {
-  return <main data-freeploy-not-ported="" />;
 }

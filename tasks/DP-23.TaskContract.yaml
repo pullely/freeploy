@@ -1,0 +1,13 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-23
+  title: "DP3: unported routes — /login when signed out, the layout and a notice when signed in"
+spec:
+  goal: A Coolify route Freeploy has not ported yet no longer renders an empty page. A visitor without a session is sent to /login, as Laravel's auth middleware does; a signed-in user gets the signed-in layout with the page's breadcrumb and a plain notice. The parity harness still counts the route as failing.
+  affects:
+    - apps/deploy-web/**
+    - tasks/**
+  doneWhen:
+    - on deploy-web stage, / redirects to /login without a session and shows the layout with a session
+  gates: []
