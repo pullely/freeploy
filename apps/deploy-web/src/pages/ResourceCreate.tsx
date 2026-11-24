@@ -6,8 +6,9 @@
 // Resource page. Without ?type and ?destination it is Select — the resource
 // types, then the server, then the destination — which ends, as in Coolify,
 // on this same URL with ?type=…&destination=…&server_id=…; there the type's
-// own form shows. Only the Docker Image form is ported: every other type stays
-// in the grid and ends on the not-ported notice. The one-click services (their
+// own form shows. The Docker Image form is here; the Dockerfile and Public Git
+// Repository forms are in ResourceCreateBuilt.tsx; every other type stays in
+// the grid and ends on the not-ported notice. The one-click services (their
 // 390 templates), the category filter's values and the database image steps
 // are not ported; server_id is the server's uuid, not a numeric id.
 import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
@@ -21,6 +22,7 @@ import { environmentPath, environmentUuidFromPath, limit, ProjectBreadcrumb, pro
 import { applicationPath, applicationsApi } from "./ApplicationChrome";
 import { BetaBadge } from "./ServerChrome";
 import { splitPastedImageName, type ImageForm } from "../lib/docker-image";
+import { DockerfileForm, PublicGitRepositoryForm } from "./ResourceCreateBuilt";
 
 interface ResourceType {
   id: string;
@@ -604,7 +606,7 @@ function TypeNotPorted() {
         <div className="empty-state w-full">
           <div className="empty-state-well min-h-32">
             <h2 className="empty-state-title">This resource type is not available in Freeploy yet</h2>
-            <p className="empty-state-description text-[12px]">It is being ported. A Docker image application can be created today.</p>
+            <p className="empty-state-description text-[12px]">It is being ported. An application from a public Git repository, a Dockerfile or a Docker image can be created today.</p>
           </div>
         </div>
       </div>
@@ -648,7 +650,11 @@ function ResourceCreateContent() {
       window.location.replace("/");
       return null;
     }
-    content = type === "docker-image" ? <DockerImage orgId={me.team?.id} data={data} destination={destination} serverUuid={query.get("server_id")} /> : <TypeNotPorted />;
+    const target = { orgId: me.team?.id, projectUuid: data.project.uuid, environmentUuid: data.environment.uuid, destination, serverUuid: query.get("server_id") };
+    if (type === "docker-image") content = <DockerImage orgId={me.team?.id} data={data} destination={destination} serverUuid={query.get("server_id")} />;
+    else if (type === "dockerfile") content = <DockerfileForm {...target} />;
+    else if (type === "public") content = <PublicGitRepositoryForm {...target} />;
+    else content = <TypeNotPorted />;
   } else {
     content = <Select data={data} here={here} onReload={() => setReload((n) => n + 1)} />;
   }

@@ -185,7 +185,7 @@ const withoutSpaces = (value: unknown): unknown => (typeof value === "string" ? 
  * `stored` is what the application has now: an unchanged fqdn is only
  * 'nullable' (General::rules()).
  */
-export function validateGeneral(body: Body, stored: { fqdn: string | null }): Result<GeneralInput> {
+export function validateGeneral(body: Body, stored: { fqdn: string | null; buildPack?: string }): Result<GeneralInput> {
   const errors: FieldErrors = {};
   const input: GeneralInput = { forceSaveDomains: body.forceSaveDomains === true };
   const has = (field: string): boolean => body[field] !== undefined;
@@ -212,8 +212,8 @@ export function validateGeneral(body: Body, stored: { fqdn: string | null }): Re
     }
   }
   if (has("dockerRegistryImageName")) {
-    // The second validate() of a dockerimage application: the name is required.
-    if (blank(body.dockerRegistryImageName)) add(errors, "dockerRegistryImageName", DEFAULT.required(A.dockerRegistryImageName));
+    // The second validate() of a dockerimage application: the name is required (any other build pack may leave it empty).
+    if (blank(body.dockerRegistryImageName) && (stored.buildPack ?? "dockerimage") === "dockerimage") add(errors, "dockerRegistryImageName", DEFAULT.required(A.dockerRegistryImageName));
     else input.dockerRegistryImageName = nullableString(errors, "dockerRegistryImageName", body.dockerRegistryImageName, A.dockerRegistryImageName, { max: 255, regex: DOCKER_IMAGE_NAME_PATTERN });
   }
   if (has("dockerRegistryImageTag")) {

@@ -3,9 +3,11 @@
 //
 // /project/{uuid}/environment/{env_uuid}/application/{app_uuid}
 // (project.application.configuration): the configuration frame and the General
-// page of a Docker image application — details, access with HTTP Basic
-// Authentication, the image, the deployment commands, networking, and the
-// container's Docker options and labels (ApplicationLabels.tsx).
+// page of an application — details, access with HTTP Basic Authentication,
+// the image, the deployment commands, networking, and the container's Docker
+// options and labels (ApplicationLabels.tsx); for an application that is
+// built, the "Build & deploy" fields of its build pack
+// (ApplicationGeneralBuild.tsx).
 // Not here yet: the internal hostname of a running container (nothing is
 // deployed yet). Domains are edited on the Domains page, as in Coolify.
 import { useCallback, useEffect, useState, type FormEvent } from "react";
@@ -17,6 +19,7 @@ import { Button, Callout, FormInput, ModalInput, SettingsSection, SettingsSubsec
 import { environmentPath, environmentUuidFromPath, limit, projectUuidFromPath } from "./ProjectChrome";
 import { applicationPath, applicationsApi, applicationUuidFromPath, ApplicationWorkspace, type ApplicationInfo, type ApplicationShowData } from "./ApplicationChrome";
 import { ApplicationAuthentication, ApplicationContainerLabels } from "./ApplicationLabels";
+import { BUILD_FIELDS, BuildPipeline, type ApplicationBuild, type WithBuild } from "./ApplicationGeneralBuild";
 
 /** The form's fields: General's properties that apply to a Docker image application. */
 const FIELDS = [
@@ -34,11 +37,16 @@ const FIELDS = [
   "httpBasicAuthPassword",
   // Editable only while labels are managed manually.
   "customLabels",
+  // The fields of the build packs: empty for a Docker image application.
+  ...BUILD_FIELDS,
 ] as const;
 type Field = (typeof FIELDS)[number];
 type Form = Record<Field, string>;
 
-const formOf = (a: ApplicationInfo): Form => Object.fromEntries(FIELDS.map((f) => [f, a[f] ?? ""])) as Form;
+const formOf = (a: ApplicationInfo, build?: ApplicationBuild | null): Form => {
+  const values: Partial<Record<Field, string | null>> = { ...build, ...a };
+  return Object.fromEntries(FIELDS.map((f) => [f, values[f] ?? ""])) as Form;
+};
 
 /** countDomains() and the first domain of the list. */
 function domains(fqdn: string | null): { count: number; primary: string | null } {
@@ -49,7 +57,7 @@ function domains(fqdn: string | null): { count: number; primary: string | null }
   return { count: list.length, primary: list[0] ?? null };
 }
 
-interface Saved {
+interface Saved extends WithBuild {
   application: ApplicationInfo;
   message: string;
   warning: boolean;
@@ -61,7 +69,7 @@ function ApplicationGeneralContent() {
   const environmentUuid = environmentUuidFromPath();
   const uuid = applicationUuidFromPath();
   const base = `${applicationsApi(me.team?.id)}/${encodeURIComponent(uuid)}`;
-  const [data, setData] = useState<ApplicationShowData | null>(null);
+  const [data, setData] = useState<(ApplicationShowData & WithBuild) | null>(null);
   const [form, setForm] = useState<Form | null>(null);
   const [saved, setSaved] = useState<Form | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -70,7 +78,7 @@ function ApplicationGeneralContent() {
 
   useEffect(() => {
     void (async () => {
-      const r = await getJson<ApplicationShowData>(base);
+      const r = await getJson<ApplicationShowData & WithBuild>(base);
       // Configuration::mount(): the application through its project and environment, or a 404.
       if (!r.data) {
         if (r.status === 404) window.location.replace(environmentPath(projectUuid, environmentUuid));
@@ -78,18 +86,21 @@ function ApplicationGeneralContent() {
       }
       if (r.data.application.project.uuid !== projectUuid || r.data.application.environment.uuid !== environmentUuid) return window.location.replace("/projects");
       setData(r.data);
-      setForm(formOf(r.data.application));
-      setSaved(formOf(r.data.application));
+      setForm(formOf(r.data.application, r.data.build));
+      setSaved(formOf(r.data.application, r.data.build));
     })();
   }, [base, projectUuid, environmentUuid]);
   useEffect(() => {
     if (data) document.title = `${limit(data.application.name, 10)} > Configuration | Freeploy`;
   }, [data]);
 
-  /** General::submit(): the changed fields, then 'Application settings updated!' (or the sslip warning in its place). */
-  const submit = useCallback(async () => {
+  /**
+   * General::submit(): the changed fields, then 'Application settings updated!' (or the sslip warning in its place).
+   * `extra` goes with them (updatedBuildPack()'s build strategy) or, with `alone`, in their place (generateNginxConfiguration()).
+   */
+  const submit = useCallback(async (extra: Record<string, unknown> = {}, alone = false) => {
     if (!form || !saved) return;
-    const changed = Object.fromEntries(FIELDS.filter((f) => form[f] !== saved[f]).map((f) => [f, form[f]]));
+    const changed = { ...(alone ? {} : Object.fromEntries(FIELDS.filter((f) => form[f] !== saved[f]).map((f) => [f, form[f]]))), ...extra };
     setSaving(true);
     const r = await postJson<Saved>(base, changed, "PATCH");
     setSaving(false);
@@ -102,27 +113,32 @@ function ApplicationGeneralContent() {
       return;
     }
     setErrors({});
-    setData((d) => (d ? { ...d, application: r.data.application } : d));
-    setForm(formOf(r.data.application));
-    setSaved(formOf(r.data.application));
+    setData((d) => (d ? { ...d, application: r.data.application, build: r.data.build ?? null } : d));
+    setForm(formOf(r.data.application, r.data.build));
+    setSaved(formOf(r.data.application, r.data.build));
     setNetworking(false);
     if (r.data.warning) toast(r.data.message, { type: "warning" });
     else notify.success(r.data.message);
   }, [base, form, saved]);
 
-  /** What instantSave() and resetDefaultLabels() answer: the application, and its labels in the form; other unsaved edits stay. */
-  const refreshed = useCallback((application: ApplicationInfo) => {
-    setData((d) => (d ? { ...d, application } : d));
-    setForm((f) => (f ? { ...f, customLabels: application.customLabels ?? "" } : f));
-    setSaved((s) => (s ? { ...s, customLabels: application.customLabels ?? "" } : s));
+  /**
+   * What instantSave() and resetDefaultLabels() answer: the application (with the build pack's fields when the
+   * answer carries them), and in the form what such a save can rewrite — the labels and the Nginx
+   * configuration; other unsaved edits stay.
+   */
+  const refreshed = useCallback((application: ApplicationInfo, build?: ApplicationBuild | null) => {
+    setData((d) => (d ? { ...d, application, ...(build ? { build } : {}) } : d));
+    const synced = { customLabels: application.customLabels ?? "", ...(build ? { customNginxConfiguration: build.customNginxConfiguration ?? "" } : {}) };
+    setForm((f) => (f ? { ...f, ...synced } : f));
+    setSaved((s) => (s ? { ...s, ...synced } : s));
   }, []);
-  /** General::instantSave(): a listbox of the Authentication or Labels section, then 'Settings saved.'. */
+  /** General::instantSave(): a listbox of the Authentication or Labels section or a setting of the build pack, then 'Settings saved.'. */
   const instantSave = useCallback(
     (fields: Record<string, unknown>) => {
       void (async () => {
         const r = await postJson<Saved>(base, { ...fields, instantSave: true }, "PATCH");
         if (!r.ok) return notify.error(summarize(r.error.messages));
-        refreshed(r.data.application);
+        refreshed(r.data.application, r.data.build);
         notify.success(r.data.message);
       })();
     },
@@ -140,7 +156,10 @@ function ApplicationGeneralContent() {
   const dirty = FIELDS.some((f) => form[f] !== saved[f]);
   const here = applicationPath(application.project.uuid, application.environment.uuid, application.uuid);
   const domainsUrl = `${here}/domains`;
-  const { count: domainCount, primary: primaryDomain } = domains(application.fqdn);
+  // A Docker Compose application's domains are its services', which the Compose parser reads: none yet.
+  const compose = application.buildPack === "dockercompose";
+  const built = application.buildPack !== "dockerimage" && data.build ? data.build : null;
+  const { count: domainCount, primary: primaryDomain } = domains(compose ? null : application.fqdn);
   const additional = Math.max(0, domainCount - 1);
   const swarm = application.server?.isSwarm ?? false;
   const readonlyLabels = application.isContainerLabelReadonlyEnabled;
@@ -180,7 +199,7 @@ function ApplicationGeneralContent() {
             </SettingsSection>
 
             <SettingsSection id="access-section" title="Access" helper="Manage how this application is reached publicly, who can access it, and how it is reached from the Docker network.">
-              <section id="public-access-section" className="border-b border-neutral-200 pb-5 dark:border-white/[0.07]">
+              <section id="public-access-section" className={compose ? undefined : "border-b border-neutral-200 pb-5 dark:border-white/[0.07]"}>
                 <h3 className="mb-3 text-sm font-semibold text-black dark:text-fg">Public access</h3>
                 <div className="group relative flex items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50/60 px-4 py-3 transition-colors hover:bg-neutral-100 focus-within:ring-2 focus-within:ring-coollabs/40 dark:border-white/[0.07] dark:bg-white/[0.05] dark:hover:bg-white/[0.08] dark:focus-within:ring-brand-light/40">
                   <a
@@ -209,8 +228,9 @@ function ApplicationGeneralContent() {
                 </div>
               </section>
 
-              <ApplicationAuthentication application={application} canUpdate={canUpdate} instantSave={instantSave} username={field("httpBasicAuthUsername")} password={field("httpBasicAuthPassword")} />
+              {compose ? null : <ApplicationAuthentication application={application} canUpdate={canUpdate} instantSave={instantSave} username={field("httpBasicAuthUsername")} password={field("httpBasicAuthPassword")} />}
 
+              {compose ? null : (
               <section id="internal-access-section" className="pt-5">
                 <h3 className="mb-4 text-sm font-semibold text-black dark:text-fg">Internal access</h3>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -226,6 +246,7 @@ function ApplicationGeneralContent() {
                   </button>
                 </div>
               </section>
+              )}
             </SettingsSection>
 
             <SettingsSection
@@ -233,6 +254,18 @@ function ApplicationGeneralContent() {
               title="Build & deploy"
               helper="How Freeploy builds the application, where it pushes the image, and the commands it runs around each deployment."
             >
+              {built ? (
+                <BuildPipeline
+                  buildPack={application.buildPack}
+                  build={built}
+                  swarm={swarm}
+                  canUpdate={canUpdate}
+                  field={field}
+                  onBuildPack={(buildPack) => void submit({ buildPack })}
+                  onInstant={async (body) => (body.instantSave === true ? instantSave(body) : submit(body, true))}
+                />
+              ) : (
+              <>
               <div className="flex flex-col gap-5">
                 <p className="text-sm text-neutral-500 dark:text-fg-dim">Nothing to build. This application deploys a prebuilt Docker image.</p>
               </div>
@@ -247,6 +280,8 @@ function ApplicationGeneralContent() {
                   />
                 </div>
               </SettingsSubsection>
+              </>
+              )}
               <SettingsSubsection id="deployment-lifecycle-section" title="Deployment commands">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="flex flex-col gap-4">
@@ -256,6 +291,7 @@ function ApplicationGeneralContent() {
                       label="Pre-deployment"
                       helper={"An optional script or command to execute in the existing container before the deployment begins.\nIt is always executed with 'sh -c', so you do not need add it manually."}
                     />
+                    {compose ? <FormInput {...field("preDeploymentCommandContainer")} label="Container name" helper="The name of the container to execute within. You can leave it blank if your application only has one container." /> : null}
                   </div>
                   <div className="flex flex-col gap-4">
                     <FormInput
@@ -264,11 +300,13 @@ function ApplicationGeneralContent() {
                       label="Post-deployment"
                       helper={"An optional script or command to execute in the newly built container after the deployment completes.\nIt is always executed with 'sh -c', so you do not need add it manually."}
                     />
+                    {compose ? <FormInput {...field("postDeploymentCommandContainer")} label="Container name" helper="The name of the container to execute within. You can leave it blank if your application only has one container." /> : null}
                   </div>
                 </div>
               </SettingsSubsection>
             </SettingsSection>
 
+            {compose ? null : (
             <SettingsSection id="container-section" title="Container" helper="Options and labels applied to the container when it starts.">
               <FormInput
                 {...field("customDockerRunOptions")}
@@ -280,6 +318,7 @@ function ApplicationGeneralContent() {
               />
               <ApplicationContainerLabels application={application} canUpdate={canUpdate} instantSave={instantSave} labels={field("customLabels")} onReset={resetLabels} />
             </SettingsSection>
+            )}
           </div>
         </form>
 

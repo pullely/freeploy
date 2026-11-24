@@ -267,3 +267,22 @@ export {
   type SharedVariableRefScope,
   type DeploySharedVariableReferenceRow,
 } from "./environment-variables.js";
+export {
+  APPLICATION_MORPH_CLASS,
+  PUBLIC_GITHUB_SOURCE,
+  APPLICATION_BUILD_COLUMNS,
+  APPLICATION_BUILD_SETTING_COLUMNS,
+  insertBuiltApplication,
+  findApplicationBuild,
+  updateApplicationBuild,
+  findOtherApplicationBuildingImage,
+  deleteApplicationServiceVariables,
+  clearApplicationFileStoragesBasedOnGit,
+  type NewApplicationVariable,
+  type NewBuiltApplication,
+  type DeployApplicationBuildRow,
+  type ApplicationBuildColumn,
+  type ApplicationBuildChanges,
+  type ApplicationBuildSettingColumn,
+  type ApplicationBuildSettingChanges,
+} from "./application-create.js";

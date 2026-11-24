@@ -26,7 +26,7 @@ export const GIT_BASED_APPLICATIONS: readonly ResourceType[] = [
     description: "Deploy any public Git repository. Freeploy builds it from source, no credentials required.",
     documentation: "https://coolify.io/docs/applications/ci-cd",
     logo: "resources/public-repo",
-    creatable: false,
+    creatable: true,
   },
   {
     id: "private-deploy-key",
@@ -68,7 +68,7 @@ export const DOCKER_BASED_APPLICATIONS: readonly ResourceType[] = [
     description: "Deploy an application using a Dockerfile, without a Git repository.",
     documentation: "https://coolify.io/docs/applications/build-packs/dockerfile",
     logo: "resources/dockerfile",
-    creatable: false,
+    creatable: true,
   },
   {
     id: "docker-compose-empty",

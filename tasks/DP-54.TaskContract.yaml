@@ -1,0 +1,22 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-54
+  title: "DP5: applications from a Dockerfile and from a public Git repository, and General's build pack fields (API and pages)"
+spec:
+  goal: An org creates an application from a Dockerfile typed into the New Resource page, or from a public Git repository after "Check repository" (the branch is asked of api.github.com for a github.com URL, with Coolify's handling of a refused request; any other host is taken as given), and gets the rows Coolify stores — the application with its build pack (Railpack, Nixpacks, Static, Dockerfile or Docker Compose), port, directories, the Dockerfile's EXPOSE port and HEALTHCHECK timing, the public GitHub source as source_id 0 with GithubApp's morph class (a constant, deploy.github_apps has no such row), the settings row with is_static, a generated domain, and for Nixpacks the NIXPACKS_NODE_VERSION variable with its preview copy — without anything being deployed; it then reads and saves, on the application's General page, the fields of its build pack (build strategy, site type, web server, base and publish directory, install, build and start commands, Dockerfile and its location and build target, Compose location and custom commands with their previews, watch paths, custom Nginx configuration, builder selection, preserve repository, the registry image) with General's rules and messages word for word; every query is confined to the org by row-level security. The Dockerfile and Public Git Repository forms and General's "Build & deploy" section are ported from the Blade views. Not part of this task and answered "not available yet" — Smart Scan and loading a Compose file from the repository (both clone on the server over SSH), and the "Docker Compose" type of the New Resource page, which in Coolify creates a Service and needs the Compose parser (DP8). The private Git types, the Git Source page, the per-service domains of a Compose application, container labels and deploying are not part of this task.
+  affects:
+    - apps/deploy-core-worker/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - on stage a signed-in org owner with a validated server opens New resource in an environment, chooses Dockerfile, pastes a Dockerfile with EXPOSE 3000, lands on the application's configuration page with the status Exited and the port 3000, edits the Dockerfile and the base directory, and both changes are there after a reload
+    - on stage the same owner chooses Public Git Repository, checks https://github.com/coollabsio/coolify-examples, sees the branch main and the rate limit callout, continues with Railpack and lands on the configuration page of an application whose General page shows the build strategy, the site type and the install, build and start commands; switching the build strategy to Static sets the port to 80 and shows the Nginx configuration
+    - on stage POST /v1/organizations/{org}/deploy/applications/git/check with https://localhost/a/b answers 422 "Invalid repository URL: The repository url cannot point to internal hosts.", POST …/applications/git/scan answers 501 "Scanning the repository needs the SSH executor, which is not available yet.", POST …/applications with type dockercompose answers 501, and a member without deploy.resource.write gets 404 on all of them
+    - a Docker Compose application created from a public Git repository shows its Compose location and commands on General, and a changed Compose location answers 501 "Loading the Compose file from the repository needs the SSH executor, which is not available yet." with nothing stored
+    - the Dockerfile and Public Git Repository forms and General's "Build & deploy" section pass the stage DOM gate or each difference is listed with its cause
+  gates: []

@@ -19,6 +19,8 @@
 //   POST   /applications/{uuid}/restart     Heading::restart   501
 //   POST   /applications/{uuid}/stop        Heading::stop      501
 //   GET, PATCH /applications/{uuid}/{domains,advanced,healthcheck,resource-limits}   application-settings.ts
+//   POST   /applications { type: "dockerfile" | "public" | "dockercompose" }, POST /applications/git/{check,scan}   application-create.ts
+//   GET and PATCH /applications/{uuid} also carry the fields of the build packs (`build`)                       applications/build.ts
 //
 // and, routed here by route() (router.ts):
 //
@@ -60,11 +62,15 @@ import { handleEnvironmentVariables } from "./environment-variables.js";
 import { validateCreateDockerImage, validateGeneral } from "../applications/validation.js";
 import { handleApplicationSettings, isApplicationSettingsSection } from "./application-settings.js";
 import { assertLabelInput, instantSaveLabels, labelSqlContext, resetLabels, saveLabelsAfterGeneral, showApplicationWithLabels, validateLabelBody } from "./application-labels.js";
+import { createBuiltApplication, handleGitAction, isBuiltApplicationType, isGitAction, sqlBuildContext } from "./application-create.js";
+import { BUILD_MESSAGES, builtAnswer, prepareBuild, saveBuild, showBuild } from "../applications/build.js";
+import type { GithubDeps } from "../applications/github.js";
 import {
   ApplicationError,
   createDockerImageApplication,
   environmentResources,
   newResourcePage,
+  showApplication,
   unavailableAction,
   updateGeneral,
   type ApplicationAction,
@@ -106,7 +112,12 @@ export const runApplicationsInOrg: ApplicationRunner = async (env, orgId, fn) =>
       const ciphers = Object.fromEntries(
         APPLICATION_WEBHOOK_SECRET_COLUMNS.map((c) => [c, columnCipher(tx, orgId, env.DEPLOY_ENCRYPTION_KEY, `applications.${c}`)]),
       ) as Record<ApplicationWebhookSecretColumn, KeyCipher>;
-      return fn({ store: sqlStore(tx, orgId), encrypt: (column, plaintext) => ciphers[column].encrypt(plaintext), labels: labelSqlContext(tx, orgId, env.DEPLOY_ENCRYPTION_KEY) });
+      return fn({
+        store: sqlStore(tx, orgId),
+        encrypt: (column, plaintext) => ciphers[column].encrypt(plaintext),
+        labels: labelSqlContext(tx, orgId, env.DEPLOY_ENCRYPTION_KEY),
+        build: sqlBuildContext(tx, orgId, env.DEPLOY_ENCRYPTION_KEY),
+      });
     });
   } finally {
     await db.dispose();
@@ -135,7 +146,8 @@ async function authorized(env: Env, requestId: string, actor: ActorContext, orgI
 
 /**
  * segments: what follows /applications, split on "/" ([] for the collection).
- * `runner` is replaceable for tests.
+ * `runner` and `github` (the fetch "Check repository" asks GitHub with) are
+ * replaceable for tests.
  */
 export async function handleApplications(
   env: Env,
@@ -145,6 +157,7 @@ export async function handleApplications(
   segments: string[],
   request: Request,
   runner: ApplicationRunner = runApplicationsInOrg,
+  github: GithubDeps = { fetch: (url, init) => fetch(url, init) },
 ): Promise<Response> {
   // …/applications/{uuid}/environment-variables[/…]: the Environment Variables page (environment-variables.ts).
   if (segments[1] === "environment-variables") return handleEnvironmentVariables(env, requestId, actor, orgId, { type: "application", uuid: segments[0]! }, segments.slice(2), request);
@@ -160,6 +173,9 @@ export async function handleApplications(
   } else if (segments.length === 1 && UUID_RE.test(first!)) {
     if (method === "GET") op = { write: false, run: (canWrite) => show(first!, canWrite) };
     else if (method === "PATCH") op = { write: true, run: () => update(first!) };
+  } else if (segments.length === 2 && first === "git" && isGitAction(second)) {
+    // PublicGitRepository::loadBranch and detectRepository (application-create.ts).
+    if (method === "POST") op = { write: true, run: async () => handleGitAction(env, orgId, requestId, second!, await readJson(request), runner, github) };
   } else if (segments.length === 2 && UUID_RE.test(first!) && ACTIONS.includes(second!)) {
     // @can('deploy', $application)
     if (method === "POST") op = { write: true, run: () => action(first!, second as ApplicationAction) };
@@ -171,7 +187,10 @@ export async function handleApplications(
   if (!op) return methodNotAllowed(requestId);
 
   async function create(): Promise<Response> {
-    const v = validateCreateDockerImage(await readJson(request));
+    const body = await readJson(request);
+    // A Dockerfile, a public Git repository, Docker Compose (application-create.ts).
+    if (isBuiltApplicationType(body.type)) return createBuiltApplication(env, orgId, requestId, body, runner);
+    const v = validateCreateDockerImage(body);
     if (!v.ok) return validationError(requestId, v.errors);
     const created = await runner(env, orgId, (c) => createDockerImageApplication(c, v.input));
     if (!created) return notFound();
@@ -179,28 +198,68 @@ export async function handleApplications(
   }
 
   async function show(uuid: string, canWrite: boolean): Promise<Response> {
-    const application = await runner(env, orgId, (c) => showApplicationWithLabels(c, uuid, canWrite));
-    if (!application) return notFound();
+    const shown = await runner(env, orgId, async (c) => {
+      const application = await showApplicationWithLabels(c, uuid, canWrite);
+      // The fields of the build packs (build.ts).
+      return application && { application, ...(c.build ? { build: await showBuild(c.build.store, uuid, canWrite) } : {}) };
+    });
+    if (!shown) return notFound();
     // The views' @can('update' | 'deploy', $application).
-    return successResponse({ application, canUpdate: canWrite, canDeploy: canWrite }, requestId);
+    return successResponse({ ...shown, canUpdate: canWrite, canDeploy: canWrite }, requestId);
   }
 
+  let parsedBody: Promise<Record<string, unknown>> | null = null;
+  const bodyOnce = () => (parsedBody ??= readJson(request));
+
   async function update(uuid: string): Promise<Response> {
-    const body = await readJson(request);
+    const body = await bodyOnce();
     const saved = await runner(env, orgId, async (c) => {
-      // General::instantSave(): a listbox of the Labels or Authentication section.
-      if (body.instantSave === true) return instantSaveLabels(c, uuid, body);
+      // General::instantSave(): a listbox of the Labels or Authentication section, or a setting of the build pack.
+      if (body.instantSave === true) return instantSave(c);
       const current = await c.store.findByUuid(uuid);
       if (!current) return null;
-      const v = validateGeneral(body, { fqdn: current.fqdn ?? null });
+      // The fields of the build packs (build.ts): validated with General's and the label fields, saved in the same transaction.
+      const build = c.build ? await prepareBuild(c.build.store, uuid, body) : null;
+      const v = validateGeneral(build?.body ?? body, { fqdn: current.fqdn ?? null, buildPack: build?.buildPack ?? current.build_pack });
       const labels = validateLabelBody(body);
-      if (!v.ok || Object.keys(labels.errors).length) return { errors: { ...(v.ok ? {} : v.errors), ...labels.errors } };
+      const errors = { ...(v.ok ? {} : v.errors), ...labels.errors, ...build?.errors };
+      if (!v.ok || Object.keys(errors).length) return { errors };
       await assertLabelInput(c, uuid, labels.input);
-      return saveLabelsAfterGeneral(c, uuid, await updateGeneral(c, uuid, v.input), labels.input, { portsExposes: current.ports_exposes ?? null });
+      const refused = c.build && build ? await saveBuild(c.build.store, build, v.input) : null;
+      if (refused) return { errors: refused };
+      const saved = await saveLabelsAfterGeneral(c, uuid, await updateGeneral(c, uuid, v.input), labels.input, { portsExposes: current.ports_exposes ?? null });
+      return saved && c.build && build ? { ...saved, ...(await builtAnswer(c.build.store, uuid, build)) } : saved;
     });
     if (!saved) return notFound();
     if ("errors" in saved) return validationError(requestId, saved.errors);
     return successResponse(saved, requestId);
+  }
+
+  /**
+   * General::instantSave(), one rule for a PATCH with instantSave: true: the
+   * label and authentication listboxes (application-labels.ts) and the build
+   * pack's settings (build.ts) are validated together, then saved — the build
+   * settings first, so a refusal of either leaves nothing written — and
+   * answered once with "Settings saved.". General's other fields are not read.
+   */
+  async function instantSave(c: ApplicationContext) {
+    const uuid = first!;
+    const body = await bodyOnce();
+    if (!c.labels && !c.build) return null;
+    const build = c.build ? await prepareBuild(c.build.store, uuid, body) : null;
+    const errors = { ...(c.labels ? validateLabelBody(body).errors : {}), ...build?.errors };
+    if (Object.keys(errors).length) return { errors };
+    const refused = c.build && build ? await saveBuild(c.build.store, build, { forceSaveDomains: false }) : null;
+    if (refused) return { errors: refused };
+    const saved = c.labels ? await instantSaveLabels(c, uuid, body) : await instantSaveWithoutLabels(c, uuid);
+    if (!saved || "errors" in saved) return saved;
+    return c.build && build ? { ...saved, build: (await builtAnswer(c.build.store, uuid, build)).build } : saved;
+  }
+
+  /** A context without the label store: the application as it is, with General::instantSave()'s toast. */
+  async function instantSaveWithoutLabels(c: ApplicationContext, uuid: string) {
+    const application = await showApplication(c, uuid, true);
+    return application && { application, message: BUILD_MESSAGES.settingsSaved, warning: false as const };
   }
 
   async function labelsReset(uuid: string): Promise<Response> {
