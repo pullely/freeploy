@@ -10,6 +10,8 @@
   // Free plan caps a Worker at 3MB gzipped (10MB on paid) — minify fleet-wide
   // so the ceiling is never the thing that blocks a deploy.
   "minify": true,
+  // SshSession (DP4) is a SQLite-backed Durable Object class with a container.
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["SshSession"] }],
   "vars": {
     "ENVIRONMENT": "local"
   },
@@ -23,6 +25,18 @@
       "workers_dev": false,
       "vars": {
         "ENVIRONMENT": "stage"
+      },
+      // DP4: ssh-executor as a Cloudflare Container behind the SshSession Durable
+      // Object, stage first (WAITING W3: the nexo token needs the Containers scope).
+      "containers": [
+        {
+          "class_name": "SshSession",
+          "image": "../ssh-executor/Dockerfile",
+          "max_instances": 10
+        }
+      ],
+      "durable_objects": {
+        "bindings": [{ "name": "SSH_SESSION", "class_name": "SshSession" }]
       },
       "hyperdrive": [
         {

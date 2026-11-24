@@ -1,0 +1,16 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-31
+  title: "DP4: SshSession — ssh-executor as a Cloudflare Container on stage"
+spec:
+  goal: deploy-core-worker has the SshSession Durable Object (one per server) backed by a Cloudflare Container running apps/ssh-executor, deployed to stage first. It is the first use of Cloudflare Containers on the nexo account (WAITING W3); if the token's scope or the plan refuses it, the stage deploy fails and this change is reverted on its own.
+  affects:
+    - apps/deploy-core-worker/**
+    - pnpm-lock.yaml
+    - specs/epics/freeploy-coolify-parity/**
+    - WAITING.md
+    - tasks/**
+  doneWhen:
+    - main's stage deploy of deploy-core-worker builds and rolls out the SshSession container, or the refusal is recorded in WAITING W3 and the change reverted
+  gates: []
