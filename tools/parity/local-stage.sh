@@ -16,9 +16,11 @@ if [ ! -d "$work/ref" ]; then
   mkdir -p "$work/ref"
   gh run download "$run" -R pullely/freeploy -D "$work/ref" >/dev/null
 fi
-ref=$(dirname "$(find "$work/ref" -path '*tools/parity/out/reference/capture.json' | head -1)")
+ref=$(dirname "$(find -L "$work/ref" -path '*tools/parity/out/reference/capture.json' | head -1)")
+[ -f "$ref/capture.json" ] || { echo "no reference capture in run $run" >&2; exit 1; }
 out="$work/out"
 rm -rf "$out" && mkdir -p "$out" && cp -R "$ref" "$out/reference"
+export PARITY_CHANNEL="${PARITY_CHANNEL:-chrome}"
 export LOCAL_EMAIL=parity-local@example.com
 LOCAL_PASSWORD=$(security find-generic-password -s freeploy-parity-local -a "$LOCAL_EMAIL" -w)
 export LOCAL_PASSWORD

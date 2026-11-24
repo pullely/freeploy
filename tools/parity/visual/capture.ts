@@ -89,7 +89,8 @@ async function domExtract(page: Page) {
 async function main() {
   const routes: RouteRow[] = JSON.parse(readFileSync(routesFile, "utf8")).rows;
   const targets = routes.filter((r) => r.visual && r.method === "GET" && (!only || only.test(r.id)));
-  const browser = await chromium.launch();
+  // PARITY_CHANNEL=chrome drives an installed Google Chrome (local runs without Playwright's Chromium).
+  const browser = await chromium.launch(process.env.PARITY_CHANNEL ? { channel: process.env.PARITY_CHANNEL } : {});
   const captured: Array<{ id: string; dir: string; url: string; shots: string[]; status: number | null }> = [];
   const skipped: Array<{ id: string; reason: string }> = [];
   try {
