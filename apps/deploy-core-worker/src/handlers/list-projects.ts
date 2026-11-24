@@ -7,7 +7,7 @@ import { createSqlExecutor } from "@saas/db/hyperdrive";
 import { withOrg, listProjects, type DeployProjectRow } from "@saas/db/deploy";
 import { fetchAuthorizationContext } from "../membership-client.js";
 import { authorizeViaPolicy } from "../policy-client.js";
-import { errorResponse, successResponse } from "../http.js";
+import { deniedResponse, errorResponse, successResponse } from "../http.js";
 
 export function toPublicDeployProject(row: DeployProjectRow) {
   return { uuid: row.uuid, name: row.name, description: row.description ?? null };
@@ -18,9 +18,9 @@ export async function handleListProjects(env: Env, requestId: string, actor: Act
     return errorResponse("internal_error", "Service unavailable", 503, requestId);
   }
   const ctx = await fetchAuthorizationContext(env.MEMBERSHIP_WORKER, actor.subjectId, actor.subjectType, orgId as never, requestId);
-  if (!ctx.ok) return errorResponse("not_found", "Not found", 404, requestId);
+  if (!ctx.ok) return deniedResponse(env.ENVIRONMENT, requestId, ctx.reason);
   const policy = await authorizeViaPolicy(env.POLICY_WORKER, actor.subjectId, actor.subjectType, "deploy.resource.read", { kind: "organization", orgId: orgId as never }, ctx.memberships, requestId);
-  if (!policy.allow) return errorResponse("not_found", "Not found", 404, requestId);
+  if (!policy.allow) return deniedResponse(env.ENVIRONMENT, requestId, policy.reason ?? "denied", { memberships: ctx.memberships.length });
   const db = createSqlExecutor(env.PLATFORM_DB);
   try {
     const rows = await withOrg(db, orgId, (tx) => listProjects(tx));

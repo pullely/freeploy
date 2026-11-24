@@ -2,6 +2,8 @@ import type { AuthorizationRequest, AuthorizationResponse, PolicySubject, Member
 
 export interface AuthorizeResult {
   allow: boolean;
+  /** Why a request was denied (policy's reason, or what failed on the way); for diagnostics only. */
+  reason?: string;
 }
 
 export async function authorizeViaPolicy(
@@ -39,22 +41,22 @@ export async function authorizeViaPolicy(
       },
     );
   } catch {
-    return { allow: false };
+    return { allow: false, reason: "policy_unreachable" };
   }
 
   if (!response.ok) {
-    return { allow: false };
+    return { allow: false, reason: `policy_status_${response.status}` };
   }
 
   let parsed: unknown;
   try {
     parsed = await response.json();
   } catch {
-    return { allow: false };
+    return { allow: false, reason: "policy_bad_body" };
   }
 
   if (!parsed || typeof parsed !== "object" || !("data" in parsed)) {
-    return { allow: false };
+    return { allow: false, reason: "policy_bad_body" };
   }
 
   const data = (parsed as { data: unknown }).data;
@@ -64,8 +66,9 @@ export async function authorizeViaPolicy(
     !("allow" in data) ||
     typeof (data as AuthorizationResponse).allow !== "boolean"
   ) {
-    return { allow: false };
+    return { allow: false, reason: "policy_bad_body" };
   }
 
-  return { allow: (data as AuthorizationResponse).allow };
+  const decision = data as AuthorizationResponse & { reason?: unknown };
+  return decision.allow ? { allow: true } : { allow: false, reason: typeof decision.reason === "string" ? decision.reason : "denied" };
 }

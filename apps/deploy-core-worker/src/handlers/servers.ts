@@ -45,8 +45,8 @@ import {
   type OrgDek,
 } from "@saas/db/deploy";
 import { fetchAuthorizationContext } from "../membership-client.js";
-import { authorizeViaPolicy } from "../policy-client.js";
-import { errorResponse, methodNotAllowed, successResponse, validationError } from "../http.js";
+import { authorizeViaPolicy, type AuthorizeResult } from "../policy-client.js";
+import { deniedResponse, errorResponse, methodNotAllowed, successResponse, validationError } from "../http.js";
 import type { KeyCipher } from "../private-keys/service.js";
 import { SERVER_MESSAGES, SERVER_ROLES, validateCreateServer, validateUpdateServer, type ServerRole } from "../servers/validation.js";
 import {
@@ -171,12 +171,12 @@ export async function handleServers(
     return errorResponse("internal_error", "Service unavailable", 503, requestId);
   }
   const ctx = await fetchAuthorizationContext(env.MEMBERSHIP_WORKER, actor.subjectId, actor.subjectType, orgId, requestId);
-  if (!ctx.ok) return errorResponse("not_found", "Not found", 404, requestId);
+  if (!ctx.ok) return deniedResponse(env.ENVIRONMENT, requestId, ctx.reason);
   const ask = (action: string) =>
     authorizeViaPolicy(env.POLICY_WORKER!, actor.subjectId, actor.subjectType, action, { kind: "organization", orgId: orgId as never }, ctx.memberships, requestId);
   // Reads also say whether the caller may write (Coolify's @can / canGate="update" in the views).
-  const [read, write] = await Promise.all([op.write ? Promise.resolve({ allow: true }) : ask("deploy.resource.read"), ask("deploy.resource.write")]);
-  if (!read.allow || (op.write && !write.allow)) return errorResponse("not_found", "Not found", 404, requestId);
+  const [read, write] = await Promise.all([op.write ? Promise.resolve<AuthorizeResult>({ allow: true }) : ask("deploy.resource.read"), ask("deploy.resource.write")]);
+  if (!read.allow || (op.write && !write.allow)) return deniedResponse(env.ENVIRONMENT, requestId, (read.allow ? write.reason : read.reason) ?? "denied", { memberships: ctx.memberships.length });
   const canWrite = write.allow;
   const notFound = () => errorResponse("not_found", "Not found", 404, requestId);
 
