@@ -33,4 +33,6 @@ export interface Env {
   OAUTH_ALLOWED_CONSOLE_ORIGINS?: string;
   /** The console (deploy-web) origin password-reset links point at. Never taken from a request. */
   DEPLOY_WEB_URL?: string;
+  /** 32 bytes base64: seals 2FA secrets, recovery codes and sign-in challenges (DP3). */
+  IDENTITY_ENCRYPTION_KEY?: string;
 }

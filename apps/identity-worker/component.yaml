@@ -49,6 +49,8 @@ spec:
   optionalSecretEnv:
     GITHUB_OAUTH_CLIENT_SECRET: "secret://ws_65T3WPCP/freeploy/{{ .environment }}/GITHUB_OAUTH_CLIENT_SECRET"
     GOOGLE_OAUTH_CLIENT_SECRET: "secret://ws_65T3WPCP/freeploy/{{ .environment }}/GOOGLE_OAUTH_CLIENT_SECRET"
+    # Seals 2FA secrets, recovery codes and sign-in challenges (DP3); 32 random bytes per environment.
+    IDENTITY_ENCRYPTION_KEY: "secret://ws_65T3WPCP/freeploy/{{ .environment }}/IDENTITY_ENCRYPTION_KEY"
     OAUTH_STATE_SECRET: "secret://ws_65T3WPCP/freeploy/{{ .environment }}/OAUTH_STATE_SECRET"
 
   subscribe:
@@ -105,7 +107,7 @@ spec:
 
     # Runtime worker secrets, pushed by the secrets-live step from the
     # values orun resolves for the optionalSecretEnv references below.
-    runtimeSecrets: "GITHUB_OAUTH_CLIENT_SECRET,GOOGLE_OAUTH_CLIENT_SECRET,OAUTH_STATE_SECRET"
+    runtimeSecrets: "GITHUB_OAUTH_CLIENT_SECRET,GOOGLE_OAUTH_CLIENT_SECRET,OAUTH_STATE_SECRET,IDENTITY_ENCRYPTION_KEY"
     turboFilter: "@saas/identity-worker"
     wranglerConfig: wrangler.jsonc
     wranglerTemplate: wrangler.template.jsonc

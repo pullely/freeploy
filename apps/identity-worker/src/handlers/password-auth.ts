@@ -8,7 +8,8 @@
 // messages on failure (422 with details.fields, or 429 when throttled).
 import type { Env } from "../env.js";
 import { createSqlExecutor, type SqlExecutor } from "@saas/db/hyperdrive";
-import { createIdentityRepository, createPasswordStore } from "@saas/db/identity";
+import { createIdentityRepository, createPasswordStore, createTwoFactorStore } from "@saas/db/identity";
+import { startChallenge } from "./two-factor.js";
 import { successResponse, errorResponse, validationError } from "../http.js";
 import { extractRequestContext } from "../request-context.js";
 import { ensurePersonalOrg } from "../solo-mode.js";
@@ -35,7 +36,7 @@ async function readJson(request: Request): Promise<Record<string, unknown> | nul
   }
 }
 
-async function issueSession(db: SqlExecutor, request: Request, requestId: string, user: { id: string; email: string; displayName: string | null }, method: string) {
+export async function issueSession(db: SqlExecutor, request: Request, requestId: string, user: { id: string; email: string; displayName: string | null }, method: string) {
   const repo = createIdentityRepository(db);
   const ctx = extractRequestContext(request, requestId);
   const sessionUuid = generateSessionId();
@@ -97,6 +98,12 @@ export async function handlePasswordLogin(request: Request, env: Env, requestId:
       await repo.recordSecurityEvent({ id: generateSecurityEventId(), eventType: "password.login.failed", outcome: "invalid_credentials", requestId, ip: ctx.ip ?? null, userAgent: ctx.userAgent ?? null, metadata: {} });
       // Fortify: ValidationException on `email` with auth.failed.
       return fieldErrors(requestId, { email: [__("auth.failed")] });
+    }
+    // Fortify's RedirectIfTwoFactorAuthenticatable: with confirmed 2FA, no session
+    // yet; the client completes sign-in at /two-factor-challenge.
+    const twoFactor = await createTwoFactorStore(db).get(found.value.id);
+    if (twoFactor?.confirmedAt) {
+      return successResponse({ twoFactor: true, challenge: await startChallenge(env, found.value.id) }, requestId, 200);
     }
     // Like every sign-in path: the user's personal team exists before the console loads.
     await ensurePersonalOrg(env, requestId, publicUser(found.value));

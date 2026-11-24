@@ -3,6 +3,15 @@ import { handleHealth } from "./handlers/health.js";
 import { handleLoginStart } from "./handlers/login-start.js";
 import { handlePasswordLogin, handlePasswordRegister } from "./handlers/password-auth.js";
 import { handlePasswordChange } from "./handlers/password-change.js";
+import {
+  handlePasswordConfirm,
+  handleTwoFactorState,
+  handleTwoFactorEnable,
+  handleTwoFactorDisable,
+  handleTwoFactorConfirm,
+  handleRecoveryCodes,
+  handleTwoFactorChallenge,
+} from "./handlers/two-factor.js";
 import { handlePasswordForgot, handlePasswordReset } from "./handlers/password-reset.js";
 import { handleLoginComplete } from "./handlers/login-complete.js";
 import { handleSession } from "./handlers/session.js";
@@ -62,6 +71,33 @@ export async function route(request: Request, env: Env): Promise<Response> {
     if (url.pathname === "/v1/auth/password/reset") {
       if (request.method !== "POST") return methodNotAllowed(requestId);
       return handlePasswordReset(request, env, requestId);
+    }
+
+    if (url.pathname === "/v1/auth/password/confirm") {
+      if (request.method !== "POST") return methodNotAllowed(requestId);
+      return handlePasswordConfirm(request, env, requestId);
+    }
+
+    if (url.pathname === "/v1/auth/two-factor") {
+      if (request.method === "GET") return handleTwoFactorState(request, env, requestId);
+      if (request.method === "POST") return handleTwoFactorEnable(request, env, requestId);
+      if (request.method === "DELETE") return handleTwoFactorDisable(request, env, requestId);
+      return methodNotAllowed(requestId);
+    }
+
+    if (url.pathname === "/v1/auth/two-factor/confirm") {
+      if (request.method !== "POST") return methodNotAllowed(requestId);
+      return handleTwoFactorConfirm(request, env, requestId);
+    }
+
+    if (url.pathname === "/v1/auth/two-factor/recovery-codes") {
+      if (request.method !== "POST") return methodNotAllowed(requestId);
+      return handleRecoveryCodes(request, env, requestId);
+    }
+
+    if (url.pathname === "/v1/auth/two-factor/challenge") {
+      if (request.method !== "POST") return methodNotAllowed(requestId);
+      return handleTwoFactorChallenge(request, env, requestId);
     }
 
     if (url.pathname === "/v1/auth/password/change") {

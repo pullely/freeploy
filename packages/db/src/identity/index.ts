@@ -27,3 +27,4 @@ export type {
 
 export { createIdentityRepository } from "./repository.js";
 export { createPasswordStore } from "./passwords.js";
+export { createTwoFactorStore, type TwoFactorRow } from "./two-factor.js";

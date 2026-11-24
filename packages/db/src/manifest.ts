@@ -228,5 +228,14 @@ export const manifest: MigrationManifest = {
       description:
         "Password reset tokens (freeploy-coolify-parity DP3) — one hashed token per user, Laravel broker semantics (10-minute expiry, 60-second throttle)",
     },
+    {
+      id: "550_identity_two_factor",
+      context: "identity",
+      path: "550_identity_two_factor/up.sql",
+      checksum:
+        "fbbdf73ff4a40d710ea3b41992f7823fa01877cabbaacdebe09f767f30b06acd",
+      description:
+        "Two-factor authentication (freeploy-coolify-parity DP3) — encrypted TOTP secret and recovery codes per user, confirmed_at; sessions.password_confirmed_at",
+    },
   ],
 };

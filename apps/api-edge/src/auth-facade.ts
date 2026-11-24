@@ -13,6 +13,10 @@ const AUTH_ROUTES: Record<string, string> = {
   "/v1/auth/password/forgot": "POST",
   "/v1/auth/password/reset": "POST",
   "/v1/auth/password/change": "POST",
+  "/v1/auth/password/confirm": "POST",
+  "/v1/auth/two-factor/confirm": "POST",
+  "/v1/auth/two-factor/recovery-codes": "POST",
+  "/v1/auth/two-factor/challenge": "POST",
   "/v1/auth/session": "GET",
   "/v1/auth/resolve": "GET",
   "/v1/auth/logout": "POST",
@@ -21,6 +25,7 @@ const AUTH_ROUTES: Record<string, string> = {
 
 const AUTH_MULTI_METHOD_ROUTES: Record<string, Set<string>> = {
   "/v1/auth/profile": new Set(["GET", "PATCH"]),
+  "/v1/auth/two-factor": new Set(["GET", "POST", "DELETE"]),
 };
 
 // OAuth sign-in routes (all GET). `start` and `callback` are browser-redirect
