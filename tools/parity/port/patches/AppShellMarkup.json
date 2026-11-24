@@ -15,7 +15,7 @@
     ]
   },
   {
-    "find": "<a href=\"http://(?:127\\.0\\.0\\.1|localhost):8000/profile\" (className=\"flex h-8 min-w-0 items-center truncate[^\"]*\")>Profile</a>",
+    "find": "<a href=\"/profile\" (className=\"flex h-8 min-w-0 items-center truncate[^\"]*\")>Profile</a>",
     "replace": "<a href={props.pageHref} $1>{props.pageTitle}</a>",
     "props": [
       "pageHref: string"
@@ -27,10 +27,6 @@
     "props": [
       "searchTitle: string"
     ]
-  },
-  {
-    "find": "http://(?:127\\.0\\.0\\.1|localhost):8000/",
-    "replace": "/"
   },
   {
     "find": "<a title=\"([^\"]+)\" href=\"([^\"]+)\" className=\"menu-item\">",

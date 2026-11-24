@@ -52,7 +52,7 @@ export function ProfilePortalMarkup(props: ProfilePortalMarkupProps) {
               {" "}
               {" "}
               {" "}
-              <input autoComplete="off" className="input" required data-wire-model="new_email" type="email" id="new_email-tgjgtiesnsve44yu83bcjafk" name="new_email" placeholder="" />
+              <input autoComplete="off" className="input" required data-wire-model="new_email" type="email" id="new_email-ue1r6zmsdz8xnootemdselmw" name="new_email" placeholder="" />
               {" "}
               {" "}
               {" "}

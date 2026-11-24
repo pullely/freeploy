@@ -1,0 +1,17 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-29
+  title: "DP3 fix: generated markup never links to the reference; auth alerts where Coolify puts them"
+spec:
+  goal: The generator turns every URL on the reference's own origin (href, action, src, CSS url()) into a path, so no generated page links to localhost:8000; every generated page is reproducible from the generator script (the older guest pages included); auth pages show session status and errors at the top of the card's column, as Coolify's views do; the notification-channel icons ship with deploy-web.
+  affects:
+    - apps/deploy-web/**
+    - tools/parity/**
+    - THIRD_PARTY_NOTICES.md
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - no file under apps/deploy-web/src mentions the reference's origin
+    - on deploy-web stage a user adds a passkey from /profile and signs in with it
+  gates: []

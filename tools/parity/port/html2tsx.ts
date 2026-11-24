@@ -85,6 +85,14 @@ function dropAttr(name: string): boolean {
   return name.startsWith("wire:") || name.startsWith("x-") || name.startsWith("@") || name.startsWith(":") || name.startsWith("ax-") || name === "data-navigate-once" || name.startsWith("data-livewire");
 }
 
+/**
+ * A URL on the reference's own origin (http://localhost:8000, http://127.0.0.1:8000,
+ * any port) becomes a path, so generated markup never links to the reference.
+ */
+export function relativeToReference(v: string): string {
+  return v.replace(/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?(?=\/|$|\?|#)/, "") || "/";
+}
+
 /** A JSX attribute value: a plain string literal unless it holds a quote or backslash (JSX strings have no escapes). */
 const jsxString = (v: string) => (/["\\\n]/.test(v) ? `{${JSON.stringify(v)}}` : JSON.stringify(v));
 const esc = (s: string) => s.replace(/[{}<>]/g, (c) => `{"${c}"}`);
@@ -99,7 +107,9 @@ function styleObject(css: string): string {
       ? raw
       : raw.replace(/^-(webkit|moz|ms)-/, (_, p: string) => `${p[0]!.toUpperCase()}${p.slice(1)}-`).replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
     if (raw.startsWith("--")) custom = true;
-    return `${JSON.stringify(key)}: ${JSON.stringify(v.join(":").trim())}`;
+    // url(…) on the reference's origin becomes a path, like href and src.
+    const value = v.join(":").trim().replace(/url\((['"]?)https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\//g, "url($1/");
+    return `${JSON.stringify(key)}: ${JSON.stringify(value)}`;
   });
   return custom ? `{{ ${entries.join(", ")} } as Record<string, string>}` : `{{ ${entries.join(", ")} }}`;
 }
@@ -135,6 +145,7 @@ function attrs(n: Node): string {
     else if (BOOL.has(a.name)) out.push(name);
     else if (a.name === "value" && (n.tagName === "input" || n.tagName === "textarea")) out.push(`defaultValue=${jsxString(a.value)}`);
     else if (a.name === "checked") out.push("defaultChecked");
+    else if (["href", "action", "src", "srcset", "formaction"].includes(a.name)) out.push(`${name}=${jsxString(relativeToReference(a.value))}`);
     else out.push(`${name}=${jsxString(a.name === "alt" || a.name === "title" || a.name === "placeholder" || a.name === "aria-label" ? swapBrand(a.value) : a.value)}`);
   }
   return out.length ? " " + out.join(" ") : "";

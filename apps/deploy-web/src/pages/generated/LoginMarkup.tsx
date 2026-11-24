@@ -27,8 +27,8 @@ export function LoginMarkup(props: LoginMarkupProps) {
             {" "}
             <div className="auth-card-body">
               <div className="flex flex-col gap-4">
+                {props.alert}
                 <form action="/login" method="POST" className="flex flex-col gap-4" onSubmit={props.onSubmit}>
-                  {props.alert}
                   <input type="hidden" name="_token" defaultValue="" autoComplete="off" />
                   {" "}
                   <div className="w-full">
@@ -39,7 +39,7 @@ export function LoginMarkup(props: LoginMarkupProps) {
                       </label>
                     </div>
                     {" "}
-                    <input autoComplete="email webauthn" className="input" required type="email" id="kwhn7dhwus5zhevbfl1autic" name="email" placeholder="" autoFocus />
+                    <input autoComplete="email webauthn" className="input" required type="email" id="4lguvz9vqrm2papssqxndt3d" name="email" placeholder="" autoFocus />
                   </div>
                   {" "}
                   <div className="w-full">
@@ -51,7 +51,7 @@ export function LoginMarkup(props: LoginMarkupProps) {
                     </div>
                     {" "}
                     <div className="relative">
-                      <input autoComplete="current-password" defaultValue="" className="input input-with-password-toggle" required id="7vtoxqe4w59nqup2j4opgmks" name="password" placeholder="" aria-placeholder="" type="password" />
+                      <input autoComplete="current-password" defaultValue="" className="input input-with-password-toggle" required id="np4281qudvuqbftcjyrjgtbd" name="password" placeholder="" aria-placeholder="" type="password" />
                       {" "}
                       <button type="button" className="password-toggle flex absolute inset-y-0 right-0 z-10 items-center pr-2 cursor-pointer text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white" aria-label="Toggle password visibility">
                         <svg className="size-4 size-[18px]" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">

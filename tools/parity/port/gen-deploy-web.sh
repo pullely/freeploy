@@ -26,12 +26,19 @@ gen "$A" --select body --inner --skip "$TAKE" --name AppearancePortalMarkup --ou
 
 # /user/confirm-password (Fortify password.confirm), guest-layout page.
 gen routes.web__password.confirm/desktop-light.html --select main --name ConfirmPasswordMarkup \
-  --slot 'form=alert' --handler 'form:onSubmit=onSubmit' --out "$P/ConfirmPasswordMarkup.tsx"
+  --slot 'div.flex.flex-col.gap-4=alert' --handler 'form:onSubmit=onSubmit' --out "$P/ConfirmPasswordMarkup.tsx"
 
 # /login, with Coolify's passkey sign-in (the reference is reached as localhost, where passkeys are offered).
-gen routes.web__login/desktop-light.html --select main --name LoginMarkup --slot 'form=alert' --handler 'form:onSubmit=onSubmit' \
+gen routes.web__login/desktop-light.html --select main --name LoginMarkup --slot 'div.flex.flex-col.gap-4=alert' --handler 'form:onSubmit=onSubmit' \
   --patch tools/parity/port/patches/LoginMarkup.json --out "$P/LoginMarkup.tsx"
 
 # /two-factor-required (a team that requires 2FA), standalone page.
 gen routes.web__two-factor.required/desktop-light.html --select main --name TwoFactorRequiredMarkup \
   --patch tools/parity/port/patches/TwoFactorRequiredMarkup.json --out "$P/TwoFactorRequiredMarkup.tsx"
+
+# The other guest pages: Coolify puts session('status') and $errors at the top
+# of the card's flex column, before the form.
+for page in register:RegisterMarkup password.request:ForgotPasswordMarkup password.reset:ResetPasswordMarkup; do
+  gen "routes.web__${page%%:*}/desktop-light.html" --select main --name "${page##*:}" \
+    --slot 'div.flex.flex-col.gap-4=alert' --handler 'form:onSubmit=onSubmit' --out "$P/${page##*:}.tsx"
+done
