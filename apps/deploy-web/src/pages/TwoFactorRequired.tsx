@@ -39,6 +39,8 @@ export function TwoFactorRequiredPage() {
       onLogout={onLogout}
       switchTeams={teams.map((t) => (
         <form key={t.slug} action="/two-factor-required/switch-team" method="POST" onSubmit={(e) => (e.preventDefault(), window.location.assign("/"))}>
+          <input type="hidden" name="_token" defaultValue="" autoComplete="off" />
+          <input type="hidden" name="team_id" defaultValue={t.slug} />
           <button className="button w-full justify-center" type="submit">
             {" "}
             {t.name}{" "}

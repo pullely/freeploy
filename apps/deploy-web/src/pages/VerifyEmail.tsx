@@ -44,7 +44,7 @@ export function VerifyEmailPage() {
         description="Verify your email address to activate your account."
         footer={
           <span className="text-center">
-            <span className="block sm:inline">Didn’t receive the email?</span>
+            <span className="block sm:inline">Didn’t receive the email?</span>{" "}
             <span className="block sm:ml-1 sm:inline">Check your spam folder or resend it.</span>
           </span>
         }

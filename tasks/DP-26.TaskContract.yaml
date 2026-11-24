@@ -1,0 +1,20 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-26
+  title: "DP3: close the milestone — last DOM fixes, verification held until email works, account rate limits"
+spec:
+  goal: The last DP3 DOM differences that are Freeploy's are fixed (the avatar input, the switch-team form, the /verify footer); every remaining difference is listed with its cause; account verification is enforced only where email can be delivered (REQUIRE_EMAIL_VERIFICATION, WAITING W5); a signed-in user's own account calls get the ordinary rate limit while every step that checks a secret keeps the tight one; DP3 is marked done.
+  affects:
+    - apps/deploy-web/**
+    - apps/identity-worker/**
+    - apps/api-edge/**
+    - tests/api-edge/**
+    - tools/parity/**
+    - specs/epics/freeploy-coolify-parity/**
+    - WAITING.md
+    - tasks/**
+  doneWhen:
+    - on deploy-web stage a user adds a passkey from /profile and signs in with it
+    - the DP3 routes pass the stage gate or each remaining difference is listed with its cause
+  gates: []

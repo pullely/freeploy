@@ -32,6 +32,7 @@ The agent re-checks every entry at the start of each loop iteration.
 - **Need:** the `freeploy.dev` zone on the `nexo` Cloudflare account, if the domain is to be used.
 - **Steps:** register `freeploy.dev` (or move it) and add the zone to the Nexo Cloudflare account. Then the agent routes prod to `freeploy.dev` and `app.freeploy.dev`, and stage to `stage.freeploy.dev`.
 - **Unblocked when:** the zone appears on the Nexo account. Until then the product uses `*.nexo-7be.workers.dev`.
+- **Email depends on it too:** the notifications worker sends from `no-reply@mail.freeploy.dev` (Cloudflare Email Service needs a verified sending domain), so until then stage and prod deliver no email: no password-reset links, no verification links, no email-change codes. Account verification is therefore not enforced yet (`REQUIRE_EMAIL_VERIFICATION=false` on identity-worker); once mail is delivered, the agent sets it to `true` for Coolify Cloud's behaviour.
 
 ## W6 — Reference host
 

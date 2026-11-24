@@ -38,6 +38,7 @@ export async function handleSession(request: Request, env: Env, requestId: strin
     return withTimings(successResponse(
       {
         emailVerified: verifiedAt !== null,
+        verificationRequired: env.REQUIRE_EMAIL_VERIFICATION === "true",
         avatarPath: avatarVersion ? `/v1/auth/avatar/${result.user.id}?v=${avatarVersion}` : null,
         session: {
           id: result.session.id,

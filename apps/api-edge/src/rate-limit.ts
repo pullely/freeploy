@@ -49,6 +49,7 @@ import type { Env } from "./env.js";
 
 export type RouteFamily =
   | "auth"
+  | "account"
   | "org"
   | "project"
   | "config"
@@ -77,6 +78,9 @@ interface FamilyConfig {
  * blunting abuse. Tunable; no per-tenant overrides yet (B5 territory).
  *
  *   - `auth`: tighter — login/logout flows are the brute-force target.
+ *   - `account`: a signed-in user's own account (session, profile, 2FA state,
+ *     passkey list, avatar): one profile page makes several such calls, so it
+ *     gets the ordinary cap; every step that checks a secret stays in `auth`.
  *   - everything else (writes/reads): 60/300 per minute identity/org.
  *   - `audit` is read-only and trusted further; raised to 120/600.
  */
@@ -84,6 +88,10 @@ const LIMITS: Record<RouteFamily, FamilyConfig> = {
   auth: {
     identity: { limit: 10, windowSec: 60 },
     org: { limit: 60, windowSec: 60 },
+  },
+  account: {
+    identity: { limit: 60, windowSec: 60 },
+    org: { limit: 300, windowSec: 60 },
   },
   org: {
     identity: { limit: 60, windowSec: 60 },
