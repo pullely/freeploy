@@ -1,0 +1,18 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-20
+  title: "DP3: two-factor authentication — Fortify's TOTP flow in identity"
+spec:
+  goal: Identity supports Coolify's two-factor authentication as Laravel Fortify configures it (confirm and confirmPassword on) — password confirmation lasting 3 hours, enabling, confirming with a code, regenerating recovery codes, disabling, and a sign-in challenge by code or recovery code — with RFC 6238 TOTP (one step of drift, no code accepted twice), Fortify's messages, and the secret and codes sealed under a per-environment key. The deploy-web screens follow in the next task.
+  affects:
+    - apps/identity-worker/**
+    - apps/api-edge/**
+    - packages/db/**
+    - tests/identity-worker/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - migration 550 is applied on stage and prod
+    - on stage, enabling 2FA requires a confirmed password, and a signed-in password user with 2FA gets a challenge instead of a session
+  gates: []
