@@ -106,7 +106,7 @@ export function effectiveServerRole(row: Pick<DeployServerRow, "server_role" | "
 }
 
 /** Server::isSentinelEnabled(). */
-function isSentinelEnabled(row: DeployServerRow): boolean {
+export function isSentinelEnabled(row: DeployServerRow): boolean {
   const swarm = Boolean(row.is_swarm_manager) || Boolean(row.is_swarm_worker);
   return effectiveServerRole(row) !== "build" && !swarm && !row.force_disabled && !isTransferredAway(row);
 }
@@ -182,6 +182,10 @@ export interface ServerShow {
   publicIpv6: string | null;
   serverRole: ServerRole;
   isSwarmWorker: boolean;
+  isSwarmManager: boolean;
+  isCloudflareTunnel: boolean;
+  /** Team::usesSwarm(): the org has a Swarm server (the menu's Swarm item). */
+  usesSwarm: boolean;
   isFunctional: boolean;
   isTransferredAway: boolean;
   isForceDisabled: boolean;
@@ -212,6 +216,9 @@ export function serverShow(row: DeployServerRow): ServerShow {
     publicIpv6: row.public_ipv6,
     serverRole: effectiveServerRole(row),
     isSwarmWorker: Boolean(row.is_swarm_worker),
+    isSwarmManager: Boolean(row.is_swarm_manager),
+    isCloudflareTunnel: Boolean(row.is_cloudflare_tunnel),
+    usesSwarm: Boolean(row.org_uses_swarm),
     isFunctional: isFunctional(row),
     isTransferredAway: isTransferredAway(row),
     isForceDisabled: Boolean(row.force_disabled),

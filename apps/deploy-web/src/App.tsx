@@ -19,6 +19,11 @@ const ServersPage = lazy(() => import("./pages/Servers").then((m) => ({ default:
 const ServerCreatePage = lazy(() => import("./pages/ServerCreate").then((m) => ({ default: m.ServerCreatePage })));
 const ServerShowPage = lazy(() => import("./pages/ServerShow").then((m) => ({ default: m.ServerShowPage })));
 const ServerPrivateKeyPage = lazy(() => import("./pages/ServerPrivateKey").then((m) => ({ default: m.ServerPrivateKeyPage })));
+const ServerAdvancedPage = lazy(() => import("./pages/ServerAdvanced").then((m) => ({ default: m.ServerAdvancedPage })));
+const ServerDockerCleanupPage = lazy(() => import("./pages/ServerDockerCleanup").then((m) => ({ default: m.ServerDockerCleanupPage })));
+const ServerLogDrainsPage = lazy(() => import("./pages/ServerLogDrains").then((m) => ({ default: m.ServerLogDrainsPage })));
+const ServerSwarmPage = lazy(() => import("./pages/ServerSwarm").then((m) => ({ default: m.ServerSwarmPage })));
+const ServerSentinelPage = lazy(() => import("./pages/ServerSentinel").then((m) => ({ default: m.ServerSentinelPage })));
 const ServerDeletePage = lazy(() => import("./pages/ServerDelete").then((m) => ({ default: m.ServerDeletePage })));
 
 /** routes/web.php: security.private-key.show is redirect()->route('security.private-key.index'). */
@@ -96,6 +101,36 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <ServerPrivateKeyPage />
+        </Suspense>
+      );
+    case "server.advanced":
+      return (
+        <Suspense fallback={null}>
+          <ServerAdvancedPage />
+        </Suspense>
+      );
+    case "server.docker-cleanup":
+      return (
+        <Suspense fallback={null}>
+          <ServerDockerCleanupPage />
+        </Suspense>
+      );
+    case "server.log-drains":
+      return (
+        <Suspense fallback={null}>
+          <ServerLogDrainsPage />
+        </Suspense>
+      );
+    case "server.swarm":
+      return (
+        <Suspense fallback={null}>
+          <ServerSwarmPage />
+        </Suspense>
+      );
+    case "server.sentinel":
+      return (
+        <Suspense fallback={null}>
+          <ServerSentinelPage />
         </Suspense>
       );
     case "server.delete":

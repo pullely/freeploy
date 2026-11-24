@@ -17,6 +17,8 @@
 //   PATCH  /servers/{uuid}/private-key       PrivateKey/Show::setPrivateKey { private_key_uuid }
 //   POST   /servers/{uuid}/check-connection  PrivateKey/Show::checkConnection — not available yet
 //   DELETE /servers/{uuid}                   Delete::delete (no body: the edge does not forward one)
+//   …      /servers/{uuid}/{advanced,docker-cleanup,log-drains,swarm,sentinel}[/{action}]
+//                                            the settings pages (DP-42): see server-settings.ts
 //
 // Coolify's policy: view = team member, create/update/delete = team admin.
 // Here: deploy.resource.read and deploy.resource.write, asked of policy-worker
@@ -44,6 +46,7 @@ import {
   findPrivateKeyByUuid,
   type OrgDek,
 } from "@saas/db/deploy";
+import { runServerSettingsInOrg, serverSettingsRoute, SETTINGS_ACTIONS, SETTINGS_SECTIONS, settingsNeedsWrite, type ServerSettingsRunner, type SettingsSection } from "./server-settings.js";
 import { fetchAuthorizationContext } from "../membership-client.js";
 import { authorizeViaPolicy, type AuthorizeResult } from "../policy-client.js";
 import { deniedResponse, errorResponse, methodNotAllowed, successResponse, validationError } from "../http.js";
@@ -138,9 +141,11 @@ export async function handleServers(
   segments: string[],
   request: Request,
   runner: ServerRunner = runServersInOrg,
+  settingsRunner: ServerSettingsRunner = runServerSettingsInOrg,
 ): Promise<Response> {
   const method = request.method;
-  const [first, second] = segments;
+  const [first, second, third] = segments;
+  const section = SETTINGS_SECTIONS.includes(second as SettingsSection) ? (second as SettingsSection) : null;
   type Op = { write: boolean; run: () => Promise<Response> };
   let op: Op | null = null;
 
@@ -162,6 +167,10 @@ export async function handleServers(
     if (method === "POST") op = { write: true, run: async () => unavailable(first!, second) };
   } else if (segments.length === 2 && UUID_RE.test(first!) && second === "refresh-metadata") {
     if (method === "POST") op = { write: true, run: async () => refresh(first!) };
+  } else if (segments.length === 2 && UUID_RE.test(first!) && section) {
+    if (method === "GET" || method === "PATCH") op = { write: settingsNeedsWrite(section, method), run: async () => settings(first!, section, null) };
+  } else if (segments.length === 3 && UUID_RE.test(first!) && section && SETTINGS_ACTIONS[section]?.includes(third!)) {
+    if (method === "POST") op = { write: true, run: async () => settings(first!, section, third!) };
   } else {
     return errorResponse("not_found", "Not found", 404, requestId);
   }
@@ -241,6 +250,11 @@ export async function handleServers(
   async function unavailable(uuid: string, action: "validate" | "check-connection"): Promise<Response> {
     const found = await runner(env, orgId, (c) => unavailableOnServer(c, uuid, action));
     return found ? successResponse({}, requestId) : notFound();
+  }
+
+  async function settings(uuid: string, s: SettingsSection, action: string | null): Promise<Response> {
+    const body = method === "GET" ? {} : await readJson(request);
+    return serverSettingsRoute({ env, orgId, requestId, uuid, section: s, action, body, method, canWrite, notFound }, settingsRunner);
   }
 
   async function remove(uuid: string): Promise<Response> {

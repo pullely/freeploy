@@ -1,6 +1,7 @@
 // Derived from coollabsio/coolify@91b7e3e:app/Models/Server.php (booted hooks, ownedByCurrentTeam,
 // sshEndpointInUse, buildServers), app/Models/ServerSetting.php (forgetSshHostKey) and
-// app/Livewire/Server/{Index,Show,Delete,PrivateKey/Show}.php and New/ByIp.php (Apache-2.0), modified.
+// app/Livewire/Server/{Index,Show,Delete,PrivateKey/Show}.php and New/ByIp.php, and app/Models/Team.php
+// (usesSwarm) (Apache-2.0), modified.
 //
 // deploy.servers and deploy.server_settings queries. Every function takes the
 // transaction of withOrg(): row-level security confines each query to that
@@ -72,6 +73,9 @@ export interface DeployServerRow extends SqlRow {
   is_sentinel_enabled: boolean | null;
   is_image_scan_enabled: boolean | null;
   ssh_host_key_pending: string | null;
+  is_cloudflare_tunnel: boolean | null;
+  /** Team::usesSwarm() for the server's org (the sidebar's Swarm item). */
+  org_uses_swarm: boolean;
 }
 
 const SERVER_COLUMNS = [
@@ -81,10 +85,14 @@ const SERVER_COLUMNS = [
 const SETTINGS_COLUMNS = [
   "is_reachable", "is_usable", "force_disabled", "is_swarm_manager", "is_swarm_worker", "is_build_server", "server_role", "connection_timeout",
   "wildcard_domain", "public_ipv4", "public_ipv6", "server_timezone", "is_metrics_enabled", "is_sentinel_enabled", "is_image_scan_enabled",
-  "ssh_host_key_pending",
+  "ssh_host_key_pending", "is_cloudflare_tunnel",
 ].map((c) => `ss."${c}"`);
+/** Team::usesSwarm(): see orgUsesSwarm() in server-settings.ts. */
+const ORG_USES_SWARM = `(EXISTS (SELECT 1 FROM deploy.servers sw JOIN deploy.server_settings sws ON sws.server_id = sw.id
+    WHERE sw.deleted_at IS NULL AND (sws.is_swarm_manager OR sws.is_swarm_worker))
+  OR EXISTS (SELECT 1 FROM deploy.swarm_dockers d JOIN deploy.servers sd ON sd.id = d.server_id WHERE sd.deleted_at IS NULL)) AS org_uses_swarm`;
 
-const SELECT_SERVER = `SELECT ${SERVER_COLUMNS.join(", ")}, k.uuid AS private_key_uuid, ss.id AS settings_id, ${SETTINGS_COLUMNS.join(", ")}
+const SELECT_SERVER = `SELECT ${SERVER_COLUMNS.join(", ")}, k.uuid AS private_key_uuid, ss.id AS settings_id, ${SETTINGS_COLUMNS.join(", ")}, ${ORG_USES_SWARM}
   FROM deploy.servers s
   LEFT JOIN deploy.server_settings ss ON ss.server_id = s.id
   LEFT JOIN deploy.private_keys k ON k.id = s.private_key_id`;

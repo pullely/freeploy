@@ -1,6 +1,6 @@
 // Derived from coollabsio/coolify@91b7e3e:resources/views/components/{helper,modal-input,
-// modal-confirmation,status-badge,empty,callout,copy-button,loading,danger-zone,unsaved-bar}.blade.php,
-// resources/views/components/application/settings-section.blade.php and
+// modal-confirmation,status-badge,empty,callout,copy-button,loading,danger-zone,unsaved-bar,deprecated-badge}.blade.php,
+// resources/views/components/application/{settings-section,settings-subsection}.blade.php and
 // resources/views/components/forms/{input,textarea,button,listbox,collapsible}.blade.php (Apache-2.0), modified.
 //
 // Coolify's Blade components as React components: the same DOM, classes and copy;
@@ -129,6 +129,48 @@ export function DangerCallout({ title, children, className = "mb-4" }: { title: 
         </div>
       </div>
     </div>
+  );
+}
+
+const CALLOUT_STYLES = {
+  warning: {
+    icon: "alert-triangle",
+    shell: "border-warning-700/25 bg-warning-700/[0.07] dark:border-warning-400/20 dark:bg-warning-400/[0.06]",
+    iconClass: "text-warning-700 dark:text-warning-400",
+    titleClass: "text-warning-900 dark:text-warning-400",
+    textClass: "text-warning-900/75 dark:text-warning-400/70",
+  },
+  info: {
+    icon: "info-circle",
+    shell: "border-coollabs/20 bg-coollabs/[0.055] dark:border-brand-light/15 dark:bg-brand/[0.06]",
+    iconClass: "text-coollabs dark:text-brand-light",
+    titleClass: "text-coollabs dark:text-brand-light",
+    textClass: "text-neutral-600 dark:text-fg-dim",
+  },
+} as const;
+
+/** <x-callout type="warning|info"> (not dismissible). */
+export function Callout({ type = "warning", title, children, className = "" }: { type?: keyof typeof CALLOUT_STYLES; title: string; children: ReactNode; className?: string }) {
+  const style = CALLOUT_STYLES[type];
+  return (
+    <div className={`relative rounded-lg border px-3 py-2.5 ${style.shell} ${className}`}>
+      <div className="flex items-start gap-2.5">
+        <Reicon name={style.icon} className={`mt-0.5 size-4 shrink-0 ${style.iconClass}`} />
+        <div className="min-w-0 flex-1 ">
+          <div className={`text-[12px] font-semibold ${style.titleClass}`}>{title}</div>
+          <div className={`mt-0.5 text-[12px] leading-5 ${style.textClass}`}>{children}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** <x-deprecated-badge>. */
+export function DeprecatedBadge() {
+  return (
+    <span className="inline-flex items-center">
+      <span className="px-2 py-0.5 text-xs font-medium leading-normal rounded-full bg-warning/15 text-warning border border-warning/30">Deprecated</span>
+    </span>
   );
 }
 
@@ -276,6 +318,7 @@ export function FormTextarea(props: {
   rows?: number;
   placeholder?: string;
   required?: boolean;
+  disabled?: boolean;
   error?: string | undefined;
 }) {
   return (
@@ -287,6 +330,7 @@ export function FormTextarea(props: {
         className="input scrollbar font-mono"
         rows={props.rows ?? 10}
         required={props.required}
+        disabled={props.disabled}
         id={props.id}
         name={props.id}
         value={props.value}
@@ -529,6 +573,21 @@ export function SettingsSection(props: {
         {props.actions ? <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2">{props.actions}</div> : null}
       </header>
       {hasBody ? <div className={`application-settings-section-body${props.flush ? " is-flush" : ""}`}>{props.children}</div> : null}
+    </section>
+  );
+}
+
+/** <x-application.settings-subsection>: a titled part of a card, divided from the one before. */
+export function SettingsSubsection({ id, title, helper, first = false, children }: { id?: string; title: string; helper?: string; first?: boolean; children: ReactNode }) {
+  return (
+    <section id={id} className={first ? undefined : "mt-5 border-t border-neutral-200 pt-5 dark:border-white/[0.07]"}>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+        <h3 className="flex items-center gap-1.5 text-sm! font-semibold! text-black dark:text-fg">
+          {title}
+          {helper ? <Helper helper={helper} label={`More information about ${title}`} /> : null}
+        </h3>
+      </div>
+      {children}
     </section>
   );
 }

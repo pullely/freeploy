@@ -1,0 +1,20 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-42
+  title: "DP4: server settings — advanced, docker cleanup, log drains, swarm, sentinel (API and pages)"
+spec:
+  goal: An org reads and saves the server settings that live in deploy.server_settings as in Coolify — Advanced (disk usage checks, backup compression, build limits), Docker Cleanup (schedule, threshold, what it deletes), Log Drains (New Relic, Axiom, CloudWatch, custom Fluent Bit; one at a time), Swarm (the legacy roles, for an org that already uses Swarm) and Sentinel (its URL and token) — with the components' rules and Laravel's messages word for word, every query confined to the org by row-level security, and the log drain keys, the Fluent Bit config and the Sentinel token encrypted with the org's key; /server/{uuid}/advanced, /docker-cleanup, /log-drains, /swarm and /sentinel are ported from the reference. Running a cleanup, starting or stopping a log drain and restarting Sentinel need the SSH executor and say they are not available yet; the settings they follow are still saved.
+  affects:
+    - apps/deploy-core-worker/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - on stage a signed-in org owner saves a server's Advanced and Docker Cleanup settings and sees them after a reload, and "Run cleanup" answers that it is not available yet
+    - on stage PATCH /v1/organizations/{org}/deploy/servers/{uuid}/log-drains stores an Axiom API key as an fp1 ciphertext, and a member without deploy.resource.write reads it as null
+    - /server/{uuid}/advanced, /docker-cleanup, /log-drains, /swarm and /sentinel pass the stage DOM gate or each difference is listed with its cause
+  gates: []
