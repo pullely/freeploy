@@ -2,6 +2,7 @@ import type { Env } from "./env.js";
 import { handleHealth } from "./handlers/health.js";
 import { handleLoginStart } from "./handlers/login-start.js";
 import { handlePasswordLogin, handlePasswordRegister } from "./handlers/password-auth.js";
+import { handlePasswordChange } from "./handlers/password-change.js";
 import { handlePasswordForgot, handlePasswordReset } from "./handlers/password-reset.js";
 import { handleLoginComplete } from "./handlers/login-complete.js";
 import { handleSession } from "./handlers/session.js";
@@ -61,6 +62,11 @@ export async function route(request: Request, env: Env): Promise<Response> {
     if (url.pathname === "/v1/auth/password/reset") {
       if (request.method !== "POST") return methodNotAllowed(requestId);
       return handlePasswordReset(request, env, requestId);
+    }
+
+    if (url.pathname === "/v1/auth/password/change") {
+      if (request.method !== "POST") return methodNotAllowed(requestId);
+      return handlePasswordChange(request, env, requestId);
     }
 
     if (url.pathname === "/v1/auth/login/complete") {

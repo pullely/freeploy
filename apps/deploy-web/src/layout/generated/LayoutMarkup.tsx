@@ -20,6 +20,7 @@ export interface LayoutMarkupProps {
   onLogout: FormEventHandler<HTMLFormElement>;
   reminderStyle?: { display: "none" };
   onDismissReminder: () => void;
+  toasts?: ReactNode;
 }
 
 export function LayoutMarkup(props: LayoutMarkupProps) {
@@ -2022,7 +2023,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
         <polyline id="SvgjsPolyline1003" points="0,0" />
         <path id="SvgjsPath1004" d="M0 0 " />
       </svg>
-      <ul className="fixed z-9999 flex w-[calc(100%-2rem)] gap-2.5 sm:max-w-[26rem] right-4 bottom-4 flex-col-reverse" data-teleport-target="true" />
+      <ul className="fixed z-9999 flex w-[calc(100%-2rem)] gap-2.5 sm:max-w-[26rem] right-4 bottom-4 flex-col-reverse" data-teleport-target="true">{props.toasts}</ul>
       <div className="fixed inset-0 z-99 overflow-y-auto" data-teleport-target="true" style={{ "display": "none" }}>
         <div className="absolute inset-0 w-full h-full bg-black/50 backdrop-blur-[2px]" style={{ "display": "none" }} />
         {" "}
@@ -2057,7 +2058,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                     {" "}
                     {" "}
                     {" "}
-                    <input autoComplete="off" className="input" placeholder="Your project name" required type="text" id="name-b3dcqsegqwgv7c3h4btan7iu" name="name" />
+                    <input autoComplete="off" className="input" placeholder="Your project name" required data-wire-model="name" type="text" id="name-b3dcqsegqwgv7c3h4btan7iu" name="name" />
                     {" "}
                     {" "}
                     {" "}
@@ -2074,7 +2075,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                     {" "}
                     {" "}
                     {" "}
-                    <input autoComplete="off" className="input" placeholder="A short project description" type="text" id="description-zg4h27t6rzqc8xvzp8wct5jg" name="description" />
+                    <input autoComplete="off" className="input" placeholder="A short project description" data-wire-model="description" type="text" id="description-zg4h27t6rzqc8xvzp8wct5jg" name="description" />
                     {" "}
                     {" "}
                     {" "}
@@ -2126,7 +2127,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                   {" "}
                   {" "}
                   {" "}
-                  <input autoComplete="off" className="input" required type="text" id="name-sbpax6ztj2i7zcinou6jlb7q" name="name" placeholder="" />
+                  <input autoComplete="off" className="input" required data-wire-model="name" type="text" id="name-sbpax6ztj2i7zcinou6jlb7q" name="name" placeholder="" />
                   {" "}
                   {" "}
                   {" "}
@@ -2143,7 +2144,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                   {" "}
                   {" "}
                   {" "}
-                  <input autoComplete="off" className="input" type="text" id="description-zvchzgcklckbg24gv5khbg5g" name="description" placeholder="" />
+                  <input autoComplete="off" className="input" data-wire-model="description" type="text" id="description-zvchzgcklckbg24gv5khbg5g" name="description" placeholder="" />
                   {" "}
                   {" "}
                   {" "}
@@ -2331,7 +2332,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                       {" "}
                       {" "}
                       {" "}
-                      <input autoComplete="off" className="input" required type="text" id="name-kkxmwcsg1fgpjkbhjebiahyf" name="name" placeholder="" />
+                      <input autoComplete="off" className="input" required data-wire-model="name" type="text" id="name-kkxmwcsg1fgpjkbhjebiahyf" name="name" placeholder="" />
                       {" "}
                       {" "}
                       {" "}
@@ -2348,7 +2349,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                       {" "}
                       {" "}
                       {" "}
-                      <input autoComplete="off" className="input" type="text" id="description-mrov8um1bfbl3g3ntxz7dylj" name="description" placeholder="" />
+                      <input autoComplete="off" className="input" data-wire-model="description" type="text" id="description-mrov8um1bfbl3g3ntxz7dylj" name="description" placeholder="" />
                       {" "}
                       {" "}
                       {" "}
@@ -2398,7 +2399,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                           </label>
                         </div>
                         {" "}
-                        <input id="endpointParts-host" type="text" className="input" placeholder="minio.internal or 192.168.1.50" autoComplete="off" required />
+                        <input id="endpointParts-host" type="text" className="input" data-wire-model="endpointParts.host" placeholder="minio.internal or 192.168.1.50" autoComplete="off" required />
                         {" "}
                       </div>
                       {" "}
@@ -2407,7 +2408,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                           <label htmlFor="endpointParts-port" className="mb-0! flex items-center gap-1.5 leading-4">Port</label>
                         </div>
                         {" "}
-                        <input id="endpointParts-port" type="number" className="input" placeholder="3000" min="1" max="65535" inputMode="numeric" />
+                        <input id="endpointParts-port" type="number" className="input" data-wire-model="endpointParts.port" placeholder="3000" min="1" max="65535" inputMode="numeric" />
                       </div>
                       {" "}
                       {" "}
@@ -2416,7 +2417,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                           <label htmlFor="endpointParts-path" className="mb-0! flex items-center gap-1.5 leading-4">Path</label>
                         </div>
                         {" "}
-                        <input id="endpointParts-path" type="text" className="input" placeholder="/api/v3" autoComplete="off" />
+                        <input id="endpointParts-path" type="text" className="input" data-wire-model="endpointParts.path" placeholder="/api/v3" autoComplete="off" />
                         {" "}
                         <p className="mt-1 text-[12px] text-neutral-500 dark:text-fg-dim">{" "}Optional path, query, or fragment appended after the domain and port.{" "}</p>
                       </div>
@@ -2440,7 +2441,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                       {" "}
                       {" "}
                       {" "}
-                      <input autoComplete="off" className="input" required type="text" id="bucket-v9rxelrkrfglrsae5dm4uroe" name="bucket" placeholder="" />
+                      <input autoComplete="off" className="input" required data-wire-model="bucket" type="text" id="bucket-v9rxelrkrfglrsae5dm4uroe" name="bucket" placeholder="" />
                       {" "}
                       {" "}
                       {" "}
@@ -2477,7 +2478,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                       {" "}
                       {" "}
                       {" "}
-                      <input autoComplete="off" className="input" required type="text" id="region-7yvv8zcgp4wpnfnuy0hhboio" name="region" placeholder="" />
+                      <input autoComplete="off" className="input" required data-wire-model="region" type="text" id="region-7yvv8zcgp4wpnfnuy0hhboio" name="region" placeholder="" />
                       {" "}
                       {" "}
                       {" "}
@@ -2502,7 +2503,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                       {" "}
                       {" "}
                       <div className="relative">
-                        <input autoComplete="off" defaultValue="" className="input input-with-password-toggle input-with-copy-and-peek" required id="key-pfwltckb1ckr5kzt3a8oynsi" name="key" placeholder="" aria-placeholder="" type="password" />
+                        <input autoComplete="off" defaultValue="" className="input input-with-password-toggle input-with-copy-and-peek" required data-wire-model="key" id="key-pfwltckb1ckr5kzt3a8oynsi" name="key" placeholder="" aria-placeholder="" type="password" />
                         {" "}
                         {" "}
                         <button type="button" className="password-toggle flex absolute inset-y-0 right-0 z-10 items-center pr-2 cursor-pointer text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white" aria-label="Toggle password visibility">
@@ -2555,7 +2556,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                       {" "}
                       {" "}
                       <div className="relative">
-                        <input autoComplete="off" defaultValue="" className="input input-with-password-toggle input-with-copy-and-peek" required id="secret-mxrpneknwfoqtgoa6uha0yoh" name="secret" placeholder="" aria-placeholder="" type="password" />
+                        <input autoComplete="off" defaultValue="" className="input input-with-password-toggle input-with-copy-and-peek" required data-wire-model="secret" id="secret-mxrpneknwfoqtgoa6uha0yoh" name="secret" placeholder="" aria-placeholder="" type="password" />
                         {" "}
                         {" "}
                         <button type="button" className="password-toggle flex absolute inset-y-0 right-0 z-10 items-center pr-2 cursor-pointer text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white" aria-label="Toggle password visibility">
@@ -2618,7 +2619,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                         <span className="relative flex size-[18px] shrink-0">
                           {" "}
                           {" "}
-                          <input type="checkbox" className="peer absolute inset-0 z-10 m-0 h-full w-full cursor-pointer appearance-none opacity-0 disabled:cursor-not-allowed" id="usePathStyleEndpoint-6ilnb4lzxml2ewljuj6zqwxj" />
+                          <input type="checkbox" className="peer absolute inset-0 z-10 m-0 h-full w-full cursor-pointer appearance-none opacity-0 disabled:cursor-not-allowed" data-wire-model="usePathStyleEndpoint" id="usePathStyleEndpoint-6ilnb4lzxml2ewljuj6zqwxj" />
                           {" "}
                           {" "}
                           {" "}
@@ -2655,7 +2656,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                         <span className="relative flex size-[18px] shrink-0">
                           {" "}
                           {" "}
-                          <input type="checkbox" className="peer absolute inset-0 z-10 m-0 h-full w-full cursor-pointer appearance-none opacity-0 disabled:cursor-not-allowed" id="skipTlsVerification-feuwmqpgla7f1q1nkb4obour" />
+                          <input type="checkbox" className="peer absolute inset-0 z-10 m-0 h-full w-full cursor-pointer appearance-none opacity-0 disabled:cursor-not-allowed" data-wire-model="skipTlsVerification" id="skipTlsVerification-feuwmqpgla7f1q1nkb4obour" />
                           {" "}
                           {" "}
                           {" "}
@@ -2784,7 +2785,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                       {" "}
                       {" "}
                       {" "}
-                      <input autoComplete="off" className="input" required type="text" id="name-lxjfgrogbfckpadebcgpzrbk" name="name" placeholder="" />
+                      <input autoComplete="off" className="input" required data-wire-model="name" type="text" id="name-lxjfgrogbfckpadebcgpzrbk" name="name" placeholder="" />
                       {" "}
                       {" "}
                       {" "}
@@ -2801,7 +2802,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                       {" "}
                       {" "}
                       {" "}
-                      <input autoComplete="off" className="input" type="text" id="description-kwz9m1nkehm0qmueo5pr5fz6" name="description" placeholder="" />
+                      <input autoComplete="off" className="input" data-wire-model="description" type="text" id="description-kwz9m1nkehm0qmueo5pr5fz6" name="description" placeholder="" />
                       {" "}
                       {" "}
                       {" "}
@@ -2825,7 +2826,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                         {" "}
                         {" "}
                         {" "}
-                        <textarea placeholder="-----BEGIN OPENSSH PRIVATE KEY-----" spellCheck="false" className="input scrollbar font-mono" rows={10} required id="value-xjtq0og3dqg9fwqtdiscbsae" name="value" />
+                        <textarea placeholder="-----BEGIN OPENSSH PRIVATE KEY-----" spellCheck="false" className="input scrollbar font-mono" rows={10} data-wire-model="value" required id="value-xjtq0og3dqg9fwqtdiscbsae" name="value" />
                         {" "}
                         {" "}
                         {" "}
@@ -2857,7 +2858,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                         {" "}
                         {" "}
                         {" "}
-                        <input autoComplete="off" className="input" readOnly type="text" id="publicKey-fmjwztd0xlom8woak15qjdoc" name="publicKey" placeholder="" />
+                        <input autoComplete="off" className="input" readOnly data-wire-model="publicKey" type="text" id="publicKey-fmjwztd0xlom8woak15qjdoc" name="publicKey" placeholder="" />
                         {" "}
                         {" "}
                         {" "}
@@ -2914,7 +2915,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                     {" "}
                     {" "}
                     {" "}
-                    <input autoComplete="off" className="input" required type="text" id="name-qtxjx6rpmsf5ne1fkjpyvtpv" name="name" placeholder="" />
+                    <input autoComplete="off" className="input" required data-wire-model="name" type="text" id="name-qtxjx6rpmsf5ne1fkjpyvtpv" name="name" placeholder="" />
                     {" "}
                     {" "}
                     {" "}
@@ -2945,7 +2946,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                     {" "}
                     {" "}
                     {" "}
-                    <input autoComplete="off" className="input" placeholder="Personal account when empty" type="text" id="organization-binwmu0fvyz9ryvbk99krd3c" name="organization" />
+                    <input autoComplete="off" className="input" placeholder="Personal account when empty" data-wire-model="organization" type="text" id="organization-binwmu0fvyz9ryvbk99krd3c" name="organization" />
                     {" "}
                     {" "}
                     {" "}
@@ -2984,7 +2985,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                         <span className="relative flex size-[18px] shrink-0">
                           {" "}
                           {" "}
-                          <input type="checkbox" className="peer absolute inset-0 z-10 m-0 h-full w-full cursor-pointer appearance-none opacity-0 disabled:cursor-not-allowed" id="use_for_pull_request_previews-x5cxse2ocg1lb119meng8poh" />
+                          <input type="checkbox" className="peer absolute inset-0 z-10 m-0 h-full w-full cursor-pointer appearance-none opacity-0 disabled:cursor-not-allowed" data-wire-model="use_for_pull_request_previews" id="use_for_pull_request_previews-x5cxse2ocg1lb119meng8poh" />
                           {" "}
                           {" "}
                           {" "}
@@ -3021,7 +3022,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                         <span className="relative flex size-[18px] shrink-0">
                           {" "}
                           {" "}
-                          <input type="checkbox" className="peer absolute inset-0 z-10 m-0 h-full w-full cursor-pointer appearance-none opacity-0 disabled:cursor-not-allowed" id="use_for_github_runners-5gejiapa3ujlmdrf6qmiyaav" />
+                          <input type="checkbox" className="peer absolute inset-0 z-10 m-0 h-full w-full cursor-pointer appearance-none opacity-0 disabled:cursor-not-allowed" data-wire-model="use_for_github_runners" id="use_for_github_runners-5gejiapa3ujlmdrf6qmiyaav" />
                           {" "}
                           {" "}
                           {" "}
@@ -3076,7 +3077,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                         {" "}
                         {" "}
                         {" "}
-                        <input autoComplete="off" className="input" required type="text" id="html_url-j5fhqulr7fdcvqrajnrrnvww" name="html_url" placeholder="" />
+                        <input autoComplete="off" className="input" required data-wire-model="html_url" type="text" id="html_url-j5fhqulr7fdcvqrajnrrnvww" name="html_url" placeholder="" />
                         {" "}
                         {" "}
                         {" "}
@@ -3113,7 +3114,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                         {" "}
                         {" "}
                         {" "}
-                        <input autoComplete="off" className="input" required type="text" id="api_url-1fhy35uo0ejzfr5qlhxl2xsu" name="api_url" placeholder="" />
+                        <input autoComplete="off" className="input" required data-wire-model="api_url" type="text" id="api_url-1fhy35uo0ejzfr5qlhxl2xsu" name="api_url" placeholder="" />
                         {" "}
                         {" "}
                         {" "}
@@ -3136,7 +3137,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                         {" "}
                         {" "}
                         {" "}
-                        <input autoComplete="off" className="input" required type="text" id="custom_user-7y7qngqawnnoz81mcjssqzwg" name="custom_user" placeholder="" />
+                        <input autoComplete="off" className="input" required data-wire-model="custom_user" type="text" id="custom_user-7y7qngqawnnoz81mcjssqzwg" name="custom_user" placeholder="" />
                         {" "}
                         {" "}
                         {" "}
@@ -3161,7 +3162,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                         {" "}
                         <div className="relative">
                           {" "}
-                          <input autoComplete="off" className="input input-with-stepper" required type="number" id="custom_port-9idqfofulpv2nv62xjvz1mgw" name="custom_port" placeholder="" />
+                          <input autoComplete="off" className="input input-with-stepper" required data-wire-model="custom_port" type="number" id="custom_port-9idqfofulpv2nv62xjvz1mgw" name="custom_port" placeholder="" />
                           {" "}
                           {" "}
                           <div className="number-stepper">
@@ -3247,7 +3248,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                   {" "}
                   {" "}
                   {" "}
-                  <input autoComplete="off" className="input" required type="text" id="name-bxmirbpsdromzgwgqtzvitih" name="name" placeholder="" />
+                  <input autoComplete="off" className="input" required data-wire-model="name" type="text" id="name-bxmirbpsdromzgwgqtzvitih" name="name" placeholder="" />
                   {" "}
                   {" "}
                   {" "}
@@ -3264,7 +3265,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                   {" "}
                   {" "}
                   {" "}
-                  <input autoComplete="off" className="input" type="text" id="description-etijdv1xw1un5un2nwfs9jy6" name="description" placeholder="" />
+                  <input autoComplete="off" className="input" data-wire-model="description" type="text" id="description-etijdv1xw1un5un2nwfs9jy6" name="description" placeholder="" />
                   {" "}
                   {" "}
                   {" "}
@@ -3318,7 +3319,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                   {" "}
                   {" "}
                   {" "}
-                  <input autoComplete="off" className="input" required type="text" id="name-e5uclb2huf9ygdxtq8pdlnce" name="name" placeholder="" />
+                  <input autoComplete="off" className="input" required data-wire-model="name" type="text" id="name-e5uclb2huf9ygdxtq8pdlnce" name="name" placeholder="" />
                   {" "}
                   {" "}
                   {" "}
@@ -3335,7 +3336,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                   {" "}
                   {" "}
                   {" "}
-                  <input autoComplete="off" className="input" type="text" id="description-c7xy3r2sa8h0z533ugjz451a" name="description" placeholder="" />
+                  <input autoComplete="off" className="input" data-wire-model="description" type="text" id="description-c7xy3r2sa8h0z533ugjz451a" name="description" placeholder="" />
                   {" "}
                   {" "}
                   {" "}
@@ -3402,7 +3403,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                     {" "}
                     {" "}
                     {" "}
-                    <input autoComplete="off" className="input" placeholder="A short summary of your feedback" required type="text" id="subject-fscggofat2mf71dwfkmxq2tk" name="subject" autoFocus />
+                    <input autoComplete="off" className="input" placeholder="A short summary of your feedback" required data-wire-model="subject" type="text" id="subject-fscggofat2mf71dwfkmxq2tk" name="subject" autoFocus />
                     {" "}
                     {" "}
                     {" "}
@@ -3425,7 +3426,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                     {" "}
                     {" "}
                     {" "}
-                    <textarea minLength={10} maxLength={1000} placeholder="What were you trying to do, what happened, and what would you like to see instead?" className="input scrollbar font-sans" rows={8} required id="description-76zacxa46aolbhhgscrxhhft" name="description" />
+                    <textarea minLength={10} maxLength={1000} placeholder="What were you trying to do, what happened, and what would you like to see instead?" className="input scrollbar font-sans" rows={8} data-wire-model="description" required id="description-76zacxa46aolbhhgscrxhhft" name="description" />
                     {" "}
                     {" "}
                     {" "}
@@ -3493,7 +3494,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                     {" "}
                     {" "}
                     {" "}
-                    <input autoComplete="off" className="input" placeholder="A short summary of your feedback" required type="text" id="subject-le7juodnwebpp12t6l6msm4c" name="subject" autoFocus />
+                    <input autoComplete="off" className="input" placeholder="A short summary of your feedback" required data-wire-model="subject" type="text" id="subject-le7juodnwebpp12t6l6msm4c" name="subject" autoFocus />
                     {" "}
                     {" "}
                     {" "}
@@ -3516,7 +3517,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                     {" "}
                     {" "}
                     {" "}
-                    <textarea minLength={10} maxLength={1000} placeholder="What were you trying to do, what happened, and what would you like to see instead?" className="input scrollbar font-sans" rows={8} required id="description-5m2ugtpkbb2falmh708nsbli" name="description" />
+                    <textarea minLength={10} maxLength={1000} placeholder="What were you trying to do, what happened, and what would you like to see instead?" className="input scrollbar font-sans" rows={8} data-wire-model="description" required id="description-5m2ugtpkbb2falmh708nsbli" name="description" />
                     {" "}
                     {" "}
                     {" "}
@@ -3571,7 +3572,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                   {" "}
                   {" "}
                   {" "}
-                  <input autoComplete="off" className="input" required type="text" id="name-wlcckrn85dhlpj11e6l61fxt" name="name" placeholder="" />
+                  <input autoComplete="off" className="input" required data-wire-model="name" type="text" id="name-wlcckrn85dhlpj11e6l61fxt" name="name" placeholder="" />
                   {" "}
                   {" "}
                   {" "}
@@ -3588,7 +3589,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                   {" "}
                   {" "}
                   {" "}
-                  <input autoComplete="off" className="input" type="text" id="description-voml79u0uododsacrilflxg5" name="description" placeholder="" />
+                  <input autoComplete="off" className="input" data-wire-model="description" type="text" id="description-voml79u0uododsacrilflxg5" name="description" placeholder="" />
                   {" "}
                   {" "}
                   {" "}
@@ -3642,7 +3643,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                   {" "}
                   {" "}
                   {" "}
-                  <input autoComplete="off" className="input" required type="text" id="name-mhevbc4uosm0auhvzzgtqt38" name="name" placeholder="" />
+                  <input autoComplete="off" className="input" required data-wire-model="name" type="text" id="name-mhevbc4uosm0auhvzzgtqt38" name="name" placeholder="" />
                   {" "}
                   {" "}
                   {" "}
@@ -3659,7 +3660,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                   {" "}
                   {" "}
                   {" "}
-                  <input autoComplete="off" className="input" type="text" id="description-v7ur0wq8dw1ymk5v7le80coy" name="description" placeholder="" />
+                  <input autoComplete="off" className="input" data-wire-model="description" type="text" id="description-v7ur0wq8dw1ymk5v7le80coy" name="description" placeholder="" />
                   {" "}
                   {" "}
                   {" "}
@@ -3726,7 +3727,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                     {" "}
                     {" "}
                     {" "}
-                    <input autoComplete="off" className="input" placeholder="A short summary of your feedback" required type="text" id="subject-iieyfddaqklhnlrcfwqugxkz" name="subject" autoFocus />
+                    <input autoComplete="off" className="input" placeholder="A short summary of your feedback" required data-wire-model="subject" type="text" id="subject-iieyfddaqklhnlrcfwqugxkz" name="subject" autoFocus />
                     {" "}
                     {" "}
                     {" "}
@@ -3749,7 +3750,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                     {" "}
                     {" "}
                     {" "}
-                    <textarea minLength={10} maxLength={1000} placeholder="What were you trying to do, what happened, and what would you like to see instead?" className="input scrollbar font-sans" rows={8} required id="description-npl6ibxqkvd9d6ufvry0cbe5" name="description" />
+                    <textarea minLength={10} maxLength={1000} placeholder="What were you trying to do, what happened, and what would you like to see instead?" className="input scrollbar font-sans" rows={8} data-wire-model="description" required id="description-npl6ibxqkvd9d6ufvry0cbe5" name="description" />
                     {" "}
                     {" "}
                     {" "}

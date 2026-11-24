@@ -6,11 +6,12 @@
 // rendered page) with the signed-in user, their team, the current page and the
 // stored appearance bound in. A visitor without a session goes to /login, as
 // Laravel's auth middleware sends them.
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { LayoutMarkup } from "./generated/LayoutMarkup";
 import { clearSession, getJson, postJson, sessionToken } from "../lib/api";
 import { appearance, type PageWidth } from "../theme";
 import { useDisclosures } from "./disclosures";
+import { Toasts } from "./Toasts";
 import { showMonthlyReminder } from "../lib/reminder";
 
 export interface Me {
@@ -20,8 +21,16 @@ export interface Me {
 
 const MAIN = "app-main min-h-screen bg-neutral-50 dark:bg-app px-5 py-6 sm:px-8 lg:px-10 lg:pt-[calc(3rem+1.75rem)] lg:pb-10 lg:ml-56 transition-[margin] duration-200";
 
+/** The signed-in user and team for pages inside the layout, and a way to update them after a save. */
+export const MeContext = createContext<{ me: Me; setMe: (me: Me) => void } | null>(null);
+export function useSignedIn(): { me: Me; setMe: (me: Me) => void } {
+  const ctx = useContext(MeContext);
+  if (!ctx) throw new Error("useSignedIn outside <Layout>");
+  return ctx;
+}
+
 /** The session's user and their current team (the org they last worked in, else their first). */
-export function useMe(): Me | null {
+export function useMe(): [Me | null, (me: Me) => void] {
   const [me, setMe] = useState<Me | null>(null);
   useEffect(() => {
     if (!sessionToken()) {
@@ -43,7 +52,7 @@ export function useMe(): Me | null {
       setMe({ user: session.data.user, team });
     })();
   }, []);
-  return me;
+  return [me, setMe];
 }
 
 function reminderDismissed(): boolean {
@@ -72,7 +81,7 @@ export interface LayoutProps {
 }
 
 export function Layout(props: LayoutProps) {
-  const me = useMe();
+  const [me, setMe] = useMe();
   const [pageWidth, setPageWidth] = useState<PageWidth>(() => appearance.pageWidth());
   const [reminderHidden, setReminderHidden] = useState(() => reminderDismissed());
   useDisclosures();
@@ -104,6 +113,7 @@ export function Layout(props: LayoutProps) {
   }
   const here = window.location.pathname.replace(/\/$/, "") || "/";
   return (
+    <MeContext.Provider value={{ me, setMe }}>
     <LayoutMarkup
       pageTitle={props.title}
       pageHref={props.href}
@@ -120,10 +130,10 @@ export function Layout(props: LayoutProps) {
       {...(reminderHidden ? { reminderStyle: { display: "none" as const } } : {})}
       onDismissReminder={dismissReminder}
       portal={props.portal}
+      toasts={<Toasts />}
     >
-      <div className={pageWidth === "centered" ? "w-full mx-auto max-w-[1400px]" : "w-full max-w-none"}>
-        <div>{props.children}</div>
-      </div>
+      <div className={pageWidth === "centered" ? "w-full mx-auto max-w-[1400px]" : "w-full max-w-none"}>{props.children}</div>
     </LayoutMarkup>
+    </MeContext.Provider>
   );
 }

@@ -2,13 +2,21 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { pageFor } from "../src/routes.ts";
 import { showMonthlyReminder } from "../src/lib/reminder.ts";
+import { summarize } from "../src/lib/api.ts";
+
+test("Laravel's validation summary: the first error and how many more", () => {
+  assert.equal(summarize(["a"]), "a");
+  assert.equal(summarize(["a", "b"]), "a (and 1 more error)");
+  assert.equal(summarize(["a", "b", "c"]), "a (and 2 more errors)");
+});
 
 test("routes/web.php paths map to ported pages; the rest are not ported", () => {
   assert.equal(pageFor("/login"), "login");
   assert.equal(pageFor("/reset-password/abc"), "reset-password");
   assert.equal(pageFor("/profile/appearance"), "profile.appearance");
   assert.equal(pageFor("/profile/appearance/"), "profile.appearance");
-  assert.equal(pageFor("/profile"), "not-ported");
+  assert.equal(pageFor("/profile"), "profile");
+  assert.equal(pageFor("/profile/nope"), "not-ported");
 });
 
 test("a dismissed reminder stays hidden for the rest of the calendar month", () => {

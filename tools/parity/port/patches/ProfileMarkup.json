@@ -1,0 +1,47 @@
+[
+  {
+    "find": "<form>",
+    "replace": "<form onSubmit={props.onSaveProfile} onInput={props.onProfileInput}>",
+    "once": true,
+    "props": [
+      "onSaveProfile: FormEventHandler<HTMLFormElement>",
+      "onProfileInput: FormEventHandler<HTMLFormElement>"
+    ]
+  },
+  {
+    "find": "<form>",
+    "replace": "<form onSubmit={props.onChangePassword}>",
+    "once": true,
+    "props": [
+      "onChangePassword: FormEventHandler<HTMLFormElement>"
+    ]
+  },
+  {
+    "find": "<span>\\{\" \"\\}[A-Z]\\{\" \"\\}</span>",
+    "replace": "<span>{\" \"}{props.userInitial}{\" \"}</span>",
+    "props": [
+      "userInitial: string"
+    ]
+  },
+  {
+    "find": "name=\"name\" placeholder=\"\" />",
+    "replace": "name=\"name\" placeholder=\"\" defaultValue={props.userName} />",
+    "props": [
+      "userName: string"
+    ]
+  },
+  {
+    "find": "name=\"email\" placeholder=\"\" />",
+    "replace": "name=\"email\" placeholder=\"\" defaultValue={props.userEmail} />",
+    "props": [
+      "userEmail: string"
+    ]
+  },
+  {
+    "find": "the team \"[^\"]*\"\\.",
+    "replace": "the team \"{props.teamName}\".",
+    "props": [
+      "teamName: string"
+    ]
+  }
+]

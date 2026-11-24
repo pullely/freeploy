@@ -117,5 +117,12 @@
   {
     "find": "<button type=\"button\" className=\"button h-9 justify-center sm:min-w-32\">",
     "replace": "<button type=\"button\" className=\"button h-9 justify-center sm:min-w-32\" onClick={props.onDismissReminder}>"
+  },
+  {
+    "find": "<ul className=\"(fixed z-9999 [^\"]*)\" data-teleport-target=\"true\" />",
+    "replace": "<ul className=\"$1\" data-teleport-target=\"true\">{props.toasts}</ul>",
+    "props": [
+      "toasts?: ReactNode"
+    ]
   }
 ]

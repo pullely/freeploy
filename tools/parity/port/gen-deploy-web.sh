@@ -13,3 +13,12 @@ A=routes.web__profile.appearance/desktop-light.html
 TAKE=$(node tools/parity/port/layout-take.ts "$R/$A" "$R/routes.web__profile/desktop-light.html" "$R/routes.web__dashboard/desktop-light.html")
 gen "$A" --select body --inner --take "$TAKE" --after portal --name LayoutMarkup --slot 'main=!children' \
   --patch tools/parity/port/patches/AppShellMarkup.json --out "$L/LayoutMarkup.tsx"
+
+# /profile: the page (inside the layout's width wrapper) and its own <body> overlays.
+F=routes.web__profile/desktop-light.html
+gen "$F" --select div.w-full.mx-auto --nth "$(node tools/parity/port/nth-main.ts "$R/$F")" --inner --name ProfileMarkup \
+  --patch tools/parity/port/patches/ProfileMarkup.json --out "$P/ProfileMarkup.tsx"
+gen "$F" --select body --inner --skip "$TAKE" --name ProfilePortalMarkup --out "$P/ProfilePortalMarkup.tsx"
+
+# /profile/appearance: the page's own <body> overlays (the custom theme dialog).
+gen "$A" --select body --inner --skip "$TAKE" --name AppearancePortalMarkup --out "$P/AppearancePortalMarkup.tsx"
