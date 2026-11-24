@@ -35,6 +35,17 @@ import { PASSWORD_TIMEOUT_SECONDS } from "./two-factor.js";
 import { __ } from "../laravel-messages.js";
 
 const RP_NAME = "Freeploy";
+
+/**
+ * A 500 for an unexpected failure. Outside prod the exception's message (never
+ * a key, a credential or a request body) goes into details, so a failure on
+ * stage can be diagnosed from the response.
+ */
+function unexpected(env: Env, requestId: string, e: unknown): Response {
+  const message = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
+  console.error(JSON.stringify({ requestId, handler: "passkeys", error: message }));
+  return errorResponse("internal_error", "An unexpected error occurred", 500, requestId, env.ENVIRONMENT === "prod" ? undefined : { cause: message.slice(0, 300) });
+}
 const STATE_SECONDS = 300;
 const b64url = (b: Uint8Array) => btoa(String.fromCharCode(...b)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 const unb64url = (s: string) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0));
@@ -75,8 +86,8 @@ async function signedIn(request: Request, env: Env, requestId: string, fn: (s: S
     const sessionId = hexToUuid(s.session.id.slice(4));
     if (!userId || !sessionId) return errorResponse("unauthenticated", "Invalid session", 401, requestId);
     return await fn({ userId, sessionId, email: s.user.email, displayName: s.user.displayName }, db);
-  } catch {
-    return errorResponse("internal_error", "An unexpected error occurred", 500, requestId);
+  } catch (e) {
+    return unexpected(env, requestId, e);
   } finally {
     await db.dispose();
   }
@@ -225,8 +236,8 @@ export async function handlePasskeyLogin(request: Request, env: Env, requestId: 
     const session = await issueSession(db, request, requestId, user.value, "passkey");
     if (!session) return errorResponse("internal_error", "Failed to create session", 500, requestId);
     return successResponse(session, requestId, 200);
-  } catch {
-    return errorResponse("internal_error", "An unexpected error occurred", 500, requestId);
+  } catch (e) {
+    return unexpected(env, requestId, e);
   } finally {
     await db.dispose();
   }
