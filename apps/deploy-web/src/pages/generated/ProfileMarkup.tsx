@@ -2,7 +2,7 @@
 // Derived from coollabsio/coolify@91b7e3e (Apache-2.0): DOM, classes and copy are Coolify's;
 // Livewire/Alpine attributes and scripts dropped, brand swapped. Regenerate, do not hand-edit;
 // behaviour lives in the page component that renders this.
-import type { FormEventHandler } from "react";
+import type { ReactNode, FormEventHandler } from "react";
 
 export interface ProfileMarkupProps {
   onSaveProfile: FormEventHandler<HTMLFormElement>;
@@ -12,6 +12,9 @@ export interface ProfileMarkupProps {
   userName: string;
   userEmail: string;
   teamName: string;
+  twoFactorAction?: ReactNode;
+  onEnableTwoFactor: FormEventHandler<HTMLFormElement>;
+  twoFactorBody?: ReactNode;
 }
 
 export function ProfileMarkup(props: ProfileMarkupProps) {
@@ -271,18 +274,18 @@ export function ProfileMarkup(props: ProfileMarkupProps) {
               </div>
               {" "}
               {" "}
-              <form action="/user/two-factor-authentication" method="POST">
+              {props.twoFactorAction ?? (<><form action="/user/two-factor-authentication" method="POST" onSubmit={props.onEnableTwoFactor}>
                 <input type="hidden" name="_token" defaultValue="" autoComplete="off" />
                 {" "}
                 <button className="button" type="submit">{" "}Configure 2FA{" "}</button>
                 {" "}
-              </form>
+              </form></>)}
               {" "}
             </div>
             {" "}
             <div className="application-settings-section-body">
               {" "}
-              <div className="empty-state w-full">
+              {props.twoFactorBody ?? (<><div className="empty-state w-full">
                 <div className="empty-state-well min-h-32">
                   {" "}
                   <div className="mb-3 size-10 flex items-center justify-center rounded-xl border border-neutral-200 bg-white text-neutral-400 shadow-sm dark:border-white/[0.08] dark:bg-white/[0.035] dark:text-fg-faint">
@@ -302,7 +305,7 @@ export function ProfileMarkup(props: ProfileMarkupProps) {
                   {" "}
                   {" "}
                 </div>
-              </div>
+              </div></>)}
               {" "}
             </div>
           </section>

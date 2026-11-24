@@ -22,3 +22,7 @@ gen "$F" --select body --inner --skip "$TAKE" --name ProfilePortalMarkup --out "
 
 # /profile/appearance: the page's own <body> overlays (the custom theme dialog).
 gen "$A" --select body --inner --skip "$TAKE" --name AppearancePortalMarkup --out "$P/AppearancePortalMarkup.tsx"
+
+# /user/confirm-password (Fortify password.confirm), guest-layout page.
+gen routes.web__password.confirm/desktop-light.html --select main --name ConfirmPasswordMarkup \
+  --slot 'form=alert' --handler 'form:onSubmit=onSubmit' --out "$P/ConfirmPasswordMarkup.tsx"

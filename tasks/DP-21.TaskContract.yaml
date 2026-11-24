@@ -1,0 +1,16 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-21
+  title: "DP3: two-factor screens — confirm password, setup on /profile, sign-in challenge"
+spec:
+  goal: deploy-web carries Coolify's two-factor screens over DP-20's API — /user/confirm-password (generated from the reference), the /profile section's off, pending (QR code, one-time code, manual setup) and enabled (recovery codes, regenerate, disable) states, and /two-factor-challenge after a password sign-in, with Fortify's redirect to confirm the password when an action needs it.
+  affects:
+    - apps/deploy-web/**
+    - tools/parity/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - on deploy-web stage a user enables 2FA from /profile, signs out, and signs back in through /two-factor-challenge
+    - /user/confirm-password passes the visual and DOM gate on stage
+  gates: []

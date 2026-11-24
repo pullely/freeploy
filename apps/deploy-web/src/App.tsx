@@ -3,6 +3,8 @@ import { LoginPage } from "./pages/Login";
 import { RegisterPage } from "./pages/Register";
 import { ForgotPasswordPage } from "./pages/ForgotPassword";
 import { ResetPasswordPage } from "./pages/ResetPassword";
+import { ConfirmPasswordPage } from "./pages/ConfirmPassword";
+import { TwoFactorChallengePage } from "./pages/TwoFactorChallenge";
 import { lazy, Suspense } from "react";
 
 // Signed-in pages carry Coolify's whole layout; guest pages do not load it.
@@ -19,6 +21,10 @@ export function App() {
       return <ForgotPasswordPage />;
     case "reset-password":
       return <ResetPasswordPage />;
+    case "password.confirm":
+      return <ConfirmPasswordPage />;
+    case "two-factor.login":
+      return <TwoFactorChallengePage />;
     case "profile":
       return (
         <Suspense fallback={null}>

@@ -17,6 +17,8 @@ test("routes/web.php paths map to ported pages; the rest are not ported", () => 
   assert.equal(pageFor("/profile/appearance/"), "profile.appearance");
   assert.equal(pageFor("/profile"), "profile");
   assert.equal(pageFor("/profile/nope"), "not-ported");
+  assert.equal(pageFor("/user/confirm-password"), "password.confirm");
+  assert.equal(pageFor("/two-factor-challenge"), "two-factor.login");
 });
 
 test("a dismissed reminder stays hidden for the rest of the calendar month", () => {

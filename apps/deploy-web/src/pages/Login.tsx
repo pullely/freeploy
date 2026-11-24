@@ -7,6 +7,7 @@ import { LoginMarkup } from "./generated/LoginMarkup";
 import { AuthAlert, ErrorList } from "../components/AuthAlert";
 import { takeStatus } from "../lib/flash";
 import { postJson, storeSession } from "../lib/api";
+import { CHALLENGE_KEY } from "./TwoFactorChallenge";
 
 export function LoginPage() {
   const [errors, setErrors] = useState<string[]>([]);
@@ -15,12 +16,22 @@ export function LoginPage() {
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
-    const result = await postJson<{ token: string }>("/v1/auth/password/login", { email: form.get("email"), password: form.get("password") });
+    const result = await postJson<{ token?: string; twoFactor?: boolean; challenge?: string }>("/v1/auth/password/login", { email: form.get("email"), password: form.get("password") });
     if (!result.ok) {
       setErrors(result.error.messages);
       return;
     }
-    storeSession(result.data.token);
+    if (result.data.twoFactor && result.data.challenge) {
+      // Fortify's RedirectIfTwoFactorAuthenticatable: finish at /two-factor-challenge.
+      try {
+        sessionStorage.setItem(CHALLENGE_KEY, result.data.challenge);
+      } catch {
+        /* storage blocked */
+      }
+      window.location.assign("/two-factor-challenge");
+      return;
+    }
+    if (result.data.token) storeSession(result.data.token);
     window.location.assign("/");
   }
   const alert = (
