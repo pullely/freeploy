@@ -264,5 +264,14 @@ export const manifest: MigrationManifest = {
       description:
         "Profile pictures (freeploy-coolify-parity DP3) — one base64 image per user",
     },
+    {
+      id: "590_deploy_shared_variables_server_scope",
+      context: "deploy",
+      path: "590_deploy_shared_variables_server_scope/up.sql",
+      checksum:
+        "1a767ad2f4ae768d92c8e14d9568f2a5818192fdb61ca8c237dfaa4b3804c7ad",
+      description:
+        "Server-wide shared variables (freeploy-coolify-parity DP5) — shared_environment_variables.type accepts 'server', the raw statement of Coolify's migration that the schema fold does not read",
+    },
   ],
 };

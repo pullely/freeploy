@@ -446,6 +446,8 @@ export function ModalInput(props: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   subtitle?: string;
+  /** closeOutside: false keeps the dialog open when the backdrop is clicked. */
+  closeOutside?: boolean;
   children: ReactNode;
 }) {
   const { open, onOpenChange } = props;
@@ -462,7 +464,7 @@ export function ModalInput(props: {
       </div>
       {createPortal(
         <div className="fixed inset-0 z-99 overflow-hidden" data-teleport-target="true" style={shown(open)}>
-          <div className="absolute inset-0 w-full h-full bg-black/50 backdrop-blur-[2px]" style={shown(open)} onClick={() => onOpenChange(false)} />
+          <div className="absolute inset-0 w-full h-full bg-black/50 backdrop-blur-[2px]" style={shown(open)} onClick={() => props.closeOutside !== false && onOpenChange(false)} />
           <div className="relative flex min-h-full items-start justify-center p-2 sm:items-center sm:p-4">
             <div
               className="application-settings-form application-settings-section relative flex max-h-[calc(100dvh-2rem)] w-full flex-col overflow-hidden lg:w-auto lg:min-w-2xl lg:max-w-4xl"

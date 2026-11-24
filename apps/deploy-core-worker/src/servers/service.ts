@@ -1,7 +1,8 @@
 // Derived from coollabsio/coolify@91b7e3e:app/Livewire/Server/{Index,Show,Delete}.php,
 // app/Livewire/Server/New/ByIp.php, app/Livewire/Server/PrivateKey/Show.php and
 // app/Models/Server.php (isFunctional, isTransferredAway, isSentinelEnabled, the
-// created hook, defaultStandaloneDockerAttributes) (Apache-2.0), modified.
+// created hook with its predefined shared variables, defaultStandaloneDockerAttributes)
+// (Apache-2.0), modified.
 //
 // What the server Livewire components do without SSH, as plain operations on
 // one org's servers. Everything that needs a connection to the server
@@ -34,12 +35,23 @@ export interface ServerStore {
   otherBuildServerExists(exceptId: string | number): Promise<boolean>;
   privateKeys(): Promise<DeployServerPrivateKeyRow[]>;
   findPrivateKey(uuid: string): Promise<DeployPrivateKeyWithSecretRow | null>;
+  /** A server-wide shared variable of the server (the created hook's predefined variables); `value` is encrypted. */
+  addSharedVariable(variable: { serverId: string | number; key: string; value: string; isLiteral: boolean }): Promise<void>;
 }
 
 export interface ServerContext {
   store: ServerStore;
   cipher: KeyCipher;
+  /** Encrypts the value column of shared variables ("shared_environment_variables.value"). */
+  variables: KeyCipher;
 }
+
+/**
+ * The server-wide shared variables the created hook adds to every server.
+ * User compose files reference them ({{server.COOLIFY_SERVER_UUID}}), so the
+ * keys are Coolify's byte for byte.
+ */
+export const PREDEFINED_SERVER_VARIABLE_KEYS = ["COOLIFY_SERVER_UUID", "COOLIFY_SERVER_NAME"] as const;
 
 /** Copy shown to the user: Coolify's, word for word. */
 export const SERVER_SERVICE_MESSAGES = {
@@ -153,7 +165,7 @@ export async function createServer(ctx: ServerContext, input: CreateServerInput)
   const ip = normalizeServerIp(input.ip);
   if (await ctx.store.sshEndpointInUse(ip, input.port)) throw new ServerError(SERVER_SERVICE_MESSAGES.endpointInUse);
   if (!key) throw new ServerError(SERVER_SERVICE_MESSAGES.selectPrivateKey);
-  return ctx.store.insert({
+  const server = await ctx.store.insert({
     uuid: newPublicId(),
     name: input.name,
     description: input.description,
@@ -168,6 +180,12 @@ export async function createServer(ctx: ServerContext, input: CreateServerInput)
     // The created hook's default destination (network "coolify"): a row only, as Coolify saves it quietly.
     defaultDestinationUuid: newPublicId(),
   });
+  // The created hook's predefined server shared variables: the uuid and the name, both literal.
+  const predefined: Record<(typeof PREDEFINED_SERVER_VARIABLE_KEYS)[number], string> = { COOLIFY_SERVER_UUID: server.uuid, COOLIFY_SERVER_NAME: server.name };
+  for (const variable of PREDEFINED_SERVER_VARIABLE_KEYS) {
+    await ctx.store.addSharedVariable({ serverId: server.id, key: variable, value: await ctx.variables.encrypt(predefined[variable]), isLiteral: true });
+  }
+  return server;
 }
 
 export interface ServerShow {

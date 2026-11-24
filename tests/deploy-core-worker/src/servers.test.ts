@@ -33,6 +33,8 @@ class MemoryStore implements ServerStore {
   rows: Row[] = [];
   /** The default destination uuid each insert carried (the created hook's destination). */
   defaultDestinations: string[] = [];
+  /** The server-wide shared variables each insert was followed by (the created hook's predefined variables). */
+  sharedVariables: Array<{ serverId: string | number; key: string; value: string; isLiteral: boolean }> = [];
   keys: DeployServerPrivateKeyRow[] = [];
   private next = 1;
   addKey(uuid: string, name: string, secret: string, gitRelated = false) {
@@ -103,7 +105,16 @@ class MemoryStore implements ServerStore {
     const k = this.keys.find((x) => x.uuid === uuid);
     return k ? { ...k, fingerprint: null, created_at: null, updated_at: null } : null;
   }
+  async addSharedVariable(variable: { serverId: string | number; key: string; value: string; isLiteral: boolean }) {
+    this.sharedVariables.push(variable);
+  }
 }
+
+/** The shared variable value column's cipher. */
+const variables: KeyCipher = {
+  encrypt: async (p) => `var:${p}`,
+  decrypt: async (s) => s.slice(4),
+};
 
 const cipher: KeyCipher = {
   encrypt: async (p) => `enc:${p}`,
@@ -135,7 +146,7 @@ function setup(opts: { write?: boolean; read?: boolean } = {}) {
   const orgs: string[] = [];
   const runner: ServerRunner = async (_env, orgId, fn) => {
     orgs.push(orgId);
-    return fn({ store, cipher });
+    return fn({ store, cipher, variables });
   };
   const call = async (method: string, path = "", body?: unknown) => {
     const segments = path.split("?")[0]!.split("/").filter(Boolean);
@@ -251,6 +262,11 @@ describe("servers", () => {
     // The created hook's destination: its own public id (the store names it and its network).
     expect(t.store.defaultDestinations).toEqual([expect.stringMatching(/^[a-z0-9]{24}$/)]);
     expect(t.store.defaultDestinations[0]).not.toBe(row.uuid);
+    // The created hook's predefined server shared variables: Coolify's keys, literal, the values encrypted.
+    expect(t.store.sharedVariables).toEqual([
+      { serverId: row.id, key: "COOLIFY_SERVER_UUID", value: `var:${row.uuid}`, isLiteral: true },
+      { serverId: row.id, key: "COOLIFY_SERVER_NAME", value: "var:prod-1", isLiteral: true },
+    ]);
     expect(t.orgs.every((o) => o === ORG_UUID)).toBe(true);
   });
 
