@@ -41,7 +41,7 @@ export function ProfilePortalMarkup() {
               {" "}
               {" "}
               {" "}
-              <input autoComplete="off" className="input" required data-wire-model="new_email" type="email" id="new_email-t2romvziummlwlayqxxeieqd" name="new_email" placeholder="" />
+              <input autoComplete="off" className="input" required data-wire-model="new_email" type="email" id="new_email-tgjgtiesnsve44yu83bcjafk" name="new_email" placeholder="" />
               {" "}
               {" "}
               {" "}
