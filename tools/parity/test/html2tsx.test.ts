@@ -55,3 +55,9 @@ test("patches bind fixture values to props and fail when they no longer match", 
   assert.equal(out, `<span>{" "}{props.teamName}{" "}</span>`);
   assert.throws(() => applyPatches(src, [{ find: "Other Team", replace: "x" }]), /did not match/);
 });
+
+test("the layout is the body prefix every page shares", async () => {
+  const { sharedPrefix } = await import("../port/layout-take.ts");
+  assert.equal(sharedPrefix(["div.a#", "div.b#", "div.page#"], ["div.a#", "div.b#", "div.other#"]), 2);
+  assert.equal(sharedPrefix(["div.a#"], []), 0);
+});

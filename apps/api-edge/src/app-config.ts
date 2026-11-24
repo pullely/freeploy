@@ -15,3 +15,11 @@ export const CONSOLE_WORKER_PREFIX = "freeploy-web-console-next";
 export function consoleWorkersDevOrigin(environment: string): string {
   return `https://${CONSOLE_WORKER_PREFIX}-${environment}.${WORKERS_DEV_SUBDOMAIN}.workers.dev`;
 }
+
+/** Worker name prefix of deploy-web, the Freeploy console (freeploy-coolify-parity DP3). */
+export const DEPLOY_WEB_WORKER_PREFIX = "freeploy-deploy-web";
+
+/** workers.dev origin of deploy-web for a given environment name. */
+export function deployWebWorkersDevOrigin(environment: string): string {
+  return `https://${DEPLOY_WEB_WORKER_PREFIX}-${environment}.${WORKERS_DEV_SUBDOMAIN}.workers.dev`;
+}

@@ -10,5 +10,6 @@ P=apps/deploy-web/src/pages/generated
 A=routes.web__profile.appearance/desktop-light.html
 # The signed-in layout: everything Coolify's layouts put in <body> (overlays,
 # popups, modals, the shell), up to where a page's own teleported overlays begin.
-gen "$A" --select body --inner --take 32 --after portal --name LayoutMarkup --slot 'main=!children' \
+TAKE=$(node tools/parity/port/layout-take.ts "$R/$A" "$R/routes.web__profile/desktop-light.html" "$R/routes.web__dashboard/desktop-light.html")
+gen "$A" --select body --inner --take "$TAKE" --after portal --name LayoutMarkup --slot 'main=!children' \
   --patch tools/parity/port/patches/AppShellMarkup.json --out "$L/LayoutMarkup.tsx"

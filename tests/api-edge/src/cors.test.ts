@@ -1,5 +1,5 @@
 import { handlePreflight, applyCorsHeaders, isAllowedOrigin } from "@api-edge/cors";
-import { consoleWorkersDevOrigin } from "@api-edge/app-config";
+import { consoleWorkersDevOrigin, deployWebWorkersDevOrigin } from "@api-edge/app-config";
 import type { Env } from "@api-edge/env";
 
 const stageEnv: Env = { ENVIRONMENT: "stage", CONSOLE_CUSTOM_DOMAIN: "stage.freeploy.dev" };
@@ -308,6 +308,14 @@ describe("api-edge cors", () => {
       const json = await res.json();
       expect(json).toEqual(body);
       expect(res.headers.get("access-control-allow-origin")).toBe("http://localhost:5173");
+    });
+  });
+
+  describe("isAllowedOrigin — deploy-web (Freeploy console)", () => {
+    it("allows deploy-web's own workers.dev origin in its environment only", () => {
+      expect(isAllowedOrigin(deployWebWorkersDevOrigin("stage"), stageEnv)).toBe(true);
+      expect(isAllowedOrigin(deployWebWorkersDevOrigin("prod"), stageEnv)).toBe(false);
+      expect(isAllowedOrigin("https://freeploy-deploy-web-stage.evil.workers.dev", stageEnv)).toBe(false);
     });
   });
 });
