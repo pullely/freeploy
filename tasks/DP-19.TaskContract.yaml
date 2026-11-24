@@ -1,0 +1,19 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-19
+  title: "DP3: /profile — name and password, with Coolify's toasts"
+spec:
+  goal: deploy-web's /profile is ported from the reference (as a tenant sees it) with its overlays; saving the name and changing the password work as in Coolify (validation messages summarised as Laravel does, "Current password is incorrect.", every session ends on change), reported through Coolify's toast stack. Email change, avatar, 2FA, passkeys and account deletion stay for later DP3 tasks.
+  affects:
+    - apps/deploy-web/**
+    - apps/identity-worker/**
+    - apps/api-edge/**
+    - tests/identity-worker/**
+    - tools/parity/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - a signed-in user on deploy-web stage renames themselves and changes their password
+    - /profile and /profile/appearance on deploy-web stage pass the visual and DOM gate, or the remaining differences are listed with their cause
+  gates: []

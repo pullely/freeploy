@@ -53,17 +53,33 @@ export async function validateRegistration(
   }
 
   // password
-  if (!filled(input.password)) add("password", __("validation.required", { attribute: "password" }));
-  else {
-    const p = String(input.password);
-    if (p.length < 8) add("password", __("validation.min.string", { attribute: "password", min: 8 }));
-    if (!/\p{Lu}/u.test(p) || !/\p{Ll}/u.test(p)) add("password", __("validation.password.mixed", { attribute: "password" }));
-    if (!/\p{L}/u.test(p)) add("password", __("validation.password.letters", { attribute: "password" }));
-    if (!/\p{N}/u.test(p)) add("password", __("validation.password.numbers", { attribute: "password" }));
-    if (!/\p{Z}|\p{S}|\p{P}/u.test(p)) add("password", __("validation.password.symbols", { attribute: "password" }));
-    // Laravel only asks the breach service when every other password rule passed.
-    if (!errors.password?.length && (await checks.compromised(p))) add("password", __("validation.password.uncompromised", { attribute: "password" }));
-    if (input.password_confirmation !== input.password) add("password", __("validation.confirmed", { attribute: "password" }));
-  }
+  const pw = await passwordErrors(input.password, input.password_confirmation, "password", checks.compromised);
+  if (pw.length) errors.password = pw;
   return errors;
+}
+
+
+/**
+ * Password::defaults() + confirmed on one field, with the field's name as
+ * Laravel shows it ("new_password" → "new password"): every failing rule in
+ * Laravel's order, `required` alone when empty, the breach check only when
+ * the other rules pass, then the confirmation.
+ */
+export async function passwordErrors(
+  value: unknown,
+  confirmation: unknown,
+  field: string,
+  compromised: (password: string) => Promise<boolean>,
+): Promise<string[]> {
+  const attribute = field.replace(/_/g, " ");
+  if (typeof value !== "string" || value.trim() === "") return [__("validation.required", { attribute })];
+  const out: string[] = [];
+  if (value.length < 8) out.push(__("validation.min.string", { attribute, min: 8 }));
+  if (!/\p{Lu}/u.test(value) || !/\p{Ll}/u.test(value)) out.push(__("validation.password.mixed", { attribute }));
+  if (!/\p{L}/u.test(value)) out.push(__("validation.password.letters", { attribute }));
+  if (!/\p{N}/u.test(value)) out.push(__("validation.password.numbers", { attribute }));
+  if (!/\p{Z}|\p{S}|\p{P}/u.test(value)) out.push(__("validation.password.symbols", { attribute }));
+  if (!out.length && (await compromised(value))) out.push(__("validation.password.uncompromised", { attribute }));
+  if (confirmation !== value) out.push(__("validation.confirmed", { attribute }));
+  return out;
 }

@@ -20,6 +20,7 @@ export interface LayoutMarkupProps {
   onLogout: FormEventHandler<HTMLFormElement>;
   reminderStyle?: { display: "none" };
   onDismissReminder: () => void;
+  toasts?: ReactNode;
 }
 
 export function LayoutMarkup(props: LayoutMarkupProps) {
@@ -2022,7 +2023,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
         <polyline id="SvgjsPolyline1003" points="0,0" />
         <path id="SvgjsPath1004" d="M0 0 " />
       </svg>
-      <ul className="fixed z-9999 flex w-[calc(100%-2rem)] gap-2.5 sm:max-w-[26rem] right-4 bottom-4 flex-col-reverse" data-teleport-target="true" />
+      <ul className="fixed z-9999 flex w-[calc(100%-2rem)] gap-2.5 sm:max-w-[26rem] right-4 bottom-4 flex-col-reverse" data-teleport-target="true">{props.toasts}</ul>
       <div className="fixed inset-0 z-99 overflow-y-auto" data-teleport-target="true" style={{ "display": "none" }}>
         <div className="absolute inset-0 w-full h-full bg-black/50 backdrop-blur-[2px]" style={{ "display": "none" }} />
         {" "}

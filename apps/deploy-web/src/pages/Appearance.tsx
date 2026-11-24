@@ -114,6 +114,7 @@ export function AppearancePage() {
 
   return (
     <Layout title="Profile" href="/profile" documentTitle="Appearance" searchTitle="Search this page and everything (Press / or Ctrl+K, then Tab to switch)">
+      <div>
       <div className="mt-8 flex w-full max-w-none flex-col gap-6 lg:mt-3">
         <Section title="Color theme" text="Choose the color scheme used in this browser." grid="sm:grid-cols-2 lg:grid-cols-4">
           {THEMES.map((o) => (
@@ -255,6 +256,7 @@ export function AppearancePage() {
             </Choice>
           ))}
         </Section>
+      </div>
       </div>
     </Layout>
   );

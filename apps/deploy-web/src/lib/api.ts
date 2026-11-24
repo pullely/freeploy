@@ -55,11 +55,18 @@ export interface ApiError {
   messages: string[];
 }
 
+/** Laravel's ValidationException message: the first error, then "(and N more error[s])". */
+export function summarize(messages: string[]): string {
+  const [first = "Something went wrong.", ...rest] = messages;
+  if (!rest.length) return first;
+  return `${first} (and ${rest.length} more ${rest.length === 1 ? "error" : "errors"})`;
+}
+
 /** POST JSON to the edge; on failure, the field messages flattened the way Laravel shows them. */
-export async function postJson<T>(path: string, body: unknown): Promise<{ ok: true; data: T } | { ok: false; error: ApiError }> {
+export async function postJson<T>(path: string, body: unknown, method: "POST" | "PATCH" = "POST"): Promise<{ ok: true; data: T } | { ok: false; error: ApiError }> {
   let res: Response;
   try {
-    res = await fetch(edgeBase() + path, { method: "POST", headers: { "content-type": "application/json", ...authHeaders() }, body: JSON.stringify(body) });
+    res = await fetch(edgeBase() + path, { method, headers: { "content-type": "application/json", ...authHeaders() }, body: JSON.stringify(body) });
   } catch {
     return { ok: false, error: { status: 0, messages: ["Network error. Please try again."] } };
   }
