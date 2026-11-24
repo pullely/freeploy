@@ -1,0 +1,13 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-43
+  title: "DP4: status — where the milestone stands and what is left"
+spec:
+  goal: Record in IMPLEMENTATION-STATUS what DP4 has shipped (DP-28 to DP-42), what was verified on stage, and the ordered remainder, so another session can continue the loop from the docs alone.
+  affects:
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - IMPLEMENTATION-STATUS lists DP4's shipped tasks with their PRs and the ordered remainder
+  gates: []
