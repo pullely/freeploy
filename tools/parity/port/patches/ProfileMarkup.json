@@ -67,5 +67,13 @@
     "props": [
       "twoFactorBody?: ReactNode"
     ]
+  },
+  {
+    "find": "(<div>(?:\\s|\\{\" \"\\})*<section className=\"application-settings-section\">(?:\\s|\\{\" \"\\})*<div className=\"application-settings-section-header\">(?:\\s|\\{\" \"\\})*<div>(?:\\s|\\{\" \"\\})*<h2>Passkeys</h2>[\\s\\S]*?</section>(?:\\s|\\{\" \"\\})*</div>)",
+    "replace": "{props.passkeys ?? (<>$1</>)}",
+    "once": true,
+    "props": [
+      "passkeys?: ReactNode"
+    ]
   }
 ]

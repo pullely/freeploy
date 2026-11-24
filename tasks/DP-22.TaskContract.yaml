@@ -1,0 +1,21 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-22
+  title: "DP3: passkeys — register, rename, delete, and sign in with one"
+spec:
+  goal: Freeploy supports Coolify's passkeys (Fortify passkeys with confirmPassword) — adding a named passkey after confirming the password, renaming, deleting with the password, and signing in with a passkey from /login, which skips two-factor authentication — with WebAuthn verified server-side (@simplewebauthn) against deploy-web's host as the relying party. The reference is reached as localhost so its pages show passkeys as stage does.
+  affects:
+    - apps/identity-worker/**
+    - apps/api-edge/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/identity-worker/**
+    - tools/parity/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+    - pnpm-lock.yaml
+  doneWhen:
+    - migration 560 is applied on stage and prod
+    - /login and /profile on deploy-web stage pass the visual and DOM gate against a reference that offers passkeys
+  gates: []

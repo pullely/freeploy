@@ -30,3 +30,13 @@ test("a dismissed reminder stays hidden for the rest of the calendar month", () 
   assert.equal(showMonthlyReminder(String(new Date(2026, 9, 30).getTime()), now), true);
   assert.equal(showMonthlyReminder(String(new Date(2025, 10, 24).getTime()), now), true);
 });
+
+import { ago } from "../src/lib/ago.ts";
+
+test("Carbon's diffForHumans for past times", () => {
+  const now = Date.parse("2026-11-24T12:00:00Z");
+  assert.equal(ago("2026-11-24T11:59:30Z", now), "30 seconds ago");
+  assert.equal(ago("2026-11-24T11:59:00Z", now), "1 minute ago");
+  assert.equal(ago("2026-11-24T09:00:00Z", now), "3 hours ago");
+  assert.equal(ago("2026-11-17T12:00:00Z", now), "1 week ago");
+});

@@ -15,6 +15,7 @@ export interface ProfileMarkupProps {
   twoFactorAction?: ReactNode;
   onEnableTwoFactor: FormEventHandler<HTMLFormElement>;
   twoFactorBody?: ReactNode;
+  passkeys?: ReactNode;
 }
 
 export function ProfileMarkup(props: ProfileMarkupProps) {
@@ -310,7 +311,7 @@ export function ProfileMarkup(props: ProfileMarkupProps) {
             </div>
           </section>
           {" "}
-          <div>
+          {props.passkeys ?? (<><div>
             {" "}
             <section className="application-settings-section">
               <div className="application-settings-section-header">
@@ -353,7 +354,7 @@ export function ProfileMarkup(props: ProfileMarkupProps) {
               </div>
             </section>
             {" "}
-          </div>
+          </div></>)}
           {" "}
           <section className="application-settings-section">
             <div className="application-settings-section-header">

@@ -11,6 +11,7 @@ import { ProfilePortalMarkup } from "./generated/ProfilePortalMarkup";
 import { postJson, summarize } from "../lib/api";
 import { notify } from "../lib/toast";
 import { getJson } from "../lib/api";
+import { PasskeysSection, passkeysAvailable } from "./PasskeysSection";
 import { EnabledBadge, EnabledBody, PendingSetup, type TwoFactorState } from "./TwoFactorSection";
 
 /**
@@ -39,8 +40,10 @@ function ProfileContent() {
     const r = await getJson<TwoFactorState>("/v1/auth/two-factor");
     if (r.data) setTwoFactor(r.data);
   };
+  const [passkeysOn, setPasskeysOn] = useState(false);
   useEffect(() => {
     void loadTwoFactor();
+    void passkeysAvailable().then(setPasskeysOn);
   }, []);
 
   async function twoFactorAction(e: FormEvent<HTMLFormElement>, path: string, method: "POST" | "DELETE", body: unknown = {}) {
@@ -104,6 +107,7 @@ function ProfileContent() {
       userName={name}
       userEmail={me.user.email}
       teamName={me.team?.name ?? ""}
+      {...(passkeysOn ? { passkeys: <PasskeysSection requirePasswordConfirmation={requirePasswordConfirmation} /> } : {})}
       onEnableTwoFactor={(e) => void twoFactorAction(e, "/v1/auth/two-factor", "POST")}
       {...(twoFactor.enabled
         ? {
