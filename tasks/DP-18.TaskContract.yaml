@@ -7,6 +7,8 @@ spec:
   goal: The parity harness compares Freeploy with Coolify as a Freeploy tenant sees it. The reference seed creates a regular user with their own personal team, server and API token; the fixtures, behaviour scenarios and visual capture run as that user; the signed-in layout is regenerated from that capture; the stage parity user matches it.
   affects:
     - tools/parity/**
+    - apps/api-edge/**
+    - tests/api-edge/**
     - .github/workflows/parity.yml
     - apps/deploy-web/**
     - specs/epics/freeploy-coolify-parity/**
