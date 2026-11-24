@@ -15,6 +15,11 @@ const TwoFactorRequiredPage = lazy(() => import("./pages/TwoFactorRequired").the
 const ProfilePage = lazy(() => import("./pages/Profile").then((m) => ({ default: m.ProfilePage })));
 const AppearancePage = lazy(() => import("./pages/Appearance").then((m) => ({ default: m.AppearancePage })));
 const PrivateKeysPage = lazy(() => import("./pages/PrivateKeys").then((m) => ({ default: m.PrivateKeysPage })));
+const CloudTokensPage = lazy(() => import("./pages/CloudTokens").then((m) => ({ default: m.CloudTokensPage })));
+const CloudTokenShowPage = lazy(() => import("./pages/CloudTokenEditor").then((m) => ({ default: m.CloudTokenShowPage })));
+const CloudInitScriptsPage = lazy(() => import("./pages/CloudInitScripts").then((m) => ({ default: m.CloudInitScriptsPage })));
+const CloudInitScriptShowPage = lazy(() => import("./pages/CloudInitScriptEditor").then((m) => ({ default: m.CloudInitScriptShowPage })));
+const ServerCloudTokenPage = lazy(() => import("./pages/ServerCloudToken").then((m) => ({ default: m.ServerCloudTokenPage })));
 const ServersPage = lazy(() => import("./pages/Servers").then((m) => ({ default: m.ServersPage })));
 const ServerCreatePage = lazy(() => import("./pages/ServerCreate").then((m) => ({ default: m.ServerCreatePage })));
 const ServerShowPage = lazy(() => import("./pages/ServerShow").then((m) => ({ default: m.ServerShowPage })));
@@ -82,6 +87,36 @@ export function App() {
       );
     case "security.private-key.show":
       return <RedirectTo path="/security/private-key" />;
+    case "security.cloud-tokens":
+      return (
+        <Suspense fallback={null}>
+          <CloudTokensPage />
+        </Suspense>
+      );
+    case "security.cloud-tokens.show":
+      return (
+        <Suspense fallback={null}>
+          <CloudTokenShowPage />
+        </Suspense>
+      );
+    case "security.cloud-init-scripts":
+      return (
+        <Suspense fallback={null}>
+          <CloudInitScriptsPage />
+        </Suspense>
+      );
+    case "security.cloud-init-scripts.show":
+      return (
+        <Suspense fallback={null}>
+          <CloudInitScriptShowPage />
+        </Suspense>
+      );
+    case "server.cloud-provider-token":
+      return (
+        <Suspense fallback={null}>
+          <ServerCloudTokenPage />
+        </Suspense>
+      );
     case "server.index":
       return (
         <Suspense fallback={null}>

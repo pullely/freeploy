@@ -1,0 +1,20 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-45
+  title: "DP4: cloud tokens and cloud-init scripts, and a server's cloud provider token (API and pages)"
+spec:
+  goal: An org keeps its cloud provider tokens (Hetzner, DigitalOcean, Vultr, Hostinger) and its reusable cloud-init scripts as in Coolify's Keys & Tokens — a token is checked with its provider before it is stored and on demand, renamed, and deleted unless a server uses it; a script is created, edited and deleted — with the components' rules and messages word for word, every query confined to the org by row-level security, and the token and the script encrypted with the org's key (the token never returned, the script only to who may write). A server's Cloud Token page shows the org's tokens of the server's provider and sets one once the provider confirms it works and reaches that server. /security/cloud-tokens, /security/cloud-tokens/{uuid}, /security/cloud-init-scripts, /security/cloud-init-scripts/{uuid} and /server/{uuid}/cloud-provider-token are ported from Coolify's views. Creating cloud servers is not part of this task, so no server has a provider id yet and the server page shows its "No cloud provider integration" state.
+  affects:
+    - apps/deploy-core-worker/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - on stage a signed-in org owner adds a cloud token with an invalid value and reads "Invalid API token. Please check your token and try again.", and nothing is stored
+    - on stage POST /v1/organizations/{org}/deploy/cloud-init-scripts stores the script as an fp1 ciphertext, the list shows it newest first, and a member without deploy.resource.write reads its content as null
+    - /security/cloud-tokens and /security/cloud-init-scripts pass the stage DOM gate or each difference is listed with its cause
+  gates: []
