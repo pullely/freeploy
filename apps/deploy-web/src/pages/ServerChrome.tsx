@@ -52,7 +52,7 @@ export const SERVER_ROLE_OPTIONS = [
   { value: "both", label: "Deployments and builds", description: "Builds and runs your resources on this server. Can also run GitHub Actions runners." },
 ];
 
-export type ServerMenu = "general" | "advanced" | "private-key" | "sentinel" | "swarm" | "docker-cleanup" | "log-drains" | "danger";
+export type ServerMenu = "general" | "advanced" | "private-key" | "sentinel" | "destinations" | "swarm" | "docker-cleanup" | "log-drains" | "danger";
 
 /** data_get_str(…)->limit($n): the first n characters and "...". */
 export function limit(value: string, n: number): string {
@@ -222,7 +222,7 @@ export function ServerSidebar({ server, active, canUpdate }: { server: ServerInf
     { label: "Sentinel", path: "/sentinel", icon: "shield-star", group: "Platform", active: active === "sentinel", visible: !isSwarm && canHostResources && canUpdate, disabled: off },
     { label: "Resources", path: "/resources", icon: "projects", group: "Platform", disabled: off },
     { label: "Terminal", path: "/terminal", icon: "browser-terminal", group: "Operations", visible: canUpdate, disabled: off },
-    { label: "Destinations", path: "/destinations", icon: "destinations", group: "Networking", disabled: off },
+    { label: "Destinations", path: "/destinations", icon: "destinations", group: "Networking", active: active === "destinations", disabled: off },
     { label: "Swarm", path: "/swarm", icon: "layers", group: "Networking", active: active === "swarm", visible: server.usesSwarm && server.serverRole !== "build" && !server.isCloudflareTunnel },
     { label: "Images", path: "/images", icon: "layers", group: "Operations", disabled: off },
     { label: "Docker Cleanup", path: "/docker-cleanup", icon: "broom", group: "Operations", active: active === "docker-cleanup", disabled: off },

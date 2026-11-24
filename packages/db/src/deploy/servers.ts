@@ -7,6 +7,7 @@
 // transaction of withOrg(): row-level security confines each query to that
 // org, which is what Coolify's ownedByCurrentTeam() / whereTeamId() does.
 import type { SqlExecutor, SqlRow } from "../hyperdrive/executor.js";
+import { DEFAULT_STANDALONE_DESTINATION, deleteServerDestinations, insertDestination } from "./destinations.js";
 
 /** Laravel's timestamps are UTC wall-clock times in TIMESTAMP(0) WITHOUT TIME ZONE columns. */
 const NOW = "date_trunc('second', timezone('UTC', now()))";
@@ -117,12 +118,19 @@ export interface NewServer {
   /** ServerSetting: server_role and is_build_server (ByIp::submit), is_image_scan_enabled (applyImageScanning). */
   serverRole: "deployment" | "build" | "both";
   imageScanEnabled: boolean;
+  /** The uuid of the server's default destination (new_public_id() in defaultStandaloneDockerAttributes). */
+  defaultDestinationUuid: string;
 }
 
 /**
  * Team::createServerWithinLimit() → Server::create(), then the created hook's
- * ServerSetting::create(['server_id' => …]) and ByIp's settings save, in the
- * caller's transaction.
+ * ServerSetting::create(['server_id' => …]) and its default destination, and
+ * ByIp's settings save, in the caller's transaction.
+ *
+ * The hook's destination is a standalone one on network "coolify": the
+ * settings row it has just created is not a Swarm one, so its Swarm branch
+ * ("coolify-overlay") cannot run. It is saved quietly — no command runs on
+ * the server; the network itself is created when the proxy is installed.
  */
 export async function insertServer(tx: SqlExecutor, server: NewServer): Promise<DeployServerRow> {
   const r = await tx.execute<{ id: string | number }>(
@@ -136,6 +144,7 @@ export async function insertServer(tx: SqlExecutor, server: NewServer): Promise<
      VALUES ($1, $2, $3, $4, $5, ${NOW}, ${NOW})`,
     [id, server.serverRole, server.serverRole === "build", server.imageScanEnabled, server.orgId],
   );
+  await insertDestination(tx, { orgId: server.orgId, type: "standalone", uuid: server.defaultDestinationUuid, ...DEFAULT_STANDALONE_DESTINATION, serverId: id });
   return (await findServerByUuid(tx, server.uuid))!;
 }
 
@@ -215,10 +224,11 @@ export async function setServerPrivateKey(tx: SqlExecutor, serverId: string | nu
 }
 
 /**
- * Delete::delete() and the DeleteServer job's forceDelete: the server and its
- * settings (the forceDeleting hook deletes settings()).
+ * Delete::delete() and the DeleteServer job's forceDelete: the server, its
+ * destinations and its settings (the forceDeleting hook deletes each).
  */
 export async function deleteServer(tx: SqlExecutor, id: string | number): Promise<boolean> {
+  await deleteServerDestinations(tx, id);
   await tx.execute(`DELETE FROM deploy.server_settings WHERE server_id = $1`, [id]);
   const r = await tx.execute(`DELETE FROM deploy.servers WHERE id = $1 RETURNING id`, [id]);
   return r.rows.length > 0;

@@ -31,6 +31,8 @@ type Row = DeployServerRow & { proxy: Record<string, unknown>; image_scan: boole
 /** deploy.servers, deploy.server_settings and the org's keys, in memory. */
 class MemoryStore implements ServerStore {
   rows: Row[] = [];
+  /** The default destination uuid each insert carried (the created hook's destination). */
+  defaultDestinations: string[] = [];
   keys: DeployServerPrivateKeyRow[] = [];
   private next = 1;
   addKey(uuid: string, name: string, secret: string, gitRelated = false) {
@@ -59,6 +61,7 @@ class MemoryStore implements ServerStore {
       is_cloudflare_tunnel: false, org_uses_swarm: false,
     };
     this.rows.push(row);
+    this.defaultDestinations.push(s.defaultDestinationUuid);
     return this.withKey(row);
   }
   async update(id: string | number, s: ServerChanges, st: ServerSettingsChanges) {
@@ -234,7 +237,7 @@ describe("ByIp and Show rules and messages", () => {
 });
 
 describe("servers", () => {
-  it("adds a server unvalidated: Traefik proxy exited, settings with its role", async () => {
+  it("adds a server unvalidated: Traefik proxy exited, settings with its role, a default destination", async () => {
     const t = setup();
     const r = await t.add({ ip: "[2001:DB8::10]", user: " deploy ", server_role: "build", scan_images: "on" });
     expect(r.status).toBe(422);
@@ -245,6 +248,9 @@ describe("servers", () => {
     const row = t.store.rows[0]!;
     expect(row).toMatchObject({ name: "prod-1", description: null, ip: "2001:db8::10", user: "deploy", port: 22, private_key_id: 100, server_role: "build", is_build_server: true, image_scan: true });
     expect(row.proxy).toEqual({ redirect_enabled: true, status: "exited", type: "TRAEFIK" });
+    // The created hook's destination: its own public id (the store names it and its network).
+    expect(t.store.defaultDestinations).toEqual([expect.stringMatching(/^[a-z0-9]{24}$/)]);
+    expect(t.store.defaultDestinations[0]).not.toBe(row.uuid);
     expect(t.orgs.every((o) => o === ORG_UUID)).toBe(true);
   });
 

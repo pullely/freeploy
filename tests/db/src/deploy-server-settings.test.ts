@@ -38,7 +38,7 @@ beforeAll(async () => {
   ] as const) {
     const key = await withOrg(ex, org, (tx) => insertPrivateKey(tx, { orgId: org, uuid: `key${uuid.slice(3)}`, name: "key", description: null, privateKey: "fp1:fake", fingerprint: null }));
     const row = await withOrg(ex, org, (tx) =>
-      insertServer(tx, { orgId: org, uuid, name: uuid.slice(0, 6), description: null, ip, user: "root", port: 22, privateKeyId: key.id, proxy: {}, serverRole: "both", imageScanEnabled: false }),
+      insertServer(tx, { orgId: org, uuid, name: uuid.slice(0, 6), description: null, ip, user: "root", port: 22, privateKeyId: key.id, proxy: {}, serverRole: "both", imageScanEnabled: false, defaultDestinationUuid: `dst${uuid.slice(3)}` }),
     );
     ids[uuid] = row.id;
   }

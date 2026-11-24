@@ -1,4 +1,5 @@
 import type { Env } from "./env.js";
+import { handleDestinations } from "./handlers/destinations.js";
 import { handleHealth } from "./handlers/health.js";
 import { handleListProjects } from "./handlers/list-projects.js";
 import { handlePrivateKeys } from "./handlers/private-keys.js";
@@ -29,6 +30,8 @@ export const ORG_DEPLOY_PROJECTS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/pr
 export const ORG_DEPLOY_PRIVATE_KEYS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/private-keys((?:\/[^/]+){0,2})\/?$/;
 /** Servers: the collection and up to three segments below it (a settings page's action). */
 export const ORG_DEPLOY_SERVERS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/servers((?:\/[^/]+){0,3})\/?$/;
+/** Destinations: the collection, one destination, and its resources. */
+export const ORG_DEPLOY_DESTINATIONS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/destinations((?:\/[^/]+){0,2})\/?$/;
 
 export async function route(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url);
@@ -64,6 +67,16 @@ export async function route(request: Request, env: Env): Promise<Response> {
       if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
       const segments = (servers[2] ?? "").split("/").filter(Boolean);
       return handleServers(env, requestId, actor, orgId, segments, request);
+    }
+
+    const destinations = url.pathname.match(ORG_DEPLOY_DESTINATIONS_RE);
+    if (destinations) {
+      const orgId = parseOrgPublicId(destinations[1]!);
+      if (!orgId) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
+      const segments = (destinations[2] ?? "").split("/").filter(Boolean);
+      return handleDestinations(env, requestId, actor, orgId, segments, request);
     }
     return notFound(requestId, url.pathname);
   } catch {

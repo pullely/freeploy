@@ -43,6 +43,15 @@ test("routes/web.php paths map to ported pages; the rest are not ported", () => 
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/swarm"), "server.swarm");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/sentinel"), "server.sentinel");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/sentinel/logs"), "not-ported");
+  assert.equal(pageFor("/server/abc123def456ghi789jkl012/destinations"), "server.destinations");
+  assert.equal(pageFor("/server/abc123def456ghi789jkl012/destinations/new"), "not-ported");
+  assert.equal(pageFor("/destinations"), "destination.index");
+  assert.equal(pageFor("/destinations/"), "destination.index");
+  assert.equal(pageFor("/destination"), "not-ported");
+  assert.equal(pageFor("/destination/abc123def456ghi789jkl012"), "destination.show");
+  assert.equal(pageFor("/destination/abc123def456ghi789jkl012/danger"), "destination.danger");
+  assert.equal(pageFor("/destination/abc123def456ghi789jkl012/resources/"), "destination.resources");
+  assert.equal(pageFor("/destination/abc123def456ghi789jkl012/resources/more"), "not-ported");
 });
 
 test("a dismissed reminder stays hidden for the rest of the calendar month", () => {
@@ -77,4 +86,12 @@ test("the custom theme engine matches Coolify's numbers", () => {
   assert.equal(serializeCustomTheme(nord), "#2e3440,#4c566a,#88c0d0,#3b4252");
   assert.equal(parseCustomTheme("#fff,#000"), null);
   assert.equal(parseCustomTheme("#fff,#000,#abc,#123")!.selected, "#000000");
+});
+
+import { kebab } from "../src/lib/kebab.ts";
+
+test("a new destination is named as Str::kebab names it", () => {
+  assert.equal(kebab("prod-1-k3j2abc"), "prod-1-k3j2abc");
+  assert.equal(kebab("My Server-k3j2abc"), "my-server-k3j2abc");
+  assert.equal(kebab("buildBox-net"), "build-box-net");
 });

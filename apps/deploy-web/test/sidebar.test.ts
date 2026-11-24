@@ -26,6 +26,11 @@ test("the sidebar starts on the submenu that holds the current page", () => {
   assert.deepEqual(visible("/team"), ["Team"]);
   assert.deepEqual(visible("/team/members"), ["Team"]);
   assert.deepEqual(visible("/notifications/email"), ["Notifications"]);
+  assert.deepEqual(visible("/destinations"), ["Integrations"]);
+  assert.deepEqual(visible("/destination/abc123def456ghi789jkl012/danger"), ["Integrations"]);
+  assert.equal(childActive("/destination/abc123def456ghi789jkl012/resources", "/destinations"), true);
+  // A server's destinations are a server page: the main menu, Servers current.
+  assert.deepEqual(visible("/server/abc123def456ghi789jkl012/destinations"), [""]);
   assert.deepEqual(visible("/profile"), [""]);
   assert.deepEqual(visible("/servers"), [""]);
   assert.deepEqual(visible("/"), [""]);

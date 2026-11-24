@@ -47,7 +47,7 @@ const NOUNS = [
 ] as const;
 
 /** Laravel's Str::kebab: words joined by "-", lower case. */
-function kebab(value: string): string {
+export function kebab(value: string): string {
   // ucwords() capitalizes after whitespace only, then the whitespace goes.
   const studly = value.replace(/(^|[ \t\r\n\f\v])(\p{Ll})/gu, (_m, s: string, c: string) => s + c.toUpperCase()).replace(/\s+/gu, "");
   return studly.replace(/(.)(?=\p{Lu})/gu, "$1-").toLowerCase();

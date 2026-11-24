@@ -75,19 +75,103 @@ export function StatusBadge({ label, type = "neutral" }: { label: string; type?:
   );
 }
 
-/** <x-empty> (base size, with an icon name). */
-export function Empty({ title, description, iconName }: { title: string; description?: string; iconName?: string }) {
+/** <x-empty> (base or sm size, with an icon name). */
+export function Empty({ title, description, iconName, size = "base" }: { title: string; description?: string; iconName?: string; size?: "sm" | "base" }) {
+  const sm = size === "sm";
   return (
     <div className="empty-state w-full">
-      <div className="empty-state-well min-h-40">
+      <div className={`empty-state-well ${sm ? "min-h-32" : "min-h-40"}`}>
         {iconName ? (
-          <div className="mb-4 size-11 flex items-center justify-center rounded-xl border border-neutral-200 bg-white text-neutral-400 shadow-sm dark:border-white/[0.08] dark:bg-white/[0.035] dark:text-fg-faint">
-            <Reicon name={iconName} className="size-5" />
+          <div className={`${sm ? "mb-3 size-10" : "mb-4 size-11"} flex items-center justify-center rounded-xl border border-neutral-200 bg-white text-neutral-400 shadow-sm dark:border-white/[0.08] dark:bg-white/[0.035] dark:text-fg-faint`}>
+            <Reicon name={iconName} className={sm ? "size-4.5" : "size-5"} />
           </div>
         ) : null}
         <h2 className="empty-state-title">{title}</h2>
-        {description ? <p className="empty-state-description text-[13px]">{description}</p> : null}
+        {description ? <p className={`empty-state-description ${sm ? "text-[12px]" : "text-[13px]"}`}>{description}</p> : null}
       </div>
+    </div>
+  );
+}
+
+/**
+ * <x-dashboard.navbar> for a section without tabs or actions (destination):
+ * the page title and subtitle, which Coolify shows below lg only (mobileTitleOnly).
+ */
+export function DashboardTitle({ title, subtitle }: { title: string; subtitle?: string }) {
+  return (
+    <div className="flex flex-col">
+      <header className="order-1 mb-4 flex min-w-0 items-start justify-between gap-4 lg:order-2 lg:mb-8 lg:hidden">
+        <div className="min-w-0 flex-1">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <h1 className="min-w-0 truncate text-[24px]! leading-7! font-semibold! tracking-tight!">{title}</h1>
+          </div>
+          {subtitle ? <p className="mt-1 text-[13px] text-neutral-500 dark:text-fg-dim">{subtitle}</p> : null}
+        </div>
+      </header>
+    </div>
+  );
+}
+
+export type ListViewMode = "table" | "grid";
+
+/**
+ * livewire/shared/list-search-controls: <x-table.search> with its clear
+ * button, and <x-canvas-view-toggle> as the table / grid switcher (the button
+ * shows the view that is not current).
+ */
+export function ListSearchControls(props: { placeholder: string; search: string; onSearch: (value: string) => void; viewMode: ListViewMode; onViewMode: (mode: ListViewMode) => void }) {
+  const other = props.viewMode === "table" ? { mode: "grid" as const, label: "Grid view", icon: "grid" } : { mode: "table" as const, label: "Table view", icon: "unordered-list" };
+  return (
+    <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="w-full sm:max-w-sm">
+        <div className="table-search relative min-w-0 w-full">
+          <input
+            type="search"
+            placeholder={props.placeholder}
+            aria-label={props.placeholder}
+            value={props.search}
+            onChange={(e) => props.onSearch(e.target.value)}
+            className="input w-full pl-8! h-8! rounded-lg! border-neutral-200! bg-white! py-0! pr-8! text-[12px]! shadow-none! placeholder:text-neutral-400 focus:border-accent! focus:ring-0! dark:border-white/[0.08]! dark:bg-white/[0.035]! dark:text-fg! dark:placeholder:text-fg-faint"
+          />
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5">
+            <Reicon name="search" className="size-3.5 text-neutral-400 dark:text-fg-faint" />
+          </div>
+          {props.search ? (
+            <button
+              type="button"
+              onClick={() => props.onSearch("")}
+              className="absolute top-1/2 right-2 flex size-5 -translate-y-1/2 items-center justify-center rounded text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-black dark:text-fg-faint dark:hover:bg-white/[0.07] dark:hover:text-fg"
+              aria-label="Clear search"
+            >
+              <Reicon name="x" className="size-3" />
+            </button>
+          ) : null}
+        </div>
+      </div>
+      <div className="view-toggle">
+        <span className="flex w-7.5 shrink-0">
+          <button
+            type="button"
+            onClick={() => props.onViewMode(other.mode)}
+            className="relative flex h-7.5 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 text-[12px] font-medium transition-colors text-neutral-400 hover:bg-neutral-100 hover:text-black dark:hover:text-white w-7.5 justify-center px-0!"
+            title={other.label}
+            aria-label={other.label}
+          >
+            <Reicon name={other.icon} className="size-3.5" />
+          </button>
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/** livewire/shared/list-search-empty: the search matches nothing. */
+export function ListSearchEmpty({ label }: { label: string }) {
+  return (
+    <div className="flex min-h-52 flex-col items-center justify-center rounded-xl border border-neutral-200 bg-white px-6 text-center dark:border-white/[0.08] dark:bg-white/[0.05]">
+      <Reicon name="search" className="mb-3 size-6 text-neutral-300 dark:text-fg-faint" />
+      <p className="text-[13px] font-medium">No matching {label}</p>
+      <p className="mt-1 text-[12px] text-neutral-500 dark:text-fg-dim">Try a different search.</p>
     </div>
   );
 }

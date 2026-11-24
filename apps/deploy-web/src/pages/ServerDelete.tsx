@@ -5,7 +5,7 @@
 // server's name; Coolify also asks for the account password, which
 // deploy-core cannot check yet, so that step is left out. Resources, cloud
 // provider servers and the SSH key option have nothing to act on yet
-// (destinations, providers and the SSH executor are not ported), so the
+// (resources, providers and the SSH executor are not ported), so the
 // dialog has no checkboxes.
 import { useEffect, useState } from "react";
 import { Layout, useSignedIn } from "../layout/Layout";

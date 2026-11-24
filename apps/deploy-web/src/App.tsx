@@ -24,6 +24,10 @@ const ServerDockerCleanupPage = lazy(() => import("./pages/ServerDockerCleanup")
 const ServerLogDrainsPage = lazy(() => import("./pages/ServerLogDrains").then((m) => ({ default: m.ServerLogDrainsPage })));
 const ServerSwarmPage = lazy(() => import("./pages/ServerSwarm").then((m) => ({ default: m.ServerSwarmPage })));
 const ServerSentinelPage = lazy(() => import("./pages/ServerSentinel").then((m) => ({ default: m.ServerSentinelPage })));
+const ServerDestinationsPage = lazy(() => import("./pages/ServerDestinations").then((m) => ({ default: m.ServerDestinationsPage })));
+const DestinationsPage = lazy(() => import("./pages/Destinations").then((m) => ({ default: m.DestinationsPage })));
+const DestinationShowPage = lazy(() => import("./pages/DestinationShow").then((m) => ({ default: m.DestinationShowPage })));
+const DestinationResourcesPage = lazy(() => import("./pages/DestinationResources").then((m) => ({ default: m.DestinationResourcesPage })));
 const ServerDeletePage = lazy(() => import("./pages/ServerDelete").then((m) => ({ default: m.ServerDeletePage })));
 
 /** routes/web.php: security.private-key.show is redirect()->route('security.private-key.index'). */
@@ -137,6 +141,31 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <ServerDeletePage />
+        </Suspense>
+      );
+    case "server.destinations":
+      return (
+        <Suspense fallback={null}>
+          <ServerDestinationsPage />
+        </Suspense>
+      );
+    case "destination.index":
+      return (
+        <Suspense fallback={null}>
+          <DestinationsPage />
+        </Suspense>
+      );
+    case "destination.show":
+    case "destination.danger":
+      return (
+        <Suspense fallback={null}>
+          <DestinationShowPage danger={pageFor(window.location.pathname) === "destination.danger"} />
+        </Suspense>
+      );
+    case "destination.resources":
+      return (
+        <Suspense fallback={null}>
+          <DestinationResourcesPage />
         </Suspense>
       );
     default:
