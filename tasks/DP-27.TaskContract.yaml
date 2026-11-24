@@ -1,0 +1,14 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-27
+  title: "DP3 fix: Add passkey returns to the passkey form after the password confirmation"
+spec:
+  goal: After "Add passkey" sends the user to confirm their password, they come back to /profile with the passkey form open (Coolify's status 'passkey-add'), instead of the plain profile; verified live on stage with a virtual authenticator, including signing in with the new passkey.
+  affects:
+    - apps/deploy-web/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - on deploy-web stage a user adds a passkey from /profile and signs in with it
+  gates: []
