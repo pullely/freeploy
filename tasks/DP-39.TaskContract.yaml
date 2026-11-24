@@ -1,0 +1,15 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-39
+  title: "DP4 fix: deploy-core says which step denied, outside prod"
+spec:
+  goal: Every authorization denial in deploy-core answers the same bare 404, so a broken stage wiring (membership or policy) cannot be told from a real denial. Outside prod the 404 now names the step that denied (membership status, policy's reason); prod is unchanged.
+  affects:
+    - apps/deploy-core-worker/**
+    - tests/deploy-core-worker/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - a denial on stage says which step denied it; prod answers the bare 404
+  gates: []

@@ -51,3 +51,13 @@ export function methodNotAllowed(requestId: string): Response {
 export function validationError(requestId: string, fields: Record<string, string[]>): Response {
   return errorResponse("validation_failed", "Validation failed", 422, requestId, { fields });
 }
+
+/**
+ * The 404 every authorization denial answers (a denial never says the org
+ * exists). Outside prod it also says which step denied, so a broken stage
+ * wiring can be told from a real denial; prod answers the bare 404.
+ */
+export function deniedResponse(environment: string | undefined, requestId: string, reason: string, extra?: Record<string, unknown>): Response {
+  if (environment === "prod") return errorResponse("not_found", "Not found", 404, requestId);
+  return errorResponse("not_found", "Not found", 404, requestId, { denied: reason, ...extra });
+}

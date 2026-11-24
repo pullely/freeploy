@@ -355,6 +355,17 @@ describe("private keys", () => {
     expect((await t.call("GET")).status).toBe(404);
   });
 
+  it("says which step denied outside prod, and nothing in prod", async () => {
+    const t = setup({ read: false });
+    const r = await t.call("GET");
+    expect(r.body.error?.details).toEqual({ denied: "denied", memberships: 0 });
+    t.env.ENVIRONMENT = "prod";
+    expect((await t.call("GET")).body.error?.details).toEqual({});
+    t.env.ENVIRONMENT = "stage";
+    t.env.MEMBERSHIP_WORKER = fetcher(() => new Response("{}", { status: 500 }));
+    expect((await t.call("GET")).body.error?.details).toEqual({ denied: "membership_status_500" });
+  });
+
   it("405s a method a path does not take, 404s an unknown path", async () => {
     const t = setup();
     expect((await t.call("PUT")).status).toBe(405);
