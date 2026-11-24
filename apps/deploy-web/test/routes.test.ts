@@ -93,11 +93,11 @@ test("the project and environment routes map to their pages; canvas and clone ar
   assert.equal(pageFor(`${environment}/canvas`), "not-ported");
 });
 
-test("an application's configuration routes map to General, Domains, Advanced, Healthcheck, Resource Limits, Persistent Storage, Tags, Resource Operations and the Danger Zone; its other pages are not ported", () => {
+test("an application's configuration routes map to General, Domains, Advanced, Healthcheck, Resource Limits, Persistent Storage, Tags, Resource Operations, the Danger Zone, Git Source, Servers, Webhooks, Scheduled Tasks and Rollback; its other pages are not ported", () => {
   const application = "/project/abc123def456ghi789jkl012/environment/mno345pqr678stu901vwx234/application/yza567bcd890efg123hij456";
   assert.equal(pageFor(application), "project.application.configuration");
   assert.equal(pageFor(`${application}/`), "project.application.configuration");
-  for (const page of ["domains", "advanced", "healthcheck", "resource-limits", "persistent-storage", "tags", "resource-operations", "danger"]) {
+  for (const page of ["domains", "advanced", "healthcheck", "resource-limits", "persistent-storage", "tags", "resource-operations", "danger", "source", "servers", "webhooks", "scheduled-tasks", "rollback"]) {
     assert.equal(pageFor(`${application}/${page}`), `project.application.${page}`, page);
     assert.equal(pageFor(`${application}/${page}/`), `project.application.${page}`, page);
     assert.equal(pageFor(`${application}/${page}/more`), "not-ported", page);
@@ -105,8 +105,7 @@ test("an application's configuration routes map to General, Domains, Advanced, H
   // Every other entry of the configuration menu.
   for (const page of [
     "swarm", "logs", "deployment", "terminal", "files", "metrics", "analytics",
-    "vulnerabilities", "source", "servers", "preview-deployments", "scheduled-tasks", "webhooks", "backups", "maintenance",
-    "rollback",
+    "vulnerabilities", "preview-deployments", "backups", "maintenance",
   ]) {
     assert.equal(pageFor(`${application}/${page}`), "not-ported", page);
   }

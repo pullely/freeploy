@@ -8,6 +8,7 @@
 // org.
 import type { SqlExecutor } from "../hyperdrive/executor.js";
 import { APPLICATION_MORPH_CLASS, FILE_VOLUME_MORPH_CLASS, PERSISTENT_VOLUME_MORPH_CLASS } from "./storages.js";
+import { deleteAdditionalDestinations } from "./additional-destinations.js";
 
 /** $application->deployment_queue: whether a deployment was ever queued for it (application_id is a string column). */
 export async function applicationHasDeployments(tx: SqlExecutor, id: string | number): Promise<boolean> {
@@ -24,7 +25,9 @@ export async function applicationHasDeployments(tx: SqlExecutor, id: string | nu
  *   its volume, file and directory mounts, its environment variables
  *   (production and preview), its settings row, its secret manager link, its
  *   scheduled tasks (with their executions), its tags (the pivot rows: the
- *   tags stay), its previews, its deployment records, and the application.
+ *   tags stay), its additional destinations (the pivot rows, which Coolify's
+ *   foreign key cascades to), its previews, its deployment records, and the
+ *   application.
  *
  * Coolify soft-deletes the previews (`previews()->delete()`); here they go
  * with the application. False when the application is not there.
@@ -46,6 +49,7 @@ export async function deleteApplication(tx: SqlExecutor, id: string | number): P
   await tx.execute("DELETE FROM deploy.scheduled_task_executions WHERE scheduled_task_id IN (SELECT t.id FROM deploy.scheduled_tasks t WHERE t.application_id = $1)", [id]);
   await tx.execute("DELETE FROM deploy.scheduled_tasks WHERE application_id = $1", [id]);
   await tx.execute("DELETE FROM deploy.taggables WHERE taggable_type = $1 AND taggable_id = $2", app);
+  await deleteAdditionalDestinations(tx, id);
   await tx.execute("DELETE FROM deploy.application_previews WHERE application_id = $1", [id]);
   await tx.execute("DELETE FROM deploy.application_deployment_queues WHERE application_id = $1", [String(id)]);
   const r = await tx.execute("DELETE FROM deploy.applications WHERE id = $1 RETURNING id", [id]);

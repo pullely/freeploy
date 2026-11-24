@@ -29,6 +29,11 @@ const ApplicationStoragesPage = lazy(() => import("./pages/ApplicationStorages")
 const ApplicationTagsPage = lazy(() => import("./pages/ApplicationTags").then((m) => ({ default: m.ApplicationTagsPage })));
 const ApplicationResourceOperationsPage = lazy(() => import("./pages/ApplicationResourceOperations").then((m) => ({ default: m.ApplicationResourceOperationsPage })));
 const ApplicationDangerPage = lazy(() => import("./pages/ApplicationDanger").then((m) => ({ default: m.ApplicationDangerPage })));
+const ApplicationSourcePage = lazy(() => import("./pages/ApplicationSource").then((m) => ({ default: m.ApplicationSourcePage })));
+const ApplicationServersPage = lazy(() => import("./pages/ApplicationServers").then((m) => ({ default: m.ApplicationServersPage })));
+const ApplicationWebhooksPage = lazy(() => import("./pages/ApplicationWebhooks").then((m) => ({ default: m.ApplicationWebhooksPage })));
+const ApplicationScheduledTasksPage = lazy(() => import("./pages/ApplicationScheduledTasks").then((m) => ({ default: m.ApplicationScheduledTasksPage })));
+const ApplicationRollbackPage = lazy(() => import("./pages/ApplicationRollback").then((m) => ({ default: m.ApplicationRollbackPage })));
 const EnvironmentEditPage = lazy(() => import("./pages/EnvironmentEdit").then((m) => ({ default: m.EnvironmentEditPage })));
 const PrivateKeysPage = lazy(() => import("./pages/PrivateKeys").then((m) => ({ default: m.PrivateKeysPage })));
 const CloudTokensPage = lazy(() => import("./pages/CloudTokens").then((m) => ({ default: m.CloudTokensPage })));
@@ -193,6 +198,36 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <ApplicationDangerPage />
+        </Suspense>
+      );
+    case "project.application.source":
+      return (
+        <Suspense fallback={null}>
+          <ApplicationSourcePage />
+        </Suspense>
+      );
+    case "project.application.servers":
+      return (
+        <Suspense fallback={null}>
+          <ApplicationServersPage />
+        </Suspense>
+      );
+    case "project.application.webhooks":
+      return (
+        <Suspense fallback={null}>
+          <ApplicationWebhooksPage />
+        </Suspense>
+      );
+    case "project.application.scheduled-tasks":
+      return (
+        <Suspense fallback={null}>
+          <ApplicationScheduledTasksPage />
+        </Suspense>
+      );
+    case "project.application.rollback":
+      return (
+        <Suspense fallback={null}>
+          <ApplicationRollbackPage />
         </Suspense>
       );
     case "security.private-key.index":

@@ -30,6 +30,9 @@
 // The Persistent Storage, Tags, Resource Operations and Danger Zone pages
 // (/applications/{uuid}/{storages,tags,resource-operations,danger}…) and
 // DELETE /applications/{uuid} are application-resources.ts.
+// The Git Source, Servers, Webhooks, Scheduled Tasks and Rollback pages
+// (/applications/{uuid}/{source,servers,webhooks,scheduled-tasks,rollback}…)
+// are application-more.ts.
 //
 // Coolify's policy: view = who can open the application, create = who can
 // create in the environment (createAnyResource), update = write, deploy = the
@@ -68,6 +71,7 @@ import { createBuiltApplication, handleGitAction, isBuiltApplicationType, isGitA
 import { BUILD_MESSAGES, builtAnswer, prepareBuild, saveBuild, showBuild } from "../applications/build.js";
 import type { GithubDeps } from "../applications/github.js";
 import { handleApplicationResources, isApplicationResourceRoute } from "./application-resources.js";
+import { handleApplicationMore, isApplicationMoreRoute } from "./application-more.js";
 import {
   ApplicationError,
   createDockerImageApplication,
@@ -171,6 +175,8 @@ export async function handleApplications(
   if (segments.length === 2 && isApplicationSettingsSection(second)) return handleApplicationSettings(env, requestId, actor, orgId, first!, second, request);
   // The Persistent Storage, Tags, Resource Operations and Danger Zone pages, and the application's DELETE (application-resources.ts).
   if (isApplicationResourceRoute(segments, method)) return handleApplicationResources(env, requestId, actor, orgId, segments, request);
+  // The Source, Servers, Webhooks, Scheduled Tasks and Rollback pages (application-more.ts).
+  if (isApplicationMoreRoute(segments)) return handleApplicationMore(env, requestId, actor, orgId, segments, request);
   let op: Op | null = null;
 
   if (segments.length === 0) {

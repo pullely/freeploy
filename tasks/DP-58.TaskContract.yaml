@@ -1,0 +1,23 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-58
+  title: "DP5: application source, servers, webhooks, scheduled tasks and rollback (API and pages)"
+spec:
+  goal: An org opens the Git Source, Servers, Webhooks, Scheduled Tasks and Rollback pages of an application and does there what Coolify's components do without a server, with Coolify's rules and Laravel's messages word for word and every query confined to the org by row-level security — the repository, branch and commit with ValidGitRepositoryUrl and ValidGitBranch, the SSH host keys git accepts (the providers' pinned keys and the saved known_hosts lines with their fingerprints, edited by hand and removed one by one), the HTTPS credentials of a custom Git host with the password encrypted by the org's key and never sent back, the deploy key chosen among the org's keys and the Git source among the org's sources (the public GitHub source being source_id 0); the application's primary server, its additional destinations (the additional_destinations pivot) added and made primary as rows; the deploy webhook and the four manual Git webhook URLs as Coolify builds them on the environment's API origin, with their encrypted secrets saved only when changed and generated on request; scheduled tasks created, edited, enabled, disabled and deleted with Coolify's cron words and expressions; and the number of images kept for a rollback. /project/{uuid}/environment/{env_uuid}/application/{app_uuid}/source, /servers, /webhooks, /scheduled-tasks and /rollback are ported from the Blade views inside the application's configuration frame. What needs the SSH executor is reported, not faked, in Coolify's own order of row and command — where Coolify stores first (making a server primary, changing the Git source) the rows are stored and the answer says what did not run; where it runs a command first (stopping or deploying on one server, removing a server the application may run on, fetching a host's keys, executing a task now, listing the images, rolling back) the answer is 501 and nothing is stored, and the Rollback page shows a "not available yet" notice in place of the image list. The endpoints that receive the webhook URLs (DP6, DP9), private Git Apps (DP6), the scheduler that runs tasks, the failure tracking columns of scheduled tasks, a Compose application's service names, the account password step of the confirmations and the audit trail are not part of this task.
+  affects:
+    - apps/deploy-core-worker/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - on stage a signed-in org owner opens Git Source of an application made from a public GitHub repository, changes the branch and the commit, sees "Application source updated!" and the values after a reload, and PATCH /v1/organizations/{org}/deploy/applications/{uuid}/source with gitBranch "HEAD" answers 422 "The git branch cannot be HEAD."
+    - on stage, with a second validated server, the owner adds it on the Servers page, makes it primary (the answer says the status was not refreshed), and removes the former primary server from an application nothing was ever deployed of; POST …/servers/stop answers 501
+    - on stage the Webhooks page shows the deploy webhook and the four manual webhook URLs on the api-edge origin, "Generate" stores a 40 character secret, PATCH …/webhooks with a 5 character secret answers 422 "The GitHub webhook secret must be at least 16 characters.", and a member without deploy.resource.write reads no secret
+    - on stage the owner adds the scheduled task "Cleanup" with the schedule "daily", edits it, disables and enables it, and deletes it; the schedule "sometimes" answers 422 "Invalid Cron / Human expression." and "Execute now" (POST …/scheduled-tasks/{task_uuid}/execute) answers 501
+    - on stage the Rollback page saves "Images to keep" 5, refuses 101 with "The docker images to keep field must not be greater than 100.", and shows the "Not available yet" notice instead of an image list
+    - a member without deploy.resource.write gets 404 on every write of the five pages, and the five pages pass the stage DOM gate or each difference is listed with its cause
+  gates: []
