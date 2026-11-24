@@ -46,8 +46,8 @@ function closeMenu(e: MouseEvent<HTMLElement>): void {
   panel.removeAttribute("data-open");
 }
 
-/** create.blade.php in modal mode: Livewire's Create component. */
-function CreatePrivateKey({ base, onCreated }: { base: string; onCreated: () => void }) {
+/** create.blade.php in modal mode: Livewire's Create component. onCreated gets the new key's uuid (privateKeyCreated). */
+export function CreatePrivateKey({ base, onCreated }: { base: string; onCreated: (uuid: string) => void }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [value, setValue] = useState("");
@@ -89,7 +89,7 @@ function CreatePrivateKey({ base, onCreated }: { base: string; onCreated: () => 
     }
     setErrors({});
     notify.success(r.data.message);
-    onCreated();
+    onCreated(r.data.uuid);
   }
 
   return (

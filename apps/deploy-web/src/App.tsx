@@ -15,6 +15,11 @@ const TwoFactorRequiredPage = lazy(() => import("./pages/TwoFactorRequired").the
 const ProfilePage = lazy(() => import("./pages/Profile").then((m) => ({ default: m.ProfilePage })));
 const AppearancePage = lazy(() => import("./pages/Appearance").then((m) => ({ default: m.AppearancePage })));
 const PrivateKeysPage = lazy(() => import("./pages/PrivateKeys").then((m) => ({ default: m.PrivateKeysPage })));
+const ServersPage = lazy(() => import("./pages/Servers").then((m) => ({ default: m.ServersPage })));
+const ServerCreatePage = lazy(() => import("./pages/ServerCreate").then((m) => ({ default: m.ServerCreatePage })));
+const ServerShowPage = lazy(() => import("./pages/ServerShow").then((m) => ({ default: m.ServerShowPage })));
+const ServerPrivateKeyPage = lazy(() => import("./pages/ServerPrivateKey").then((m) => ({ default: m.ServerPrivateKeyPage })));
+const ServerDeletePage = lazy(() => import("./pages/ServerDelete").then((m) => ({ default: m.ServerDeletePage })));
 
 /** routes/web.php: security.private-key.show is redirect()->route('security.private-key.index'). */
 function RedirectTo({ path }: { path: string }) {
@@ -68,6 +73,37 @@ export function App() {
       );
     case "security.private-key.show":
       return <RedirectTo path="/security/private-key" />;
+    case "server.index":
+      return (
+        <Suspense fallback={null}>
+          <ServersPage />
+        </Suspense>
+      );
+    case "server.create":
+    case "server.create.manual":
+      return (
+        <Suspense fallback={null}>
+          <ServerCreatePage manual={pageFor(window.location.pathname) === "server.create.manual"} />
+        </Suspense>
+      );
+    case "server.show":
+      return (
+        <Suspense fallback={null}>
+          <ServerShowPage />
+        </Suspense>
+      );
+    case "server.private-key":
+      return (
+        <Suspense fallback={null}>
+          <ServerPrivateKeyPage />
+        </Suspense>
+      );
+    case "server.delete":
+      return (
+        <Suspense fallback={null}>
+          <ServerDeletePage />
+        </Suspense>
+      );
     default:
       return <NotPortedPage />;
   }

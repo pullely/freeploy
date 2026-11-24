@@ -34,16 +34,16 @@ export const MESSAGES = {
 export type FieldErrors = Record<string, string[]>;
 
 /** Laravel's `required`: null, or a string that trims to nothing. */
-const blank = (v: unknown): boolean => v === null || v === undefined || (typeof v === "string" && v.trim() === "");
+export const blank = (v: unknown): boolean => v === null || v === undefined || (typeof v === "string" && v.trim() === "");
 /** mb_strlen: code points. */
-const length = (s: string): number => [...s].length;
+export const length = (s: string): number => [...s].length;
 
-function add(errors: FieldErrors, field: string, message: string): void {
+export function add(errors: FieldErrors, field: string, message: string): void {
   (errors[field] ??= []).push(message);
 }
 
 /** ValidationPatterns::nameRules(): required|string|min:3|max:255|regex:NAME_PATTERN. */
-function nameRules(errors: FieldErrors, value: unknown, requiredMessage: string): void {
+export function nameRules(errors: FieldErrors, value: unknown, requiredMessage: string): void {
   if (blank(value)) return add(errors, "name", requiredMessage);
   if (typeof value !== "string") return add(errors, "name", MESSAGES.string("name"));
   if (length(value) < 3) add(errors, "name", MESSAGES.nameMin(3));
@@ -52,7 +52,7 @@ function nameRules(errors: FieldErrors, value: unknown, requiredMessage: string)
 }
 
 /** ValidationPatterns::descriptionRules(): nullable|string|max:255|regex:DESCRIPTION_PATTERN. */
-function descriptionRules(errors: FieldErrors, value: unknown): void {
+export function descriptionRules(errors: FieldErrors, value: unknown): void {
   if (blank(value)) return;
   if (typeof value !== "string") return add(errors, "description", MESSAGES.string("description"));
   if (length(value) > 255) add(errors, "description", MESSAGES.descriptionMax(255));

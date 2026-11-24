@@ -69,3 +69,22 @@ export {
   type PrivateKeyUsageRow,
   type PrivateKeyUsages,
 } from "./private-keys.js";
+export {
+  listServers,
+  findServerByUuid,
+  insertServer,
+  updateServer,
+  updateServerRole,
+  forgetSshHostKey,
+  setServerPrivateKey,
+  deleteServer,
+  serverSshEndpointInUse,
+  otherBuildServerExists,
+  listServerPrivateKeys,
+  type DeployServerListRow,
+  type DeployServerRow,
+  type DeployServerPrivateKeyRow,
+  type NewServer,
+  type ServerChanges,
+  type ServerSettingsChanges,
+} from "./servers.js";

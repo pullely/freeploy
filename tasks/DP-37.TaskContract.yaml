@@ -1,0 +1,19 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-37
+  title: "DP4: servers — list, add, general settings, private key, delete (API and pages)"
+spec:
+  goal: An org manages its servers as in Coolify up to validation — lists them with their status, adds one by IP address or domain (ByIp's rules and messages word for word, stored unvalidated with Coolify's proxy default and its server settings row), edits the General settings (Show's rules and messages) and the server role, picks which of its private keys the server uses, and deletes it — every query confined to the org by row-level security; /servers, /servers/new, /servers/new/manual, /server/{uuid}, /server/{uuid}/private-key and /server/{uuid}/danger are ported from the reference. Validating and checking the connection need the SSH executor and say they are not available yet.
+  affects:
+    - apps/deploy-core-worker/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - on stage a signed-in user adds a server by IP address, edits its name and connection settings, switches its private key and deletes it
+    - /servers, /server/{uuid}, /server/{uuid}/private-key and /server/{uuid}/danger pass the stage DOM gate or each difference is listed with its cause
+  gates: []
