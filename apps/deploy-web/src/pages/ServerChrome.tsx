@@ -52,7 +52,7 @@ export const SERVER_ROLE_OPTIONS = [
   { value: "both", label: "Deployments and builds", description: "Builds and runs your resources on this server. Can also run GitHub Actions runners." },
 ];
 
-export type ServerMenu = "general" | "advanced" | "private-key" | "cloud-provider-token" | "sentinel" | "destinations" | "swarm" | "docker-cleanup" | "log-drains" | "danger";
+export type ServerMenu = "general" | "advanced" | "private-key" | "cloud-provider-token" | "sentinel" | "destinations" | "swarm" | "docker-cleanup" | "registries" | "log-drains" | "danger";
 
 /** data_get_str(…)->limit($n): the first n characters and "...". */
 export function limit(value: string, n: number): string {
@@ -227,7 +227,7 @@ export function ServerSidebar({ server, active, canUpdate }: { server: ServerInf
     { label: "Images", path: "/images", icon: "layers", group: "Operations", disabled: off },
     { label: "Docker Cleanup", path: "/docker-cleanup", icon: "broom", group: "Operations", active: active === "docker-cleanup", disabled: off },
     { label: "GitHub Runners", path: "/github-runners", icon: "play-circle", group: "Operations", visible: !server.isLocalhost, beta: true, disabled: off },
-    { label: "Registries", path: "/registries", icon: "layers", group: "Operations", visible: canUpdate, disabled: off },
+    { label: "Registries", path: "/registries", icon: "layers", group: "Operations", active: active === "registries", visible: canUpdate, disabled: off },
     { label: "Log Drains", path: "/log-drains", icon: "notifications", group: "Operations", active: active === "log-drains", disabled: off },
     { label: "Metrics", path: "/metrics", icon: "graph", group: "Operations", disabled: off },
     { label: "Analytics", path: "/analytics", icon: "analytics", group: "Operations", visible: !isSwarm && server.serverRole !== "build", disabled: off },

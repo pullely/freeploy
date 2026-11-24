@@ -53,6 +53,11 @@ test("routes/web.php paths map to ported pages; the rest are not ported", () => 
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/sentinel/logs"), "not-ported");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/destinations"), "server.destinations");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/destinations/new"), "not-ported");
+  assert.equal(pageFor("/server/abc123def456ghi789jkl012/registries"), "server.registries");
+  assert.equal(pageFor("/server/abc123def456ghi789jkl012/registries/ghcr.io"), "not-ported");
+  assert.equal(pageFor("/registries"), "registries.index");
+  assert.equal(pageFor("/registries/"), "registries.index");
+  assert.equal(pageFor("/registries/ghcr.io"), "not-ported");
   assert.equal(pageFor("/destinations"), "destination.index");
   assert.equal(pageFor("/destinations/"), "destination.index");
   assert.equal(pageFor("/destination"), "not-ported");

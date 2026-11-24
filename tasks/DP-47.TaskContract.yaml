@@ -1,0 +1,20 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-47
+  title: "DP4: Docker registries (API and pages)"
+spec:
+  goal: An org sees its servers' Docker registries as in Coolify's Integrations → Registries and a server's Registries page — per server, the registries its applications, databases, services and builds use, read from the org's own resources under row-level security. Coolify keeps a registry login only in the Docker config on the server and never stores the token, so there is no table and nothing is stored here either; reading the logins, docker login, the login check and docker logout run on the server and answer that they need the SSH executor, which is not available yet, after Coolify's own validation (the login form's rules and messages word for word). /registries and /server/{uuid}/registries are ported from Coolify's views, with the server menu's Registries item. Showing which registries a server is logged in to, and logging in and out, is not part of this task — it waits for the SSH executor (W3).
+  affects:
+    - apps/deploy-core-worker/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - on stage a signed-in org owner opens /registries and sees a card per server reading "The server is not reachable. Validate the server to read its registry logins.", and a member without deploy.resource.write gets 404 from GET /v1/organizations/{org}/deploy/registries
+    - on stage POST /v1/organizations/{org}/deploy/servers/{uuid}/registries with a username containing a space answers "The username must not contain spaces.", and with a valid form answers 501 "Running docker login on the server needs the SSH executor, which is not available yet." and stores nothing
+    - /registries and /server/{uuid}/registries pass the stage DOM gate or each difference is listed with its cause
+  gates: []

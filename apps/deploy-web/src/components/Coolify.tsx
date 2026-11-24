@@ -63,10 +63,10 @@ export function Helper({ helper, label = "More information", trigger }: { helper
 }
 
 /** <x-status-badge> (span, md). */
-export function StatusBadge({ label, type = "neutral" }: { label: string; type?: "neutral" | "success" | "warning" | "error" }) {
+export function StatusBadge({ label, type = "neutral", title }: { label: string; type?: "neutral" | "success" | "warning" | "error"; title?: string | null }) {
   const dot = { neutral: "bg-neutral-400 dark:bg-neutral-500", success: "bg-emerald-500", warning: "bg-warning", error: "bg-red-500" }[type];
   return (
-    <span className="inline-flex max-w-full items-center whitespace-nowrap text-neutral-700 dark:text-fg gap-1.5 text-[13px]">
+    <span className="inline-flex max-w-full items-center whitespace-nowrap text-neutral-700 dark:text-fg gap-1.5 text-[13px]" title={title ?? undefined}>
       <span className="relative flex size-1.5 shrink-0">
         <span className={`relative inline-flex size-1.5 rounded-full ${dot}`} />
       </span>
@@ -685,7 +685,11 @@ export interface ListboxOption {
   description?: string;
 }
 
-/** <x-forms.listbox> (single value; optionally searchable): a trigger and a fixed panel of options. */
+/**
+ * <x-forms.listbox> (optionally searchable): a trigger and a fixed panel of
+ * options. With `values` it is the `multiple` listbox: an option toggles, the
+ * panel stays open, and the trigger names up to two choices, then counts them.
+ */
 export function Listbox(props: {
   id: string;
   label?: string;
@@ -694,6 +698,9 @@ export function Listbox(props: {
   options: ListboxOption[];
   value: string | null;
   onChange: (value: string) => void;
+  /** multiple: the chosen values, replaced as a whole on every change. */
+  values?: string[];
+  onValues?: (values: string[]) => void;
   placeholder?: string;
   emptyText?: string;
   disabled?: boolean;
@@ -708,8 +715,12 @@ export function Listbox(props: {
   const trigger = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLDivElement>(null);
   const search = useRef<HTMLInputElement>(null);
+  const multiple = props.values !== undefined;
+  const isSelected = (o: ListboxOption) => (props.values ? props.values.includes(o.value) : o.value === props.value);
   const current = props.options.find((o) => o.value === props.value);
-  const label = current ? current.label : (props.placeholder ?? "Select…");
+  const selectedLabels = props.options.filter((o) => multiple && isSelected(o)).map((o) => o.label);
+  const placeholder = props.placeholder ?? "Select…";
+  const label = multiple ? (selectedLabels.length === 0 ? placeholder : selectedLabels.length <= 2 ? selectedLabels.join(", ") : `${selectedLabels.length} selected`) : current ? current.label : placeholder;
   const q = query.toLowerCase().trim();
   const visible = props.searchable && q !== "" ? props.options.filter((o) => [o.label, o.value, o.description].some((t) => String(t ?? "").toLowerCase().includes(q))) : props.options;
 
@@ -747,6 +758,7 @@ export function Listbox(props: {
   }, [open]);
 
   function choose(option: ListboxOption) {
+    if (props.values) return props.onValues?.(isSelected(option) ? props.values.filter((v) => v !== option.value) : [...props.values, option.value]);
     setOpen(false);
     if (option.value !== props.value) props.onChange(option.value);
   }
@@ -775,7 +787,7 @@ export function Listbox(props: {
           disabled={props.disabled}
           aria-haspopup="listbox"
           aria-expanded={open}
-          title={label}
+          title={multiple ? selectedLabels.join(", ") || placeholder : label}
         >
           <span className="listbox-trigger-label flex items-center gap-2">
             <span className="min-w-0 truncate">{label}</span>
@@ -791,6 +803,7 @@ export function Listbox(props: {
           id={`${props.id}-panel`}
           className={`listbox-panel${props.searchable ? " searchable-listbox-panel" : ""}`}
           role="listbox"
+          aria-multiselectable={multiple || undefined}
           style={
             open
               ? { position: "fixed", zIndex: 9999, visibility: position ? "visible" : "hidden", ...(position ? { top: `${position.top}px`, left: `${position.left}px`, width: `${position.width}px` } : {}) }
@@ -826,7 +839,7 @@ export function Listbox(props: {
             {open
               ? visible.map((o) => (
                   <div key={o.value}>
-                    <button type="button" className="listbox-option" role="option" aria-selected={o.value === props.value} onClick={() => choose(o)}>
+                    <button type="button" className="listbox-option" role="option" aria-selected={isSelected(o)} onClick={() => choose(o)}>
                       <span className="flex min-w-0 items-center gap-2 text-left">
                         <span className="flex min-w-0 flex-col items-start">
                           <span className="flex min-w-0 items-baseline gap-2">
@@ -835,7 +848,7 @@ export function Listbox(props: {
                           {o.description ? <span className="text-xs whitespace-normal text-neutral-500 dark:text-fg-dim">{o.description}</span> : null}
                         </span>
                       </span>
-                      {o.value === props.value ? (
+                      {isSelected(o) ? (
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" className="ml-auto size-3.5 shrink-0">
                           <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                         </svg>

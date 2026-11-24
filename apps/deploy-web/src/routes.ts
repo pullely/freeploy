@@ -1,7 +1,7 @@
 // The URL structure is routes/web.php's, one to one (design §3.1). A route
 // whose page is not ported yet renders NotPorted, which the parity harness
 // reports as a failing (not missing) route once deploy-web is the target.
-export type PageKey = "login" | "register" | "forgot-password" | "reset-password" | "profile.appearance" | "profile" | "profile.passkeys.confirm" | "password.confirm" | "verify.email" | "two-factor.required" | "verify.verify" | "two-factor.login" | "security.private-key.index" | "security.private-key.show" | "security.cloud-tokens" | "security.cloud-tokens.show" | "security.cloud-init-scripts" | "security.cloud-init-scripts.show" | "server.index" | "server.create" | "server.create.manual" | "server.show" | "server.advanced" | "server.private-key" | "server.cloud-provider-token" | "server.sentinel" | "server.swarm" | "server.docker-cleanup" | "server.log-drains" | "server.destinations" | "server.delete" | "project.index" | "project.show" | "project.edit" | "project.resource.index" | "project.environment.edit" | "destination.index" | "destination.show" | "destination.danger" | "destination.resources" | "not-ported";
+export type PageKey = "login" | "register" | "forgot-password" | "reset-password" | "profile.appearance" | "profile" | "profile.passkeys.confirm" | "password.confirm" | "verify.email" | "two-factor.required" | "verify.verify" | "two-factor.login" | "security.private-key.index" | "security.private-key.show" | "security.cloud-tokens" | "security.cloud-tokens.show" | "security.cloud-init-scripts" | "security.cloud-init-scripts.show" | "server.index" | "server.create" | "server.create.manual" | "server.show" | "server.advanced" | "server.private-key" | "server.cloud-provider-token" | "server.sentinel" | "server.swarm" | "server.docker-cleanup" | "server.log-drains" | "server.destinations" | "server.delete" | "server.registries" | "registries.index" | "project.index" | "project.show" | "project.edit" | "project.resource.index" | "project.environment.edit" | "destination.index" | "destination.show" | "destination.danger" | "destination.resources" | "not-ported";
 
 const ROUTES: Array<[RegExp, PageKey]> = [
   [/^\/login\/?$/, "login"],
@@ -42,7 +42,9 @@ const ROUTES: Array<[RegExp, PageKey]> = [
   [/^\/server\/[^/]+\/docker-cleanup\/?$/, "server.docker-cleanup"],
   [/^\/server\/[^/]+\/log-drains\/?$/, "server.log-drains"],
   [/^\/server\/[^/]+\/destinations\/?$/, "server.destinations"],
+  [/^\/server\/[^/]+\/registries\/?$/, "server.registries"],
   [/^\/server\/[^/]+\/danger\/?$/, "server.delete"],
+  [/^\/registries\/?$/, "registries.index"],
   [/^\/destinations\/?$/, "destination.index"],
   [/^\/destination\/[^/]+\/?$/, "destination.show"],
   // destination.danger is the same component as destination.show (routeIs picks the section).

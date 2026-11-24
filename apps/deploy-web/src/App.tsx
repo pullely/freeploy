@@ -35,6 +35,8 @@ const ServerLogDrainsPage = lazy(() => import("./pages/ServerLogDrains").then((m
 const ServerSwarmPage = lazy(() => import("./pages/ServerSwarm").then((m) => ({ default: m.ServerSwarmPage })));
 const ServerSentinelPage = lazy(() => import("./pages/ServerSentinel").then((m) => ({ default: m.ServerSentinelPage })));
 const ServerDestinationsPage = lazy(() => import("./pages/ServerDestinations").then((m) => ({ default: m.ServerDestinationsPage })));
+const ServerRegistriesPage = lazy(() => import("./pages/ServerRegistries").then((m) => ({ default: m.ServerRegistriesPage })));
+const RegistriesPage = lazy(() => import("./pages/Registries").then((m) => ({ default: m.RegistriesPage })));
 const DestinationsPage = lazy(() => import("./pages/Destinations").then((m) => ({ default: m.DestinationsPage })));
 const DestinationShowPage = lazy(() => import("./pages/DestinationShow").then((m) => ({ default: m.DestinationShowPage })));
 const DestinationResourcesPage = lazy(() => import("./pages/DestinationResources").then((m) => ({ default: m.DestinationResourcesPage })));
@@ -217,6 +219,18 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <ServerDestinationsPage />
+        </Suspense>
+      );
+    case "server.registries":
+      return (
+        <Suspense fallback={null}>
+          <ServerRegistriesPage />
+        </Suspense>
+      );
+    case "registries.index":
+      return (
+        <Suspense fallback={null}>
+          <RegistriesPage />
         </Suspense>
       );
     case "destination.index":
