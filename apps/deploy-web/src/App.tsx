@@ -18,6 +18,8 @@ const ProjectsPage = lazy(() => import("./pages/Projects").then((m) => ({ defaul
 const ProjectShowPage = lazy(() => import("./pages/ProjectShow").then((m) => ({ default: m.ProjectShowPage })));
 const ProjectEditPage = lazy(() => import("./pages/ProjectEdit").then((m) => ({ default: m.ProjectEditPage })));
 const EnvironmentResourcesPage = lazy(() => import("./pages/EnvironmentResources").then((m) => ({ default: m.EnvironmentResourcesPage })));
+const ResourceCreatePage = lazy(() => import("./pages/ResourceCreate").then((m) => ({ default: m.ResourceCreatePage })));
+const ApplicationGeneralPage = lazy(() => import("./pages/ApplicationGeneral").then((m) => ({ default: m.ApplicationGeneralPage })));
 const EnvironmentEditPage = lazy(() => import("./pages/EnvironmentEdit").then((m) => ({ default: m.EnvironmentEditPage })));
 const PrivateKeysPage = lazy(() => import("./pages/PrivateKeys").then((m) => ({ default: m.PrivateKeysPage })));
 const CloudTokensPage = lazy(() => import("./pages/CloudTokens").then((m) => ({ default: m.CloudTokensPage })));
@@ -115,6 +117,18 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <EnvironmentEditPage />
+        </Suspense>
+      );
+    case "project.resource.create":
+      return (
+        <Suspense fallback={null}>
+          <ResourceCreatePage />
+        </Suspense>
+      );
+    case "project.application.configuration":
+      return (
+        <Suspense fallback={null}>
+          <ApplicationGeneralPage />
         </Suspense>
       );
     case "security.private-key.index":

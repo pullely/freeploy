@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { pageFor } from "../src/routes.ts";
 import { showMonthlyReminder } from "../src/lib/reminder.ts";
 import { summarize } from "../src/lib/api.ts";
+import { splitPastedImageName } from "../src/lib/docker-image.ts";
 
 test("Laravel's validation summary: the first error and how many more", () => {
   assert.equal(summarize(["a"]), "a");
@@ -70,7 +71,7 @@ test("routes/web.php paths map to ported pages; the rest are not ported", () => 
   assert.equal(pageFor("/destination/abc123def456ghi789jkl012/resources/more"), "not-ported");
 });
 
-test("the project and environment routes map to their pages; canvas, clone and new are not ported", () => {
+test("the project and environment routes map to their pages; canvas and clone are not ported", () => {
   const project = "/project/abc123def456ghi789jkl012";
   const environment = `${project}/environment/mno345pqr678stu901vwx234`;
   assert.equal(pageFor("/projects"), "project.index");
@@ -85,11 +86,45 @@ test("the project and environment routes map to their pages; canvas, clone and n
   assert.equal(pageFor(environment), "project.resource.index");
   assert.equal(pageFor(`${environment}/`), "project.resource.index");
   assert.equal(pageFor(`${environment}/edit`), "project.environment.edit");
-  assert.equal(pageFor(`${environment}/new`), "not-ported");
+  assert.equal(pageFor(`${environment}/new`), "project.resource.create");
+  assert.equal(pageFor(`${environment}/new/`), "project.resource.create");
+  assert.equal(pageFor(`${environment}/new/more`), "not-ported");
   assert.equal(pageFor(`${environment}/clone`), "not-ported");
   assert.equal(pageFor(`${environment}/canvas`), "not-ported");
-  assert.equal(pageFor(`${environment}/application/app1`), "not-ported");
   assert.equal(pageFor("/shared-variables/projects"), "not-ported");
+});
+
+test("an application's configuration route maps to General; its other pages are not ported", () => {
+  const application = "/project/abc123def456ghi789jkl012/environment/mno345pqr678stu901vwx234/application/yza567bcd890efg123hij456";
+  assert.equal(pageFor(application), "project.application.configuration");
+  assert.equal(pageFor(`${application}/`), "project.application.configuration");
+  // Every entry of the configuration menu but General.
+  for (const page of [
+    "domains", "environment-variables", "persistent-storage", "advanced", "swarm", "healthcheck", "logs", "deployment", "terminal", "files", "metrics", "analytics",
+    "vulnerabilities", "source", "servers", "preview-deployments", "scheduled-tasks", "webhooks", "backups", "resource-operations", "maintenance", "resource-limits",
+    "rollback", "tags", "danger",
+  ]) {
+    assert.equal(pageFor(`${application}/${page}`), "not-ported", page);
+  }
+  assert.equal(pageFor("/project/abc123def456ghi789jkl012/environment/mno345pqr678stu901vwx234/application"), "not-ported");
+  assert.equal(pageFor("/project/abc123def456ghi789jkl012/environment/mno345pqr678stu901vwx234/database/db1"), "not-ported");
+  assert.equal(pageFor("/project/abc123def456ghi789jkl012/environment/mno345pqr678stu901vwx234/service/svc1"), "not-ported");
+});
+
+test("a pasted image reference is split into its name and its tag or digest (DockerImage::updatedImageName)", () => {
+  const sha = "59e02939b1bf39f16c93138a28727aec520bb916da021180ae502c61626b3cf0";
+  const split = (imageName: string, imageTag = "", imageSha256 = "") => splitPastedImageName({ imageName, imageTag, imageSha256 });
+  assert.deepEqual(split("ghcr.io/user/app:v1.2.3"), { imageName: "ghcr.io/user/app", imageTag: "v1.2.3", imageSha256: "" });
+  assert.deepEqual(split(`nginx@sha256:${sha}`), { imageName: "nginx", imageTag: "", imageSha256: sha });
+  assert.deepEqual(split(`nginx:stable@sha256:${sha}`), { imageName: "nginx:stable", imageTag: "", imageSha256: sha });
+  assert.deepEqual(split(`nginx:${sha}`), { imageName: "nginx", imageTag: "", imageSha256: sha });
+  assert.deepEqual(split("nginx:latest"), { imageName: "nginx", imageTag: "latest", imageSha256: "" });
+  // Nothing to split: no tag, a registry port only, or a tag or digest already filled in.
+  assert.deepEqual(split("nginx"), { imageName: "nginx", imageTag: "", imageSha256: "" });
+  assert.deepEqual(split("localhost:5000/app"), { imageName: "localhost:5000/app", imageTag: "", imageSha256: "" });
+  assert.deepEqual(split("localhost:5000/app:2"), { imageName: "localhost:5000/app", imageTag: "2", imageSha256: "" });
+  assert.deepEqual(split("nginx:1.27", "1.26"), { imageName: "nginx:1.27", imageTag: "1.26", imageSha256: "" });
+  assert.deepEqual(split("nginx:1.27", "", sha), { imageName: "nginx:1.27", imageTag: "", imageSha256: sha });
 });
 
 test("a dismissed reminder stays hidden for the rest of the calendar month", () => {

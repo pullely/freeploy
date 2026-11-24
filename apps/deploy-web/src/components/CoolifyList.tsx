@@ -78,11 +78,13 @@ export function useListState<T extends { name: string; description: string | nul
   defaultSort: string;
   sortValues: Record<string, (item: T) => string | number>;
   fallbackColumn?: string;
+  /** listView($page, $default)'s default: "grid" unless the page says otherwise. */
+  defaultView?: ViewMode;
 }): ListState<T> {
   const { items, sortValues, fallbackColumn } = opts;
   const [search, setSearchValue] = useState("");
   const [sortBy, setSortByValue] = useState(opts.defaultSort);
-  const [viewMode, setViewModeValue] = useState<ViewMode>(() => initialViewMode(opts.page, "grid"));
+  const [viewMode, setViewModeValue] = useState<ViewMode>(() => initialViewMode(opts.page, opts.defaultView ?? "grid"));
   const [page, setPage] = useState(1);
   const [pageSize, setPageSizeValue] = useState(() => {
     const saved = Number(stored(opts.pageSizeKey));
