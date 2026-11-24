@@ -15,6 +15,7 @@ export interface ProfileMarkupProps {
   twoFactorAction?: ReactNode;
   onEnableTwoFactor: FormEventHandler<HTMLFormElement>;
   twoFactorBody?: ReactNode;
+  passkeys?: ReactNode;
 }
 
 export function ProfileMarkup(props: ProfileMarkupProps) {
@@ -95,7 +96,7 @@ export function ProfileMarkup(props: ProfileMarkupProps) {
                   {" "}
                   {" "}
                   {" "}
-                  <input autoComplete="off" className="input" required data-wire-model="name" type="text" id="name-ky4zkpmnohqgsndeuapxlumw" name="name" placeholder="" defaultValue={props.userName} />
+                  <input autoComplete="off" className="input" required data-wire-model="name" type="text" id="name-tmii8ws92bpvxulwufjphq2j" name="name" placeholder="" defaultValue={props.userName} />
                   {" "}
                   {" "}
                   {" "}
@@ -113,7 +114,7 @@ export function ProfileMarkup(props: ProfileMarkupProps) {
                     {" "}
                     {" "}
                     {" "}
-                    <input autoComplete="off" className="input" readOnly data-wire-model="email" type="text" id="email-wu36pvzh7e7xktez67idjdte" name="email" placeholder="" defaultValue={props.userEmail} />
+                    <input autoComplete="off" className="input" readOnly data-wire-model="email" type="text" id="email-eoqkqectxzgzez7xhdrbab7o" name="email" placeholder="" defaultValue={props.userEmail} />
                     {" "}
                     {" "}
                     {" "}
@@ -161,7 +162,7 @@ export function ProfileMarkup(props: ProfileMarkupProps) {
                   {" "}
                   {" "}
                   <div className="relative">
-                    <input autoComplete="off" defaultValue="" className="input input-with-password-toggle sm:col-span-2" required data-wire-model="current_password" id="current_password-18cocar69h3krmtsliaiknxx" name="current_password" placeholder="" aria-placeholder="" type="password" />
+                    <input autoComplete="off" defaultValue="" className="input input-with-password-toggle sm:col-span-2" required data-wire-model="current_password" id="current_password-yvtjmysih0wtfcscz1tlv7uq" name="current_password" placeholder="" aria-placeholder="" type="password" />
                     {" "}
                     {" "}
                     <button type="button" className="password-toggle flex absolute inset-y-0 right-0 z-10 items-center pr-2 cursor-pointer text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white" aria-label="Toggle password visibility">
@@ -200,7 +201,7 @@ export function ProfileMarkup(props: ProfileMarkupProps) {
                   {" "}
                   {" "}
                   <div className="relative">
-                    <input autoComplete="off" defaultValue="" className="input input-with-password-toggle" required data-wire-model="new_password" id="new_password-pinhnuzpykp4wwxsrrqgkak9" name="new_password" placeholder="" aria-placeholder="" type="password" />
+                    <input autoComplete="off" defaultValue="" className="input input-with-password-toggle" required data-wire-model="new_password" id="new_password-b7cj5zvjtvdzqnrjacxgnvpm" name="new_password" placeholder="" aria-placeholder="" type="password" />
                     {" "}
                     {" "}
                     <button type="button" className="password-toggle flex absolute inset-y-0 right-0 z-10 items-center pr-2 cursor-pointer text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white" aria-label="Toggle password visibility">
@@ -239,7 +240,7 @@ export function ProfileMarkup(props: ProfileMarkupProps) {
                   {" "}
                   {" "}
                   <div className="relative">
-                    <input autoComplete="off" defaultValue="" className="input input-with-password-toggle" required data-wire-model="new_password_confirmation" id="new_password_confirmation-f5env2gtiaeljugqj7tndroe" name="new_password_confirmation" placeholder="" aria-placeholder="" type="password" />
+                    <input autoComplete="off" defaultValue="" className="input input-with-password-toggle" required data-wire-model="new_password_confirmation" id="new_password_confirmation-r4dicljwcu91pzvyrlck9yg5" name="new_password_confirmation" placeholder="" aria-placeholder="" type="password" />
                     {" "}
                     {" "}
                     <button type="button" className="password-toggle flex absolute inset-y-0 right-0 z-10 items-center pr-2 cursor-pointer text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white" aria-label="Toggle password visibility">
@@ -310,7 +311,7 @@ export function ProfileMarkup(props: ProfileMarkupProps) {
             </div>
           </section>
           {" "}
-          <div>
+          {props.passkeys ?? (<><div>
             {" "}
             <section className="application-settings-section">
               <div className="application-settings-section-header">
@@ -320,40 +321,44 @@ export function ProfileMarkup(props: ProfileMarkupProps) {
                   <p>Sign in with your fingerprint, face, or a security key. A passkey sign-in skips two-factor authentication.</p>
                 </div>
                 {" "}
+                {" "}
+                <a className="button" href="http://localhost:8000/profile/passkeys/confirm">Add passkey</a>
+                {" "}
               </div>
               {" "}
               <div className="application-settings-section-body flex flex-col gap-4">
                 {" "}
-                <div className="relative rounded-lg border px-3 py-2.5 border-coollabs/20 bg-coollabs/[0.055] dark:border-brand-light/15 dark:bg-brand/[0.06]">
-                  <div className="flex items-start gap-2.5">
-                    <svg className="size-4 mt-0.5 size-4 shrink-0 text-coollabs dark:text-brand-light" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                      <path d="M12 17.75C12.4142 17.75 12.75 17.4142 12.75 17V11C12.75 10.5858 12.4142 10.25 12 10.25C11.5858 10.25 11.25 10.5858 11.25 11V17C11.25 17.4142 11.5858 17.75 12 17.75Z" fill="currentColor" />
-                      <path d="M12 7C12.5523 7 13 7.44772 13 8C13 8.55228 12.5523 9 12 9C11.4477 9 11 8.55228 11 8C11 7.44772 11.4477 7 12 7Z" fill="currentColor" />
-                      <path fillRule="evenodd" clipRule="evenodd" d="M1.25 12C1.25 6.06294 6.06294 1.25 12 1.25C17.9371 1.25 22.75 6.06294 22.75 12C22.75 17.9371 17.9371 22.75 12 22.75C6.06294 22.75 1.25 17.9371 1.25 12ZM12 2.75C6.89137 2.75 2.75 6.89137 2.75 12C2.75 17.1086 6.89137 21.25 12 21.25C17.1086 21.25 21.25 17.1086 21.25 12C21.25 6.89137 17.1086 2.75 12 2.75Z" fill="currentColor" />
-                    </svg>
+                {" "}
+                {" "}
+                {" "}
+                <div className="empty-state w-full">
+                  <div className="empty-state-well min-h-32">
                     {" "}
-                    <div className="min-w-0 flex-1 ">
-                      <div className="text-[12px] font-semibold text-coollabs dark:text-brand-light">Passkeys are not available on this address</div>
+                    <div className="mb-3 size-10 flex items-center justify-center rounded-xl border border-neutral-200 bg-white text-neutral-400 shadow-sm dark:border-white/[0.08] dark:bg-white/[0.035] dark:text-fg-faint">
                       {" "}
-                      <div className="mt-0.5 text-[12px] leading-5 text-neutral-600 dark:text-fg-dim">
-                        Passkeys need HTTPS on the instance domain, or{" "}
-                        <code>localhost</code>
-                        . An IP address does not work.
-                      </div>
+                      <svg className="size-4 size-4.5" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path fillRule="evenodd" clipRule="evenodd" d="M15.6809 5.34814C14.0521 5.34814 12.7265 6.66395 12.7265 8.29353C12.7265 9.92311 14.0521 11.2389 15.6809 11.2389C17.3097 11.2389 18.6353 9.92311 18.6353 8.29353C18.6353 6.66395 17.3097 5.34814 15.6809 5.34814ZM14.2265 8.29353C14.2265 7.49816 14.8748 6.84814 15.6809 6.84814C16.487 6.84814 17.1353 7.49816 17.1353 8.29353C17.1353 9.0889 16.487 9.73891 15.6809 9.73891C14.8748 9.73891 14.2265 9.0889 14.2265 8.29353Z" fill="currentColor" />
+                        <path fillRule="evenodd" clipRule="evenodd" d="M9.52998 20.8783C9.86298 20.414 9.97017 19.9429 9.96222 19.5233C10.3544 19.6387 10.7424 19.6533 11.1141 19.5828C11.8825 19.437 12.4511 18.9512 12.7527 18.5507L12.758 18.5437L12.7631 18.5366C13.2883 17.8043 13.2872 17.0543 13.1586 16.5164C13.0956 16.2528 13.0021 16.0361 12.9245 15.8846C12.8853 15.8081 12.849 15.746 12.8207 15.7005C12.8132 15.6885 12.8063 15.6775 12.7999 15.6677C12.7112 15.5021 12.6111 15.3719 12.5269 15.2737L12.5359 15.2647L13.0001 14.8024C13.3817 14.9849 13.7957 15.0999 14.1583 15.1749C14.744 15.2962 15.3171 15.3369 15.6807 15.3369C19.582 15.3369 22.75 12.1863 22.75 8.29344C22.75 4.40056 19.582 1.25 15.6807 1.25C11.7794 1.25 8.61144 4.40056 8.61144 8.29344C8.61144 9.2105 8.82018 9.99588 9.02588 10.549C9.07825 10.6898 9.13081 10.8166 9.18035 10.9279L1.92511 18.1535C1.66869 18.4089 1.36789 18.853 1.27697 19.4092C1.17837 20.0124 1.34031 20.6829 1.92511 21.2654L2.80687 22.1435C2.82046 22.1571 2.83457 22.1701 2.84916 22.1825C3.10385 22.3999 3.53164 22.6513 4.04572 22.7273C4.59712 22.8088 5.23527 22.6818 5.77579 22.1435L6.34232 21.5793C6.87523 21.8849 7.43853 21.9545 7.95941 21.8548C8.63497 21.7254 9.19686 21.321 9.51964 20.8924L9.5249 20.8854L9.52998 20.8783ZM10.1114 8.29344C10.1114 5.23477 12.602 2.75 15.6807 2.75C18.7594 2.75 21.25 5.23477 21.25 8.29344C21.25 11.3521 18.7594 13.8369 15.6807 13.8369C15.4075 13.8369 14.9372 13.8044 14.4623 13.7061C13.9654 13.6032 13.5752 13.4504 13.3674 13.2779C13.0699 13.031 12.6332 13.0508 12.3592 13.3237L11.4774 14.2019C11.2757 14.4028 11.0818 14.6305 10.9794 14.8933C10.8499 15.2261 10.8912 15.5463 11.0394 15.8121C11.1273 15.9697 11.2689 16.1202 11.3278 16.183L11.3476 16.2042C11.4173 16.2811 11.4555 16.3314 11.4834 16.387L11.5098 16.4397L11.54 16.4817L11.5468 16.4924C11.5558 16.507 11.5712 16.533 11.5895 16.5685C11.6267 16.6412 11.6709 16.7445 11.6997 16.8652C11.7544 17.0937 11.7538 17.3656 11.5494 17.6551C11.4087 17.8384 11.1424 18.0506 10.8345 18.1091C10.5769 18.1579 10.1571 18.1261 9.59673 17.5681C9.30409 17.2766 8.83089 17.2766 8.53825 17.5681L8.24433 17.8608C7.96748 18.1365 7.94891 18.5782 8.20054 18.8761C8.20194 18.8778 8.2058 18.8826 8.2116 18.8903C8.22363 18.9062 8.24339 18.9336 8.2668 18.9704C8.31483 19.0461 8.37128 19.1508 8.41138 19.2706C8.48694 19.4963 8.49882 19.7374 8.31639 19.9966C8.19643 20.1519 7.95303 20.3287 7.67726 20.3815C7.4429 20.4264 7.14284 20.3931 6.8045 20.0562C6.51186 19.7647 6.03866 19.7647 5.74602 20.0562L4.7173 21.0807C4.55241 21.2449 4.4068 21.2643 4.26505 21.2434C4.09729 21.2186 3.93333 21.1293 3.84077 21.0562L2.9836 20.2025C2.74543 19.9653 2.73591 19.7821 2.75733 19.6511C2.78643 19.4731 2.89711 19.3025 2.9836 19.2163L10.6279 11.6033C10.8747 11.3575 10.9185 10.9735 10.7333 10.6784L10.7311 10.6748C10.7284 10.6703 10.7232 10.6615 10.7158 10.6487C10.7012 10.6231 10.6781 10.5814 10.6494 10.5251C10.5918 10.4123 10.5122 10.2423 10.4318 10.0262C10.2701 9.59135 10.1114 8.98632 10.1114 8.29344ZM8.20054 18.8761C8.20192 18.8777 8.2033 18.8793 8.20469 18.881L8.20354 18.8796L8.20054 18.8761Z" fill="currentColor" />
+                      </svg>
+                      {" "}
                     </div>
+                    {" "}
+                    {" "}
+                    <h2 className="empty-state-title">No passkeys</h2>
+                    {" "}
+                    {" "}
+                    <p className="empty-state-description text-[12px]">Add a passkey to sign in without your password.</p>
+                    {" "}
                     {" "}
                   </div>
                 </div>
                 {" "}
                 {" "}
                 {" "}
-                {" "}
-                {" "}
-                {" "}
               </div>
             </section>
             {" "}
-          </div>
+          </div></>)}
           {" "}
           <section className="application-settings-section">
             <div className="application-settings-section-header">

@@ -1,0 +1,22 @@
+[
+  {
+    "find": "<link rel=\"modulepreload\"[^\\n]*/>\\n",
+    "replace": ""
+  },
+  {
+    "find": "<div className=\"flex flex-col gap-2\">((?:\\s|\\{\" \"\\})*<button className=\"button w-full justify-center\" type=\"button\")>",
+    "replace": "<div className=\"flex flex-col gap-2\" style={props.passkeySupported ? undefined : { display: \"none\" }}>$1 onClick={props.onPasskey} disabled={props.passkeyLoading}>",
+    "props": [
+      "passkeySupported: boolean",
+      "onPasskey: () => void",
+      "passkeyLoading: boolean"
+    ]
+  },
+  {
+    "find": "(<div className=\"flex items-start gap-3 rounded-lg border px-3 py-2\\.5 text-sm border-error/35 bg-error/10 text-error\">[\\s\\S]*?<span>)Passkeys are not supported in this browser\\.(</span>(?:\\s|\\{\" \"\\})*</div>(?:\\s|\\{\" \"\\})*</div>)",
+    "replace": "{props.passkeyError ? (<>$1{props.passkeyError}$2</>) : null}",
+    "props": [
+      "passkeyError: string | null"
+    ]
+  }
+]

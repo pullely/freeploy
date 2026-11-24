@@ -17,6 +17,9 @@ const AUTH_ROUTES: Record<string, string> = {
   "/v1/auth/two-factor/confirm": "POST",
   "/v1/auth/two-factor/recovery-codes": "POST",
   "/v1/auth/two-factor/challenge": "POST",
+  "/v1/auth/passkeys/options": "POST",
+  "/v1/auth/passkeys/login/options": "POST",
+  "/v1/auth/passkeys/login": "POST",
   "/v1/auth/session": "GET",
   "/v1/auth/resolve": "GET",
   "/v1/auth/logout": "POST",
@@ -26,7 +29,11 @@ const AUTH_ROUTES: Record<string, string> = {
 const AUTH_MULTI_METHOD_ROUTES: Record<string, Set<string>> = {
   "/v1/auth/profile": new Set(["GET", "PATCH"]),
   "/v1/auth/two-factor": new Set(["GET", "POST", "DELETE"]),
+  "/v1/auth/passkeys": new Set(["GET", "POST"]),
 };
+
+// One passkey: rename (PATCH) or delete (DELETE).
+const PASSKEY_RE = /^\/v1\/auth\/passkeys\/[0-9a-f-]{36}$/;
 
 // OAuth sign-in routes (all GET). `start` and `callback` are browser-redirect
 // navigations; `providers` is a JSON read. The `:provider` segment is dynamic,
@@ -55,7 +62,7 @@ const FORWARDED_HEADERS = [
 ];
 
 export function isAuthRoute(pathname: string): boolean {
-  return pathname in AUTH_ROUTES || pathname in AUTH_MULTI_METHOD_ROUTES || isOAuthRoute(pathname);
+  return pathname in AUTH_ROUTES || pathname in AUTH_MULTI_METHOD_ROUTES || isOAuthRoute(pathname) || PASSKEY_RE.test(pathname);
 }
 
 export async function handleAuthRoute(
@@ -65,7 +72,7 @@ export async function handleAuthRoute(
   pathname: string,
 ): Promise<Response> {
   const expectedMethod = AUTH_ROUTES[pathname];
-  const allowedMethods = AUTH_MULTI_METHOD_ROUTES[pathname];
+  const allowedMethods = AUTH_MULTI_METHOD_ROUTES[pathname] ?? (PASSKEY_RE.test(pathname) ? new Set(["PATCH", "DELETE"]) : undefined);
   const oauth = isOAuthRoute(pathname);
 
   if (!expectedMethod && !allowedMethods && !oauth) {

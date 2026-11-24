@@ -4,6 +4,15 @@ import { handleLoginStart } from "./handlers/login-start.js";
 import { handlePasswordLogin, handlePasswordRegister } from "./handlers/password-auth.js";
 import { handlePasswordChange } from "./handlers/password-change.js";
 import {
+  handlePasskeyList,
+  handlePasskeyAdd,
+  handlePasskeyOptions,
+  handlePasskeyLoginOptions,
+  handlePasskeyLogin,
+  handlePasskeyRename,
+  handlePasskeyDelete,
+} from "./handlers/passkeys.js";
+import {
   handlePasswordConfirm,
   handleTwoFactorState,
   handleTwoFactorEnable,
@@ -98,6 +107,30 @@ export async function route(request: Request, env: Env): Promise<Response> {
     if (url.pathname === "/v1/auth/two-factor/challenge") {
       if (request.method !== "POST") return methodNotAllowed(requestId);
       return handleTwoFactorChallenge(request, env, requestId);
+    }
+
+    if (url.pathname === "/v1/auth/passkeys") {
+      if (request.method === "GET") return handlePasskeyList(request, env, requestId);
+      if (request.method === "POST") return handlePasskeyAdd(request, env, requestId);
+      return methodNotAllowed(requestId);
+    }
+    if (url.pathname === "/v1/auth/passkeys/options") {
+      if (request.method !== "POST") return methodNotAllowed(requestId);
+      return handlePasskeyOptions(request, env, requestId);
+    }
+    if (url.pathname === "/v1/auth/passkeys/login/options") {
+      if (request.method !== "POST") return methodNotAllowed(requestId);
+      return handlePasskeyLoginOptions(request, env, requestId);
+    }
+    if (url.pathname === "/v1/auth/passkeys/login") {
+      if (request.method !== "POST") return methodNotAllowed(requestId);
+      return handlePasskeyLogin(request, env, requestId);
+    }
+    const passkeyId = url.pathname.match(/^\/v1\/auth\/passkeys\/([0-9a-f-]{36})$/)?.[1];
+    if (passkeyId) {
+      if (request.method === "PATCH") return handlePasskeyRename(request, env, requestId, passkeyId);
+      if (request.method === "DELETE") return handlePasskeyDelete(request, env, requestId, passkeyId);
+      return methodNotAllowed(requestId);
     }
 
     if (url.pathname === "/v1/auth/password/change") {

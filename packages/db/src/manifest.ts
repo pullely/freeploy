@@ -237,5 +237,14 @@ export const manifest: MigrationManifest = {
       description:
         "Two-factor authentication (freeploy-coolify-parity DP3) — encrypted TOTP secret and recovery codes per user, confirmed_at; sessions.password_confirmed_at",
     },
+    {
+      id: "560_identity_passkeys",
+      context: "identity",
+      path: "560_identity_passkeys/up.sql",
+      checksum:
+        "9da7a3ab6e134390c21f555d72f4c0f28698235bb22740cdeee8dfbf701aabd0",
+      description:
+        "Passkeys (freeploy-coolify-parity DP3) — named WebAuthn credentials per user with public key, counter and last use",
+    },
   ],
 };

@@ -26,3 +26,7 @@ gen "$A" --select body --inner --skip "$TAKE" --name AppearancePortalMarkup --ou
 # /user/confirm-password (Fortify password.confirm), guest-layout page.
 gen routes.web__password.confirm/desktop-light.html --select main --name ConfirmPasswordMarkup \
   --slot 'form=alert' --handler 'form:onSubmit=onSubmit' --out "$P/ConfirmPasswordMarkup.tsx"
+
+# /login, with Coolify's passkey sign-in (the reference is reached as localhost, where passkeys are offered).
+gen routes.web__login/desktop-light.html --select main --name LoginMarkup --slot 'form=alert' --handler 'form:onSubmit=onSubmit' \
+  --patch tools/parity/port/patches/LoginMarkup.json --out "$P/LoginMarkup.tsx"

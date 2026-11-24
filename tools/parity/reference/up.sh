@@ -106,7 +106,10 @@ sudo env LATEST_IMAGE="$COOLIFY_REF" docker compose --project-directory "$src" \
   --env-file "$src/.env" -f "$src/docker-compose.yml" -f "$src/docker-compose.prod.yml" \
   up -d --remove-orphans --wait --wait-timeout 600
 
-base="http://127.0.0.1:${APP_PORT}"
+# localhost, not 127.0.0.1: Coolify offers passkeys on https or localhost only
+# (PasskeyRelyingParty::resolve), and Freeploy stage is https, so the
+# reference must be reached where passkeys are available to compare like with like.
+base="http://localhost:${APP_PORT}"
 for _ in $(seq 1 90); do
   if curl -fsS "$base/api/health" >/dev/null 2>&1; then break; fi
   sleep 5
