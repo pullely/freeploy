@@ -72,6 +72,35 @@ const FORWARDED_HEADERS = [
   "cookie",
 ];
 
+/**
+ * The steps that check a secret (a password, a code, a token, a passkey
+ * assertion) and the sign-in flows: the brute-force targets, in the tight
+ * `auth` rate-limit family. Everything else here is a signed-in user's own
+ * account, in `account`.
+ */
+const SECRET_CHECKING = new Set([
+  "/v1/auth/login/start",
+  "/v1/auth/login/complete",
+  "/v1/auth/logout",
+  "/v1/auth/password/login",
+  "/v1/auth/password/register",
+  "/v1/auth/password/forgot",
+  "/v1/auth/password/reset",
+  "/v1/auth/password/change",
+  "/v1/auth/password/confirm",
+  "/v1/auth/two-factor/confirm",
+  "/v1/auth/two-factor/challenge",
+  "/v1/auth/passkeys/login/options",
+  "/v1/auth/passkeys/login",
+  "/v1/auth/email/verify",
+  "/v1/auth/email/change/verify",
+  "/v1/auth/account",
+]);
+
+export function rateLimitFamilyFor(pathname: string): "auth" | "account" {
+  return SECRET_CHECKING.has(pathname) || pathname.startsWith("/v1/auth/oauth/") ? "auth" : "account";
+}
+
 export function isAuthRoute(pathname: string): boolean {
   return pathname in AUTH_ROUTES || pathname in AUTH_MULTI_METHOD_ROUTES || isOAuthRoute(pathname) || PASSKEY_RE.test(pathname) || AVATAR_RE.test(pathname);
 }
@@ -100,7 +129,7 @@ export async function handleAuthRoute(
     return errorResponse("unsupported", "Method not allowed", 405, requestId);
   }
 
-  return replayOrExecute(request, requestId, env, "auth", async () => {
+  return replayOrExecute(request, requestId, env, rateLimitFamilyFor(pathname), async () => {
     if (!env.IDENTITY_WORKER) {
       return errorResponse(
         "internal_error",

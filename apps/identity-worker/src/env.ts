@@ -35,4 +35,10 @@ export interface Env {
   DEPLOY_WEB_URL?: string;
   /** 32 bytes base64: seals 2FA secrets, recovery codes and sign-in challenges (DP3). */
   IDENTITY_ENCRYPTION_KEY?: string;
+  /**
+   * "true": an unverified account only reaches /verify (Coolify Cloud). Off
+   * until the environment can deliver email (WAITING W5), or no new account
+   * could ever get past /verify.
+   */
+  REQUIRE_EMAIL_VERIFICATION?: string;
 }

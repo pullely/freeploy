@@ -44,6 +44,7 @@
     "stage": {
       "vars": {
         "DEPLOY_WEB_URL": "https://freeploy-deploy-web-stage.nexo-7be.workers.dev",
+        "REQUIRE_EMAIL_VERIFICATION": "false",
         "ENVIRONMENT": "stage",
         "DEBUG_DELIVERY": "true",
         "GITHUB_OAUTH_CLIENT_ID": "Ov23liKBsjAqJJsmBavV",
@@ -76,6 +77,7 @@
     "prod": {
       "vars": {
         "DEPLOY_WEB_URL": "https://freeploy-deploy-web-prod.nexo-7be.workers.dev",
+        "REQUIRE_EMAIL_VERIFICATION": "false",
         "ENVIRONMENT": "prod",
         "DEBUG_DELIVERY": "false",
         "GITHUB_OAUTH_CLIENT_ID": "Ov23lilp2aoyeBDVU8Vc",

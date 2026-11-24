@@ -40,7 +40,7 @@ export function useMe(): [Me | null, (me: Me) => void] {
       return;
     }
     void (async () => {
-      const session = await getJson<{ user: Me["user"]; emailVerified?: boolean; avatarPath?: string | null }>("/v1/auth/session");
+      const session = await getJson<{ user: Me["user"]; emailVerified?: boolean; verificationRequired?: boolean; avatarPath?: string | null }>("/v1/auth/session");
       if (!session.data) {
         if (session.status === 401) {
           clearSession();
@@ -49,7 +49,7 @@ export function useMe(): [Me | null, (me: Me) => void] {
         return;
       }
       // Coolify Cloud (DecideWhatToDoWithUser): an unverified account only reaches /verify.
-      if (session.data.emailVerified === false) {
+      if (session.data.verificationRequired && session.data.emailVerified === false) {
         window.location.replace("/verify");
         return;
       }

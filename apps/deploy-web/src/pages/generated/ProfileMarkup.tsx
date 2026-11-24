@@ -71,9 +71,9 @@ export function ProfileMarkup(props: ProfileMarkupProps) {
                     {" "}
                     <div className="flex min-w-0 flex-1 flex-col gap-2">
                       <div className="flex flex-wrap gap-2">
-                        <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" id="avatar-input" onChange={props.onAvatarFile} />
+                        <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={props.onAvatarFile} />
                         {" "}
-                        <button className="button" type="button" disabled={props.avatarBusy} onClick={() => document.getElementById("avatar-input")?.click()}>
+                        <button className="button" type="button" disabled={props.avatarBusy} onClick={(e) => (e.currentTarget.parentElement?.querySelector("input[type=file]") as HTMLInputElement | null)?.click()}>
                           <span>{props.avatarBusy ? "Uploading…" : "Browse…"}</span>
                         </button>
                         {props.avatarUrl ? (<button className="button button-error" type="button" disabled={props.avatarBusy} onClick={props.onAvatarRemove}>Remove</button>) : null}

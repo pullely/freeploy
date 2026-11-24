@@ -66,7 +66,7 @@ types in `packages/contracts`; cross-org isolation tests.
 - every table in `deploy` has a non-null `org_id`
 - an isolation test per table proves a second org can neither read nor write the first org's rows through the facade
 
-## DP3 — UI shell
+## DP3 — UI shell ✅
 
 `apps/deploy-web` on Coolify's CSS, fonts and theme; navbar, sidebar, team
 switcher; the Blade components the DP3 pages use (a component-gallery route is
