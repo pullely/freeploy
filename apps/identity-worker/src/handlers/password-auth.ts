@@ -58,6 +58,11 @@ async function keys(parts: string[]): Promise<string[]> {
   return Promise.all(parts.map((p) => hashSha256(p)));
 }
 
+/** The membership record keys on the public user id, the id every later request's actor carries. */
+export function publicUser(u: { id: string; email: string; displayName: string | null }) {
+  return { id: userPublicId(u.id), email: u.email, displayName: u.displayName };
+}
+
 export async function handlePasswordLogin(request: Request, env: Env, requestId: string): Promise<Response> {
   const body = await readJson(request);
   if (!body) return errorResponse("bad_request", "Invalid JSON body", 400, requestId);
@@ -93,6 +98,8 @@ export async function handlePasswordLogin(request: Request, env: Env, requestId:
       // Fortify: ValidationException on `email` with auth.failed.
       return fieldErrors(requestId, { email: [__("auth.failed")] });
     }
+    // Like every sign-in path: the user's personal team exists before the console loads.
+    await ensurePersonalOrg(env, requestId, publicUser(found.value));
     const session = await issueSession(db, request, requestId, found.value, "password");
     if (!session) return errorResponse("internal_error", "Failed to create session", 500, requestId);
     return successResponse(session, requestId, 200);
@@ -137,7 +144,7 @@ export async function handlePasswordRegister(request: Request, env: Env, request
     const created = await repo.createUser({ id: generateUserId(), email, emailLower: email.toLowerCase(), displayName: String(body.name), createdAt: now });
     if (!created.ok) return errorResponse("internal_error", "Failed to create user", 500, requestId);
     await store.set(created.value.id, passwordHash);
-    await ensurePersonalOrg(env, requestId, created.value);
+    await ensurePersonalOrg(env, requestId, publicUser(created.value));
     const session = await issueSession(db, request, requestId, created.value, "password");
     if (!session) return errorResponse("internal_error", "Failed to create session", 500, requestId);
     return successResponse(session, requestId, 201);

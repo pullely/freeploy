@@ -34,15 +34,14 @@ export interface PersonalOrgUser {
 const NAME_MAX = 100;
 const SLUG_MAX = 63;
 
-/** Human name for the personal org: display name, else the email local-part,
- *  else a stable fallback. Never user-facing as "an org" in Solo, but kept
- *  meaningful for the audit trail and a baseline-restore. */
+/** The personal team's name, as Coolify names it (app/Models/User.php: $user->name."'s Team"):
+ *  the display name, else the email local-part, else a stable fallback. Derived
+ *  from coollabsio/coolify@91b7e3e (Apache-2.0), modified. */
 export function personalOrgName(user: PersonalOrgUser): string {
-  const display = user.displayName?.trim();
-  if (display) return display.slice(0, NAME_MAX);
-  const local = user.email.split("@")[0]?.trim();
-  if (local) return local.slice(0, NAME_MAX);
-  return "Personal";
+  const suffix = "'s Team";
+  const owner = user.displayName?.trim() || user.email.split("@")[0]?.trim();
+  if (!owner) return "Personal Team";
+  return owner.slice(0, NAME_MAX - suffix.length) + suffix;
 }
 
 /** Deterministic, globally-unique slug derived from the user id. Determinism is

@@ -1,0 +1,20 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-17
+  title: "DP3: signed-in shell and the Appearance page"
+spec:
+  goal: deploy-web renders Coolify's signed-in layout (top bar, sidebar, team switcher, account menu, mobile bar, the no-notifications reminder) for a signed-in Freeploy user with their name, email and team, sends signed-out visitors to /login, and ports /profile/appearance with working theme, UI scale, page width, navigation style, item style and chart-time choices stored the way Coolify stores them. Registration names the personal team "<name>'s Team" as Coolify does.
+  affects:
+    - apps/deploy-web/**
+    - apps/identity-worker/**
+    - tests/identity-worker/**
+    - tests/deploy-web/**
+    - tools/parity/**
+    - .github/workflows/parity.yml
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - a fake parity user signs in on deploy-web stage and lands in the shell with their name and team
+    - /profile/appearance on deploy-web stage passes the visual and DOM gate
+  gates: []

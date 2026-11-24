@@ -25,6 +25,30 @@ export function storeSession(token: string): void {
   }
 }
 
+export function clearSession(): void {
+  try {
+    localStorage.removeItem(SESSION_KEY);
+  } catch {
+    /* storage blocked */
+  }
+}
+
+function authHeaders(): Record<string, string> {
+  const token = sessionToken();
+  return token ? { authorization: `Bearer ${token}` } : {};
+}
+
+/** GET from the edge with the session; null data on 401 (signed out). */
+export async function getJson<T>(path: string): Promise<{ status: number; data: T | null }> {
+  try {
+    const res = await fetch(edgeBase() + path, { headers: authHeaders() });
+    const json = (await res.json().catch(() => null)) as { data?: T } | null;
+    return { status: res.status, data: res.ok ? (json?.data ?? null) : null };
+  } catch {
+    return { status: 0, data: null };
+  }
+}
+
 export interface ApiError {
   status: number;
   /** Messages in Laravel's `$errors->all()` order. */
@@ -35,7 +59,7 @@ export interface ApiError {
 export async function postJson<T>(path: string, body: unknown): Promise<{ ok: true; data: T } | { ok: false; error: ApiError }> {
   let res: Response;
   try {
-    res = await fetch(edgeBase() + path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+    res = await fetch(edgeBase() + path, { method: "POST", headers: { "content-type": "application/json", ...authHeaders() }, body: JSON.stringify(body) });
   } catch {
     return { ok: false, error: { status: 0, messages: ["Network error. Please try again."] } };
   }
