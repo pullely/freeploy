@@ -43,5 +43,29 @@
     "props": [
       "teamName: string"
     ]
+  },
+  {
+    "find": "(<form action=\"/user/two-factor-authentication\" method=\"POST\">[\\s\\S]*?</form>)",
+    "replace": "{props.twoFactorAction ?? (<>$1</>)}",
+    "once": true,
+    "props": [
+      "twoFactorAction?: ReactNode"
+    ]
+  },
+  {
+    "find": "<form action=\"/user/two-factor-authentication\" method=\"POST\">",
+    "replace": "<form action=\"/user/two-factor-authentication\" method=\"POST\" onSubmit={props.onEnableTwoFactor}>",
+    "once": true,
+    "props": [
+      "onEnableTwoFactor: FormEventHandler<HTMLFormElement>"
+    ]
+  },
+  {
+    "find": "(<div className=\"empty-state w-full\">[\\s\\S]*?Configure an authenticator app to add another sign-in check\\.</p>(?:\\s|\\{\" \"\\})*</div>(?:\\s|\\{\" \"\\})*</div>)",
+    "replace": "{props.twoFactorBody ?? (<>$1</>)}",
+    "once": true,
+    "props": [
+      "twoFactorBody?: ReactNode"
+    ]
   }
 ]

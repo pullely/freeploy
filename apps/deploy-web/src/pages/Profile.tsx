@@ -4,18 +4,55 @@
 // Saving the name and changing the password work as in Coolify, with its
 // toasts; the email change, avatar, 2FA, passkeys and account deletion are
 // later DP3 tasks.
-import type { FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Layout, useSignedIn } from "../layout/Layout";
 import { ProfileMarkup } from "./generated/ProfileMarkup";
 import { ProfilePortalMarkup } from "./generated/ProfilePortalMarkup";
 import { postJson, summarize } from "../lib/api";
 import { notify } from "../lib/toast";
+import { getJson } from "../lib/api";
+import { EnabledBadge, EnabledBody, PendingSetup, type TwoFactorState } from "./TwoFactorSection";
+
+/**
+ * Fortify's password.confirm middleware: a 423 sends the user to
+ * /user/confirm-password, which returns them here (redirect()->intended()).
+ */
+function requirePasswordConfirmation(status: number): boolean {
+  if (status !== 423) return false;
+  try {
+    sessionStorage.setItem("freeploy.intended", window.location.pathname);
+  } catch {
+    /* storage blocked: the confirm page falls back to / */
+  }
+  window.location.assign("/user/confirm-password");
+  return true;
+}
 
 const initial = (s: string) => (s.trim()[0] ?? "").toUpperCase();
 
 function ProfileContent() {
   const { me, setMe } = useSignedIn();
   const name = me.user.displayName?.trim() || me.user.email;
+  const [twoFactor, setTwoFactor] = useState<TwoFactorState>({ enabled: false, pending: false });
+  const [codes, setCodes] = useState<string[] | null>(null);
+  const loadTwoFactor = async () => {
+    const r = await getJson<TwoFactorState>("/v1/auth/two-factor");
+    if (r.data) setTwoFactor(r.data);
+  };
+  useEffect(() => {
+    void loadTwoFactor();
+  }, []);
+
+  async function twoFactorAction(e: FormEvent<HTMLFormElement>, path: string, method: "POST" | "DELETE", body: unknown = {}) {
+    e.preventDefault();
+    const res = await postJson<{ status: string; recoveryCodes?: string[] }>(path, body, method);
+    if (!res.ok) {
+      if (!requirePasswordConfirmation(res.error.status)) notify.error(summarize(res.error.messages));
+      return;
+    }
+    setCodes(res.data.recoveryCodes ?? null);
+    await loadTwoFactor();
+  }
 
   // <x-unsaved-bar>: shown (class is-dirty) while the form differs from what is saved.
   function onProfileInput(e: FormEvent<HTMLFormElement>) {
@@ -67,6 +104,30 @@ function ProfileContent() {
       userName={name}
       userEmail={me.user.email}
       teamName={me.team?.name ?? ""}
+      onEnableTwoFactor={(e) => void twoFactorAction(e, "/v1/auth/two-factor", "POST")}
+      {...(twoFactor.enabled
+        ? {
+            twoFactorAction: <EnabledBadge />,
+            twoFactorBody: (
+              <EnabledBody
+                codes={codes}
+                onRegenerate={(e) => void twoFactorAction(e, "/v1/auth/two-factor/recovery-codes", "POST")}
+                onDisable={(e) => void twoFactorAction(e, "/v1/auth/two-factor", "DELETE")}
+              />
+            ),
+          }
+        : twoFactor.pending
+          ? {
+              // Coolify hides the Configure button while setup is pending.
+              twoFactorAction: <></>,
+              twoFactorBody: (
+                <PendingSetup
+                  state={twoFactor}
+                  onConfirm={(e) => void twoFactorAction(e, "/v1/auth/two-factor/confirm", "POST", { code: new FormData(e.currentTarget).get("code") })}
+                />
+              ),
+            }
+          : {})}
     />
   );
 }
