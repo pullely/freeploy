@@ -1,0 +1,15 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-33
+  title: "DP4: SSH keys on Workers — Coolify's private key rules, public keys, fingerprints and generation"
+spec:
+  goal: deploy-core-worker can do with private keys what Coolify does with phpseclib — read unencrypted OpenSSH and PEM keys (Ed25519, ECDSA nistp256/384/521, RSA), refuse the rest with Coolify's messages, derive the OpenSSH public key and phpseclib's sha256/md5 fingerprints, and generate Ed25519 (OpenSSH) and RSA 4096 (PKCS#1) keys in phpseclib's byte layout — with Web Crypto only, checked against ssh-keygen.
+  affects:
+    - apps/deploy-core-worker/**
+    - tests/deploy-core-worker/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - the ssh-keys tests pass in CI, public keys and fingerprints equal to ssh-keygen's
+  gates: []
