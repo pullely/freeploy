@@ -1,0 +1,16 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-41
+  title: "DP4 fix: the sidebar opens the current page's submenu"
+spec:
+  goal: The layout's sidebar submenus (Team, Notifications, Keys & Tokens, …) were frozen, so the main menu always showed. Start each sidebar copy on the submenu that holds the current page, using Coolify's route patterns from navbar.blade.php, and swap panels client-side from a parent entry and from Back, with Coolify's nav-swap classes; bind it through the layout's patch rules so a regeneration reproduces the markup.
+  affects:
+    - apps/deploy-web/**
+    - tools/parity/port/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - on /security/private-key the Keys & Tokens submenu is the visible panel, on a team route the Team one, and on /profile the main menu
+    - pnpm -C apps/deploy-web typecheck, lint, build and test pass
+  gates: []
