@@ -1,0 +1,17 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-18
+  title: "DP3: capture the reference as a tenant (a regular user in their own team)"
+spec:
+  goal: The parity harness compares Freeploy with Coolify as a Freeploy tenant sees it. The reference seed creates a regular user with their own personal team, server and API token; the fixtures, behaviour scenarios and visual capture run as that user; the signed-in layout is regenerated from that capture; the stage parity user matches it.
+  affects:
+    - tools/parity/**
+    - .github/workflows/parity.yml
+    - apps/deploy-web/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - the reference seed, fixtures and behaviour scenarios pass as the regular user
+    - the layout markup is regenerated from that capture with no instance-admin entries
+  gates: []

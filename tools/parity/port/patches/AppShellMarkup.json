@@ -47,11 +47,11 @@
     ]
   },
   {
-    "find": "title=\"Team: (?:Root Team|Parity Root's Team)\"",
+    "find": "title=\"Team: (?:Root Team|Parity Root's Team|Parity User's Team)\"",
     "replace": "title={`Team: ${props.teamName}`}"
   },
   {
-    "find": ">(\\{\" \"\\})?(?:Root Team|Parity Root's Team)(\\{\" \"\\})?<",
+    "find": ">(\\{\" \"\\})?(?:Root Team|Parity Root's Team|Parity User's Team)(\\{\" \"\\})?<",
     "replace": ">$1{props.teamName}$2<",
     "props": [
       "teamName: string"
@@ -65,15 +65,15 @@
     ]
   },
   {
-    "find": "aria-label=\"Account menu for Parity Root\"",
+    "find": "aria-label=\"Account menu for (?:Parity Root|Parity User)\"",
     "replace": "aria-label={`Account menu for ${props.userName}`}"
   },
   {
-    "find": "(title|alt)=\"Parity Root\"",
+    "find": "(title|alt)=\"(?:Parity Root|Parity User)\"",
     "replace": "$1={props.userName}"
   },
   {
-    "find": ">(\\{\" \"\\})?Parity Root(\\{\" \"\\})?<",
+    "find": ">(\\{\" \"\\})?(?:Parity Root|Parity User)(\\{\" \"\\})?<",
     "replace": ">$1{props.userName}$2<",
     "props": [
       "userName: string"
@@ -87,7 +87,7 @@
     ]
   },
   {
-    "find": ">(\\{\" \"\\})?root@example\\.com(\\{\" \"\\})?<",
+    "find": ">(\\{\" \"\\})?(?:root|user)@example\\.com(\\{\" \"\\})?<",
     "replace": ">$1{props.userEmail}$2<",
     "props": [
       "userEmail: string"

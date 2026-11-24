@@ -15,7 +15,10 @@ OUT="${OUT:-tools/parity/out}"
 . "$OUT/reference.env"
 umask 077
 
-token=$(docker exec coolify php artisan tinker --execute '
+# The regular user's password: generated here, kept in $OUT/reference.env only.
+PARITY_USER_PASSWORD="Fp-$(openssl rand -hex 12)-U7!"
+printf 'REFERENCE_USER_EMAIL=user@example.com\nREFERENCE_USER_PASSWORD=%s\n' "$PARITY_USER_PASSWORD" >> "$OUT/reference.env"
+token=$(docker exec -e PARITY_USER_PASSWORD="$PARITY_USER_PASSWORD" coolify php artisan tinker --execute '
 $s = \App\Models\InstanceSettings::get();
 $s->is_api_enabled = true; $s->allowed_ips = null;
 // The "Love Coolify? Support our work" popup is an instance setting.
@@ -32,14 +35,23 @@ $s->is_registration_enabled = true;
 $s->smtp_enabled = true; $s->smtp_host = "smtp.example.com"; $s->smtp_port = 587;
 $s->smtp_from_address = "no-reply@example.com"; $s->smtp_from_name = "Parity"; $s->save();
 // The same as "Skip setup" on /onboarding: otherwise every page redirects there.
-// Freeploy has no instance root team: a user gets the personal team Coolify
-// gives every registered user (the name plus "s Team" with an apostrophe,
-// app/Models/User.php), so the reference root team is named the same for the
-// root user "Parity Root". chr(39) is the apostrophe: this whole block is
-// single-quoted for the shell, so it must never contain one.
-\App\Models\Team::find(0)->forceFill(["show_boarding" => false, "name" => "Parity Root" . chr(39) . "s Team"])->save();
-$u = \App\Models\User::find(0);
-$t = $u->createToken("parity", ["root"], null, 0);
+\App\Models\Team::find(0)->forceFill(["show_boarding" => false])->save();
+// The capture and the fixtures use a regular user in their own team, because
+// that is what every Freeploy tenant is: Coolify gives a registered user the
+// personal team "<name> + s Team" (app/Models/User.php created hook) and no
+// instance-admin surfaces. Root stays the instance admin for DP12 pages.
+$u = \App\Models\User::create(["name" => "Parity User", "email" => "user@example.com", "password" => \Illuminate\Support\Facades\Hash::make(getenv("PARITY_USER_PASSWORD"))]);
+$u->forceFill(["email_verified_at" => now()])->save();
+$team = $u->teams()->first();
+$team->forceFill(["show_boarding" => false])->save();
+// Its own "localhost" server: the same host and SSH key as the root team uses
+// for the runner, so deployments in the behaviour scenarios land on the runner.
+$root = \App\Models\Server::find(0);
+$key = \App\Models\PrivateKey::find($root->private_key_id)->replicate(["uuid", "fingerprint"]);
+$key->team_id = $team->id; $key->name = "localhost"; $key->save();
+$server = \App\Models\Server::create(["name" => "localhost", "description" => $root->description, "ip" => $root->ip, "port" => $root->port, "user" => $root->user, "team_id" => $team->id, "private_key_id" => $key->id]);
+$server->settings->forceFill(["is_reachable" => true, "is_usable" => true])->save();
+$t = $u->createToken("parity", ["root"], null, $team->id);
 echo $t->plainTextToken;' | tail -n 1 | tr -d '\r')
 [ -n "$token" ] || { echo "could not mint a reference API token" >&2; exit 1; }
 printf 'REFERENCE_TOKEN=%s\n' "$token" >> "$OUT/reference.env"
