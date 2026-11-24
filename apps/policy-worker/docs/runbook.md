@@ -38,5 +38,7 @@ exercised through `api-edge` (this Worker has no public URL).
   --changed` does not yet redeploy a dependent when only a `dependsOn`
   package changed, so a change to `packages/policy-engine` alone leaves this
   Worker on its old copy (Freeploy DP-38: `deploy.resource.*`, added in #18,
-  was denied on stage and prod until this Worker was redeployed). Land any
-  change under `apps/policy-worker` to redeploy it.
+  was denied on stage and prod). Land any change under `apps/policy-worker`
+  to redeploy it. Also check the action is in `ALL_KNOWN_ACTIONS` as well as
+  in a role's grants: a missing one is denied as `unknown_action` before any
+  role is consulted (DP-40).

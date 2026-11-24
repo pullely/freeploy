@@ -254,6 +254,11 @@ const ALL_KNOWN_ACTIONS: ReadonlySet<string> = new Set([
   "organization.integration.manage",
   "organization.integration.token.issue",
   "project.repo_link.write",
+  // Freeploy's deploy console (freeploy-coolify-parity DP2). Granted to roles
+  // above; an action missing here is denied as unknown_action before any
+  // role is consulted (DP-40).
+  "deploy.resource.read",
+  "deploy.resource.write",
 ]);
 
 function isOrgRole(role: string): role is OrganizationRole {

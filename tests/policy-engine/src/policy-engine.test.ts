@@ -81,6 +81,28 @@ describe("authorize", () => {
     });
   });
 
+  describe("deploy console actions (DP-40)", () => {
+    // #18 granted these to roles but left them out of the known actions, so
+    // every request was denied as unknown_action before roles were consulted.
+    it.each([
+      ["owner", true, true],
+      ["admin", true, true],
+      ["builder", true, true],
+      ["viewer", true, false],
+      ["billing_admin", false, false],
+    ])("%s: read %s, write %s", (role, read, write) => {
+      const facts = [orgFact(role, "org_1")];
+      expect(authorize(authReq("deploy.resource.read", "org_1", facts)).allow).toBe(read);
+      expect(authorize(authReq("deploy.resource.write", "org_1", facts)).allow).toBe(write);
+    });
+
+    it("is never unknown_action", () => {
+      for (const action of ["deploy.resource.read", "deploy.resource.write"]) {
+        expect(authorize(authReq(action, "org_1", [])).reason).toBe("no_matching_role");
+      }
+    });
+  });
+
   describe("cross-organization denial", () => {
     it("denies access when role is for a different organization", () => {
       const result = authorize(authReq("organization.read", "org_2", [orgFact("owner", "org_1")]));
@@ -686,7 +708,7 @@ describe("listEffectivePermissions", () => {
     expect(result.derivedScope.orgId).toBe("org_1");
 
     const allowed = result.permissions.filter((p) => p.allow);
-    expect(allowed.length).toBe(31);
+    expect(allowed.length).toBe(33); // 31 + deploy.resource.read/write (DP-40)
   });
 
   it("returns limited permissions for viewer", () => {
@@ -698,6 +720,7 @@ describe("listEffectivePermissions", () => {
     const result = listEffectivePermissions(input);
     const allowed = result.permissions.filter((p) => p.allow);
     expect(allowed.map((p) => p.action).sort()).toEqual([
+      "deploy.resource.read",
       "organization.config.read",
       "organization.integration.read",
       "organization.metering.read",
