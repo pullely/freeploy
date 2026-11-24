@@ -1,0 +1,15 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-38
+  title: "DP4 fix: redeploy policy-worker so deploy actions are allowed"
+spec:
+  goal: The policy-worker on stage and prod was last deployed before deploy.resource.read/write existed (#18 changed only packages/policy-engine, and the plan did not redeploy its dependent), so every deploy-core route answered 404 to the org owner. Redeploy it and record the cause.
+  affects:
+    - apps/policy-worker/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - on stage GET /v1/organizations/{org}/deploy/private-keys answers 200 to the org owner
+    - /security/private-key passes the stage DOM gate or each difference is listed with its cause
+  gates: []
