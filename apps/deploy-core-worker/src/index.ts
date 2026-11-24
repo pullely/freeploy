@@ -6,6 +6,8 @@
 import type { Env } from "./env.js";
 import { route } from "./router.js";
 
+export { SshSession } from "./ssh-session.js";
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     return route(request, env);
