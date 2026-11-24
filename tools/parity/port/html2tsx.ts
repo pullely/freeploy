@@ -108,6 +108,12 @@ function attrs(n: Node): string {
   const out: string[] = [];
   const isToken = (n.attrs ?? []).some((a) => a.name === "name" && a.value === "_token");
   for (const a of n.attrs ?? []) {
+    // The Livewire property a control is bound to identifies the field (the
+    // React page binds the same one), so it is kept as data-wire-model.
+    if (a.name.startsWith("wire:model") && !(n.attrs ?? []).some((x) => x.name === "data-wire-model")) {
+      out.push(`data-wire-model=${jsxString(a.value)}`);
+      continue;
+    }
     if (dropAttr(a.name)) continue;
     // Empty presentational or numeric attributes carry nothing and do not type in React.
     if (a.value === "" && ["style", "min", "max", "minlength", "maxlength", "step", "pattern", "size"].includes(a.name)) continue;

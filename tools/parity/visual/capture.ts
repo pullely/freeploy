@@ -68,8 +68,17 @@ async function domExtract(page: Page) {
       return {
         tag: e.tagName.toLowerCase(),
         type: e.getAttribute("type") ?? null,
-        name: e.getAttribute("name") ?? e.getAttribute("wire:model") ?? e.getAttribute("wire:model.live") ?? e.id ?? null,
-        label: norm((e.labels?.[0]?.innerText ?? e.getAttribute("aria-label") ?? e.getAttribute("placeholder") ?? "").trim()),
+        // A field is named by its name, else the Livewire property it is bound
+        // to (wire:model, any modifier; data-wire-model in the port), else its id.
+        name:
+          e.getAttribute("name") ??
+          [...e.attributes].find((a) => a.name.startsWith("wire:model"))?.value ??
+          e.getAttribute("data-wire-model") ??
+          e.id ??
+          null,
+        // Whitespace inside a label is not part of its identity (Livewire's
+        // comment markers split its text nodes; how it renders is the pixel gate's job).
+        label: norm((e.labels?.[0]?.innerText ?? e.getAttribute("aria-label") ?? e.getAttribute("placeholder") ?? "").replace(/\s+/g, " ").trim()),
         disabled: e.disabled ?? false,
       };
     });

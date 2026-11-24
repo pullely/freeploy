@@ -19,3 +19,6 @@ F=routes.web__profile/desktop-light.html
 gen "$F" --select div.w-full.mx-auto --nth "$(node tools/parity/port/nth-main.ts "$R/$F")" --inner --name ProfileMarkup \
   --patch tools/parity/port/patches/ProfileMarkup.json --out "$P/ProfileMarkup.tsx"
 gen "$F" --select body --inner --skip "$TAKE" --name ProfilePortalMarkup --out "$P/ProfilePortalMarkup.tsx"
+
+# /profile/appearance: the page's own <body> overlays (the custom theme dialog).
+gen "$A" --select body --inner --skip "$TAKE" --name AppearancePortalMarkup --out "$P/AppearancePortalMarkup.tsx"

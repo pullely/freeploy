@@ -92,7 +92,7 @@ export function ProfileMarkup(props: ProfileMarkupProps) {
                   {" "}
                   {" "}
                   {" "}
-                  <input autoComplete="off" className="input" required type="text" id="name-ky4zkpmnohqgsndeuapxlumw" name="name" placeholder="" defaultValue={props.userName} />
+                  <input autoComplete="off" className="input" required data-wire-model="name" type="text" id="name-ky4zkpmnohqgsndeuapxlumw" name="name" placeholder="" defaultValue={props.userName} />
                   {" "}
                   {" "}
                   {" "}
@@ -110,7 +110,7 @@ export function ProfileMarkup(props: ProfileMarkupProps) {
                     {" "}
                     {" "}
                     {" "}
-                    <input autoComplete="off" className="input" readOnly type="text" id="email-wu36pvzh7e7xktez67idjdte" name="email" placeholder="" defaultValue={props.userEmail} />
+                    <input autoComplete="off" className="input" readOnly data-wire-model="email" type="text" id="email-wu36pvzh7e7xktez67idjdte" name="email" placeholder="" defaultValue={props.userEmail} />
                     {" "}
                     {" "}
                     {" "}
@@ -158,7 +158,7 @@ export function ProfileMarkup(props: ProfileMarkupProps) {
                   {" "}
                   {" "}
                   <div className="relative">
-                    <input autoComplete="off" defaultValue="" className="input input-with-password-toggle sm:col-span-2" required id="current_password-18cocar69h3krmtsliaiknxx" name="current_password" placeholder="" aria-placeholder="" type="password" />
+                    <input autoComplete="off" defaultValue="" className="input input-with-password-toggle sm:col-span-2" required data-wire-model="current_password" id="current_password-18cocar69h3krmtsliaiknxx" name="current_password" placeholder="" aria-placeholder="" type="password" />
                     {" "}
                     {" "}
                     <button type="button" className="password-toggle flex absolute inset-y-0 right-0 z-10 items-center pr-2 cursor-pointer text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white" aria-label="Toggle password visibility">
@@ -197,7 +197,7 @@ export function ProfileMarkup(props: ProfileMarkupProps) {
                   {" "}
                   {" "}
                   <div className="relative">
-                    <input autoComplete="off" defaultValue="" className="input input-with-password-toggle" required id="new_password-pinhnuzpykp4wwxsrrqgkak9" name="new_password" placeholder="" aria-placeholder="" type="password" />
+                    <input autoComplete="off" defaultValue="" className="input input-with-password-toggle" required data-wire-model="new_password" id="new_password-pinhnuzpykp4wwxsrrqgkak9" name="new_password" placeholder="" aria-placeholder="" type="password" />
                     {" "}
                     {" "}
                     <button type="button" className="password-toggle flex absolute inset-y-0 right-0 z-10 items-center pr-2 cursor-pointer text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white" aria-label="Toggle password visibility">
@@ -236,7 +236,7 @@ export function ProfileMarkup(props: ProfileMarkupProps) {
                   {" "}
                   {" "}
                   <div className="relative">
-                    <input autoComplete="off" defaultValue="" className="input input-with-password-toggle" required id="new_password_confirmation-f5env2gtiaeljugqj7tndroe" name="new_password_confirmation" placeholder="" aria-placeholder="" type="password" />
+                    <input autoComplete="off" defaultValue="" className="input input-with-password-toggle" required data-wire-model="new_password_confirmation" id="new_password_confirmation-f5env2gtiaeljugqj7tndroe" name="new_password_confirmation" placeholder="" aria-placeholder="" type="password" />
                     {" "}
                     {" "}
                     <button type="button" className="password-toggle flex absolute inset-y-0 right-0 z-10 items-center pr-2 cursor-pointer text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white" aria-label="Toggle password visibility">

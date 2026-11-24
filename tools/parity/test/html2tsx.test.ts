@@ -61,3 +61,9 @@ test("the layout is the body prefix every page shares", async () => {
   assert.equal(sharedPrefix(["div.a#", "div.b#", "div.page#"], ["div.a#", "div.b#", "div.other#"]), 2);
   assert.equal(sharedPrefix(["div.a#"], []), 0);
 });
+
+test("a Livewire-bound control keeps its binding as data-wire-model", () => {
+  const out = convert(`<input id="host-abc" wire:model.live="endpointParts.host" type="text">`, "input", "P", "test");
+  assert.match(out, /data-wire-model="endpointParts\.host"/);
+  assert.doesNotMatch(out, /wire:/);
+});
