@@ -1,0 +1,19 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-36
+  title: "DP4: private keys — Coolify's Keys & Tokens → Private Keys, API and page"
+spec:
+  goal: An org manages its SSH private keys as in Coolify — add one (validated with Coolify's rules and messages, refused if it already exists in the org), generate Ed25519 or RSA, rename or replace it, see where it is used, delete it unless in use, and clean up unused keys — with each key encrypted under the org's key and isolated by row-level security; /security/private-key is ported from the reference. Rotation and revealing the stored key need the SSH executor and a password check that deploy-core cannot do yet, and say so.
+  affects:
+    - apps/deploy-core-worker/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - on stage a signed-in user generates, adds, renames and deletes a private key on /security/private-key
+    - /security/private-key passes the stage DOM gate or each difference is listed with its cause
+  gates: []

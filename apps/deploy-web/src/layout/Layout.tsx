@@ -16,7 +16,8 @@ import { showMonthlyReminder } from "../lib/reminder";
 
 export interface Me {
   user: { id: string; email: string; displayName: string | null; lastOrgSlug?: string | null };
-  team: { name: string; slug: string } | null;
+  /** The current org; `id` is its public id (org_…), the path segment of /v1/organizations/{id}/…. */
+  team: { id: string; name: string; slug: string } | null;
   /** The profile picture, when the user has one. */
   avatarUrl: string | null;
 }
@@ -53,9 +54,10 @@ export function useMe(): [Me | null, (me: Me) => void] {
         window.location.replace("/verify");
         return;
       }
-      const orgs = await getJson<{ organizations: Array<{ name: string; slug: string }> }>("/v1/organizations");
+      const orgs = await getJson<{ organizations: Array<{ id: string; name: string; slug: string }> }>("/v1/organizations");
       const list = orgs.data?.organizations ?? [];
-      const team = list.find((o) => o.slug === session.data!.user.lastOrgSlug) ?? list[0] ?? null;
+      const found = list.find((o) => o.slug === session.data!.user.lastOrgSlug) ?? list[0] ?? null;
+      const team = found ? { id: found.id, name: found.name, slug: found.slug } : null;
       setMe({ user: session.data.user, team, avatarUrl: session.data.avatarPath ? edgeBase() + session.data.avatarPath : null });
     })();
   }, []);
