@@ -77,6 +77,22 @@ function htmlShell(title: string, bodyHtml: string, footerLine: string): string 
 
 type TemplateRenderer = (data: TemplateData, opts: TemplateRenderOptions) => RenderedEmail;
 
+// Derived from coollabsio/coolify@91b7e3e:resources/views/emails/reset-password.blade.php
+// and app/Notifications/TransactionalEmails/ResetPassword.php (Apache-2.0), modified:
+// Coolify's subject and copy, brand swapped. (Byte-equal email HTML is DP9's gate.)
+const renderPasswordReset: TemplateRenderer = (data, opts) => {
+  const brand = opts.brandName ?? "Freeploy";
+  const url = str(data, "url");
+  const count = str(data, "count");
+  const text = `A password reset has been requested for this email address.\n\nClick here (${url}) to reset your password.\n\nThis link will expire in ${count} minutes.`;
+  const html = htmlShell(
+    `${brand}: Reset Password`,
+    `<p>A password reset has been requested for this email address.</p><p>Click <a href="${escapeHtml(url)}">here</a> to reset your password.</p><p>This link will expire in ${escapeHtml(count)} minutes.</p>`,
+    brand,
+  );
+  return { subject: `${brand}: Reset Password`, html, text };
+};
+
 const renderMagicLink: TemplateRenderer = (data, opts) => {
   const code = str(data, "code");
   const expires = formatTimestamp(str(data, "expiresAt"));
@@ -171,6 +187,7 @@ const renderInvitationAccepted: TemplateRenderer = (data, opts) => {
 
 const TEMPLATES: Record<string, TemplateRenderer> = {
   "auth.magic_link": renderMagicLink,
+  "auth.password_reset": renderPasswordReset,
   "invitation.created": renderInvitationCreated,
   "invitation.accepted": renderInvitationAccepted,
 };

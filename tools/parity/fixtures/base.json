@@ -264,6 +264,7 @@
  ],
  "constants": {
   "type": "hetzner",
-  "provider": "github"
+  "provider": "github",
+  "token": "parity-reset-token"
  }
 }

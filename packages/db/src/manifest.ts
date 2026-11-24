@@ -219,5 +219,14 @@ export const manifest: MigrationManifest = {
       description:
         "Email + password sign-in (freeploy-coolify-parity DP3) — one PBKDF2-SHA256 credential per user, and an index for the attempt counts that throttle sign-in and registration",
     },
+    {
+      id: "540_identity_password_resets",
+      context: "identity",
+      path: "540_identity_password_resets/up.sql",
+      checksum:
+        "9e241b5fc946f1a9c568cd8a07c0ff486be35ab4c4d6e61b17125a43b5d9a17b",
+      description:
+        "Password reset tokens (freeploy-coolify-parity DP3) — one hashed token per user, Laravel broker semantics (10-minute expiry, 60-second throttle)",
+    },
   ],
 };
