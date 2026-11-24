@@ -1,0 +1,15 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-35
+  title: "DP3 fix: the edge forwards PUT and DELETE bodies on auth routes"
+spec:
+  goal: Auth routes that carry a body on PUT or DELETE get it at identity — the avatar upload (PUT) and the password that confirms deleting a passkey or the account (DELETE) — so those flows work on stage; verified live with a passkey added, used to sign in, and deleted, and an avatar uploaded.
+  affects:
+    - apps/api-edge/**
+    - tests/api-edge/**
+    - tasks/**
+  doneWhen:
+    - on stage a passkey is added, used to sign in, and deleted from /profile
+    - on stage an avatar upload through the edge is accepted
+  gates: []
