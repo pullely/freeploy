@@ -163,3 +163,13 @@ export {
   type DeployRegistryServerRow,
   type DeployRegistryUserRow,
 } from "./registries.js";
+export {
+  findServerCaCertificate,
+  deleteSslCertificates,
+  insertSslCertificate,
+  updateSslCertificateContent,
+  type DeploySslCertificateRow,
+  type DeploySslCertificateWithSecretRow,
+  type NewSslCertificate,
+  type SslCertificateOwner,
+} from "./ssl-certificates.js";

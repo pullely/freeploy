@@ -25,6 +25,7 @@ const CloudTokenShowPage = lazy(() => import("./pages/CloudTokenEditor").then((m
 const CloudInitScriptsPage = lazy(() => import("./pages/CloudInitScripts").then((m) => ({ default: m.CloudInitScriptsPage })));
 const CloudInitScriptShowPage = lazy(() => import("./pages/CloudInitScriptEditor").then((m) => ({ default: m.CloudInitScriptShowPage })));
 const ServerCloudTokenPage = lazy(() => import("./pages/ServerCloudToken").then((m) => ({ default: m.ServerCloudTokenPage })));
+const ServerCaCertificatePage = lazy(() => import("./pages/ServerCaCertificate").then((m) => ({ default: m.ServerCaCertificatePage })));
 const ServersPage = lazy(() => import("./pages/Servers").then((m) => ({ default: m.ServersPage })));
 const ServerCreatePage = lazy(() => import("./pages/ServerCreate").then((m) => ({ default: m.ServerCreatePage })));
 const ServerShowPage = lazy(() => import("./pages/ServerShow").then((m) => ({ default: m.ServerShowPage })));
@@ -152,6 +153,12 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <ServerCloudTokenPage />
+        </Suspense>
+      );
+    case "server.ca-certificate":
+      return (
+        <Suspense fallback={null}>
+          <ServerCaCertificatePage />
         </Suspense>
       );
     case "server.index":

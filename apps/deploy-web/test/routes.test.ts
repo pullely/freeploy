@@ -43,6 +43,9 @@ test("routes/web.php paths map to ported pages; the rest are not ported", () => 
   assert.equal(pageFor("/server/abc123def456ghi789jkl012"), "server.show");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/private-key"), "server.private-key");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/cloud-provider-token"), "server.cloud-provider-token");
+  assert.equal(pageFor("/server/abc123def456ghi789jkl012/ca-certificate"), "server.ca-certificate");
+  assert.equal(pageFor("/server/abc123def456ghi789jkl012/ca-certificate/"), "server.ca-certificate");
+  assert.equal(pageFor("/server/abc123def456ghi789jkl012/ca-certificate/regenerate"), "not-ported");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/danger"), "server.delete");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/proxy"), "not-ported");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/advanced"), "server.advanced");

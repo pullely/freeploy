@@ -751,3 +751,33 @@ function md5(msg: Uint8Array): Uint8Array {
   [a0, b0, c0, d0].forEach((v, i) => ov.setUint32(i * 4, v >>> 0, true));
   return out;
 }
+
+// ---------------------------------------------------------------- shared with src/ssl (DP-48)
+
+/** The DER, byte and Web Crypto helpers above, for the X.509 code in src/ssl/. Readers throw SshKeyError. */
+export {
+  parsePrivateKey,
+  CURVES,
+  OID,
+  readTlv,
+  readOnly,
+  children,
+  intOf,
+  oidOf,
+  tlv,
+  derInt,
+  derOid,
+  bytesToBigInt,
+  padLeft,
+  utf8,
+  sshConcat as concatBytes,
+  b64encode,
+  b64decode,
+  b64urlDecode,
+  chunk,
+  exportJwk,
+  importJwk,
+  type ParsedKey,
+  type Curve,
+  type Tlv,
+};
