@@ -80,8 +80,8 @@
     ]
   },
   {
-    "find": "(<span className=\"flex size-5 shrink-0 items-center justify-center rounded-full [^\"]*\">)(\\{\" \"\\})?[A-Z](\\{\" \"\\})?<",
-    "replace": "$1$2{props.userInitial}$3<",
+    "find": "(<span className=\"flex size-5 shrink-0 items-center justify-center rounded-full [^\"]*\")>(\\{\" \"\\})?[A-Z](\\{\" \"\\})?<",
+    "replace": "$1 {...(props.avatarUrl ? { style: { \"display\": \"none\" } } : {})}>$2{props.userInitial}$3<",
     "props": [
       "userInitial: string"
     ]
@@ -123,6 +123,13 @@
     "replace": "<ul className=\"$1\" data-teleport-target=\"true\">{props.toasts}</ul>",
     "props": [
       "toasts?: ReactNode"
+    ]
+  },
+  {
+    "find": "<img alt=\\{props\\.userName\\} className=\"size-5 shrink-0 rounded-full object-cover\" style=\\{\\{ \"display\": \"none\" \\}\\} />",
+    "replace": "<img alt={props.userName} className=\"size-5 shrink-0 rounded-full object-cover\" {...(props.avatarUrl ? { src: props.avatarUrl } : { style: { \"display\": \"none\" } })} />",
+    "props": [
+      "avatarUrl: string | null"
     ]
   }
 ]

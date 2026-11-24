@@ -1,0 +1,21 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-25
+  title: "DP3: close the milestone — account deletion, avatar, 2FA-required page, custom theme, faster parity"
+spec:
+  goal: The remaining DP3 surfaces work as in Coolify — account deletion with Coolify's blockers, the avatar upload, /two-factor-required, and the custom theme dialog with Coolify's colour engine — the component gallery is deferred with its reason (risks DP-M), and parity runs faster by reusing an unchanged reference capture in CI and by comparing stage locally.
+  affects:
+    - apps/deploy-web/**
+    - apps/identity-worker/**
+    - apps/api-edge/**
+    - packages/db/**
+    - tests/identity-worker/**
+    - tools/parity/**
+    - .github/workflows/parity.yml
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - migration 580 is applied on stage and prod
+    - the auth and profile routes pass the stage gate, or each remaining difference is listed with its cause
+  gates: []

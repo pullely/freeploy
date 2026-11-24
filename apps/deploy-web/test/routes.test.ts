@@ -42,3 +42,17 @@ test("Carbon's diffForHumans for past times", () => {
   assert.equal(ago("2026-11-24T09:00:00Z", now), "3 hours ago");
   assert.equal(ago("2026-11-17T12:00:00Z", now), "1 week ago");
 });
+
+import { hexToOklch, parseCustomTheme, serializeCustomTheme, readableTextOn, themeAccentForeground } from "../src/lib/custom-theme.ts";
+
+test("the custom theme engine matches Coolify's numbers", () => {
+  // Coolify's default accent, as base.blade.php hard-codes it.
+  assert.equal(hexToOklch("#6b16ed"), "oklch(49.65% 0.2709 289.33)");
+  assert.equal(themeAccentForeground("#6b16ed"), "oklch(100% 0 0)");
+  assert.equal(readableTextOn("#ffffff"), "#18181b");
+  assert.equal(readableTextOn("#0a0a0a"), "#f4f4f5");
+  const nord = parseCustomTheme("#2e3440, #4c566a,#88c0d0 #3b4252")!;
+  assert.equal(serializeCustomTheme(nord), "#2e3440,#4c566a,#88c0d0,#3b4252");
+  assert.equal(parseCustomTheme("#fff,#000"), null);
+  assert.equal(parseCustomTheme("#fff,#000,#abc,#123")!.selected, "#000000");
+});

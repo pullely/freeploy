@@ -97,3 +97,10 @@ runner minutes or flakiness make it impractical.
 `COOLIFY_REF` is pinned at `91b7e3e` and moves only in its own task and PR,
 which regenerates the inventory, lists new or changed rows and mints a new
 milestone for them. Revisit after DP13.
+
+## DP-M — Component gallery (DEFERRED, owner's decision 2026-11-24)
+
+- **Was:** DP3's done-when included a visual gate on a component-gallery route showing all 145 Blade components.
+- **Why deferred:** Coolify has no gallery page, so there is no reference to compare one against. Building one means rendering every component with synthesised props on both the reference (through Blade) and Freeploy, a harness project of its own. The same components are already compared, with real props, on every page that renders them, and every later milestone's pages add more of them.
+- **Instead:** component parity is measured through the page routes (the visual and DOM gate per route). `x-modal-confirmation`, used for account and passkey deletion, is ported with the first page that needs its full three steps; until then those flows use a simpler confirmation, noted in IMPLEMENTATION-STATUS.
+- **Revisit:** at DP13 certification, if a component never appears on a gated route.

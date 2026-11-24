@@ -17,13 +17,6 @@
     ]
   },
   {
-    "find": "<span>\\{\" \"\\}[A-Z]\\{\" \"\\}</span>",
-    "replace": "<span>{\" \"}{props.userInitial}{\" \"}</span>",
-    "props": [
-      "userInitial: string"
-    ]
-  },
-  {
     "find": "name=\"name\" placeholder=\"\" />",
     "replace": "name=\"name\" placeholder=\"\" defaultValue={props.userName} />",
     "props": [
@@ -35,13 +28,6 @@
     "replace": "name=\"email\" placeholder=\"\" defaultValue={props.userEmail} />",
     "props": [
       "userEmail: string"
-    ]
-  },
-  {
-    "find": "the team \"[^\"]*\"\\.",
-    "replace": "the team \"{props.teamName}\".",
-    "props": [
-      "teamName: string"
     ]
   },
   {
@@ -83,6 +69,59 @@
     "props": [
       "onChangeEmail: () => void",
       "emailDialogOpen: boolean"
+    ]
+  },
+  {
+    "find": "(<div className=\"mt-2 max-w-2xl space-y-2 text-\\[13px\\] leading-5 text-neutral-600 dark:text-fg-dim\">)[\\s\\S]*?</ul>(?:\\s|\\{\" \"\\})*</div>",
+    "replace": "$1{props.deletionText}</div>",
+    "once": true,
+    "props": [
+      "deletionText?: ReactNode"
+    ]
+  },
+  {
+    "find": "<span className=\"relative inline-flex\" tabIndex=\\{0\\}>(?:\\s|\\{\" \"\\})*<button disabled className=\"button button-error\" type=\"button\">\\{\" \"\\}Delete account\\{\" \"\\}</button>[\\s\\S]*?</span>",
+    "replace": "{props.deletionAction}",
+    "once": true,
+    "props": [
+      "deletionAction?: ReactNode"
+    ]
+  },
+  {
+    "find": "<img alt=\"Profile picture preview\" className=\"h-full w-full object-cover\" style=\\{\\{ \"display\": \"none\" \\}\\} />",
+    "replace": "<img alt=\"Profile picture preview\" className=\"h-full w-full object-cover\" {...(props.avatarPreview ? { src: props.avatarPreview } : { style: { \"display\": \"none\" } })} />",
+    "props": [
+      "avatarPreview: string | null"
+    ]
+  },
+  {
+    "find": "<span>\\{\" \"\\}[A-Z]\\{\" \"\\}</span>",
+    "replace": "{props.avatarUrl ? (<img src={props.avatarUrl} alt={props.userName} className=\"h-full w-full object-cover\" {...(props.avatarPreview ? { style: { \"display\": \"none\" } } : {})} />) : (<span {...(props.avatarPreview ? { style: { \"display\": \"none\" } } : {})}>{\" \"}{props.userInitial}{\" \"}</span>)}",
+    "props": [
+      "userInitial: string",
+      "avatarUrl: string | null"
+    ]
+  },
+  {
+    "find": "<input type=\"file\" accept=\"image/jpeg,image/png,image/webp\" className=\"hidden\" />",
+    "replace": "<input type=\"file\" accept=\"image/jpeg,image/png,image/webp\" className=\"hidden\" id=\"avatar-input\" onChange={props.onAvatarFile} />",
+    "props": [
+      "onAvatarFile: (e: import(\"react\").ChangeEvent<HTMLInputElement>) => void"
+    ]
+  },
+  {
+    "find": "<button className=\"button\" type=\"button\">(?:\\s|\\{\" \"\\})*<span>Browse\u2026</span>(?:\\s|\\{\" \"\\})*</button>",
+    "replace": "<button className=\"button\" type=\"button\" disabled={props.avatarBusy} onClick={() => document.getElementById(\"avatar-input\")?.click()}>\n                          <span>{props.avatarBusy ? \"Uploading\u2026\" : \"Browse\u2026\"}</span>\n                        </button>\n                        {props.avatarUrl ? (<button className=\"button button-error\" type=\"button\" disabled={props.avatarBusy} onClick={props.onAvatarRemove}>Remove</button>) : null}",
+    "props": [
+      "avatarBusy: boolean",
+      "onAvatarRemove: () => void"
+    ]
+  },
+  {
+    "find": "<p className=\"text-xs text-red-500\" style=\\{\\{ \"display\": \"none\" \\}\\} />",
+    "replace": "<p className=\"text-xs text-red-500\" {...(props.avatarError ? {} : { style: { \"display\": \"none\" } })}>{props.avatarError}</p>",
+    "props": [
+      "avatarError: string | null"
     ]
   }
 ]

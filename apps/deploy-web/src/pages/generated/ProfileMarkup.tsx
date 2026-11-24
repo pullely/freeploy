@@ -8,16 +8,23 @@ export interface ProfileMarkupProps {
   onSaveProfile: FormEventHandler<HTMLFormElement>;
   onProfileInput: FormEventHandler<HTMLFormElement>;
   onChangePassword: FormEventHandler<HTMLFormElement>;
-  userInitial: string;
   userName: string;
   userEmail: string;
-  teamName: string;
   twoFactorAction?: ReactNode;
   onEnableTwoFactor: FormEventHandler<HTMLFormElement>;
   twoFactorBody?: ReactNode;
   passkeys?: ReactNode;
   onChangeEmail: () => void;
   emailDialogOpen: boolean;
+  deletionText?: ReactNode;
+  deletionAction?: ReactNode;
+  avatarPreview: string | null;
+  userInitial: string;
+  avatarUrl: string | null;
+  onAvatarFile: (e: import("react").ChangeEvent<HTMLInputElement>) => void;
+  avatarBusy: boolean;
+  onAvatarRemove: () => void;
+  avatarError: string | null;
 }
 
 export function ProfileMarkup(props: ProfileMarkupProps) {
@@ -55,28 +62,28 @@ export function ProfileMarkup(props: ProfileMarkupProps) {
                   {" "}
                   <div className="flex items-center gap-4">
                     <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-neutral-200 text-2xl font-semibold text-neutral-700 dark:bg-white/[0.1] dark:text-fg">
-                      <img alt="Profile picture preview" className="h-full w-full object-cover" style={{ "display": "none" }} />
+                      <img alt="Profile picture preview" className="h-full w-full object-cover" {...(props.avatarPreview ? { src: props.avatarPreview } : { style: { "display": "none" } })} />
                       {" "}
                       {" "}
-                      <span>{" "}{props.userInitial}{" "}</span>
+                      {props.avatarUrl ? (<img src={props.avatarUrl} alt={props.userName} className="h-full w-full object-cover" {...(props.avatarPreview ? { style: { "display": "none" } } : {})} />) : (<span {...(props.avatarPreview ? { style: { "display": "none" } } : {})}>{" "}{props.userInitial}{" "}</span>)}
                       {" "}
                     </div>
                     {" "}
                     <div className="flex min-w-0 flex-1 flex-col gap-2">
                       <div className="flex flex-wrap gap-2">
-                        <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" />
+                        <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" id="avatar-input" onChange={props.onAvatarFile} />
                         {" "}
-                        <button className="button" type="button">
-                          {" "}
-                          <span>Browse…</span>
+                        <button className="button" type="button" disabled={props.avatarBusy} onClick={() => document.getElementById("avatar-input")?.click()}>
+                          <span>{props.avatarBusy ? "Uploading…" : "Browse…"}</span>
                         </button>
+                        {props.avatarUrl ? (<button className="button button-error" type="button" disabled={props.avatarBusy} onClick={props.onAvatarRemove}>Remove</button>) : null}
                         {" "}
                         {" "}
                       </div>
                       {" "}
                       <p className="text-xs text-neutral-500 dark:text-fg-dim">JPG, PNG, or WebP. Shown in the user menu and team member lists.</p>
                       {" "}
-                      <p className="text-xs text-red-500" style={{ "display": "none" }} />
+                      <p className="text-xs text-red-500" {...(props.avatarError ? {} : { style: { "display": "none" } })}>{props.avatarError}</p>
                       {" "}
                     </div>
                   </div>
@@ -383,27 +390,13 @@ export function ProfileMarkup(props: ProfileMarkupProps) {
                     </span>
                   </div>
                   {" "}
-                  <div className="mt-2 max-w-2xl space-y-2 text-[13px] leading-5 text-neutral-600 dark:text-fg-dim">
-                    {" "}
-                    <p>Before you can delete your account:</p>
-                    {" "}
-                    <ul className="space-y-1">
-                      {" "}
-                      <li>• Delete all projects, servers, and Git sources of the team "{props.teamName}".</li>
-                      {" "}
-                    </ul>
-                    {" "}
-                  </div>
+                  <div className="mt-2 max-w-2xl space-y-2 text-[13px] leading-5 text-neutral-600 dark:text-fg-dim">{props.deletionText}</div>
                 </div>
                 {" "}
                 {" "}
                 <div className="shrink-0">
                   {" "}
-                  <span className="relative inline-flex" tabIndex={0}>
-                    <button disabled className="button button-error" type="button">{" "}Delete account{" "}</button>
-                    {" "}
-                    {" "}
-                  </span>
+                  {props.deletionAction}
                   {" "}
                   {" "}
                 </div>

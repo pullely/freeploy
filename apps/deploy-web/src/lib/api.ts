@@ -63,7 +63,7 @@ export function summarize(messages: string[]): string {
 }
 
 /** POST JSON to the edge; on failure, the field messages flattened the way Laravel shows them. */
-export async function postJson<T>(path: string, body: unknown, method: "POST" | "PATCH" | "DELETE" = "POST"): Promise<{ ok: true; data: T } | { ok: false; error: ApiError }> {
+export async function postJson<T>(path: string, body: unknown, method: "POST" | "PATCH" | "PUT" | "DELETE" = "POST"): Promise<{ ok: true; data: T } | { ok: false; error: ApiError }> {
   let res: Response;
   try {
     res = await fetch(edgeBase() + path, { method, headers: { "content-type": "application/json", ...authHeaders() }, body: JSON.stringify(body) });

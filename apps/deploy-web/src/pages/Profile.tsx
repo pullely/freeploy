@@ -11,8 +11,9 @@ import { ProfileMarkup } from "./generated/ProfileMarkup";
 import { ProfilePortalMarkup } from "./generated/ProfilePortalMarkup";
 import { postJson, summarize } from "../lib/api";
 import { notify } from "../lib/toast";
-import { getJson } from "../lib/api";
+import { edgeBase, getJson, sessionToken } from "../lib/api";
 import { PasskeysSection, passkeysAvailable } from "./PasskeysSection";
+import { useDeletion } from "./DangerZone";
 import { EnabledBadge, EnabledBody, PendingSetup, type TwoFactorState } from "./TwoFactorSection";
 
 /**
@@ -67,6 +68,51 @@ function ProfileContent() {
     if (r.data) setTwoFactor(r.data);
   };
   const [passkeysOn, setPasskeysOn] = useState(false);
+  const deletion = useDeletion(me.user.email);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [avatarBusy, setAvatarBusy] = useState(false);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+  // Coolify's prepareAvatar(): crop to a square, 256 px, JPEG 0.8, then upload.
+  async function onAvatarFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAvatarBusy(true);
+    setAvatarError(null);
+    try {
+      const image = await createImageBitmap(file);
+      const side = Math.min(image.width, image.height);
+      const canvas = document.createElement("canvas");
+      canvas.width = 256;
+      canvas.height = 256;
+      const ctx = canvas.getContext("2d")!;
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, 256, 256);
+      ctx.drawImage(image, (image.width - side) / 2, (image.height - side) / 2, side, side, 0, 0, 256, 256);
+      const blob = await new Promise<Blob>((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("JPEG compression failed"))), "image/jpeg", 0.8));
+      const preview = URL.createObjectURL(blob);
+      const res = await fetch(edgeBase() + "/v1/auth/avatar", { method: "PUT", headers: { "content-type": "image/jpeg", authorization: `Bearer ${sessionToken()}` }, body: blob });
+      if (!res.ok) {
+        URL.revokeObjectURL(preview);
+        const j = (await res.json().catch(() => null)) as { error?: { details?: { fields?: Record<string, string[]> } } } | null;
+        setAvatarError(j?.error?.details?.fields?.avatar?.[0] ?? "The image could not be uploaded.");
+        return;
+      }
+      setAvatarPreview(preview);
+      notify.success("Profile picture updated.");
+    } catch {
+      setAvatarError("The image could not be processed in this browser.");
+    } finally {
+      setAvatarBusy(false);
+      e.target.value = "";
+    }
+  }
+  async function onAvatarRemove() {
+    const r = await postJson<{ status: string }>("/v1/auth/avatar", {}, "DELETE");
+    if (!r.ok) return notify.error(summarize(r.error.messages));
+    setAvatarPreview(null);
+    setMe({ ...me, avatarUrl: null });
+    notify.success(r.data.status);
+  }
   // Email change (Coolify's emailModalOpen / show_verification), opened again while a code is pending.
   const [emailOpen, setEmailOpen] = useState(false);
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
@@ -178,7 +224,14 @@ function ProfileContent() {
       userInitial={initial(name)}
       userName={name}
       userEmail={me.user.email}
-      teamName={me.team?.name ?? ""}
+      avatarPreview={avatarPreview}
+      avatarUrl={me.avatarUrl}
+      avatarBusy={avatarBusy}
+      avatarError={avatarError}
+      onAvatarFile={(e) => void onAvatarFile(e)}
+      onAvatarRemove={() => void onAvatarRemove()}
+      deletionText={deletion.text}
+      deletionAction={deletion.action}
       {...(passkeysOn ? { passkeys: <PasskeysSection requirePasswordConfirmation={requirePasswordConfirmation} /> } : {})}
       onChangeEmail={() => setEmailOpen(true)}
       emailDialogOpen={emailOpen}
