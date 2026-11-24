@@ -127,5 +127,43 @@
     "props": [
       "avatarUrl: string | null"
     ]
+  },
+  {
+    "find": "<li className=\"contents\" style=\\{\\{ \"display\": \"none\" \\}\\}>(\\s*)<ul role=\"list\" className=\"flex flex-col gap-y-0\\.5\">(?=\\s*<li className=\"mb-1\">\\s*<button type=\"button\" title=\"Back to the main menu\"[^>]*>[\\s\\S]*?<span className=\"flex-1 truncate pr-6 [^\"]*\">([^<]+)</span>)(?=[\\s\\S]*<ul role=\"list\" className=\"sidebar-menu )",
+    "replace": "<li className=\"contents\" {...props.mobileMenu.panel(\"$2\")}>$1<ul role=\"list\" className={props.mobileMenu.list}>",
+    "props": [
+      "mobileMenu: { panel: (label: string) => { style?: { display: \"none\" }; \"data-active-submenu\"?: string }; parent: (label: string) => { className: string; onClick: () => void }; back: () => void; list: string }"
+    ]
+  },
+  {
+    "find": "<li className=\"contents\">(\\s*)<ul role=\"list\" className=\"flex flex-col gap-y-0\\.5\">(?=[\\s\\S]*<ul role=\"list\" className=\"sidebar-menu )",
+    "replace": "<li className=\"contents\" {...props.mobileMenu.panel(\"\")}>$1<ul role=\"list\" className={props.mobileMenu.list}>"
+  },
+  {
+    "find": "(<button type=\"button\" title=\"Back to the main menu\" aria-label=\"Back to the main menu\" className=\"[^\"]*\")>(?=[\\s\\S]*<ul role=\"list\" className=\"sidebar-menu )",
+    "replace": "$1 onClick={props.mobileMenu.back}>"
+  },
+  {
+    "find": "<button type=\"button\" title=\"([^\"]+)\" className=\"menu-item w-full\">(?=[\\s\\S]*<ul role=\"list\" className=\"sidebar-menu )",
+    "replace": "<button type=\"button\" title=\"$1\" {...props.mobileMenu.parent(\"$1\")}>"
+  },
+  {
+    "find": "<li className=\"contents\" style=\\{\\{ \"display\": \"none\" \\}\\}>(\\s*)<ul role=\"list\" className=\"flex flex-col gap-y-0\\.5\">(?=\\s*<li className=\"mb-1\">\\s*<button type=\"button\" title=\"Back to the main menu\"[^>]*>[\\s\\S]*?<span className=\"flex-1 truncate pr-6 [^\"]*\">([^<]+)</span>)",
+    "replace": "<li className=\"contents\" {...props.desktopMenu.panel(\"$2\")}>$1<ul role=\"list\" className={props.desktopMenu.list}>",
+    "props": [
+      "desktopMenu: { panel: (label: string) => { style?: { display: \"none\" }; \"data-active-submenu\"?: string }; parent: (label: string) => { className: string; onClick: () => void }; back: () => void; list: string }"
+    ]
+  },
+  {
+    "find": "<li className=\"contents\">(\\s*)<ul role=\"list\" className=\"flex flex-col gap-y-0\\.5\">",
+    "replace": "<li className=\"contents\" {...props.desktopMenu.panel(\"\")}>$1<ul role=\"list\" className={props.desktopMenu.list}>"
+  },
+  {
+    "find": "(<button type=\"button\" title=\"Back to the main menu\" aria-label=\"Back to the main menu\" className=\"[^\"]*\")>",
+    "replace": "$1 onClick={props.desktopMenu.back}>"
+  },
+  {
+    "find": "<button type=\"button\" title=\"([^\"]+)\" className=\"menu-item w-full\">",
+    "replace": "<button type=\"button\" title=\"$1\" {...props.desktopMenu.parent(\"$1\")}>"
   }
 ]

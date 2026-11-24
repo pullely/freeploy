@@ -11,6 +11,7 @@ import { LayoutMarkup } from "./generated/LayoutMarkup";
 import { clearSession, edgeBase, getJson, postJson, sessionToken } from "../lib/api";
 import { appearance, type PageWidth } from "../theme";
 import { useDisclosures } from "./disclosures";
+import { activeSubmenu, childActive, sidebarMenu, type NavSwap } from "./sidebar";
 import { Toasts } from "./Toasts";
 import { showMonthlyReminder } from "../lib/reminder";
 
@@ -96,6 +97,12 @@ export function Layout(props: LayoutProps) {
   const [pageWidth, setPageWidth] = useState<PageWidth>(() => appearance.pageWidth());
   const [reminderHidden, setReminderHidden] = useState(() => reminderDismissed());
   useDisclosures();
+  // The sidebar (desktop) and the mobile drawer each keep their own open submenu, as each
+  // navbar has its own Alpine state; both start on the submenu that holds this page.
+  const path = window.location.pathname;
+  const active = activeSubmenu(path);
+  const [desktopNav, setDesktopNav] = useState<{ submenu: string; navSwap: NavSwap }>({ submenu: active, navSwap: "" });
+  const [mobileNav, setMobileNav] = useState<{ submenu: string; navSwap: NavSwap }>({ submenu: active, navSwap: "" });
   useEffect(() => {
     document.title = `${props.documentTitle ?? props.title} | Freeploy`;
   }, [props.title, props.documentTitle]);
@@ -129,7 +136,9 @@ export function Layout(props: LayoutProps) {
       pageTitle={props.title}
       pageHref={props.href}
       searchTitle={props.searchTitle ?? "Search (Press / or Ctrl+K)"}
-      nav={(href) => (href === here ? { className: "menu-item menu-item-active", "aria-current": "page" } : { className: "menu-item" })}
+      nav={(href) => (href === here || childActive(path, href) ? { className: "menu-item menu-item-active", "aria-current": "page" } : { className: "menu-item" })}
+      desktopMenu={sidebarMenu(desktopNav, active, setDesktopNav)}
+      mobileMenu={sidebarMenu(mobileNav, active, setMobileNav)}
       mainClass={pageWidth === "centered" ? MAIN : `${MAIN} app-main-wide`}
       teamName={teamName}
       teamInitial={initial(teamName)}

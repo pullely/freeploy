@@ -22,6 +22,8 @@ export interface LayoutMarkupProps {
   onDismissReminder: () => void;
   toasts?: ReactNode;
   avatarUrl: string | null;
+  mobileMenu: { panel: (label: string) => { style?: { display: "none" }; "data-active-submenu"?: string }; parent: (label: string) => { className: string; onClick: () => void }; back: () => void; list: string };
+  desktopMenu: { panel: (label: string) => { style?: { display: "none" }; "data-active-submenu"?: string }; parent: (label: string) => { className: string; onClick: () => void }; back: () => void; list: string };
 }
 
 export function LayoutMarkup(props: LayoutMarkupProps) {
@@ -349,10 +351,10 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                   </div>
                   {" "}
                   <ul role="list" className="sidebar-menu -mx-1 flex min-h-0 flex-1 flex-col gap-y-0.5 overflow-y-auto px-1 pb-2">
-                    <li className="contents" style={{ "display": "none" }}>
-                      <ul role="list" className="flex flex-col gap-y-0.5">
+                    <li className="contents" {...props.mobileMenu.panel("Monitoring")}>
+                      <ul role="list" className={props.mobileMenu.list}>
                         <li className="mb-1">
-                          <button type="button" title="Back to the main menu" aria-label="Back to the main menu" className="menu-item menu-back bg-transparent! hover:bg-neutral-100! dark:hover:bg-white/[0.06]!">
+                          <button type="button" title="Back to the main menu" aria-label="Back to the main menu" className="menu-item menu-back bg-transparent! hover:bg-neutral-100! dark:hover:bg-white/[0.06]!" onClick={props.mobileMenu.back}>
                             <span className="menu-back-icon flex shrink-0 items-center justify-center">
                               <svg className="size-4 size-3 rotate-90 text-coollabs dark:text-fg-dim" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                 <polyline points="5 9 12 16 19 9" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
@@ -399,10 +401,10 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                       </ul>
                     </li>
                     {" "}
-                    <li className="contents" style={{ "display": "none" }}>
-                      <ul role="list" className="flex flex-col gap-y-0.5">
+                    <li className="contents" {...props.mobileMenu.panel("Integrations")}>
+                      <ul role="list" className={props.mobileMenu.list}>
                         <li className="mb-1">
-                          <button type="button" title="Back to the main menu" aria-label="Back to the main menu" className="menu-item menu-back bg-transparent! hover:bg-neutral-100! dark:hover:bg-white/[0.06]!">
+                          <button type="button" title="Back to the main menu" aria-label="Back to the main menu" className="menu-item menu-back bg-transparent! hover:bg-neutral-100! dark:hover:bg-white/[0.06]!" onClick={props.mobileMenu.back}>
                             <span className="menu-back-icon flex shrink-0 items-center justify-center">
                               <svg className="size-4 size-3 rotate-90 text-coollabs dark:text-fg-dim" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                 <polyline points="5 9 12 16 19 9" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
@@ -458,10 +460,10 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                       </ul>
                     </li>
                     {" "}
-                    <li className="contents" style={{ "display": "none" }}>
-                      <ul role="list" className="flex flex-col gap-y-0.5">
+                    <li className="contents" {...props.mobileMenu.panel("Shared Variables")}>
+                      <ul role="list" className={props.mobileMenu.list}>
                         <li className="mb-1">
-                          <button type="button" title="Back to the main menu" aria-label="Back to the main menu" className="menu-item menu-back bg-transparent! hover:bg-neutral-100! dark:hover:bg-white/[0.06]!">
+                          <button type="button" title="Back to the main menu" aria-label="Back to the main menu" className="menu-item menu-back bg-transparent! hover:bg-neutral-100! dark:hover:bg-white/[0.06]!" onClick={props.mobileMenu.back}>
                             <span className="menu-back-icon flex shrink-0 items-center justify-center">
                               <svg className="size-4 size-3 rotate-90 text-coollabs dark:text-fg-dim" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                 <polyline points="5 9 12 16 19 9" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
@@ -533,10 +535,10 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                       </ul>
                     </li>
                     {" "}
-                    <li className="contents" style={{ "display": "none" }}>
-                      <ul role="list" className="flex flex-col gap-y-0.5">
+                    <li className="contents" {...props.mobileMenu.panel("Team")}>
+                      <ul role="list" className={props.mobileMenu.list}>
                         <li className="mb-1">
-                          <button type="button" title="Back to the main menu" aria-label="Back to the main menu" className="menu-item menu-back bg-transparent! hover:bg-neutral-100! dark:hover:bg-white/[0.06]!">
+                          <button type="button" title="Back to the main menu" aria-label="Back to the main menu" className="menu-item menu-back bg-transparent! hover:bg-neutral-100! dark:hover:bg-white/[0.06]!" onClick={props.mobileMenu.back}>
                             <span className="menu-back-icon flex shrink-0 items-center justify-center">
                               <svg className="size-4 size-3 rotate-90 text-coollabs dark:text-fg-dim" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                 <polyline points="5 9 12 16 19 9" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
@@ -612,10 +614,10 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                       </ul>
                     </li>
                     {" "}
-                    <li className="contents" style={{ "display": "none" }}>
-                      <ul role="list" className="flex flex-col gap-y-0.5">
+                    <li className="contents" {...props.mobileMenu.panel("Notifications")}>
+                      <ul role="list" className={props.mobileMenu.list}>
                         <li className="mb-1">
-                          <button type="button" title="Back to the main menu" aria-label="Back to the main menu" className="menu-item menu-back bg-transparent! hover:bg-neutral-100! dark:hover:bg-white/[0.06]!">
+                          <button type="button" title="Back to the main menu" aria-label="Back to the main menu" className="menu-item menu-back bg-transparent! hover:bg-neutral-100! dark:hover:bg-white/[0.06]!" onClick={props.mobileMenu.back}>
                             <span className="menu-back-icon flex shrink-0 items-center justify-center">
                               <svg className="size-4 size-3 rotate-90 text-coollabs dark:text-fg-dim" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                 <polyline points="5 9 12 16 19 9" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
@@ -688,10 +690,10 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                       </ul>
                     </li>
                     {" "}
-                    <li className="contents" style={{ "display": "none" }}>
-                      <ul role="list" className="flex flex-col gap-y-0.5">
+                    <li className="contents" {...props.mobileMenu.panel("Keys & Tokens")}>
+                      <ul role="list" className={props.mobileMenu.list}>
                         <li className="mb-1">
-                          <button type="button" title="Back to the main menu" aria-label="Back to the main menu" className="menu-item menu-back bg-transparent! hover:bg-neutral-100! dark:hover:bg-white/[0.06]!">
+                          <button type="button" title="Back to the main menu" aria-label="Back to the main menu" className="menu-item menu-back bg-transparent! hover:bg-neutral-100! dark:hover:bg-white/[0.06]!" onClick={props.mobileMenu.back}>
                             <span className="menu-back-icon flex shrink-0 items-center justify-center">
                               <svg className="size-4 size-3 rotate-90 text-coollabs dark:text-fg-dim" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                 <polyline points="5 9 12 16 19 9" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
@@ -767,8 +769,8 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                       </ul>
                     </li>
                     {" "}
-                    <li className="contents">
-                      <ul role="list" className="flex flex-col gap-y-0.5">
+                    <li className="contents" {...props.mobileMenu.panel("")}>
+                      <ul role="list" className={props.mobileMenu.list}>
                         <li>
                           <a title="Dashboard" href="/" {...props.nav("/")}>
                             <svg className="size-4 menu-item-icon" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -794,7 +796,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                         </li>
                         {" "}
                         <li>
-                          <button type="button" title="Monitoring" className="menu-item w-full">
+                          <button type="button" title="Monitoring" {...props.mobileMenu.parent("Monitoring")}>
                             <svg className="size-4 menu-item-icon" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                               <path d="M17.5762 10.4801C17.8413 10.1619 17.7983 9.68901 17.4801 9.42383C17.1619 9.15866 16.689 9.20165 16.4238 9.51986L14.6269 11.6761C14.2562 12.1211 14.0284 12.3915 13.8409 12.5609C13.7539 12.6394 13.7023 12.6708 13.6775 12.6827C13.6725 12.6852 13.6689 12.6866 13.6667 12.6875C13.6644 12.6866 13.6608 12.6852 13.6558 12.6827C13.6311 12.6708 13.5795 12.6394 13.4925 12.5609C13.3049 12.3915 13.0772 12.1211 12.7064 11.6761L12.414 11.3252C12.0855 10.931 11.7894 10.5756 11.5128 10.3258C11.2119 10.0541 10.8328 9.81205 10.3333 9.81205C9.83385 9.81205 9.45478 10.0541 9.15384 10.3258C8.87725 10.5756 8.58113 10.931 8.25267 11.3253L6.42383 13.5199C6.15866 13.8381 6.20165 14.311 6.51986 14.5762C6.83807 14.8413 7.31099 14.7983 7.57617 14.4801L9.37306 12.3239C9.74385 11.8789 9.97155 11.6085 10.1591 11.4391C10.2461 11.3606 10.2977 11.3292 10.3225 11.3173C10.3275 11.3148 10.3311 11.3134 10.3333 11.3125C10.3356 11.3134 10.3392 11.3148 10.3442 11.3173C10.3689 11.3292 10.4205 11.3606 10.5075 11.4391C10.6951 11.6085 10.9228 11.8789 11.2936 12.3239L11.586 12.6748C11.9145 13.069 12.2106 13.4244 12.4872 13.6742C12.7881 13.9459 13.1672 14.188 13.6667 14.188C14.1662 14.188 14.5452 13.9459 14.8462 13.6742C15.1228 13.4244 15.4189 13.069 15.7473 12.6748L17.5762 10.4801Z" fill="currentColor" />
                               <path fillRule="evenodd" clipRule="evenodd" d="M11.9426 1.25C9.63423 1.24999 7.82519 1.24998 6.41371 1.43975C4.96897 1.63399 3.82895 2.03933 2.93414 2.93414C2.03933 3.82895 1.63399 4.96897 1.43975 6.41371C1.24998 7.82519 1.24999 9.63423 1.25 11.9426V12.0574C1.24999 14.3658 1.24998 16.1748 1.43975 17.5863C1.63399 19.031 2.03933 20.1711 2.93414 21.0659C3.82895 21.9607 4.96897 22.366 6.41371 22.5603C7.82519 22.75 9.63423 22.75 11.9426 22.75H12.0574C14.3658 22.75 16.1748 22.75 17.5863 22.5603C19.031 22.366 20.1711 21.9607 21.0659 21.0659C21.9607 20.1711 22.366 19.031 22.5603 17.5863C22.75 16.1748 22.75 14.3658 22.75 12.0574V11.9426C22.75 9.63423 22.75 7.82519 22.5603 6.41371C22.366 4.96897 21.9607 3.82895 21.0659 2.93414C20.1711 2.03933 19.031 1.63399 17.5863 1.43975C16.1748 1.24998 14.3658 1.24999 12.0574 1.25H11.9426ZM3.9948 3.9948C4.56445 3.42514 5.33517 3.09825 6.61358 2.92637C7.91356 2.75159 9.62178 2.75 12 2.75C14.3782 2.75 16.0864 2.75159 17.3864 2.92637C18.6648 3.09825 19.4355 3.42514 20.0052 3.9948C20.5749 4.56445 20.9018 5.33517 21.0736 6.61358C21.2484 7.91356 21.25 9.62178 21.25 12C21.25 14.3782 21.2484 16.0864 21.0736 17.3864C20.9018 18.6648 20.5749 19.4355 20.0052 20.0052C19.4355 20.5749 18.6648 20.9018 17.3864 21.0736C16.0864 21.2484 14.3782 21.25 12 21.25C9.62178 21.25 7.91356 21.2484 6.61358 21.0736C5.33517 20.9018 4.56445 20.5749 3.9948 20.0052C3.42514 19.4355 3.09825 18.6648 2.92637 17.3864C2.75159 16.0864 2.75 14.3782 2.75 12C2.75 9.62178 2.75159 7.91356 2.92637 6.61358C3.09825 5.33517 3.42514 4.56445 3.9948 3.9948Z" fill="currentColor" />
@@ -833,7 +835,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                         </li>
                         {" "}
                         <li>
-                          <button type="button" title="Integrations" className="menu-item w-full">
+                          <button type="button" title="Integrations" {...props.mobileMenu.parent("Integrations")}>
                             <svg className="size-4 menu-item-icon" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                               <path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
@@ -847,7 +849,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                         </li>
                         {" "}
                         <li>
-                          <button type="button" title="Shared Variables" className="menu-item w-full">
+                          <button type="button" title="Shared Variables" {...props.mobileMenu.parent("Shared Variables")}>
                             <svg className="size-4 menu-item-icon" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                               <path d="M16.96 6.17004C18.96 7.56004 20.34 9.77004 20.62 12.32" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                               <path d="M3.48999 12.37C3.74999 9.82997 5.10999 7.61997 7.08999 6.21997" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -868,7 +870,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                         <li className="nav-section mt-3" aria-hidden="true">{" "}Manage</li>
                         {" "}
                         <li>
-                          <button type="button" title="Team" className="menu-item w-full">
+                          <button type="button" title="Team" {...props.mobileMenu.parent("Team")}>
                             <svg className="size-4 menu-item-icon" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                               <path fillRule="evenodd" clipRule="evenodd" d="M12 1.25C9.37665 1.25 7.25 3.37665 7.25 6C7.25 8.62335 9.37665 10.75 12 10.75C14.6234 10.75 16.75 8.62335 16.75 6C16.75 3.37665 14.6234 1.25 12 1.25ZM8.75 6C8.75 4.20507 10.2051 2.75 12 2.75C13.7949 2.75 15.25 4.20507 15.25 6C15.25 7.79493 13.7949 9.25 12 9.25C10.2051 9.25 8.75 7.79493 8.75 6Z" fill="currentColor" />
                               <path d="M18 3.25C17.5858 3.25 17.25 3.58579 17.25 4C17.25 4.41421 17.5858 4.75 18 4.75C19.3765 4.75 20.25 5.65573 20.25 6.5C20.25 7.34427 19.3765 8.25 18 8.25C17.5858 8.25 17.25 8.58579 17.25 9C17.25 9.41421 17.5858 9.75 18 9.75C19.9372 9.75 21.75 8.41715 21.75 6.5C21.75 4.58285 19.9372 3.25 18 3.25Z" fill="currentColor" />
@@ -887,7 +889,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                         </li>
                         {" "}
                         <li>
-                          <button type="button" title="Notifications" className="menu-item w-full">
+                          <button type="button" title="Notifications" {...props.mobileMenu.parent("Notifications")}>
                             <svg className="size-4 menu-item-icon" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                               <path fillRule="evenodd" clipRule="evenodd" d="M12 1.25C7.71983 1.25 4.25004 4.71979 4.25004 9V9.7041C4.25004 10.401 4.04375 11.0824 3.65717 11.6622L2.50856 13.3851C1.17547 15.3848 2.19318 18.1028 4.51177 18.7351C5.26738 18.9412 6.02937 19.1155 6.79578 19.2581L6.79768 19.2632C7.56667 21.3151 9.62198 22.75 12 22.75C14.378 22.75 16.4333 21.3151 17.2023 19.2632L17.2042 19.2581C17.9706 19.1155 18.7327 18.9412 19.4883 18.7351C21.8069 18.1028 22.8246 15.3848 21.4915 13.3851L20.3429 11.6622C19.9563 11.0824 19.75 10.401 19.75 9.7041V9C19.75 4.71979 16.2802 1.25 12 1.25ZM15.3764 19.537C13.1335 19.805 10.8664 19.8049 8.62349 19.5369C9.33444 20.5585 10.571 21.25 12 21.25C13.4289 21.25 14.6655 20.5585 15.3764 19.537ZM5.75004 9C5.75004 5.54822 8.54826 2.75 12 2.75C15.4518 2.75 18.25 5.54822 18.25 9V9.7041C18.25 10.6972 18.544 11.668 19.0948 12.4943L20.2434 14.2172C21.0086 15.3649 20.4245 16.925 19.0936 17.288C14.4494 18.5546 9.5507 18.5546 4.90644 17.288C3.57561 16.925 2.99147 15.3649 3.75664 14.2172L4.90524 12.4943C5.45609 11.668 5.75004 10.6972 5.75004 9.7041V9Z" fill="currentColor" />
                             </svg>
@@ -901,7 +903,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                         </li>
                         {" "}
                         <li>
-                          <button type="button" title="Keys & Tokens" className="menu-item w-full">
+                          <button type="button" title="Keys & Tokens" {...props.mobileMenu.parent("Keys & Tokens")}>
                             <svg className="size-4 menu-item-icon" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                               <path fillRule="evenodd" clipRule="evenodd" d="M15.6809 5.34814C14.0521 5.34814 12.7265 6.66395 12.7265 8.29353C12.7265 9.92311 14.0521 11.2389 15.6809 11.2389C17.3097 11.2389 18.6353 9.92311 18.6353 8.29353C18.6353 6.66395 17.3097 5.34814 15.6809 5.34814ZM14.2265 8.29353C14.2265 7.49816 14.8748 6.84814 15.6809 6.84814C16.487 6.84814 17.1353 7.49816 17.1353 8.29353C17.1353 9.0889 16.487 9.73891 15.6809 9.73891C14.8748 9.73891 14.2265 9.0889 14.2265 8.29353Z" fill="currentColor" />
                               <path fillRule="evenodd" clipRule="evenodd" d="M9.52998 20.8783C9.86298 20.414 9.97017 19.9429 9.96222 19.5233C10.3544 19.6387 10.7424 19.6533 11.1141 19.5828C11.8825 19.437 12.4511 18.9512 12.7527 18.5507L12.758 18.5437L12.7631 18.5366C13.2883 17.8043 13.2872 17.0543 13.1586 16.5164C13.0956 16.2528 13.0021 16.0361 12.9245 15.8846C12.8853 15.8081 12.849 15.746 12.8207 15.7005C12.8132 15.6885 12.8063 15.6775 12.7999 15.6677C12.7112 15.5021 12.6111 15.3719 12.5269 15.2737L12.5359 15.2647L13.0001 14.8024C13.3817 14.9849 13.7957 15.0999 14.1583 15.1749C14.744 15.2962 15.3171 15.3369 15.6807 15.3369C19.582 15.3369 22.75 12.1863 22.75 8.29344C22.75 4.40056 19.582 1.25 15.6807 1.25C11.7794 1.25 8.61144 4.40056 8.61144 8.29344C8.61144 9.2105 8.82018 9.99588 9.02588 10.549C9.07825 10.6898 9.13081 10.8166 9.18035 10.9279L1.92511 18.1535C1.66869 18.4089 1.36789 18.853 1.27697 19.4092C1.17837 20.0124 1.34031 20.6829 1.92511 21.2654L2.80687 22.1435C2.82046 22.1571 2.83457 22.1701 2.84916 22.1825C3.10385 22.3999 3.53164 22.6513 4.04572 22.7273C4.59712 22.8088 5.23527 22.6818 5.77579 22.1435L6.34232 21.5793C6.87523 21.8849 7.43853 21.9545 7.95941 21.8548C8.63497 21.7254 9.19686 21.321 9.51964 20.8924L9.5249 20.8854L9.52998 20.8783ZM10.1114 8.29344C10.1114 5.23477 12.602 2.75 15.6807 2.75C18.7594 2.75 21.25 5.23477 21.25 8.29344C21.25 11.3521 18.7594 13.8369 15.6807 13.8369C15.4075 13.8369 14.9372 13.8044 14.4623 13.7061C13.9654 13.6032 13.5752 13.4504 13.3674 13.2779C13.0699 13.031 12.6332 13.0508 12.3592 13.3237L11.4774 14.2019C11.2757 14.4028 11.0818 14.6305 10.9794 14.8933C10.8499 15.2261 10.8912 15.5463 11.0394 15.8121C11.1273 15.9697 11.2689 16.1202 11.3278 16.183L11.3476 16.2042C11.4173 16.2811 11.4555 16.3314 11.4834 16.387L11.5098 16.4397L11.54 16.4817L11.5468 16.4924C11.5558 16.507 11.5712 16.533 11.5895 16.5685C11.6267 16.6412 11.6709 16.7445 11.6997 16.8652C11.7544 17.0937 11.7538 17.3656 11.5494 17.6551C11.4087 17.8384 11.1424 18.0506 10.8345 18.1091C10.5769 18.1579 10.1571 18.1261 9.59673 17.5681C9.30409 17.2766 8.83089 17.2766 8.53825 17.5681L8.24433 17.8608C7.96748 18.1365 7.94891 18.5782 8.20054 18.8761C8.20194 18.8778 8.2058 18.8826 8.2116 18.8903C8.22363 18.9062 8.24339 18.9336 8.2668 18.9704C8.31483 19.0461 8.37128 19.1508 8.41138 19.2706C8.48694 19.4963 8.49882 19.7374 8.31639 19.9966C8.19643 20.1519 7.95303 20.3287 7.67726 20.3815C7.4429 20.4264 7.14284 20.3931 6.8045 20.0562C6.51186 19.7647 6.03866 19.7647 5.74602 20.0562L4.7173 21.0807C4.55241 21.2449 4.4068 21.2643 4.26505 21.2434C4.09729 21.2186 3.93333 21.1293 3.84077 21.0562L2.9836 20.2025C2.74543 19.9653 2.73591 19.7821 2.75733 19.6511C2.78643 19.4731 2.89711 19.3025 2.9836 19.2163L10.6279 11.6033C10.8747 11.3575 10.9185 10.9735 10.7333 10.6784L10.7311 10.6748C10.7284 10.6703 10.7232 10.6615 10.7158 10.6487C10.7012 10.6231 10.6781 10.5814 10.6494 10.5251C10.5918 10.4123 10.5122 10.2423 10.4318 10.0262C10.2701 9.59135 10.1114 8.98632 10.1114 8.29344ZM8.20054 18.8761C8.20192 18.8777 8.2033 18.8793 8.20469 18.881L8.20354 18.8796L8.20054 18.8761Z" fill="currentColor" />
@@ -1079,10 +1081,10 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
               </div>
               {" "}
               <ul role="list" className="sidebar-menu -mx-1 flex min-h-0 flex-1 flex-col gap-y-0.5 overflow-y-auto px-1 pb-2">
-                <li className="contents" style={{ "display": "none" }}>
-                  <ul role="list" className="flex flex-col gap-y-0.5">
+                <li className="contents" {...props.desktopMenu.panel("Monitoring")}>
+                  <ul role="list" className={props.desktopMenu.list}>
                     <li className="mb-1">
-                      <button type="button" title="Back to the main menu" aria-label="Back to the main menu" className="menu-item menu-back bg-transparent! hover:bg-neutral-100! dark:hover:bg-white/[0.06]!">
+                      <button type="button" title="Back to the main menu" aria-label="Back to the main menu" className="menu-item menu-back bg-transparent! hover:bg-neutral-100! dark:hover:bg-white/[0.06]!" onClick={props.desktopMenu.back}>
                         <span className="menu-back-icon flex shrink-0 items-center justify-center">
                           <svg className="size-4 size-3 rotate-90 text-coollabs dark:text-fg-dim" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                             <polyline points="5 9 12 16 19 9" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
@@ -1129,10 +1131,10 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                   </ul>
                 </li>
                 {" "}
-                <li className="contents" style={{ "display": "none" }}>
-                  <ul role="list" className="flex flex-col gap-y-0.5">
+                <li className="contents" {...props.desktopMenu.panel("Integrations")}>
+                  <ul role="list" className={props.desktopMenu.list}>
                     <li className="mb-1">
-                      <button type="button" title="Back to the main menu" aria-label="Back to the main menu" className="menu-item menu-back bg-transparent! hover:bg-neutral-100! dark:hover:bg-white/[0.06]!">
+                      <button type="button" title="Back to the main menu" aria-label="Back to the main menu" className="menu-item menu-back bg-transparent! hover:bg-neutral-100! dark:hover:bg-white/[0.06]!" onClick={props.desktopMenu.back}>
                         <span className="menu-back-icon flex shrink-0 items-center justify-center">
                           <svg className="size-4 size-3 rotate-90 text-coollabs dark:text-fg-dim" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                             <polyline points="5 9 12 16 19 9" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
@@ -1188,10 +1190,10 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                   </ul>
                 </li>
                 {" "}
-                <li className="contents" style={{ "display": "none" }}>
-                  <ul role="list" className="flex flex-col gap-y-0.5">
+                <li className="contents" {...props.desktopMenu.panel("Shared Variables")}>
+                  <ul role="list" className={props.desktopMenu.list}>
                     <li className="mb-1">
-                      <button type="button" title="Back to the main menu" aria-label="Back to the main menu" className="menu-item menu-back bg-transparent! hover:bg-neutral-100! dark:hover:bg-white/[0.06]!">
+                      <button type="button" title="Back to the main menu" aria-label="Back to the main menu" className="menu-item menu-back bg-transparent! hover:bg-neutral-100! dark:hover:bg-white/[0.06]!" onClick={props.desktopMenu.back}>
                         <span className="menu-back-icon flex shrink-0 items-center justify-center">
                           <svg className="size-4 size-3 rotate-90 text-coollabs dark:text-fg-dim" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                             <polyline points="5 9 12 16 19 9" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
@@ -1263,10 +1265,10 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                   </ul>
                 </li>
                 {" "}
-                <li className="contents" style={{ "display": "none" }}>
-                  <ul role="list" className="flex flex-col gap-y-0.5">
+                <li className="contents" {...props.desktopMenu.panel("Team")}>
+                  <ul role="list" className={props.desktopMenu.list}>
                     <li className="mb-1">
-                      <button type="button" title="Back to the main menu" aria-label="Back to the main menu" className="menu-item menu-back bg-transparent! hover:bg-neutral-100! dark:hover:bg-white/[0.06]!">
+                      <button type="button" title="Back to the main menu" aria-label="Back to the main menu" className="menu-item menu-back bg-transparent! hover:bg-neutral-100! dark:hover:bg-white/[0.06]!" onClick={props.desktopMenu.back}>
                         <span className="menu-back-icon flex shrink-0 items-center justify-center">
                           <svg className="size-4 size-3 rotate-90 text-coollabs dark:text-fg-dim" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                             <polyline points="5 9 12 16 19 9" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
@@ -1342,10 +1344,10 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                   </ul>
                 </li>
                 {" "}
-                <li className="contents" style={{ "display": "none" }}>
-                  <ul role="list" className="flex flex-col gap-y-0.5">
+                <li className="contents" {...props.desktopMenu.panel("Notifications")}>
+                  <ul role="list" className={props.desktopMenu.list}>
                     <li className="mb-1">
-                      <button type="button" title="Back to the main menu" aria-label="Back to the main menu" className="menu-item menu-back bg-transparent! hover:bg-neutral-100! dark:hover:bg-white/[0.06]!">
+                      <button type="button" title="Back to the main menu" aria-label="Back to the main menu" className="menu-item menu-back bg-transparent! hover:bg-neutral-100! dark:hover:bg-white/[0.06]!" onClick={props.desktopMenu.back}>
                         <span className="menu-back-icon flex shrink-0 items-center justify-center">
                           <svg className="size-4 size-3 rotate-90 text-coollabs dark:text-fg-dim" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                             <polyline points="5 9 12 16 19 9" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
@@ -1418,10 +1420,10 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                   </ul>
                 </li>
                 {" "}
-                <li className="contents" style={{ "display": "none" }}>
-                  <ul role="list" className="flex flex-col gap-y-0.5">
+                <li className="contents" {...props.desktopMenu.panel("Keys & Tokens")}>
+                  <ul role="list" className={props.desktopMenu.list}>
                     <li className="mb-1">
-                      <button type="button" title="Back to the main menu" aria-label="Back to the main menu" className="menu-item menu-back bg-transparent! hover:bg-neutral-100! dark:hover:bg-white/[0.06]!">
+                      <button type="button" title="Back to the main menu" aria-label="Back to the main menu" className="menu-item menu-back bg-transparent! hover:bg-neutral-100! dark:hover:bg-white/[0.06]!" onClick={props.desktopMenu.back}>
                         <span className="menu-back-icon flex shrink-0 items-center justify-center">
                           <svg className="size-4 size-3 rotate-90 text-coollabs dark:text-fg-dim" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                             <polyline points="5 9 12 16 19 9" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
@@ -1497,8 +1499,8 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                   </ul>
                 </li>
                 {" "}
-                <li className="contents">
-                  <ul role="list" className="flex flex-col gap-y-0.5">
+                <li className="contents" {...props.desktopMenu.panel("")}>
+                  <ul role="list" className={props.desktopMenu.list}>
                     <li>
                       <a title="Dashboard" href="/" {...props.nav("/")}>
                         <svg className="size-4 menu-item-icon" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -1524,7 +1526,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                     </li>
                     {" "}
                     <li>
-                      <button type="button" title="Monitoring" className="menu-item w-full">
+                      <button type="button" title="Monitoring" {...props.desktopMenu.parent("Monitoring")}>
                         <svg className="size-4 menu-item-icon" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                           <path d="M17.5762 10.4801C17.8413 10.1619 17.7983 9.68901 17.4801 9.42383C17.1619 9.15866 16.689 9.20165 16.4238 9.51986L14.6269 11.6761C14.2562 12.1211 14.0284 12.3915 13.8409 12.5609C13.7539 12.6394 13.7023 12.6708 13.6775 12.6827C13.6725 12.6852 13.6689 12.6866 13.6667 12.6875C13.6644 12.6866 13.6608 12.6852 13.6558 12.6827C13.6311 12.6708 13.5795 12.6394 13.4925 12.5609C13.3049 12.3915 13.0772 12.1211 12.7064 11.6761L12.414 11.3252C12.0855 10.931 11.7894 10.5756 11.5128 10.3258C11.2119 10.0541 10.8328 9.81205 10.3333 9.81205C9.83385 9.81205 9.45478 10.0541 9.15384 10.3258C8.87725 10.5756 8.58113 10.931 8.25267 11.3253L6.42383 13.5199C6.15866 13.8381 6.20165 14.311 6.51986 14.5762C6.83807 14.8413 7.31099 14.7983 7.57617 14.4801L9.37306 12.3239C9.74385 11.8789 9.97155 11.6085 10.1591 11.4391C10.2461 11.3606 10.2977 11.3292 10.3225 11.3173C10.3275 11.3148 10.3311 11.3134 10.3333 11.3125C10.3356 11.3134 10.3392 11.3148 10.3442 11.3173C10.3689 11.3292 10.4205 11.3606 10.5075 11.4391C10.6951 11.6085 10.9228 11.8789 11.2936 12.3239L11.586 12.6748C11.9145 13.069 12.2106 13.4244 12.4872 13.6742C12.7881 13.9459 13.1672 14.188 13.6667 14.188C14.1662 14.188 14.5452 13.9459 14.8462 13.6742C15.1228 13.4244 15.4189 13.069 15.7473 12.6748L17.5762 10.4801Z" fill="currentColor" />
                           <path fillRule="evenodd" clipRule="evenodd" d="M11.9426 1.25C9.63423 1.24999 7.82519 1.24998 6.41371 1.43975C4.96897 1.63399 3.82895 2.03933 2.93414 2.93414C2.03933 3.82895 1.63399 4.96897 1.43975 6.41371C1.24998 7.82519 1.24999 9.63423 1.25 11.9426V12.0574C1.24999 14.3658 1.24998 16.1748 1.43975 17.5863C1.63399 19.031 2.03933 20.1711 2.93414 21.0659C3.82895 21.9607 4.96897 22.366 6.41371 22.5603C7.82519 22.75 9.63423 22.75 11.9426 22.75H12.0574C14.3658 22.75 16.1748 22.75 17.5863 22.5603C19.031 22.366 20.1711 21.9607 21.0659 21.0659C21.9607 20.1711 22.366 19.031 22.5603 17.5863C22.75 16.1748 22.75 14.3658 22.75 12.0574V11.9426C22.75 9.63423 22.75 7.82519 22.5603 6.41371C22.366 4.96897 21.9607 3.82895 21.0659 2.93414C20.1711 2.03933 19.031 1.63399 17.5863 1.43975C16.1748 1.24998 14.3658 1.24999 12.0574 1.25H11.9426ZM3.9948 3.9948C4.56445 3.42514 5.33517 3.09825 6.61358 2.92637C7.91356 2.75159 9.62178 2.75 12 2.75C14.3782 2.75 16.0864 2.75159 17.3864 2.92637C18.6648 3.09825 19.4355 3.42514 20.0052 3.9948C20.5749 4.56445 20.9018 5.33517 21.0736 6.61358C21.2484 7.91356 21.25 9.62178 21.25 12C21.25 14.3782 21.2484 16.0864 21.0736 17.3864C20.9018 18.6648 20.5749 19.4355 20.0052 20.0052C19.4355 20.5749 18.6648 20.9018 17.3864 21.0736C16.0864 21.2484 14.3782 21.25 12 21.25C9.62178 21.25 7.91356 21.2484 6.61358 21.0736C5.33517 20.9018 4.56445 20.5749 3.9948 20.0052C3.42514 19.4355 3.09825 18.6648 2.92637 17.3864C2.75159 16.0864 2.75 14.3782 2.75 12C2.75 9.62178 2.75159 7.91356 2.92637 6.61358C3.09825 5.33517 3.42514 4.56445 3.9948 3.9948Z" fill="currentColor" />
@@ -1563,7 +1565,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                     </li>
                     {" "}
                     <li>
-                      <button type="button" title="Integrations" className="menu-item w-full">
+                      <button type="button" title="Integrations" {...props.desktopMenu.parent("Integrations")}>
                         <svg className="size-4 menu-item-icon" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                           <path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
@@ -1577,7 +1579,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                     </li>
                     {" "}
                     <li>
-                      <button type="button" title="Shared Variables" className="menu-item w-full">
+                      <button type="button" title="Shared Variables" {...props.desktopMenu.parent("Shared Variables")}>
                         <svg className="size-4 menu-item-icon" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                           <path d="M16.96 6.17004C18.96 7.56004 20.34 9.77004 20.62 12.32" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                           <path d="M3.48999 12.37C3.74999 9.82997 5.10999 7.61997 7.08999 6.21997" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -1598,7 +1600,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                     <li className="nav-section mt-3" aria-hidden="true">{" "}Manage</li>
                     {" "}
                     <li>
-                      <button type="button" title="Team" className="menu-item w-full">
+                      <button type="button" title="Team" {...props.desktopMenu.parent("Team")}>
                         <svg className="size-4 menu-item-icon" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                           <path fillRule="evenodd" clipRule="evenodd" d="M12 1.25C9.37665 1.25 7.25 3.37665 7.25 6C7.25 8.62335 9.37665 10.75 12 10.75C14.6234 10.75 16.75 8.62335 16.75 6C16.75 3.37665 14.6234 1.25 12 1.25ZM8.75 6C8.75 4.20507 10.2051 2.75 12 2.75C13.7949 2.75 15.25 4.20507 15.25 6C15.25 7.79493 13.7949 9.25 12 9.25C10.2051 9.25 8.75 7.79493 8.75 6Z" fill="currentColor" />
                           <path d="M18 3.25C17.5858 3.25 17.25 3.58579 17.25 4C17.25 4.41421 17.5858 4.75 18 4.75C19.3765 4.75 20.25 5.65573 20.25 6.5C20.25 7.34427 19.3765 8.25 18 8.25C17.5858 8.25 17.25 8.58579 17.25 9C17.25 9.41421 17.5858 9.75 18 9.75C19.9372 9.75 21.75 8.41715 21.75 6.5C21.75 4.58285 19.9372 3.25 18 3.25Z" fill="currentColor" />
@@ -1617,7 +1619,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                     </li>
                     {" "}
                     <li>
-                      <button type="button" title="Notifications" className="menu-item w-full">
+                      <button type="button" title="Notifications" {...props.desktopMenu.parent("Notifications")}>
                         <svg className="size-4 menu-item-icon" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                           <path fillRule="evenodd" clipRule="evenodd" d="M12 1.25C7.71983 1.25 4.25004 4.71979 4.25004 9V9.7041C4.25004 10.401 4.04375 11.0824 3.65717 11.6622L2.50856 13.3851C1.17547 15.3848 2.19318 18.1028 4.51177 18.7351C5.26738 18.9412 6.02937 19.1155 6.79578 19.2581L6.79768 19.2632C7.56667 21.3151 9.62198 22.75 12 22.75C14.378 22.75 16.4333 21.3151 17.2023 19.2632L17.2042 19.2581C17.9706 19.1155 18.7327 18.9412 19.4883 18.7351C21.8069 18.1028 22.8246 15.3848 21.4915 13.3851L20.3429 11.6622C19.9563 11.0824 19.75 10.401 19.75 9.7041V9C19.75 4.71979 16.2802 1.25 12 1.25ZM15.3764 19.537C13.1335 19.805 10.8664 19.8049 8.62349 19.5369C9.33444 20.5585 10.571 21.25 12 21.25C13.4289 21.25 14.6655 20.5585 15.3764 19.537ZM5.75004 9C5.75004 5.54822 8.54826 2.75 12 2.75C15.4518 2.75 18.25 5.54822 18.25 9V9.7041C18.25 10.6972 18.544 11.668 19.0948 12.4943L20.2434 14.2172C21.0086 15.3649 20.4245 16.925 19.0936 17.288C14.4494 18.5546 9.5507 18.5546 4.90644 17.288C3.57561 16.925 2.99147 15.3649 3.75664 14.2172L4.90524 12.4943C5.45609 11.668 5.75004 10.6972 5.75004 9.7041V9Z" fill="currentColor" />
                         </svg>
@@ -1631,7 +1633,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                     </li>
                     {" "}
                     <li>
-                      <button type="button" title="Keys & Tokens" className="menu-item w-full">
+                      <button type="button" title="Keys & Tokens" {...props.desktopMenu.parent("Keys & Tokens")}>
                         <svg className="size-4 menu-item-icon" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                           <path fillRule="evenodd" clipRule="evenodd" d="M15.6809 5.34814C14.0521 5.34814 12.7265 6.66395 12.7265 8.29353C12.7265 9.92311 14.0521 11.2389 15.6809 11.2389C17.3097 11.2389 18.6353 9.92311 18.6353 8.29353C18.6353 6.66395 17.3097 5.34814 15.6809 5.34814ZM14.2265 8.29353C14.2265 7.49816 14.8748 6.84814 15.6809 6.84814C16.487 6.84814 17.1353 7.49816 17.1353 8.29353C17.1353 9.0889 16.487 9.73891 15.6809 9.73891C14.8748 9.73891 14.2265 9.0889 14.2265 8.29353Z" fill="currentColor" />
                           <path fillRule="evenodd" clipRule="evenodd" d="M9.52998 20.8783C9.86298 20.414 9.97017 19.9429 9.96222 19.5233C10.3544 19.6387 10.7424 19.6533 11.1141 19.5828C11.8825 19.437 12.4511 18.9512 12.7527 18.5507L12.758 18.5437L12.7631 18.5366C13.2883 17.8043 13.2872 17.0543 13.1586 16.5164C13.0956 16.2528 13.0021 16.0361 12.9245 15.8846C12.8853 15.8081 12.849 15.746 12.8207 15.7005C12.8132 15.6885 12.8063 15.6775 12.7999 15.6677C12.7112 15.5021 12.6111 15.3719 12.5269 15.2737L12.5359 15.2647L13.0001 14.8024C13.3817 14.9849 13.7957 15.0999 14.1583 15.1749C14.744 15.2962 15.3171 15.3369 15.6807 15.3369C19.582 15.3369 22.75 12.1863 22.75 8.29344C22.75 4.40056 19.582 1.25 15.6807 1.25C11.7794 1.25 8.61144 4.40056 8.61144 8.29344C8.61144 9.2105 8.82018 9.99588 9.02588 10.549C9.07825 10.6898 9.13081 10.8166 9.18035 10.9279L1.92511 18.1535C1.66869 18.4089 1.36789 18.853 1.27697 19.4092C1.17837 20.0124 1.34031 20.6829 1.92511 21.2654L2.80687 22.1435C2.82046 22.1571 2.83457 22.1701 2.84916 22.1825C3.10385 22.3999 3.53164 22.6513 4.04572 22.7273C4.59712 22.8088 5.23527 22.6818 5.77579 22.1435L6.34232 21.5793C6.87523 21.8849 7.43853 21.9545 7.95941 21.8548C8.63497 21.7254 9.19686 21.321 9.51964 20.8924L9.5249 20.8854L9.52998 20.8783ZM10.1114 8.29344C10.1114 5.23477 12.602 2.75 15.6807 2.75C18.7594 2.75 21.25 5.23477 21.25 8.29344C21.25 11.3521 18.7594 13.8369 15.6807 13.8369C15.4075 13.8369 14.9372 13.8044 14.4623 13.7061C13.9654 13.6032 13.5752 13.4504 13.3674 13.2779C13.0699 13.031 12.6332 13.0508 12.3592 13.3237L11.4774 14.2019C11.2757 14.4028 11.0818 14.6305 10.9794 14.8933C10.8499 15.2261 10.8912 15.5463 11.0394 15.8121C11.1273 15.9697 11.2689 16.1202 11.3278 16.183L11.3476 16.2042C11.4173 16.2811 11.4555 16.3314 11.4834 16.387L11.5098 16.4397L11.54 16.4817L11.5468 16.4924C11.5558 16.507 11.5712 16.533 11.5895 16.5685C11.6267 16.6412 11.6709 16.7445 11.6997 16.8652C11.7544 17.0937 11.7538 17.3656 11.5494 17.6551C11.4087 17.8384 11.1424 18.0506 10.8345 18.1091C10.5769 18.1579 10.1571 18.1261 9.59673 17.5681C9.30409 17.2766 8.83089 17.2766 8.53825 17.5681L8.24433 17.8608C7.96748 18.1365 7.94891 18.5782 8.20054 18.8761C8.20194 18.8778 8.2058 18.8826 8.2116 18.8903C8.22363 18.9062 8.24339 18.9336 8.2668 18.9704C8.31483 19.0461 8.37128 19.1508 8.41138 19.2706C8.48694 19.4963 8.49882 19.7374 8.31639 19.9966C8.19643 20.1519 7.95303 20.3287 7.67726 20.3815C7.4429 20.4264 7.14284 20.3931 6.8045 20.0562C6.51186 19.7647 6.03866 19.7647 5.74602 20.0562L4.7173 21.0807C4.55241 21.2449 4.4068 21.2643 4.26505 21.2434C4.09729 21.2186 3.93333 21.1293 3.84077 21.0562L2.9836 20.2025C2.74543 19.9653 2.73591 19.7821 2.75733 19.6511C2.78643 19.4731 2.89711 19.3025 2.9836 19.2163L10.6279 11.6033C10.8747 11.3575 10.9185 10.9735 10.7333 10.6784L10.7311 10.6748C10.7284 10.6703 10.7232 10.6615 10.7158 10.6487C10.7012 10.6231 10.6781 10.5814 10.6494 10.5251C10.5918 10.4123 10.5122 10.2423 10.4318 10.0262C10.2701 9.59135 10.1114 8.98632 10.1114 8.29344ZM8.20054 18.8761C8.20192 18.8777 8.2033 18.8793 8.20469 18.881L8.20354 18.8796L8.20054 18.8761Z" fill="currentColor" />
@@ -2059,7 +2061,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                     {" "}
                     {" "}
                     {" "}
-                    <input autoComplete="off" className="input" placeholder="Your project name" required data-wire-model="name" type="text" id="name-bvxqa1e3vuwthal44pyrfm1c" name="name" />
+                    <input autoComplete="off" className="input" placeholder="Your project name" required data-wire-model="name" type="text" id="name-hydd2hyzp3hwin3nedstlnn0" name="name" />
                     {" "}
                     {" "}
                     {" "}
@@ -2076,7 +2078,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                     {" "}
                     {" "}
                     {" "}
-                    <input autoComplete="off" className="input" placeholder="A short project description" data-wire-model="description" type="text" id="description-hutgfcrvtgjwbgzdjptqzanc" name="description" />
+                    <input autoComplete="off" className="input" placeholder="A short project description" data-wire-model="description" type="text" id="description-w7o728taavdp1s6zirazlkhi" name="description" />
                     {" "}
                     {" "}
                     {" "}
@@ -2128,7 +2130,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                   {" "}
                   {" "}
                   {" "}
-                  <input autoComplete="off" className="input" required data-wire-model="name" type="text" id="name-j3nl8jccib7evwrq1oefmy7l" name="name" placeholder="" />
+                  <input autoComplete="off" className="input" required data-wire-model="name" type="text" id="name-oxa6fewwc7oky7ocn0px2hgm" name="name" placeholder="" />
                   {" "}
                   {" "}
                   {" "}
@@ -2145,7 +2147,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                   {" "}
                   {" "}
                   {" "}
-                  <input autoComplete="off" className="input" data-wire-model="description" type="text" id="description-pque5pygvu1sv4rxl7skiqgr" name="description" placeholder="" />
+                  <input autoComplete="off" className="input" data-wire-model="description" type="text" id="description-nep4z2lqpufvf48ft67u8d0i" name="description" placeholder="" />
                   {" "}
                   {" "}
                   {" "}
@@ -2333,7 +2335,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                       {" "}
                       {" "}
                       {" "}
-                      <input autoComplete="off" className="input" required data-wire-model="name" type="text" id="name-iuejdwnygdzpjgy71xqdngsu" name="name" placeholder="" />
+                      <input autoComplete="off" className="input" required data-wire-model="name" type="text" id="name-mj5tcunyyuce94ijuhemhp90" name="name" placeholder="" />
                       {" "}
                       {" "}
                       {" "}
@@ -2350,7 +2352,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                       {" "}
                       {" "}
                       {" "}
-                      <input autoComplete="off" className="input" data-wire-model="description" type="text" id="description-8ioz8ckegni0oem9xmsgf5wo" name="description" placeholder="" />
+                      <input autoComplete="off" className="input" data-wire-model="description" type="text" id="description-khz11swldz04b6dtycuwmlhj" name="description" placeholder="" />
                       {" "}
                       {" "}
                       {" "}
@@ -2442,7 +2444,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                       {" "}
                       {" "}
                       {" "}
-                      <input autoComplete="off" className="input" required data-wire-model="bucket" type="text" id="bucket-isttop8orhuoyxgwf6sauisv" name="bucket" placeholder="" />
+                      <input autoComplete="off" className="input" required data-wire-model="bucket" type="text" id="bucket-wgt2cz9ziobr6mnvufcp0oxv" name="bucket" placeholder="" />
                       {" "}
                       {" "}
                       {" "}
@@ -2479,7 +2481,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                       {" "}
                       {" "}
                       {" "}
-                      <input autoComplete="off" className="input" required data-wire-model="region" type="text" id="region-ejgdkxdkqujbnq85s9oivfra" name="region" placeholder="" />
+                      <input autoComplete="off" className="input" required data-wire-model="region" type="text" id="region-lzeqxk3uadlm4ijuj9jhlck9" name="region" placeholder="" />
                       {" "}
                       {" "}
                       {" "}
@@ -2504,7 +2506,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                       {" "}
                       {" "}
                       <div className="relative">
-                        <input autoComplete="off" defaultValue="" className="input input-with-password-toggle input-with-copy-and-peek" required data-wire-model="key" id="key-1grakqzrtgzrqa5bqotcptsr" name="key" placeholder="" aria-placeholder="" type="password" />
+                        <input autoComplete="off" defaultValue="" className="input input-with-password-toggle input-with-copy-and-peek" required data-wire-model="key" id="key-qz0fnyfcmdrpqlqia1ldna2p" name="key" placeholder="" aria-placeholder="" type="password" />
                         {" "}
                         {" "}
                         <button type="button" className="password-toggle flex absolute inset-y-0 right-0 z-10 items-center pr-2 cursor-pointer text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white" aria-label="Toggle password visibility">
@@ -2557,7 +2559,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                       {" "}
                       {" "}
                       <div className="relative">
-                        <input autoComplete="off" defaultValue="" className="input input-with-password-toggle input-with-copy-and-peek" required data-wire-model="secret" id="secret-h0vrtyieg6pgnzt9aqkykhpq" name="secret" placeholder="" aria-placeholder="" type="password" />
+                        <input autoComplete="off" defaultValue="" className="input input-with-password-toggle input-with-copy-and-peek" required data-wire-model="secret" id="secret-q4suve4vkdp4acxqnl7gepzq" name="secret" placeholder="" aria-placeholder="" type="password" />
                         {" "}
                         {" "}
                         <button type="button" className="password-toggle flex absolute inset-y-0 right-0 z-10 items-center pr-2 cursor-pointer text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white" aria-label="Toggle password visibility">
@@ -2597,7 +2599,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                   {" "}
                   <div className="w-64">
                     <div className="form-control group flex min-h-9 max-w-full items-center rounded-lg px-2.5 py-1.5 transition-colors cursor-pointer hover:bg-neutral-100/80 dark:hover:bg-white/[0.035]">
-                      <label htmlFor="usePathStyleEndpoint-ef0bnq5qzxltskbhmlbjrsea" className="label flex w-full max-w-full min-w-0 items-center gap-3 px-0 cursor-pointer">
+                      <label htmlFor="usePathStyleEndpoint-ebsz0qcisxm2eta6ebm6sx5p" className="label flex w-full max-w-full min-w-0 items-center gap-3 px-0 cursor-pointer">
                         <span className="flex min-w-0 grow items-center gap-1.5 break-words text-[12px] text-neutral-600 dark:text-fg-dim">
                           {" "}Use path-style URLs{" "}
                           {" "}
@@ -2620,7 +2622,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                         <span className="relative flex size-[18px] shrink-0">
                           {" "}
                           {" "}
-                          <input type="checkbox" className="peer absolute inset-0 z-10 m-0 h-full w-full cursor-pointer appearance-none opacity-0 disabled:cursor-not-allowed" data-wire-model="usePathStyleEndpoint" id="usePathStyleEndpoint-ef0bnq5qzxltskbhmlbjrsea" />
+                          <input type="checkbox" className="peer absolute inset-0 z-10 m-0 h-full w-full cursor-pointer appearance-none opacity-0 disabled:cursor-not-allowed" data-wire-model="usePathStyleEndpoint" id="usePathStyleEndpoint-ebsz0qcisxm2eta6ebm6sx5p" />
                           {" "}
                           {" "}
                           {" "}
@@ -2634,7 +2636,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                     </div>
                     {" "}
                     <div className="form-control group flex min-h-9 max-w-full items-center rounded-lg px-2.5 py-1.5 transition-colors cursor-pointer hover:bg-neutral-100/80 dark:hover:bg-white/[0.035]">
-                      <label htmlFor="skipTlsVerification-zekdbeycrjewbfqxgs8nzhms" className="label flex w-full max-w-full min-w-0 items-center gap-3 px-0 cursor-pointer">
+                      <label htmlFor="skipTlsVerification-xcwtweykesdd0wdt2jbi3ozi" className="label flex w-full max-w-full min-w-0 items-center gap-3 px-0 cursor-pointer">
                         <span className="flex min-w-0 grow items-center gap-1.5 break-words text-[12px] text-neutral-600 dark:text-fg-dim">
                           {" "}Skip TLS certificate verification{" "}
                           {" "}
@@ -2657,7 +2659,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                         <span className="relative flex size-[18px] shrink-0">
                           {" "}
                           {" "}
-                          <input type="checkbox" className="peer absolute inset-0 z-10 m-0 h-full w-full cursor-pointer appearance-none opacity-0 disabled:cursor-not-allowed" data-wire-model="skipTlsVerification" id="skipTlsVerification-zekdbeycrjewbfqxgs8nzhms" />
+                          <input type="checkbox" className="peer absolute inset-0 z-10 m-0 h-full w-full cursor-pointer appearance-none opacity-0 disabled:cursor-not-allowed" data-wire-model="skipTlsVerification" id="skipTlsVerification-xcwtweykesdd0wdt2jbi3ozi" />
                           {" "}
                           {" "}
                           {" "}
@@ -2786,7 +2788,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                       {" "}
                       {" "}
                       {" "}
-                      <input autoComplete="off" className="input" required data-wire-model="name" type="text" id="name-ung28d6yml23blkzauhbkl7c" name="name" placeholder="" />
+                      <input autoComplete="off" className="input" required data-wire-model="name" type="text" id="name-nbcbcya8ia7dtlpwmpymgnrp" name="name" placeholder="" />
                       {" "}
                       {" "}
                       {" "}
@@ -2803,7 +2805,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                       {" "}
                       {" "}
                       {" "}
-                      <input autoComplete="off" className="input" data-wire-model="description" type="text" id="description-mei6nvi8ctdg1ochw76vyljb" name="description" placeholder="" />
+                      <input autoComplete="off" className="input" data-wire-model="description" type="text" id="description-eggupeuck21zrbbw31n9iexj" name="description" placeholder="" />
                       {" "}
                       {" "}
                       {" "}
@@ -2827,7 +2829,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                         {" "}
                         {" "}
                         {" "}
-                        <textarea placeholder="-----BEGIN OPENSSH PRIVATE KEY-----" spellCheck="false" className="input scrollbar font-mono" rows={10} data-wire-model="value" required id="value-okp8yf8mfc3m6x1fz5loofem" name="value" />
+                        <textarea placeholder="-----BEGIN OPENSSH PRIVATE KEY-----" spellCheck="false" className="input scrollbar font-mono" rows={10} data-wire-model="value" required id="value-7qla5wnbl2tm59nk1v6tvnk5" name="value" />
                         {" "}
                         {" "}
                         {" "}
@@ -2859,7 +2861,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                         {" "}
                         {" "}
                         {" "}
-                        <input autoComplete="off" className="input" readOnly data-wire-model="publicKey" type="text" id="publicKey-az1apdefj85w2weenq4t3umx" name="publicKey" placeholder="" />
+                        <input autoComplete="off" className="input" readOnly data-wire-model="publicKey" type="text" id="publicKey-qrai9qj5mvisgq5drvndyegf" name="publicKey" placeholder="" />
                         {" "}
                         {" "}
                         {" "}
@@ -2916,7 +2918,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                     {" "}
                     {" "}
                     {" "}
-                    <input autoComplete="off" className="input" required data-wire-model="name" type="text" id="name-3iv8fvxhlxjrbbdatgyag8tp" name="name" placeholder="" />
+                    <input autoComplete="off" className="input" required data-wire-model="name" type="text" id="name-jgohzc9lxht8zk6it397uyud" name="name" placeholder="" />
                     {" "}
                     {" "}
                     {" "}
@@ -2947,7 +2949,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                     {" "}
                     {" "}
                     {" "}
-                    <input autoComplete="off" className="input" placeholder="Personal account when empty" data-wire-model="organization" type="text" id="organization-6nwbma9cfa0nholc4chpr6wd" name="organization" />
+                    <input autoComplete="off" className="input" placeholder="Personal account when empty" data-wire-model="organization" type="text" id="organization-bgisxgpnhnaucxdkyp4w1yae" name="organization" />
                     {" "}
                     {" "}
                     {" "}
@@ -2963,7 +2965,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                   {" "}
                   <div className="mt-2 flex max-w-xs flex-col gap-1">
                     <div className="form-control group flex min-h-9 max-w-full items-center rounded-lg px-2.5 py-1.5 transition-colors cursor-pointer hover:bg-neutral-100/80 dark:hover:bg-white/[0.035]">
-                      <label htmlFor="use_for_pull_request_previews-shqf6b94wwi0zwhjze60lrwg" className="label flex w-full max-w-full min-w-0 items-center gap-3 px-0 cursor-pointer">
+                      <label htmlFor="use_for_pull_request_previews-a6talvd3aol3mqnfk0evc4sb" className="label flex w-full max-w-full min-w-0 items-center gap-3 px-0 cursor-pointer">
                         <span className="flex min-w-0 grow items-center gap-1.5 break-words text-[12px] text-neutral-600 dark:text-fg-dim">
                           {" "}Pull request previews{" "}
                           {" "}
@@ -2986,7 +2988,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                         <span className="relative flex size-[18px] shrink-0">
                           {" "}
                           {" "}
-                          <input type="checkbox" className="peer absolute inset-0 z-10 m-0 h-full w-full cursor-pointer appearance-none opacity-0 disabled:cursor-not-allowed" data-wire-model="use_for_pull_request_previews" id="use_for_pull_request_previews-shqf6b94wwi0zwhjze60lrwg" />
+                          <input type="checkbox" className="peer absolute inset-0 z-10 m-0 h-full w-full cursor-pointer appearance-none opacity-0 disabled:cursor-not-allowed" data-wire-model="use_for_pull_request_previews" id="use_for_pull_request_previews-a6talvd3aol3mqnfk0evc4sb" />
                           {" "}
                           {" "}
                           {" "}
@@ -3000,7 +3002,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                     </div>
                     {" "}
                     <div className="form-control group flex min-h-9 max-w-full items-center rounded-lg px-2.5 py-1.5 transition-colors cursor-pointer hover:bg-neutral-100/80 dark:hover:bg-white/[0.035]">
-                      <label htmlFor="use_for_github_runners-agjfqwa3zcknu7liubpakbmx" className="label flex w-full max-w-full min-w-0 items-center gap-3 px-0 cursor-pointer">
+                      <label htmlFor="use_for_github_runners-ebxiscwdfbeiyboyvfbfcsk4" className="label flex w-full max-w-full min-w-0 items-center gap-3 px-0 cursor-pointer">
                         <span className="flex min-w-0 grow items-center gap-1.5 break-words text-[12px] text-neutral-600 dark:text-fg-dim">
                           {" "}GitHub Actions runners{" "}
                           {" "}
@@ -3023,7 +3025,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                         <span className="relative flex size-[18px] shrink-0">
                           {" "}
                           {" "}
-                          <input type="checkbox" className="peer absolute inset-0 z-10 m-0 h-full w-full cursor-pointer appearance-none opacity-0 disabled:cursor-not-allowed" data-wire-model="use_for_github_runners" id="use_for_github_runners-agjfqwa3zcknu7liubpakbmx" />
+                          <input type="checkbox" className="peer absolute inset-0 z-10 m-0 h-full w-full cursor-pointer appearance-none opacity-0 disabled:cursor-not-allowed" data-wire-model="use_for_github_runners" id="use_for_github_runners-ebxiscwdfbeiyboyvfbfcsk4" />
                           {" "}
                           {" "}
                           {" "}
@@ -3078,7 +3080,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                         {" "}
                         {" "}
                         {" "}
-                        <input autoComplete="off" className="input" required data-wire-model="html_url" type="text" id="html_url-atrxjrjz6ha8rlkixgnfm5re" name="html_url" placeholder="" />
+                        <input autoComplete="off" className="input" required data-wire-model="html_url" type="text" id="html_url-ojdhz3u8bswtkr3l40yw9iyo" name="html_url" placeholder="" />
                         {" "}
                         {" "}
                         {" "}
@@ -3115,7 +3117,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                         {" "}
                         {" "}
                         {" "}
-                        <input autoComplete="off" className="input" required data-wire-model="api_url" type="text" id="api_url-bkydstqsdlyimruwdgqbhn9n" name="api_url" placeholder="" />
+                        <input autoComplete="off" className="input" required data-wire-model="api_url" type="text" id="api_url-towg7i4hyac3pbs9vua2jlwy" name="api_url" placeholder="" />
                         {" "}
                         {" "}
                         {" "}
@@ -3138,7 +3140,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                         {" "}
                         {" "}
                         {" "}
-                        <input autoComplete="off" className="input" required data-wire-model="custom_user" type="text" id="custom_user-jyndv0bbacnxwhyzubap3sjq" name="custom_user" placeholder="" />
+                        <input autoComplete="off" className="input" required data-wire-model="custom_user" type="text" id="custom_user-34ajqpytn9ir1o7a2ja8xfth" name="custom_user" placeholder="" />
                         {" "}
                         {" "}
                         {" "}
@@ -3163,7 +3165,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                         {" "}
                         <div className="relative">
                           {" "}
-                          <input autoComplete="off" className="input input-with-stepper" required data-wire-model="custom_port" type="number" id="custom_port-czsfbihfpd2ca5glibvzd3vi" name="custom_port" placeholder="" />
+                          <input autoComplete="off" className="input input-with-stepper" required data-wire-model="custom_port" type="number" id="custom_port-vwjlxykwtmtr9tttxmyvitzq" name="custom_port" placeholder="" />
                           {" "}
                           {" "}
                           <div className="number-stepper">
@@ -3249,7 +3251,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                   {" "}
                   {" "}
                   {" "}
-                  <input autoComplete="off" className="input" required data-wire-model="name" type="text" id="name-tazwubsarwelyyoxe81avlii" name="name" placeholder="" />
+                  <input autoComplete="off" className="input" required data-wire-model="name" type="text" id="name-4xkykndowfaflaedel7tbssu" name="name" placeholder="" />
                   {" "}
                   {" "}
                   {" "}
@@ -3266,7 +3268,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                   {" "}
                   {" "}
                   {" "}
-                  <input autoComplete="off" className="input" data-wire-model="description" type="text" id="description-hdqz9g5autlrvymv39iaqkus" name="description" placeholder="" />
+                  <input autoComplete="off" className="input" data-wire-model="description" type="text" id="description-pwjjmp2mxxzt5bs9tfyd4nfa" name="description" placeholder="" />
                   {" "}
                   {" "}
                   {" "}
@@ -3320,7 +3322,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                   {" "}
                   {" "}
                   {" "}
-                  <input autoComplete="off" className="input" required data-wire-model="name" type="text" id="name-vlippir0k0vwrmehzx15i3pl" name="name" placeholder="" />
+                  <input autoComplete="off" className="input" required data-wire-model="name" type="text" id="name-okwpmumlbtey6diggebrrmom" name="name" placeholder="" />
                   {" "}
                   {" "}
                   {" "}
@@ -3337,7 +3339,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                   {" "}
                   {" "}
                   {" "}
-                  <input autoComplete="off" className="input" data-wire-model="description" type="text" id="description-fufiigoeivxe3qrei9xldwnu" name="description" placeholder="" />
+                  <input autoComplete="off" className="input" data-wire-model="description" type="text" id="description-2twotcfpip0izzs2uiudhchy" name="description" placeholder="" />
                   {" "}
                   {" "}
                   {" "}
@@ -3404,7 +3406,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                     {" "}
                     {" "}
                     {" "}
-                    <input autoComplete="off" className="input" placeholder="A short summary of your feedback" required data-wire-model="subject" type="text" id="subject-mzvybb7grva4vp7ob1zxzri8" name="subject" autoFocus />
+                    <input autoComplete="off" className="input" placeholder="A short summary of your feedback" required data-wire-model="subject" type="text" id="subject-bjcbembhuytsbgrppwxlxfqd" name="subject" autoFocus />
                     {" "}
                     {" "}
                     {" "}
@@ -3427,7 +3429,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                     {" "}
                     {" "}
                     {" "}
-                    <textarea minLength={10} maxLength={1000} placeholder="What were you trying to do, what happened, and what would you like to see instead?" className="input scrollbar font-sans" rows={8} data-wire-model="description" required id="description-bqqr7qucibrussnk8dut4rgx" name="description" />
+                    <textarea minLength={10} maxLength={1000} placeholder="What were you trying to do, what happened, and what would you like to see instead?" className="input scrollbar font-sans" rows={8} data-wire-model="description" required id="description-gl906svqcb9ztyp99iqq4uk4" name="description" />
                     {" "}
                     {" "}
                     {" "}
@@ -3495,7 +3497,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                     {" "}
                     {" "}
                     {" "}
-                    <input autoComplete="off" className="input" placeholder="A short summary of your feedback" required data-wire-model="subject" type="text" id="subject-qtyqnkl3h9jxveclqub4g6bv" name="subject" autoFocus />
+                    <input autoComplete="off" className="input" placeholder="A short summary of your feedback" required data-wire-model="subject" type="text" id="subject-aduu79dgx1p6yotyffj8kwzm" name="subject" autoFocus />
                     {" "}
                     {" "}
                     {" "}
@@ -3518,7 +3520,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                     {" "}
                     {" "}
                     {" "}
-                    <textarea minLength={10} maxLength={1000} placeholder="What were you trying to do, what happened, and what would you like to see instead?" className="input scrollbar font-sans" rows={8} data-wire-model="description" required id="description-gkmqjosxlpsxnzjcn8ig526c" name="description" />
+                    <textarea minLength={10} maxLength={1000} placeholder="What were you trying to do, what happened, and what would you like to see instead?" className="input scrollbar font-sans" rows={8} data-wire-model="description" required id="description-0l7bwhvizzkwmigurdwuwdzl" name="description" />
                     {" "}
                     {" "}
                     {" "}
@@ -3573,7 +3575,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                   {" "}
                   {" "}
                   {" "}
-                  <input autoComplete="off" className="input" required data-wire-model="name" type="text" id="name-ztww1lmyw8udi4wrr0xqtfg9" name="name" placeholder="" />
+                  <input autoComplete="off" className="input" required data-wire-model="name" type="text" id="name-0l6rknwwtpualhhrkhygfkq2" name="name" placeholder="" />
                   {" "}
                   {" "}
                   {" "}
@@ -3590,7 +3592,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                   {" "}
                   {" "}
                   {" "}
-                  <input autoComplete="off" className="input" data-wire-model="description" type="text" id="description-jihsv89iitw16yvtxnu6othg" name="description" placeholder="" />
+                  <input autoComplete="off" className="input" data-wire-model="description" type="text" id="description-kju00rf9tuelnbaneuokfzvh" name="description" placeholder="" />
                   {" "}
                   {" "}
                   {" "}
@@ -3644,7 +3646,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                   {" "}
                   {" "}
                   {" "}
-                  <input autoComplete="off" className="input" required data-wire-model="name" type="text" id="name-rqfaquilzwed2iba3l6zidbl" name="name" placeholder="" />
+                  <input autoComplete="off" className="input" required data-wire-model="name" type="text" id="name-fvbpjjk9ryavbjqwi5vn0av0" name="name" placeholder="" />
                   {" "}
                   {" "}
                   {" "}
@@ -3661,7 +3663,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                   {" "}
                   {" "}
                   {" "}
-                  <input autoComplete="off" className="input" data-wire-model="description" type="text" id="description-kazg8bgn7lgwdre2ioy8eywa" name="description" placeholder="" />
+                  <input autoComplete="off" className="input" data-wire-model="description" type="text" id="description-mxshbtw1vwp7zcasufidvvul" name="description" placeholder="" />
                   {" "}
                   {" "}
                   {" "}
@@ -3728,7 +3730,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                     {" "}
                     {" "}
                     {" "}
-                    <input autoComplete="off" className="input" placeholder="A short summary of your feedback" required data-wire-model="subject" type="text" id="subject-hzvv9rz16qj45idznhbsznpg" name="subject" autoFocus />
+                    <input autoComplete="off" className="input" placeholder="A short summary of your feedback" required data-wire-model="subject" type="text" id="subject-4j5ckqnd5kjsiidraj4ukfxn" name="subject" autoFocus />
                     {" "}
                     {" "}
                     {" "}
@@ -3751,7 +3753,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                     {" "}
                     {" "}
                     {" "}
-                    <textarea minLength={10} maxLength={1000} placeholder="What were you trying to do, what happened, and what would you like to see instead?" className="input scrollbar font-sans" rows={8} data-wire-model="description" required id="description-dgtmygudvlxnnez5u16a6xjp" name="description" />
+                    <textarea minLength={10} maxLength={1000} placeholder="What were you trying to do, what happened, and what would you like to see instead?" className="input scrollbar font-sans" rows={8} data-wire-model="description" required id="description-wedboq3mxnroankys3uq2la8" name="description" />
                     {" "}
                     {" "}
                     {" "}
