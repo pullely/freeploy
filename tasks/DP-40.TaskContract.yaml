@@ -1,0 +1,16 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-40
+  title: "DP4 fix: the policy engine knows the deploy actions"
+spec:
+  goal: deploy.resource.read and deploy.resource.write were granted to roles (#18) but missing from the policy engine's known actions, so every deploy-core request was denied as unknown_action. Add them, test each role's decision, and redeploy the policy-worker.
+  affects:
+    - packages/policy-engine/**
+    - tests/policy-engine/**
+    - apps/policy-worker/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - on stage GET /v1/organizations/{org}/deploy/private-keys answers 200 to the org owner
+  gates: []
