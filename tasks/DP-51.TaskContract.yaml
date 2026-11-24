@@ -1,0 +1,21 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-51
+  title: "DP5: application environment variables (API and page)"
+spec:
+  goal: An org opens an application's Environment Variables page and manages its variables as in Coolify — the production and preview sets in Coolify's order, add (with the preview copy the model's hook makes), edit, lock (permanent; a locked value is never returned), delete, the order, build secrets, default variables and log redaction switches, and the developer view, whose text format and bulk save (which variables are created, updated and deleted, and the messages) are ports of Coolify's parser and diff, checked against what Coolify's own PHP answers — with Coolify's rules and Laravel's messages word for word. A value is stored encrypted with the per-org cipher, a reference to a shared variable ({{team.KEY}}, {{project.KEY}}, {{environment.KEY}}, {{server.KEY}}) is resolved for display and copy, and every query is confined to the org by row-level security; a member who cannot write lists the variables and never reads a value. /project/{uuid}/environment/{env_uuid}/application/{app_uuid}/environment-variables is ported from the Blade views inside the application's configuration frame. Nothing is written to a server — the .env file and build arguments of a deployment belong to the deployment job — and Compose variables, the secret manager, services, databases and Coolify's own JSON API are not part of this task.
+  affects:
+    - apps/deploy-core-worker/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - on stage a signed-in org owner opens an application's Environment Variables page, adds NODE_ENV=production, sees it under Production and under Preview deployments, edits its value and comment, locks it, and after a reload the row shows the lock and its dialog offers only a replacement value
+    - on stage the developer view shows the variables as text, saving "A=1 #note" above the others creates A with the comment "note" and answers "Environment variables updated.", saving the same text again answers no toast, removing A's line deletes it, and a "# coolify:" line that is not directly above a variable answers 422 with Coolify's message and changes nothing
+    - on stage POST /v1/organizations/{org}/deploy/applications/{uuid}/environment-variables with the key "my key" answers 422 "The key must start with a letter or underscore and may only contain letters, numbers, underscores, and dots.", a key the application already has answers 409 "Environment variable already exists.", GET of a locked variable answers a null value, and a member without deploy.resource.write gets 404 on every change and canViewValues false on the list
+    - /project/{uuid}/environment/{env_uuid}/application/{app_uuid}/environment-variables passes the stage DOM gate or each difference is listed with its cause
+  gates: []

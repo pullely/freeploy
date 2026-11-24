@@ -54,6 +54,7 @@ import {
 import { errorResponse, methodNotAllowed, successResponse, validationError } from "../http.js";
 import type { KeyCipher } from "../private-keys/service.js";
 import { authorizeDeploy, columnCipher, readJson } from "./cloud-tokens.js";
+import { handleEnvironmentVariables } from "./environment-variables.js";
 import { validateCreateDockerImage, validateGeneral } from "../applications/validation.js";
 import { handleApplicationSettings, isApplicationSettingsSection } from "./application-settings.js";
 import {
@@ -143,6 +144,8 @@ export async function handleApplications(
   request: Request,
   runner: ApplicationRunner = runApplicationsInOrg,
 ): Promise<Response> {
+  // …/applications/{uuid}/environment-variables[/…]: the Environment Variables page (environment-variables.ts).
+  if (segments[1] === "environment-variables") return handleEnvironmentVariables(env, requestId, actor, orgId, { type: "application", uuid: segments[0]! }, segments.slice(2), request);
   const method = request.method;
   const [first, second] = segments;
   const notFound = () => errorResponse("not_found", "Not found", 404, requestId);
