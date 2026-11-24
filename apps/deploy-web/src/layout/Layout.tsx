@@ -86,6 +86,8 @@ export interface LayoutProps {
   searchTitle?: string;
   /** Overlays a page teleports to <body> (dialogs, popups). */
   portal?: ReactNode;
+  /** The main menu item to mark current, when it is not this page's path (a server's pages mark Servers). */
+  navHref?: string;
   children: ReactNode;
 }
 
@@ -120,7 +122,7 @@ export function Layout(props: LayoutProps) {
     }
     setReminderHidden(true);
   }
-  const here = window.location.pathname.replace(/\/$/, "") || "/";
+  const here = props.navHref ?? (window.location.pathname.replace(/\/$/, "") || "/");
   return (
     <MeContext.Provider value={{ me, setMe }}>
     <LayoutMarkup
