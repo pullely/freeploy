@@ -1,0 +1,21 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-52
+  title: "DP5: application domains, advanced, health check and resource limits (API and pages)"
+spec:
+  goal: An org opens the Domains, Advanced, Healthcheck and Resource Limits pages of a Docker image application and reads and saves what Coolify's components read and save there, with Coolify's rules and Laravel's messages word for word, stored in deploy.applications and deploy.application_settings as Coolify stores it and applied at the next deployment — the domains as rows with their internal port, search indexing and DNS status, adding (with the www or non-www counterpart), generating, editing and removing a domain, the www redirect with its automatic pairs, the HTTP to HTTPS and redirect type switches, the domain conflict and unknown port confirmations; the HTTP or command healthcheck with its timing and its enable switch; the CPU and memory limits with ResourceLimits' defaults; the build switches, container naming, stop grace period, rolling update drain time, restart limit, log drain switch, GPU access and form, gzip, strip prefix and certificate resolver — every query confined to the org by row-level security. /project/{uuid}/environment/{env_uuid}/application/{app_uuid}/domains, /advanced, /healthcheck and /resource-limits are ported from the Blade views inside the application's configuration frame. What needs a connection is reported, not faked — a DNS check is stored as Coolify stores a check that could not be started (an sslip.io host is accepted as Coolify accepts it) and answered as not available yet, and Refresh GPUs answers 501. Managed DNS records (Cloudflare Domain Connect, DNS providers, manual records), container labels, the Git and Docker Compose sections of Advanced, Compose service domains and the configuration-changed notice are not part of this task.
+  affects:
+    - apps/deploy-core-worker/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - on stage a signed-in org owner opens the Domains page of a Docker image application, adds https://example.com, sees it and https://www.example.com as rows with the DNS status skipped, gives the first an internal port, sets the www redirect, removes a domain, and every change is there after a reload
+    - on stage PATCH /v1/organizations/{org}/deploy/applications/{uuid}/resource-limits with limitsMemory 512 answers 422 "Maximum Memory Limit must be a number followed by a unit (b, k, m, g). Example: 256m, 1g. Use 0 for unlimited.", PATCH …/healthcheck with healthCheckHost "a b" answers 422 "The health check host must be a hostname, an IPv4 address, or an IPv6 address.", PATCH …/advanced with save refreshGpus answers 501 or, for a server that is not validated, 422 "Validate the server connection before you refresh GPUs.", and a member without deploy.resource.write gets 404 on every PATCH and canUpdate false on every read
+    - a domain another application of the org uses answers 409 with the conflicts until the save is forced, and a port the application neither exposes nor uses answers 409 with unrecognizedPort until it is confirmed
+    - the four pages pass the stage DOM gate or each difference is listed with its cause
+  gates: []

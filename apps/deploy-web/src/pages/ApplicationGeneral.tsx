@@ -8,7 +8,7 @@
 // Not here yet: HTTP Basic Authentication, the container labels (both need
 // Coolify's label generator) and the internal hostname of a running container
 // (nothing is deployed yet). Domains are edited on the Domains page, as in
-// Coolify; that page is not ported.
+// Coolify.
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Layout, useSignedIn } from "../layout/Layout";
 import { getJson, postJson, summarize } from "../lib/api";

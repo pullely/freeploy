@@ -16,6 +16,7 @@
 //   POST   /applications/{uuid}/deploy      Heading::deploy    501: needs the SSH executor
 //   POST   /applications/{uuid}/restart     Heading::restart   501
 //   POST   /applications/{uuid}/stop        Heading::stop      501
+//   GET, PATCH /applications/{uuid}/{domains,advanced,healthcheck,resource-limits}   application-settings.ts
 //
 // and, routed here by route() (router.ts):
 //
@@ -54,6 +55,7 @@ import { errorResponse, methodNotAllowed, successResponse, validationError } fro
 import type { KeyCipher } from "../private-keys/service.js";
 import { authorizeDeploy, columnCipher, readJson } from "./cloud-tokens.js";
 import { validateCreateDockerImage, validateGeneral } from "../applications/validation.js";
+import { handleApplicationSettings, isApplicationSettingsSection } from "./application-settings.js";
 import {
   ApplicationError,
   createDockerImageApplication,
@@ -144,6 +146,8 @@ export async function handleApplications(
   const method = request.method;
   const [first, second] = segments;
   const notFound = () => errorResponse("not_found", "Not found", 404, requestId);
+  // The Domains, Advanced, Healthcheck and Resource Limits pages (application-settings.ts).
+  if (segments.length === 2 && isApplicationSettingsSection(second)) return handleApplicationSettings(env, requestId, actor, orgId, first!, second, request);
   let op: Op | null = null;
 
   if (segments.length === 0) {
