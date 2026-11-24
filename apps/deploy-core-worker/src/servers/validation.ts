@@ -43,7 +43,7 @@ export const SERVER_MESSAGES = {
 } as const;
 
 /** Laravel's `integer` (filter_var FILTER_VALIDATE_INT): an int, or a string of one, no leading zeros. */
-function integerValue(v: unknown): number | null {
+export function integerValue(v: unknown): number | null {
   if (typeof v === "number") return Number.isInteger(v) ? v : null;
   if (typeof v !== "string") return null;
   const t = v.trim();
@@ -51,7 +51,7 @@ function integerValue(v: unknown): number | null {
 }
 
 /** Laravel's size for `between` / `min` / `max` on a field with a numeric rule: the number, or a string's length. */
-function size(v: unknown): number {
+export function size(v: unknown): number {
   if (typeof v === "number") return v;
   if (typeof v === "string") return v.trim() !== "" && !Number.isNaN(Number(v)) ? Number(v) : [...v].length;
   return 0;

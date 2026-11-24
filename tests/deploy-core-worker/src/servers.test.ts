@@ -56,6 +56,7 @@ class MemoryStore implements ServerStore {
       is_usable: false, force_disabled: false, is_swarm_manager: false, is_swarm_worker: false, is_build_server: s.serverRole === "build",
       server_role: s.serverRole, connection_timeout: 10, wildcard_domain: null, public_ipv4: null, public_ipv6: null, server_timezone: "UTC",
       is_metrics_enabled: false, is_sentinel_enabled: true, is_image_scan_enabled: s.imageScanEnabled, ssh_host_key_pending: null, image_scan: s.imageScanEnabled,
+      is_cloudflare_tunnel: false, org_uses_swarm: false,
     };
     this.rows.push(row);
     return this.withKey(row);

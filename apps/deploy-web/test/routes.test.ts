@@ -37,6 +37,12 @@ test("routes/web.php paths map to ported pages; the rest are not ported", () => 
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/private-key"), "server.private-key");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/danger"), "server.delete");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/proxy"), "not-ported");
+  assert.equal(pageFor("/server/abc123def456ghi789jkl012/advanced"), "server.advanced");
+  assert.equal(pageFor("/server/abc123def456ghi789jkl012/docker-cleanup"), "server.docker-cleanup");
+  assert.equal(pageFor("/server/abc123def456ghi789jkl012/log-drains/"), "server.log-drains");
+  assert.equal(pageFor("/server/abc123def456ghi789jkl012/swarm"), "server.swarm");
+  assert.equal(pageFor("/server/abc123def456ghi789jkl012/sentinel"), "server.sentinel");
+  assert.equal(pageFor("/server/abc123def456ghi789jkl012/sentinel/logs"), "not-ported");
 });
 
 test("a dismissed reminder stays hidden for the rest of the calendar month", () => {

@@ -6,9 +6,11 @@
 // switcher and the status summary), the mobile title, and the server's
 // settings menu. Proxy, Sentinel and the other parts that need a validated
 // server stay disabled, as Coolify shows them for a server it has not validated.
-import { useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { getJson } from "../lib/api";
+import { useSignedIn } from "../layout/Layout";
+import { getJson, postJson, summarize } from "../lib/api";
+import { notify } from "../lib/toast";
 import { Reicon } from "../components/Reicon";
 
 /** GET /servers/{uuid}: Show's data. */
@@ -26,6 +28,10 @@ export interface ServerInfo {
   publicIpv6: string | null;
   serverRole: "deployment" | "build" | "both";
   isSwarmWorker: boolean;
+  isSwarmManager: boolean;
+  isCloudflareTunnel: boolean;
+  /** Team::usesSwarm() */
+  usesSwarm: boolean;
   isFunctional: boolean;
   isTransferredAway: boolean;
   isForceDisabled: boolean;
@@ -46,7 +52,7 @@ export const SERVER_ROLE_OPTIONS = [
   { value: "both", label: "Deployments and builds", description: "Builds and runs your resources on this server. Can also run GitHub Actions runners." },
 ];
 
-export type ServerMenu = "general" | "private-key" | "danger";
+export type ServerMenu = "general" | "advanced" | "private-key" | "sentinel" | "swarm" | "docker-cleanup" | "log-drains" | "danger";
 
 /** data_get_str(…)->limit($n): the first n characters and "...". */
 export function limit(value: string, n: number): string {
@@ -203,26 +209,28 @@ interface MenuItem {
 export function ServerSidebar({ server, active, canUpdate }: { server: ServerInfo; active: ServerMenu; canUpdate: boolean }) {
   const off = !server.isFunctional;
   const canHostResources = server.serverRole !== "build";
+  const isSwarm = server.isSwarmManager || server.isSwarmWorker;
   const items: MenuItem[] = [
     { label: "General", path: "", icon: "settings", group: "Settings", active: active === "general" },
-    { label: "Advanced", path: "/advanced", icon: "grid", group: "Settings", disabled: off },
+    { label: "Advanced", path: "/advanced", icon: "grid", group: "Settings", active: active === "advanced", disabled: off },
     { label: "Private Key", path: "/private-key", icon: "keys", group: "Settings", active: active === "private-key" },
     { label: "Cloud Token", path: "/cloud-provider-token", icon: "subscription", group: "Settings", visible: server.hasCloudProvider },
     { label: "CA Certificate", path: "/ca-certificate", icon: "file", group: "Settings", disabled: off },
     { label: "Security", path: "/security", icon: "shield-alert", group: "Security", visible: canUpdate, warning: server.sshHostKeyPending },
     { label: "Cloudflare Tunnel", path: "/cloudflare-tunnel", icon: "cloudflare", group: "Networking", visible: !server.isLocalhost },
     { label: "Proxy", path: "/proxy", icon: "network", group: "Platform", visible: !server.isSwarmWorker && canHostResources, disabled: off },
-    { label: "Sentinel", path: "/sentinel", icon: "shield-star", group: "Platform", visible: !server.isSwarmWorker && canHostResources && canUpdate, disabled: off },
+    { label: "Sentinel", path: "/sentinel", icon: "shield-star", group: "Platform", active: active === "sentinel", visible: !isSwarm && canHostResources && canUpdate, disabled: off },
     { label: "Resources", path: "/resources", icon: "projects", group: "Platform", disabled: off },
     { label: "Terminal", path: "/terminal", icon: "browser-terminal", group: "Operations", visible: canUpdate, disabled: off },
     { label: "Destinations", path: "/destinations", icon: "destinations", group: "Networking", disabled: off },
+    { label: "Swarm", path: "/swarm", icon: "layers", group: "Networking", active: active === "swarm", visible: server.usesSwarm && server.serverRole !== "build" && !server.isCloudflareTunnel },
     { label: "Images", path: "/images", icon: "layers", group: "Operations", disabled: off },
-    { label: "Docker Cleanup", path: "/docker-cleanup", icon: "broom", group: "Operations", disabled: off },
+    { label: "Docker Cleanup", path: "/docker-cleanup", icon: "broom", group: "Operations", active: active === "docker-cleanup", disabled: off },
     { label: "GitHub Runners", path: "/github-runners", icon: "play-circle", group: "Operations", visible: !server.isLocalhost, beta: true, disabled: off },
     { label: "Registries", path: "/registries", icon: "layers", group: "Operations", visible: canUpdate, disabled: off },
-    { label: "Log Drains", path: "/log-drains", icon: "notifications", group: "Operations", disabled: off },
+    { label: "Log Drains", path: "/log-drains", icon: "notifications", group: "Operations", active: active === "log-drains", disabled: off },
     { label: "Metrics", path: "/metrics", icon: "graph", group: "Operations", disabled: off },
-    { label: "Analytics", path: "/analytics", icon: "analytics", group: "Operations", visible: server.serverRole !== "build", disabled: off },
+    { label: "Analytics", path: "/analytics", icon: "analytics", group: "Operations", visible: !isSwarm && server.serverRole !== "build", disabled: off },
     { label: "Transfer", path: "/transfer", icon: "arrow-right", group: "Operations", visible: !server.isLocalhost && canUpdate, beta: true, disabled: off },
     { label: "Danger Zone", path: "/danger", icon: "danger", group: "Danger Zone", active: active === "danger" },
   ];
@@ -273,3 +281,75 @@ export function ServerWorkspace({ server, orgId, active, canUpdate, children }: 
     </div>
   );
 }
+
+/** What a settings page's GET answers: the server for the chrome, the section's settings. */
+export interface SectionData<T> {
+  server: ServerInfo;
+  settings: T;
+  canUpdate: boolean;
+}
+
+/** What a settings save answers: the saved settings, Coolify's message, and the server action that is not available yet. */
+interface Saved<T> {
+  settings: T;
+  message: string | null;
+  unavailable: string | null;
+}
+
+/**
+ * A server settings page (Advanced, Docker Cleanup, Log Drains, Swarm,
+ * Sentinel): its data from /servers/{uuid}/{section} and its <x-slot:title>; save and post
+ * show the errors under the fields or as a toast, Coolify's message as a
+ * success toast, and an action that needs SSH as an error toast.
+ */
+export function useServerSection<T, Extra extends object = object>(section: string, title: (serverName: string) => string) {
+  const { me } = useSignedIn();
+  const uuid = serverUuidFromPath();
+  const base = `/v1/organizations/${me.team?.id ?? ""}/deploy/servers/${encodeURIComponent(uuid)}/${section}`;
+  const [data, setData] = useState<(SectionData<T> & Extra) | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    void (async () => {
+      const r = await getJson<SectionData<T> & Extra>(base);
+      if (!r.data) {
+        // mount(): a server of another team (or none) redirects to the server list.
+        if (r.status === 404) window.location.replace("/servers");
+        return;
+      }
+      setData(r.data);
+    })();
+  }, [base]);
+  useEffect(() => {
+    if (data) document.title = title(data.server.name);
+  }, [data, title]);
+
+  const send = useCallback(
+    async (path: string, body: unknown, method: "POST" | "PATCH"): Promise<T | null> => {
+      setSaving(true);
+      const r = await postJson<Saved<T>>(base + path, body, method);
+      setSaving(false);
+      if (!r.ok) {
+        const inline: Record<string, string> = {};
+        for (const [f, m] of Object.entries(r.error.fields ?? {})) if (m[0]) inline[f] = m[0];
+        setErrors(inline);
+        // A field the page does not show (logDrain) is a toast, as handleError's dispatch('error').
+        if (!Object.keys(inline).length || inline.logDrain) notify.error(inline.logDrain ?? summarize(r.error.messages));
+        return null;
+      }
+      setErrors({});
+      setData((d) => (d ? { ...d, settings: r.data.settings } : d));
+      if (r.data.message) notify.success(r.data.message);
+      if (r.data.unavailable) notify.error(r.data.unavailable);
+      return r.data.settings;
+    },
+    [base],
+  );
+  const save = useCallback((body: Record<string, unknown>, instantSave = false) => send("", { ...body, ...(instantSave ? { instantSave: true } : {}) }, "PATCH"), [send]);
+  const post = useCallback((action: string) => send(`/${action}`, {}, "POST"), [send]);
+  return { me, uuid, data, errors, saving, save, post };
+}
+
+/** A boolean listbox's value. */
+export const yesNo = (v: boolean): string => (v ? "true" : "false");

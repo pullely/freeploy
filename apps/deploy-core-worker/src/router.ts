@@ -27,8 +27,8 @@ function resolveActor(request: Request): ActorContext | null {
 export const ORG_DEPLOY_PROJECTS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/projects$/;
 /** Keys & Tokens → Private Keys: the collection and up to two segments below it. */
 export const ORG_DEPLOY_PRIVATE_KEYS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/private-keys((?:\/[^/]+){0,2})\/?$/;
-/** Servers: the collection and up to two segments below it. */
-export const ORG_DEPLOY_SERVERS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/servers((?:\/[^/]+){0,2})\/?$/;
+/** Servers: the collection and up to three segments below it (a settings page's action). */
+export const ORG_DEPLOY_SERVERS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/servers((?:\/[^/]+){0,3})\/?$/;
 
 export async function route(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url);
