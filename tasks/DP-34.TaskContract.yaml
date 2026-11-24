@@ -1,0 +1,14 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-34
+  title: "DP3 fix: store a new passkey (transports bound as text, not an array)"
+spec:
+  goal: Creating a passkey on stage no longer fails with "An unexpected error occurred"; the passkey store binds only scalars, which the executor (postgres.js with fetch_types off) can serialise, and a user adds a passkey on stage and signs in with it.
+  affects:
+    - packages/db/**
+    - tests/db/**
+    - tasks/**
+  doneWhen:
+    - on deploy-web stage a user adds a passkey from /profile and signs in with it
+  gates: []
