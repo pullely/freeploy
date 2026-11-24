@@ -1,0 +1,22 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-53
+  title: "DP5: container labels, HTTP basic auth and label settings for applications"
+spec:
+  goal: An application's General page carries the container labels Coolify would generate for it — the Traefik routers, services and middlewares and the Caddy directives of its domains, with Coolify's label keys and values unchanged — stored in custom_labels as base64 of the text, as Coolify stores them. The generators (fqdnLabelsForTraefik, fqdnLabelsForCaddy, generateLabelsApplication, defaultLabels and the helpers they call) are TypeScript, byte-equal to Coolify's own PHP for 171 cases emitted by that PHP; the password of HTTP Basic Authentication is hashed with a bcrypt that returns PHP's password_hash output for PHP's salt. Labels are filled on the first load, regenerated on save while they are managed, editable by hand while they are not, and reset on request; HTTP Basic Authentication (method, username, encrypted password, bcrypt cost) and the two label settings are read and saved with General's rules and Laravel's messages word for word. Nothing is deployed, so no label reaches a container yet. Argon2id hashing, the Monaco editor of the labels field, preview deployments' own labels on a page, and the deployment job's use of the labels are not part of this task.
+  affects:
+    - apps/deploy-core-worker/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - tests/deploy-core-worker's labels.test.ts passes — every case of fixtures/labels/cases.json returns what Coolify's PHP returned for it (fixtures/labels/goldens.json), the bcrypt hashes included, and the validation messages equal Laravel's
+    - on stage a signed-in org owner opens a Docker image application's configuration page and sees, under Container, the labels of its domain (traefik.enable=true, the http and https routers named after the application's uuid, caddy_ingress_network=coolify), read-only, and they are stored on the application after that first load
+    - on stage the owner changes Ports exposes to 8080 and saves, and the labels' loadbalancer port is 8080 after a reload; switches Label management to manual, edits the labels, saves, and finds the edit after a reload; resets to defaults and gets the generated labels back
+    - on stage the owner sets Authentication to HTTP Basic Authentication with a username and a password, saves, and the labels carry a basicauth middleware for that username with a bcrypt hash; a member without deploy.resource.write reads neither the labels nor the password and gets 404 on PATCH and on POST …/applications/{uuid}/labels/reset
+    - on stage PATCH …/applications/{uuid} with httpBasicAuthBcryptCost 3 answers 422 "The http basic auth bcrypt cost field must be at least 4.", and with httpBasicAuthHashAlgorithm "argon2id" answers 422 "Argon2id needs a server that runs the Caddy proxy, version 2.11 or newer."
+  gates: []

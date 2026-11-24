@@ -1,0 +1,2330 @@
+{
+  "$comment": "Label golden cases (DP-53). emit.php runs each through Coolify's own PHP (coollabsio/coolify@91b7e3e) and writes goldens.json; labels.test.ts runs the same cases through the TypeScript ports. A generateLabelsApplication or parseContainerLabels case gives the fields that differ from applicationDefaults (merged recursively). See README.md.",
+  "applicationDefaults": {
+    "uuid": "app1uuid",
+    "fqdn": "https://app.example.com",
+    "ports_exposes": "3000",
+    "redirect": "both",
+    "custom_labels": null,
+    "is_http_basic_auth_enabled": false,
+    "http_basic_auth_username": null,
+    "http_basic_auth_password": null,
+    "http_basic_auth_hash_algorithm": "bcrypt",
+    "http_basic_auth_bcrypt_cost": 10,
+    "http_basic_auth_argon2id_memory_cost": 65536,
+    "http_basic_auth_argon2id_time_cost": 4,
+    "noindex_domains": null,
+    "domain_port_overrides": null,
+    "settings": {
+      "is_static": false,
+      "is_force_https_enabled": true,
+      "is_gzip_enabled": true,
+      "is_stripprefix_enabled": true,
+      "is_permanent_redirect_enabled": false,
+      "is_container_label_readonly_enabled": true,
+      "traefik_certificate_resolver": null
+    },
+    "destination": {
+      "network": "coolify"
+    },
+    "server": {
+      "proxy": {
+        "type": "TRAEFIK",
+        "status": "exited",
+        "redirect_enabled": true
+      },
+      "settings": {
+        "generate_exact_labels": false,
+        "traefik_certificate_resolver": "letsencrypt",
+        "is_traffic_analytics_enabled": false
+      }
+    }
+  },
+  "cases": [
+    {
+      "id": "traefik.https.root",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com"
+        ]
+      }
+    },
+    {
+      "id": "traefik.https.path",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com/api"
+        ]
+      }
+    },
+    {
+      "id": "traefik.http.root",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "http://app.example.com"
+        ]
+      }
+    },
+    {
+      "id": "traefik.http.path",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "http://app.example.com/api/v1"
+        ]
+      }
+    },
+    {
+      "id": "traefik.port.url",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com:3000"
+        ]
+      }
+    },
+    {
+      "id": "traefik.port.only",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com",
+          "http://b.example.com"
+        ],
+        "onlyPort": "8080"
+      }
+    },
+    {
+      "id": "traefik.port.only.int",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com"
+        ],
+        "onlyPort": 80
+      }
+    },
+    {
+      "id": "traefik.port.only.empty",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com"
+        ],
+        "onlyPort": ""
+      }
+    },
+    {
+      "id": "traefik.port.only.zero",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "http://app.example.com"
+        ],
+        "onlyPort": "0"
+      }
+    },
+    {
+      "id": "traefik.port.override",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com",
+          "https://b.example.com/x"
+        ],
+        "onlyPort": "80",
+        "domainPortOverrides": {
+          "https://app.example.com": 4000,
+          "https://b.example.com/x": 5000
+        }
+      }
+    },
+    {
+      "id": "traefik.port.url.beats.override",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com:3000"
+        ],
+        "onlyPort": "80",
+        "domainPortOverrides": {
+          "https://app.example.com": 4000
+        }
+      }
+    },
+    {
+      "id": "traefik.force_https",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com",
+          "https://app.example.com/api"
+        ],
+        "is_force_https_enabled": true,
+        "onlyPort": "3000"
+      }
+    },
+    {
+      "id": "traefik.force_https.noindex",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com"
+        ],
+        "is_force_https_enabled": true,
+        "noindex_domains": [
+          "https://app.example.com"
+        ]
+      }
+    },
+    {
+      "id": "traefik.force_https.http",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "http://app.example.com"
+        ],
+        "is_force_https_enabled": true
+      }
+    },
+    {
+      "id": "traefik.permanent",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://example.com",
+          "https://www.example.com"
+        ],
+        "is_force_https_enabled": true,
+        "is_permanent_redirect_enabled": true,
+        "redirect_direction": "www"
+      }
+    },
+    {
+      "id": "traefik.permanent.nonwww",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://www.example.com/app"
+        ],
+        "is_permanent_redirect_enabled": true,
+        "redirect_direction": "non-www"
+      }
+    },
+    {
+      "id": "traefik.nogzip.root",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com",
+          "http://b.example.com"
+        ],
+        "is_gzip_enabled": false
+      }
+    },
+    {
+      "id": "traefik.nogzip.nostrip.path",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com/api",
+          "http://b.example.com/api"
+        ],
+        "is_gzip_enabled": false,
+        "is_stripprefix_enabled": false
+      }
+    },
+    {
+      "id": "traefik.nostrip.path",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com/api",
+          "http://b.example.com/api"
+        ],
+        "is_stripprefix_enabled": false
+      }
+    },
+    {
+      "id": "traefik.nulls",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com/api"
+        ],
+        "is_gzip_enabled": null,
+        "is_stripprefix_enabled": null
+      }
+    },
+    {
+      "id": "traefik.redirect.www",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://example.com",
+          "https://www.example.com",
+          "http://example.org/x",
+          "http://www.example.org/x"
+        ],
+        "redirect_direction": "www"
+      }
+    },
+    {
+      "id": "traefik.redirect.nonwww",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://example.com",
+          "https://www.example.com",
+          "http://example.org/x",
+          "http://www.example.org/x",
+          "https://www.example.net/y"
+        ],
+        "redirect_direction": "non-www"
+      }
+    },
+    {
+      "id": "traefik.redirect.www.noescape",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://example.com",
+          "https://www.example.com"
+        ],
+        "redirect_direction": "www",
+        "escape_redirect_replacement_for_compose": false
+      }
+    },
+    {
+      "id": "traefik.redirect.nonwww.noescape",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "http://www.example.com"
+        ],
+        "redirect_direction": "non-www",
+        "escape_redirect_replacement_for_compose": false
+      }
+    },
+    {
+      "id": "traefik.basic_auth",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com",
+          "http://b.example.com/x"
+        ],
+        "is_http_basic_auth_enabled": true,
+        "http_basic_auth_username": "admin",
+        "http_basic_auth_password": "secret"
+      }
+    },
+    {
+      "id": "traefik.basic_auth.cost4",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com/x"
+        ],
+        "is_http_basic_auth_enabled": true,
+        "http_basic_auth_username": "admin",
+        "http_basic_auth_password": "pässword with spaces & $ymbols",
+        "http_basic_auth_bcrypt_cost": 4
+      }
+    },
+    {
+      "id": "traefik.basic_auth.cost12.force",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com"
+        ],
+        "is_force_https_enabled": true,
+        "is_http_basic_auth_enabled": true,
+        "http_basic_auth_username": "u",
+        "http_basic_auth_password": "p",
+        "http_basic_auth_bcrypt_cost": 12
+      }
+    },
+    {
+      "id": "traefik.basic_auth.long",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com"
+        ],
+        "is_http_basic_auth_enabled": true,
+        "http_basic_auth_username": "admin",
+        "http_basic_auth_password": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxéz-beyond-72-bytes",
+        "http_basic_auth_bcrypt_cost": 5
+      }
+    },
+    {
+      "id": "traefik.basic_auth.empty_password",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com"
+        ],
+        "is_http_basic_auth_enabled": true,
+        "http_basic_auth_username": "",
+        "http_basic_auth_password": "",
+        "http_basic_auth_bcrypt_cost": 4
+      }
+    },
+    {
+      "id": "traefik.basic_auth.no_user",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com"
+        ],
+        "is_http_basic_auth_enabled": true,
+        "http_basic_auth_username": null,
+        "http_basic_auth_password": "secret"
+      }
+    },
+    {
+      "id": "traefik.basic_auth.no_password",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com"
+        ],
+        "is_http_basic_auth_enabled": true,
+        "http_basic_auth_username": "admin",
+        "http_basic_auth_password": null
+      }
+    },
+    {
+      "id": "traefik.noindex",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com:3000",
+          "https://b.example.com/x",
+          "http://c.example.com"
+        ],
+        "noindex_domains": [
+          "HTTPS://APP.example.com",
+          "http://c.example.com:8080",
+          "https://other.example.com"
+        ]
+      }
+    },
+    {
+      "id": "traefik.noindex.empty",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com"
+        ],
+        "noindex_domains": []
+      }
+    },
+    {
+      "id": "traefik.service_labels",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com",
+          "http://b.example.com/x"
+        ],
+        "serviceLabels": [
+          "traefik.http.middlewares.my-auth.basicauth.users=a:b",
+          "traefik.http.middlewares.my-auth.basicauth.realm=x",
+          "coolify.traefik.middlewares=one,two,,0",
+          "other=1",
+          {
+            "traefik.http.middlewares.arr.headers.x": "y"
+          },
+          5,
+          "traefik.http.middlewares.tail"
+        ]
+      }
+    },
+    {
+      "id": "traefik.service_name",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com",
+          "http://b.example.com/x"
+        ],
+        "service_name": "api.test",
+        "onlyPort": "3000"
+      }
+    },
+    {
+      "id": "traefik.ghost",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com/blog",
+          "https://app.example.com",
+          "http://b.example.com/blog",
+          "http://b.example.com"
+        ],
+        "image": "ghost:5-alpine"
+      }
+    },
+    {
+      "id": "traefik.ghost.other_image",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com/blog"
+        ],
+        "image": "nginx:alpine"
+      }
+    },
+    {
+      "id": "traefik.multi",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://a.example.com",
+          "http://b.example.com/x",
+          "https://c.example.com:9000/y/z",
+          "http://d.example.com:81"
+        ],
+        "onlyPort": "3000"
+      }
+    },
+    {
+      "id": "traefik.eleven",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://d0.example.com",
+          "https://d1.example.com",
+          "https://d2.example.com",
+          "https://d3.example.com",
+          "https://d4.example.com",
+          "https://d5.example.com",
+          "https://d6.example.com",
+          "https://d7.example.com",
+          "https://d8.example.com",
+          "https://d9.example.com",
+          "https://d10.example.com"
+        ]
+      }
+    },
+    {
+      "id": "traefik.ipv6",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://[2a01:4f8::1]:8080",
+          "http://[::1]/x"
+        ]
+      }
+    },
+    {
+      "id": "traefik.invalid",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "ftp://x.example.com",
+          "https://ok.example.com",
+          "https://bad.example.com:99999",
+          "https://"
+        ]
+      }
+    },
+    {
+      "id": "traefik.resolver.null",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com"
+        ],
+        "certificate_resolver": null
+      }
+    },
+    {
+      "id": "traefik.resolver.empty",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com"
+        ],
+        "certificate_resolver": " "
+      }
+    },
+    {
+      "id": "traefik.resolver.custom",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com"
+        ],
+        "certificate_resolver": "myresolver"
+      }
+    },
+    {
+      "id": "traefik.empty",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": []
+      }
+    },
+    {
+      "id": "traefik.query",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com/path?x=1#frag",
+          "https://app.example.com?x=1"
+        ]
+      }
+    },
+    {
+      "id": "traefik.uppercase",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "HTTPS://App.Example.com/API",
+          "HTTP://B.Example.com"
+        ]
+      }
+    },
+    {
+      "id": "traefik.no_scheme",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "app.example.com",
+          "",
+          " https://spaced.example.com"
+        ]
+      }
+    },
+    {
+      "id": "traefik.userinfo",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "https://user:pass@app.example.com/x"
+        ]
+      }
+    },
+    {
+      "id": "traefik.everything",
+      "fn": "fqdnLabelsForTraefik",
+      "args": {
+        "uuid": "abc123",
+        "domains": [
+          "http://example.com/x",
+          "https://example.com/x",
+          "http://example.com",
+          "https://example.com"
+        ],
+        "redirect_direction": "www",
+        "is_http_basic_auth_enabled": true,
+        "http_basic_auth_username": "admin",
+        "http_basic_auth_password": "secret",
+        "http_basic_auth_bcrypt_cost": 4,
+        "noindex_domains": [
+          "http://example.com/x",
+          "https://example.com/x",
+          "http://example.com",
+          "https://example.com"
+        ],
+        "serviceLabels": [
+          "coolify.traefik.middlewares=extra"
+        ],
+        "onlyPort": "3000"
+      }
+    },
+    {
+      "id": "caddy.https",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com"
+        ]
+      }
+    },
+    {
+      "id": "caddy.https.force",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com"
+        ],
+        "is_force_https_enabled": true
+      }
+    },
+    {
+      "id": "caddy.http",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "http://app.example.com"
+        ]
+      }
+    },
+    {
+      "id": "caddy.http.force",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "http://app.example.com"
+        ],
+        "is_force_https_enabled": true
+      }
+    },
+    {
+      "id": "caddy.path",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com/api",
+          "http://b.example.com/api/v1"
+        ]
+      }
+    },
+    {
+      "id": "caddy.nostrip",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com/api"
+        ],
+        "is_stripprefix_enabled": false
+      }
+    },
+    {
+      "id": "caddy.nogzip",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com"
+        ],
+        "is_gzip_enabled": false
+      }
+    },
+    {
+      "id": "caddy.nulls",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com/x"
+        ],
+        "is_gzip_enabled": null,
+        "is_stripprefix_enabled": null
+      }
+    },
+    {
+      "id": "caddy.port.url",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com:3000"
+        ]
+      }
+    },
+    {
+      "id": "caddy.port.only",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com"
+        ],
+        "onlyPort": "8080"
+      }
+    },
+    {
+      "id": "caddy.port.only.int",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com"
+        ],
+        "onlyPort": 80
+      }
+    },
+    {
+      "id": "caddy.port.only.empty.predefined",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com"
+        ],
+        "onlyPort": "",
+        "predefinedPort": "9000"
+      }
+    },
+    {
+      "id": "caddy.port.predefined",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com"
+        ],
+        "predefinedPort": "9000"
+      }
+    },
+    {
+      "id": "caddy.port.override",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com",
+          "https://b.example.com"
+        ],
+        "onlyPort": "80",
+        "predefinedPort": "9000",
+        "domainPortOverrides": {
+          "https://app.example.com": 4000
+        }
+      }
+    },
+    {
+      "id": "caddy.redirect.www",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "https://example.com",
+          "https://www.example.com"
+        ],
+        "redirect_direction": "www"
+      }
+    },
+    {
+      "id": "caddy.redirect.www.force",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "https://example.com",
+          "http://example.org"
+        ],
+        "redirect_direction": "www",
+        "is_force_https_enabled": true
+      }
+    },
+    {
+      "id": "caddy.redirect.nonwww",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "https://example.com",
+          "https://www.example.com",
+          "http://www.www.example.org"
+        ],
+        "redirect_direction": "non-www"
+      }
+    },
+    {
+      "id": "caddy.redirect.nonwww.force.permanent",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "https://www.example.com"
+        ],
+        "redirect_direction": "non-www",
+        "is_force_https_enabled": true,
+        "is_permanent_redirect_enabled": true
+      }
+    },
+    {
+      "id": "caddy.redirect.www.permanent",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "https://example.com"
+        ],
+        "redirect_direction": "www",
+        "is_permanent_redirect_enabled": true
+      }
+    },
+    {
+      "id": "caddy.basic_auth.old",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com",
+          "http://b.example.com"
+        ],
+        "is_http_basic_auth_enabled": true,
+        "http_basic_auth_username": "admin",
+        "http_basic_auth_password": "secret"
+      }
+    },
+    {
+      "id": "caddy.basic_auth.new",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com"
+        ],
+        "is_http_basic_auth_enabled": true,
+        "http_basic_auth_username": "admin",
+        "http_basic_auth_password": "secret",
+        "supports_basic_auth_directive": true,
+        "http_basic_auth_bcrypt_cost": 4
+      }
+    },
+    {
+      "id": "caddy.basic_auth.argon2id",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com"
+        ],
+        "is_http_basic_auth_enabled": true,
+        "http_basic_auth_username": "admin",
+        "http_basic_auth_password": "secret",
+        "supports_basic_auth_directive": true,
+        "http_basic_auth_argon2id_options": {
+          "memory_cost": 8192,
+          "time_cost": 1
+        }
+      }
+    },
+    {
+      "id": "caddy.basic_auth.no_user",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com"
+        ],
+        "is_http_basic_auth_enabled": true,
+        "http_basic_auth_username": null,
+        "http_basic_auth_password": "secret"
+      }
+    },
+    {
+      "id": "caddy.noindex",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com:3000",
+          "https://b.example.com"
+        ],
+        "noindex_domains": [
+          "https://APP.example.com"
+        ]
+      }
+    },
+    {
+      "id": "caddy.traffic",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com"
+        ],
+        "is_traffic_analytics_enabled": true
+      }
+    },
+    {
+      "id": "caddy.traffic.log_append",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com"
+        ],
+        "is_traffic_analytics_enabled": true,
+        "supports_log_append": true
+      }
+    },
+    {
+      "id": "caddy.traffic.log_append.service",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc_123",
+        "domains": [
+          "https://app.example.com"
+        ],
+        "is_traffic_analytics_enabled": true,
+        "supports_log_append": true,
+        "service_name": "api.test"
+      }
+    },
+    {
+      "id": "caddy.service_labels",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com"
+        ],
+        "serviceLabels": [
+          "a=b"
+        ]
+      }
+    },
+    {
+      "id": "caddy.service_labels.empty",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "https://app.example.com"
+        ],
+        "serviceLabels": []
+      }
+    },
+    {
+      "id": "caddy.eleven",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "https://d0.example.com",
+          "https://d1.example.com",
+          "https://d2.example.com",
+          "https://d3.example.com",
+          "https://d4.example.com",
+          "https://d5.example.com",
+          "https://d6.example.com",
+          "https://d7.example.com",
+          "https://d8.example.com",
+          "https://d9.example.com",
+          "https://d10.example.com"
+        ]
+      }
+    },
+    {
+      "id": "caddy.ipv6",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "https://[2a01:4f8::1]:8080"
+        ]
+      }
+    },
+    {
+      "id": "caddy.invalid",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "https://ok.example.com",
+          "https://bad.example.com:99999"
+        ]
+      }
+    },
+    {
+      "id": "caddy.invalid.scheme",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "ftp://x.example.com"
+        ]
+      }
+    },
+    {
+      "id": "caddy.empty",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": []
+      }
+    },
+    {
+      "id": "caddy.everything",
+      "fn": "fqdnLabelsForCaddy",
+      "args": {
+        "network": "coolify",
+        "uuid": "abc123",
+        "domains": [
+          "https://example.com/x",
+          "http://www.example.com"
+        ],
+        "is_force_https_enabled": true,
+        "onlyPort": "3000",
+        "redirect_direction": "www",
+        "is_http_basic_auth_enabled": true,
+        "http_basic_auth_username": "admin",
+        "http_basic_auth_password": "secret",
+        "http_basic_auth_bcrypt_cost": 4,
+        "noindex_domains": [
+          "https://example.com/x"
+        ],
+        "is_traffic_analytics_enabled": true,
+        "supports_log_append": true,
+        "supports_basic_auth_directive": true,
+        "is_permanent_redirect_enabled": true
+      }
+    },
+    {
+      "id": "application.default",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {},
+        "preview": null
+      }
+    },
+    {
+      "id": "application.no_fqdn",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "fqdn": null
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.empty_fqdn",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "fqdn": ""
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.static",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "settings": {
+            "is_static": true
+          }
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.ports.null",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "ports_exposes": null
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.ports.empty",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "ports_exposes": ""
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.ports.multi",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "ports_exposes": "8080,9090"
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.domains.multi",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "fqdn": "https://app.example.com,http://b.example.com/api,https://www.c.example.com"
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.domains.spaces",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "fqdn": "https://app.example.com, https://b.example.com"
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.overrides",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "fqdn": "https://app.example.com,https://b.example.com",
+          "domain_port_overrides": {
+            "https://b.example.com": 4000
+          }
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.noindex",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "fqdn": "https://app.example.com,https://b.example.com",
+          "noindex_domains": [
+            "https://B.example.com:3000",
+            "",
+            5,
+            "https://b.example.com"
+          ]
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.basic_auth",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "is_http_basic_auth_enabled": true,
+          "http_basic_auth_username": "admin",
+          "http_basic_auth_password": "secret",
+          "http_basic_auth_bcrypt_cost": 4
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.basic_auth.disabled",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "is_http_basic_auth_enabled": false,
+          "http_basic_auth_username": "admin",
+          "http_basic_auth_password": "secret"
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.redirect.www",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "fqdn": "https://example.com,https://www.example.com",
+          "redirect": "www"
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.redirect.nonwww",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "fqdn": "https://example.com,https://www.example.com",
+          "redirect": "non-www"
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.settings.off",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "fqdn": "https://app.example.com/api",
+          "settings": {
+            "is_force_https_enabled": false,
+            "is_gzip_enabled": false,
+            "is_stripprefix_enabled": false
+          }
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.permanent",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "settings": {
+            "is_permanent_redirect_enabled": true
+          }
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.resolver.application",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "settings": {
+            "traefik_certificate_resolver": "custom"
+          }
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.resolver.application.none",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "settings": {
+            "traefik_certificate_resolver": "none"
+          }
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.resolver.server.none",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "server": {
+            "settings": {
+              "traefik_certificate_resolver": "none"
+            }
+          }
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.resolver.server.null",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "server": {
+            "settings": {
+              "traefik_certificate_resolver": null
+            }
+          }
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.exact.traefik",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "fqdn": "https://example.com,https://www.example.com",
+          "redirect": "www",
+          "server": {
+            "proxy": {
+              "type": "TRAEFIK"
+            },
+            "settings": {
+              "generate_exact_labels": true
+            }
+          }
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.exact.caddy",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "server": {
+            "proxy": {
+              "type": "CADDY"
+            },
+            "settings": {
+              "generate_exact_labels": true
+            }
+          }
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.exact.none",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "server": {
+            "proxy": {
+              "type": "NONE"
+            },
+            "settings": {
+              "generate_exact_labels": true
+            }
+          }
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.exact.nginx",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "server": {
+            "proxy": {
+              "type": "NGINX"
+            },
+            "settings": {
+              "generate_exact_labels": true
+            }
+          }
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.exact.caddy.current",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "is_http_basic_auth_enabled": true,
+          "http_basic_auth_username": "admin",
+          "http_basic_auth_password": "secret",
+          "http_basic_auth_bcrypt_cost": 4,
+          "server": {
+            "proxy": {
+              "type": "CADDY",
+              "status": "running",
+              "last_saved_proxy_configuration": "services:\n  caddy:\n    image: 'lucaslorentz/caddy-docker-proxy:2.9-alpine'\n    container_name: coolify-proxy\n"
+            },
+            "settings": {
+              "generate_exact_labels": true,
+              "is_traffic_analytics_enabled": true
+            }
+          }
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.exact.caddy.old",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "is_http_basic_auth_enabled": true,
+          "http_basic_auth_username": "admin",
+          "http_basic_auth_password": "secret",
+          "http_basic_auth_bcrypt_cost": 4,
+          "server": {
+            "proxy": {
+              "type": "CADDY",
+              "status": "running",
+              "last_saved_proxy_configuration": "services:\n  caddy:\n    image: 'lucaslorentz/caddy-docker-proxy:2.8-alpine'\n    container_name: coolify-proxy\n"
+            },
+            "settings": {
+              "generate_exact_labels": true,
+              "is_traffic_analytics_enabled": true
+            }
+          }
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.exact.caddy.pending",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "server": {
+            "proxy": {
+              "type": "CADDY",
+              "status": "running",
+              "last_saved_proxy_configuration": "services:\n  caddy:\n    image: 'lucaslorentz/caddy-docker-proxy:2.13-alpine'\n    container_name: coolify-proxy\n",
+              "certificates_restart_required": true
+            },
+            "settings": {
+              "generate_exact_labels": true,
+              "is_traffic_analytics_enabled": true
+            }
+          }
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.exact.caddy.pending.settings",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "server": {
+            "proxy": {
+              "type": "CADDY",
+              "status": "running",
+              "last_saved_proxy_configuration": "services:\n  caddy:\n    image: 'lucaslorentz/caddy-docker-proxy:2.13-alpine'\n    container_name: coolify-proxy\n",
+              "last_saved_settings": "a",
+              "last_applied_settings": "b"
+            },
+            "settings": {
+              "generate_exact_labels": true,
+              "is_traffic_analytics_enabled": true
+            }
+          }
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.exact.caddy.exited",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "server": {
+            "proxy": {
+              "type": "CADDY",
+              "status": "exited",
+              "last_saved_proxy_configuration": "services:\n  caddy:\n    image: 'lucaslorentz/caddy-docker-proxy:2.13-alpine'\n    container_name: coolify-proxy\n",
+              "certificates_restart_required": true
+            },
+            "settings": {
+              "generate_exact_labels": true,
+              "is_traffic_analytics_enabled": true
+            }
+          }
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.argon2id.caddy.2.13",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "is_http_basic_auth_enabled": true,
+          "http_basic_auth_username": "admin",
+          "http_basic_auth_password": "secret",
+          "http_basic_auth_bcrypt_cost": 4,
+          "http_basic_auth_hash_algorithm": "argon2id",
+          "http_basic_auth_argon2id_memory_cost": 8192,
+          "http_basic_auth_argon2id_time_cost": 1,
+          "server": {
+            "proxy": {
+              "type": "CADDY",
+              "status": "running",
+              "last_saved_proxy_configuration": "services:\n  caddy:\n    image: 'lucaslorentz/caddy-docker-proxy:2.13-alpine'\n    container_name: coolify-proxy\n"
+            },
+            "settings": {
+              "generate_exact_labels": true
+            }
+          }
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.argon2id.caddy.2.10",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "is_http_basic_auth_enabled": true,
+          "http_basic_auth_username": "admin",
+          "http_basic_auth_password": "secret",
+          "http_basic_auth_bcrypt_cost": 4,
+          "http_basic_auth_hash_algorithm": "argon2id",
+          "http_basic_auth_argon2id_memory_cost": 8192,
+          "http_basic_auth_argon2id_time_cost": 1,
+          "server": {
+            "proxy": {
+              "type": "CADDY",
+              "status": "running",
+              "last_saved_proxy_configuration": "services:\n  caddy:\n    image: 'lucaslorentz/caddy-docker-proxy:2.10'\n    container_name: coolify-proxy\n"
+            },
+            "settings": {
+              "generate_exact_labels": true
+            }
+          }
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.argon2id.caddy.both",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "is_http_basic_auth_enabled": true,
+          "http_basic_auth_username": "admin",
+          "http_basic_auth_password": "secret",
+          "http_basic_auth_bcrypt_cost": 4,
+          "http_basic_auth_hash_algorithm": "argon2id",
+          "http_basic_auth_argon2id_memory_cost": 8192,
+          "http_basic_auth_argon2id_time_cost": 1,
+          "server": {
+            "proxy": {
+              "type": "CADDY",
+              "status": "running",
+              "last_saved_proxy_configuration": "services:\n  caddy:\n    image: 'ghcr.io/x/caddy-docker-proxy:2.11'\n    container_name: coolify-proxy\n"
+            }
+          }
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.argon2id.traefik",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "is_http_basic_auth_enabled": true,
+          "http_basic_auth_username": "admin",
+          "http_basic_auth_password": "secret",
+          "http_basic_auth_bcrypt_cost": 4,
+          "http_basic_auth_hash_algorithm": "argon2id",
+          "http_basic_auth_argon2id_memory_cost": 8192,
+          "http_basic_auth_argon2id_time_cost": 1
+        },
+        "preview": null
+      }
+    },
+    {
+      "id": "application.preview",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {},
+        "preview": {
+          "pull_request_id": 7,
+          "fqdn": "https://7.app.example.com,http://7.b.example.com/x",
+          "domain_port_overrides": {
+            "https://7.app.example.com": 4000
+          }
+        }
+      }
+    },
+    {
+      "id": "application.preview.no_fqdn",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {},
+        "preview": {
+          "pull_request_id": 7,
+          "fqdn": null
+        }
+      }
+    },
+    {
+      "id": "application.preview.zero",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {},
+        "preview": {
+          "pull_request_id": 0,
+          "fqdn": "https://ignored.example.com"
+        }
+      }
+    },
+    {
+      "id": "application.preview.exact.traefik",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "redirect": "www",
+          "server": {
+            "proxy": {
+              "type": "TRAEFIK"
+            },
+            "settings": {
+              "generate_exact_labels": true
+            }
+          }
+        },
+        "preview": {
+          "pull_request_id": 12,
+          "fqdn": "https://12.app.example.com"
+        }
+      }
+    },
+    {
+      "id": "application.preview.exact.caddy",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "is_http_basic_auth_enabled": true,
+          "http_basic_auth_username": "admin",
+          "http_basic_auth_password": "secret",
+          "http_basic_auth_bcrypt_cost": 4,
+          "server": {
+            "proxy": {
+              "type": "CADDY"
+            },
+            "settings": {
+              "generate_exact_labels": true
+            }
+          }
+        },
+        "preview": {
+          "pull_request_id": 12,
+          "fqdn": "https://12.app.example.com"
+        }
+      }
+    },
+    {
+      "id": "application.preview.exact.none",
+      "fn": "generateLabelsApplication",
+      "args": {
+        "application": {
+          "server": {
+            "proxy": {
+              "type": "NONE"
+            },
+            "settings": {
+              "generate_exact_labels": true
+            }
+          }
+        },
+        "preview": {
+          "pull_request_id": 12,
+          "fqdn": "https://12.app.example.com"
+        }
+      }
+    },
+    {
+      "id": "parse.null",
+      "fn": "parseContainerLabels",
+      "args": {
+        "application": {
+          "custom_labels": null
+        }
+      }
+    },
+    {
+      "id": "parse.empty",
+      "fn": "parseContainerLabels",
+      "args": {
+        "application": {
+          "custom_labels": ""
+        }
+      }
+    },
+    {
+      "id": "parse.zero",
+      "fn": "parseContainerLabels",
+      "args": {
+        "application": {
+          "custom_labels": "0"
+        }
+      }
+    },
+    {
+      "id": "parse.encoded",
+      "fn": "parseContainerLabels",
+      "args": {
+        "application": {
+          "custom_labels": "dHJhZWZpay5lbmFibGU9dHJ1ZQpjdXN0b209MQ=="
+        }
+      }
+    },
+    {
+      "id": "parse.double_encoded",
+      "fn": "parseContainerLabels",
+      "args": {
+        "application": {
+          "custom_labels": "ZEhKaFpXWnBheTVsYm1GaWJHVTlkSEoxWlFwamRYTjBiMjA5TVE9PQ=="
+        }
+      }
+    },
+    {
+      "id": "parse.plain",
+      "fn": "parseContainerLabels",
+      "args": {
+        "application": {
+          "custom_labels": "traefik.enable=true\ncustom=1"
+        }
+      }
+    },
+    {
+      "id": "parse.base64_not_utf8",
+      "fn": "parseContainerLabels",
+      "args": {
+        "application": {
+          "custom_labels": "//79",
+          "server": {
+            "settings": {
+              "generate_exact_labels": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "defaultLabels.application",
+      "fn": "defaultLabels",
+      "args": [
+        "app1uuid",
+        "app1uuid",
+        "My Project",
+        "My App_v2",
+        "production"
+      ]
+    },
+    {
+      "id": "defaultLabels.pull_request",
+      "fn": "defaultLabels",
+      "args": [
+        "app1uuid",
+        "app1uuid",
+        "Shop & Co.",
+        "docker-image-app1uuid",
+        "Staging 2",
+        14
+      ]
+    },
+    {
+      "id": "defaultLabels.service",
+      "fn": "defaultLabels",
+      "args": [
+        "svc1",
+        "Svc Name",
+        "P",
+        "resource",
+        "env",
+        0,
+        "service",
+        "ghost",
+        "sub1",
+        "Sub Name"
+      ]
+    },
+    {
+      "id": "defaultLabels.service.bare",
+      "fn": "defaultLabels",
+      "args": [
+        "svc1",
+        "Svc Name",
+        "P",
+        "resource",
+        "env",
+        0,
+        "service"
+      ]
+    },
+    {
+      "id": "defaultLabels.latin",
+      "fn": "defaultLabels",
+      "args": [
+        "u",
+        "Café Müller",
+        "Ångström façade",
+        "naïve_coöperate@home",
+        "  --Übung  macht -- den Meister!  "
+      ]
+    },
+    {
+      "id": "defaultLabels.latin.special",
+      "fn": "defaultLabels",
+      "args": [
+        "u",
+        "Straße",
+        "Æsir œuvre",
+        "Łódź Đà",
+        "smørrebrød þing"
+      ]
+    },
+    {
+      "id": "decode.plain",
+      "fn": "decodeBase64EncodedLabels",
+      "args": [
+        "traefik.enable=true"
+      ]
+    },
+    {
+      "id": "decode.once",
+      "fn": "decodeBase64EncodedLabels",
+      "args": [
+        "dHJhZWZpay5lbmFibGU9dHJ1ZQpjYWRkeV8wPXg="
+      ]
+    },
+    {
+      "id": "decode.twice",
+      "fn": "decodeBase64EncodedLabels",
+      "args": [
+        "ZEhKaFpXWnBheTVsYm1GaWJHVTlkSEoxWlEwS1kyRmtaSGxmTUQxNERRbz0="
+      ]
+    },
+    {
+      "id": "decode.thrice",
+      "fn": "decodeBase64EncodedLabels",
+      "args": [
+        "V1ZReGFRPT0="
+      ]
+    },
+    {
+      "id": "decode.value_is_base64_word",
+      "fn": "decodeBase64EncodedLabels",
+      "args": [
+        "YWJjZA=="
+      ]
+    },
+    {
+      "id": "decode.inner_not_labels",
+      "fn": "decodeBase64EncodedLabels",
+      "args": [
+        "Ym04Z1pYRjFZV3h6SUhOcFoyNGdhR1Z5WlE9PQ=="
+      ]
+    },
+    {
+      "id": "decode.inner_starts_with_equals",
+      "fn": "decodeBase64EncodedLabels",
+      "args": [
+        "UFhnPQ=="
+      ]
+    },
+    {
+      "id": "decode.not_utf8",
+      "fn": "decodeBase64EncodedLabels",
+      "args": [
+        "//4="
+      ]
+    },
+    {
+      "id": "decode.empty",
+      "fn": "decodeBase64EncodedLabels",
+      "args": [
+        ""
+      ]
+    },
+    {
+      "id": "decode.utf8",
+      "fn": "decodeBase64EncodedLabels",
+      "args": [
+        "bGFiZWw9d2VydCBtaXQgw7xtbGF1dCDinJM="
+      ]
+    },
+    {
+      "id": "decode.noncanonical",
+      "fn": "decodeBase64EncodedLabels",
+      "args": [
+        "YWJjZB=="
+      ]
+    },
+    {
+      "id": "isBase64Encoded.yes",
+      "fn": "isBase64Encoded",
+      "args": [
+        "YWJj"
+      ]
+    },
+    {
+      "id": "isBase64Encoded.padding",
+      "fn": "isBase64Encoded",
+      "args": [
+        "YQ=="
+      ]
+    },
+    {
+      "id": "isBase64Encoded.unpadded",
+      "fn": "isBase64Encoded",
+      "args": [
+        "YQ"
+      ]
+    },
+    {
+      "id": "isBase64Encoded.noncanonical",
+      "fn": "isBase64Encoded",
+      "args": [
+        "YR=="
+      ]
+    },
+    {
+      "id": "isBase64Encoded.label",
+      "fn": "isBase64Encoded",
+      "args": [
+        "traefik.enable=true"
+      ]
+    },
+    {
+      "id": "isBase64Encoded.newline",
+      "fn": "isBase64Encoded",
+      "args": [
+        "YWJj\n"
+      ]
+    },
+    {
+      "id": "isBase64Encoded.empty",
+      "fn": "isBase64Encoded",
+      "args": [
+        ""
+      ]
+    },
+    {
+      "id": "escapeDollarSign.capture",
+      "fn": "escapeDollarSign",
+      "args": [
+        "traefik.http.middlewares.x.redirectregex.replacement=${1}://www.${2}"
+      ]
+    },
+    {
+      "id": "escapeDollarSign.already",
+      "fn": "escapeDollarSign",
+      "args": [
+        "a=$$b$"
+      ]
+    },
+    {
+      "id": "traefikHostRules.ipv6",
+      "fn": "traefikHostRulesWithoutIpv6Brackets",
+      "args": [
+        [
+          "traefik.http.routers.a.rule=Host(`[2a01:4f8::1]`) && PathPrefix(`/`)",
+          "traefik.http.routers.b.rule=Host(`[::ffff:1.2.3.4]`) || Host(`[::1]`)",
+          "traefik.http.routers.c.rule=Host(`[not:ipv6:zz]`)",
+          "traefik.http.routers.d.rule=Host(`[1.2.3.4]`)",
+          "traefik.http.routers.e.rule=Host(`example.com`)"
+        ]
+      ]
+    },
+    {
+      "id": "caddySiteAddress.https",
+      "fn": "caddySiteAddress",
+      "args": [
+        "https",
+        "app.example.com",
+        false
+      ]
+    },
+    {
+      "id": "caddySiteAddress.https.force",
+      "fn": "caddySiteAddress",
+      "args": [
+        "https",
+        "app.example.com",
+        true
+      ]
+    },
+    {
+      "id": "caddySiteAddress.http",
+      "fn": "caddySiteAddress",
+      "args": [
+        "http",
+        "app.example.com",
+        false
+      ]
+    },
+    {
+      "id": "isNoindexDomain.null",
+      "fn": "isNoindexDomain",
+      "args": [
+        "https://app.example.com",
+        null
+      ]
+    },
+    {
+      "id": "isNoindexDomain.port",
+      "fn": "isNoindexDomain",
+      "args": [
+        "https://app.example.com:3000/x",
+        [
+          "https://APP.example.com/x"
+        ]
+      ]
+    },
+    {
+      "id": "isNoindexDomain.path_differs",
+      "fn": "isNoindexDomain",
+      "args": [
+        "https://app.example.com/x",
+        [
+          "https://app.example.com"
+        ]
+      ]
+    },
+    {
+      "id": "isNoindexDomain.scheme_differs",
+      "fn": "isNoindexDomain",
+      "args": [
+        "http://app.example.com",
+        [
+          "https://app.example.com"
+        ]
+      ]
+    },
+    {
+      "id": "caddyImageVersion.default",
+      "fn": "caddyDockerProxyImageVersion",
+      "args": [
+        "lucaslorentz/caddy-docker-proxy:2.13-alpine"
+      ]
+    },
+    {
+      "id": "caddyImageVersion.registry",
+      "fn": "caddyDockerProxyImageVersion",
+      "args": [
+        "ghcr.io/x/caddy-docker-proxy:2.9"
+      ]
+    },
+    {
+      "id": "caddyImageVersion.latest",
+      "fn": "caddyDockerProxyImageVersion",
+      "args": [
+        "lucaslorentz/caddy-docker-proxy:latest"
+      ]
+    },
+    {
+      "id": "caddyImageVersion.other",
+      "fn": "caddyDockerProxyImageVersion",
+      "args": [
+        "my-caddy-docker-proxy:2.13"
+      ]
+    },
+    {
+      "id": "caddyImageVersion.null",
+      "fn": "caddyDockerProxyImageVersion",
+      "args": [
+        null
+      ]
+    },
+    {
+      "id": "validate.defaults",
+      "fn": "validateGeneralLabelFields",
+      "args": {}
+    },
+    {
+      "id": "validate.valid",
+      "fn": "validateGeneralLabelFields",
+      "args": {
+        "customLabels": "a=b",
+        "isContainerLabelEscapeEnabled": false,
+        "isContainerLabelReadonlyEnabled": true,
+        "isHttpBasicAuthEnabled": true,
+        "httpBasicAuthUsername": "admin",
+        "httpBasicAuthPassword": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "httpBasicAuthHashAlgorithm": "argon2id",
+        "httpBasicAuthBcryptCost": 14,
+        "httpBasicAuthArgon2idMemoryCost": 262144,
+        "httpBasicAuthArgon2idTimeCost": 12
+      }
+    },
+    {
+      "id": "validate.nulls",
+      "fn": "validateGeneralLabelFields",
+      "args": {
+        "customLabels": null,
+        "isContainerLabelEscapeEnabled": null,
+        "isContainerLabelReadonlyEnabled": null,
+        "isHttpBasicAuthEnabled": null,
+        "httpBasicAuthUsername": null,
+        "httpBasicAuthPassword": null,
+        "httpBasicAuthHashAlgorithm": null,
+        "httpBasicAuthBcryptCost": null,
+        "httpBasicAuthArgon2idMemoryCost": null,
+        "httpBasicAuthArgon2idTimeCost": null
+      }
+    },
+    {
+      "id": "validate.empty_strings",
+      "fn": "validateGeneralLabelFields",
+      "args": {
+        "customLabels": "",
+        "isContainerLabelEscapeEnabled": "",
+        "isContainerLabelReadonlyEnabled": "",
+        "isHttpBasicAuthEnabled": "",
+        "httpBasicAuthUsername": "",
+        "httpBasicAuthPassword": "",
+        "httpBasicAuthHashAlgorithm": "",
+        "httpBasicAuthBcryptCost": "",
+        "httpBasicAuthArgon2idMemoryCost": "",
+        "httpBasicAuthArgon2idTimeCost": ""
+      }
+    },
+    {
+      "id": "validate.wrong_types",
+      "fn": "validateGeneralLabelFields",
+      "args": {
+        "customLabels": [
+          "a=b"
+        ],
+        "isContainerLabelEscapeEnabled": "yes",
+        "isContainerLabelReadonlyEnabled": 2,
+        "isHttpBasicAuthEnabled": "on",
+        "httpBasicAuthUsername": 5,
+        "httpBasicAuthPassword": [
+          "x"
+        ],
+        "httpBasicAuthHashAlgorithm": "md5",
+        "httpBasicAuthBcryptCost": "ten",
+        "httpBasicAuthArgon2idMemoryCost": 1.5,
+        "httpBasicAuthArgon2idTimeCost": "x"
+      }
+    },
+    {
+      "id": "validate.booleans.loose",
+      "fn": "validateGeneralLabelFields",
+      "args": {
+        "isContainerLabelEscapeEnabled": 1,
+        "isContainerLabelReadonlyEnabled": "0",
+        "isHttpBasicAuthEnabled": "1"
+      }
+    },
+    {
+      "id": "validate.booleans.strings",
+      "fn": "validateGeneralLabelFields",
+      "args": {
+        "isContainerLabelEscapeEnabled": "true",
+        "isContainerLabelReadonlyEnabled": "false",
+        "isHttpBasicAuthEnabled": 0
+      }
+    },
+    {
+      "id": "validate.too_low",
+      "fn": "validateGeneralLabelFields",
+      "args": {
+        "httpBasicAuthBcryptCost": 3,
+        "httpBasicAuthArgon2idMemoryCost": 8191,
+        "httpBasicAuthArgon2idTimeCost": 0
+      }
+    },
+    {
+      "id": "validate.too_high",
+      "fn": "validateGeneralLabelFields",
+      "args": {
+        "httpBasicAuthPassword": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "httpBasicAuthBcryptCost": 15,
+        "httpBasicAuthArgon2idMemoryCost": 262145,
+        "httpBasicAuthArgon2idTimeCost": 13
+      }
+    },
+    {
+      "id": "validate.password.multibyte",
+      "fn": "validateGeneralLabelFields",
+      "args": {
+        "httpBasicAuthPassword": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé"
+      }
+    },
+    {
+      "id": "validate.password.multibyte.too_long",
+      "fn": "validateGeneralLabelFields",
+      "args": {
+        "httpBasicAuthPassword": "ééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé"
+      }
+    },
+    {
+      "id": "validate.numeric_strings",
+      "fn": "validateGeneralLabelFields",
+      "args": {
+        "httpBasicAuthBcryptCost": "12",
+        "httpBasicAuthArgon2idMemoryCost": "8192",
+        "httpBasicAuthArgon2idTimeCost": "1",
+        "httpBasicAuthHashAlgorithm": "bcrypt"
+      }
+    },
+    {
+      "id": "validate.numeric_strings.out_of_range",
+      "fn": "validateGeneralLabelFields",
+      "args": {
+        "httpBasicAuthBcryptCost": "3",
+        "httpBasicAuthArgon2idTimeCost": "13"
+      }
+    },
+    {
+      "id": "validate.algorithm.case",
+      "fn": "validateGeneralLabelFields",
+      "args": {
+        "httpBasicAuthHashAlgorithm": "BCRYPT"
+      }
+    }
+  ]
+}
