@@ -69,7 +69,8 @@ types in `packages/contracts`; cross-org isolation tests.
 ## DP3 — UI shell
 
 `apps/deploy-web` on Coolify's CSS, fonts and theme; navbar, sidebar, team
-switcher; all 145 Blade components ported with a component-gallery route;
+switcher; the Blade components the DP3 pages use (a component-gallery route is
+deferred, risks DP-M);
 auth pages (login, register, verify email, forgot/force reset, 2FA, passkeys)
 backed by Freeploy identity extended with TOTP and WebAuthn; profile and
 appearance; the brand swap.
@@ -78,7 +79,7 @@ appearance; the brand swap.
 - Freeploy components: `apps/deploy-web`, `apps/identity-worker`, `apps/api-edge`.
 
 **Done when**
-- visual gate (≤ 0.5%, desktop/mobile, light/dark) passes on auth, profile and component-gallery routes
+- visual gate (≤ 0.5%, desktop/mobile, light/dark) passes on the auth and profile routes (the component-gallery route is deferred, risks DP-M)
 - DOM/copy parity is 100% on those routes
 - a new user can register, verify, enable 2FA and add a passkey on stage
 

@@ -2,6 +2,8 @@
 // Coolify keeps appearance in localStorage and applies it to <html> before
 // render: theme ('dark' default, 'light', 'system', 'custom'), navStyle,
 // navItems and uiScale; pageWidth and chartTimes are read where they apply.
+import { applyCustomTheme, hexToOklch, storedCustomTheme, themeAccentForeground } from "./lib/custom-theme";
+
 function read(key: string): string | null {
   try {
     return localStorage.getItem(key);
@@ -35,11 +37,17 @@ export function applyStoredTheme(): void {
   root.dataset.navStyle = appearance.navStyle();
   root.dataset.navItems = appearance.navItems();
   root.dataset.uiScale = appearance.uiScale();
-  // The custom theme (Coolify's colour engine) is not ported yet: it renders as dark.
   const theme = appearance.theme();
-  const isDark = theme === "dark" || theme === "custom" || (theme === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+  if (theme === "custom") {
+    applyCustomTheme(storedCustomTheme());
+    return;
+  }
+  const isDark = theme === "dark" || (theme === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
   root.classList.toggle("dark", isDark);
   root.dataset.theme = isDark ? "dark" : "light";
+  delete root.dataset.sidebarScheme;
+  root.style.setProperty("--theme-base-color", hexToOklch(read("themeColor") ?? "#6b16ed"));
+  root.style.setProperty("--theme-accent-foreground", themeAccentForeground(read("themeColor") ?? "#6b16ed"));
 }
 
 /** themeControls() setters: store the choice the way Coolify does and apply it. */

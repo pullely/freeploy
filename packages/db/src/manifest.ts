@@ -255,5 +255,14 @@ export const manifest: MigrationManifest = {
       description:
         "Email verification and email change (freeploy-coolify-parity DP3) — users.email_verified_at (existing accounts verified), pending changes with hashed 6-digit codes",
     },
+    {
+      id: "580_identity_avatars",
+      context: "identity",
+      path: "580_identity_avatars/up.sql",
+      checksum:
+        "34e176ac6b6391b4ce4f98e1f46ad457ca8cb42fbb4a006bbbf3ca4b7cdd6089",
+      description:
+        "Profile pictures (freeploy-coolify-parity DP3) — one base64 image per user",
+    },
   ],
 };

@@ -3,6 +3,8 @@ import { handleHealth } from "./handlers/health.js";
 import { handleLoginStart } from "./handlers/login-start.js";
 import { handlePasswordLogin, handlePasswordRegister } from "./handlers/password-auth.js";
 import { handlePasswordChange } from "./handlers/password-change.js";
+import { handleDeletionInfo, handleAccountDelete } from "./handlers/account.js";
+import { handleAvatarPut, handleAvatarDelete, handleAvatarGet } from "./handlers/avatar.js";
 import {
   handleVerificationNotification,
   handleEmailVerify,
@@ -116,6 +118,26 @@ export async function route(request: Request, env: Env): Promise<Response> {
     if (url.pathname === "/v1/auth/two-factor/challenge") {
       if (request.method !== "POST") return methodNotAllowed(requestId);
       return handleTwoFactorChallenge(request, env, requestId);
+    }
+
+    if (url.pathname === "/v1/auth/avatar") {
+      if (request.method === "PUT") return handleAvatarPut(request, env, requestId);
+      if (request.method === "DELETE") return handleAvatarDelete(request, env, requestId);
+      return methodNotAllowed(requestId);
+    }
+    const avatarOf = url.pathname.match(/^\/v1\/auth\/avatar\/(usr_[0-9a-f]{32})$/)?.[1];
+    if (avatarOf) {
+      if (request.method !== "GET") return methodNotAllowed(requestId);
+      return handleAvatarGet(request, env, requestId, avatarOf);
+    }
+
+    if (url.pathname === "/v1/auth/account/deletion") {
+      if (request.method !== "GET") return methodNotAllowed(requestId);
+      return handleDeletionInfo(request, env, requestId);
+    }
+    if (url.pathname === "/v1/auth/account") {
+      if (request.method !== "DELETE") return methodNotAllowed(requestId);
+      return handleAccountDelete(request, env, requestId);
     }
 
     if (url.pathname === "/v1/auth/email/verification-notification") {

@@ -21,6 +21,7 @@ export interface LayoutMarkupProps {
   reminderStyle?: { display: "none" };
   onDismissReminder: () => void;
   toasts?: ReactNode;
+  avatarUrl: string | null;
 }
 
 export function LayoutMarkup(props: LayoutMarkupProps) {
@@ -933,9 +934,9 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                     <div className="flex items-center gap-1 justify-between">
                       <div className="relative min-w-0 flex-1">
                         <button type="button" title={props.userName} aria-label={`Account menu for ${props.userName}`} className="button rounded-lg px-2 normal-case min-w-0 w-full">
-                          <img alt={props.userName} className="size-5 shrink-0 rounded-full object-cover" style={{ "display": "none" }} />
+                          <img alt={props.userName} className="size-5 shrink-0 rounded-full object-cover" {...(props.avatarUrl ? { src: props.avatarUrl } : { style: { "display": "none" } })} />
                           {" "}
-                          <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-neutral-200 text-[11px] font-semibold text-neutral-700 dark:bg-white/[0.1] dark:text-fg">{" "}{props.userInitial}{" "}</span>
+                          <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-neutral-200 text-[11px] font-semibold text-neutral-700 dark:bg-white/[0.1] dark:text-fg" {...(props.avatarUrl ? { style: { "display": "none" } } : {})}>{" "}{props.userInitial}{" "}</span>
                           {" "}
                           <span className="min-w-0 flex-1 truncate text-left text-xs font-medium">{props.userName}</span>
                           {" "}
@@ -1663,9 +1664,9 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                 <div className="flex items-center gap-1 justify-between">
                   <div className="relative min-w-0 flex-1">
                     <button type="button" title={props.userName} aria-label={`Account menu for ${props.userName}`} className="button rounded-lg px-2 normal-case min-w-0 w-full">
-                      <img alt={props.userName} className="size-5 shrink-0 rounded-full object-cover" style={{ "display": "none" }} />
+                      <img alt={props.userName} className="size-5 shrink-0 rounded-full object-cover" {...(props.avatarUrl ? { src: props.avatarUrl } : { style: { "display": "none" } })} />
                       {" "}
-                      <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-neutral-200 text-[11px] font-semibold text-neutral-700 dark:bg-white/[0.1] dark:text-fg">{" "}{props.userInitial}{" "}</span>
+                      <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-neutral-200 text-[11px] font-semibold text-neutral-700 dark:bg-white/[0.1] dark:text-fg" {...(props.avatarUrl ? { style: { "display": "none" } } : {})}>{" "}{props.userInitial}{" "}</span>
                       {" "}
                       <span className="min-w-0 flex-1 truncate text-left text-xs font-medium">{props.userName}</span>
                       {" "}
@@ -1896,9 +1897,9 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
             {" "}
             <div className="relative">
               <button type="button" title={props.userName} aria-label={`Account menu for ${props.userName}`} className="button rounded-lg px-2 normal-case">
-                <img alt={props.userName} className="size-5 shrink-0 rounded-full object-cover" style={{ "display": "none" }} />
+                <img alt={props.userName} className="size-5 shrink-0 rounded-full object-cover" {...(props.avatarUrl ? { src: props.avatarUrl } : { style: { "display": "none" } })} />
                 {" "}
-                <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-neutral-200 text-[11px] font-semibold text-neutral-700 dark:bg-white/[0.1] dark:text-fg">{" "}{props.userInitial}{" "}</span>
+                <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-neutral-200 text-[11px] font-semibold text-neutral-700 dark:bg-white/[0.1] dark:text-fg" {...(props.avatarUrl ? { style: { "display": "none" } } : {})}>{" "}{props.userInitial}{" "}</span>
                 {" "}
                 <svg className="size-3.5 shrink-0 text-neutral-400 dark:text-fg-faint transition-transform false" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" aria-hidden="true">
                   <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />

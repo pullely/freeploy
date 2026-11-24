@@ -20,6 +20,8 @@ const AUTH_ROUTES: Record<string, string> = {
   "/v1/auth/passkeys/options": "POST",
   "/v1/auth/email/verification-notification": "POST",
   "/v1/auth/email/verify": "POST",
+  "/v1/auth/account/deletion": "GET",
+  "/v1/auth/account": "DELETE",
   "/v1/auth/email/change/verify": "POST",
   "/v1/auth/email/change/resend": "POST",
   "/v1/auth/passkeys/login/options": "POST",
@@ -35,7 +37,11 @@ const AUTH_MULTI_METHOD_ROUTES: Record<string, Set<string>> = {
   "/v1/auth/two-factor": new Set(["GET", "POST", "DELETE"]),
   "/v1/auth/passkeys": new Set(["GET", "POST"]),
   "/v1/auth/email/change": new Set(["GET", "POST", "DELETE"]),
+  "/v1/auth/avatar": new Set(["PUT", "DELETE"]),
 };
+
+// A user's avatar image (public GET).
+const AVATAR_RE = /^\/v1\/auth\/avatar\/usr_[0-9a-f]{32}$/;
 
 // One passkey: rename (PATCH) or delete (DELETE).
 const PASSKEY_RE = /^\/v1\/auth\/passkeys\/[0-9a-f-]{36}$/;
@@ -67,7 +73,7 @@ const FORWARDED_HEADERS = [
 ];
 
 export function isAuthRoute(pathname: string): boolean {
-  return pathname in AUTH_ROUTES || pathname in AUTH_MULTI_METHOD_ROUTES || isOAuthRoute(pathname) || PASSKEY_RE.test(pathname);
+  return pathname in AUTH_ROUTES || pathname in AUTH_MULTI_METHOD_ROUTES || isOAuthRoute(pathname) || PASSKEY_RE.test(pathname) || AVATAR_RE.test(pathname);
 }
 
 export async function handleAuthRoute(
@@ -77,7 +83,7 @@ export async function handleAuthRoute(
   pathname: string,
 ): Promise<Response> {
   const expectedMethod = AUTH_ROUTES[pathname];
-  const allowedMethods = AUTH_MULTI_METHOD_ROUTES[pathname] ?? (PASSKEY_RE.test(pathname) ? new Set(["PATCH", "DELETE"]) : undefined);
+  const allowedMethods = AUTH_MULTI_METHOD_ROUTES[pathname] ?? (PASSKEY_RE.test(pathname) ? new Set(["PATCH", "DELETE"]) : AVATAR_RE.test(pathname) ? new Set(["GET"]) : undefined);
   const oauth = isOAuthRoute(pathname);
 
   if (!expectedMethod && !allowedMethods && !oauth) {

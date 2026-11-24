@@ -39,6 +39,8 @@ concurrency:
 
 permissions:
   contents: read
+  # Reading earlier parity artifacts to reuse an unchanged reference capture.
+  actions: read
 
 env:
   COOLIFY_REF: 91b7e3e509dee1eb5cee7c41fe151be03b03092e
@@ -93,20 +95,34 @@ jobs:
           node-version: 24
       - run: npm ci --no-audit --no-fund --ignore-scripts && npx playwright install --with-deps chromium
         working-directory: tools/parity
+      # An unchanged reference (same Coolify commit, harness and inventory) is
+      # reused from an earlier successful run instead of rebuilt and recaptured.
+      # Until Freeploy serves /api/v1 (DP9) the API contract needs no live
+      # reference; from DP9 on, set PARITY_FULL to always rebuild.
+      - name: reuse the reference capture if unchanged
+        id: ref
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PARITY_FULL: ${{ vars.PARITY_FULL }}
+        run: bash tools/parity/reference/reuse.sh
       - name: start the reference Coolify
+        if: steps.ref.outputs.reuse != 'true'
         run: bash tools/parity/reference/up.sh
       - name: seed fixtures through the reference's API
+        if: steps.ref.outputs.reuse != 'true'
         run: bash tools/parity/reference/seed.sh
       - name: capture the reference
+        if: steps.ref.outputs.reuse != 'true'
         run: |
           node tools/parity/visual/capture.ts --system reference --base "$(grep ^REFERENCE_URL= $OUT/reference.env | cut -d= -f2-)" \
             --env-file "$OUT/reference.env" --user-env REFERENCE_USER_EMAIL --password-env REFERENCE_USER_PASSWORD \
             --ids "$OUT/reference.ids.json" --out "$OUT" ${{ inputs.only && format('--only ''{0}''', inputs.only) || '' }}
       - name: command goldens (Coolify's own helpers vs committed goldens and the TypeScript ports)
         run: |
-          bash tools/parity/commands/emit.sh
+          [ "${{ steps.ref.outputs.reuse }}" = "true" ] || bash tools/parity/commands/emit.sh
           node tools/parity/commands/check.ts --reference "$OUT/goldens.reference.json"
       - name: API contract (openapi.json) against the reference
+        if: steps.ref.outputs.reuse != 'true'
         run: |
           node tools/parity/api/contract.ts --env-file "$OUT/reference.env" \
             --ref-base "$(grep ^REFERENCE_URL= $OUT/reference.env | cut -d= -f2-)" --ref-token-env REFERENCE_TOKEN \
@@ -123,14 +139,17 @@ jobs:
           node tools/parity/fixtures/apply.ts --base "$PARITY_TARGET_API_URL" --token-env TARGET_TOKEN \
             --fixtures tools/parity/fixtures/base.json --out "$OUT/target.ids.json" \
             || { echo "::warning::target fixtures not applied (no /api/v1 on the target yet)"; echo '{}' > "$OUT/target.ids.json"; }
-          node tools/parity/api/contract.ts --env-file "$OUT/reference.env" \
-            --ref-base "$(grep ^REFERENCE_URL= $OUT/reference.env | cut -d= -f2-)" --ref-token-env REFERENCE_TOKEN \
-            --ref-ids "$OUT/reference.ids.json" --target-base "$PARITY_TARGET_API_URL" --target-token-env TARGET_TOKEN \
-            --target-ids "$OUT/target.ids.json" --report specs/epics/freeploy-coolify-parity/parity/api-report.json
+          if [ "${{ steps.ref.outputs.reuse }}" != "true" ]; then
+            node tools/parity/api/contract.ts --env-file "$OUT/reference.env" \
+              --ref-base "$(grep ^REFERENCE_URL= $OUT/reference.env | cut -d= -f2-)" --ref-token-env REFERENCE_TOKEN \
+              --ref-ids "$OUT/reference.ids.json" --target-base "$PARITY_TARGET_API_URL" --target-token-env TARGET_TOKEN \
+              --target-ids "$OUT/target.ids.json" --report specs/epics/freeploy-coolify-parity/parity/api-report.json
+          fi
           node tools/parity/visual/capture.ts --system target --base "$PARITY_TARGET_URL" \
             --user-env TARGET_EMAIL --password-env TARGET_PASSWORD --ids "$OUT/target.ids.json" --out "$OUT" \
             ${{ inputs.only && format('--only ''{0}''', inputs.only) || '' }}
       - name: behaviour scenarios on the reference (its own host is the localhost server)
+        if: steps.ref.outputs.reuse != 'true'
         run: |
           node tools/parity/behaviour/run.ts --system reference --env-file "$OUT/reference.env" \
             --base "$(grep ^REFERENCE_URL= $OUT/reference.env | cut -d= -f2-)" --token-env REFERENCE_TOKEN \
@@ -156,8 +175,11 @@ jobs:
             tools/parity/out/behaviour
             specs/epics/freeploy-coolify-parity/parity/commands-report.json
             tools/parity/out/reference
+            tools/parity/out/reference-key.txt
+            tools/parity/out/reference-reused-from.txt
+            tools/parity/out/reference.ids.json
             tools/parity/out/target
             tools/parity/out/diff
       - name: stop the reference
-        if: always()
+        if: always() && steps.ref.outputs.reuse != 'true'
         run: sudo docker compose --project-directory /data/coolify/source -f /data/coolify/source/docker-compose.yml -f /data/coolify/source/docker-compose.prod.yml down -v || true

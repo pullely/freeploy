@@ -31,3 +31,7 @@ gen routes.web__password.confirm/desktop-light.html --select main --name Confirm
 # /login, with Coolify's passkey sign-in (the reference is reached as localhost, where passkeys are offered).
 gen routes.web__login/desktop-light.html --select main --name LoginMarkup --slot 'form=alert' --handler 'form:onSubmit=onSubmit' \
   --patch tools/parity/port/patches/LoginMarkup.json --out "$P/LoginMarkup.tsx"
+
+# /two-factor-required (a team that requires 2FA), standalone page.
+gen routes.web__two-factor.required/desktop-light.html --select main --name TwoFactorRequiredMarkup \
+  --patch tools/parity/port/patches/TwoFactorRequiredMarkup.json --out "$P/TwoFactorRequiredMarkup.tsx"

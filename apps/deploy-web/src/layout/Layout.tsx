@@ -8,7 +8,7 @@
 // Laravel's auth middleware sends them.
 import { createContext, useContext, useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { LayoutMarkup } from "./generated/LayoutMarkup";
-import { clearSession, getJson, postJson, sessionToken } from "../lib/api";
+import { clearSession, edgeBase, getJson, postJson, sessionToken } from "../lib/api";
 import { appearance, type PageWidth } from "../theme";
 import { useDisclosures } from "./disclosures";
 import { Toasts } from "./Toasts";
@@ -17,6 +17,8 @@ import { showMonthlyReminder } from "../lib/reminder";
 export interface Me {
   user: { id: string; email: string; displayName: string | null; lastOrgSlug?: string | null };
   team: { name: string; slug: string } | null;
+  /** The profile picture, when the user has one. */
+  avatarUrl: string | null;
 }
 
 const MAIN = "app-main min-h-screen bg-neutral-50 dark:bg-app px-5 py-6 sm:px-8 lg:px-10 lg:pt-[calc(3rem+1.75rem)] lg:pb-10 lg:ml-56 transition-[margin] duration-200";
@@ -38,7 +40,7 @@ export function useMe(): [Me | null, (me: Me) => void] {
       return;
     }
     void (async () => {
-      const session = await getJson<{ user: Me["user"]; emailVerified?: boolean }>("/v1/auth/session");
+      const session = await getJson<{ user: Me["user"]; emailVerified?: boolean; avatarPath?: string | null }>("/v1/auth/session");
       if (!session.data) {
         if (session.status === 401) {
           clearSession();
@@ -54,7 +56,7 @@ export function useMe(): [Me | null, (me: Me) => void] {
       const orgs = await getJson<{ organizations: Array<{ name: string; slug: string }> }>("/v1/organizations");
       const list = orgs.data?.organizations ?? [];
       const team = list.find((o) => o.slug === session.data!.user.lastOrgSlug) ?? list[0] ?? null;
-      setMe({ user: session.data.user, team });
+      setMe({ user: session.data.user, team, avatarUrl: session.data.avatarPath ? edgeBase() + session.data.avatarPath : null });
     })();
   }, []);
   return [me, setMe];
@@ -130,6 +132,7 @@ export function Layout(props: LayoutProps) {
       userName={userName}
       userInitial={initial(userName)}
       userEmail={me.user.email}
+      avatarUrl={me.avatarUrl}
       onLogout={onLogout}
       // Freeploy has no notification channels yet (DP9), so the reminder shows until dismissed.
       {...(reminderHidden ? { reminderStyle: { display: "none" as const } } : {})}

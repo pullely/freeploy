@@ -6,6 +6,8 @@ import { useState, type ReactNode } from "react";
 import { Layout } from "../layout/Layout";
 import { Reicon } from "../components/Reicon";
 import { AppearancePortalMarkup } from "./generated/AppearancePortalMarkup";
+import { CustomThemeDialog, Swatch } from "./CustomThemeDialog";
+import { serializeCustomTheme, storedCustomTheme, type CustomTheme } from "../lib/custom-theme";
 import { appearance, setAppearance, type PageWidth, type Theme } from "../theme";
 
 const CARD =
@@ -79,27 +81,6 @@ const CHART_TIMES = [
   },
 ];
 
-/** The custom theme's swatch (theme-controls/swatch.blade.php) with Coolify's default custom colours. */
-function CustomSwatch() {
-  return (
-    <div className="flex overflow-hidden rounded-md border border-black/10 dark:border-white/10 h-12 w-24" aria-hidden="true">
-      <div className="flex w-[38%] flex-col gap-1 p-1.5" style={{ background: "#160d24" }}>
-        <span className="h-1 w-3/4 rounded-full opacity-50" style={{ background: "#f4f4f5" }} />
-        <span className="h-2.5 w-full rounded-sm" style={{ background: "#341a5d" }} />
-        <span className="flex items-center gap-1">
-          <span className="h-1 w-1/2 rounded-full opacity-50" style={{ background: "#f4f4f5" }} />
-          <span className="size-1.5 rounded-[2px]" style={{ background: "#6b16ed" }} />
-        </span>
-      </div>
-      <div className="flex flex-1 flex-col gap-1 p-1.5" style={{ background: "#1a102b" }}>
-        <span className="h-1 w-2/3 rounded-full opacity-60" style={{ background: "#f4f4f5" }} />
-        <span className="h-1 w-1/2 rounded-full opacity-30" style={{ background: "#f4f4f5" }} />
-        <span className="mt-auto h-2.5 w-full rounded-sm border" style={{ borderColor: "color-mix(in oklab, #f4f4f5 25%, transparent)" }} />
-      </div>
-    </div>
-  );
-}
-
 export function AppearancePage() {
   const [theme, setTheme] = useState(appearance.theme);
   const [uiScale, setUiScale] = useState(appearance.uiScale);
@@ -112,9 +93,28 @@ export function AppearancePage() {
     store(v);
   };
   const pickTheme = pick(setTheme, setAppearance.theme);
+  const [customTheme, setCustomTheme] = useState<CustomTheme>(() => storedCustomTheme());
+  const [dialogOpen, setDialogOpen] = useState(false);
+  // saveCustomTheme(): a null draft is the built-in Dark theme.
+  function saveCustomTheme(draft: CustomTheme | null) {
+    setDialogOpen(false);
+    try {
+      if (draft === null) {
+        localStorage.removeItem("customTheme");
+        pickTheme("dark");
+        return;
+      }
+      setCustomTheme({ ...draft });
+      localStorage.setItem("customTheme", serializeCustomTheme(draft));
+      localStorage.setItem("themeColor", draft.accent);
+    } catch {
+      /* storage blocked */
+    }
+    pickTheme("custom");
+  }
 
   return (
-    <Layout title="Profile" href="/profile" documentTitle="Appearance" portal={<AppearancePortalMarkup />} searchTitle="Search this page and everything (Press / or Ctrl+K, then Tab to switch)">
+    <Layout title="Profile" href="/profile" documentTitle="Appearance" portal={dialogOpen ? null : <AppearancePortalMarkup />} searchTitle="Search this page and everything (Press / or Ctrl+K, then Tab to switch)">
       <div>
       <div className="mt-8 flex w-full max-w-none flex-col gap-6 lg:mt-3">
         <Section title="Color theme" text="Choose the color scheme used in this browser." grid="sm:grid-cols-2 lg:grid-cols-4">
@@ -140,10 +140,22 @@ export function AppearancePage() {
               <Caption label={o.label} description={o.description} selected={theme === o.value} />
             </div>
           ))}
-          {/* The custom theme dialog (presets, colours, share code) is a later DP3 task. */}
-          <div role="button" tabIndex={0} aria-haspopup="dialog" aria-expanded="false" className={cx(`group block w-full ${CARD}`, theme === "custom")}>
+          <div
+            role="button"
+            tabIndex={0}
+            aria-haspopup="dialog"
+            aria-expanded={dialogOpen ? "true" : "false"}
+            onClick={() => setDialogOpen(true)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                setDialogOpen(true);
+              }
+            }}
+            className={cx(`group block w-full ${CARD}`, theme === "custom")}
+          >
             <div className="flex h-20 items-center justify-center border-b border-neutral-200 bg-neutral-100 dark:border-white/[0.07] dark:bg-black/20">
-              <CustomSwatch />
+              <Swatch theme={customTheme} className="h-12 w-24" />
             </div>
             <Caption label="Custom" description="Pick a preset or your own colors." selected={theme === "custom"} />
           </div>
@@ -259,6 +271,7 @@ export function AppearancePage() {
         </Section>
       </div>
       </div>
+      {dialogOpen ? <CustomThemeDialog initial={theme === "custom" ? { ...customTheme } : null} onClose={() => setDialogOpen(false)} onSave={saveCustomTheme} /> : null}
     </Layout>
   );
 }
