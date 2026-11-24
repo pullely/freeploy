@@ -1,0 +1,29 @@
+# ssh-executor is Go, outside the TypeScript component pipeline: vet, test and
+# build its image here.
+name: ssh-executor
+
+on:
+  push:
+    branches: [main]
+    paths: ["apps/ssh-executor/**", ".github/workflows/ssh-executor.yml"]
+  pull_request:
+    paths: ["apps/ssh-executor/**", ".github/workflows/ssh-executor.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: ssh-executor · test
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: apps/ssh-executor
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/ssh-executor/go.mod
+      - run: go vet ./...
+      - run: go test -race ./...
+      - run: docker build -t ssh-executor:ci .

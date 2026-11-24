@@ -1,0 +1,18 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-30
+  title: "DP4: ssh-executor — Coolify's SSH execution as a Go service, and its client"
+spec:
+  goal: apps/ssh-executor runs a command batch over SSH the way Coolify does (its remote shell command with the batch on stdin, no agent, forwarding or TTY, its timeouts, host keys trusted on first use then pinned, Coolify's message when a key changes), streams output as NDJSON, and uploads files; deploy-core-worker has the client and instant_remote_process's semantics on top. Tested against an in-process SSH server and in CI; deploying it as a Cloudflare Container is the next task (it is the first use of the Containers scope, WAITING W3).
+  affects:
+    - apps/ssh-executor/**
+    - apps/deploy-core-worker/**
+    - tests/deploy-core-worker/**
+    - .github/workflows/ssh-executor.yml
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - go test (with -race) and the image build pass in CI
+    - the client's tests pass
+  gates: []
