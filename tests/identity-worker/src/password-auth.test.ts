@@ -5,6 +5,7 @@ import { hashPassword, verifyPassword, isCompromised } from "../../../apps/ident
 import { validateRegistration, isValidEmail } from "../../../apps/identity-worker/src/password-rules";
 import { normalize_email_identity } from "../../../apps/identity-worker/src/email-identity";
 import { __ } from "../../../apps/identity-worker/src/laravel-messages";
+import { publicUser } from "../../../apps/identity-worker/src/handlers/password-auth";
 
 if (!globalThis.crypto) (globalThis as { crypto: unknown }).crypto = webcrypto;
 
@@ -104,5 +105,13 @@ describe("normalize_email_identity", () => {
     expect(normalize_email_identity("  User@Example.COM ")).toBe("user@example.com");
     expect(normalize_email_identity("plain")).toBeNull();
     expect(normalize_email_identity(null)).toBeNull();
+  });
+});
+
+describe("the personal team on password sign-in", () => {
+  it("is keyed on the public user id, the id later requests act as", () => {
+    const u = publicUser({ id: "0193b6a0-0000-7000-8000-000000000001", email: "a@example.com", displayName: "Ada" });
+    expect(u.id).toMatch(/^usr_[0-9a-f]{32}$/);
+    expect(u).toMatchObject({ email: "a@example.com", displayName: "Ada" });
   });
 });

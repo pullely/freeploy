@@ -32,7 +32,11 @@ $s->is_registration_enabled = true;
 $s->smtp_enabled = true; $s->smtp_host = "smtp.example.com"; $s->smtp_port = 587;
 $s->smtp_from_address = "no-reply@example.com"; $s->smtp_from_name = "Parity"; $s->save();
 // The same as "Skip setup" on /onboarding: otherwise every page redirects there.
-\App\Models\Team::find(0)->forceFill(["show_boarding" => false])->save();
+// Freeploy has no instance root team: a user gets the personal team Coolify
+// gives every registered user ($user->name."'s Team", app/Models/User.php), so
+// the reference root team is named the same for the root user "Parity Root".
+// (chr(39) is the apostrophe; this block is single-quoted for the shell.)
+\App\Models\Team::find(0)->forceFill(["show_boarding" => false, "name" => "Parity Root" . chr(39) . "s Team"])->save();
 $u = \App\Models\User::find(0);
 $t = $u->createToken("parity", ["root"], null, 0);
 echo $t->plainTextToken;' | tail -n 1 | tr -d '\r')

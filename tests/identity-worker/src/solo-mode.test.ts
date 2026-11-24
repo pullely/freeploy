@@ -63,11 +63,11 @@ describe("isSoloMode", () => {
 });
 
 describe("personalOrgName", () => {
-  it("prefers display name, falls back to email local-part, then 'Personal'", () => {
-    expect(personalOrgName(USER)).toBe("Ada Lovelace");
-    expect(personalOrgName({ id: "u", email: "ada@example.com" })).toBe("ada");
-    expect(personalOrgName({ id: "u", email: "ada@example.com", displayName: "  " })).toBe("ada");
-    expect(personalOrgName({ id: "u", email: "@nolocal" })).toBe("Personal");
+  it("names it Coolify's way, <name>'s Team, from the display name, else the email local-part", () => {
+    expect(personalOrgName(USER)).toBe("Ada Lovelace's Team");
+    expect(personalOrgName({ id: "u", email: "ada@example.com" })).toBe("ada's Team");
+    expect(personalOrgName({ id: "u", email: "ada@example.com", displayName: "  " })).toBe("ada's Team");
+    expect(personalOrgName({ id: "u", email: "@nolocal" })).toBe("Personal Team");
   });
   it("caps at 100 chars", () => {
     const long = "x".repeat(200);
@@ -114,7 +114,7 @@ describe("ensurePersonalOrg", () => {
     expect(create.headers["x-actor-subject-id"]).toBe(USER.id);
     expect(create.headers["x-actor-subject-type"]).toBe("user");
     expect(create.headers["x-actor-email"]).toBe(USER.email);
-    expect(create.body).toEqual({ name: "Ada Lovelace", slug: "personal-usr-abc123" });
+    expect(create.body).toEqual({ name: "Ada Lovelace's Team", slug: "personal-usr-abc123" });
   });
 
   it("is idempotent: does NOT create when the user already owns an org", async () => {

@@ -5,7 +5,18 @@
 // swapped (design §3.1, risks DP-F).
 //
 //   node tools/parity/port/html2tsx.ts --html <desktop-light.html> --select "main" \
-//     --name LoginPage [--out apps/deploy-web/src/pages/Login.generated.tsx]
+//     --name LoginPage [--out apps/deploy-web/src/pages/Login.generated.tsx] \
+//     [--nth <n>] [--patch tools/parity/port/patches/<name>.json]
+//
+// --nth picks the n-th element matching --select in document order; --inner
+// renders its children as a fragment (--take <n>: only the first n elements)
+// and --after <prop> appends a prop.
+//
+// A patch file binds the reference's fixture values (a user's name, the
+// current page) to props: [{ "find": <regex>, "replace": <string>, "props"?: [..] }],
+// applied in order to the generated source. Every rule must match, so a
+// reference change that moves the markup fails the generator instead of
+// silently keeping a fixture value.
 import { readFileSync, writeFileSync } from "node:fs";
 import { parse } from "parse5";
 
@@ -30,6 +41,7 @@ const RENAME: Record<string, string> = {
   autocomplete: "autoComplete",
   autofocus: "autoFocus",
   autocapitalize: "autoCapitalize",
+  inputmode: "inputMode",
   spellcheck: "spellCheck",
   "stroke-width": "strokeWidth",
   "stroke-linecap": "strokeLinecap",
@@ -73,15 +85,23 @@ function dropAttr(name: string): boolean {
   return name.startsWith("wire:") || name.startsWith("x-") || name.startsWith("@") || name.startsWith(":") || name.startsWith("ax-") || name === "data-navigate-once" || name.startsWith("data-livewire");
 }
 
+/** A JSX attribute value: a plain string literal unless it holds a quote or backslash (JSX strings have no escapes). */
+const jsxString = (v: string) => (/["\\\n]/.test(v) ? `{${JSON.stringify(v)}}` : JSON.stringify(v));
 const esc = (s: string) => s.replace(/[{}<>]/g, (c) => `{"${c}"}`);
 
 function styleObject(css: string): string {
+  let custom = false;
   const entries = css.split(";").map((d) => d.trim()).filter(Boolean).map((d) => {
     const [k, ...v] = d.split(":");
-    const key = k!.trim().replace(/^-/, "").replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
+    const raw = k!.trim();
+    // Custom properties stay as written; vendor prefixes are capitalised (WebkitMask).
+    const key = raw.startsWith("--")
+      ? raw
+      : raw.replace(/^-(webkit|moz|ms)-/, (_, p: string) => `${p[0]!.toUpperCase()}${p.slice(1)}-`).replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
+    if (raw.startsWith("--")) custom = true;
     return `${JSON.stringify(key)}: ${JSON.stringify(v.join(":").trim())}`;
   });
-  return `{{ ${entries.join(", ")} }}`;
+  return custom ? `{{ ${entries.join(", ")} } as Record<string, string>}` : `{{ ${entries.join(", ")} }}`;
 }
 
 function attrs(n: Node): string {
@@ -107,9 +127,9 @@ function attrs(n: Node): string {
     }
     if (a.name === "style") out.push(`style=${styleObject(a.value)}`);
     else if (BOOL.has(a.name)) out.push(name);
-    else if (a.name === "value" && (n.tagName === "input" || n.tagName === "textarea")) out.push(`defaultValue=${JSON.stringify(a.value)}`);
+    else if (a.name === "value" && (n.tagName === "input" || n.tagName === "textarea")) out.push(`defaultValue=${jsxString(a.value)}`);
     else if (a.name === "checked") out.push("defaultChecked");
-    else out.push(`${name}=${JSON.stringify(a.name === "alt" || a.name === "title" || a.name === "placeholder" || a.name === "aria-label" ? swapBrand(a.value) : a.value)}`);
+    else out.push(`${name}=${jsxString(a.name === "alt" || a.name === "title" || a.name === "placeholder" || a.name === "aria-label" ? swapBrand(a.value) : a.value)}`);
   }
   return out.length ? " " + out.join(" ") : "";
 }
@@ -124,11 +144,18 @@ export interface Hooks {
 }
 let hooks: Hooks = {};
 
-export function toJsx(n: Node, indent = ""): string {
+// Parents where a whitespace text node is not allowed (React warns) or never renders.
+const NO_WHITESPACE = new Set(["html", "head", "table", "thead", "tbody", "tfoot", "tr", "colgroup", "select", "optgroup", "svg", "g", "defs"]);
+
+export function toJsx(n: Node, indent = "", parent = ""): string {
   if (n.nodeName === "#text") {
     const t = n.value ?? "";
-    if (!t.trim()) return /\n/.test(t) ? "" : t ? " " : "";
-    return esc(swapBrand(t.replace(/\s+/g, " ")));
+    // JSX drops whitespace at line breaks, but the browser renders it between
+    // inline elements ("Visit <a>notifications</a> to"), so it is kept explicitly.
+    if (!t.trim()) return t && !NO_WHITESPACE.has(parent) ? '{" "}' : "";
+    const lead = /^\s/.test(t) ? '{" "}' : "";
+    const trail = /\s$/.test(t) ? '{" "}' : "";
+    return lead + esc(swapBrand(t.trim().replace(/\s+/g, " "))) + trail;
   }
   if (n.nodeName === "#comment" || !n.tagName || DROP_TAGS.has(n.tagName)) return "";
   const tag = n.tagName;
@@ -140,27 +167,38 @@ export function toJsx(n: Node, indent = ""): string {
     }
   }
   let slot = "";
+  let replace = false;
   for (const [m, prop] of hooks.slots ?? []) {
-    if (m(n) && !hooks.used?.has(`s:${prop}`)) {
-      slot = `${indent}  {props.${prop}}`;
-      hooks.used?.add(`s:${prop}`);
+    // "!prop" replaces the element's children instead of preceding them.
+    const name = prop.replace(/^!/, "");
+    if (m(n) && !hooks.used?.has(`s:${name}`)) {
+      slot = `${indent}  {props.${name}}`;
+      replace = prop.startsWith("!");
+      hooks.used?.add(`s:${name}`);
     }
   }
   if (VOID.has(tag)) return `${indent}<${tag}${a} />`;
-  const kids = [...(slot ? [slot] : []), ...(n.childNodes ?? []).map((c) => toJsx(c, indent + "  ")).filter((s) => s !== "")];
+  const kids = [...(slot ? [slot] : []), ...(replace ? [] : trimEnds(n.childNodes ?? []).map((c) => toJsx(c, indent + "  ", tag)).filter((s) => s !== ""))];
   if (!kids.length) return `${indent}<${tag}${a} />`;
   const inline = kids.every((k) => !k.startsWith(indent + "  <"));
   if (inline) return `${indent}<${tag}${a}>${kids.join("").trim()}</${tag}>`;
   return `${indent}<${tag}${a}>\n${kids.map((k) => (k.startsWith(indent + "  ") ? k : indent + "  " + k.trim())).join("\n")}\n${indent}</${tag}>`;
 }
 
-function find(n: Node, pred: (n: Node) => boolean): Node | null {
-  if (pred(n)) return n;
-  for (const c of n.childNodes ?? []) {
-    const r = find(c, pred);
-    if (r) return r;
-  }
-  return null;
+/** An element's leading and trailing whitespace-only text never renders; drop it. */
+function trimEnds(kids: Node[]): Node[] {
+  const blank = (k: Node | undefined) => k?.nodeName === "#text" && !(k.value ?? "").trim();
+  let a = 0;
+  let b = kids.length;
+  while (a < b && blank(kids[a])) a++;
+  while (b > a && blank(kids[b - 1])) b--;
+  return kids.slice(a, b);
+}
+
+function findAll(n: Node, pred: (n: Node) => boolean, out: Node[] = []): Node[] {
+  if (pred(n)) out.push(n);
+  for (const c of n.childNodes ?? []) findAll(c, pred, out);
+  return out;
 }
 
 /** A tiny selector: tag, #id, .class, or tag.class. */
@@ -179,9 +217,39 @@ export function matcher(sel: string): (n: Node) => boolean {
   };
 }
 
-export function convert(html: string, select: string, name: string, source: string, opts: { slots?: string[]; handlers?: string[] } = {}): string {
+export interface Patch {
+  find: string;
+  replace: string;
+  /** Props the replacement reads, as "name: type". */
+  props?: string[];
+}
+
+function reactImports(props: string[], extra: string[]): string {
+  const names = [
+    ...(props.some((p) => !p.startsWith("on")) || extra.some((p) => p.includes("ReactNode")) ? ["ReactNode"] : []),
+    ...(props.some((p) => p.startsWith("on")) || extra.some((p) => p.includes("FormEventHandler")) ? ["FormEventHandler"] : []),
+  ];
+  return names.length ? `import type { ${names.join(", ")} } from "react";\n\n` : "";
+}
+
+export function applyPatches(src: string, patches: Patch[]): string {
+  for (const p of patches) {
+    const re = new RegExp(p.find, "g");
+    if (!re.test(src)) throw new Error(`patch did not match: ${p.find}`);
+    src = src.replace(new RegExp(p.find, "g"), p.replace);
+  }
+  return src;
+}
+
+export function convert(
+  html: string,
+  select: string,
+  name: string,
+  source: string,
+  opts: { slots?: string[]; handlers?: string[]; extraProps?: string[]; nth?: number; inner?: boolean; after?: string; take?: number } = {},
+): string {
   const doc = parse(html) as unknown as Node;
-  const root = find(doc, matcher(select));
+  const root = findAll(doc, matcher(select))[(opts.nth ?? 1) - 1] ?? null;
   if (!root) throw new Error(`no element matches ${select}`);
   // "selector=prop" for slots, "selector:attr=prop" for handlers.
   hooks = {
@@ -196,14 +264,25 @@ export function convert(html: string, select: string, name: string, source: stri
       return [matcher(sel!), attr!, prop!] as [(n: Node) => boolean, string, string];
     }),
   };
-  const props = [...(opts.slots ?? []), ...(opts.handlers ?? [])].map((x) => x.split("=")[1]!);
+  const props = [...(opts.slots ?? []), ...(opts.handlers ?? [])].map((x) => x.split("=")[1]!.replace(/^!/, ""));
+  const extra = [...new Set(opts.extraProps ?? [])];
+  if (opts.after) props.push(opts.after);
+  const anyProps = props.length + extra.length > 0;
+  // --inner renders the element's children (e.g. everything in <body>) as a
+  // fragment; --after appends a prop after them (a page's teleported overlays).
+  const body = opts.inner
+    ? `    <>\n${(root.childNodes ?? [])
+        .filter((c) => c.tagName)
+        .slice(0, opts.take ?? Infinity)
+        .map((c) => toJsx(c, "      ")).filter((x) => x.trim() !== "").join("\n")}${opts.after ? `\n      {props.${opts.after}}` : ""}\n    </>`
+    : toJsx(root, "    ");
   return `// GENERATED by tools/parity/port/html2tsx.ts from the reference's rendered ${source}.
 // Derived from coollabsio/coolify@91b7e3e (Apache-2.0): DOM, classes and copy are Coolify's;
 // Livewire/Alpine attributes and scripts dropped, brand swapped. Regenerate, do not hand-edit;
 // behaviour lives in the page component that renders this.
-${props.length ? `import type { ReactNode, FormEventHandler } from "react";\n\n` : ""}${props.length ? `export interface ${name}Props {\n${props.map((p) => `  ${p}?: ${p.startsWith("on") ? "FormEventHandler<HTMLFormElement>" : "ReactNode"};`).join("\n")}\n}\n\n` : ""}export function ${name}(${props.length ? `props: ${name}Props` : ""}) {
+${reactImports(props, extra)}${anyProps ? `export interface ${name}Props {\n${[...props.map((p) => `  ${p}?: ${p.startsWith("on") ? "FormEventHandler<HTMLFormElement>" : "ReactNode"};`), ...extra.map((p) => `  ${p};`)].join("\n")}\n}\n\n` : ""}export function ${name}(${anyProps ? `props: ${name}Props` : ""}) {
   return (
-${toJsx(root, "    ")}
+${body}
   );
 }
 `;
@@ -216,7 +295,20 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     return i === -1 ? undefined : args[i + 1];
   };
   const all = (k: string) => args.flatMap((a, i) => (a === `--${k}` ? [args[i + 1]!] : []));
-  const out = convert(readFileSync(opt("html")!, "utf8"), opt("select") ?? "body", opt("name") ?? "Page", opt("source") ?? opt("html")!, { slots: all("slot"), handlers: all("handler") });
+  const patchFile = opt("patch");
+  const patches: Patch[] = patchFile ? JSON.parse(readFileSync(patchFile, "utf8")) : [];
+  const out = applyPatches(
+    convert(readFileSync(opt("html")!, "utf8"), opt("select") ?? "body", opt("name") ?? "Page", opt("source") ?? opt("html")!, {
+      slots: all("slot"),
+      handlers: all("handler"),
+      extraProps: patches.flatMap((x) => x.props ?? []),
+      nth: opt("nth") ? Number(opt("nth")) : 1,
+      inner: args.includes("--inner"),
+      ...(opt("take") ? { take: Number(opt("take")) } : {}),
+      ...(opt("after") ? { after: opt("after")! } : {}),
+    }),
+    patches,
+  );
   if (opt("out")) writeFileSync(opt("out")!, out);
   else process.stdout.write(out);
 }

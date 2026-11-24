@@ -1,0 +1,121 @@
+[
+  {
+    "find": "https://github\\.com/coollabsio/coolify/releases/tag/v[0-9a-f]+",
+    "replace": "https://github.com/pullely/freeploy"
+  },
+  {
+    "find": "https://coolify\\.io[^\"]*",
+    "replace": "https://github.com/pullely/freeploy"
+  },
+  {
+    "find": "data-page-context=\"Profile\"",
+    "replace": "data-page-context={props.pageTitle}",
+    "props": [
+      "pageTitle: string"
+    ]
+  },
+  {
+    "find": "<a href=\"http://127\\.0\\.0\\.1:8000/profile\" (className=\"flex h-8 min-w-0 items-center truncate[^\"]*\")>Profile</a>",
+    "replace": "<a href={props.pageHref} $1>{props.pageTitle}</a>",
+    "props": [
+      "pageHref: string"
+    ]
+  },
+  {
+    "find": "title=\"Search this page and everything \\(Press / or Ctrl\\+K, then Tab to switch\\)\"",
+    "replace": "title={props.searchTitle}",
+    "props": [
+      "searchTitle: string"
+    ]
+  },
+  {
+    "find": "http://127\\.0\\.0\\.1:8000/",
+    "replace": "/"
+  },
+  {
+    "find": "<a title=\"([^\"]+)\" href=\"([^\"]+)\" className=\"menu-item\">",
+    "replace": "<a title=\"$1\" href=\"$2\" {...props.nav(\"$2\")}>",
+    "props": [
+      "nav: (href: string) => { className: string; \"aria-current\"?: \"page\" }"
+    ]
+  },
+  {
+    "find": "<main className=\"app-main [^\"]*\">",
+    "replace": "<main className={props.mainClass}>",
+    "props": [
+      "mainClass: string"
+    ]
+  },
+  {
+    "find": "title=\"Team: (?:Root Team|Parity Root's Team)\"",
+    "replace": "title={`Team: ${props.teamName}`}"
+  },
+  {
+    "find": ">(\\{\" \"\\})?(?:Root Team|Parity Root's Team)(\\{\" \"\\})?<",
+    "replace": ">$1{props.teamName}$2<",
+    "props": [
+      "teamName: string"
+    ]
+  },
+  {
+    "find": "(<span className=\"flex shrink-0 items-center justify-center rounded-md [^\"]*\">)(\\{\" \"\\})?[A-Z](\\{\" \"\\})?<",
+    "replace": "$1$2{props.teamInitial}$3<",
+    "props": [
+      "teamInitial: string"
+    ]
+  },
+  {
+    "find": "aria-label=\"Account menu for Parity Root\"",
+    "replace": "aria-label={`Account menu for ${props.userName}`}"
+  },
+  {
+    "find": "(title|alt)=\"Parity Root\"",
+    "replace": "$1={props.userName}"
+  },
+  {
+    "find": ">(\\{\" \"\\})?Parity Root(\\{\" \"\\})?<",
+    "replace": ">$1{props.userName}$2<",
+    "props": [
+      "userName: string"
+    ]
+  },
+  {
+    "find": "(<span className=\"flex size-5 shrink-0 items-center justify-center rounded-full [^\"]*\">)(\\{\" \"\\})?[A-Z](\\{\" \"\\})?<",
+    "replace": "$1$2{props.userInitial}$3<",
+    "props": [
+      "userInitial: string"
+    ]
+  },
+  {
+    "find": ">(\\{\" \"\\})?root@example\\.com(\\{\" \"\\})?<",
+    "replace": ">$1{props.userEmail}$2<",
+    "props": [
+      "userEmail: string"
+    ]
+  },
+  {
+    "find": "<form action=\"/logout\" method=\"POST\">",
+    "replace": "<form action=\"/logout\" method=\"POST\" onSubmit={props.onLogout}>",
+    "props": [
+      "onLogout: FormEventHandler<HTMLFormElement>"
+    ]
+  },
+  {
+    "find": "<span>((?:\\s*\\{\" \"\\})?\\s*<div className=\"fixed bottom-0 right-0[^\"]*\">(?:\\s*\\{\" \"\\})?\\s*<div className=\"relative mx-auto flex w-full flex-col overflow-hidden rounded-2xl)",
+    "replace": "<span style={props.reminderStyle}>$1",
+    "props": [
+      "reminderStyle?: { display: \"none\" }"
+    ]
+  },
+  {
+    "find": "<button type=\"button\" aria-label=\"Dismiss notifications reminder\"",
+    "replace": "<button type=\"button\" aria-label=\"Dismiss notifications reminder\" onClick={props.onDismissReminder}",
+    "props": [
+      "onDismissReminder: () => void"
+    ]
+  },
+  {
+    "find": "<button type=\"button\" className=\"button h-9 justify-center sm:min-w-32\">",
+    "replace": "<button type=\"button\" className=\"button h-9 justify-center sm:min-w-32\" onClick={props.onDismissReminder}>"
+  }
+]

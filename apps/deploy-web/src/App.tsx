@@ -3,6 +3,10 @@ import { LoginPage } from "./pages/Login";
 import { RegisterPage } from "./pages/Register";
 import { ForgotPasswordPage } from "./pages/ForgotPassword";
 import { ResetPasswordPage } from "./pages/ResetPassword";
+import { lazy, Suspense } from "react";
+
+// Signed-in pages carry Coolify's whole layout; guest pages do not load it.
+const AppearancePage = lazy(() => import("./pages/Appearance").then((m) => ({ default: m.AppearancePage })));
 
 export function App() {
   switch (pageFor(window.location.pathname)) {
@@ -14,6 +18,12 @@ export function App() {
       return <ForgotPasswordPage />;
     case "reset-password":
       return <ResetPasswordPage />;
+    case "profile.appearance":
+      return (
+        <Suspense fallback={null}>
+          <AppearancePage />
+        </Suspense>
+      );
     default:
       return <NotPorted />;
   }

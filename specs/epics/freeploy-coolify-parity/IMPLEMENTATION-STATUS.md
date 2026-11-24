@@ -8,7 +8,7 @@ the code departed from `design.md`.
 | DP0 — the spec | ✅ Done 2026-11-23 | DP-1 [#4](https://github.com/pullely/freeploy/pull/4) (merge `48fa9ca`) · DP-2 (this PR) |
 | DP1 — parity harness | ✅ Done 2026-11-23 | DP-3 [#6](https://github.com/pullely/freeploy/pull/6) · DP-4 [#7](https://github.com/pullely/freeploy/pull/7) · DP-6 [#14](https://github.com/pullely/freeploy/pull/14) · DP-7 [#15](https://github.com/pullely/freeploy/pull/15) · DP-8 (this PR) |
 | DP2 — data model | ✅ Done 2026-11-24 | DP-9 [#17](https://github.com/pullely/freeploy/pull/17) · DP-10 [#18](https://github.com/pullely/freeploy/pull/18) · DP-11 (this PR) |
-| DP3 — UI shell | In progress | DP-12 [#20](https://github.com/pullely/freeploy/pull/20) · DP-13 (this PR) |
+| DP3 — UI shell | In progress | DP-12 [#20](https://github.com/pullely/freeploy/pull/20) · DP-13 [#21](https://github.com/pullely/freeploy/pull/21) · DP-14 [#22](https://github.com/pullely/freeploy/pull/22) · DP-15 [#23](https://github.com/pullely/freeploy/pull/23) · DP-16 [#24](https://github.com/pullely/freeploy/pull/24) · DP-17 (this PR) |
 | DP4 — servers over SSH | | |
 | DP5 — applications | | |
 | DP6 — sources and previews | | |
@@ -44,6 +44,14 @@ the code departed from `design.md`.
 - **Encryption.** The 86 columns Coolify encrypts on deploy tables (`deploy/encrypted-columns.ts`, generated from the models' casts) are stored as `fp1` AES-256-GCM ciphertexts under a per-org data key. That key is wrapped by the platform KEK `DEPLOY_ENCRYPTION_KEY` (a Worker secret seeded per environment) and bound to its org and column. Five casts are not here: 2 on tables Lumen owns, and 3 that Coolify declares on columns its own schema never creates (`instance_settings.sentinel_token`, `servers.logdrain_*`; the real columns are on `server_settings`).
 - **Worker.** `deploy-core-worker` is live on stage and prod behind `api-edge` `/v1/organizations/{org}/deploy/*` (#18). Unauthenticated requests get 401 at the edge.
 
+
+## Notes on DP3
+
+- **Porting method.** A page starts from the reference's rendered markup (the parity capture's `desktop-light.html`), turned into JSX by `tools/parity/port/html2tsx.ts`; `tools/parity/port/gen-deploy-web.sh` regenerates every generated file from a capture. Fixture values in the markup (the user's name, the team, the current page) are bound to props by a patch file per markup (`tools/parity/port/patches/*.json`); every rule must match, so a reference change that moves the markup stops the generator instead of leaving a fixture value in the product. Where state changes the markup (the Appearance cards' selected state), the page is ported by hand from the Blade source instead.
+- **Signed-in layout (DP-17).** All of what Coolify's layouts put in `<body>` is generated as one component (`LayoutMarkup`): the shell, the reminders, the command palette and the create dialogs (hidden), because the DOM gate counts every form control on the page. Dropdowns open and close as Alpine's do; the command palette, the create dialogs, the team switcher's actions and the mobile sheet are markup only until their own tasks.
+- **No notification channels yet.** Coolify shows "No notifications enabled" when the team has none; Freeploy has none until DP9, so the reminder always shows until dismissed for the month, as on the reference.
+- **Personal team.** Registration gives the user a team named as Coolify names it, "<name>'s Team". Freeploy has no instance root team, so the reference's root team is renamed to "Parity Root's Team" in the seed to compare like with like. A DP-15 bug created the team under the internal user id; it is now created under the public id, and on every password sign-in as on the other sign-in paths.
+- **Custom theme.** The Custom card renders but its dialog (presets, colours, share code: Coolify's colour engine in `layouts/base.blade.php`) is a later DP3 task; a stored custom theme renders as dark until then.
 ## Departures from the design
 
 - **No sponsorship popup.** Coolify shows a monthly "Love Coolify? Support our work" popup (`livewire/layout-popups`, instance setting `is_sponsorship_popup_enabled`). Freeploy does not: it asks users to sponsor coollabs.io, which would imply affiliation. The setting exists as a platform-admin setting defaulting to off, and the reference turns it off before capture so screens compare like with like.
