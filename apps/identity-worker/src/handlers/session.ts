@@ -1,6 +1,7 @@
 import type { Env } from "../env.js";
 import { createSqlExecutor } from "@saas/db/hyperdrive";
-import { createIdentityRepository } from "@saas/db/identity";
+import { createIdentityRepository, createEmailStore } from "@saas/db/identity";
+import { hexToUuid } from "@saas/db/ids";
 import { createAuthService } from "../services/auth.js";
 import { successResponse, errorResponse, extractBearerToken, withTimings } from "../http.js";
 import { createTimings } from "@saas/contracts/timing";
@@ -31,8 +32,11 @@ export async function handleSession(request: Request, env: Env, requestId: strin
       return withTimings(errorResponse(result.error, result.message, 401, requestId), requestId, route, timings);
     }
 
+    const internalId = hexToUuid(result.user.id.slice(4));
+    const verifiedAt = internalId ? await createEmailStore(executor).verifiedAt(internalId) : null;
     return withTimings(successResponse(
       {
+        emailVerified: verifiedAt !== null,
         session: {
           id: result.session.id,
           expiresAt: result.session.expiresAt.toISOString(),

@@ -1,0 +1,22 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-24
+  title: "DP3: email verification and email change, as Coolify Cloud does them"
+spec:
+  goal: A new password account verifies its address from Coolify's signed link (60 minutes) and only reaches /verify until it has; /verify resends at most once per 5 minutes. From /profile a user changes their email with a 6-digit code sent to the new address (10 minutes), with Coolify's three rate limits, resend after half the expiry, cancellation, and the request dropped after 10 failed attempts — all with Coolify's messages and emails. The inventory now counts controller actions that render a view (/verify, invitations) as pages.
+  affects:
+    - apps/identity-worker/**
+    - apps/notifications-worker/**
+    - apps/api-edge/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/identity-worker/**
+    - tests/notifications-worker/**
+    - tools/parity/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - migration 570 is applied on stage and prod, with existing accounts verified
+    - on stage a new password account lands on /verify, and a signed link verifies it
+  gates: []

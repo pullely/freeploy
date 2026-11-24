@@ -10,6 +10,7 @@ import type { Env } from "../env.js";
 import { createSqlExecutor, type SqlExecutor } from "@saas/db/hyperdrive";
 import { createIdentityRepository, createPasswordStore, createTwoFactorStore } from "@saas/db/identity";
 import { startChallenge } from "./two-factor.js";
+import { sendVerificationEmail } from "./email.js";
 import { successResponse, errorResponse, validationError } from "../http.js";
 import { extractRequestContext } from "../request-context.js";
 import { ensurePersonalOrg } from "../solo-mode.js";
@@ -55,7 +56,7 @@ export async function issueSession(db: SqlExecutor, request: Request, requestId:
 }
 
 /** Throttle keys, hashed (they hold an email and an IP). */
-async function keys(parts: string[]): Promise<string[]> {
+export async function keys(parts: string[]): Promise<string[]> {
   return Promise.all(parts.map((p) => hashSha256(p)));
 }
 
@@ -152,6 +153,12 @@ export async function handlePasswordRegister(request: Request, env: Env, request
     if (!created.ok) return errorResponse("internal_error", "Failed to create user", 500, requestId);
     await store.set(created.value.id, passwordHash);
     await ensurePersonalOrg(env, requestId, publicUser(created.value));
+    // Coolify Cloud: a new account verifies its address (DecideWhatToDoWithUser sends it to /verify).
+    try {
+      await sendVerificationEmail(env, requestId, created.value);
+    } catch {
+      /* the user can resend from /verify */
+    }
     const session = await issueSession(db, request, requestId, created.value, "password");
     if (!session) return errorResponse("internal_error", "Failed to create session", 500, requestId);
     return successResponse(session, requestId, 201);

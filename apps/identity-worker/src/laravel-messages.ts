@@ -20,6 +20,7 @@ const MESSAGES: Record<string, string> = {
   "validation.max.string": "The :attribute field must not be greater than :max characters.",
   "validation.min.string": "The :attribute field must be at least :min characters.",
   "validation.unique": "The :attribute has already been taken.",
+  "validation.size.string": "The :attribute field must be :size characters.",
   "validation.confirmed": "The :attribute field confirmation does not match.",
   "validation.password.letters": "The :attribute field must contain at least one letter.",
   "validation.password.mixed": "The :attribute field must contain at least one uppercase and one lowercase letter.",

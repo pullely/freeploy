@@ -1,5 +1,7 @@
 import type { Env } from "../env.js";
 import { createSqlExecutor } from "@saas/db/hyperdrive";
+import { createEmailStore } from "@saas/db/identity";
+import { hexToUuid } from "@saas/db/ids";
 import { createIdentityRepository } from "@saas/db/identity";
 import { createAuthService } from "../services/auth.js";
 import { successResponse, errorResponse, validationError } from "../http.js";
@@ -57,6 +59,9 @@ export async function handleLoginComplete(request: Request, env: Env, requestId:
     // M0 / Solo profile: ensure the user's one invisible personal workspace
     // exists before the console loads. No-op (and zero latency) off the profile.
     await ensurePersonalOrg(env, requestId, result.user);
+    // A magic link or an OAuth provider proves the address.
+    const verifiedId = hexToUuid(result.user.id.slice(4));
+    if (verifiedId && executor) await createEmailStore(executor).markVerified(verifiedId);
 
     return successResponse(
       {

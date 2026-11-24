@@ -18,6 +18,10 @@ const AUTH_ROUTES: Record<string, string> = {
   "/v1/auth/two-factor/recovery-codes": "POST",
   "/v1/auth/two-factor/challenge": "POST",
   "/v1/auth/passkeys/options": "POST",
+  "/v1/auth/email/verification-notification": "POST",
+  "/v1/auth/email/verify": "POST",
+  "/v1/auth/email/change/verify": "POST",
+  "/v1/auth/email/change/resend": "POST",
   "/v1/auth/passkeys/login/options": "POST",
   "/v1/auth/passkeys/login": "POST",
   "/v1/auth/session": "GET",
@@ -30,6 +34,7 @@ const AUTH_MULTI_METHOD_ROUTES: Record<string, Set<string>> = {
   "/v1/auth/profile": new Set(["GET", "PATCH"]),
   "/v1/auth/two-factor": new Set(["GET", "POST", "DELETE"]),
   "/v1/auth/passkeys": new Set(["GET", "POST"]),
+  "/v1/auth/email/change": new Set(["GET", "POST", "DELETE"]),
 };
 
 // One passkey: rename (PATCH) or delete (DELETE).

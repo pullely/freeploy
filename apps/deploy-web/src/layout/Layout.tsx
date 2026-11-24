@@ -38,12 +38,17 @@ export function useMe(): [Me | null, (me: Me) => void] {
       return;
     }
     void (async () => {
-      const session = await getJson<{ user: Me["user"] }>("/v1/auth/session");
+      const session = await getJson<{ user: Me["user"]; emailVerified?: boolean }>("/v1/auth/session");
       if (!session.data) {
         if (session.status === 401) {
           clearSession();
           window.location.replace("/login");
         }
+        return;
+      }
+      // Coolify Cloud (DecideWhatToDoWithUser): an unverified account only reaches /verify.
+      if (session.data.emailVerified === false) {
+        window.location.replace("/verify");
         return;
       }
       const orgs = await getJson<{ organizations: Array<{ name: string; slug: string }> }>("/v1/organizations");

@@ -4,6 +4,15 @@ import { handleLoginStart } from "./handlers/login-start.js";
 import { handlePasswordLogin, handlePasswordRegister } from "./handlers/password-auth.js";
 import { handlePasswordChange } from "./handlers/password-change.js";
 import {
+  handleVerificationNotification,
+  handleEmailVerify,
+  handleEmailChangeState,
+  handleEmailChangeRequest,
+  handleEmailChangeCancel,
+  handleEmailChangeVerify,
+  handleEmailChangeResend,
+} from "./handlers/email.js";
+import {
   handlePasskeyList,
   handlePasskeyAdd,
   handlePasskeyOptions,
@@ -107,6 +116,29 @@ export async function route(request: Request, env: Env): Promise<Response> {
     if (url.pathname === "/v1/auth/two-factor/challenge") {
       if (request.method !== "POST") return methodNotAllowed(requestId);
       return handleTwoFactorChallenge(request, env, requestId);
+    }
+
+    if (url.pathname === "/v1/auth/email/verification-notification") {
+      if (request.method !== "POST") return methodNotAllowed(requestId);
+      return handleVerificationNotification(request, env, requestId);
+    }
+    if (url.pathname === "/v1/auth/email/verify") {
+      if (request.method !== "POST") return methodNotAllowed(requestId);
+      return handleEmailVerify(request, env, requestId);
+    }
+    if (url.pathname === "/v1/auth/email/change") {
+      if (request.method === "GET") return handleEmailChangeState(request, env, requestId);
+      if (request.method === "POST") return handleEmailChangeRequest(request, env, requestId);
+      if (request.method === "DELETE") return handleEmailChangeCancel(request, env, requestId);
+      return methodNotAllowed(requestId);
+    }
+    if (url.pathname === "/v1/auth/email/change/verify") {
+      if (request.method !== "POST") return methodNotAllowed(requestId);
+      return handleEmailChangeVerify(request, env, requestId);
+    }
+    if (url.pathname === "/v1/auth/email/change/resend") {
+      if (request.method !== "POST") return methodNotAllowed(requestId);
+      return handleEmailChangeResend(request, env, requestId);
     }
 
     if (url.pathname === "/v1/auth/passkeys") {

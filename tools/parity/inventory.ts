@@ -234,6 +234,29 @@ function parseRoutes(rel: string): PhpRoute[] {
   return routes;
 }
 
+/**
+ * A controller action renders a page when its method body returns a view
+ * (Controller@verify → view('auth.verify-email')); a redirect or JSON does not.
+ */
+export function controllerRendersView(source: string, method: string): boolean {
+  const start = source.search(new RegExp(`function\\s+${method}\\s*\\(`));
+  if (start < 0) return false;
+  const next = source.slice(start + 1).search(/\n\s*(public|protected|private)\s+function\s/);
+  const body = next < 0 ? source.slice(start) : source.slice(start, start + 1 + next);
+  return /return\s+view\(/.test(body);
+}
+
+function isVisualRoute(r: { method: string; handler: string }): boolean {
+  if (r.method !== "GET") return false;
+  const last = r.handler.split("\\").pop() ?? "";
+  const m = last.match(/^(\w*Controller)@(\w+)$/);
+  if (m) {
+    const file = join(COOLIFY!, "app/Http/Controllers", `${m[1]}.php`);
+    return existsSync(file) && controllerRendersView(readFileSync(file, "utf8"), m[2]!);
+  }
+  return /^[A-Z]/.test(last) && !/Controller/.test(r.handler);
+}
+
 function webRoutes(): Inventory {
   const rows = parseRoutes("routes/web.php").map((r) => {
     const id = r.name ?? `${r.method.toLowerCase()}${r.path.replace(/[{}?]/g, "").replace(/\//g, "-")}`;
@@ -243,7 +266,7 @@ function webRoutes(): Inventory {
       name: r.name,
       handler: r.handler,
       middleware: r.middleware,
-      visual: r.method === "GET" && /^[A-Z]/.test(r.handler.split("\\").pop() ?? "") && !/Controller/.test(r.handler),
+      visual: isVisualRoute(r),
     });
   });
   // Fortify registers the auth pages itself (app/Providers/FortifyServiceProvider.php,

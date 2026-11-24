@@ -53,7 +53,7 @@
    "middleware": [
     "auth"
    ],
-   "visual": false
+   "visual": true
   },
   {
    "id": "routes.web:verify.verify",
@@ -85,7 +85,7 @@
    "name": "auth.link",
    "handler": "Controller@link",
    "middleware": [],
-   "visual": false
+   "visual": true
   },
   {
    "id": "routes.web:auth.link.accept",
@@ -2563,7 +2563,7 @@
     "auth",
     "verified"
    ],
-   "visual": false
+   "visual": true
   },
   {
    "id": "routes.web:team.invitation.accept",

@@ -17,3 +17,15 @@ describe("auth.password_reset", () => {
     expect(r.html).not.toContain("<script>");
   });
 });
+
+describe("auth.email_verification and auth.email_change", () => {
+  it("use Coolify's subjects and copy", () => {
+    const v = renderEmailTemplate("auth.email_verification", { url: "https://app.example/email/verify/x/y?expires=1&signature=z" })!;
+    expect(v.subject).toBe("Freeploy: Verify your email.");
+    expect(v.text).toBe("Verify your email here (https://app.example/email/verify/x/y?expires=1&signature=z).");
+    const c = renderEmailTemplate("auth.email_change", { newEmail: "new@example.com", code: "123456", expiryMinutes: 10 })!;
+    expect(c.subject).toBe("Freeploy: Verify Your New Email Address");
+    expect(c.text).toContain("Verification Code: 123456");
+    expect(c.text).toContain("This code is valid for 10 minutes.");
+  });
+});
