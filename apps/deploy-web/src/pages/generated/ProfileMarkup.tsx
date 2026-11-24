@@ -105,7 +105,7 @@ export function ProfileMarkup(props: ProfileMarkupProps) {
                   {" "}
                   {" "}
                   {" "}
-                  <input autoComplete="off" className="input" required data-wire-model="name" type="text" id="name-tmii8ws92bpvxulwufjphq2j" name="name" placeholder="" defaultValue={props.userName} />
+                  <input autoComplete="off" className="input" required data-wire-model="name" type="text" id="name-wcx93pdvxoxrnui8m5clwcxc" name="name" placeholder="" defaultValue={props.userName} />
                   {" "}
                   {" "}
                   {" "}
@@ -123,7 +123,7 @@ export function ProfileMarkup(props: ProfileMarkupProps) {
                     {" "}
                     {" "}
                     {" "}
-                    <input autoComplete="off" className="input" readOnly data-wire-model="email" type="text" id="email-eoqkqectxzgzez7xhdrbab7o" name="email" placeholder="" defaultValue={props.userEmail} />
+                    <input autoComplete="off" className="input" readOnly data-wire-model="email" type="text" id="email-mosgse4dqzkjwt2u9sz6vci9" name="email" placeholder="" defaultValue={props.userEmail} />
                     {" "}
                     {" "}
                     {" "}
@@ -171,7 +171,7 @@ export function ProfileMarkup(props: ProfileMarkupProps) {
                   {" "}
                   {" "}
                   <div className="relative">
-                    <input autoComplete="off" defaultValue="" className="input input-with-password-toggle sm:col-span-2" required data-wire-model="current_password" id="current_password-yvtjmysih0wtfcscz1tlv7uq" name="current_password" placeholder="" aria-placeholder="" type="password" />
+                    <input autoComplete="off" defaultValue="" className="input input-with-password-toggle sm:col-span-2" required data-wire-model="current_password" id="current_password-cfo87ysazixkmmj594gxf5rv" name="current_password" placeholder="" aria-placeholder="" type="password" />
                     {" "}
                     {" "}
                     <button type="button" className="password-toggle flex absolute inset-y-0 right-0 z-10 items-center pr-2 cursor-pointer text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white" aria-label="Toggle password visibility">
@@ -210,7 +210,7 @@ export function ProfileMarkup(props: ProfileMarkupProps) {
                   {" "}
                   {" "}
                   <div className="relative">
-                    <input autoComplete="off" defaultValue="" className="input input-with-password-toggle" required data-wire-model="new_password" id="new_password-b7cj5zvjtvdzqnrjacxgnvpm" name="new_password" placeholder="" aria-placeholder="" type="password" />
+                    <input autoComplete="off" defaultValue="" className="input input-with-password-toggle" required data-wire-model="new_password" id="new_password-plqlduepzpyt2dbcvqanahsf" name="new_password" placeholder="" aria-placeholder="" type="password" />
                     {" "}
                     {" "}
                     <button type="button" className="password-toggle flex absolute inset-y-0 right-0 z-10 items-center pr-2 cursor-pointer text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white" aria-label="Toggle password visibility">
@@ -249,7 +249,7 @@ export function ProfileMarkup(props: ProfileMarkupProps) {
                   {" "}
                   {" "}
                   <div className="relative">
-                    <input autoComplete="off" defaultValue="" className="input input-with-password-toggle" required data-wire-model="new_password_confirmation" id="new_password_confirmation-r4dicljwcu91pzvyrlck9yg5" name="new_password_confirmation" placeholder="" aria-placeholder="" type="password" />
+                    <input autoComplete="off" defaultValue="" className="input input-with-password-toggle" required data-wire-model="new_password_confirmation" id="new_password_confirmation-jd81hr6ifjoeiqc7mw2flgxj" name="new_password_confirmation" placeholder="" aria-placeholder="" type="password" />
                     {" "}
                     {" "}
                     <button type="button" className="password-toggle flex absolute inset-y-0 right-0 z-10 items-center pr-2 cursor-pointer text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white" aria-label="Toggle password visibility">
@@ -331,7 +331,7 @@ export function ProfileMarkup(props: ProfileMarkupProps) {
                 </div>
                 {" "}
                 {" "}
-                <a className="button" href="http://localhost:8000/profile/passkeys/confirm">Add passkey</a>
+                <a className="button" href="/profile/passkeys/confirm">Add passkey</a>
                 {" "}
               </div>
               {" "}

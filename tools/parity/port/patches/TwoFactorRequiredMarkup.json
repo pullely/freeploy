@@ -14,7 +14,7 @@
     ]
   },
   {
-    "find": "(<form action=\")http://(?:127\\.0\\.0\\.1|localhost):8000(/two-factor-required/switch-team\" method=\"POST\">)[\\s\\S]*?</form>",
+    "find": "(<form action=\")(/two-factor-required/switch-team\" method=\"POST\">)[\\s\\S]*?</form>",
     "replace": "{props.switchTeams}",
     "props": [
       "switchTeams: ReactNode"

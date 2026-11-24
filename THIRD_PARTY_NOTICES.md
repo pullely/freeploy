@@ -48,6 +48,10 @@ basement.studio), both under the SIL Open Font License 1.1
 
 ### Vendored views
 
+`apps/deploy-web/public/svgs/` carries Coolify's `public/svgs/` icons for the
+notification channels (Discord, Telegram, Slack, Pushover), unmodified; those
+marks belong to their respective owners and only identify the channel.
+
 `apps/deploy-web/coolify/views/` is a verbatim copy of Coolify's
 `resources/views/**`, used only as a Tailwind class source; it is not served.
 

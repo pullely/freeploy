@@ -68,3 +68,12 @@ test("a Livewire-bound control keeps its binding as data-wire-model", () => {
   assert.doesNotMatch(out, /wire:/);
 });
 
+
+test("links and CSS urls on the reference's own origin become paths", async () => {
+  const { relativeToReference } = await import("../port/html2tsx.ts");
+  assert.equal(relativeToReference("http://localhost:8000/profile/passkeys/confirm"), "/profile/passkeys/confirm");
+  assert.equal(relativeToReference("http://127.0.0.1:8000"), "/");
+  assert.equal(relativeToReference("https://github.com/x"), "https://github.com/x");
+  const out = convert(`<span style="mask: url('http://localhost:8000/svgs/slack.svg') center"></span>`, "span", "P", "test");
+  assert.match(out, /url\('\/svgs\/slack\.svg'\)/);
+});

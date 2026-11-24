@@ -23,6 +23,7 @@ export function ConfirmPasswordMarkup(props: ConfirmPasswordMarkupProps) {
             {" "}
             <div className="auth-card-body">
               <div className="flex flex-col gap-4">
+                {props.alert}
                 <div className="auth-guidance">
                   <svg className="size-4 mt-0.5 size-4 shrink-0" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <path d="M12 17.75C12.4142 17.75 12.75 17.4142 12.75 17V11C12.75 10.5858 12.4142 10.25 12 10.25C11.5858 10.25 11.25 10.5858 11.25 11V17C11.25 17.4142 11.5858 17.75 12 17.75Z" fill="currentColor" />
@@ -34,7 +35,6 @@ export function ConfirmPasswordMarkup(props: ConfirmPasswordMarkupProps) {
                 </div>
                 {" "}
                 <form action="/user/confirm-password" method="POST" className="flex flex-col gap-4" onSubmit={props.onSubmit}>
-                  {props.alert}
                   <input type="hidden" name="_token" defaultValue="" autoComplete="off" />
                   {" "}
                   <div className="w-full">
@@ -46,7 +46,7 @@ export function ConfirmPasswordMarkup(props: ConfirmPasswordMarkupProps) {
                     </div>
                     {" "}
                     <div className="relative">
-                      <input autoComplete="current-password" defaultValue="" className="input input-with-password-toggle" required id="7fhssk6kq8oo2vzajjdujemw" name="password" placeholder="" aria-placeholder="" autoFocus type="password" />
+                      <input autoComplete="current-password" defaultValue="" className="input input-with-password-toggle" required id="zp0rn9lltzszj3gehwtjqagc" name="password" placeholder="" aria-placeholder="" autoFocus type="password" />
                       {" "}
                       <button type="button" className="password-toggle flex absolute inset-y-0 right-0 z-10 items-center pr-2 cursor-pointer text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white" aria-label="Toggle password visibility">
                         <svg className="size-4 size-[18px]" {...({ "viewBox": "0 0 24 24" } as object)} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
