@@ -13,7 +13,7 @@ export interface PasskeyRow {
   lastUsedAt: Date | null;
 }
 
-type Raw = { id: string; user_id: string; name: string; credential_id: string; public_key: string; counter: string | number; transports: string[]; created_at: Date; last_used_at: Date | null };
+type Raw = { id: string; user_id: string; name: string; credential_id: string; public_key: string; counter: string | number; transports: string | null; created_at: Date; last_used_at: Date | null };
 const row = (r: Raw): PasskeyRow => ({
   id: r.id,
   userId: r.user_id,
@@ -21,11 +21,13 @@ const row = (r: Raw): PasskeyRow => ({
   credentialId: r.credential_id,
   publicKey: r.public_key,
   counter: Number(r.counter),
-  transports: r.transports ?? [],
+  transports: r.transports ? r.transports.split(",").filter(Boolean) : [],
   createdAt: r.created_at,
   lastUsedAt: r.last_used_at,
 });
-const COLS = "id, user_id, name, credential_id, public_key, counter, transports, created_at, last_used_at";
+// The executor runs postgres.js with fetch_types off, so a JS array cannot bind
+// to text[]: transports travel as a comma-joined string, both ways.
+const COLS = "id, user_id, name, credential_id, public_key, counter, array_to_string(transports, ',') AS transports, created_at, last_used_at";
 
 export function createPasskeyStore(db: SqlExecutor) {
   return {
@@ -40,8 +42,8 @@ export function createPasskeyStore(db: SqlExecutor) {
     },
     async add(p: { id: string; userId: string; name: string; credentialId: string; publicKey: string; counter: number; transports: string[] }): Promise<void> {
       await db.execute(
-        "INSERT INTO identity.passkeys (id, user_id, name, credential_id, public_key, counter, transports) VALUES ($1, $2, $3, $4, $5, $6, $7)",
-        [p.id, p.userId, p.name, p.credentialId, p.publicKey, p.counter, p.transports],
+        "INSERT INTO identity.passkeys (id, user_id, name, credential_id, public_key, counter, transports) VALUES ($1, $2, $3, $4, $5, $6, string_to_array($7, ','))",
+        [p.id, p.userId, p.name, p.credentialId, p.publicKey, p.counter, p.transports.join(",")],
       );
     },
     async used(id: string, counter: number): Promise<void> {
