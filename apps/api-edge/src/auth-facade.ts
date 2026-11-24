@@ -160,7 +160,9 @@ export async function handleAuthRoute(
       redirect: "manual",
     };
 
-    if (request.method === "POST" || request.method === "PATCH") {
+    // Every method that carries a body forwards it: PUT (the avatar image) and
+    // DELETE (the password that confirms deleting a passkey or the account) too.
+    if (request.method === "POST" || request.method === "PATCH" || request.method === "PUT" || request.method === "DELETE") {
       init.body = request.body;
     }
 
