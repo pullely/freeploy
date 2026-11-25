@@ -158,7 +158,7 @@ export function normalizeApplicationDomains(value: string | null | undefined): s
   return urls.length === 0 ? null : urls.map(normalizeApplicationDomainUrl).join(",");
 }
 
-interface DomainParts {
+export interface DomainParts {
   scheme: string;
   host: string;
   port: string;
@@ -166,7 +166,7 @@ interface DomainParts {
 }
 
 /** DomainUrlParts::split(). */
-function splitDomainUrl(url: string | null | undefined): DomainParts {
+export function splitDomainUrl(url: string | null | undefined): DomainParts {
   const parts = blank(url) ? null : parseUrl(url!);
   if (!parts || blank(parts.host)) return { scheme: "https", host: "", port: "", path: "" };
   let path = parts.path ?? "";
@@ -177,7 +177,7 @@ function splitDomainUrl(url: string | null | undefined): DomainParts {
 }
 
 /** DomainUrlParts::compose(). */
-function composeDomainUrl(scheme: string, host: string, port = "", path = ""): string {
+export function composeDomainUrl(scheme: string, host: string, port = "", path = ""): string {
   const s = scheme.trim().toLowerCase() === "http" ? "http" : "https";
   let p = path.trim();
   if (p !== "" && !/^[/?#]/.test(p)) p = `/${p}`;

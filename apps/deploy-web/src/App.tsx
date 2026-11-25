@@ -20,6 +20,10 @@ const ProjectEditPage = lazy(() => import("./pages/ProjectEdit").then((m) => ({ 
 const EnvironmentResourcesPage = lazy(() => import("./pages/EnvironmentResources").then((m) => ({ default: m.EnvironmentResourcesPage })));
 const ResourceCreatePage = lazy(() => import("./pages/ResourceCreate").then((m) => ({ default: m.ResourceCreatePage })));
 const ApplicationGeneralPage = lazy(() => import("./pages/ApplicationGeneral").then((m) => ({ default: m.ApplicationGeneralPage })));
+const ApplicationDomainsPage = lazy(() => import("./pages/ApplicationDomains").then((m) => ({ default: m.ApplicationDomainsPage })));
+const ApplicationAdvancedPage = lazy(() => import("./pages/ApplicationAdvanced").then((m) => ({ default: m.ApplicationAdvancedPage })));
+const ApplicationHealthcheckPage = lazy(() => import("./pages/ApplicationHealthcheck").then((m) => ({ default: m.ApplicationHealthcheckPage })));
+const ApplicationResourceLimitsPage = lazy(() => import("./pages/ApplicationResourceLimits").then((m) => ({ default: m.ApplicationResourceLimitsPage })));
 const EnvironmentEditPage = lazy(() => import("./pages/EnvironmentEdit").then((m) => ({ default: m.EnvironmentEditPage })));
 const PrivateKeysPage = lazy(() => import("./pages/PrivateKeys").then((m) => ({ default: m.PrivateKeysPage })));
 const CloudTokensPage = lazy(() => import("./pages/CloudTokens").then((m) => ({ default: m.CloudTokensPage })));
@@ -130,6 +134,30 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <ApplicationGeneralPage />
+        </Suspense>
+      );
+    case "project.application.domains":
+      return (
+        <Suspense fallback={null}>
+          <ApplicationDomainsPage />
+        </Suspense>
+      );
+    case "project.application.advanced":
+      return (
+        <Suspense fallback={null}>
+          <ApplicationAdvancedPage />
+        </Suspense>
+      );
+    case "project.application.healthcheck":
+      return (
+        <Suspense fallback={null}>
+          <ApplicationHealthcheckPage />
+        </Suspense>
+      );
+    case "project.application.resource-limits":
+      return (
+        <Suspense fallback={null}>
+          <ApplicationResourceLimitsPage />
         </Suspense>
       );
     case "security.private-key.index":
