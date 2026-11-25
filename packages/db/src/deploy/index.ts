@@ -344,3 +344,53 @@ export {
   type ApplicationReplica,
 } from "./resource-operations.js";
 export { applicationHasDeployments, deleteApplication } from "./application-delete.js";
+// DP-58: an application's Git Source, Servers, Webhooks, Scheduled Tasks and Rollback pages.
+export {
+  findApplicationSource,
+  updateApplicationSource,
+  listDeployKeys,
+  findDeployKey,
+  listGitSources,
+  findGitSource,
+  gitSourceKind,
+  gitSourceTable,
+  GIT_SOURCE_MORPH_CLASS,
+  GIT_SOURCE_KINDS,
+  APPLICATION_SOURCE_COLUMNS,
+  WEBHOOK_SECRET_COLUMN,
+  type GitSourceKind,
+  type DeployApplicationSourceRow,
+  type DeployGitSourceRow,
+  type ApplicationSourceColumn,
+  type ApplicationSourceChanges,
+} from "./application-source.js";
+export {
+  listAdditionalDestinations,
+  listServerNetworks,
+  findDestinationServer,
+  findServerNetwork,
+  additionalDestinationExists,
+  attachAdditionalDestination,
+  detachAdditionalDestination,
+  promoteAdditionalDestination,
+  deleteAdditionalDestinations,
+  type DeployServerNetworkRow,
+  type DeployAdditionalDestinationRow,
+  type DeployDestinationServerRow,
+} from "./additional-destinations.js";
+export {
+  listScheduledTasks,
+  findScheduledTask,
+  insertScheduledTask,
+  updateScheduledTask,
+  deleteScheduledTask,
+  listScheduledTaskExecutions,
+  SCHEDULED_TASK_COLUMNS,
+  type ScheduledTaskOwner,
+  type DeployScheduledTaskRow,
+  type DeployScheduledTaskExecutionRow,
+  type NewScheduledTask,
+  type ScheduledTaskColumn,
+  type ScheduledTaskChanges,
+} from "./scheduled-tasks.js";
+export { findApplicationRollback, updateApplicationImagesToKeep, type DeployApplicationRollbackRow } from "./application-rollback.js";
