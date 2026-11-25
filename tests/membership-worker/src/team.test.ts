@@ -7,7 +7,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { authorize } from "@saas/policy-engine";
-import type { RoleAssignment, TeamInvitationRecord, TeamMemberRecord, TeamRecord } from "@saas/db/membership";
+import type { RoleAssignment, TeamDeployResources, TeamInvitationRecord, TeamMemberRecord, TeamRecord } from "@saas/db/membership";
 import { handleTeam, handleTeamInvitation, invitationExpired, TEAM_TEXT, type TeamDeps, type TeamEvent, type TeamStore } from "@membership-worker/handlers/team";
 import { validateInvite, validateTeam } from "@membership-worker/team-validation";
 import { invitationPublicId, memberPublicId, orgPublicId } from "@membership-worker/ids";
@@ -43,6 +43,10 @@ class World {
   invitations: Array<TeamInvitationRecord> = [];
   events: TeamEvent[] = [];
   committed = true;
+  /** DP-75: the other active teams of each subject, and the team's deploy records. */
+  otherTeams: Record<string, number> = {};
+  deleted = false;
+  resources: TeamDeployResources = { blockers: {}, owned: {}, projects: [], servers: [] };
 
   add(p: Person): string {
     const memberId = uuid();
@@ -114,6 +118,14 @@ class World {
       event: async (_o, e) => {
         w.events.push(e);
       },
+      countTeams: async (subjectId) => (w.deleted || !w.active().some((m) => m.subjectId === subjectId) ? 0 : 1) + (w.otherTeams[subjectId] ?? 0),
+      deleteTeam: async () => {
+        if (w.deleted) return false;
+        w.deleted = true;
+        for (const m of w.active()) m.status = "removed";
+        for (const i of w.invitations) if (i.status === "pending") i.status = "revoked";
+        return true;
+      },
     };
   }
 
@@ -137,6 +149,7 @@ class World {
           resource: { kind: "organization", orgId },
           context: { memberships: roles.map((r) => ({ kind: "role_assignment", role: r.role as "owner", scope: { kind: "organization", orgId } })) },
         }).allow,
+      deployResources: async () => structuredClone(this.resources),
       membersLimit: async () => opts.limit ?? null,
       now: () => opts.now ?? NOW,
       id: uuid,
@@ -442,5 +455,79 @@ describe("/v1/team-invitations/{inv} (showInvitation, acceptInvitation)", () => 
     const id = w.invite("member@example.com", "builder");
     expect((await accept(w, MEMBER, "POST", id)).status).toBe(200);
     expect(w.active().find((m) => m.subjectId === MEMBER.subjectId)!.memberId).toBe(ids.usr_member);
+  });
+});
+
+// ── The Danger Zone (DP-75): Team\DangerZone, danger-zone.blade.php and DeleteTeam::handle() ──
+describe("GET /team/danger and DELETE /team (Team\\DangerZone)", () => {
+  const EMPTY: TeamDeployResources = { blockers: {}, owned: {}, projects: [], servers: [] };
+
+  test("mount() authorizes delete: the owner's page; admins, members and the others get the 404 of every denial", async () => {
+    const { w } = world(OWNER, ADMIN, MEMBER, VIEWER, BILLING);
+    w.otherTeams[OWNER.subjectId] = 1;
+    for (const p of [ADMIN, MEMBER, VIEWER, BILLING]) {
+      expect([p.subjectId, (await call(w, p, "GET", "/danger")).status]).toEqual([p.subjectId, 404]);
+      expect([p.subjectId, (await call(w, p, "DELETE", "")).status]).toEqual([p.subjectId, 404]);
+    }
+    expect(w.deleted).toBe(false);
+    const r = await call(w, OWNER, "GET", "/danger");
+    expect(r.status).toBe(200);
+    expect(r.json.data).toEqual({ team: { id: orgPublicId(ORG), name: "Acme", slug: "acme", description: null }, role: "owner", personal: false, state: "deletable", ...EMPTY });
+  });
+
+  test("the last team, or a personal one, cannot be deleted: the page says so and DELETE refuses", async () => {
+    const { w } = world(OWNER);
+    expect((await call(w, OWNER, "GET", "/danger")).json.data!.state).toBe("last-or-personal");
+    const last = await call(w, OWNER, "DELETE", "");
+    expect([last.status, last.json.error!.message]).toEqual([422, "Your last or personal team cannot be deleted."]);
+    // identity-worker's personal organization (solo-mode.ts: personal-<user id>), even with other teams.
+    w.otherTeams[OWNER.subjectId] = 3;
+    w.team = { ...w.team, slug: "personal-usr-owner" };
+    const page = await call(w, OWNER, "GET", "/danger");
+    expect([page.json.data!.state, page.json.data!.personal]).toEqual(["last-or-personal", true]);
+    const personal = await call(w, OWNER, "DELETE", "");
+    expect([personal.status, personal.json.error!.message]).toEqual([422, TEAM_TEXT.lastOrPersonal]);
+    expect(w.deleted).toBe(false);
+  });
+
+  test("Team::deletionBlockers(): the page lists them; DeleteTeam refuses servers first, then every other resource", async () => {
+    const { w } = world(OWNER);
+    w.otherTeams[OWNER.subjectId] = 1;
+    w.resources = { blockers: { projects: 2, servers: 1, sources: 1 }, owned: {}, projects: [{ uuid: "p1", name: "Shop" }, { uuid: "p2", name: "Blog" }], servers: [{ uuid: "s1", name: "localhost" }] };
+    const page = await call(w, OWNER, "GET", "/danger");
+    expect(page.json.data).toMatchObject({ state: "blocked", blockers: { projects: 2, servers: 1, sources: 1 }, projects: [{ uuid: "p1", name: "Shop" }, { uuid: "p2", name: "Blog" }], servers: [{ uuid: "s1", name: "localhost" }] });
+    const servers = await call(w, OWNER, "DELETE", "");
+    expect([servers.status, servers.json.error!.message]).toEqual([422, "Delete all team servers before deleting this team."]);
+    w.resources = { ...EMPTY, blockers: { sources: 1 } };
+    const sources = await call(w, OWNER, "DELETE", "");
+    expect([sources.status, sources.json.error!.message]).toEqual([422, "Delete all team resources before deleting this team."]);
+    // What Coolify deletes with the team (private keys, S3 storages, …) holds it in Freeploy: membership cannot delete deploy records.
+    w.resources = { ...EMPTY, owned: { privateKeys: 1, storages: 2 } };
+    expect((await call(w, OWNER, "GET", "/danger")).json.data!.state).toBe("blocked");
+    const owned = await call(w, OWNER, "DELETE", "");
+    expect([owned.status, owned.json.error!.message]).toEqual([422, TEAM_TEXT.deleteResourcesFirst]);
+    expect(w.deleted).toBe(false);
+    expect(w.events).toEqual([]);
+  });
+
+  test("an empty team that is not the owner's last: deleted, its members and invitations ended, and the event recorded", async () => {
+    const { w } = world(OWNER, ADMIN, MEMBER);
+    w.otherTeams[OWNER.subjectId] = 1;
+    w.invite("new@example.com", "builder");
+    const r = await call(w, OWNER, "DELETE", "");
+    expect([r.status, r.json.data]).toEqual([200, { deleted: orgPublicId(ORG) }]);
+    expect(w.deleted).toBe(true);
+    expect(w.active()).toEqual([]);
+    expect(w.invitations.map((i) => i.status)).toEqual(["revoked"]);
+    expect(w.events).toEqual([{ type: "organization.deleted", subjectKind: "organization", subjectId: ORG, payload: { name: "Acme", slug: "acme" }, description: `Team ${orgPublicId(ORG)} deleted` }]);
+    // It is gone: every route answers 404.
+    expect((await call(w, OWNER, "GET", "")).status).toBe(404);
+    expect((await call(w, OWNER, "DELETE", "")).status).toBe(404);
+  });
+
+  test("the danger page takes GET only, and nothing below it", async () => {
+    const { w } = world(OWNER);
+    expect((await call(w, OWNER, "POST", "/danger", {})).status).toBe(405);
+    expect((await call(w, OWNER, "GET", "/danger/x")).status).toBe(404);
   });
 });

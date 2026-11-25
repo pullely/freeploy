@@ -1,4 +1,5 @@
-// Derived from coollabsio/coolify@91b7e3e:app/Livewire/Team/{Index,Member,Invitations,InviteLink}.php,
+// Derived from coollabsio/coolify@91b7e3e:app/Livewire/Team/{Index,Member,Invitations,InviteLink,DangerZone}.php,
+// app/Actions/Team/DeleteTeam.php, resources/views/livewire/team/danger-zone.blade.php,
 // app/Livewire/Team/Member/Index.php, app/Http/Controllers/Controller.php (showInvitation,
 // acceptInvitation), app/Models/{Team,TeamInvitation,User}.php, app/Enums/Role.php and
 // app/Policies/TeamPolicy.php (Apache-2.0), modified.
@@ -11,6 +12,8 @@
 //
 //   GET    /v1/organizations/{org}/team                     Team\Index::mount: { team, canUpdate }
 //   PATCH  /v1/organizations/{org}/team                     Team\Index::submit { name, description }
+//   DELETE /v1/organizations/{org}/team                     Team\DangerZone::delete (DP-75, see team-danger.ts)
+//   GET    /v1/organizations/{org}/team/danger              Team\DangerZone: the state of danger-zone.blade.php
 //   GET    /v1/organizations/{org}/team/members             Member\Index: the members, the actor's role and abilities
 //   PATCH  /v1/organizations/{org}/team/members/{member}    Member::makeOwner | makeAdmin | makeReadonly { action }
 //   DELETE /v1/organizations/{org}/team/members/{member}    Member::remove
@@ -23,7 +26,8 @@
 // Policy (TeamPolicy, every ability a team admin's but view): view = deploy.team.read, update =
 // organization.settings.update, manageMembers = organization.member.update_role (a role change) and
 // organization.member.remove (a removal), manageInvitations = organization.invitation.create / list /
-// revoke. A denied ability answers 404, as every membership route does.
+// revoke, delete = organization.delete (the owner's alone). A denied ability answers 404, as every
+// membership route does.
 import type { Env } from "../env.js";
 import type { ActorContext } from "../router.js";
 import type { RoleAssignment } from "@saas/db/membership";
@@ -46,6 +50,10 @@ import {
   createTeamInvitation,
   closeTeamInvitation,
   addTeamMember,
+  teamDeployResources,
+  countSubjectTeams,
+  deleteTeam,
+  type TeamDeployResources,
   type TeamRecord,
   type TeamMemberRecord,
   type TeamInvitationRecord,
@@ -79,7 +87,32 @@ export const TEAM_TEXT = {
   /** Freeploy keeps an organization's last owner (membership-worker's own rule; Coolify has none). */
   lastOwnerRole: "Cannot change role of the last active owner",
   lastOwnerRemove: "Cannot remove the last active owner",
+  // ── The Danger Zone (DP-75): danger-zone.blade.php and DeleteTeam::handle(), word for word ──
+  onlyOwnersCanDelete: "Only team owners can delete this team.",
+  lastOrPersonal: "Your last or personal team cannot be deleted.",
+  /** DeleteTeam: the servers first, then every other resource (Team::isEmpty()). */
+  deleteServersFirst: "Delete all team servers before deleting this team.",
+  deleteResourcesFirst: "Delete all team resources before deleting this team.",
 } as const;
+
+/**
+ * identity-worker's solo-mode.ts names every user's personal organization `personal-<user id>`; Coolify's
+ * `personal_team`. Freeploy has no other marker, so an organization whose slug has that shape is a
+ * personal team (refused, never deleted by mistake).
+ */
+export function isPersonalTeam(team: TeamRecord): boolean {
+  return team.slug.startsWith("personal-");
+}
+
+/** danger-zone.blade.php's branches, in its order (the root team, id 0, and a Cloud subscription do not exist in Freeploy). */
+export type DangerState = "not-owner" | "last-or-personal" | "blocked" | "deletable";
+
+export function dangerState(input: { role: string; teams: number; personal: boolean; resources: TeamDeployResources }): DangerState {
+  if (input.role !== "owner") return "not-owner";
+  if (input.teams <= 1 || input.personal) return "last-or-personal";
+  if (Object.keys(input.resources.blockers).length || Object.keys(input.resources.owned).length) return "blocked";
+  return "deletable";
+}
 
 const RANK: Record<string, number> = { member: 1, admin: 2, owner: 3 };
 
@@ -134,10 +167,16 @@ export interface TeamStore {
   /** active members + pending invitations: the seats `limit.members` counts. */
   billableMembers(orgId: string, now: Date): Promise<number | null>;
   event(orgId: string, e: TeamEvent): Promise<void>;
+  /** The active teams the subject is a member of (DP-75: "Your last … team cannot be deleted."). */
+  countTeams(subjectId: string): Promise<number>;
+  /** DeleteTeam: the org locked, marked deleted, its members, roles and pending invitations ended. */
+  deleteTeam(orgId: string, now: Date): Promise<boolean>;
 }
 
 export interface TeamDeps {
   run<T>(fn: (store: TeamStore) => Promise<T>): Promise<T>;
+  /** The team's deploy records, read only (DP-75, packages/db/src/membership/team-danger.ts). */
+  deployResources(orgId: string): Promise<TeamDeployResources>;
   authorize(action: string, orgId: string, roles: RoleAssignment[]): Promise<boolean>;
   /** The billing gate on a new invitation (Task 0080): null when allowed, else the denial's message. */
   membersLimit(orgId: string, billable: () => Promise<number | null>): Promise<{ deny: string; reason?: string } | { error: true } | null>;
@@ -198,6 +237,8 @@ function sqlStore(tx: SqlExecutor, actor: ActorContext, requestId: string): Team
       });
       if (!r.ok) throw new Error("event_append_failed");
     },
+    countTeams: (subjectId) => countSubjectTeams(tx, subjectId),
+    deleteTeam: (orgId, now) => deleteTeam(tx, orgId, now),
   };
 }
 
@@ -210,6 +251,16 @@ function liveDeps(env: Env, actor: ActorContext, requestId: string): TeamDeps | 
       try {
         if (!("transaction" in executor)) return await fn(sqlStore(executor, actor, requestId));
         return await executor.transaction((tx) => fn(sqlStore(tx, actor, requestId)));
+      } finally {
+        await executor.dispose();
+      }
+    },
+    async deployResources(orgId) {
+      // A transaction of its own (withOrg: as deploy_app, confined to the org by row-level security).
+      const executor = createSqlExecutor(env.PLATFORM_DB!);
+      try {
+        if (!("transaction" in executor)) throw new Error("transactions unavailable");
+        return await teamDeployResources(executor, orgId);
       } finally {
         await executor.dispose();
       }
@@ -307,6 +358,25 @@ export async function handleTeam(
           await need("deploy.team.read");
           return successResponse({ team: publicTeam(team), canUpdate: await can("organization.settings.update") }, requestId);
         }
+        if (method === "DELETE") {
+          // Team\DangerZone::delete(): authorize('delete'), then DeleteTeam::handle(). Freeploy also refuses the
+          // last or personal team here (Coolify only hides the button), and what membership cannot delete.
+          await need("organization.delete");
+          if (actorRole !== "owner") throw fail(TEAM_TEXT.onlyOwnersCanDelete, 403);
+          if (isPersonalTeam(team) || (await store.countTeams(actor.subjectId)) <= 1) throw fail(TEAM_TEXT.lastOrPersonal);
+          const resources = await deps.deployResources(orgId);
+          if (resources.blockers.servers) throw fail(TEAM_TEXT.deleteServersFirst);
+          if (Object.keys(resources.blockers).length || Object.keys(resources.owned).length) throw fail(TEAM_TEXT.deleteResourcesFirst);
+          if (!(await store.deleteTeam(orgId, now))) throw new Answer(notFound());
+          await store.event(orgId, {
+            type: "organization.deleted",
+            subjectKind: "organization",
+            subjectId: orgId,
+            payload: { name: team.name, slug: team.slug },
+            description: `Team ${orgPublicId(orgId)} deleted`,
+          });
+          return successResponse({ deleted: orgPublicId(orgId) }, requestId);
+        }
         if (method !== "PATCH") return methodNotAllowed(requestId);
         await need("organization.settings.update");
         const v = validateTeam(body);
@@ -321,6 +391,29 @@ export async function handleTeam(
           description: `Team ${orgPublicId(orgId)} updated`,
         });
         return successResponse({ team: publicTeam(updated), canUpdate: true, message: TEAM_TEXT.updated }, requestId);
+      }
+
+      // ── Team\DangerZone (DP-75) ───────────────────────────────────────
+      if (section === "danger") {
+        if (id !== undefined) throw new Answer(notFound());
+        if (method !== "GET") return methodNotAllowed(requestId);
+        // mount(): authorize('delete', $team) — the owner's page.
+        await need("organization.delete");
+        const [teams, resources] = await Promise.all([store.countTeams(actor.subjectId), deps.deployResources(orgId)]);
+        const personal = isPersonalTeam(team);
+        return successResponse(
+          {
+            team: publicTeam(team),
+            role: actorRole,
+            personal,
+            state: dangerState({ role: actorRole, teams, personal, resources }),
+            blockers: resources.blockers,
+            owned: resources.owned,
+            projects: resources.projects,
+            servers: resources.servers,
+          },
+          requestId,
+        );
       }
 
       // ── Member\Index and Member ───────────────────────────────────────

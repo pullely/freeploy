@@ -1,6 +1,7 @@
 import type { Env } from "./env.js";
 import { handleHealth } from "./handlers/health.js";
 import { handleListAudit } from "./handlers/list-audit.js";
+import { handleTeamAuditLog } from "./handlers/team-audit-log.js";
 import { errorResponse, notFound, methodNotAllowed } from "./http.js";
 import { generateRequestId, parseOrgPublicId } from "./ids.js";
 
@@ -25,6 +26,8 @@ function resolveActor(request: Request): ActorContext | null {
 }
 
 const ORG_AUDIT_RE = /^\/v1\/organizations\/([^/]+)\/audit$/;
+// The deploy console's team audit log (DP-75, handlers/team-audit-log.ts).
+const ORG_TEAM_LOG_RE = /^\/v1\/organizations\/([^/]+)\/audit\/team-log$/;
 
 export async function route(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url);
@@ -33,6 +36,16 @@ export async function route(request: Request, env: Env): Promise<Response> {
   try {
     if (url.pathname === "/health" && request.method === "GET") {
       return handleHealth(env, requestId);
+    }
+
+    const teamLogMatch = url.pathname.match(ORG_TEAM_LOG_RE);
+    if (teamLogMatch) {
+      if (request.method !== "GET") return methodNotAllowed(requestId);
+      const orgUuid = parseOrgPublicId(teamLogMatch[1]!);
+      if (!orgUuid) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
+      return handleTeamAuditLog(request, env, requestId, actor, orgUuid);
     }
 
     const auditMatch = url.pathname.match(ORG_AUDIT_RE);

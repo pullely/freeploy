@@ -4,7 +4,8 @@ import { enforceRateLimit, mergeRateLimitHeaders } from "./rate-limit.js";
 import { resolveActor } from "./resolve-actor.js";
 import { createTimings } from "@saas/contracts/timing";
 
-const ORG_AUDIT_RE = /^\/v1\/organizations\/[^/]+\/audit$/;
+// …/audit, and the deploy console's team audit log (DP-75, events-worker's handlers/team-audit-log.ts).
+const ORG_AUDIT_RE = /^\/v1\/organizations\/[^/]+\/audit(?:\/team-log)?$/;
 
 const FORWARDED_HEADERS = [
   "content-type",

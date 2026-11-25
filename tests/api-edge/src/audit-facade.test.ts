@@ -79,6 +79,26 @@ describe("api-edge audit facade", () => {
       expect(isAuditRoute("/v1/organizations/org_abc/audit/extra")).toBe(false);
     });
 
+    // DP-75: the deploy console's team audit log, events-worker's handlers/team-audit-log.ts.
+    it("matches /v1/organizations/{orgId}/audit/team-log and nothing below it", () => {
+      expect(isAuditRoute("/v1/organizations/org_abc/audit/team-log")).toBe(true);
+      expect(isAuditRoute("/v1/organizations/org_abc/audit/team-log/x")).toBe(false);
+    });
+
+    it("forwards the team audit log with its query to events-worker", async () => {
+      const { fetcher: events, calls } = createFakeFetcher();
+      const env = createEnv({ EVENTS_WORKER: events });
+      const req = new Request("https://api.test/v1/organizations/org_abc/audit/team-log?search=Owner&sort=actor-asc&page=2", {
+        method: "GET",
+        headers: { authorization: "Bearer token123" },
+      });
+      const res = await handleAuditRoute(req, env as never, "req_test", "/v1/organizations/org_abc/audit/team-log");
+      expect(res.status).toBe(200);
+      expect(calls).toHaveLength(1);
+      expect(calls[0]!.url).toBe("https://events.internal/v1/organizations/org_abc/audit/team-log?search=Owner&sort=actor-asc&page=2");
+      expect(new Headers(calls[0]!.init.headers as HeadersInit).get("x-actor-subject-id")).toBe("usr_abc123");
+    });
+
     it("does not match /v1/organizations/{orgId}/members", () => {
       expect(isAuditRoute("/v1/organizations/org_abc/members")).toBe(false);
     });

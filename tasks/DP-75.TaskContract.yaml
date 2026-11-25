@@ -1,0 +1,31 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-75
+  title: "DP10: the team's Danger Zone and audit log, and Boarding"
+spec:
+  goal: An org's owner deletes a team from Coolify's Team → Danger Zone (/team/danger, Team\DangerZone and DeleteTeam with danger-zone.blade.php's branches and copy) — never their last or personal team (identity's personal-<user id> organization), never while it owns deploy records (Coolify's blockers — projects, servers, Git sources — and what Coolify deletes with a team but membership-worker cannot — private keys, S3 storages, cloud tokens, cloud-init scripts, tags, shared variables — counted read only through withOrg(), since membership-worker has no binding to deploy-core-worker and one would grow the binding loop); deleting marks the organization deleted and ends its members, role assignments and pending invitations. organization.delete is a new known action, the owner's alone, and the role matrix compares team.delete with Coolify's Gate (63 abilities compared, 15 skipped). An owner or admin reads Coolify's Team → Audit log (/team/audit-log) over the organization's audit entries of the last 90 days — Coolify's search, action and source filters, sorts, pages and empty state — with Freeploy's team events shown as Coolify records them (held to goldens emitted by Coolify's PHP) and every other event in Freeploy's own words; read only (events-worker, audit.read). /onboarding is Coolify's Boarding over Freeploy's private keys, servers and projects APIs; this machine, cloud-provider servers and server validation (SSH) say they are not available yet, and a new team is not sent there (Freeploy stores no show_boarding). Coolify has no "leave team" action at 91b7e3e, and its subscription pages redirect on a self-hosted instance, so neither is ported.
+  affects:
+    - apps/membership-worker/**
+    - apps/events-worker/**
+    - apps/api-edge/**
+    - apps/policy-worker/**
+    - apps/deploy-web/**
+    - packages/policy-engine/**
+    - packages/db/**
+    - tests/membership-worker/**
+    - tests/events-worker/**
+    - tests/policy-worker/**
+    - tests/policy-engine/**
+    - tests/api-edge/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - tests/policy-worker/src/role-matrix.test.ts compares 63 abilities × owner, admin and member to Coolify 91b7e3e's Gate with no mismatch (team.delete now compared), and lists the 15 skipped abilities with their reason
+    - tests/events-worker/src/team-audit-log.test.ts holds Freeploy's eight team events to the rows Coolify records for them (tests/events-worker/fixtures/audit-log/goldens.json) and Str::headline to Coolify's answers
+    - on stage, an owner of two teams opens /team/danger on the non-personal one with nothing in it, deletes it after typing its name, and lands on /team of their other team; the deleted team is gone from the team list of every former member
+    - on stage, /team/danger on a personal team says "Your last or personal team cannot be deleted.", on a team with a server lists it ("1 server") with "Remove or move these resources before deleting the team.", and DELETE answers "Delete all team servers before deleting this team."
+    - on stage, an admin opens /team/audit-log and sees the team's rename as "<name> Updated" (ui.team.updated, source UI), and a member is refused
+    - on stage, /onboarding walks from the welcome screen to a saved SSH key and server; "Start validation" says it is not available yet, and "Continue without validation" leads to a new "My first project"
+  gates: []

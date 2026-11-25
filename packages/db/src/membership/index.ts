@@ -37,3 +37,6 @@ export {
   closeTeamInvitation,
   addTeamMember,
 } from "./team.js";
+
+export type { TeamDeletionBlockers, TeamOwnedRecords, TeamDeployResources } from "./team-danger.js";
+export { teamDeployResources, countSubjectTeams, deleteTeam } from "./team-danger.js";

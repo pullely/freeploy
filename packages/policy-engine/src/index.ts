@@ -23,6 +23,8 @@ const ORG_ROLE_PERMISSIONS: Record<OrganizationRole, readonly string[]> = {
     "deploy.resource.read",
     "deploy.resource.write",
     "deploy.team.read",
+    // TeamPolicy::delete: the owner's alone (DP-75, the team's Danger Zone).
+    "organization.delete",
     "organization.read",
     "organization.settings.update",
     "organization.invitation.create",
@@ -271,6 +273,8 @@ const ALL_KNOWN_ACTIONS: ReadonlySet<string> = new Set([
   // team sees them (Coolify's TeamPolicy::view). Changing them asks organization.settings.update,
   // organization.member.update_role / remove and organization.invitation.*, Coolify's team admins.
   "deploy.team.read",
+  // Deleting the team (DP-75, Coolify's TeamPolicy::delete and Team\DangerZone): its owners only.
+  "organization.delete",
 ]);
 
 function isOrgRole(role: string): role is OrganizationRole {
