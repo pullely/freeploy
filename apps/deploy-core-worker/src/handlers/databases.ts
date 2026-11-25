@@ -61,6 +61,7 @@ import { loadDatabaseOperationContext, sqlDatabaseOperationStore, type DatabaseO
 import type { KeyCipher } from "../private-keys/service.js";
 import { authorizeDeploy, columnCipher, readJson } from "./cloud-tokens.js";
 import { deleteOptions } from "../applications/danger.js";
+import { handleDatabaseBackups } from "./database-backups.js";
 import { validateCreateDatabase } from "../databases/validation.js";
 import { handleDatabaseResources, isDatabaseResourceRoute } from "./database-resources.js";
 import {
@@ -199,6 +200,8 @@ export async function handleDatabases(
 ): Promise<Response> {
   // DP-64: the pages that are Coolify's shared components (environment variables, storage, tags, …).
   if (isDatabaseResourceRoute(segments)) return handleDatabaseResources(env, requestId, actor, orgId, segments, request);
+  // …/databases/{uuid}/backups[/{backup}]: the backup schedules (DP-65).
+  if (segments[1] === "backups") return handleDatabaseBackups(env, requestId, actor, orgId, segments, request);
   const notFound = () => errorResponse("not_found", "Not found", 404, requestId);
   const method = request.method;
   const [uuid, second, third] = segments;

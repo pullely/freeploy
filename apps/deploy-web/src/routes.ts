@@ -1,7 +1,7 @@
 // The URL structure is routes/web.php's, one to one (design §3.1). A route
 // whose page is not ported yet renders NotPorted, which the parity harness
 // reports as a failing (not missing) route once deploy-web is the target.
-export type PageKey = "login" | "register" | "forgot-password" | "reset-password" | "profile.appearance" | "profile" | "profile.passkeys.confirm" | "password.confirm" | "verify.email" | "two-factor.required" | "verify.verify" | "two-factor.login" | "security.private-key.index" | "security.private-key.show" | "security.cloud-tokens" | "security.cloud-tokens.show" | "security.cloud-init-scripts" | "security.cloud-init-scripts.show" | "server.index" | "server.create" | "server.create.manual" | "server.show" | "server.advanced" | "server.private-key" | "server.cloud-provider-token" | "server.ca-certificate" | "server.sentinel" | "server.swarm" | "server.docker-cleanup" | "server.log-drains" | "server.destinations" | "server.delete" | "server.registries" | "registries.index" | "project.index" | "project.show" | "project.edit" | "project.resource.index" | "project.environment.edit" | "project.resource.create" | "project.application.configuration" | "project.application.environment-variables" | "project.application.domains" | "project.application.advanced" | "project.application.healthcheck" | "project.application.resource-limits" | "project.application.persistent-storage" | "project.application.tags" | "project.application.resource-operations" | "project.application.danger" | "project.database.configuration" | DatabaseSharedPageKey | "project.application.source" | "project.application.servers" | "project.application.webhooks" | "project.application.scheduled-tasks" | "project.application.rollback" | "project.service.configuration" | "project.application.deployment.index" | "project.application.deployment.show" | "destination.index" | "destination.show" | "destination.danger" | "destination.resources" | "not-ported" | SharedVariablesPageKey;
+export type PageKey = "login" | "register" | "forgot-password" | "reset-password" | "profile.appearance" | "profile" | "profile.passkeys.confirm" | "password.confirm" | "verify.email" | "two-factor.required" | "verify.verify" | "two-factor.login" | "security.private-key.index" | "security.private-key.show" | "security.cloud-tokens" | "security.cloud-tokens.show" | "security.cloud-init-scripts" | "security.cloud-init-scripts.show" | "server.index" | "server.create" | "server.create.manual" | "server.show" | "server.advanced" | "server.private-key" | "server.cloud-provider-token" | "server.ca-certificate" | "server.sentinel" | "server.swarm" | "server.docker-cleanup" | "server.log-drains" | "server.destinations" | "server.delete" | "server.registries" | "registries.index" | "project.index" | "project.show" | "project.edit" | "project.resource.index" | "project.environment.edit" | "project.resource.create" | "project.application.configuration" | "project.application.environment-variables" | "project.application.domains" | "project.application.advanced" | "project.application.healthcheck" | "project.application.resource-limits" | "project.application.persistent-storage" | "project.application.tags" | "project.application.resource-operations" | "project.application.danger" | "project.database.configuration" | "project.application.source" | "project.application.servers" | "project.application.webhooks" | "project.application.scheduled-tasks" | "project.application.rollback" | "project.service.configuration" | "project.application.deployment.index" | "project.application.deployment.show" | "destination.index" | "destination.show" | "destination.danger" | "destination.resources" | "not-ported" | SharedVariablesPageKey | DatabaseSharedPageKey | StoragePageKey;
 
 /** A database's pages that are Coolify's shared components with the database as their resource (DP-64). */
 export type DatabaseSharedPageKey =
@@ -12,6 +12,9 @@ export type DatabaseSharedPageKey =
   | "project.database.resource-limits"
   | "project.database.webhooks"
   | "project.database.danger";
+
+/** Integrations → Storage and a database's backup schedules (DP-65). */
+export type StoragePageKey = "storage.index" | "storage.show" | "storage.resources" | "storage.danger" | "project.database.backup.index" | "project.database.backup.show";
 
 /** The shared-variables.* routes (their canvas routes are not ported). */
 export type SharedVariablesPageKey =
@@ -72,6 +75,9 @@ const ROUTES: Array<[RegExp, PageKey]> = [
   [/^\/project\/[^/]+\/environment\/[^/]+\/database\/[^/]+\/resource-limits\/?$/, "project.database.resource-limits"],
   [/^\/project\/[^/]+\/environment\/[^/]+\/database\/[^/]+\/webhooks\/?$/, "project.database.webhooks"],
   [/^\/project\/[^/]+\/environment\/[^/]+\/database\/[^/]+\/danger\/?$/, "project.database.danger"],
+  // Its backup schedules; a schedule's own links (…/backups/{backup_uuid}[/executions|danger|s3|retention]) redirect to them.
+  [/^\/project\/[^/]+\/environment\/[^/]+\/database\/[^/]+\/backups\/?$/, "project.database.backup.index"],
+  [/^\/project\/[^/]+\/environment\/[^/]+\/database\/[^/]+\/backups\/[^/]+(?:\/(?:executions|danger|s3|retention))?\/?$/, "project.database.backup.show"],
   // The deployment history and one deployment's logs.
   [/^\/project\/[^/]+\/environment\/[^/]+\/application\/[^/]+\/deployment\/?$/, "project.application.deployment.index"],
   [/^\/project\/[^/]+\/environment\/[^/]+\/application\/[^/]+\/deployment\/[^/]+\/?$/, "project.application.deployment.show"],
@@ -101,6 +107,11 @@ const ROUTES: Array<[RegExp, PageKey]> = [
   [/^\/server\/[^/]+\/registries\/?$/, "server.registries"],
   [/^\/server\/[^/]+\/danger\/?$/, "server.delete"],
   [/^\/registries\/?$/, "registries.index"],
+  // Integrations → Storage: New storage is a dialog of the list (no /storages/new page).
+  [/^\/storages\/?$/, "storage.index"],
+  [/^\/storages\/[^/]+\/?$/, "storage.show"],
+  [/^\/storages\/[^/]+\/resources\/?$/, "storage.resources"],
+  [/^\/storages\/[^/]+\/danger\/?$/, "storage.danger"],
   [/^\/destinations\/?$/, "destination.index"],
   [/^\/destination\/[^/]+\/?$/, "destination.show"],
   // destination.danger is the same component as destination.show (routeIs picks the section).
@@ -116,6 +127,13 @@ const ROUTES: Array<[RegExp, PageKey]> = [
   [/^\/shared-variables\/servers\/?$/, "shared-variables.server.index"],
   [/^\/shared-variables\/server\/[^/]+\/?$/, "shared-variables.server.show"],
 ];
+
+/** routes/web.php: …/backups/{backup_uuid}/{section?} redirects to the backups page with ?schedule={backup_uuid}. */
+export function backupScheduleRedirect(pathname: string): string {
+  const parts = pathname.replace(/\/+$/, "").split("/");
+  const at = parts.lastIndexOf("backups");
+  return `${parts.slice(0, at + 1).join("/")}?schedule=${encodeURIComponent(decodeURIComponent(parts[at + 1] ?? ""))}`;
+}
 
 export function pageFor(pathname: string): PageKey {
   for (const [re, key] of ROUTES) if (re.test(pathname)) return key;

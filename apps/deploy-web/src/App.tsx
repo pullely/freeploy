@@ -1,4 +1,4 @@
-import { pageFor } from "./routes";
+import { pageFor, backupScheduleRedirect } from "./routes";
 import { LoginPage } from "./pages/Login";
 import { RegisterPage } from "./pages/Register";
 import { ForgotPasswordPage } from "./pages/ForgotPassword";
@@ -69,6 +69,9 @@ const SharedVariablesPage = lazy(() => import("./pages/SharedVariables").then((m
 const DestinationsPage = lazy(() => import("./pages/Destinations").then((m) => ({ default: m.DestinationsPage })));
 const DestinationShowPage = lazy(() => import("./pages/DestinationShow").then((m) => ({ default: m.DestinationShowPage })));
 const DestinationResourcesPage = lazy(() => import("./pages/DestinationResources").then((m) => ({ default: m.DestinationResourcesPage })));
+const StoragesPage = lazy(() => import("./pages/Storages").then((m) => ({ default: m.StoragesPage })));
+const StorageShowPage = lazy(() => import("./pages/Storages").then((m) => ({ default: m.StorageShowPage })));
+const DatabaseBackupsPage = lazy(() => import("./pages/DatabaseBackups").then((m) => ({ default: m.DatabaseBackupsPage })));
 const ServerDeletePage = lazy(() => import("./pages/ServerDelete").then((m) => ({ default: m.ServerDeletePage })));
 
 /** routes/web.php: security.private-key.show is redirect()->route('security.private-key.index'). */
@@ -462,6 +465,28 @@ export function App() {
           <DestinationResourcesPage />
         </Suspense>
       );
+    case "storage.index":
+      return (
+        <Suspense fallback={null}>
+          <StoragesPage />
+        </Suspense>
+      );
+    case "storage.show":
+    case "storage.resources":
+    case "storage.danger":
+      return (
+        <Suspense fallback={null}>
+          <StorageShowPage tab={({ "storage.show": "general", "storage.resources": "resources", "storage.danger": "danger" } as const)[pageFor(window.location.pathname) as "storage.show"]} />
+        </Suspense>
+      );
+    case "project.database.backup.index":
+      return (
+        <Suspense fallback={null}>
+          <DatabaseBackupsPage />
+        </Suspense>
+      );
+    case "project.database.backup.show":
+      return <RedirectTo path={backupScheduleRedirect(window.location.pathname)} />;
     default:
       return <NotPortedPage />;
   }
