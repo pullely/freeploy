@@ -282,5 +282,14 @@ export const manifest: MigrationManifest = {
       description:
         "Tag names unique per org (freeploy-coolify-parity DP5) — drops the global tags_name_unique the schema fold kept and adds (org_id, name), as Coolify's two tag index migrations do per team",
     },
+    {
+      id: "630_deploy_database_public_port_timeout",
+      context: "deploy",
+      path: "630_deploy_database_public_port_timeout/up.sql",
+      checksum:
+        "f70fcb8093d08e60925f368b252885d975211cbb4dca242fe7334fa15282c75e",
+      description:
+        "Database proxy timeout (freeploy-coolify-parity DP7) — public_port_timeout on the eight standalone database tables and service_databases, Coolify's 2026_02_27 migration that the schema fold does not have",
+    },
   ],
 };

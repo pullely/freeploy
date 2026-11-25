@@ -89,28 +89,28 @@ export const DOCKER_BASED_APPLICATIONS: readonly ResourceType[] = [
 ];
 
 export const DATABASES: readonly ResourceType[] = [
-  { id: "postgresql", name: "PostgreSQL", description: "An extensible relational database with strong SQL support.", logo: "resources/postgres", creatable: false },
-  { id: "mysql", name: "MySQL", description: "A relational database for web and general-purpose applications.", logo: "resources/mysql", creatable: false },
-  { id: "mariadb", name: "MariaDB", description: "A relational database and drop-in replacement for MySQL.", logo: "resources/mariadb", creatable: false },
+  { id: "postgresql", name: "PostgreSQL", description: "An extensible relational database with strong SQL support.", logo: "resources/postgres", creatable: true },
+  { id: "mysql", name: "MySQL", description: "A relational database for web and general-purpose applications.", logo: "resources/mysql", creatable: true },
+  { id: "mariadb", name: "MariaDB", description: "A relational database and drop-in replacement for MySQL.", logo: "resources/mariadb", creatable: true },
   {
     id: "redis",
     name: "Redis / Valkey",
     description: "An in-memory key-value store for caching, queues, and sessions.",
     logo: "resources/redis-valkey",
     logoDark: "resources/redis-valkey-dark",
-    creatable: false,
+    creatable: true,
   },
-  { id: "keydb", name: "KeyDB", description: "A multithreaded, Redis-compatible in-memory store.", logo: "resources/keydb", logoDark: "resources/keydb-dark", creatable: false },
+  { id: "keydb", name: "KeyDB", description: "A multithreaded, Redis-compatible in-memory store.", logo: "resources/keydb", logoDark: "resources/keydb-dark", creatable: true },
   {
     id: "dragonfly",
     name: "Dragonfly",
     description: "An in-memory datastore compatible with Redis and Memcached.",
     logo: "resources/dragonfly",
     logoDark: "resources/dragonfly-dark",
-    creatable: false,
+    creatable: true,
   },
-  { id: "mongodb", name: "MongoDB", description: "A NoSQL database that stores JSON-like documents.", logo: "resources/mongodb", creatable: false },
-  { id: "clickhouse", name: "ClickHouse", description: "A column-oriented database for real-time analytics.", logo: "resources/clickhouse", creatable: false },
+  { id: "mongodb", name: "MongoDB", description: "A NoSQL database that stores JSON-like documents.", logo: "resources/mongodb", creatable: true },
+  { id: "clickhouse", name: "ClickHouse", description: "A column-oriented database for real-time analytics.", logo: "resources/clickhouse", creatable: true },
   {
     id: "sqlite",
     name: "SQLite",

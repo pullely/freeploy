@@ -9,8 +9,10 @@
 // own form shows. The Docker Image form is here; the Dockerfile and Public Git
 // Repository forms are in ResourceCreateBuilt.tsx; every other type stays in
 // the grid and ends on the not-ported notice. The one-click services (their
-// 390 templates), the category filter's values and the database image steps
-// are not ported; server_id is the server's uuid, not a numeric id.
+// 390 templates) and the category filter's values are not ported; server_id
+// is the server's uuid, not a numeric id. The database steps — the image of a
+// PostgreSQL or Redis / Valkey database, and the page that creates a database
+// — are ResourceCreateDatabase.tsx.
 import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { Layout, useSignedIn } from "../layout/Layout";
 import { getJson, postJson, summarize } from "../lib/api";
@@ -23,6 +25,7 @@ import { applicationPath, applicationsApi } from "./ApplicationChrome";
 import { BetaBadge } from "./ServerChrome";
 import { splitPastedImageName, type ImageForm } from "../lib/docker-image";
 import { DockerfileForm, PublicGitRepositoryForm } from "./ResourceCreateBuilt";
+import { CreatingDatabase, DATABASE_IMAGE_STEPS, DatabaseImageStep, isDatabaseType } from "./ResourceCreateDatabase";
 
 interface ResourceType {
   id: string;
@@ -481,13 +484,21 @@ function DestinationsStep({ server, onSelect }: { server: Server; onSelect: (des
  * setServer() do; the end is whatToDoNext()'s redirect to this page with the
  * type, the destination and the server in the query string.
  */
-function Select({ data, here, onReload }: { data: NewResourceData; here: string; onReload: () => void }) {
-  const [step, setStep] = useState<"type" | "servers" | "destinations">("type");
-  const [type, setTypeValue] = useState("");
-  const [server, setServerValue] = useState<Server | null>(null);
+function Select({ data, here, onReload, imageStep }: { data: NewResourceData; here: string; onReload: () => void; imageStep?: { type: string; server: Server; destination: Destination } }) {
+  // Select::mount(): a link with the type, the server and the destination of a database that asks for an image opens at that step.
+  const [step, setStep] = useState<"type" | "servers" | "destinations" | "image">(imageStep ? "image" : "type");
+  const [type, setTypeValue] = useState(imageStep?.type ?? "");
+  const [server, setServerValue] = useState<Server | null>(imageStep?.server ?? null);
+  const [destination, setDestinationValue] = useState<Destination | null>(imageStep?.destination ?? null);
 
-  function next(chosenType: string, chosenServer: Server, destination: Destination) {
-    window.location.assign(`${here}/new?${new URLSearchParams({ type: chosenType, destination: destination.uuid, server_id: chosenServer.uuid }).toString()}`);
+  const redirect = (chosenType: string, chosenServer: Server, chosen: Destination, image?: string) =>
+    window.location.assign(`${here}/new?${new URLSearchParams({ type: chosenType, destination: chosen.uuid, server_id: chosenServer.uuid, ...(image ? { database_image: image } : {}) }).toString()}`);
+  /** whatToDoNext(): the image step of a PostgreSQL or Redis / Valkey database, else the redirect. */
+  function next(chosenType: string, chosenServer: Server, chosen: Destination) {
+    if (!DATABASE_IMAGE_STEPS[chosenType]) return redirect(chosenType, chosenServer, chosen);
+    setServerValue(chosenServer);
+    setDestinationValue(chosen);
+    setStep("image");
   }
   function setServer(chosenType: string, chosen: Server) {
     setServerValue(chosen);
@@ -508,7 +519,9 @@ function Select({ data, here, onReload }: { data: NewResourceData; here: string;
     <div className="application-settings-form">
       {step === "type" ? <TypeStep data={data} canvasUrl={`/canvas?${new URLSearchParams({ project: data.project.uuid, environment: data.environment.uuid }).toString()}`} onSelect={setType} onReload={onReload} /> : null}
       {step === "servers" ? <ServersStep data={data} servers={serversFor(type)} onSelect={(chosen) => setServer(type, chosen)} /> : null}
-      {step === "destinations" && server ? <DestinationsStep server={server} onSelect={(destination) => next(type, server, destination)} /> : null}
+      {step === "destinations" && server ? <DestinationsStep server={server} onSelect={(chosen) => next(type, server, chosen)} /> : null}
+      {/* setDatabaseImage() */}
+      {step === "image" && server && destination ? <DatabaseImageStep type={type} onSelect={(image) => redirect(type, server, destination, image)} /> : null}
     </div>
   );
 }
@@ -606,7 +619,7 @@ function TypeNotPorted() {
         <div className="empty-state w-full">
           <div className="empty-state-well min-h-32">
             <h2 className="empty-state-title">This resource type is not available in Freeploy yet</h2>
-            <p className="empty-state-description text-[12px]">It is being ported. An application from a public Git repository, a Dockerfile or a Docker image can be created today.</p>
+            <p className="empty-state-description text-[12px]">It is being ported. An application from a public Git repository, a Dockerfile or a Docker image, and a database, can be created today.</p>
           </div>
         </div>
       </div>
@@ -654,7 +667,16 @@ function ResourceCreateContent() {
     if (type === "docker-image") content = <DockerImage orgId={me.team?.id} data={data} destination={destination} serverUuid={query.get("server_id")} />;
     else if (type === "dockerfile") content = <DockerfileForm {...target} />;
     else if (type === "public") content = <PublicGitRepositoryForm {...target} />;
-    else content = <TypeNotPorted />;
+    else if (isDatabaseType(type)) {
+      const databaseImage = query.get("database_image");
+      const server = data.servers.find((s) => s.destinations.some((d) => d.uuid === destination))!;
+      // Create::mount(): PostgreSQL and Redis need their image first; without one the page falls back to Select, at its image step.
+      if (DATABASE_IMAGE_STEPS[type] && !databaseImage) {
+        content = <Select data={data} here={here} onReload={() => setReload((n) => n + 1)} imageStep={{ type, server, destination: server.destinations.find((d) => d.uuid === destination)! }} />;
+      } else {
+        content = <CreatingDatabase {...target} type={type} databaseImage={databaseImage} back={`${here}/new`} />;
+      }
+    } else content = <TypeNotPorted />;
   } else {
     content = <Select data={data} here={here} onReload={() => setReload((n) => n + 1)} />;
   }

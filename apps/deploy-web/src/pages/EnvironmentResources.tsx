@@ -3,7 +3,7 @@
 // (Apache-2.0), modified.
 //
 // /project/{uuid}/environment/{env_uuid}: the environment's header and its
-// resources — applications for now — as a table or a grid, with search, sort
+// resources — applications and standalone databases — as a table or a grid, with search, sort
 // and paging; "No resources yet" when it has none. The filters (type, status,
 // server, tags), the tags column's values, the image scan markers and a
 // resource's favicon are not ported; "Shared variables" and the canvas lead
@@ -16,13 +16,16 @@ import { Empty } from "../components/Coolify";
 import { CanvasViewToggle, ClientPagination, ListSearch, SortDropdown, SortHeader, useListState, type ListState, type SortOption } from "../components/CoolifyList";
 import { environmentPath, environmentUuidFromPath, limit, ProjectBreadcrumb, projectPath, projectsApi, projectUuidFromPath, type EnvironmentShowData } from "./ProjectChrome";
 import { applicationPath } from "./ApplicationChrome";
+import { databasePath } from "./DatabaseChrome";
 
 /** Index::toSearchableArray(). */
 interface ResourceItem {
   uuid: string;
   name: string;
-  type: "application";
+  type: "application" | "database";
   typeLabel: string;
+  /** A database's type(), "standalone-postgresql": which logo it has. */
+  databaseType?: string;
   fqdn: string | null;
   description: string | null;
   status: string;
@@ -69,6 +72,19 @@ const SORT_OPTIONS: SortOption[] = [
 
 /** <x-resource-logo>: how the application is built, else the resource type icon. */
 function ResourceLogo({ item }: { item: ResourceItem }) {
+  if (item.type === "database") {
+    // resource_logo(): the engine's logo, with a dark variant for KeyDB and Dragonfly.
+    const engine = (item.databaseType ?? "").replace(/^standalone-/, "");
+    const logo = engine === "postgresql" ? "postgres" : engine;
+    if (!["postgres", "mysql", "mariadb", "mongodb", "redis", "keydb", "dragonfly", "clickhouse"].includes(logo)) return <Reicon name="database" className="size-4" />;
+    const dark = logo === "keydb" || logo === "dragonfly";
+    return (
+      <span className="flex size-full items-center justify-center" data-resource-logo-image="">
+        <img src={`/svgs/resources/${logo}.svg`} alt="" className={dark ? "size-full object-contain dark:hidden" : "size-full object-contain"} />
+        {dark ? <img src={`/svgs/resources/${logo}-dark.svg`} alt="" className="hidden size-full object-contain dark:block" /> : null}
+      </span>
+    );
+  }
   if (item.buildPack === "dockerimage") {
     return (
       <span className="flex size-full items-center justify-center" data-resource-logo-image="">
@@ -323,7 +339,7 @@ function EnvironmentResourcesContent() {
             ) : null}
           </Empty>
         ) : (
-          <ResourceList list={list} href={(item) => applicationPath(project.uuid, environment.uuid, item.uuid)} canvasUrl={`${here}/canvas`} />
+          <ResourceList list={list} href={(item) => (item.type === "database" ? databasePath : applicationPath)(project.uuid, environment.uuid, item.uuid)} canvasUrl={`${here}/canvas`} />
         )}
       </div>
     </div>

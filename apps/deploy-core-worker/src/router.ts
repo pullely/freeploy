@@ -1,5 +1,6 @@
 import type { Env } from "./env.js";
 import { ENVIRONMENT_RESOURCE_PAGES, handleApplications, handleEnvironmentResources } from "./handlers/applications.js";
+import { handleDatabases } from "./handlers/databases.js";
 import { handleDestinations } from "./handlers/destinations.js";
 import { handleHealth } from "./handlers/health.js";
 import { handleCloudTokens } from "./handlers/cloud-tokens.js";
@@ -34,6 +35,8 @@ function resolveActor(request: Request): ActorContext | null {
 export const ORG_DEPLOY_PROJECTS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/projects((?:\/[^/]+){0,4})\/?$/;
 /** Applications: the collection and up to four segments below it (an application, one of its actions or pages, a row of a page). */
 export const ORG_DEPLOY_APPLICATIONS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/applications((?:\/[^/]+){0,4})\/?$/;
+/** Standalone databases: the collection and up to three segments below it (a database, one of its actions, an action's part). */
+export const ORG_DEPLOY_DATABASES_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/databases((?:\/[^/]+){0,3})\/?$/;
 /** Keys & Tokens → Cloud Tokens: the collection, a token, and a token's validate action. */
 export const ORG_DEPLOY_CLOUD_TOKENS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/cloud-tokens((?:\/[^/]+){0,2})\/?$/;
 /** Keys & Tokens → Cloud-Init Scripts: the collection and a script. */
@@ -78,6 +81,16 @@ export async function route(request: Request, env: Env): Promise<Response> {
       if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
       const segments = (applications[2] ?? "").split("/").filter(Boolean);
       return handleApplications(env, requestId, actor, orgId, segments, request);
+    }
+
+    const databases = url.pathname.match(ORG_DEPLOY_DATABASES_RE);
+    if (databases) {
+      const orgId = parseOrgPublicId(databases[1]!);
+      if (!orgId) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
+      const segments = (databases[2] ?? "").split("/").filter(Boolean);
+      return handleDatabases(env, requestId, actor, orgId, segments, request);
     }
 
     const cloudTokens = url.pathname.match(ORG_DEPLOY_CLOUD_TOKENS_RE);

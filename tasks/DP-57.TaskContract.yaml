@@ -1,0 +1,23 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-57
+  title: "DP7: standalone databases — create and General for all eight engines (API and pages)"
+spec:
+  goal: An org opens New Resource in an environment, picks PostgreSQL, Redis / Valkey, MongoDB, MySQL, MariaDB, KeyDB, Dragonfly or ClickHouse with a server and a destination (and, for PostgreSQL and Redis, an image), and gets a database stored as Coolify's create_standalone_* helpers store it — the row with its generated name and 64-character passwords encrypted by the org's key, a Supabase image's user, the data volumes of the model's created hook, Redis's REDIS_PASSWORD and REDIS_USERNAME variables — without anything being started; it then reads and saves the database's General page (name, description, image, credentials, port mappings, public port and proxy timeout, custom Docker options, the engine's configuration, PostgreSQL's initialization scripts, the log drain switch, SSL and its mode) with Coolify's rules and Laravel's messages word for word, sees the internal and public connection URLs as Coolify's accessors build them (hidden from a member who may not update), and sees the database in the environment's resources; every query is confined to the org by row-level security. /project/{uuid}/environment/{env_uuid}/database/{db_uuid} is ported from the Blade views with the database's heading and configuration menu, and the New Resource page gains the database steps. What needs the SSH executor is reported, not faked, in Coolify's own order of row and command — Start, Restart and Stop, the public TCP proxy, renaming or deleting an initialization script, ClickHouse's "Keep current data" and deleting a database that was ever started answer 501 and store nothing; a database that was never started is deleted with everything that belongs to it. Starting a database and everything after it (status, certificates, the proxy), backups and S3 storages, SQLite, a database's other configuration pages (their menu entries lead to the not-ported notice), the stored configuration hash, the account password step of the confirmations and the audit trail are not part of this task.
+  affects:
+    - apps/deploy-core-worker/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - on stage, after migration 630, a signed-in org owner with a validated server opens New resource in an environment, chooses PostgreSQL, picks "PostgreSQL 18", lands on the database's configuration page with the status Exited, an internal URL that starts with postgres://postgres and a 64-character password, renames the database and sets the public port 15432, and both changes and the database's row on the environment page are there after a reload
+    - on stage POST /v1/organizations/{org}/deploy/databases answers 201 for each of the eight types (PostgreSQL and Redis with database_image), 422 "The database image field is required." for PostgreSQL without one, and POST …/databases/{uuid}/start answers 501 "Starting the database needs the SSH executor, which is not available yet."
+    - on stage PATCH …/databases/{uuid} with a password that contains a space answers 422 "The Postgres Password may not contain shell-unsafe characters (backtick, $, ;, |, &, <, >, \, quotes, spaces, or control characters).", with action "instantSave" and isPublic true answers 422 "Database must be started to be publicly accessible.", and with action "instantSaveSSL" stores the switch and the mode, which the internal URL then carries
+    - the environment and its project cannot be deleted, and the destination shows the database under Resources, while the database exists; DELETE …/databases/{uuid} removes a database that was never started and both guards are free again
+    - a member without deploy.resource.write gets 404 on every write, canUpdate false on the read, and reads no password, configuration, script or URL
+    - /project/{uuid}/environment/{env_uuid}/database/{db_uuid} and the database steps of /project/{uuid}/environment/{env_uuid}/new pass the stage DOM gate or each difference is listed with its cause
+  gates: []
