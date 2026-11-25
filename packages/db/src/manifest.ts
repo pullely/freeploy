@@ -291,5 +291,14 @@ export const manifest: MigrationManifest = {
       description:
         "Database proxy timeout (freeploy-coolify-parity DP7) — public_port_timeout on the eight standalone database tables and service_databases, Coolify's 2026_02_27 migration that the schema fold does not have",
     },
+    {
+      id: "660_deploy_schema_catch_up",
+      context: "deploy",
+      path: "660_deploy_schema_catch_up/up.sql",
+      checksum:
+        "fbffd7fd1e715f9d91eb51b13e93c7ae381636fa4c7988ebc1c20c7b098d75bb",
+      description:
+        "Schema catch-up (freeploy-coolify-parity DP-60) — every column, type, default, CHECK value, index and unique index (org-scoped) that Coolify's real schema has and the fold missed, found by comparing catalogs; drops environment_variables.is_build_time as Coolify did",
+    },
   ],
 };
