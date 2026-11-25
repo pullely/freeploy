@@ -2,16 +2,18 @@
 // app/Actions/Application/StopApplication.php and app/Http/Controllers/Api/ApplicationsController.php
 // (delete_by_uuid: the query fields) (Apache-2.0), modified.
 //
-// An application's Danger Zone: deleting it. Coolify soft-deletes the row and
+// A resource's Danger Zone: the page (shared by an application and a
+// standalone database, `:resource`), and deleting an application (a
+// database's delete is databases/service.ts's deleteDatabaseNow()).
+// Deleting an application: Coolify soft-deletes the row and
 // queues DeleteResourceJob, which stops and removes the containers, deletes
 // the configuration files, the volumes and the networks on the server, and
 // only then removes the rows. Here, an application nothing was ever deployed
 // of has nothing on any server: its rows are removed at once. Any other
 // application answers 501 until the SSH executor exists — removing only its
 // rows would leave its containers running with nothing managing them.
-import type { ApplicationShow } from "./service.js";
-import { SettingsError, serverIsFunctional } from "./settings.js";
-import { loadApplication, needsExecutor, type ApplicationResourcesContext, type LoadedApplication } from "./resources.js";
+import { SettingsError } from "./settings.js";
+import { applicationResource, loadApplication, needsExecutor, type ApplicationResourcesContext, type ResourceFrame, type ResourcesContext } from "./resources.js";
 
 export const DANGER_MESSAGES = {
   /** Freeploy's: the SSH executor is not deployed yet. */
@@ -36,26 +38,21 @@ export function deleteOptions(query: URLSearchParams): DeleteOptions {
   return options;
 }
 
-export interface DangerPage {
-  application: ApplicationShow;
+export type DangerPage = ResourceFrame & {
   /** Server::isFunctional(): when false the view warns that nothing on the server can be removed. */
   serverIsFunctional: boolean;
-  /** Nothing of the application exists on a server: the delete removes its rows at once. */
+  /**
+   * Nothing of the resource exists on a server, so the delete removes its rows
+   * at once: an application that never left 'exited', with no container known
+   * and no deployment queued; a database that was never started.
+   */
   neverDeployed: boolean;
-}
-
-/**
- * Whether nothing of the application can exist on a server: it never left
- * 'exited', no container of it is known, and no deployment was ever queued.
- */
-async function neverDeployed(ctx: ApplicationResourcesContext, l: LoadedApplication): Promise<boolean> {
-  return l.row.status.startsWith("exited") && l.application.containerPresent !== true && !(await ctx.store.hasDeployments(l.row.id));
-}
+};
 
 /** Danger::mount() */
-export async function showDanger(ctx: ApplicationResourcesContext, uuid: string, canUpdate: boolean): Promise<DangerPage | null> {
-  const l = await loadApplication(ctx, uuid, canUpdate);
-  return l ? { application: l.application, serverIsFunctional: serverIsFunctional(l.row), neverDeployed: await neverDeployed(ctx, l) } : null;
+export async function showDanger(ctx: ResourcesContext, uuid: string, canUpdate: boolean): Promise<DangerPage | null> {
+  const l = await ctx.load(uuid, canUpdate);
+  return l ? { ...l.frame, serverIsFunctional: l.serverIsFunctional, neverDeployed: await l.nothingOnServer() } : null;
 }
 
 export interface ApplicationDeleted {
@@ -76,7 +73,7 @@ export interface ApplicationDeleted {
 export async function deleteApplicationNow(ctx: ApplicationResourcesContext, uuid: string, options: DeleteOptions): Promise<ApplicationDeleted | null> {
   const l = await loadApplication(ctx, uuid, true);
   if (!l) return null;
-  if (!(await neverDeployed(ctx, l))) throw new SettingsError(DANGER_MESSAGES.deleteUnavailable, 501);
+  if (!(await applicationResource(ctx, l).nothingOnServer())) throw new SettingsError(DANGER_MESSAGES.deleteUnavailable, 501);
   await ctx.store.deleteApplication(l.row.id);
   return { deleted: true, projectUuid: l.application.project.uuid, environmentUuid: l.application.environment.uuid, options };
 }

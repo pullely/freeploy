@@ -32,6 +32,13 @@ const ApplicationStoragesPage = lazy(() => import("./pages/ApplicationStorages")
 const ApplicationTagsPage = lazy(() => import("./pages/ApplicationTags").then((m) => ({ default: m.ApplicationTagsPage })));
 const ApplicationResourceOperationsPage = lazy(() => import("./pages/ApplicationResourceOperations").then((m) => ({ default: m.ApplicationResourceOperationsPage })));
 const DatabaseGeneralPage = lazy(() => import("./pages/DatabaseGeneral").then((m) => ({ default: m.DatabaseGeneralPage })));
+const DatabaseEnvironmentVariablesPage = lazy(() => import("./pages/DatabaseSharedPages").then((m) => ({ default: m.DatabaseEnvironmentVariablesPage })));
+const DatabaseStoragesPage = lazy(() => import("./pages/DatabaseSharedPages").then((m) => ({ default: m.DatabaseStoragesPage })));
+const DatabaseTagsPage = lazy(() => import("./pages/DatabaseSharedPages").then((m) => ({ default: m.DatabaseTagsPage })));
+const DatabaseResourceOperationsPage = lazy(() => import("./pages/DatabaseSharedPages").then((m) => ({ default: m.DatabaseResourceOperationsPage })));
+const DatabaseResourceLimitsPage = lazy(() => import("./pages/DatabaseSharedPages").then((m) => ({ default: m.DatabaseResourceLimitsPage })));
+const DatabaseWebhooksPage = lazy(() => import("./pages/DatabaseSharedPages").then((m) => ({ default: m.DatabaseWebhooksPage })));
+const DatabaseDangerPage = lazy(() => import("./pages/DatabaseSharedPages").then((m) => ({ default: m.DatabaseDangerPage })));
 const ApplicationDangerPage = lazy(() => import("./pages/ApplicationDanger").then((m) => ({ default: m.ApplicationDangerPage })));
 const ApplicationSourcePage = lazy(() => import("./pages/ApplicationSource").then((m) => ({ default: m.ApplicationSourcePage })));
 const ApplicationServersPage = lazy(() => import("./pages/ApplicationServers").then((m) => ({ default: m.ApplicationServersPage })));
@@ -238,6 +245,48 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <DatabaseGeneralPage />
+        </Suspense>
+      );
+    case "project.database.environment-variables":
+      return (
+        <Suspense fallback={null}>
+          <DatabaseEnvironmentVariablesPage />
+        </Suspense>
+      );
+    case "project.database.persistent-storage":
+      return (
+        <Suspense fallback={null}>
+          <DatabaseStoragesPage />
+        </Suspense>
+      );
+    case "project.database.tags":
+      return (
+        <Suspense fallback={null}>
+          <DatabaseTagsPage />
+        </Suspense>
+      );
+    case "project.database.resource-operations":
+      return (
+        <Suspense fallback={null}>
+          <DatabaseResourceOperationsPage />
+        </Suspense>
+      );
+    case "project.database.resource-limits":
+      return (
+        <Suspense fallback={null}>
+          <DatabaseResourceLimitsPage />
+        </Suspense>
+      );
+    case "project.database.webhooks":
+      return (
+        <Suspense fallback={null}>
+          <DatabaseWebhooksPage />
+        </Suspense>
+      );
+    case "project.database.danger":
+      return (
+        <Suspense fallback={null}>
+          <DatabaseDangerPage />
         </Suspense>
       );
     case "project.application.deployment.index":

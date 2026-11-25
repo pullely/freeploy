@@ -126,15 +126,18 @@ test("an application's configuration routes map to General, Domains, Advanced, H
   assert.equal(pageFor("/project/abc123def456ghi789jkl012/environment/mno345pqr678stu901vwx234/service"), "not-ported");
 });
 
-test("a database's configuration route maps to General; every other entry of its menu is not ported", () => {
+test("a database's configuration route maps to General, its shared pages to theirs; every other entry of its menu is not ported", () => {
   const database = "/project/abc123def456ghi789jkl012/environment/mno345pqr678stu901vwx234/database/yza567bcd890efg123hij456";
   assert.equal(pageFor(database), "project.database.configuration");
   assert.equal(pageFor(`${database}/`), "project.database.configuration");
-  // routes/web.php's project.database.* routes, and the backups page.
-  for (const page of [
-    "environment-variables", "servers", "import-backup", "persistent-storage", "healthcheck", "webhooks", "resource-limits", "resource-operations",
-    "metrics", "vulnerabilities", "tags", "danger", "logs", "terminal", "files", "backups",
-  ]) {
+  // DP-64: the pages that are Coolify's shared components with the database as their resource.
+  for (const page of ["environment-variables", "persistent-storage", "tags", "resource-operations", "resource-limits", "webhooks", "danger"]) {
+    assert.equal(pageFor(`${database}/${page}`), `project.database.${page}`, page);
+    assert.equal(pageFor(`${database}/${page}/`), `project.database.${page}`, page);
+    assert.equal(pageFor(`${database}/${page}/more`), "not-ported", page);
+  }
+  // routes/web.php's other project.database.* routes, and the backups page.
+  for (const page of ["servers", "import-backup", "healthcheck", "metrics", "vulnerabilities", "logs", "terminal", "files", "backups"]) {
     assert.equal(pageFor(`${database}/${page}`), "not-ported", page);
   }
   // A database is not an application, whatever its uuid.

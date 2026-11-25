@@ -7,14 +7,18 @@
 // environment. Both only write rows; what a clone would then do on a server
 // (copy the volume data, write the file mounts) needs the SSH executor, and
 // the clone's page says so. "Migrate to another server" shows in Coolify's
-// development mode only and is not ported.
+// development mode only and is not ported. The same component is a
+// database's Resource Operations page (kind "database"): after a clone or a
+// move it opens the database's page.
 import { useEffect, useState } from "react";
 import { Layout } from "../layout/Layout";
 import { flashNotice, takeNotice } from "../lib/flash";
 import { toast } from "../lib/toast";
 import { Button, Callout, Checkbox, DangerCallout, Empty, Listbox, ModalConfirmation, SettingsSection, type ListboxOption } from "../components/Coolify";
-import { applicationPath, applicationsApi, ApplicationWorkspace } from "./ApplicationChrome";
-import { useApplicationSection, type ApplicationSectionData } from "./ApplicationSection";
+import { applicationPath } from "./ApplicationChrome";
+import { databasePath } from "./DatabaseChrome";
+import { resourceApi, resourceFrame, useResourceSection, type ResourceKind, type ResourceSectionData } from "./ApplicationSection";
+import { ResourceWorkspace } from "./ResourceWorkspace";
 import { sendJson, showError } from "./ApplicationResource";
 
 interface Project {
@@ -31,24 +35,27 @@ interface Server {
   destinations: Array<{ uuid: string; name: string }>;
 }
 
-interface Data extends ApplicationSectionData {
+type Data = ResourceSectionData & {
   projects: Project[];
   servers: Server[];
   buildServers: Array<{ uuid: string; name: string }>;
-}
+};
 
+/** cloneTo() and moveTo(): where the resource now is (applicationUuid or databaseUuid). */
 interface Result {
   projectUuid: string;
   environmentUuid: string;
-  applicationUuid: string;
+  applicationUuid?: string;
+  databaseUuid?: string;
   unavailable?: string;
 }
 
 const FOOTER = "mt-4 flex flex-col gap-3 border-t border-neutral-200 pt-4 sm:flex-row sm:items-center sm:justify-between dark:border-white/[0.07]";
 const NOTE = "text-[13px] text-neutral-500 dark:text-fg-dim";
 
-function ApplicationResourceOperationsContent() {
-  const { me, data } = useApplicationSection<Data>("resource-operations");
+/** <livewire:project.shared.resource-operations :resource>: an application's or a database's clone and move. */
+export function ResourceOperationsContent({ kind }: { kind: ResourceKind }) {
+  const { me, data } = useResourceSection<Data>(kind, "resource-operations");
   const [cloneServer, setCloneServer] = useState<string | null>(null);
   const [cloneDestination, setCloneDestination] = useState<string | null>(null);
   const [cloneProject, setCloneProject] = useState<string | null>(null);
@@ -57,11 +64,12 @@ function ApplicationResourceOperationsContent() {
   const [moveEnvironment, setMoveEnvironment] = useState<string | null>(null);
   const [cloneVolumeData, setCloneVolumeData] = useState(false);
   const [busy, setBusy] = useState(false);
-  const loaded = data?.application.uuid;
-  const currentServer = data?.application.server?.uuid ?? null;
-  const currentDestination = data?.application.destination?.uuid ?? null;
-  const currentProject = data?.application.project.uuid ?? null;
-  const currentEnvironment = data?.application.environment.uuid ?? null;
+  const resource = data ? resourceFrame(data) : null;
+  const loaded = resource?.uuid;
+  const currentServer = resource?.server?.uuid ?? null;
+  const currentDestination = resource?.destination?.uuid ?? null;
+  const currentProject = resource?.project.uuid ?? null;
+  const currentEnvironment = resource?.environment.uuid ?? null;
   // x-init: the current server, destination, project and environment are selected for the clone.
   useEffect(() => {
     if (!loaded) return;
@@ -75,9 +83,9 @@ function ApplicationResourceOperationsContent() {
     const notice = takeNotice();
     if (notice) toast(notice, { type: "warning" });
   }, []);
-  if (!data) return null;
-  const { application, canUpdate } = data;
-  const base = `${applicationsApi(me.team?.id)}/${encodeURIComponent(application.uuid)}/resource-operations`;
+  if (!data || !resource) return null;
+  const { canUpdate } = data;
+  const base = `${resourceApi(kind, me.team?.id, resource.uuid)}/resource-operations`;
   const current = { server: currentServer, destination: currentDestination, project: currentProject, environment: currentEnvironment };
   const mark = (isCurrent: boolean) => (isCurrent ? " (current)" : "");
 
@@ -101,13 +109,14 @@ function ApplicationResourceOperationsContent() {
       return showError(r.error);
     }
     if (r.data.unavailable) flashNotice(r.data.unavailable);
-    window.location.assign(`${applicationPath(r.data.projectUuid, r.data.environmentUuid, r.data.applicationUuid)}/resource-operations`);
+    const page = kind === "application" ? applicationPath(r.data.projectUuid, r.data.environmentUuid, r.data.applicationUuid ?? "") : databasePath(r.data.projectUuid, r.data.environmentUuid, r.data.databaseUuid ?? "");
+    window.location.assign(`${page}/resource-operations`);
   }
   const clone = () => run("clone", { destination_uuid: cloneDestination, environment_uuid: cloneEnvironment, cloneVolumeData });
   const cloneDisabled = busy || !cloneDestination || !cloneEnvironment;
 
   return (
-    <ApplicationWorkspace application={application} orgId={me.team?.id} active="Resource Operations" canUpdate={canUpdate} canDeploy={data.canDeploy}>
+    <ResourceWorkspace data={data} orgId={me.team?.id} active="Resource Operations">
       <div className="flex flex-col gap-6">
         {canUpdate ? (
           <>
@@ -243,14 +252,14 @@ function ApplicationResourceOperationsContent() {
           </DangerCallout>
         )}
       </div>
-    </ApplicationWorkspace>
+    </ResourceWorkspace>
   );
 }
 
 export function ApplicationResourceOperationsPage() {
   return (
     <Layout title="Projects" href="/projects" navHref="/projects" documentTitle="Configuration">
-      <ApplicationResourceOperationsContent />
+      <ResourceOperationsContent kind="application" />
     </Layout>
   );
 }

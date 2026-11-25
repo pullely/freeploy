@@ -1,14 +1,14 @@
 // Derived from coollabsio/coolify@91b7e3e:app/Livewire/Project/Shared/Tags.php, app/Models/Tag.php and
 // app/Traits/HasSafeStringAttribute.php (Apache-2.0), modified.
 //
-// A resource's Tags page, for an application: the org's tags are reusable
-// labels, attached to and removed from the application. Rows only.
+// A resource's Tags page — an application's or a standalone database's (the
+// same Tags component): the org's tags are reusable labels, attached to and
+// removed from the resource. Rows only.
 import { DEPLOY_UNIQUE_INDEXES, refusingDuplicates, type DeployTagRow } from "@saas/db/deploy";
 import { blank, length, type FieldErrors } from "../private-keys/validation.js";
 import { newPublicId } from "../helpers/names.js";
-import type { ApplicationShow } from "./service.js";
 import { SettingsError, SettingsFieldErrors } from "./settings.js";
-import { loadApplication, text, type ApplicationResourcesContext, type LoadedApplication } from "./resources.js";
+import { text, type LoadedResource, type ResourceFrame, type ResourcesContext } from "./resources.js";
 import { phpTrim } from "./storage-paths.js";
 
 type Body = Record<string, unknown>;
@@ -32,20 +32,19 @@ export interface TagItem {
   name: string;
 }
 
-export interface TagsPage {
-  application: ApplicationShow;
+export type TagsPage = ResourceFrame & {
   /** $resource->tags */
   tags: TagItem[];
-  /** $filteredTags: the org's tags the application does not have (empty for who may not update). */
+  /** $filteredTags: the org's tags the resource does not have (empty for who may not update). */
   availableTags: TagItem[];
-}
+};
 
-export interface TagsSaved extends TagsPage {
+export type TagsSaved = TagsPage & {
   /** The success toast (null when Coolify shows none). */
   message: string | null;
   /** submit(): one error toast per name that was not added; the other names are. */
   errors: Array<{ title: string; description: string }>;
-}
+};
 
 const item = (t: DeployTagRow): TagItem => ({ id: String(t.id), name: t.name });
 
@@ -59,16 +58,16 @@ export function tagName(value: string): string {
   return stripTags(value).replace(/[A-Z]/g, (c) => c.toLowerCase());
 }
 
-async function page(ctx: ApplicationResourcesContext, l: LoadedApplication, canUpdate: boolean): Promise<TagsPage> {
-  const attached = await ctx.store.applicationTags(l.row.id);
+async function page(ctx: ResourcesContext, l: LoadedResource, canUpdate: boolean): Promise<TagsPage> {
+  const attached = await ctx.rows.resourceTags(l.id);
   const ids = new Set(attached.map((t) => String(t.id)));
-  const available = canUpdate ? (await ctx.store.tags()).filter((t) => !ids.has(String(t.id))) : [];
-  return { application: l.application, tags: attached.map(item), availableTags: available.map(item) };
+  const available = canUpdate ? (await ctx.rows.tags()).filter((t) => !ids.has(String(t.id))) : [];
+  return { ...l.frame, tags: attached.map(item), availableTags: available.map(item) };
 }
 
 /** Tags::mount() / loadTags() */
-export async function showTags(ctx: ApplicationResourcesContext, uuid: string, canUpdate: boolean): Promise<TagsPage | null> {
-  const l = await loadApplication(ctx, uuid, canUpdate);
+export async function showTags(ctx: ResourcesContext, uuid: string, canUpdate: boolean): Promise<TagsPage | null> {
+  const l = await ctx.load(uuid, canUpdate);
   return l ? page(ctx, l, canUpdate) : null;
 }
 
@@ -81,8 +80,8 @@ export async function showTags(ctx: ApplicationResourcesContext, uuid: string, c
  * what was typed, so "Prod" misses the stored "prod" and the insert then
  * fails on the unique index; here "Prod" is "prod".
  */
-export async function addTags(ctx: ApplicationResourcesContext, uuid: string, body: Body): Promise<TagsSaved | null> {
-  const l = await loadApplication(ctx, uuid, true);
+export async function addTags(ctx: ResourcesContext, uuid: string, body: Body): Promise<TagsSaved | null> {
+  const l = await ctx.load(uuid, true);
   if (!l) return null;
   const raw = text(body.newTags);
   const fields: FieldErrors = {};
@@ -100,39 +99,39 @@ export async function addTags(ctx: ApplicationResourcesContext, uuid: string, bo
       continue;
     }
     const name = tagName(stripped);
-    const found = await ctx.store.findTagByName(name);
-    if (found && (await ctx.store.hasTag(l.row.id, found.id))) {
+    const found = await ctx.rows.findTagByName(name);
+    if (found && (await ctx.rows.hasTag(l.id, found.id))) {
       errors.push({ title: TAG_MESSAGES.duplicateTags, description: TAG_MESSAGES.duplicateTagsDescription(stripped) });
       continue;
     }
-    const tag = found ?? (await ctx.store.insertTag({ uuid: newPublicId(), name }));
-    await attachOnce(ctx, l.row.id, tag.id, stripped);
+    const tag = found ?? (await ctx.rows.insertTag({ uuid: newPublicId(), name }));
+    await attachOnce(ctx, l.id, tag.id, stripped);
   }
   return { ...(await page(ctx, l, true)), message: null, errors };
 }
 
 /** taggable_unique (tag_id, taggable_id, taggable_type): a tag another request attached since this one asked. */
-const attachOnce = (ctx: ApplicationResourcesContext, applicationId: string | number, tagId: string | number, typed: string): Promise<void> =>
+const attachOnce = (ctx: ResourcesContext, resourceId: string | number, tagId: string | number, typed: string): Promise<void> =>
   refusingDuplicates(
     [DEPLOY_UNIQUE_INDEXES.taggable],
-    () => ctx.store.attachTag(applicationId, tagId),
+    () => ctx.rows.attachTag(resourceId, tagId),
     () => new SettingsError(TAG_MESSAGES.duplicateTags, 422, { description: TAG_MESSAGES.duplicateTagsDescription(typed) }),
   );
 
-/** Tags::addTag(): one of the org's tags, by id. Null when the application or the tag is not the org's. */
-export async function addTag(ctx: ApplicationResourcesContext, uuid: string, id: string): Promise<TagsSaved | null> {
-  const l = await loadApplication(ctx, uuid, true);
-  const tag = l ? await ctx.store.findTagById(id) : null;
+/** Tags::addTag(): one of the org's tags, by id. Null when the resource or the tag is not the org's. */
+export async function addTag(ctx: ResourcesContext, uuid: string, id: string): Promise<TagsSaved | null> {
+  const l = await ctx.load(uuid, true);
+  const tag = l ? await ctx.rows.findTagById(id) : null;
   if (!l || !tag) return null;
-  if (await ctx.store.hasTag(l.row.id, tag.id)) throw new SettingsError(TAG_MESSAGES.duplicateTags, 422, { description: TAG_MESSAGES.duplicateTagsDescription(tag.name) });
-  await attachOnce(ctx, l.row.id, tag.id, tag.name);
+  if (await ctx.rows.hasTag(l.id, tag.id)) throw new SettingsError(TAG_MESSAGES.duplicateTags, 422, { description: TAG_MESSAGES.duplicateTagsDescription(tag.name) });
+  await attachOnce(ctx, l.id, tag.id, tag.name);
   return { ...(await page(ctx, l, true)), message: TAG_MESSAGES.tagAdded, errors: [] };
 }
 
 /** Tags::deleteTag(): the tag is detached; it stays, also without resources. */
-export async function removeTag(ctx: ApplicationResourcesContext, uuid: string, id: string): Promise<TagsSaved | null> {
-  const l = await loadApplication(ctx, uuid, true);
+export async function removeTag(ctx: ResourcesContext, uuid: string, id: string): Promise<TagsSaved | null> {
+  const l = await ctx.load(uuid, true);
   if (!l) return null;
-  await ctx.store.detachTag(l.row.id, id);
+  await ctx.rows.detachTag(l.id, id);
   return { ...(await page(ctx, l, true)), message: TAG_MESSAGES.tagRemoved, errors: [] };
 }

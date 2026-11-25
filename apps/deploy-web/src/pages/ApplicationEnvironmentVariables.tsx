@@ -8,7 +8,11 @@
 // (project.application.environment-variables): the Environment Variables page
 // inside the application's configuration frame — the switches, the table of
 // production and preview variables with its search, filters, sort and paging,
-// the add and edit dialogs, and the developer view.
+// the add and edit dialogs, and the developer view. The same component is a
+// database's Environment Variables page (EnvironmentVariablesContent with kind
+// "database"): no preview variables, no order or build secrets switches (an
+// application's only), and Redis's REDIS_PASSWORD and REDIS_USERNAME shown as
+// its credentials (a fixed name, a required value, no flags).
 // Not here: the variables a Compose file hard-codes and "Used by Compose"
 // (no Compose application can be created yet), the secret manager links, and
 // the loading skeleton.
@@ -37,7 +41,8 @@ import {
   type VariableFilter,
 } from "../lib/environment-variables";
 import { environmentPath, environmentUuidFromPath, limit, projectUuidFromPath } from "./ProjectChrome";
-import { applicationsApi, applicationUuidFromPath, ApplicationWorkspace, type ApplicationShowData } from "./ApplicationChrome";
+import { resourceApi, resourceFrame, resourceUuidFromPath, type ResourceKind, type ResourceSectionData } from "./ApplicationSection";
+import { ResourceWorkspace } from "./ResourceWorkspace";
 
 interface Settings {
   isEnvSortingEnabled: boolean;
@@ -74,6 +79,8 @@ interface DevView {
 /** What the dialogs need of the page. */
 interface Context {
   api: string;
+  /** All's resource type: 'application', or a database's type() ('standalone-redis', …). */
+  resourceType: string;
   canManage: boolean;
   canViewValues: boolean;
   availableVars: AvailableSharedVariables;
@@ -92,6 +99,12 @@ const LITERAL_HELPER =
 const BUILD_TIME_HELPER = "Make this variable available during the Docker build process. Useful for build secrets and dependencies.";
 const RUNTIME_HELPER = "Make this variable available in the running container at runtime.";
 const COMMENT_HELPER = "Add a note to document what this environment variable is used for.";
+
+/** Show::mount(): Redis's two credentials, which General manages ($is_redis_credential). */
+const isRedisCredential = (ctx: Context, row: EnvironmentVariableRow): boolean => ctx.resourceType === "standalone-redis" && (row.key === "REDIS_PASSWORD" || row.key === "REDIS_USERNAME");
+
+/** <x-highlighted text="*" />: a required field's mark. */
+const RequiredMark = ({ on }: { on: boolean }) => (on ? <span className="text-helper">*</span> : null);
 
 /** The first message of each field, as the form shows them under the fields. */
 function inlineErrors(fields: Record<string, string[]> | undefined): Record<string, string> {
@@ -299,6 +312,7 @@ function EditDialog({ ctx, row, onClose }: { ctx: Context; row: EnvironmentVaria
   }, [api]);
 
   const canUpdate = ctx.canManage;
+  const credential = isRedisCredential(ctx, row);
   const isLocked = row.isShownOnce;
   const isDisabled = row.isMagic;
   const isValueHidden = !ctx.canViewValues;
@@ -373,7 +387,10 @@ function EditDialog({ ctx, row, onClose }: { ctx: Context; row: EnvironmentVaria
   } else if (form.isMultiline) {
     valueField = (
       <div className="w-full">
-        <label className="mb-1 flex items-center gap-1 text-sm font-medium">Value</label>
+        <label className="mb-1 flex items-center gap-1 text-sm font-medium">
+          Value
+          <RequiredMark on={credential} />
+        </label>
         {valuesLoaded ? (
           <FormTextarea id="value" monospace={false} disabled={!canEditValue} value={form.value} onChange={(value) => setForm({ ...form, value })} error={errors.value} />
         ) : (
@@ -386,7 +403,10 @@ function EditDialog({ ctx, row, onClose }: { ctx: Context; row: EnvironmentVaria
   } else {
     valueField = (
       <div className="w-full">
-        <label className="mb-1 flex items-center gap-1 text-sm font-medium">Value</label>
+        <label className="mb-1 flex items-center gap-1 text-sm font-medium">
+          Value
+          <RequiredMark on={credential} />
+        </label>
         <div className="relative">
           {valuesLoaded ? (
             <EnvVarInput id="value" type="password" disabled={!canEditValue} value={form.value} onChange={(value) => setForm({ ...form, value })} error={errors.value} availableVars={ctx.availableVars} scopeUrls={ctx.scopeUrls} />
@@ -403,7 +423,7 @@ function EditDialog({ ctx, row, onClose }: { ctx: Context; row: EnvironmentVaria
   return (
     <form onSubmit={(e) => void submit(e)} className="flex w-full flex-col gap-4">
       <div className="grid items-end gap-4 sm:grid-cols-2">
-        <FormInput id="key" label="Name" disabled={!canEditValue} value={form.key} onChange={(key) => setForm({ ...form, key })} error={errors.key} />
+        <FormInput id="key" label="Name" required={credential} disabled={!canEditValue || credential} value={form.key} onChange={(key) => setForm({ ...form, key })} error={errors.key} />
         <FormInput id="comment" label="Comment" placeholder="Optional note" helper={COMMENT_HELPER} disabled={!canUpdate} value={form.comment} onChange={(comment) => setForm({ ...form, comment: comment.slice(0, 256) })} error={errors.comment} />
       </div>
 
@@ -414,7 +434,8 @@ function EditDialog({ ctx, row, onClose }: { ctx: Context; row: EnvironmentVaria
 
       {values?.isShared ? <FormInput disabled type="password" id="real_value" label="Resolved value" value={values.realValue ?? ""} /> : null}
 
-      {row.isMagic ? null : (
+      {/* $showValueType, $showInterpolation, $showBuildtime and $showRuntime: none for a magic variable or a Redis credential. */}
+      {row.isMagic || credential ? null : (
         <FlagFields multiline={form.isMultiline} literal={form.isLiteral} buildtime={form.isBuildtime} runtime={form.isRuntime} disabled={!canUpdate} errors={errors} onChange={(flag, value) => setForm({ ...form, [flag]: value })} />
       )}
 
@@ -470,6 +491,7 @@ function EditDialog({ ctx, row, onClose }: { ctx: Context; row: EnvironmentVaria
 /** show.blade.php: a row of the table with its copy button and its edit dialog. */
 function VariableRow({ ctx, row }: { ctx: Context; row: EnvironmentVariableRow }) {
   const [open, setOpen] = useState(false);
+  const credential = isRedisCredential(ctx, row);
   return (
     <div className="env-table-item" data-env-key={row.key}>
       <div className="data-table-row env-table-grid env-table-grid-no-type">
@@ -492,8 +514,8 @@ function VariableRow({ ctx, row }: { ctx: Context; row: EnvironmentVariableRow }
         <Flag on={row.isMagic} className="env-managed-desktop" />
         <Flag on={row.isLiteral} />
         <Flag on={row.isMultiline} />
-        <Flag on={row.isBuildtime} />
-        <Flag on={row.isRuntime} />
+        <Flag on={row.isBuildtime && !credential} />
+        <Flag on={row.isRuntime && !credential} />
         <div className="flex items-center justify-end gap-0.5 justify-self-end">
           {!row.isShownOnce && ctx.canViewValues ? <CopyValueButton api={`${ctx.api}/${encodeURIComponent(row.uuid)}`} /> : null}
           <ModalInput
@@ -595,14 +617,15 @@ function DeveloperView({ api, canManage, onSaved }: { api: string; canManage: bo
   );
 }
 
-function EnvironmentVariablesContent() {
+/** <livewire:project.shared.environment-variable.all :resource>: an application's or a database's variables. */
+export function EnvironmentVariablesContent({ kind }: { kind: ResourceKind }) {
   const { me } = useSignedIn();
   const projectUuid = projectUuidFromPath();
   const environmentUuid = environmentUuidFromPath();
-  const uuid = applicationUuidFromPath();
-  const applicationApi = `${applicationsApi(me.team?.id)}/${encodeURIComponent(uuid)}`;
-  const api = `${applicationApi}/environment-variables`;
-  const [app, setApp] = useState<ApplicationShowData | null>(null);
+  const uuid = resourceUuidFromPath(kind);
+  const resourceBase = resourceApi(kind, me.team?.id, uuid);
+  const api = `${resourceBase}/environment-variables`;
+  const [app, setApp] = useState<ResourceSectionData | null>(null);
   const [data, setData] = useState<PageData | null>(null);
   const [view, setView] = useState<"normal" | "dev">("normal");
   const [adding, setAdding] = useState(false);
@@ -620,25 +643,26 @@ function EnvironmentVariablesContent() {
 
   useEffect(() => {
     void (async () => {
-      const r = await getJson<ApplicationShowData>(applicationApi);
-      // Configuration::mount(): the application through its project and environment, or a 404.
+      const r = await getJson<ResourceSectionData>(resourceBase);
+      // Configuration::mount(): the resource through its project and environment, or a 404.
       if (!r.data) {
         if (r.status === 404) window.location.replace(environmentPath(projectUuid, environmentUuid));
         return;
       }
-      if (r.data.application.project.uuid !== projectUuid || r.data.application.environment.uuid !== environmentUuid) return window.location.replace("/projects");
+      const frame = resourceFrame(r.data);
+      if (frame.project.uuid !== projectUuid || frame.environment.uuid !== environmentUuid) return window.location.replace("/projects");
       setApp(r.data);
       await reload();
     })();
-  }, [applicationApi, projectUuid, environmentUuid, reload]);
+  }, [resourceBase, projectUuid, environmentUuid, reload]);
   useEffect(() => {
-    if (app) document.title = `${limit(app.application.name, 10)} > Configuration | Freeploy`;
+    if (app) document.title = `${limit(resourceFrame(app).name, 10)} > Configuration | Freeploy`;
   }, [app]);
 
   const visible = useMemo(() => visibleVariables(data?.variables ?? [], { search, filters, environment, sort }), [data, search, filters, environment, sort]);
 
   if (!app) return null;
-  const { application } = app;
+  const resource = resourceFrame(app);
   const canManage = data?.canManage ?? false;
 
   /** All::instantSave(), saveCoolifyDefaultVariables() and saveLogRedactionSetting(). */
@@ -652,6 +676,7 @@ function EnvironmentVariablesContent() {
 
   const ctx: Context = {
     api,
+    resourceType: data?.resource.type ?? kind,
     canManage,
     canViewValues: data?.canViewValues ?? false,
     availableVars: data?.availableSharedVariables ?? { team: [], project: [], environment: [], server: [] },
@@ -659,7 +684,7 @@ function EnvironmentVariablesContent() {
       team: "/shared-variables/team",
       project: "/shared-variables/projects",
       environment: `/shared-variables/environments/project/${projectUuid}/environment/${environmentUuid}`,
-      server: application.server ? `/shared-variables/server/${application.server.uuid}` : "/shared-variables/servers",
+      server: resource.server ? `/shared-variables/server/${resource.server.uuid}` : "/shared-variables/servers",
       default: "/shared-variables",
     },
     reload,
@@ -720,7 +745,7 @@ function EnvironmentVariablesContent() {
   }
 
   return (
-    <ApplicationWorkspace application={application} orgId={me.team?.id} active="Environment Variables" canUpdate={app.canUpdate} canDeploy={app.canDeploy}>
+    <ResourceWorkspace data={app} orgId={me.team?.id} active="Environment Variables">
       <div className="flex flex-col gap-4">
         <SettingsSection
           id="environment-variables-section"
@@ -732,28 +757,31 @@ function EnvironmentVariablesContent() {
             <DeveloperView api={api} canManage={canManage} onSaved={reload} />
           ) : settings ? (
             <div className="flex w-full flex-col gap-4">
-              <div className="grid w-full items-end gap-4 sm:grid-cols-2">
-                {data.resource.buildPack !== "dockercompose" ? (
+              {/* @if ($resourceClass === 'App\Models\Application'): the order and build secrets switches. */}
+              {data.resource.type === "application" ? (
+                <div className="grid w-full items-end gap-4 sm:grid-cols-2">
+                  {data.resource.buildPack !== "dockercompose" ? (
+                    <Listbox
+                      id="is_env_sorting_enabled"
+                      label="Environment variable order"
+                      helper="Controls how environment variables are ordered in the list and written to the generated .env file on deploy."
+                      options={BOOLEAN("Creation order", "Alphabetical")}
+                      value={String(settings.isEnvSortingEnabled)}
+                      onChange={(v) => void saveSetting("is_env_sorting_enabled", v === "true")}
+                      disabled={!canManage}
+                    />
+                  ) : null}
                   <Listbox
-                    id="is_env_sorting_enabled"
-                    label="Environment variable order"
-                    helper="Controls how environment variables are ordered in the list and written to the generated .env file on deploy."
-                    options={BOOLEAN("Creation order", "Alphabetical")}
-                    value={String(settings.isEnvSortingEnabled)}
-                    onChange={(v) => void saveSetting("is_env_sorting_enabled", v === "true")}
+                    id="use_build_secrets"
+                    label="Build secrets"
+                    helper="Docker BuildKit secrets keep values out of the final image for enhanced security during builds. Requires Docker 18.09+ with BuildKit support."
+                    options={BOOLEAN("Standard build arguments", "Docker BuildKit secrets")}
+                    value={String(settings.useBuildSecrets)}
+                    onChange={(v) => void saveSetting("use_build_secrets", v === "true")}
                     disabled={!canManage}
                   />
-                ) : null}
-                <Listbox
-                  id="use_build_secrets"
-                  label="Build secrets"
-                  helper="Docker BuildKit secrets keep values out of the final image for enhanced security during builds. Requires Docker 18.09+ with BuildKit support."
-                  options={BOOLEAN("Standard build arguments", "Docker BuildKit secrets")}
-                  value={String(settings.useBuildSecrets)}
-                  onChange={(v) => void saveSetting("use_build_secrets", v === "true")}
-                  disabled={!canManage}
-                />
-              </div>
+                </div>
+              ) : null}
               <Checkbox
                 id="include_coolify_default_variables"
                 label="Include Freeploy default variables"
@@ -944,14 +972,14 @@ function EnvironmentVariablesContent() {
           </div>
         )}
       </div>
-    </ApplicationWorkspace>
+    </ResourceWorkspace>
   );
 }
 
 export function ApplicationEnvironmentVariablesPage() {
   return (
     <Layout title="Projects" href="/projects" navHref="/projects" documentTitle="Configuration">
-      <EnvironmentVariablesContent />
+      <EnvironmentVariablesContent kind="application" />
     </Layout>
   );
 }

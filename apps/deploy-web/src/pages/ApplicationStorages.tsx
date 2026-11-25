@@ -10,14 +10,16 @@
 // next deployment. What Coolify does on the server for a file or a directory
 // needs the SSH executor: the API says what did not run, and the toast shows
 // it. Volume and directory backups are not ported, so the Backup column only
-// shows a schedule that exists.
+// shows a schedule that exists. The same component is a database's Persistent
+// Storage page (StoragesContent with kind "database"): its directory is the
+// database's, with no preview suffix controls.
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { Layout } from "../layout/Layout";
 import { Reicon } from "../components/Reicon";
 import { Callout, Empty, FormInput, FormTextarea, Helper, Listbox, ModalConfirmation, ModalInput, SettingsSection, UnsavedBar, type ConfirmationCheckbox } from "../components/Coolify";
 import { TableDropdown } from "../components/CoolifyList";
-import { applicationsApi, ApplicationWorkspace } from "./ApplicationChrome";
-import { useApplicationSection, yesNo, type ApplicationSectionData, type PatchResult } from "./ApplicationSection";
+import { resourceApi, resourceFrame, useResourceSection, yesNo, type PatchResult, type ResourceKind, type ResourceSectionData } from "./ApplicationSection";
+import { ResourceWorkspace } from "./ResourceWorkspace";
 import { sendJson, showError, showSaved } from "./ApplicationResource";
 
 interface Volume {
@@ -57,7 +59,7 @@ interface Storages {
   directories: Mount[];
 }
 
-type Data = ApplicationSectionData & Storages;
+type Data = ResourceSectionData & Storages;
 type Saved = Storages & { message: string | null; unavailable?: string };
 type Send = (method: "POST" | "PATCH" | "DELETE", path: string, body?: Record<string, unknown>) => Promise<PatchResult<Saved>>;
 type Tab = "volumes" | "files" | "directories";
@@ -661,13 +663,16 @@ function FileStorage({ mount, gitBased, canUpdate, send }: { mount: Mount; gitBa
   );
 }
 
-function ApplicationStoragesContent() {
-  const { me, data, setData } = useApplicationSection<Data>("storages");
+/** <livewire:project.service.storage :resource>: an application's or a database's mounts. */
+export function StoragesContent({ kind }: { kind: ResourceKind }) {
+  const { me, data, setData } = useResourceSection<Data>(kind, "storages");
   const [tab, setTab] = useState<Tab | null>(null);
   if (!data) return null;
-  const { application, canUpdate } = data;
-  const base = `${applicationsApi(me.team?.id)}/${encodeURIComponent(application.uuid)}/storages`;
-  const compose = application.buildPack === "dockercompose";
+  const { canUpdate } = data;
+  const resource = resourceFrame(data);
+  const base = `${resourceApi(kind, me.team?.id, resource.uuid)}/storages`;
+  // $resource?->build_pack: a database has none.
+  const compose = "application" in data && data.application.buildPack === "dockercompose";
   const activeTab = tab ?? defaultTab(data);
   const counts = { volumes: data.volumes.length, files: data.files.length, directories: data.directories.length };
   const any = counts.volumes + counts.files + counts.directories > 0;
@@ -692,7 +697,7 @@ function ApplicationStoragesContent() {
   );
 
   return (
-    <ApplicationWorkspace application={application} orgId={me.team?.id} active="Persistent Storage" canUpdate={canUpdate} canDeploy={data.canDeploy}>
+    <ResourceWorkspace data={data} orgId={me.team?.id} active="Persistent Storage">
       <div className="flex flex-col gap-6">
         <SettingsSection
           id="storage-mounts-section"
@@ -701,7 +706,7 @@ function ApplicationStoragesContent() {
           helper={data.gitBased ? "Preview deployment volumes can use a -pr-#PRNumber suffix so each pull request receives isolated storage." : "Mount volumes, files, or directories to preserve data between deployments."}
           actions={
             <>
-              {!compose && canUpdate ? <AddMount uuid={application.uuid} storages={data} send={send} onAdded={setTab} /> : null}
+              {!compose && canUpdate ? <AddMount uuid={resource.uuid} storages={data} send={send} onAdded={setTab} /> : null}
               {any ? (
                 <div className="inline-flex items-center gap-0.5 rounded-lg bg-neutral-100 p-1 dark:bg-white/[0.04]">
                   {tabButton("volumes", "Volumes")}
@@ -727,14 +732,14 @@ function ApplicationStoragesContent() {
           )}
         </SettingsSection>
       </div>
-    </ApplicationWorkspace>
+    </ResourceWorkspace>
   );
 }
 
 export function ApplicationStoragesPage() {
   return (
     <Layout title="Projects" href="/projects" navHref="/projects" documentTitle="Configuration">
-      <ApplicationStoragesContent />
+      <StoragesContent kind="application" />
     </Layout>
   );
 }

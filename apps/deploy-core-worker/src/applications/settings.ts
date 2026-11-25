@@ -246,7 +246,19 @@ export async function toggleHealthCheck(ctx: ApplicationSettingsContext, uuid: s
 
 export type ResourceLimits = ResourceLimitsInput;
 
-function limits(row: DeployApplicationConfigurationRow): ResourceLimits {
+/** The limits_* columns of any resource's row (an application's or a standalone database's). */
+export interface ResourceLimitColumns {
+  limits_cpus: string;
+  limits_cpuset: string | null;
+  limits_cpu_shares: number | string;
+  limits_memory: string;
+  limits_memory_swap: string;
+  limits_memory_swappiness: number | string;
+  limits_memory_reservation: string;
+}
+
+/** ResourceLimits::syncData(false): the form's values from the resource's row. */
+export function resourceLimits(row: ResourceLimitColumns): ResourceLimits {
   return {
     limitsCpus: row.limits_cpus,
     limitsCpuset: row.limits_cpuset ?? null,
@@ -258,32 +270,37 @@ function limits(row: DeployApplicationConfigurationRow): ResourceLimits {
   };
 }
 
+/**
+ * ResourceLimits::submit() for any resource: the defaults, validate() and
+ * syncData(true) — the columns whose value changes, for $resource->save().
+ */
+export function resourceLimitChanges(body: Body, row: ResourceLimitColumns): Partial<Record<keyof ResourceLimitColumns, string | number | null>> {
+  const input = valid(validateResourceLimits(body, resourceLimits(row)));
+  return dirty(
+    {
+      limits_cpus: input.limitsCpus,
+      limits_cpuset: input.limitsCpuset,
+      limits_cpu_shares: input.limitsCpuShares,
+      limits_memory: input.limitsMemory,
+      limits_memory_swap: input.limitsMemorySwap,
+      limits_memory_swappiness: input.limitsMemorySwappiness,
+      limits_memory_reservation: input.limitsMemoryReservation,
+    },
+    row as unknown as Record<string, unknown>,
+  );
+}
+
 export async function showResourceLimits(ctx: ApplicationSettingsContext, uuid: string, canUpdate: boolean): Promise<{ application: ApplicationShow; settings: ResourceLimits } | null> {
   const l = await loadConfiguration(ctx, uuid, canUpdate);
-  return l ? { application: l.application, settings: limits(l.row) } : null;
+  return l ? { application: l.application, settings: resourceLimits(l.row) } : null;
 }
 
 /** ResourceLimits::submit(): the defaults, validate(), syncData(true), save. */
 export async function saveResourceLimits(ctx: ApplicationSettingsContext, uuid: string, body: Body): Promise<Saved<ResourceLimits> | null> {
   const l = await loadConfiguration(ctx, uuid, true);
   if (!l) return null;
-  const input = valid(validateResourceLimits(body, limits(l.row)));
-  await ctx.store.update(
-    l.row.id,
-    dirty(
-      {
-        limits_cpus: input.limitsCpus,
-        limits_cpuset: input.limitsCpuset,
-        limits_cpu_shares: input.limitsCpuShares,
-        limits_memory: input.limitsMemory,
-        limits_memory_swap: input.limitsMemorySwap,
-        limits_memory_swappiness: input.limitsMemorySwappiness,
-        limits_memory_reservation: input.limitsMemoryReservation,
-      },
-      l.row,
-    ),
-  );
-  return { application: l.application, settings: limits(await reload(ctx, uuid)), message: APPLICATION_SETTINGS_MESSAGES.limitsUpdated };
+  await ctx.store.update(l.row.id, resourceLimitChanges(body, l.row));
+  return { application: l.application, settings: resourceLimits(await reload(ctx, uuid)), message: APPLICATION_SETTINGS_MESSAGES.limitsUpdated };
 }
 
 // ---------------------------------------------------------------- Advanced

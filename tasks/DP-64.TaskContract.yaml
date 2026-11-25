@@ -1,0 +1,24 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-64
+  title: "DP7: a database's environment variables, storage, tags, resource operations and danger zone"
+spec:
+  goal: A standalone database of any of the eight engines gets the configuration pages that Coolify renders with its shared components and the database as their resource — Environment Variables, Persistent Storage, Tags, Resource Operations, Resource Limits, Webhooks and the Danger Zone — under /v1/organizations/{org}/deploy/databases/{uuid}/{environment-variables,storages,tags,resource-operations,resource-limits,webhooks,danger} and /project/{uuid}/environment/{env_uuid}/database/{db_uuid}/{environment-variables,persistent-storage,tags,resource-operations,resource-limits,webhooks,danger}, by generalising the applications' code (DP-51, DP-52, DP-55) to take the resource rather than copying it, the applications' pages and API unchanged. What a database does differently is ported from Coolify: its variables are keyed by its type and morph class, have no preview copies, and only the default variables and log redaction switches (stored on the database's own row); Redis's REDIS_PASSWORD and REDIS_USERNAME show as its credentials; its mounts live in /data/coolify/databases/{uuid} with no preview suffix controls; cloneTo() copies the row as stored (credentials, public port, configuration — no new password or port) with clone_resource_name(), its tags, its volumes under cloneTo()'s names (MongoDB's two volumes included), its file mounts, its backup schedules with their S3 destinations and its variables; the limits are its own row's; the webhooks page is the deploy webhook only; Redis, KeyDB and Dragonfly have "Flush all data". What needs the SSH executor answers "not available yet" in Coolify's own order of row and command (the volume data copy of a clone, a file mount's write, flush, a Docker volume or mount deleted on the server). The Servers, Healthcheck, Metrics, Logs, Terminal, Files, Security, Backups and import pages, the secret manager link, the database's tags in the environment's resources list, the account password step of the confirmations and the audit trail are not part of this task.
+  affects:
+    - apps/deploy-core-worker/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - on stage, a signed-in org owner opens a PostgreSQL database's Environment Variables page, adds POSTGRES_EXTRA, switches "Include Freeploy default variables" off, and after a reload sees the variable (without a preview group) and the switch off; PATCH …/databases/{uuid}/environment-variables/settings with is_env_sorting_enabled answers 422 'Attempt to assign property "is_env_sorting_enabled" on null' and stores nothing
+    - on stage, a Redis database's Environment Variables page lists REDIS_PASSWORD and REDIS_USERNAME with their name fixed in the edit dialog, and its Danger Zone's "Flush all data" answers 501 "Flushing the database's data on the server needs the SSH executor, which is not available yet."
+    - on stage, a database's Persistent Storage page lists its data volume, adds a volume named <db uuid>-<name>, renames and deletes it, and a file mount without a source path is stored with the notice that writing it to the server is not available yet
+    - on stage, cloning a PostgreSQL database to another environment lands on the clone's Resource Operations page; the clone is Exited, named <name>-clone-<uuid>, has the source's password, its volume postgres-data-<clone uuid>, the source's tags and variables; moving a database changes its environment
+    - on stage, a database's Tags, Resource Limits and Webhooks pages read and save as the application's do, and a member without deploy.resource.write gets 404 on every write and canUpdate false on every read
+    - the applications' Environment Variables, Persistent Storage, Tags, Resource Operations, Resource Limits and Danger Zone pages and routes behave as before (their suites pass unchanged)
+    - the seven database pages pass the stage DOM gate or each difference is listed with its cause
+  gates: []

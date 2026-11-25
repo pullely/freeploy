@@ -3,14 +3,15 @@
 //
 // /project/{uuid}/environment/{env_uuid}/application/{app_uuid}/tags
 // (project.application.tags): the application's tags. A tag belongs to the
-// team; here it is added to and removed from this application.
+// team; here it is added to and removed from this application. The same
+// component is a database's Tags page (TagsContent with kind "database").
 import { useState, type FormEvent } from "react";
 import { Layout } from "../layout/Layout";
 import { toast } from "../lib/toast";
 import { Reicon } from "../components/Reicon";
 import { Button, DangerCallout, Empty, FormInput, SettingsSection } from "../components/Coolify";
-import { applicationsApi, ApplicationWorkspace } from "./ApplicationChrome";
-import { useApplicationSection, type ApplicationSectionData } from "./ApplicationSection";
+import { resourceApi, resourceFrame, useResourceSection, type ResourceKind, type ResourceSectionData } from "./ApplicationSection";
+import { ResourceWorkspace } from "./ResourceWorkspace";
 import { sendJson, showError, showSaved } from "./ApplicationResource";
 
 interface Tag {
@@ -23,16 +24,17 @@ interface Tags {
   availableTags: Tag[];
 }
 
-type Data = ApplicationSectionData & Tags;
+type Data = ResourceSectionData & Tags;
 type Saved = Tags & { message: string | null; errors: Array<{ title: string; description: string }> };
 
-function ApplicationTagsContent() {
-  const { me, data, setData } = useApplicationSection<Data>("tags");
+/** <livewire:project.shared.tags :resource>: an application's or a database's tags. */
+export function TagsContent({ kind }: { kind: ResourceKind }) {
+  const { me, data, setData } = useResourceSection<Data>(kind, "tags");
   const [newTags, setNewTags] = useState("");
   const [error, setError] = useState<string | undefined>();
   if (!data) return null;
-  const { application, canUpdate } = data;
-  const base = `${applicationsApi(me.team?.id)}/${encodeURIComponent(application.uuid)}/tags`;
+  const { canUpdate } = data;
+  const base = `${resourceApi(kind, me.team?.id, resourceFrame(data).uuid)}/tags`;
 
   /** Tags::refresh(): the lists again, and the field emptied. */
   async function send(method: "POST" | "DELETE", path: string, body?: Record<string, unknown>) {
@@ -51,7 +53,7 @@ function ApplicationTagsContent() {
   }
 
   return (
-    <ApplicationWorkspace application={application} orgId={me.team?.id} active="Tags" canUpdate={canUpdate} canDeploy={data.canDeploy}>
+    <ResourceWorkspace data={data} orgId={me.team?.id} active="Tags">
       <div className="flex flex-col gap-6">
         <SettingsSection id="tag-assignment-section" title="Tags" helper="Organize this resource with reusable team tags. Separate multiple tag names with spaces.">
           {canUpdate ? (
@@ -108,14 +110,14 @@ function ApplicationTagsContent() {
           </SettingsSection>
         ) : null}
       </div>
-    </ApplicationWorkspace>
+    </ResourceWorkspace>
   );
 }
 
 export function ApplicationTagsPage() {
   return (
     <Layout title="Projects" href="/projects" navHref="/projects" documentTitle="Configuration">
-      <ApplicationTagsContent />
+      <TagsContent kind="application" />
     </Layout>
   );
 }

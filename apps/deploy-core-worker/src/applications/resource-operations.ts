@@ -4,9 +4,11 @@
 // clone is "clone-of-…"), app/Models/Server.php (canHostResources, isBuildServer, isFunctional, proxyType) and
 // app/Actions/Shared/CloneVolumeDataWithSourceStopped.php (Apache-2.0), modified.
 //
-// An application's Resource Operations page: Clone (a copy of the application
-// on any destination, in any environment of the org) and Move (to another
-// environment). Both are rows; what a clone would then do on a server — copy
+// A resource's Resource Operations page (the same component for an
+// application and a standalone database: where it can go), and an
+// application's Clone (a copy of the application on any destination, in any
+// environment of the org) and Move (to another environment); a database's are
+// databases/resources.ts's. Both are rows; what a clone would then do on a server — copy
 // the volume data, write the file mounts — is reported as not available yet,
 // after the rows are stored, which is Coolify's own order.
 import type { DeployApplicationConfigurationRow } from "@saas/db/deploy";
@@ -14,9 +16,8 @@ import { blank } from "../private-keys/validation.js";
 import { newPublicId } from "../helpers/names.js";
 import { effectiveServerRole, isFunctional } from "../servers/service.js";
 import { generateUrl, normalizeDomainPortOverrides, syncNoindexDomains } from "./domains.js";
-import type { ApplicationShow } from "./service.js";
 import { SettingsError, SettingsFieldErrors, jsonValue } from "./settings.js";
-import { loadApplication, needsExecutor, type ApplicationResourcesContext } from "./resources.js";
+import { loadApplication, needsExecutor, type ApplicationResourcesContext, type ResourceFrame, type ResourcesContext } from "./resources.js";
 import { applicationWorkdir, isOutsideResourceDirectory } from "./storage-paths.js";
 
 type Body = Record<string, unknown>;
@@ -46,37 +47,36 @@ export interface OperationServer {
   destinations: Array<{ uuid: string; name: string }>;
 }
 
-export interface ResourceOperationsPage {
-  application: ApplicationShow;
+export type ResourceOperationsPage = ResourceFrame & {
   /** The org's projects by name (case-insensitive), each with its environments. */
   projects: OperationProject[];
   /** The servers that can host resources, each with its destinations (standalone, then Swarm). */
   servers: OperationServer[];
   /** Build servers: listed, never selectable. */
   buildServers: Array<{ uuid: string; name: string }>;
-}
+};
 
 /**
  * ResourceOperations::mount(). The lists are for who may update: the view
  * shows everyone else a notice only. `placeResource` is the org-wide write
  * permission here, so every server that is not a build server is listed.
  */
-export async function showResourceOperations(ctx: ApplicationResourcesContext, uuid: string, canUpdate: boolean): Promise<ResourceOperationsPage | null> {
-  const l = await loadApplication(ctx, uuid, canUpdate);
+export async function showResourceOperations(ctx: ResourcesContext, uuid: string, canUpdate: boolean): Promise<ResourceOperationsPage | null> {
+  const l = await ctx.load(uuid, canUpdate);
   if (!l) return null;
-  if (!canUpdate) return { application: l.application, projects: [], servers: [], buildServers: [] };
+  if (!canUpdate) return { ...l.frame, projects: [], servers: [], buildServers: [] };
 
   const projects = new Map<string, OperationProject>();
-  for (const row of await ctx.store.operationEnvironments()) {
+  for (const row of await ctx.rows.operationEnvironments()) {
     let project = projects.get(row.project_uuid);
     if (!project) projects.set(row.project_uuid, (project = { uuid: row.project_uuid, name: row.project_name, environments: [] }));
     if (row.environment_uuid !== null) project.environments.push({ uuid: row.environment_uuid, name: row.environment_name ?? "" });
   }
-  const all = await ctx.store.operationServers();
-  const destinations = await ctx.store.operationDestinations();
+  const all = await ctx.rows.operationServers();
+  const destinations = await ctx.rows.operationDestinations();
   const build = (s: (typeof all)[number]) => effectiveServerRole(s) === "build";
   return {
-    application: l.application,
+    ...l.frame,
     projects: [...projects.values()],
     servers: all
       .filter((s) => !build(s))
@@ -113,10 +113,10 @@ export async function moveApplicationTo(ctx: ApplicationResourcesContext, uuid: 
   return { projectUuid: environment.project_uuid, environmentUuid: environment.uuid, applicationUuid: l.row.uuid };
 }
 
-/** Str::limit($value, $limit): the first $limit characters, right-trimmed, then "..." — when the value is longer. */
-export function strLimit(value: string, limit: number): string {
+/** Str::limit($value, $limit, $end): the first $limit characters, right-trimmed, then $end ("...") — when the value is longer. */
+export function strLimit(value: string, limit: number, end = "..."): string {
   const characters = [...value];
-  return characters.length <= limit ? value : `${characters.slice(0, limit).join("").trimEnd()}...`;
+  return characters.length <= limit ? value : `${characters.slice(0, limit).join("").trimEnd()}${end}`;
 }
 
 /**

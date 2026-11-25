@@ -11,10 +11,13 @@
 // decrypt.
 //
 // A variable belongs to a resource through Coolify's polymorphic
-// resourceable_type / resourceable_id. Only applications are wired; a service
-// or a database is one more entry in ENVIRONMENT_VARIABLE_RESOURCES.
+// resourceable_type / resourceable_id. Applications and the eight standalone
+// databases are wired (a database's type is Coolify's type(), e.g.
+// 'standalone-postgresql'); a service is one more entry in
+// ENVIRONMENT_VARIABLE_RESOURCES.
 import type { SqlExecutor, SqlRow } from "../hyperdrive/executor.js";
 import { DESTINATION_MORPH_CLASS } from "./destinations.js";
+import { DATABASE_ENGINES, DATABASE_TABLES, type DatabaseEngine } from "./databases.js";
 
 /** Laravel's timestamps are UTC wall-clock times in TIMESTAMP(0) WITHOUT TIME ZONE columns. */
 const NOW = "date_trunc('second', timezone('UTC', now()))";
@@ -22,12 +25,49 @@ const NOW = "date_trunc('second', timezone('UTC', now()))";
 const STANDALONE = DESTINATION_MORPH_CLASS.standalone.replace(/\\/g, "\\\\");
 const SWARM = DESTINATION_MORPH_CLASS.swarm.replace(/\\/g, "\\\\");
 
+/** What resourceable_type holds and where the page's switches are stored, for one resource type. */
+interface EnvironmentVariableResource {
+  /** getMorphClass() (Coolify has no morph map, so resourceable_type holds the class name). */
+  morphClass: string;
+  /** The query that finds one by uuid with what the Environment Variables page needs of it. */
+  select: string;
+  /** Where the switches of the page are stored, and which of the four the resource has. */
+  settings: { table: string; key: string; columns: readonly EnvironmentVariableSettingColumn[] };
+}
+
+export const ENVIRONMENT_VARIABLE_SETTING_COLUMNS = ["is_env_sorting_enabled", "use_build_secrets", "include_coolify_default_variables", "redact_all_env_values_in_logs"] as const;
+export type EnvironmentVariableSettingColumn = (typeof ENVIRONMENT_VARIABLE_SETTING_COLUMNS)[number];
+export type EnvironmentVariableSettingChanges = Partial<Record<EnvironmentVariableSettingColumn, boolean>>;
+
+/** A standalone database's type(): what its Environment Variables page is keyed by. */
+export type DatabaseEnvironmentVariableResourceType = `standalone-${DatabaseEngine}`;
+export const databaseEnvironmentVariableResourceType = (engine: DatabaseEngine): DatabaseEnvironmentVariableResourceType => `standalone-${engine}`;
+
 /**
- * The resources that have environment variables: getMorphClass() (Coolify has
- * no morph map, so resourceable_type holds the class name), and the query that
- * finds one by uuid with what the Environment Variables page needs of it.
+ * A standalone database's row as the page reads it: it has no build pack, Git
+ * repository, Dockerfile or Compose file, and no settings row — its two
+ * switches (include_coolify_default_variables, redact_all_env_values_in_logs)
+ * are columns of its own table; the order and build secrets switches are an
+ * application's only.
  */
-const ENVIRONMENT_VARIABLE_RESOURCES = {
+function databaseSelect(engine: DatabaseEngine): string {
+  return `SELECT d.id, d.uuid, d.name, NULL::varchar AS build_pack, NULL::varchar AS git_repository, NULL::text AS dockerfile,
+                    NULL::text AS docker_compose,
+                    d.environment_id, e.uuid AS environment_uuid, e.project_id, p.uuid AS project_uuid,
+                    s.id AS server_id, s.uuid AS server_uuid,
+                    NULL::boolean AS is_env_sorting_enabled, NULL::boolean AS use_build_secrets,
+                    d.include_coolify_default_variables, d.redact_all_env_values_in_logs
+               FROM deploy.${DATABASE_TABLES[engine].table} d
+               JOIN deploy.environments e ON e.id = d.environment_id
+               JOIN deploy.projects p ON p.id = e.project_id
+               LEFT JOIN deploy.standalone_dockers sd ON sd.id = d.destination_id AND d.destination_type = E'${STANDALONE}'
+               LEFT JOIN deploy.swarm_dockers wd ON wd.id = d.destination_id AND d.destination_type = E'${SWARM}'
+               LEFT JOIN deploy.servers s ON s.id = COALESCE(sd.server_id, wd.server_id) AND s.deleted_at IS NULL
+              WHERE d.uuid = $1 AND d.deleted_at IS NULL`;
+}
+
+/** The resources that have environment variables. */
+const ENVIRONMENT_VARIABLE_RESOURCES: Readonly<Record<"application" | DatabaseEnvironmentVariableResourceType, EnvironmentVariableResource>> = {
   application: {
     morphClass: "App\\Models\\Application",
     select: `SELECT a.id, a.uuid, a.name, a.build_pack, a.git_repository, a.dockerfile,
@@ -43,15 +83,32 @@ const ENVIRONMENT_VARIABLE_RESOURCES = {
                LEFT JOIN deploy.swarm_dockers wd ON wd.id = a.destination_id AND a.destination_type = E'${SWARM}'
                LEFT JOIN deploy.servers s ON s.id = COALESCE(sd.server_id, wd.server_id) AND s.deleted_at IS NULL
               WHERE a.uuid = $1 AND a.deleted_at IS NULL`,
-    /** Where the four switches of the page are stored. */
-    settings: { table: "deploy.application_settings", key: "application_id" },
+    settings: { table: "deploy.application_settings", key: "application_id", columns: ENVIRONMENT_VARIABLE_SETTING_COLUMNS },
   },
-} as const;
+  ...databaseResources(),
+};
+
+function databaseResources(): Record<DatabaseEnvironmentVariableResourceType, EnvironmentVariableResource> {
+  const resources = {} as Record<DatabaseEnvironmentVariableResourceType, EnvironmentVariableResource>;
+  for (const engine of DATABASE_ENGINES) {
+    resources[databaseEnvironmentVariableResourceType(engine)] = {
+      morphClass: DATABASE_TABLES[engine].morphClass,
+      select: databaseSelect(engine),
+      settings: { table: `deploy.${DATABASE_TABLES[engine].table}`, key: "id", columns: ["include_coolify_default_variables", "redact_all_env_values_in_logs"] },
+    };
+  }
+  return resources;
+}
 
 export type EnvironmentVariableResourceType = keyof typeof ENVIRONMENT_VARIABLE_RESOURCES;
 
 /** What resourceable_type holds for each resource type. */
-export const ENVIRONMENT_VARIABLE_MORPH_CLASS: Record<EnvironmentVariableResourceType, string> = { application: ENVIRONMENT_VARIABLE_RESOURCES.application.morphClass };
+export const ENVIRONMENT_VARIABLE_MORPH_CLASS = Object.fromEntries(
+  Object.entries(ENVIRONMENT_VARIABLE_RESOURCES).map(([type, resource]) => [type, resource.morphClass]),
+) as Readonly<Record<EnvironmentVariableResourceType, string>>;
+
+/** The switches of the page a resource type stores: all four for an application, two for a database. */
+export const environmentVariableSettingColumns = (type: EnvironmentVariableResourceType): readonly EnvironmentVariableSettingColumn[] => ENVIRONMENT_VARIABLE_RESOURCES[type].settings.columns;
 
 /** A resource with its environment variable settings and the ids of its shared variable scopes. */
 export interface DeployEnvironmentVariableResourceRow extends SqlRow {
@@ -83,19 +140,16 @@ export async function findEnvironmentVariableResource(tx: SqlExecutor, type: Env
   return r.rows[0] ?? null;
 }
 
-export const ENVIRONMENT_VARIABLE_SETTING_COLUMNS = ["is_env_sorting_enabled", "use_build_secrets", "include_coolify_default_variables", "redact_all_env_values_in_logs"] as const;
-export type EnvironmentVariableSettingColumn = (typeof ENVIRONMENT_VARIABLE_SETTING_COLUMNS)[number];
-export type EnvironmentVariableSettingChanges = Partial<Record<EnvironmentVariableSettingColumn, boolean>>;
-
-/** $resource->settings->save(): only the given switches, and updated_at. False when there is no settings row. */
+/** $resource->settings->save() (an application) or $resource->save() (a database): only the given switches, and updated_at. False when there is no settings row (or no such database). */
 export async function updateEnvironmentVariableSettings(
   tx: SqlExecutor,
   type: EnvironmentVariableResourceType,
   resourceId: string | number,
   changes: EnvironmentVariableSettingChanges,
 ): Promise<boolean> {
-  const { table, key } = ENVIRONMENT_VARIABLE_RESOURCES[type].settings;
+  const { table, key, columns: own } = ENVIRONMENT_VARIABLE_RESOURCES[type].settings;
   const columns = ENVIRONMENT_VARIABLE_SETTING_COLUMNS.filter((c) => changes[c] !== undefined);
+  for (const c of columns) if (!own.includes(c)) throw new Error(`a ${type} has no setting "${c}"`);
   const sets = columns.map((c, i) => `"${c}" = $${i + 2}`);
   const r = await tx.execute(`UPDATE ${table} SET ${[...sets, `updated_at = ${NOW}`].join(", ")} WHERE "${key}" = $1 RETURNING id`, [resourceId, ...columns.map((c) => changes[c]!)]);
   return r.rows.length > 0;

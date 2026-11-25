@@ -25,6 +25,8 @@
 //   DELETE /databases/{uuid}/init-scripts?filename=…   delete_init_script   501
 //   POST   /databases/{uuid}/ssl/regenerate            regenerateSslCertificate
 //   POST   /databases/{uuid}/keep-current-data-volume  Clickhouse\General::keepCurrentDataVolume   501
+//   …      /databases/{uuid}/{environment-variables,storages,tags,resource-operations,resource-limits,webhooks,danger}[/…]
+//                                         the pages that are Coolify's shared components: database-resources.ts
 //
 // Coolify's policy: view = who can open the database, update and manage =
 // write, manageEnvironment = write. Here: deploy.resource.read and
@@ -60,6 +62,7 @@ import type { KeyCipher } from "../private-keys/service.js";
 import { authorizeDeploy, columnCipher, readJson } from "./cloud-tokens.js";
 import { deleteOptions } from "../applications/danger.js";
 import { validateCreateDatabase } from "../databases/validation.js";
+import { handleDatabaseResources, isDatabaseResourceRoute } from "./database-resources.js";
 import {
   DatabaseError,
   DatabaseFieldErrors,
@@ -87,7 +90,7 @@ const ACTIONS: readonly string[] = ["start", "restart", "stop"];
 /** Runs fn with one org's database store and ciphers, in one transaction confined to that org. */
 export type DatabaseRunner = <T>(env: Env, orgId: string, fn: (ctx: DatabaseContext) => Promise<T>) => Promise<T>;
 
-function sqlStore(tx: SqlExecutor, orgId: string): DatabaseStore {
+export function sqlStore(tx: SqlExecutor, orgId: string): DatabaseStore {
   return {
     findProject: (uuid) => findProjectByUuid(tx, uuid),
     findEnvironment: (projectId, uuid) => findEnvironmentByUuid(tx, projectId, uuid),
@@ -194,6 +197,8 @@ export async function handleDatabases(
   runner: DatabaseRunner = runDatabasesInOrg,
   actionRunner: DatabaseActionRunner = runDatabaseActionInOrg,
 ): Promise<Response> {
+  // DP-64: the pages that are Coolify's shared components (environment variables, storage, tags, …).
+  if (isDatabaseResourceRoute(segments)) return handleDatabaseResources(env, requestId, actor, orgId, segments, request);
   const notFound = () => errorResponse("not_found", "Not found", 404, requestId);
   const method = request.method;
   const [uuid, second, third] = segments;

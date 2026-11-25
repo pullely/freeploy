@@ -4,9 +4,12 @@
 // (persistentStorageUnavailableReason, git_based) and app/Support/ValidationPatterns.php (volumeNameRules,
 // DIRECTORY_PATH_PATTERN) (Apache-2.0), modified.
 //
-// An application's Persistent Storage page: volume mounts (rows only — they
-// take effect at the next deployment), and file, host file and directory
-// mounts. Where Coolify also acts on the server, its own order of row and
+// A resource's Persistent Storage page — an application's or a standalone
+// database's (the same Storage component, `:resource`): volume mounts (rows
+// only — they take effect at the next deployment or start), and file, host
+// file and directory mounts. What differs between the two is the resource
+// (resources.ts: its directory on the server, whether its volumes are a
+// Compose file's, the preview suffix controls, the multiple servers rule). Where Coolify also acts on the server, its own order of row and
 // command decides: what it stores first is stored and the answer says what
 // did not run; what it runs first answers 501 and stores nothing.
 //
@@ -17,13 +20,11 @@
 import { DEPLOY_UNIQUE_INDEXES, refusingDuplicates, type DeployFileVolumeRow, type DeployPersistentVolumeRow } from "@saas/db/deploy";
 import { add, blank, length, type FieldErrors } from "../private-keys/validation.js";
 import { newPublicId } from "../helpers/names.js";
-import type { ApplicationShow } from "./service.js";
 import { SettingsError, SettingsFieldErrors } from "./settings.js";
 import { slug } from "./settings-validation.js";
-import { loadApplication, needsExecutor, text, type ApplicationResourcesContext, type LoadedApplication } from "./resources.js";
+import { MULTIPLE_SERVERS_VOLUME_REASON, needsExecutor, text, type LoadedResource, type ResourceFrame, type ResourcesContext } from "./resources.js";
 import {
   StoragePathError,
-  applicationWorkdir,
   confineFileMountPath,
   isInsideResourceDirectory,
   isOutsideResourceDirectory,
@@ -49,7 +50,7 @@ export const STORAGE_MESSAGES = {
   volumeNameRegex: "The volume name must start with an alphanumeric character and contain only alphanumeric characters, dots, hyphens, and underscores.",
   mountPathRegex: "Mount path must start with / and only contain safe path characters.",
   /** Application::persistentStorageUnavailableReason() and Storage::submitPersistentVolume() */
-  volumeUnavailable: "Applications that use multiple servers cannot have persistent storage because volumes are not shared between servers.",
+  volumeUnavailable: MULTIPLE_SERVERS_VOLUME_REASON,
   failedToAddVolume: "Failed to add volume.",
   volumeAdded: "Volume added successfully",
   fileAdded: "File mount added successfully",
@@ -120,12 +121,11 @@ export interface FileItem {
   hasEnabledBackup: boolean;
 }
 
-export interface StoragesPage {
-  application: ApplicationShow;
+export type StoragesPage = ResourceFrame & {
   isSwarm: boolean;
   /** Application::git_based(): the views' preview deployment (PR suffix) controls. */
   gitBased: boolean;
-  /** Storage::fileStorageHostPath(): the application's directory on the server. */
+  /** Storage::fileStorageHostPath(): the resource's directory on the server. */
   hostPath: string;
   /** Storage::generateDefaultVolumeName() */
   defaultVolumeName: string;
@@ -133,40 +133,34 @@ export interface StoragesPage {
   volumes: VolumeItem[];
   files: FileItem[];
   directories: FileItem[];
-}
+};
 
-export interface StoragesSaved extends StoragesPage {
+export type StoragesSaved = StoragesPage & {
   /** The success toast (null when Coolify shows none). */
   message: string | null;
   /** What Coolify would now do on the server and cannot be done yet. */
   unavailable?: string;
-}
+};
 
-const gitBased = (row: LoadedApplication["row"]): boolean => !row.has_dockerfile && row.build_pack !== "dockerimage";
-const isCompose = (row: LoadedApplication["row"]): boolean => row.build_pack === "dockercompose";
-
-/** Application::persistentStorageUnavailableReason() */
-const volumeUnavailableReason = (row: LoadedApplication["row"]): string | null => (Number(row.additional_servers) > 0 ? STORAGE_MESSAGES.volumeUnavailable : null);
-
-function volumeItem(v: DeployPersistentVolumeRow, row: LoadedApplication["row"], canUpdate: boolean): VolumeItem {
+function volumeItem(v: DeployPersistentVolumeRow, l: LoadedResource, canUpdate: boolean): VolumeItem {
   return {
     id: String(v.id),
     name: v.name,
     mountPath: v.mount_path,
     hostPath: blank(v.host_path) ? null : v.host_path,
     isPreviewSuffixEnabled: v.is_preview_suffix_enabled !== false,
-    isReadOnly: isCompose(row) || !canUpdate,
+    isReadOnly: l.isCompose || !canUpdate,
     isShared: v.standalone_sqlite_id !== null,
     backup: { enabled: v.backup_enabled === true, s3: v.backup_enabled === true && v.backup_save_s3 === true },
   };
 }
 
 /** The stored content, decrypted; null stays null. */
-async function plainContent(ctx: ApplicationResourcesContext, f: DeployFileVolumeRow): Promise<string | null> {
+async function plainContent(ctx: ResourcesContext, f: DeployFileVolumeRow): Promise<string | null> {
   return f.content === null ? null : ctx.content.decrypt(f.content);
 }
 
-async function fileItem(ctx: ApplicationResourcesContext, f: DeployFileVolumeRow, uuid: string, canUpdate: boolean): Promise<FileItem> {
+async function fileItem(ctx: ResourcesContext, f: DeployFileVolumeRow, workdir: string, canUpdate: boolean): Promise<FileItem> {
   let content = f.is_directory ? null : await plainContent(ctx, f);
   // Storage::loadFileStorageForActiveTab(): a content over the limit is not sent.
   if (content !== null && new TextEncoder().encode(content).length > MAX_CONTENT_SIZE) content = TOO_LARGE_PLACEHOLDER;
@@ -182,33 +176,33 @@ async function fileItem(ctx: ApplicationResourcesContext, f: DeployFileVolumeRow
     content: canUpdate ? content : null,
     isBinary: content === BINARY_PLACEHOLDER,
     isTooLarge: content === TOO_LARGE_PLACEHOLDER,
-    canDeleteFromServer: !f.is_host_file && !isOutsideResourceDirectory(f.fs_path, applicationWorkdir(uuid)),
+    canDeleteFromServer: !f.is_host_file && !isOutsideResourceDirectory(f.fs_path, workdir),
     hasEnabledBackup: f.is_directory && f.backup_enabled === true,
   };
 }
 
-async function page(ctx: ApplicationResourcesContext, l: LoadedApplication, canUpdate: boolean): Promise<StoragesPage> {
-  const mounts = await Promise.all((await ctx.store.files(l.row.id)).map((f) => fileItem(ctx, f, l.row.uuid, canUpdate)));
+async function page(ctx: ResourcesContext, l: LoadedResource, canUpdate: boolean): Promise<StoragesPage> {
+  const mounts = await Promise.all((await ctx.rows.files(l.id)).map((f) => fileItem(ctx, f, l.workdir, canUpdate)));
   return {
-    application: l.application,
-    isSwarm: l.application.server?.isSwarm ?? false,
-    gitBased: gitBased(l.row),
-    hostPath: applicationWorkdir(l.row.uuid),
-    defaultVolumeName: `${slug(l.row.name) || "volume"}-data`,
-    volumeUnavailableReason: volumeUnavailableReason(l.row),
-    volumes: (await ctx.store.volumes(l.row.id)).map((v) => volumeItem(v, l.row, canUpdate)),
+    ...l.frame,
+    isSwarm: l.isSwarm,
+    gitBased: l.gitBased,
+    hostPath: l.workdir,
+    defaultVolumeName: `${slug(l.name) || "volume"}-data`,
+    volumeUnavailableReason: l.volumeUnavailableReason,
+    volumes: (await ctx.rows.volumes(l.id)).map((v) => volumeItem(v, l, canUpdate)),
     files: mounts.filter((f) => !f.isDirectory),
     directories: mounts.filter((f) => f.isDirectory),
   };
 }
 
 /** Storage::mount() with its child lists. */
-export async function showStorages(ctx: ApplicationResourcesContext, uuid: string, canUpdate: boolean): Promise<StoragesPage | null> {
-  const l = await loadApplication(ctx, uuid, canUpdate);
+export async function showStorages(ctx: ResourcesContext, uuid: string, canUpdate: boolean): Promise<StoragesPage | null> {
+  const l = await ctx.load(uuid, canUpdate);
   return l ? page(ctx, l, canUpdate) : null;
 }
 
-async function saved(ctx: ApplicationResourcesContext, l: LoadedApplication, message: string | null, unavailable?: string): Promise<StoragesSaved> {
+async function saved(ctx: ResourcesContext, l: LoadedResource, message: string | null, unavailable?: string): Promise<StoragesSaved> {
   return { ...(await page(ctx, l, true)), message, ...(unavailable ? { unavailable } : {}) };
 }
 
@@ -254,14 +248,14 @@ function booleanRule(errors: FieldErrors, field: string, attribute: string, valu
 }
 
 /** unique(name, resource_id, resource_type): the resource has another volume of that name. */
-async function assertVolumeNameFree(ctx: ApplicationResourcesContext, applicationId: string | number, name: string, except: string | number | null = null): Promise<void> {
-  const taken = (await ctx.store.volumes(applicationId)).some((v) => v.name === name && (except === null || String(v.id) !== String(except)));
+async function assertVolumeNameFree(ctx: ResourcesContext, resourceId: string | number, name: string, except: string | number | null = null): Promise<void> {
+  const taken = (await ctx.rows.volumes(resourceId)).some((v) => v.name === name && (except === null || String(v.id) !== String(except)));
   if (taken) throw new SettingsError(STORAGE_MESSAGES.duplicate, 422);
 }
 
 /** unique(mount_path, resource_id, resource_type): the resource has another file or directory mount at that path. */
-async function assertMountPathFree(ctx: ApplicationResourcesContext, applicationId: string | number, mountPath: string): Promise<void> {
-  if ((await ctx.store.files(applicationId)).some((f) => f.mount_path === mountPath)) throw new SettingsError(STORAGE_MESSAGES.duplicate, 422);
+async function assertMountPathFree(ctx: ResourcesContext, resourceId: string | number, mountPath: string): Promise<void> {
+  if ((await ctx.rows.files(resourceId)).some((f) => f.mount_path === mountPath)) throw new SettingsError(STORAGE_MESSAGES.duplicate, 422);
 }
 
 /** The two indexes themselves: what another request stored since assertVolumeNameFree() or assertMountPathFree() looked. */
@@ -272,28 +266,28 @@ const refusingDuplicateStorage = <T>(write: () => Promise<T>): Promise<T> =>
 const storedMountPath = (value: string): string => `/${phpTrim(value).replace(/^\/+/, "")}`;
 
 /**
- * Storage::submitPersistentVolume(): the name gets the application's uuid as
+ * Storage::submitPersistentVolume(): the name gets the resource's uuid as
  * its prefix, so that the Docker volume is unique on the server.
  */
-async function addVolume(ctx: ApplicationResourcesContext, l: LoadedApplication, body: Body): Promise<StoragesSaved> {
+async function addVolume(ctx: ResourcesContext, l: LoadedResource, body: Body): Promise<StoragesSaved> {
   const errors: FieldErrors = {};
   const name = volumeNameRules(errors, "name", body.name);
   const mountPath = requiredString(errors, "mount_path", "mount path", body.mount_path);
   fail(errors);
-  const reason = volumeUnavailableReason(l.row);
+  const reason = l.volumeUnavailableReason;
   if (reason) throw new SettingsError(STORAGE_MESSAGES.failedToAddVolume, 422, { description: reason });
-  await assertVolumeNameFree(ctx, l.row.id, `${l.row.uuid}-${name!}`);
-  await refusingDuplicateStorage(() => ctx.store.insertVolume({ applicationId: l.row.id, uuid: newPublicId(), name: `${l.row.uuid}-${name!}`, mountPath: storedMountPath(mountPath!) }));
+  await assertVolumeNameFree(ctx, l.id, `${l.uuid}-${name!}`);
+  await refusingDuplicateStorage(() => ctx.rows.insertVolume({ resourceId: l.id, uuid: newPublicId(), name: `${l.uuid}-${name!}`, mountPath: storedMountPath(mountPath!) }));
   return saved(ctx, l, STORAGE_MESSAGES.volumeAdded);
 }
 
 /**
  * Storage::submitFileStorage(): a managed file. Without a source path it
- * lives in the application's directory: the row is stored, and the created
+ * lives in the resource's directory: the row is stored, and the created
  * hook's job writes the file — not available yet. With a source path Coolify
  * first checks the path on the server, so nothing is stored.
  */
-async function addFile(ctx: ApplicationResourcesContext, l: LoadedApplication, body: Body): Promise<StoragesSaved> {
+async function addFile(ctx: ResourcesContext, l: LoadedResource, body: Body): Promise<StoragesSaved> {
   const errors: FieldErrors = {};
   const path = requiredString(errors, "file_storage_path", "file storage path", body.file_storage_path);
   const source = text(body.file_storage_source);
@@ -301,7 +295,7 @@ async function addFile(ctx: ApplicationResourcesContext, l: LoadedApplication, b
   const content = body.file_storage_content;
   if (!blank(content) && typeof content !== "string") add(errors, "file_storage_content", LARAVEL.string("file storage content"));
   fail(errors);
-  const workdir = applicationWorkdir(l.row.uuid);
+  const workdir = l.workdir;
   const mountPath = pathRule(() => validateFileMountPath(path!, "file storage path"));
   if (!blank(source)) {
     pathRule(() => resolveHostPath(workdir, source as string, "file storage source path"));
@@ -309,50 +303,50 @@ async function addFile(ctx: ApplicationResourcesContext, l: LoadedApplication, b
     throw new SettingsError(STORAGE_MESSAGES.checkPathUnavailable, 501);
   }
   const fsPath = pathRule(() => confineFileMountPath(workdir, mountPath, "file storage path"));
-  await assertMountPathFree(ctx, l.row.id, mountPath);
+  await assertMountPathFree(ctx, l.id, mountPath);
   const stored = blank(content) ? null : await ctx.content.encrypt(content as string);
-  await refusingDuplicateStorage(() => ctx.store.insertFile({ applicationId: l.row.id, uuid: newPublicId(), fsPath, mountPath, content: stored, isDirectory: false, isHostFile: false }));
+  await refusingDuplicateStorage(() => ctx.rows.insertFile({ resourceId: l.id, uuid: newPublicId(), fsPath, mountPath, content: stored, isDirectory: false, isHostFile: false }));
   return saved(ctx, l, STORAGE_MESSAGES.fileAdded, STORAGE_MESSAGES.writeFileUnavailable);
 }
 
 /** Storage::submitHostFileStorage(): an existing file of the host, bound as it is. Coolify never writes it. */
-async function addHostFile(ctx: ApplicationResourcesContext, l: LoadedApplication, body: Body): Promise<StoragesSaved> {
+async function addHostFile(ctx: ResourcesContext, l: LoadedResource, body: Body): Promise<StoragesSaved> {
   const errors: FieldErrors = {};
   const source = requiredString(errors, "host_file_storage_source", "host file storage source", body.host_file_storage_source);
   const destination = requiredString(errors, "host_file_storage_destination", "host file storage destination", body.host_file_storage_destination);
   fail(errors);
   const fsPath = pathRule(() => validateHostFileMountPath(source!, "host file source path"));
   const mountPath = pathRule(() => validateFileMountPath(destination!, "host file destination path"));
-  await assertMountPathFree(ctx, l.row.id, mountPath);
-  await refusingDuplicateStorage(() => ctx.store.insertFile({ applicationId: l.row.id, uuid: newPublicId(), fsPath, mountPath, content: null, isDirectory: false, isHostFile: true }));
+  await assertMountPathFree(ctx, l.id, mountPath);
+  await refusingDuplicateStorage(() => ctx.rows.insertFile({ resourceId: l.id, uuid: newPublicId(), fsPath, mountPath, content: null, isDirectory: false, isHostFile: true }));
   return saved(ctx, l, STORAGE_MESSAGES.hostFileAdded);
 }
 
 /**
  * Storage::submitFileStorageDirectory(): a directory of the host. Inside the
- * application's directory Coolify first checks the path on the server, so
+ * resource's directory Coolify first checks the path on the server, so
  * nothing is stored; a directory elsewhere on the host is only a row (the
  * created hook writes nothing outside the resource directory).
  */
-async function addDirectory(ctx: ApplicationResourcesContext, l: LoadedApplication, body: Body): Promise<StoragesSaved> {
+async function addDirectory(ctx: ResourcesContext, l: LoadedResource, body: Body): Promise<StoragesSaved> {
   const errors: FieldErrors = {};
   const source = requiredString(errors, "file_storage_directory_source", "file storage directory source", body.file_storage_directory_source);
   const destination = requiredString(errors, "file_storage_directory_destination", "file storage directory destination", body.file_storage_directory_destination);
   fail(errors);
-  const workdir = applicationWorkdir(l.row.uuid);
+  const workdir = l.workdir;
   const fsPath = pathRule(() => resolveHostPath(workdir, source!, "storage source path"));
   const mountPath = pathRule(() => validateFileMountPath(destination!, "storage destination path"));
   if (isInsideResourceDirectory(fsPath, workdir)) throw new SettingsError(STORAGE_MESSAGES.checkPathUnavailable, 501);
-  await assertMountPathFree(ctx, l.row.id, mountPath);
-  await refusingDuplicateStorage(() => ctx.store.insertFile({ applicationId: l.row.id, uuid: newPublicId(), fsPath, mountPath, content: null, isDirectory: true, isHostFile: false }));
+  await assertMountPathFree(ctx, l.id, mountPath);
+  await refusingDuplicateStorage(() => ctx.rows.insertFile({ resourceId: l.id, uuid: newPublicId(), fsPath, mountPath, content: null, isDirectory: true, isHostFile: false }));
   return saved(ctx, l, STORAGE_MESSAGES.directoryAdded);
 }
 
 export const STORAGE_TYPES = ["volume", "file", "host-file", "directory"] as const;
 
-/** POST /storages: one of the four "Add mount" forms, named by `type`. Null when the application is not the org's. */
-export async function addStorage(ctx: ApplicationResourcesContext, uuid: string, body: Body): Promise<StoragesSaved | null> {
-  const l = await loadApplication(ctx, uuid, true);
+/** POST /storages: one of the four "Add mount" forms, named by `type`. Null when the resource is not the org's. */
+export async function addStorage(ctx: ResourcesContext, uuid: string, body: Body): Promise<StoragesSaved | null> {
+  const l = await ctx.load(uuid, true);
   if (!l) return null;
   switch (body.type) {
     case "volume":
@@ -373,9 +367,9 @@ export async function addStorage(ctx: ApplicationResourcesContext, uuid: string,
  * mounts another Docker volume and the data stays in the old one, so a
  * rename waits for `renameConfirmed` (409 with the two names).
  */
-export async function updateVolume(ctx: ApplicationResourcesContext, uuid: string, id: string, body: Body): Promise<StoragesSaved | null> {
-  const l = await loadApplication(ctx, uuid, true);
-  const volume = l ? await ctx.store.findVolume(l.row.id, id) : null;
+export async function updateVolume(ctx: ResourcesContext, uuid: string, id: string, body: Body): Promise<StoragesSaved | null> {
+  const l = await ctx.load(uuid, true);
+  const volume = l ? await ctx.rows.findVolume(l.id, id) : null;
   if (!l || !volume) return null;
   const errors: FieldErrors = {};
   const name = volumeNameRules(errors, "name", body.name === undefined ? volume.name : body.name);
@@ -383,13 +377,13 @@ export async function updateVolume(ctx: ApplicationResourcesContext, uuid: strin
   if (mountPath !== null && !DIRECTORY_PATH_PATTERN.test(mountPath)) add(errors, "mountPath", STORAGE_MESSAGES.mountPathRegex);
   const suffix = booleanRule(errors, "isPreviewSuffixEnabled", `forms.${id}.is preview suffix enabled`, body.isPreviewSuffixEnabled, volume.is_preview_suffix_enabled !== false);
   fail(errors);
-  if (isCompose(l.row)) throw new SettingsError(STORAGE_MESSAGES.volumeReadOnly, 422);
+  if (l.isCompose) throw new SettingsError(STORAGE_MESSAGES.volumeReadOnly, 422);
   const rename = volume.standalone_sqlite_id === null && name !== volume.name;
   if (rename && body.renameConfirmed !== true) {
     throw new SettingsError("Change the volume name?", 409, { pendingRename: { storageId: String(volume.id), from: volume.name, to: name } });
   }
-  if (rename) await assertVolumeNameFree(ctx, l.row.id, name!, volume.id);
-  await refusingDuplicateStorage(() => ctx.store.updateVolume(l.row.id, id, { ...(rename ? { name: name! } : {}), mount_path: storedMountPath(mountPath!), is_preview_suffix_enabled: suffix }));
+  if (rename) await assertVolumeNameFree(ctx, l.id, name!, volume.id);
+  await refusingDuplicateStorage(() => ctx.rows.updateVolume(l.id, id, { ...(rename ? { name: name! } : {}), mount_path: storedMountPath(mountPath!), is_preview_suffix_enabled: suffix }));
   return saved(ctx, l, STORAGE_MESSAGES.storageUpdated);
 }
 
@@ -398,16 +392,16 @@ export async function updateVolume(ctx: ApplicationResourcesContext, uuid: strin
  * (`deleteDockerVolume`) is a command Coolify runs before it deletes the
  * row: 501, and the row stays.
  */
-export async function deleteVolume(ctx: ApplicationResourcesContext, uuid: string, id: string, deleteDockerVolume: boolean): Promise<StoragesSaved | null> {
-  const l = await loadApplication(ctx, uuid, true);
-  const volume = l ? await ctx.store.findVolume(l.row.id, id) : null;
+export async function deleteVolume(ctx: ResourcesContext, uuid: string, id: string, deleteDockerVolume: boolean): Promise<StoragesSaved | null> {
+  const l = await ctx.load(uuid, true);
+  const volume = l ? await ctx.rows.findVolume(l.id, id) : null;
   if (!l || !volume) return null;
   if (volume.standalone_sqlite_id !== null) throw new SettingsError(STORAGE_MESSAGES.volumeShared, 422);
   // isDeclaredInCompose() reads the Compose file; an unreadable one counts as declaring the volume.
-  if (isCompose(l.row)) throw new SettingsError(STORAGE_MESSAGES.volumeManagedByCompose, 422);
+  if (l.isCompose) throw new SettingsError(STORAGE_MESSAGES.volumeManagedByCompose, 422);
   if (volume.has_backups) throw new SettingsError(STORAGE_MESSAGES.volumeHasBackups, 422);
   if (deleteDockerVolume) throw new SettingsError(STORAGE_MESSAGES.deleteDockerVolumeUnavailable, 501);
-  await ctx.store.deleteVolume(l.row.id, id);
+  await ctx.rows.deleteVolume(l.id, id);
   return saved(ctx, l, null);
 }
 
@@ -423,9 +417,9 @@ export const FILE_ACTIONS = ["save", "instantSave", "convertToDirectory", "conve
  *   convertToFile       likewise — 501
  *   loadFromServer      reads the file on the server — 501
  */
-export async function updateFile(ctx: ApplicationResourcesContext, uuid: string, id: string, body: Body): Promise<StoragesSaved | null> {
-  const l = await loadApplication(ctx, uuid, true);
-  const file = l ? await ctx.store.findFile(l.row.id, id) : null;
+export async function updateFile(ctx: ResourcesContext, uuid: string, id: string, body: Body): Promise<StoragesSaved | null> {
+  const l = await ctx.load(uuid, true);
+  const file = l ? await ctx.rows.findFile(l.id, id) : null;
   if (!l || !file) return null;
   const tooLarge = !file.is_directory && (await plainContent(ctx, file)) === TOO_LARGE_PLACEHOLDER;
   switch (body.action) {
@@ -439,10 +433,10 @@ export async function updateFile(ctx: ApplicationResourcesContext, uuid: string,
       fail(errors);
       if (body.action === "save") throw new SettingsError(STORAGE_MESSAGES.writeFileUnavailable, 501);
       const content = text(body.content);
-      const changes: Parameters<typeof ctx.store.updateFile>[2] = { is_based_on_git: basedOnGit, is_preview_suffix_enabled: suffix };
+      const changes: Parameters<typeof ctx.rows.updateFile>[2] = { is_based_on_git: basedOnGit, is_preview_suffix_enabled: suffix };
       // A directory has no content; a file keeps its own when the body leaves it out.
       if (!file.is_directory && body.content !== undefined) changes.content = blank(content) ? null : await ctx.content.encrypt(String(content));
-      await ctx.store.updateFile(l.row.id, id, changes);
+      await ctx.rows.updateFile(l.id, id, changes);
       return saved(ctx, l, STORAGE_MESSAGES.fileUpdated);
     }
     case "convertToDirectory":
@@ -462,16 +456,16 @@ export async function updateFile(ctx: ApplicationResourcesContext, uuid: string,
 
 /**
  * FileStorage::delete(): the mount's row goes. With `permanently_delete` on a
- * mount inside the application's directory Coolify first deletes it on the
+ * mount inside the resource's directory Coolify first deletes it on the
  * server: 501, and the row stays.
  */
-export async function deleteFile(ctx: ApplicationResourcesContext, uuid: string, id: string, permanentlyDelete: boolean): Promise<StoragesSaved | null> {
-  const l = await loadApplication(ctx, uuid, true);
-  const file = l ? await ctx.store.findFile(l.row.id, id) : null;
+export async function deleteFile(ctx: ResourcesContext, uuid: string, id: string, permanentlyDelete: boolean): Promise<StoragesSaved | null> {
+  const l = await ctx.load(uuid, true);
+  const file = l ? await ctx.rows.findFile(l.id, id) : null;
   if (!l || !file) return null;
   if (file.has_backups) throw new SettingsError(STORAGE_MESSAGES.directoryHasBackupsDelete, 422);
-  const canDeleteFromServer = !file.is_host_file && !isOutsideResourceDirectory(file.fs_path, applicationWorkdir(l.row.uuid));
+  const canDeleteFromServer = !file.is_host_file && !isOutsideResourceDirectory(file.fs_path, l.workdir);
   if (canDeleteFromServer && permanentlyDelete) throw new SettingsError(STORAGE_MESSAGES.deleteFromServerUnavailable, 501);
-  await ctx.store.deleteFile(l.row.id, id);
+  await ctx.rows.deleteFile(l.id, id);
   return saved(ctx, l, file.is_directory ? STORAGE_MESSAGES.directoryDeleted : file.is_host_file ? STORAGE_MESSAGES.hostFileRemoved : STORAGE_MESSAGES.fileDeleted);
 }

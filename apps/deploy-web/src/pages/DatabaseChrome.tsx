@@ -223,8 +223,9 @@ export function generalSections(database: DatabaseInfo): Array<{ id: string; lab
 
 /**
  * <x-database.configuration-sidebar>: every entry of Coolify's menu, in its
- * groups. Only General is ported; the others link to their Coolify route and
- * land on the not-ported notice. Backups shows where the engine has a backup
+ * groups. General and the pages that are Coolify's shared components
+ * (DatabaseSharedPages.tsx) are ported; the others link to their Coolify
+ * route and land on the not-ported notice. Backups shows where the engine has a backup
  * solution; the Terminal and Files entries (canAccessTerminal) show to who
  * may update; the Security entry has no dot.
  */
