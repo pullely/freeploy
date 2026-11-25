@@ -1,0 +1,1514 @@
+{
+    "coolify": "91b7e3e",
+    "version": "4.7.6",
+    "cases": [
+        {
+            "name": "auth: no token",
+            "status": 401,
+            "headers": {
+                "content-type": "application/json"
+            },
+            "body": {
+                "json": "{\"message\":\"Unauthenticated.\"}"
+            }
+        },
+        {
+            "name": "auth: unknown token",
+            "status": 401,
+            "headers": {
+                "content-type": "application/json"
+            },
+            "body": {
+                "json": "{\"message\":\"Unauthenticated.\"}"
+            }
+        },
+        {
+            "name": "auth: secret without id",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[{\"id\":1,\"uuid\":\"p1alphaprojectuuid000001\",\"description\":\"The first project\",\"name\":\"Alpha\"},{\"id\":2,\"uuid\":\"p2betaprojectuuid0000002\",\"name\":\"Beta\",\"description\":null}]"
+            }
+        },
+        {
+            "name": "auth: not a bearer",
+            "status": 401,
+            "headers": {
+                "content-type": "application/json"
+            },
+            "body": {
+                "json": "{\"message\":\"Unauthenticated.\"}"
+            }
+        },
+        {
+            "name": "auth: expired",
+            "status": 401,
+            "headers": {
+                "content-type": "application/json"
+            },
+            "body": {
+                "json": "{\"message\":\"Unauthenticated.\"}"
+            }
+        },
+        {
+            "name": "auth: team the user left",
+            "status": 401,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Invalid token.\"}"
+            }
+        },
+        {
+            "name": "ability: read token writes",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: write\"}"
+            }
+        },
+        {
+            "name": "ability: write-only token reads",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: read\"}"
+            }
+        },
+        {
+            "name": "ability: write token deletes",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: delete\"}"
+            }
+        },
+        {
+            "name": "ability: member token beyond the member's access",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"This API token has more access than you have in this team. Revoke it and create a new token.\"}"
+            }
+        },
+        {
+            "name": "ability: member read token",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[{\"id\":1,\"uuid\":\"p1alphaprojectuuid000001\",\"description\":\"The first project\",\"name\":\"Alpha\"},{\"id\":2,\"uuid\":\"p2betaprojectuuid0000002\",\"name\":\"Beta\",\"description\":null}]"
+            }
+        },
+        {
+            "name": "allowed: API disabled",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"success\":false,\"message\":\"API is disabled.\"}"
+            }
+        },
+        {
+            "name": "allowed: IP not in the allow list",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"success\":false,\"message\":\"You are not allowed to access the API.\"}"
+            }
+        },
+        {
+            "name": "allowed: IP in a CIDR of the allow list",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[{\"id\":1,\"uuid\":\"p1alphaprojectuuid000001\",\"description\":\"The first project\",\"name\":\"Alpha\"},{\"id\":2,\"uuid\":\"p2betaprojectuuid0000002\",\"name\":\"Beta\",\"description\":null}]"
+            }
+        },
+        {
+            "name": "allowed: IP exact in the allow list",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[{\"id\":1,\"uuid\":\"p1alphaprojectuuid000001\",\"description\":\"The first project\",\"name\":\"Alpha\"},{\"id\":2,\"uuid\":\"p2betaprojectuuid0000002\",\"name\":\"Beta\",\"description\":null}]"
+            }
+        },
+        {
+            "name": "allowed: allow list 0.0.0.0",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[{\"id\":1,\"uuid\":\"p1alphaprojectuuid000001\",\"description\":\"The first project\",\"name\":\"Alpha\"},{\"id\":2,\"uuid\":\"p2betaprojectuuid0000002\",\"name\":\"Beta\",\"description\":null}]"
+            }
+        },
+        {
+            "name": "route: unknown, with a token",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Not found.\",\"docs\":\"https:\\/\\/coolify.io\\/docs\"}"
+            }
+        },
+        {
+            "name": "route: unknown, without a token",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Not found.\",\"docs\":\"https:\\/\\/coolify.io\\/docs\"}"
+            }
+        },
+        {
+            "name": "route: wrong method",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Not found.\",\"docs\":\"https:\\/\\/coolify.io\\/docs\"}"
+            }
+        },
+        {
+            "name": "health",
+            "status": 200,
+            "headers": {
+                "content-type": "text/html; charset=utf-8",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "text": "OK"
+            }
+        },
+        {
+            "name": "health: unversioned",
+            "status": 200,
+            "headers": {
+                "content-type": "text/html; charset=utf-8",
+                "x-ratelimit-limit": "1000",
+                "x-ratelimit-remaining": "999"
+            },
+            "body": {
+                "text": "OK"
+            }
+        },
+        {
+            "name": "version",
+            "status": 200,
+            "headers": {
+                "content-type": "text/html; charset=utf-8",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "text": "4.7.6"
+            }
+        },
+        {
+            "name": "rate limit: API_RATE_LIMIT reached",
+            "steps": [
+                {
+                    "status": 200,
+                    "headers": {
+                        "content-type": "text/html; charset=utf-8",
+                        "x-ratelimit-limit": "3",
+                        "x-ratelimit-remaining": "2"
+                    },
+                    "body": {
+                        "text": "4.7.6"
+                    }
+                },
+                {
+                    "status": 200,
+                    "headers": {
+                        "content-type": "application/json",
+                        "x-ratelimit-limit": "3",
+                        "x-ratelimit-remaining": "1"
+                    },
+                    "body": {
+                        "json": "[{\"id\":1,\"uuid\":\"p1alphaprojectuuid000001\",\"description\":\"The first project\",\"name\":\"Alpha\"},{\"id\":2,\"uuid\":\"p2betaprojectuuid0000002\",\"name\":\"Beta\",\"description\":null}]"
+                    }
+                },
+                {
+                    "status": 200,
+                    "headers": {
+                        "content-type": "text/html; charset=utf-8",
+                        "x-ratelimit-limit": "3",
+                        "x-ratelimit-remaining": "0"
+                    },
+                    "body": {
+                        "text": "4.7.6"
+                    }
+                },
+                {
+                    "status": 429,
+                    "headers": {
+                        "content-type": "application/json",
+                        "x-ratelimit-limit": "3",
+                        "x-ratelimit-remaining": "0",
+                        "retry-after": "60",
+                        "x-ratelimit-reset": "1767225660"
+                    },
+                    "body": {
+                        "json": "{\n    \"message\": \"Too Many Attempts.\"\n}"
+                    }
+                },
+                {
+                    "status": 401,
+                    "headers": {
+                        "content-type": "application/json"
+                    },
+                    "body": {
+                        "json": "{\"message\":\"Unauthenticated.\"}"
+                    }
+                },
+                {
+                    "status": 200,
+                    "headers": {
+                        "content-type": "text/html; charset=utf-8",
+                        "x-ratelimit-limit": "3",
+                        "x-ratelimit-remaining": "2"
+                    },
+                    "body": {
+                        "text": "4.7.6"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "failed requests: blocked after the limit",
+            "steps": [
+                {
+                    "status": 401,
+                    "headers": {
+                        "content-type": "application/json"
+                    },
+                    "body": {
+                        "json": "{\"message\":\"Unauthenticated.\"}"
+                    }
+                },
+                {
+                    "status": 401,
+                    "headers": {
+                        "content-type": "application/json"
+                    },
+                    "body": {
+                        "json": "{\"message\":\"Unauthenticated.\"}"
+                    }
+                },
+                {
+                    "status": 401,
+                    "headers": {
+                        "content-type": "application/json"
+                    },
+                    "body": {
+                        "json": "{\"message\":\"Unauthenticated.\"}"
+                    }
+                },
+                {
+                    "status": 429,
+                    "headers": {
+                        "content-type": "application/json",
+                        "retry-after": "60"
+                    },
+                    "body": {
+                        "json": "{\"message\":\"Too many failed API requests. Retry after 60 seconds.\"}"
+                    }
+                },
+                {
+                    "status": 200,
+                    "headers": {
+                        "content-type": "text/html; charset=utf-8",
+                        "x-ratelimit-limit": "200",
+                        "x-ratelimit-remaining": "199"
+                    },
+                    "body": {
+                        "text": "4.7.6"
+                    }
+                },
+                {
+                    "status": 200,
+                    "headers": {
+                        "content-type": "text/html; charset=utf-8",
+                        "x-ratelimit-limit": "200",
+                        "x-ratelimit-remaining": "199"
+                    },
+                    "body": {
+                        "text": "OK"
+                    }
+                },
+                {
+                    "status": 401,
+                    "headers": {
+                        "content-type": "application/json"
+                    },
+                    "body": {
+                        "json": "{\"message\":\"Unauthenticated.\"}"
+                    }
+                },
+                {
+                    "status": 401,
+                    "headers": {
+                        "content-type": "application/json"
+                    },
+                    "body": {
+                        "json": "{\"message\":\"Unauthenticated.\"}"
+                    }
+                },
+                {
+                    "status": 401,
+                    "headers": {
+                        "content-type": "application/json"
+                    },
+                    "body": {
+                        "json": "{\"message\":\"Unauthenticated.\"}"
+                    }
+                },
+                {
+                    "status": 429,
+                    "headers": {
+                        "content-type": "application/json",
+                        "retry-after": "300"
+                    },
+                    "body": {
+                        "json": "{\"message\":\"Too many failed API requests. Retry after 300 seconds.\"}"
+                    }
+                },
+                {
+                    "status": 200,
+                    "headers": {
+                        "content-type": "text/html; charset=utf-8",
+                        "x-ratelimit-limit": "200",
+                        "x-ratelimit-remaining": "199"
+                    },
+                    "body": {
+                        "text": "4.7.6"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "failed requests: per token, and a 404 with a token does not count",
+            "steps": [
+                {
+                    "status": 403,
+                    "headers": {
+                        "content-type": "application/json",
+                        "x-ratelimit-limit": "200",
+                        "x-ratelimit-remaining": "199"
+                    },
+                    "body": {
+                        "json": "{\"message\":\"Missing required permissions: write\"}"
+                    }
+                },
+                {
+                    "status": 404,
+                    "headers": {
+                        "content-type": "application/json",
+                        "x-ratelimit-limit": "200",
+                        "x-ratelimit-remaining": "198"
+                    },
+                    "body": {
+                        "json": "{\"message\":\"Not found.\",\"docs\":\"https:\\/\\/coolify.io\\/docs\"}"
+                    }
+                },
+                {
+                    "status": 404,
+                    "headers": {
+                        "content-type": "application/json",
+                        "x-ratelimit-limit": "200",
+                        "x-ratelimit-remaining": "197"
+                    },
+                    "body": {
+                        "json": "{\"message\":\"Project not found.\"}"
+                    }
+                },
+                {
+                    "status": 403,
+                    "headers": {
+                        "content-type": "application/json",
+                        "x-ratelimit-limit": "200",
+                        "x-ratelimit-remaining": "196"
+                    },
+                    "body": {
+                        "json": "{\"message\":\"Missing required permissions: write\"}"
+                    }
+                },
+                {
+                    "status": 429,
+                    "headers": {
+                        "content-type": "application/json",
+                        "retry-after": "60"
+                    },
+                    "body": {
+                        "json": "{\"message\":\"Too many failed API requests. Retry after 60 seconds.\"}"
+                    }
+                },
+                {
+                    "status": 200,
+                    "headers": {
+                        "content-type": "text/html; charset=utf-8",
+                        "x-ratelimit-limit": "200",
+                        "x-ratelimit-remaining": "195"
+                    },
+                    "body": {
+                        "text": "4.7.6"
+                    }
+                },
+                {
+                    "status": 404,
+                    "headers": {
+                        "content-type": "application/json",
+                        "x-ratelimit-limit": "200",
+                        "x-ratelimit-remaining": "199"
+                    },
+                    "body": {
+                        "json": "{\"message\":\"Not found.\",\"docs\":\"https:\\/\\/coolify.io\\/docs\"}"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "teams: current team",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"id\":1,\"name\":\"Parity Team\",\"avatar_path\":null,\"avatar_s3_storage_id\":null,\"avatar_storage_type\":null,\"description\":null,\"is_build_server_fallback_enabled\":true,\"is_mcp_server_enabled\":true,\"is_two_factor_required\":false,\"personal_team\":false,\"scan_images_on_new_servers\":false,\"show_boarding\":false,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}"
+            }
+        },
+        {
+            "name": "teams: current team (deprecated alias)",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"id\":1,\"name\":\"Parity Team\",\"avatar_path\":null,\"avatar_s3_storage_id\":null,\"avatar_storage_type\":null,\"description\":null,\"is_build_server_fallback_enabled\":true,\"is_mcp_server_enabled\":true,\"is_two_factor_required\":false,\"personal_team\":false,\"scan_images_on_new_servers\":false,\"show_boarding\":false,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}"
+            }
+        },
+        {
+            "name": "teams: teams",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[{\"id\":1,\"name\":\"Parity Team\",\"avatar_path\":null,\"avatar_s3_storage_id\":null,\"avatar_storage_type\":null,\"description\":null,\"is_build_server_fallback_enabled\":true,\"is_mcp_server_enabled\":true,\"is_two_factor_required\":false,\"personal_team\":false,\"scan_images_on_new_servers\":false,\"show_boarding\":false,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}]"
+            }
+        },
+        {
+            "name": "teams: team by id",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"id\":1,\"name\":\"Parity Team\",\"avatar_path\":null,\"avatar_s3_storage_id\":null,\"avatar_storage_type\":null,\"description\":null,\"is_build_server_fallback_enabled\":true,\"is_mcp_server_enabled\":true,\"is_two_factor_required\":false,\"personal_team\":false,\"scan_images_on_new_servers\":false,\"show_boarding\":false,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}"
+            }
+        },
+        {
+            "name": "teams: another team by id",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Team not found.\"}"
+            }
+        },
+        {
+            "name": "teams: members",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[{\"id\":1,\"name\":\"Parity Owner\",\"avatar_path\":null,\"avatar_s3_storage_id\":null,\"avatar_storage_type\":null,\"current_team_id\":1,\"email\":\"owner@example.com\",\"email_verified_at\":null,\"force_password_reset\":false,\"marketing_emails\":true,\"pending_email\":null,\"two_factor_confirmed_at\":null,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"},{\"id\":2,\"name\":\"Parity Member\",\"avatar_path\":null,\"avatar_s3_storage_id\":null,\"avatar_storage_type\":null,\"current_team_id\":1,\"email\":\"member@example.com\",\"email_verified_at\":null,\"force_password_reset\":false,\"marketing_emails\":true,\"pending_email\":null,\"two_factor_confirmed_at\":null,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"},{\"id\":4,\"name\":\"Parity Admin\",\"avatar_path\":null,\"avatar_s3_storage_id\":null,\"avatar_storage_type\":null,\"current_team_id\":1,\"email\":\"admin@example.com\",\"email_verified_at\":null,\"force_password_reset\":false,\"marketing_emails\":true,\"pending_email\":null,\"two_factor_confirmed_at\":null,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}]"
+            }
+        },
+        {
+            "name": "teams: members (deprecated alias)",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[{\"id\":1,\"name\":\"Parity Owner\",\"avatar_path\":null,\"avatar_s3_storage_id\":null,\"avatar_storage_type\":null,\"current_team_id\":1,\"email\":\"owner@example.com\",\"email_verified_at\":null,\"force_password_reset\":false,\"marketing_emails\":true,\"pending_email\":null,\"two_factor_confirmed_at\":null,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"},{\"id\":2,\"name\":\"Parity Member\",\"avatar_path\":null,\"avatar_s3_storage_id\":null,\"avatar_storage_type\":null,\"current_team_id\":1,\"email\":\"member@example.com\",\"email_verified_at\":null,\"force_password_reset\":false,\"marketing_emails\":true,\"pending_email\":null,\"two_factor_confirmed_at\":null,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"},{\"id\":4,\"name\":\"Parity Admin\",\"avatar_path\":null,\"avatar_s3_storage_id\":null,\"avatar_storage_type\":null,\"current_team_id\":1,\"email\":\"admin@example.com\",\"email_verified_at\":null,\"force_password_reset\":false,\"marketing_emails\":true,\"pending_email\":null,\"two_factor_confirmed_at\":null,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}]"
+            }
+        },
+        {
+            "name": "teams: members by id",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[{\"id\":1,\"name\":\"Parity Owner\",\"avatar_path\":null,\"avatar_s3_storage_id\":null,\"avatar_storage_type\":null,\"current_team_id\":1,\"email\":\"owner@example.com\",\"email_verified_at\":null,\"force_password_reset\":false,\"marketing_emails\":true,\"pending_email\":null,\"two_factor_confirmed_at\":null,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"},{\"id\":2,\"name\":\"Parity Member\",\"avatar_path\":null,\"avatar_s3_storage_id\":null,\"avatar_storage_type\":null,\"current_team_id\":1,\"email\":\"member@example.com\",\"email_verified_at\":null,\"force_password_reset\":false,\"marketing_emails\":true,\"pending_email\":null,\"two_factor_confirmed_at\":null,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"},{\"id\":4,\"name\":\"Parity Admin\",\"avatar_path\":null,\"avatar_s3_storage_id\":null,\"avatar_storage_type\":null,\"current_team_id\":1,\"email\":\"admin@example.com\",\"email_verified_at\":null,\"force_password_reset\":false,\"marketing_emails\":true,\"pending_email\":null,\"two_factor_confirmed_at\":null,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}]"
+            }
+        },
+        {
+            "name": "teams: members of another team",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Team not found.\"}"
+            }
+        },
+        {
+            "name": "projects: list",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[{\"id\":1,\"uuid\":\"p1alphaprojectuuid000001\",\"description\":\"The first project\",\"name\":\"Alpha\"},{\"id\":2,\"uuid\":\"p2betaprojectuuid0000002\",\"name\":\"Beta\",\"description\":null}]"
+            }
+        },
+        {
+            "name": "projects: show",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"id\":1,\"uuid\":\"p1alphaprojectuuid000001\",\"description\":\"The first project\",\"name\":\"Alpha\",\"canvas_position\":null,\"environments\":[{\"id\":1,\"name\":\"production\",\"project_id\":1,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\",\"description\":null,\"uuid\":\"e1alphaproduction0000001\",\"canvas_positions\":null},{\"id\":2,\"name\":\"staging\",\"project_id\":1,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\",\"description\":\"Before production\",\"uuid\":\"e2alphastaging0000000002\",\"canvas_positions\":null}],\"icon_path\":null,\"icon_s3_storage_id\":null,\"icon_storage_type\":null,\"team_id\":1,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}"
+            }
+        },
+        {
+            "name": "projects: show another team's",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Project not found.\"}"
+            }
+        },
+        {
+            "name": "projects: environments",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[{\"id\":1,\"uuid\":\"e1alphaproduction0000001\",\"name\":\"production\"},{\"id\":2,\"uuid\":\"e2alphastaging0000000002\",\"name\":\"staging\"}]"
+            }
+        },
+        {
+            "name": "projects: environments of an unknown project",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Project not found.\"}"
+            }
+        },
+        {
+            "name": "projects: create",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"eo6ijlwkgjwrscjoq0odyad1\"}"
+            },
+            "after": {
+                "projects": [
+                    {
+                        "name": "Gamma",
+                        "description": "Made by the API",
+                        "team_id": 1
+                    }
+                ],
+                "environments": [
+                    {
+                        "name": "production"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "projects: create without a description",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"mgknflzgodwznheh6zx8x49e\"}"
+            },
+            "after": {
+                "projects": [
+                    {
+                        "name": "Gamma",
+                        "description": null
+                    }
+                ]
+            }
+        },
+        {
+            "name": "projects: create, trimmed",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"z0pacnfke3nallyxtwwbivo0\"}"
+            },
+            "after": {
+                "projects": [
+                    {
+                        "name": "Spaced",
+                        "description": null
+                    }
+                ]
+            }
+        },
+        {
+            "name": "projects: create, name not a string",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"name\":[\"The name field must be a string.\"],\"description\":[\"The description field must be a string.\",\"The description may only contain letters (including Unicode), numbers, spaces, and common punctuation: - _ . , ! ? ( ) ' \\\" + = * \\/ @ &\"]}}"
+            }
+        },
+        {
+            "name": "projects: create, invalid",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"name\":[\"The name must be at least 3 characters.\"],\"description\":[\"The description may only contain letters (including Unicode), numbers, spaces, and common punctuation: - _ . , ! ? ( ) ' \\\" + = * \\/ @ &\"],\"extra\":[\"This field is not allowed.\"]}}"
+            }
+        },
+        {
+            "name": "projects: create, no name",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"name\":[\"The name field is required.\"]}}"
+            }
+        },
+        {
+            "name": "projects: create, not JSON",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Invalid request.\",\"error\":\"Content-Type must be application\\/json.\"}"
+            }
+        },
+        {
+            "name": "projects: create, invalid JSON",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Invalid request.\",\"error\":\"Invalid JSON.\"}"
+            }
+        },
+        {
+            "name": "projects: create, empty JSON",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Invalid request.\",\"error\":\"Empty JSON.\"}"
+            }
+        },
+        {
+            "name": "projects: update",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"p2betaprojectuuid0000002\",\"name\":\"Beta 2\",\"description\":null}"
+            },
+            "after": {
+                "projects": [
+                    {
+                        "name": "Beta 2",
+                        "description": null
+                    }
+                ]
+            }
+        },
+        {
+            "name": "projects: update the description only",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"p1alphaprojectuuid000001\",\"name\":\"Alpha\",\"description\":\"Changed\"}"
+            }
+        },
+        {
+            "name": "projects: update, invalid",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"name\":[\"The name must be at least 3 characters.\"],\"team_id\":[\"This field is not allowed.\"]}}"
+            }
+        },
+        {
+            "name": "projects: update another team's",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Project not found.\"}"
+            }
+        },
+        {
+            "name": "projects: delete with resources (environments)",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Project deleted.\"}"
+            },
+            "after": {
+                "projects": [
+                    {
+                        "n": 0
+                    }
+                ]
+            }
+        },
+        {
+            "name": "projects: delete unknown",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Project not found.\"}"
+            }
+        },
+        {
+            "name": "environments: create",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"6e9obftjei5ev8ncjj3i028d\"}"
+            },
+            "after": {
+                "environments": [
+                    {
+                        "name": "production",
+                        "description": null
+                    },
+                    {
+                        "name": "staging",
+                        "description": "Before production"
+                    },
+                    {
+                        "name": "preview",
+                        "description": null
+                    }
+                ]
+            }
+        },
+        {
+            "name": "environments: create, mixed case",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"cbfnwx5ywg8qhdxibxa3g4fr\"}"
+            },
+            "after": {
+                "environments": [
+                    {
+                        "name": "production"
+                    },
+                    {
+                        "name": "staging"
+                    },
+                    {
+                        "name": "preview env"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "environments: create, extra field",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"uuid\":[\"This field is not allowed.\"]}}"
+            }
+        },
+        {
+            "name": "environments: create, existing name",
+            "status": 409,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Environment with this name already exists.\"}"
+            }
+        },
+        {
+            "name": "environments: create, invalid",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"name\":[\"The name must be at least 3 characters.\",\"The name may only contain letters (including Unicode), numbers, spaces, and these characters: - _ . \\/ @ & ( ) # , : +\"],\"description\":[\"This field is not allowed.\"]}}"
+            }
+        },
+        {
+            "name": "environments: create in an unknown project",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Project not found.\"}"
+            }
+        },
+        {
+            "name": "environments: update by name",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"e2alphastaging0000000002\",\"name\":\"qa-env\",\"description\":\"Renamed\"}"
+            }
+        },
+        {
+            "name": "environments: update by uuid",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"e2alphastaging0000000002\",\"name\":\"staging\",\"description\":\"Only the description\"}"
+            }
+        },
+        {
+            "name": "environments: update to an existing name",
+            "status": 409,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Environment with this name already exists.\"}"
+            }
+        },
+        {
+            "name": "environments: update unknown",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Environment not found.\"}"
+            }
+        },
+        {
+            "name": "environments: delete",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Environment deleted.\"}"
+            },
+            "after": {
+                "environments": [
+                    {
+                        "name": "production"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "environments: delete unknown",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Environment not found.\"}"
+            }
+        },
+        {
+            "name": "keys: list",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[{\"id\":1,\"uuid\":\"k1parityprivatekey000001\",\"description\":\"The fixture's key\",\"name\":\"Parity Key\",\"fingerprint\":\"B1VgaTDKNk9wmidbNlJLi0EDtrs91BCCIjb1KI6bFd4\",\"is_git_related\":false,\"public_key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+\\/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2 \",\"team_id\":1,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"},{\"id\":2,\"uuid\":\"k2unusedprivatekey000002\",\"name\":\"Unused Key\",\"description\":null,\"fingerprint\":\"WC3prNpU9+uXidVf3e1Z78BZwh\\/\\/j2pDYdcHg1qytis\",\"is_git_related\":false,\"public_key\":\"ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBB\\/uOHYVj+Cm51IugMSbntyw5lf3jFjWqayIYkBBaNtrY5JHXVZsqiTOLCOFDaXPp4ZKx5\\/BeWQGQGPc\\/0XFU6A= \",\"team_id\":1,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}]"
+            }
+        },
+        {
+            "name": "keys: list, read:sensitive",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[{\"id\":1,\"uuid\":\"k1parityprivatekey000001\",\"description\":\"The fixture's key\",\"name\":\"Parity Key\",\"fingerprint\":\"B1VgaTDKNk9wmidbNlJLi0EDtrs91BCCIjb1KI6bFd4\",\"is_git_related\":false,\"private_key\":\"-----BEGIN OPENSSH PRIVATE KEY-----\\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW\\nQyNTUxOQAAACCu2IHwr\\/v2Aovg7XgW65IWwEvtWWGCoJIaPnrOqLnEtgAAAJDhBu1M4Qbt\\nTAAAAAtzc2gtZWQyNTUxOQAAACCu2IHwr\\/v2Aovg7XgW65IWwEvtWWGCoJIaPnrOqLnEtg\\nAAAEAesxy2Twnr9Rg9mQwoKxaqx7xKjx9MThlgINk+VF\\/fhq7YgfCv+\\/YCi+DteBbrkhbA\\nS+1ZYYKgkho+es6oucS2AAAAB2ZpeHR1cmUBAgMEBQY=\\n-----END OPENSSH PRIVATE KEY-----\\n\",\"public_key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+\\/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2 \",\"team_id\":1,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"},{\"id\":2,\"uuid\":\"k2unusedprivatekey000002\",\"name\":\"Unused Key\",\"description\":null,\"fingerprint\":\"WC3prNpU9+uXidVf3e1Z78BZwh\\/\\/j2pDYdcHg1qytis\",\"is_git_related\":false,\"private_key\":\"-----BEGIN OPENSSH PRIVATE KEY-----\\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAaAAAABNlY2RzYS\\n1zaGEyLW5pc3RwMjU2AAAACG5pc3RwMjU2AAAAQQQf7jh2FY\\/gpudSLoDEm57csOZX94xY\\n1qmsiGJAQWjba2OSR11WbKokziwjhQ2lz6eGSsefwXlkBkBj3P9FxVOgAAAAoOYs1bbmLN\\nW2AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBB\\/uOHYVj+Cm51Iu\\ngMSbntyw5lf3jFjWqayIYkBBaNtrY5JHXVZsqiTOLCOFDaXPp4ZKx5\\/BeWQGQGPc\\/0XFU6\\nAAAAAhAKEcNNJTBE+9CwAx0CWDwld7Fue7tTr0M7I8d50X9S3sAAAAB2ZpeHR1cmU=\\n-----END OPENSSH PRIVATE KEY-----\\n\",\"public_key\":\"ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBB\\/uOHYVj+Cm51IugMSbntyw5lf3jFjWqayIYkBBaNtrY5JHXVZsqiTOLCOFDaXPp4ZKx5\\/BeWQGQGPc\\/0XFU6A= \",\"team_id\":1,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}]"
+            }
+        },
+        {
+            "name": "keys: list, member with read:sensitive",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"This API token has more access than you have in this team. Revoke it and create a new token.\"}"
+            }
+        },
+        {
+            "name": "keys: show",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"id\":1,\"uuid\":\"k1parityprivatekey000001\",\"description\":\"The fixture's key\",\"name\":\"Parity Key\",\"fingerprint\":\"B1VgaTDKNk9wmidbNlJLi0EDtrs91BCCIjb1KI6bFd4\",\"is_git_related\":false,\"public_key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+\\/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2 \",\"team_id\":1,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}"
+            }
+        },
+        {
+            "name": "keys: show, root",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"id\":1,\"uuid\":\"k1parityprivatekey000001\",\"description\":\"The fixture's key\",\"name\":\"Parity Key\",\"fingerprint\":\"B1VgaTDKNk9wmidbNlJLi0EDtrs91BCCIjb1KI6bFd4\",\"is_git_related\":false,\"private_key\":\"-----BEGIN OPENSSH PRIVATE KEY-----\\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW\\nQyNTUxOQAAACCu2IHwr\\/v2Aovg7XgW65IWwEvtWWGCoJIaPnrOqLnEtgAAAJDhBu1M4Qbt\\nTAAAAAtzc2gtZWQyNTUxOQAAACCu2IHwr\\/v2Aovg7XgW65IWwEvtWWGCoJIaPnrOqLnEtg\\nAAAEAesxy2Twnr9Rg9mQwoKxaqx7xKjx9MThlgINk+VF\\/fhq7YgfCv+\\/YCi+DteBbrkhbA\\nS+1ZYYKgkho+es6oucS2AAAAB2ZpeHR1cmUBAgMEBQY=\\n-----END OPENSSH PRIVATE KEY-----\\n\",\"public_key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+\\/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2 \",\"team_id\":1,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}"
+            }
+        },
+        {
+            "name": "keys: show another team's",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Private Key not found.\"}"
+            }
+        },
+        {
+            "name": "keys: create",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"9fagawuyvmzfolivfwlgkz4h\"}"
+            }
+        },
+        {
+            "name": "keys: create base64",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"2spdf9ul57ay8jooezupuape\"}"
+            }
+        },
+        {
+            "name": "keys: create, no name or description",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"dqkoadetrpw3239oupj166ht\"}"
+            }
+        },
+        {
+            "name": "keys: create, existing key",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Private key already exists.\"}"
+            }
+        },
+        {
+            "name": "keys: create, not a key",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"The private key is invalid. Paste an unencrypted private key, not a public key or a certificate.\"}"
+            }
+        },
+        {
+            "name": "keys: create, encrypted key",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"The private key is invalid. Paste an unencrypted private key, not a public key or a certificate.\"}"
+            }
+        },
+        {
+            "name": "keys: create, invalid",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"name\":[\"The name must be at least 3 characters.\"],\"description\":[\"The description may only contain letters (including Unicode), numbers, spaces, and common punctuation: - _ . , ! ? ( ) ' \\\" + = * \\/ @ &\"],\"private_key\":[\"This field is required.\"]}}"
+            }
+        },
+        {
+            "name": "keys: update",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"k2unusedprivatekey000002\"}"
+            }
+        },
+        {
+            "name": "keys: update, invalid",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"name\":[\"The name field must be a string.\",\"The name must be at least 3 characters.\",\"The name may only contain letters (including Unicode), numbers, spaces, and these characters: - _ . \\/ @ & ( ) # , : +\"],\"fingerprint\":[\"This field is not allowed.\"]}}"
+            }
+        },
+        {
+            "name": "keys: update, replace the key",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"k2unusedprivatekey000002\"}"
+            }
+        },
+        {
+            "name": "keys: update, not a key",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"The private key is invalid. Paste an unencrypted private key, not a public key or a certificate.\",\"errors\":{\"private_key\":[\"The private key is invalid. Paste an unencrypted private key, not a public key or a certificate.\"]}}"
+            }
+        },
+        {
+            "name": "keys: update another team's",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Private Key not found.\"}"
+            }
+        },
+        {
+            "name": "keys: delete",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Private Key deleted.\"}"
+            },
+            "after": {
+                "keys": [
+                    {
+                        "uuid": "k1parityprivatekey000001"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "keys: delete, in use",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Private Key is in use and cannot be deleted.\",\"details\":\"This private key is currently being used by servers, applications, or Git integrations.\"}"
+            }
+        },
+        {
+            "name": "keys: delete unknown",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Private Key not found.\"}"
+            }
+        },
+        {
+            "name": "servers: list",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[{\"uuid\":\"s1parityserveruuid000001\",\"description\":\"The fixture server\",\"name\":\"parity-server\",\"ip\":\"203.0.113.10\",\"is_coolify_host\":false,\"is_reachable\":false,\"is_usable\":false,\"port\":22,\"proxy\":{\"redirect_enabled\":true},\"settings\":{\"id\":2,\"auto_security_updates_time\":\"03:00\",\"backup_compression_cpu_percentage\":25,\"cloudflare_tunnel_account_id\":null,\"cloudflare_tunnel_id\":null,\"cloudflare_tunnel_integration_token_id\":null,\"compose_version\":null,\"compose_version_checked_at\":null,\"concurrent_builds\":2,\"connection_timeout\":10,\"delete_unused_networks\":false,\"delete_unused_volumes\":false,\"deployment_queue_limit\":25,\"disable_application_image_retention\":false,\"docker_cleanup_frequency\":\"0 0 * * *\",\"docker_cleanup_threshold\":80,\"docker_version\":null,\"docker_version_checked_at\":null,\"dynamic_timeout\":3600,\"force_disabled\":false,\"force_docker_cleanup\":true,\"generate_exact_labels\":false,\"geoip_refresh_days\":30,\"image_candidate_scans_date\":null,\"image_candidate_scans_today\":0,\"image_scan_cpus\":1,\"image_scan_grype_timeout\":600,\"image_scan_memory_mb\":1024,\"image_scan_syft_timeout\":600,\"is_auto_security_updates_enabled\":false,\"is_cloudflare_tunnel\":false,\"is_geoip_enabled\":true,\"is_image_scan_enabled\":false,\"is_jump_server\":false,\"is_logdrain_axiom_enabled\":false,\"is_logdrain_cloudwatch_enabled\":false,\"is_logdrain_custom_enabled\":false,\"is_logdrain_newrelic_enabled\":false,\"is_metrics_enabled\":false,\"is_reachable\":false,\"is_sentinel_debug_enabled\":false,\"is_sentinel_enabled\":true,\"is_ssh_host_key_check_disabled\":false,\"is_ssh_host_key_check_enforced\":false,\"is_swarm_manager\":false,\"is_swarm_worker\":false,\"is_terminal_enabled\":true,\"is_traffic_analytics_enabled\":false,\"is_usable\":false,\"logdrain_axiom_dataset_name\":null,\"logdrain_axiom_domain\":\"us-east-1.aws.edge.axiom.co\",\"logdrain_cloudwatch_group\":null,\"logdrain_cloudwatch_region\":null,\"logdrain_cloudwatch_stream_prefix\":null,\"logdrain_newrelic_base_uri\":null,\"patch_check_error\":null,\"patch_check_frequency\":null,\"patch_check_result\":null,\"patch_checked_at\":null,\"public_ipv4\":null,\"public_ipv6\":null,\"sentinel_metrics_history_days\":7,\"sentinel_metrics_refresh_rate_seconds\":10,\"sentinel_push_interval_seconds\":60,\"server_disk_usage_check_frequency\":\"0 23 * * *\",\"server_disk_usage_notification_interval_hours\":24,\"server_disk_usage_notification_threshold\":80,\"server_id\":1,\"server_role\":\"both\",\"server_timezone\":\"UTC\",\"ssh_host_key\":null,\"ssh_host_key_pending\":null,\"ssh_host_key_source\":null,\"ssh_host_key_trusted_at\":null,\"traefik_certificate_resolver\":\"letsencrypt\",\"traffic_ip_mode\":\"full\",\"traffic_retention_1d_days\":395,\"traffic_retention_1h_days\":30,\"traffic_sample_threshold\":0,\"traffic_topn\":50,\"wildcard_domain\":null,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\",\"is_build_server\":false,\"ssh_host_key_fingerprints\":[],\"ssh_host_key_pending_fingerprints\":[]},\"user\":\"root\"}]"
+            }
+        },
+        {
+            "name": "servers: list, read:sensitive",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[{\"uuid\":\"s1parityserveruuid000001\",\"description\":\"The fixture server\",\"name\":\"parity-server\",\"ip\":\"203.0.113.10\",\"is_coolify_host\":false,\"is_reachable\":false,\"is_usable\":false,\"port\":22,\"proxy\":{\"redirect_enabled\":true},\"settings\":{\"id\":2,\"auto_security_updates_time\":\"03:00\",\"backup_compression_cpu_percentage\":25,\"cloudflare_tunnel_account_id\":null,\"cloudflare_tunnel_id\":null,\"cloudflare_tunnel_integration_token_id\":null,\"compose_version\":null,\"compose_version_checked_at\":null,\"concurrent_builds\":2,\"connection_timeout\":10,\"delete_unused_networks\":false,\"delete_unused_volumes\":false,\"deployment_queue_limit\":25,\"disable_application_image_retention\":false,\"docker_cleanup_frequency\":\"0 0 * * *\",\"docker_cleanup_threshold\":80,\"docker_version\":null,\"docker_version_checked_at\":null,\"dynamic_timeout\":3600,\"force_disabled\":false,\"force_docker_cleanup\":true,\"generate_exact_labels\":false,\"geoip_refresh_days\":30,\"image_candidate_scans_date\":null,\"image_candidate_scans_today\":0,\"image_scan_cpus\":1,\"image_scan_grype_timeout\":600,\"image_scan_memory_mb\":1024,\"image_scan_syft_timeout\":600,\"is_auto_security_updates_enabled\":false,\"is_cloudflare_tunnel\":false,\"is_geoip_enabled\":true,\"is_image_scan_enabled\":false,\"is_jump_server\":false,\"is_logdrain_axiom_enabled\":false,\"is_logdrain_cloudwatch_enabled\":false,\"is_logdrain_custom_enabled\":false,\"is_logdrain_newrelic_enabled\":false,\"is_metrics_enabled\":false,\"is_reachable\":false,\"is_sentinel_debug_enabled\":false,\"is_sentinel_enabled\":true,\"is_ssh_host_key_check_disabled\":false,\"is_ssh_host_key_check_enforced\":false,\"is_swarm_manager\":false,\"is_swarm_worker\":false,\"is_terminal_enabled\":true,\"is_traffic_analytics_enabled\":false,\"is_usable\":false,\"logdrain_axiom_api_key\":null,\"logdrain_axiom_dataset_name\":null,\"logdrain_axiom_domain\":\"us-east-1.aws.edge.axiom.co\",\"logdrain_cloudwatch_group\":null,\"logdrain_cloudwatch_region\":null,\"logdrain_cloudwatch_stream_prefix\":null,\"logdrain_custom_config\":null,\"logdrain_custom_config_parser\":null,\"logdrain_newrelic_base_uri\":null,\"logdrain_newrelic_license_key\":null,\"patch_check_error\":null,\"patch_check_frequency\":null,\"patch_check_result\":null,\"patch_checked_at\":null,\"public_ipv4\":null,\"public_ipv6\":null,\"sentinel_custom_url\":null,\"sentinel_metrics_history_days\":7,\"sentinel_metrics_refresh_rate_seconds\":10,\"sentinel_push_interval_seconds\":60,\"sentinel_token\":\"eyJpdiI6Im5IYTN1cEdmTHVrd1YwamhFY1BiaHc9PSIsInZhbHVlIjoicUtRRGtaK1BOTmdyaTFDRzZEb3ZWSXlvSHg3S3Jac21KcGliRytDMzBHYUdtY0tXNmp5N0doMkJUMUVEaUYxaHhhdWRVQUdQUktrM0RCQWtvK01wa2c9PSIsIm1hYyI6ImNjYmM3NDU0ZGU5MDg0YTBlY2M1Y2E0NTJkNWQzMjYyYjQ0YjE0OTZlODU1MjlmZDFhZTIwY2RmZDJjODhiZTMiLCJ0YWciOiIifQ==\",\"server_disk_usage_check_frequency\":\"0 23 * * *\",\"server_disk_usage_notification_interval_hours\":24,\"server_disk_usage_notification_threshold\":80,\"server_id\":1,\"server_role\":\"both\",\"server_timezone\":\"UTC\",\"ssh_host_key\":null,\"ssh_host_key_pending\":null,\"ssh_host_key_source\":null,\"ssh_host_key_trusted_at\":null,\"traefik_certificate_resolver\":\"letsencrypt\",\"traffic_ip_mode\":\"full\",\"traffic_retention_1d_days\":395,\"traffic_retention_1h_days\":30,\"traffic_sample_threshold\":0,\"traffic_topn\":50,\"wildcard_domain\":null,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\",\"is_build_server\":false,\"ssh_host_key_fingerprints\":[],\"ssh_host_key_pending_fingerprints\":[]},\"user\":\"root\"}]"
+            }
+        },
+        {
+            "name": "servers: show",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"s1parityserveruuid000001\",\"description\":\"The fixture server\",\"name\":\"parity-server\",\"canvas_position\":null,\"cloud_provider_token_id\":null,\"deleted_at\":null,\"detected_traefik_version\":null,\"digitalocean_droplet_id\":null,\"digitalocean_droplet_status\":null,\"hetzner_server_id\":null,\"hetzner_server_status\":null,\"high_disk_usage_notification_sent\":false,\"hostinger_virtual_machine_id\":null,\"hostinger_virtual_machine_status\":null,\"ip\":\"203.0.113.10\",\"ip_previous\":null,\"is_coolify_host\":false,\"is_validating\":false,\"log_drain_notification_sent\":false,\"port\":22,\"private_key_id\":1,\"proxy\":{\"redirect_enabled\":true},\"sentinel_updated_at\":\"2026-11-25 05:00:59\",\"sentinel_waiting_since\":null,\"server_metadata\":null,\"settings\":{\"id\":2,\"auto_security_updates_time\":\"03:00\",\"backup_compression_cpu_percentage\":25,\"cloudflare_tunnel_account_id\":null,\"cloudflare_tunnel_id\":null,\"cloudflare_tunnel_integration_token_id\":null,\"compose_version\":null,\"compose_version_checked_at\":null,\"concurrent_builds\":2,\"connection_timeout\":10,\"delete_unused_networks\":false,\"delete_unused_volumes\":false,\"deployment_queue_limit\":25,\"disable_application_image_retention\":false,\"docker_cleanup_frequency\":\"0 0 * * *\",\"docker_cleanup_threshold\":80,\"docker_version\":null,\"docker_version_checked_at\":null,\"dynamic_timeout\":3600,\"force_disabled\":false,\"force_docker_cleanup\":true,\"generate_exact_labels\":false,\"geoip_refresh_days\":30,\"image_candidate_scans_date\":null,\"image_candidate_scans_today\":0,\"image_scan_cpus\":1,\"image_scan_grype_timeout\":600,\"image_scan_memory_mb\":1024,\"image_scan_syft_timeout\":600,\"is_auto_security_updates_enabled\":false,\"is_cloudflare_tunnel\":false,\"is_geoip_enabled\":true,\"is_image_scan_enabled\":false,\"is_jump_server\":false,\"is_logdrain_axiom_enabled\":false,\"is_logdrain_cloudwatch_enabled\":false,\"is_logdrain_custom_enabled\":false,\"is_logdrain_newrelic_enabled\":false,\"is_metrics_enabled\":false,\"is_reachable\":false,\"is_sentinel_debug_enabled\":false,\"is_sentinel_enabled\":true,\"is_ssh_host_key_check_disabled\":false,\"is_ssh_host_key_check_enforced\":false,\"is_swarm_manager\":false,\"is_swarm_worker\":false,\"is_terminal_enabled\":true,\"is_traffic_analytics_enabled\":false,\"is_usable\":false,\"logdrain_axiom_dataset_name\":null,\"logdrain_axiom_domain\":\"us-east-1.aws.edge.axiom.co\",\"logdrain_cloudwatch_group\":null,\"logdrain_cloudwatch_region\":null,\"logdrain_cloudwatch_stream_prefix\":null,\"logdrain_newrelic_base_uri\":null,\"patch_check_error\":null,\"patch_check_frequency\":null,\"patch_check_result\":null,\"patch_checked_at\":null,\"public_ipv4\":null,\"public_ipv6\":null,\"sentinel_metrics_history_days\":7,\"sentinel_metrics_refresh_rate_seconds\":10,\"sentinel_push_interval_seconds\":60,\"server_disk_usage_check_frequency\":\"0 23 * * *\",\"server_disk_usage_notification_interval_hours\":24,\"server_disk_usage_notification_threshold\":80,\"server_id\":1,\"server_role\":\"both\",\"server_timezone\":\"UTC\",\"ssh_host_key\":null,\"ssh_host_key_pending\":null,\"ssh_host_key_source\":null,\"ssh_host_key_trusted_at\":null,\"traefik_certificate_resolver\":\"letsencrypt\",\"traffic_ip_mode\":\"full\",\"traffic_retention_1d_days\":395,\"traffic_retention_1h_days\":30,\"traffic_sample_threshold\":0,\"traffic_topn\":50,\"wildcard_domain\":null,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\",\"is_build_server\":false,\"ssh_host_key_fingerprints\":[],\"ssh_host_key_pending_fingerprints\":[]},\"swarm_cluster\":null,\"team_id\":1,\"traefik_outdated_info\":null,\"unreachable_count\":0,\"unreachable_notification_sent\":false,\"user\":\"root\",\"vultr_instance_id\":null,\"vultr_instance_status\":null,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}"
+            }
+        },
+        {
+            "name": "servers: show with resources",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"s1parityserveruuid000001\",\"description\":\"The fixture server\",\"name\":\"parity-server\",\"canvas_position\":null,\"cloud_provider_token_id\":null,\"deleted_at\":null,\"detected_traefik_version\":null,\"digitalocean_droplet_id\":null,\"digitalocean_droplet_status\":null,\"hetzner_server_id\":null,\"hetzner_server_status\":null,\"high_disk_usage_notification_sent\":false,\"hostinger_virtual_machine_id\":null,\"hostinger_virtual_machine_status\":null,\"ip\":\"203.0.113.10\",\"ip_previous\":null,\"is_coolify_host\":false,\"is_validating\":false,\"log_drain_notification_sent\":false,\"port\":22,\"private_key_id\":1,\"proxy\":{\"redirect_enabled\":true},\"resources\":[],\"sentinel_updated_at\":\"2026-11-25 05:00:59\",\"sentinel_waiting_since\":null,\"server_metadata\":null,\"settings\":{\"id\":2,\"auto_security_updates_time\":\"03:00\",\"backup_compression_cpu_percentage\":25,\"cloudflare_tunnel_account_id\":null,\"cloudflare_tunnel_id\":null,\"cloudflare_tunnel_integration_token_id\":null,\"compose_version\":null,\"compose_version_checked_at\":null,\"concurrent_builds\":2,\"connection_timeout\":10,\"delete_unused_networks\":false,\"delete_unused_volumes\":false,\"deployment_queue_limit\":25,\"disable_application_image_retention\":false,\"docker_cleanup_frequency\":\"0 0 * * *\",\"docker_cleanup_threshold\":80,\"docker_version\":null,\"docker_version_checked_at\":null,\"dynamic_timeout\":3600,\"force_disabled\":false,\"force_docker_cleanup\":true,\"generate_exact_labels\":false,\"geoip_refresh_days\":30,\"image_candidate_scans_date\":null,\"image_candidate_scans_today\":0,\"image_scan_cpus\":1,\"image_scan_grype_timeout\":600,\"image_scan_memory_mb\":1024,\"image_scan_syft_timeout\":600,\"is_auto_security_updates_enabled\":false,\"is_cloudflare_tunnel\":false,\"is_geoip_enabled\":true,\"is_image_scan_enabled\":false,\"is_jump_server\":false,\"is_logdrain_axiom_enabled\":false,\"is_logdrain_cloudwatch_enabled\":false,\"is_logdrain_custom_enabled\":false,\"is_logdrain_newrelic_enabled\":false,\"is_metrics_enabled\":false,\"is_reachable\":false,\"is_sentinel_debug_enabled\":false,\"is_sentinel_enabled\":true,\"is_ssh_host_key_check_disabled\":false,\"is_ssh_host_key_check_enforced\":false,\"is_swarm_manager\":false,\"is_swarm_worker\":false,\"is_terminal_enabled\":true,\"is_traffic_analytics_enabled\":false,\"is_usable\":false,\"logdrain_axiom_dataset_name\":null,\"logdrain_axiom_domain\":\"us-east-1.aws.edge.axiom.co\",\"logdrain_cloudwatch_group\":null,\"logdrain_cloudwatch_region\":null,\"logdrain_cloudwatch_stream_prefix\":null,\"logdrain_newrelic_base_uri\":null,\"patch_check_error\":null,\"patch_check_frequency\":null,\"patch_check_result\":null,\"patch_checked_at\":null,\"public_ipv4\":null,\"public_ipv6\":null,\"sentinel_metrics_history_days\":7,\"sentinel_metrics_refresh_rate_seconds\":10,\"sentinel_push_interval_seconds\":60,\"server_disk_usage_check_frequency\":\"0 23 * * *\",\"server_disk_usage_notification_interval_hours\":24,\"server_disk_usage_notification_threshold\":80,\"server_id\":1,\"server_role\":\"both\",\"server_timezone\":\"UTC\",\"ssh_host_key\":null,\"ssh_host_key_pending\":null,\"ssh_host_key_source\":null,\"ssh_host_key_trusted_at\":null,\"traefik_certificate_resolver\":\"letsencrypt\",\"traffic_ip_mode\":\"full\",\"traffic_retention_1d_days\":395,\"traffic_retention_1h_days\":30,\"traffic_sample_threshold\":0,\"traffic_topn\":50,\"wildcard_domain\":null,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\",\"is_build_server\":false,\"ssh_host_key_fingerprints\":[],\"ssh_host_key_pending_fingerprints\":[]},\"swarm_cluster\":null,\"team_id\":1,\"traefik_outdated_info\":null,\"unreachable_count\":0,\"unreachable_notification_sent\":false,\"user\":\"root\",\"vultr_instance_id\":null,\"vultr_instance_status\":null,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}"
+            }
+        },
+        {
+            "name": "servers: show, read:sensitive",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"s1parityserveruuid000001\",\"description\":\"The fixture server\",\"name\":\"parity-server\",\"canvas_position\":null,\"cloud_provider_token_id\":null,\"deleted_at\":null,\"detected_traefik_version\":null,\"digitalocean_droplet_id\":null,\"digitalocean_droplet_status\":null,\"hetzner_server_id\":null,\"hetzner_server_status\":null,\"high_disk_usage_notification_sent\":false,\"hostinger_virtual_machine_id\":null,\"hostinger_virtual_machine_status\":null,\"ip\":\"203.0.113.10\",\"ip_previous\":null,\"is_coolify_host\":false,\"is_validating\":false,\"log_drain_notification_sent\":false,\"port\":22,\"private_key_id\":1,\"proxy\":{\"redirect_enabled\":true},\"sentinel_updated_at\":\"2026-11-25 05:00:59\",\"sentinel_waiting_since\":null,\"server_metadata\":null,\"settings\":{\"id\":2,\"auto_security_updates_time\":\"03:00\",\"backup_compression_cpu_percentage\":25,\"cloudflare_tunnel_account_id\":null,\"cloudflare_tunnel_id\":null,\"cloudflare_tunnel_integration_token_id\":null,\"compose_version\":null,\"compose_version_checked_at\":null,\"concurrent_builds\":2,\"connection_timeout\":10,\"delete_unused_networks\":false,\"delete_unused_volumes\":false,\"deployment_queue_limit\":25,\"disable_application_image_retention\":false,\"docker_cleanup_frequency\":\"0 0 * * *\",\"docker_cleanup_threshold\":80,\"docker_version\":null,\"docker_version_checked_at\":null,\"dynamic_timeout\":3600,\"force_disabled\":false,\"force_docker_cleanup\":true,\"generate_exact_labels\":false,\"geoip_refresh_days\":30,\"image_candidate_scans_date\":null,\"image_candidate_scans_today\":0,\"image_scan_cpus\":1,\"image_scan_grype_timeout\":600,\"image_scan_memory_mb\":1024,\"image_scan_syft_timeout\":600,\"is_auto_security_updates_enabled\":false,\"is_cloudflare_tunnel\":false,\"is_geoip_enabled\":true,\"is_image_scan_enabled\":false,\"is_jump_server\":false,\"is_logdrain_axiom_enabled\":false,\"is_logdrain_cloudwatch_enabled\":false,\"is_logdrain_custom_enabled\":false,\"is_logdrain_newrelic_enabled\":false,\"is_metrics_enabled\":false,\"is_reachable\":false,\"is_sentinel_debug_enabled\":false,\"is_sentinel_enabled\":true,\"is_ssh_host_key_check_disabled\":false,\"is_ssh_host_key_check_enforced\":false,\"is_swarm_manager\":false,\"is_swarm_worker\":false,\"is_terminal_enabled\":true,\"is_traffic_analytics_enabled\":false,\"is_usable\":false,\"logdrain_axiom_api_key\":null,\"logdrain_axiom_dataset_name\":null,\"logdrain_axiom_domain\":\"us-east-1.aws.edge.axiom.co\",\"logdrain_cloudwatch_group\":null,\"logdrain_cloudwatch_region\":null,\"logdrain_cloudwatch_stream_prefix\":null,\"logdrain_custom_config\":null,\"logdrain_custom_config_parser\":null,\"logdrain_newrelic_base_uri\":null,\"logdrain_newrelic_license_key\":null,\"patch_check_error\":null,\"patch_check_frequency\":null,\"patch_check_result\":null,\"patch_checked_at\":null,\"public_ipv4\":null,\"public_ipv6\":null,\"sentinel_custom_url\":null,\"sentinel_metrics_history_days\":7,\"sentinel_metrics_refresh_rate_seconds\":10,\"sentinel_push_interval_seconds\":60,\"sentinel_token\":\"eyJpdiI6Im5IYTN1cEdmTHVrd1YwamhFY1BiaHc9PSIsInZhbHVlIjoicUtRRGtaK1BOTmdyaTFDRzZEb3ZWSXlvSHg3S3Jac21KcGliRytDMzBHYUdtY0tXNmp5N0doMkJUMUVEaUYxaHhhdWRVQUdQUktrM0RCQWtvK01wa2c9PSIsIm1hYyI6ImNjYmM3NDU0ZGU5MDg0YTBlY2M1Y2E0NTJkNWQzMjYyYjQ0YjE0OTZlODU1MjlmZDFhZTIwY2RmZDJjODhiZTMiLCJ0YWciOiIifQ==\",\"server_disk_usage_check_frequency\":\"0 23 * * *\",\"server_disk_usage_notification_interval_hours\":24,\"server_disk_usage_notification_threshold\":80,\"server_id\":1,\"server_role\":\"both\",\"server_timezone\":\"UTC\",\"ssh_host_key\":null,\"ssh_host_key_pending\":null,\"ssh_host_key_source\":null,\"ssh_host_key_trusted_at\":null,\"traefik_certificate_resolver\":\"letsencrypt\",\"traffic_ip_mode\":\"full\",\"traffic_retention_1d_days\":395,\"traffic_retention_1h_days\":30,\"traffic_sample_threshold\":0,\"traffic_topn\":50,\"wildcard_domain\":null,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\",\"is_build_server\":false,\"ssh_host_key_fingerprints\":[],\"ssh_host_key_pending_fingerprints\":[]},\"swarm_cluster\":null,\"team_id\":1,\"traefik_outdated_info\":null,\"unreachable_count\":0,\"unreachable_notification_sent\":false,\"user\":\"root\",\"validation_logs\":null,\"vultr_instance_id\":null,\"vultr_instance_status\":null,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}"
+            }
+        },
+        {
+            "name": "servers: show unknown",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Server not found.\"}"
+            }
+        },
+        {
+            "name": "servers: resources",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[]"
+            }
+        },
+        {
+            "name": "servers: domains",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[]"
+            }
+        },
+        {
+            "name": "servers: validate",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation started.\"}"
+            }
+        },
+        {
+            "name": "servers: validate and install without deploy",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: deploy. Installing the server runs commands on it and starts the proxy, so it needs a token with the deploy permission.\"}"
+            }
+        },
+        {
+            "name": "servers: validate, install not a boolean",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"install\":[\"The install field must be true or false.\"]}}"
+            }
+        },
+        {
+            "name": "servers: validate unknown",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Server not found.\"}"
+            }
+        },
+        {
+            "name": "servers: validate with a read token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: write\"}"
+            }
+        }
+    ]
+}

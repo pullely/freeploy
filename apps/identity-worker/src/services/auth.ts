@@ -563,6 +563,12 @@ export function createAuthService(deps: AuthServiceDeps) {
       }
 
       const apiKey = apiKeyResult.value;
+      // A Coolify API token (DP9) authenticates only Coolify's /api/v1, as its
+      // user with its abilities (/v1/internal/api-tokens/resolve); it is never
+      // a Freeploy service principal.
+      if (apiKey.abilities) {
+        return { error: "unauthenticated", message: "Invalid bearer token" };
+      }
       if (apiKey.status !== "active") {
         return { error: "unauthenticated", message: "API key is not active" };
       }

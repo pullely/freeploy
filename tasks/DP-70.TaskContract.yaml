@@ -1,0 +1,27 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-70
+  title: "DP9: API tokens and Coolify's /api/v1 for what Freeploy has ported"
+spec:
+  goal: A team member creates, lists and revokes Coolify's API tokens on /security/api-tokens — Sanctum personal access tokens kept as identity API keys (migration 720 adds their abilities and Sanctum's token number), owned by the user and one org, with Coolify's abilities (root, read, read:sensitive, write, write:sensitive, deploy, delete), expiry options and rules and messages word for word, the plain text shown once as "<id>|<plain text>". https://<edge>/api/v1/* answers as Coolify's kernel does — routes/api.php's fallback 404, auth:sanctum (the "<id>|" form and the bare secret), api.token.team ("Invalid token.", a token with more access than its user), ApiAllowed (API_ENABLED, API_ALLOWED_IPS), api.sensitive and api.ability with Coolify's 403 messages, throttle:api (API_RATE_LIMIT, 200 a minute per user or IP) and ThrottleFailedApiRequests (API_FAILED_REQUEST_RATE_LIMIT, 30 failed answers a minute, then blocks of 1, 5 and 15 minutes), every body in Coolify's own JSON bytes. 24 of openapi.json's 330 operations are ported on the services the console uses — health, version, teams (5), projects and environments (9), private keys (5), servers (list, show, validate as a 501) — each replayed byte for byte (masked ids, uuids and dates) against goldens emitted by Coolify's real PHP; the other 306 answer Coolify's 404 shape. Cut — applications, databases, services, deployments, resources, S3 storages, cloud tokens and scheduled tasks; not ported in the groups done — a project's environment details, a server's create, update, delete, resources and domains, PATCH /team; not part of this task — scoped tokens, Edit, Pause and Roll of a token, expiry warnings, the failing-token notification.
+  affects:
+    - apps/api-edge/**
+    - apps/identity-worker/**
+    - apps/deploy-core-worker/**
+    - apps/deploy-web/**
+    - packages/contracts/**
+    - packages/db/**
+    - tests/api-edge/**
+    - tests/identity-worker/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - every case of tests/deploy-core-worker/fixtures/api/cases.json (100 cases, 3 of them sequences) replays against Freeploy byte-equal to goldens.json after the documented masking, except the listed departure (validate answers 501) and the listed not-ported operations, which answer Coolify's 404
+    - every case of tests/identity-worker/fixtures/api-tokens/cases.json gives Coolify's toast, abilities and expiry
+    - specs/epics/freeploy-coolify-parity/parity/openapi.operations.json marks the 24 ported operations ported with taskKey DP-70, and node tools/parity/inventory.ts --check passes
+    - on stage, a user creates a read token on /security/api-tokens, copies "<id>|<plain text>", and GET https://<edge>/api/v1/projects with it answers the org's projects as Coolify does; POST with it answers 403 "Missing required permissions: write"; after Revoke the same request answers 401 "Unauthenticated."
+    - on stage, more than API_RATE_LIMIT requests a minute answer 429 "Too Many Attempts." with Retry-After, and 30 failed requests a minute block the client with "Too many failed API requests. Retry after 60 seconds."
+  gates: []

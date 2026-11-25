@@ -309,5 +309,14 @@ export const manifest: MigrationManifest = {
       description:
         "A team's description (freeploy-coolify-parity DP10) — nullable organizations.description for the deploy console's team General page, as Coolify's teams.description",
     },
+    {
+      id: "720_identity_api_tokens",
+      context: "identity",
+      path: "720_identity_api_tokens/up.sql",
+      checksum:
+        "88e14bd6f74910f24576c5f37c44680743fdfe0968f8c078bcd2dc75c8a323d8",
+      description:
+        "API tokens (freeploy-coolify-parity DP9) — Coolify's Sanctum personal access tokens as identity API keys: api_keys.abilities and api_keys.token_number (the id clients send as \"<id>|<plain text>\")",
+    },
   ],
 };

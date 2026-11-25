@@ -15,6 +15,7 @@ import { handleS3Storages, ORG_DEPLOY_STORAGES_RE } from "./handlers/s3-storages
 import { handleNotifications } from "./handlers/notifications.js";
 import { errorResponse, notFound } from "./http.js";
 import { generateRequestId, parseOrgPublicId } from "./ids.js";
+import { API_V1_INTERNAL_RE, handleApiV1 } from "./api-v1/handler.js";
 
 const REQUEST_ID_RE = /^[\w-]{1,128}$/;
 
@@ -66,6 +67,15 @@ export async function route(request: Request, env: Env): Promise<Response> {
   const requestId = resolveRequestId(request);
   try {
     if (url.pathname === "/health" && request.method === "GET") return handleHealth(env, requestId);
+
+    // Coolify's /api/v1 (DP-70), from api-edge once it has resolved the token: Coolify's answers, not Freeploy's envelope.
+    const apiV1 = url.pathname.match(API_V1_INTERNAL_RE);
+    if (apiV1) {
+      const orgId = parseOrgPublicId(apiV1[1]!);
+      const actor = resolveActor(request);
+      if (!orgId || !actor) return new Response('{"message":"Unauthenticated."}', { status: 401, headers: { "content-type": "application/json" } });
+      return handleApiV1(request, env, requestId, actor, orgId, apiV1[1]!, apiV1[2]!);
+    }
 
     const projects = url.pathname.match(ORG_DEPLOY_PROJECTS_RE);
     if (projects) {

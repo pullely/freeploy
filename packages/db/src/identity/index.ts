@@ -31,3 +31,4 @@ export { createTwoFactorStore, type TwoFactorRow } from "./two-factor.js";
 export { createPasskeyStore, type PasskeyRow } from "./passkeys.js";
 export { createEmailStore, type PendingEmailChange } from "./email.js";
 export { createAccountStore, createAvatarStore } from "./account.js";
+export { createApiTokenStore, type ApiTokenRow, type ApiTokenStore, type ApiUserRow, type NewApiToken } from "./api-tokens.js";

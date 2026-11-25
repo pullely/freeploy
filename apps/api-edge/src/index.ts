@@ -21,6 +21,7 @@ import {
   handleIntegrationsIngressRoute,
 } from "./integrations-facade";
 import { isSoloMode, isSoloSuppressed } from "./solo-mode";
+import { isApiV1Route, handleApiV1 } from "./api-v1/index";
 
 // Durable Object class backing the PERF5 Stage B rate-limit counters. Must be
 // exported from the Worker entry so the runtime can instantiate it for the
@@ -39,6 +40,9 @@ export default {
 
     if (url.pathname === "/health") {
       response = await handleHealth(env);
+    } else if (isApiV1Route(url.pathname)) {
+      // Coolify's API (DP-70): its own middleware, limiters and answers.
+      response = await handleApiV1(request, env, requestId);
     } else if (isSoloMode(env) && isSoloSuppressed(url.pathname, request.method)) {
       // M0 / Solo profile: org/team/project and platform-plumbing surfaces are
       // hidden. Suppress at the edge before any facade dispatch — the route

@@ -610,3 +610,4 @@ export {
   type ServiceWritable,
   type ServiceRowChanges,
 } from "./service-configuration.js";
+export { apiRows, apiValue, type ApiRow, type ApiTable } from "./api-v1.js";

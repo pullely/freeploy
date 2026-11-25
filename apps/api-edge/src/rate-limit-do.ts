@@ -16,6 +16,13 @@
 // NO durable storage, which also keeps the consume path I/O-free.
 
 import { tokenBucketStep, type BucketState } from "./rate-limit.js";
+import { failedBlockedFor, failedRecordStep, throttleStep, type CoolifyLimiterMessage, type FailedState, type WindowState } from "./api-v1/limiters.js";
+
+function isCoolifyMessage(value: unknown): value is CoolifyLimiterMessage {
+  const v = value as CoolifyLimiterMessage | null;
+  return typeof v === "object" && v !== null && typeof v.now === "number" &&
+    (v.kind === "coolify-failed-check" || ((v.kind === "coolify-throttle" || v.kind === "coolify-failed-record") && typeof v.limit === "number"));
+}
 
 interface ConsumeRequest {
   limit: number;
@@ -37,6 +44,9 @@ function isConsumeRequest(value: unknown): value is ConsumeRequest {
 export class RateLimiterDO {
   /** In-memory token bucket for this single (scope,key). See the file header. */
   private bucket: BucketState | null = null;
+  /** Coolify's /api/v1 limiters (DP-70): this key's window and its failed-request state. */
+  private window: WindowState | null = null;
+  private failed: FailedState | null = null;
 
   // Workers constructs a DO with (state, env). We keep neither — the bucket is
   // in-memory and the limits arrive on each request — but the signature is part
@@ -49,6 +59,17 @@ export class RateLimiterDO {
       body = await request.json();
     } catch {
       return new Response("invalid body", { status: 400 });
+    }
+    if (isCoolifyMessage(body)) {
+      if (body.kind === "coolify-throttle") {
+        const d = throttleStep(this.window, body.limit, body.now);
+        if (d.state) this.window = d.state;
+        return Response.json(d);
+      }
+      if (body.kind === "coolify-failed-check") return Response.json({ retryAfter: failedBlockedFor(this.failed, body.now) });
+      const r = failedRecordStep(this.failed, body.limit, body.now);
+      this.failed = r.state;
+      return Response.json({ blocked: r.blocked });
     }
     if (!isConsumeRequest(body)) {
       return new Response("invalid body", { status: 400 });

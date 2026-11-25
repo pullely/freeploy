@@ -54,6 +54,7 @@ const EnvironmentEditPage = lazy(() => import("./pages/EnvironmentEdit").then((m
 const PrivateKeysPage = lazy(() => import("./pages/PrivateKeys").then((m) => ({ default: m.PrivateKeysPage })));
 const CloudTokensPage = lazy(() => import("./pages/CloudTokens").then((m) => ({ default: m.CloudTokensPage })));
 const CloudTokenShowPage = lazy(() => import("./pages/CloudTokenEditor").then((m) => ({ default: m.CloudTokenShowPage })));
+const ApiTokensPage = lazy(() => import("./pages/ApiTokens").then((m) => ({ default: m.ApiTokensPage })));
 const CloudInitScriptsPage = lazy(() => import("./pages/CloudInitScripts").then((m) => ({ default: m.CloudInitScriptsPage })));
 const CloudInitScriptShowPage = lazy(() => import("./pages/CloudInitScriptEditor").then((m) => ({ default: m.CloudInitScriptShowPage })));
 const ServerCloudTokenPage = lazy(() => import("./pages/ServerCloudToken").then((m) => ({ default: m.ServerCloudTokenPage })));
@@ -367,6 +368,12 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <CloudTokenShowPage />
+        </Suspense>
+      );
+    case "security.api-tokens":
+      return (
+        <Suspense fallback={null}>
+          <ApiTokensPage />
         </Suspense>
       );
     case "security.cloud-init-scripts":
