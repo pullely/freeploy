@@ -65,6 +65,7 @@ import { errorResponse, methodNotAllowed, successResponse, validationError } fro
 import type { KeyCipher } from "../private-keys/service.js";
 import { authorizeDeploy, columnCipher, readJson } from "./cloud-tokens.js";
 import { handleEnvironmentVariables } from "./environment-variables.js";
+import { handleDeployments, isDeploymentRoute } from "./deployments.js";
 import { validateCreateDockerImage, validateGeneral } from "../applications/validation.js";
 import { handleApplicationSettings, isApplicationSettingsSection } from "./application-settings.js";
 import { assertLabelInput, instantSaveLabels, labelSqlContext, resetLabels, saveLabelsAfterGeneral, showApplicationWithLabels, validateLabelBody } from "./application-labels.js";
@@ -179,6 +180,8 @@ export async function handleApplications(
   if (isApplicationResourceRoute(segments, method)) return handleApplicationResources(env, requestId, actor, orgId, segments, request);
   // The Source, Servers, Webhooks, Scheduled Tasks and Rollback pages (application-more.ts).
   if (isApplicationMoreRoute(segments)) return handleApplicationMore(env, requestId, actor, orgId, segments, request);
+  // The deployment queue: the history, a deployment's log, cancel — and Deploy and Restart once the SSH executor is bound (deployments.ts).
+  if (isDeploymentRoute(env, segments)) return handleDeployments(env, requestId, actor, orgId, segments, request);
   let op: Op | null = null;
 
   if (segments.length === 0) {

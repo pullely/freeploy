@@ -276,3 +276,20 @@ function redactPatterns(text: string): string {
   for (const [pattern, replacement] of PATTERNS) text = text.replace(pattern, replacement);
   return text;
 }
+
+// ---------------------------------------------------------------------------
+// The redactor itself, for the deployment log (DP-56)
+// ---------------------------------------------------------------------------
+
+/**
+ * SensitiveDataRedactor::redactText(): `knownSecrets` are replaced when they are 8 bytes or longer,
+ * `lockedSecrets` always (short ones as whole tokens only).
+ */
+export function redactSensitiveText(text: string, knownSecrets: string[] = [], lockedSecrets: string[] = []): string {
+  return redactText(text, knownSecrets, lockedSecrets);
+}
+
+/** SensitiveDataRedactor::containsKnownSecret(): would redactText() hide one of these known secrets in the text? */
+export function containsKnownSecret(text: string, knownSecrets: string[]): boolean {
+  return knownSecrets.some((secret) => phpTrim(secret) !== "" && byteLength(secret) >= MIN_KNOWN_SECRET_LENGTH && text.includes(secret));
+}

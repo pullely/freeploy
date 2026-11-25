@@ -25,6 +25,8 @@ const ApplicationAdvancedPage = lazy(() => import("./pages/ApplicationAdvanced")
 const ApplicationHealthcheckPage = lazy(() => import("./pages/ApplicationHealthcheck").then((m) => ({ default: m.ApplicationHealthcheckPage })));
 const ApplicationResourceLimitsPage = lazy(() => import("./pages/ApplicationResourceLimits").then((m) => ({ default: m.ApplicationResourceLimitsPage })));
 const ApplicationEnvironmentVariablesPage = lazy(() => import("./pages/ApplicationEnvironmentVariables").then((m) => ({ default: m.ApplicationEnvironmentVariablesPage })));
+const ApplicationDeploymentsPage = lazy(() => import("./pages/ApplicationDeployments").then((m) => ({ default: m.ApplicationDeploymentsPage })));
+const ApplicationDeploymentPage = lazy(() => import("./pages/ApplicationDeployment").then((m) => ({ default: m.ApplicationDeploymentPage })));
 const ApplicationStoragesPage = lazy(() => import("./pages/ApplicationStorages").then((m) => ({ default: m.ApplicationStoragesPage })));
 const ApplicationTagsPage = lazy(() => import("./pages/ApplicationTags").then((m) => ({ default: m.ApplicationTagsPage })));
 const ApplicationResourceOperationsPage = lazy(() => import("./pages/ApplicationResourceOperations").then((m) => ({ default: m.ApplicationResourceOperationsPage })));
@@ -235,6 +237,18 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <DatabaseGeneralPage />
+        </Suspense>
+      );
+    case "project.application.deployment.index":
+      return (
+        <Suspense fallback={null}>
+          <ApplicationDeploymentsPage />
+        </Suspense>
+      );
+    case "project.application.deployment.show":
+      return (
+        <Suspense fallback={null}>
+          <ApplicationDeploymentPage />
         </Suspense>
       );
     case "security.private-key.index":

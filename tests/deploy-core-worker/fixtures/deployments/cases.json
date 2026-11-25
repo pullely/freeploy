@@ -1,0 +1,3874 @@
+{
+  "$comment": "Deployment golden cases (DP-56). emit.php runs each through Coolify's own PHP (coollabsio/coolify@91b7e3e) and writes goldens.json; the deployments-*.test.ts suites replay the same cases through the TypeScript ports. A run gives the fields that differ from `defaults` (merged recursively; a list replaces the default's list, and a run's `responses` are asked before the defaults'). See README.md.",
+  "defaults": {
+    "team": {},
+    "server": {
+      "name": "srv",
+      "ip": "10.0.0.5",
+      "user": "root",
+      "port": 22,
+      "proxy": {
+        "type": "TRAEFIK",
+        "status": "running",
+        "redirect_enabled": true
+      }
+    },
+    "serverSettings": {
+      "is_reachable": true,
+      "is_usable": true
+    },
+    "destination": {
+      "name": "coolify",
+      "network": "coolify"
+    },
+    "project": {
+      "name": "proj"
+    },
+    "environment": {
+      "name": "production"
+    },
+    "application": {
+      "uuid": "app0000000000000000000001",
+      "name": "app",
+      "build_pack": "dockerimage",
+      "docker_registry_image_name": "nginx",
+      "docker_registry_image_tag": "1.27",
+      "ports_exposes": "80",
+      "fqdn": "https://app.example.com",
+      "git_repository": "coollabsio/coolify",
+      "git_branch": "main",
+      "health_check_enabled": false
+    },
+    "settings": {},
+    "variables": [],
+    "sharedVariables": [],
+    "persistentStorages": [],
+    "fileStorages": [],
+    "deployment": {
+      "deployment_uuid": "dep0000000000000000000001"
+    },
+    "responses": [
+      {
+        "match": "echo $HOME",
+        "output": "/root\n"
+      },
+      {
+        "match": "docker version --format",
+        "output": "27.0.3\n"
+      },
+      {
+        "match": "docker buildx version",
+        "output": "available\n"
+      },
+      {
+        "match": "test -f /root/.docker/config.json",
+        "output": "OK\n"
+      },
+      {
+        "match": "for f in /etc/ssl/certs",
+        "output": "/etc/ssl/certs/ca-certificates.crt\n"
+      },
+      {
+        "match": "State.Health.Status",
+        "output": "\"healthy\"\n"
+      },
+      {
+        "match": "State.Health.Log",
+        "output": "[{\"Start\":\"2026-11-20T10:11:13Z\",\"End\":\"2026-11-20T10:11:13Z\",\"ExitCode\":0,\"Output\":\"ok\"}]\n"
+      }
+    ]
+  },
+  "runs": [
+    {
+      "id": "run.first",
+      "about": "a first deployment: nothing runs yet, no healthcheck"
+    },
+    {
+      "id": "run.rolling",
+      "about": "a rolling update over a running container, no healthcheck",
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        }
+      ]
+    },
+    {
+      "id": "run.rolling.healthy",
+      "about": "a rolling update, the healthcheck passes on the second attempt, the proxy labels are the same",
+      "application": {
+        "health_check_enabled": true,
+        "health_check_interval": 2,
+        "health_check_start_period": 3,
+        "health_check_retries": 4
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "sequence": [
+            {
+              "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+            },
+            {
+              "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n{\"ID\":\"new1\",\"Names\":\"app0000000000000000000001-20261120T101112\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+            }
+          ]
+        },
+        {
+          "match": "State.Health.Status",
+          "sequence": [
+            {
+              "output": "\"starting\"\n"
+            },
+            {
+              "output": "\"healthy\"\n"
+            }
+          ]
+        },
+        {
+          "match": "State.Health.Log",
+          "sequence": [
+            {
+              "output": "[]\n"
+            },
+            {
+              "output": "[{\"ExitCode\":0,\"Output\":\"ok\"}]\n"
+            }
+          ]
+        },
+        {
+          "match": "docker inspect --format '{{json .Config.Labels}}'",
+          "output": "{\"traefik.enable\":\"true\",\"coolify.name\":\"a\"}\n{\"coolify.name\":\"b\",\"traefik.enable\":\"true\"}\n"
+        }
+      ]
+    },
+    {
+      "id": "run.rolling.labels-changed",
+      "about": "the proxy labels of the old and the new container differ: no drain wait",
+      "application": {
+        "health_check_enabled": true,
+        "health_check_start_period": 0
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "sequence": [
+            {
+              "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+            },
+            {
+              "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n{\"ID\":\"new1\",\"Names\":\"app0000000000000000000001-20261120T101112\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n{\"ID\":\"old0\",\"Names\":\"app0000000000000000000001-20261118T080000\",\"State\":\"exited\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+            }
+          ]
+        },
+        {
+          "match": "docker inspect --format '{{json .Config.Labels}}'",
+          "output": "{\"traefik.enable\":\"true\",\"caddy_0\":\"https://a\"}\n{\"traefik.enable\":\"true\",\"caddy_0\":\"https://b\"}\n"
+        }
+      ]
+    },
+    {
+      "id": "run.rolling.no-drain",
+      "about": "rolling_update_drain_seconds 0",
+      "application": {
+        "health_check_enabled": true,
+        "health_check_start_period": 0
+      },
+      "settings": {
+        "rolling_update_drain_seconds": 0
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n{\"ID\":\"new1\",\"Names\":\"app0000000000000000000001-20261120T101112\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        }
+      ]
+    },
+    {
+      "id": "run.rolling.drain-capped",
+      "about": "rolling_update_drain_seconds above the maximum",
+      "application": {
+        "health_check_enabled": true,
+        "health_check_start_period": 0
+      },
+      "settings": {
+        "rolling_update_drain_seconds": 900
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n{\"ID\":\"new1\",\"Names\":\"app0000000000000000000001-20261120T101112\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        },
+        {
+          "match": "{{json .Config.Labels}}",
+          "output": "{\"a\":\"1\"}\n{\"a\":\"2\"}\n"
+        }
+      ]
+    },
+    {
+      "id": "run.unhealthy",
+      "about": "the new container is unhealthy: rollback to the old one",
+      "view": true,
+      "application": {
+        "health_check_enabled": true,
+        "health_check_start_period": 1,
+        "health_check_retries": 3,
+        "health_check_interval": 1
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        },
+        {
+          "match": "State.Health.Status",
+          "output": "\"unhealthy\"\n"
+        },
+        {
+          "match": "State.Health.Log",
+          "output": "[{\"ExitCode\":7,\"Output\":\"curl: (7) Failed to connect\"}]\n"
+        },
+        {
+          "match": "docker logs -n 100",
+          "output": "",
+          "errorOutput": "nginx: [emerg] bind() failed\nexiting\n"
+        }
+      ]
+    },
+    {
+      "id": "run.starting-timeout",
+      "about": "the healthcheck never leaves 'starting': every retry is used, then rollback",
+      "application": {
+        "health_check_enabled": true,
+        "health_check_start_period": 0,
+        "health_check_retries": 2,
+        "health_check_interval": 1
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        },
+        {
+          "match": "State.Health.Status",
+          "output": "\"starting\"\n"
+        },
+        {
+          "match": "State.Health.Log",
+          "output": "null\n"
+        },
+        {
+          "match": "docker logs -n 100",
+          "output": "listening\n"
+        }
+      ]
+    },
+    {
+      "id": "run.no-health-status",
+      "about": "a container without a healthcheck of its own answers with an error text",
+      "application": {
+        "health_check_enabled": true,
+        "health_check_start_period": 0,
+        "health_check_retries": 1,
+        "health_check_interval": 1
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        },
+        {
+          "match": "State.Health.Status",
+          "output": "",
+          "errorOutput": "template parsing error: template: :1:13: executing \"\" at <.State.Health.Status>: map has no entry for key \"Health\"\n",
+          "exitCode": 1
+        }
+      ]
+    },
+    {
+      "id": "run.pull-fails.local-image",
+      "about": "the pull fails and the image is on the server",
+      "responses": [
+        {
+          "match": "pull'",
+          "output": "",
+          "errorOutput": "Error response from daemon: pull access denied for nginx, repository does not exist or may require 'docker login'\n",
+          "exitCode": 1
+        },
+        {
+          "match": "docker image inspect --format",
+          "output": "sha256:0123456789abcdef\n"
+        }
+      ]
+    },
+    {
+      "id": "run.pull-fails",
+      "about": "the pull fails and the image is not on the server",
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        },
+        {
+          "match": "pull'",
+          "output": "",
+          "errorOutput": "Error response from daemon: manifest for nginx:1.27 not found: manifest unknown: manifest unknown\n",
+          "exitCode": 1
+        }
+      ]
+    },
+    {
+      "id": "run.pull-fails.registry",
+      "about": "the registry refuses the pull: the login hint",
+      "view": true,
+      "responses": [
+        {
+          "match": "pull'",
+          "output": "",
+          "errorOutput": "Error response from daemon: Head \"https://ghcr.io/v2/acme/app/manifests/1\": unauthorized\n",
+          "exitCode": 1
+        }
+      ]
+    },
+    {
+      "id": "run.up-fails",
+      "about": "docker compose up fails",
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        },
+        {
+          "match": "up --build -d",
+          "output": " Container starting\n",
+          "errorOutput": "Error response from daemon: driver failed programming external connectivity: Bind for 0.0.0.0:8080 failed: port is already allocated\n",
+          "exitCode": 1
+        }
+      ]
+    },
+    {
+      "id": "run.up-fails.no-stderr",
+      "about": "a command fails without error output",
+      "responses": [
+        {
+          "match": "up --build -d",
+          "output": "something went wrong\n",
+          "exitCode": 3
+        }
+      ]
+    },
+    {
+      "id": "run.up-fails.255",
+      "about": "a command ends with exit code 255",
+      "responses": [
+        {
+          "match": "up --build -d",
+          "output": "",
+          "errorOutput": "boom\n",
+          "exitCode": 255
+        }
+      ]
+    },
+    {
+      "id": "run.helper-fails",
+      "about": "the helper container cannot start",
+      "responses": [
+        {
+          "match": "docker run -d",
+          "output": "",
+          "errorOutput": "docker: Error response from daemon: network coolify not found.\n",
+          "exitCode": 125
+        }
+      ]
+    },
+    {
+      "id": "run.helper-remove-timeout",
+      "about": "removing a stale helper times out; removing the old container does too",
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        },
+        {
+          "match": "docker rm -f",
+          "output": "__COOLIFY_CONTAINER_REMOVE_TIMEOUT__\n",
+          "exitCode": 124
+        }
+      ]
+    },
+    {
+      "id": "run.remove-fails",
+      "about": "docker stop and docker rm of the old container fail: errors are ignored",
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        },
+        {
+          "match": "docker stop --time=30 'app",
+          "output": "",
+          "errorOutput": "Error response from daemon: cannot stop container\n",
+          "exitCode": 1
+        },
+        {
+          "match": "docker rm -f",
+          "sequence": [
+            {},
+            {
+              "output": "",
+              "errorOutput": "Error response from daemon: removal in progress\n",
+              "exitCode": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run.ps-fails",
+      "about": "listing the containers fails during the rolling update",
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "",
+          "errorOutput": "Cannot connect to the Docker daemon\n",
+          "exitCode": 1
+        }
+      ]
+    },
+    {
+      "id": "run.ps-garbage",
+      "about": "docker ps prints something that is not JSON",
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "WARNING: something\n"
+        }
+      ]
+    },
+    {
+      "id": "run.network-inspect-fails",
+      "about": "the first command on the server fails",
+      "responses": [
+        {
+          "match": "docker network inspect",
+          "output": "",
+          "errorOutput": "Error response from daemon: network coolify not found\n",
+          "exitCode": 1
+        }
+      ]
+    },
+    {
+      "id": "run.home-fails",
+      "about": "echo $HOME fails with no output",
+      "responses": [
+        {
+          "match": "echo $HOME",
+          "output": "",
+          "exitCode": 127
+        }
+      ]
+    },
+    {
+      "id": "run.workdir-fails",
+      "about": "a command of the configure step fails",
+      "responses": [
+        {
+          "match": "mkdir -p /data/coolify/applications",
+          "output": "",
+          "errorOutput": "mkdir: cannot create directory: Read-only file system\n",
+          "exitCode": 1
+        }
+      ]
+    },
+    {
+      "id": "run.env-write-fails",
+      "about": "writing the .env file fails: the command and its payload stay out of the log",
+      "variables": [
+        {
+          "key": "TOKEN",
+          "value": "abcdefgh-not-so-secret",
+          "is_runtime": true,
+          "is_buildtime": true
+        }
+      ],
+      "responses": [
+        {
+          "match": "base64 -d | tee /artifacts",
+          "output": "",
+          "errorOutput": "tee: /artifacts/x/.env: No space left on device\n",
+          "exitCode": 1
+        }
+      ]
+    },
+    {
+      "id": "run.compose-write-fails",
+      "about": "writing the compose file into the helper fails",
+      "responses": [
+        {
+          "match": "tee /artifacts/dep0000000000000000000001/docker-compose.yaml",
+          "output": "",
+          "errorOutput": "Error response from daemon: container is not running\n",
+          "exitCode": 1
+        }
+      ]
+    },
+    {
+      "id": "run.unhealthy.first",
+      "about": "an unhealthy first deployment: nothing to roll back to",
+      "application": {
+        "health_check_enabled": true,
+        "health_check_start_period": 0,
+        "health_check_retries": 1
+      },
+      "responses": [
+        {
+          "match": "State.Health.Status",
+          "output": "\"unhealthy\"\n"
+        },
+        {
+          "match": "State.Health.Log",
+          "output": "[]\n"
+        }
+      ]
+    },
+    {
+      "id": "run.healthy.late-failure",
+      "about": "healthy, then the old container list fails: the new version stays",
+      "application": {
+        "health_check_enabled": true,
+        "health_check_start_period": 0
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "sequence": [
+            {
+              "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+            },
+            {
+              "output": "",
+              "errorOutput": "daemon gone\n",
+              "exitCode": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run.cancel.finish",
+      "about": "the user cancels while the old container is removed",
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        }
+      ],
+      "cancelOn": "docker stop --time=30 'app"
+    },
+    {
+      "id": "run.cancel.post",
+      "about": "the user cancels while the post-deployment command runs",
+      "application": {
+        "post_deployment_command": "sleep 60"
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"new1\",\"Names\":\"app0000000000000000000001-20261120T101112\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        }
+      ],
+      "cancelOn": "sleep 60"
+    },
+    {
+      "id": "run.pre.invalid-container",
+      "about": "a container whose name is not a container name",
+      "application": {
+        "pre_deployment_command": "true"
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"x\",\"Names\":\"bad name;rm\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        }
+      ]
+    },
+    {
+      "id": "run.pre.quotes",
+      "about": "a command with quotes and a container named for a single container",
+      "application": {
+        "pre_deployment_command": "sh -c 'echo \"it'\\''s\"'",
+        "pre_deployment_command_container": "ignored"
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        }
+      ]
+    },
+    {
+      "id": "run.cancel.pull",
+      "about": "the user cancels while the image is pulled",
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        }
+      ],
+      "cancelOn": "pull'"
+    },
+    {
+      "id": "run.cancel.helper",
+      "about": "the user cancels while the helper starts",
+      "cancelOn": "docker run -d"
+    },
+    {
+      "id": "run.cancel.healthcheck",
+      "about": "the user cancels during the healthcheck",
+      "application": {
+        "health_check_enabled": true,
+        "health_check_start_period": 0,
+        "health_check_retries": 3,
+        "health_check_interval": 1
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        },
+        {
+          "match": "State.Health.Status",
+          "output": "\"starting\"\n"
+        }
+      ],
+      "cancelOn": "State.Health.Log"
+    },
+    {
+      "id": "run.cancel.failing-command",
+      "about": "the user cancels and the running command fails",
+      "responses": [
+        {
+          "match": "up --build -d",
+          "output": "",
+          "errorOutput": "Killed\n",
+          "exitCode": 137
+        }
+      ],
+      "cancelOn": "up --build -d"
+    },
+    {
+      "id": "run.server-not-functional",
+      "about": "the server is not usable",
+      "serverSettings": {
+        "is_reachable": true,
+        "is_usable": false
+      }
+    },
+    {
+      "id": "run.docker-old",
+      "about": "Docker before 18.09",
+      "responses": [
+        {
+          "match": "docker version --format",
+          "output": "17.12.1-ce\n"
+        }
+      ]
+    },
+    {
+      "id": "run.no-buildx",
+      "about": "no buildx, BuildKit through the environment",
+      "responses": [
+        {
+          "match": "docker buildx version",
+          "output": "not-available\n"
+        },
+        {
+          "match": "DOCKER_BUILDKIT=1 docker build --help",
+          "output": "supported\n"
+        }
+      ]
+    },
+    {
+      "id": "run.no-buildkit",
+      "about": "neither buildx nor BuildKit",
+      "responses": [
+        {
+          "match": "docker buildx version",
+          "output": "not-available\n"
+        },
+        {
+          "match": "DOCKER_BUILDKIT=1 docker build --help",
+          "output": "not-supported\n"
+        }
+      ]
+    },
+    {
+      "id": "run.docker-version-fails",
+      "about": "docker version fails",
+      "responses": [
+        {
+          "match": "docker version --format",
+          "output": "",
+          "errorOutput": "Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?\n",
+          "exitCode": 1
+        }
+      ]
+    },
+    {
+      "id": "run.build-secrets",
+      "about": "use_build_secrets on: a Docker image deployment only checks the support",
+      "settings": {
+        "use_build_secrets": true
+      },
+      "responses": [
+        {
+          "match": "grep -q 'secret'",
+          "output": "supported\n"
+        }
+      ]
+    },
+    {
+      "id": "run.build-secrets.unsupported",
+      "about": "use_build_secrets on, not supported",
+      "settings": {
+        "use_build_secrets": true
+      },
+      "responses": [
+        {
+          "match": "grep -q 'secret'",
+          "output": "not-supported\n"
+        }
+      ]
+    },
+    {
+      "id": "run.no-docker-config",
+      "about": "no registry login on the server",
+      "responses": [
+        {
+          "match": "test -f /root/.docker/config.json",
+          "output": "NOK\n"
+        }
+      ]
+    },
+    {
+      "id": "run.no-ca-bundle",
+      "about": "no CA bundle on the server",
+      "responses": [
+        {
+          "match": "for f in /etc/ssl/certs",
+          "output": ""
+        }
+      ]
+    },
+    {
+      "id": "run.ca-bundle.redhat",
+      "about": "another CA bundle path",
+      "responses": [
+        {
+          "match": "for f in /etc/ssl/certs",
+          "output": "/etc/pki/tls/certs/ca-bundle.crt\n"
+        }
+      ]
+    },
+    {
+      "id": "run.docker-28",
+      "about": "docker stop --timeout from Docker 28",
+      "serverSettings": {
+        "docker_version": "28.1.1"
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        },
+        {
+          "match": "docker version --format",
+          "output": "28.1.1\n"
+        }
+      ]
+    },
+    {
+      "id": "run.home",
+      "about": "another home directory",
+      "responses": [
+        {
+          "match": "echo $HOME",
+          "output": "/home/deploy\n"
+        },
+        {
+          "match": "test -f /home/deploy/.docker/config.json",
+          "output": "OK\n"
+        }
+      ]
+    },
+    {
+      "id": "run.output",
+      "about": "commands that print: shown and hidden log entries",
+      "view": true,
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        },
+        {
+          "match": "pull'",
+          "output": " nginx Pulling \n nginx Pulled \n"
+        },
+        {
+          "match": "up --build -d",
+          "output": "",
+          "errorOutput": " Container app Creating\n Container app Started\n"
+        },
+        {
+          "match": "docker stop",
+          "output": "app0000000000000000000001-20261119T090000\n"
+        },
+        {
+          "match": "mkdir -p /data/coolify",
+          "output": "",
+          "errorOutput": "mkdir: warning\n"
+        }
+      ]
+    },
+    {
+      "id": "run.output.box",
+      "about": "output that starts with a box drawing line, and colour codes",
+      "responses": [
+        {
+          "match": "pull'",
+          "output": "╔══════╗\n║ pull ║\n╚══════╝\n"
+        },
+        {
+          "match": "up --build -d",
+          "output": "café \u001b[32mdone\u001b[0m\n"
+        }
+      ]
+    },
+    {
+      "id": "run.pre.none-running",
+      "about": "a pre-deployment command with no running container",
+      "application": {
+        "pre_deployment_command": "php artisan migrate"
+      }
+    },
+    {
+      "id": "run.pre",
+      "about": "a pre-deployment command in the one running container",
+      "application": {
+        "pre_deployment_command": "php artisan migrate --force\necho 'done'"
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        },
+        {
+          "match": "php artisan migrate",
+          "output": "Nothing to migrate.\n"
+        }
+      ]
+    },
+    {
+      "id": "run.pre.fails",
+      "about": "the pre-deployment command fails",
+      "application": {
+        "pre_deployment_command": "php artisan migrate"
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        },
+        {
+          "match": "php artisan migrate",
+          "output": "",
+          "errorOutput": "SQLSTATE[HY000] [2002] Connection refused\n",
+          "exitCode": 1
+        }
+      ]
+    },
+    {
+      "id": "run.pre.multi.unnamed",
+      "about": "several containers and no container name",
+      "application": {
+        "pre_deployment_command": "true"
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n{\"ID\":\"old0\",\"Names\":\"app0000000000000000000001-20261118T080000\",\"State\":\"exited\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        }
+      ]
+    },
+    {
+      "id": "run.pre.multi.named",
+      "about": "several containers, one named",
+      "application": {
+        "pre_deployment_command": "true",
+        "pre_deployment_command_container": "web"
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"w\",\"Names\":\"web-app0000000000000000000001-1\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n{\"ID\":\"k\",\"Names\":\"worker-app0000000000000000000001-1\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        }
+      ]
+    },
+    {
+      "id": "run.pre.multi.unknown",
+      "about": "several containers, an unknown name",
+      "application": {
+        "pre_deployment_command": "true",
+        "pre_deployment_command_container": "db"
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"w\",\"Names\":\"web-app0000000000000000000001-1\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n{\"ID\":\"k\",\"Names\":\"worker-app0000000000000000000001-1\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        }
+      ]
+    },
+    {
+      "id": "run.post",
+      "about": "a post-deployment command",
+      "application": {
+        "post_deployment_command": "php artisan optimize"
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"new1\",\"Names\":\"app0000000000000000000001-20261120T101112\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        },
+        {
+          "match": "php artisan optimize",
+          "output": "Caching done.\n"
+        }
+      ]
+    },
+    {
+      "id": "run.post.fails",
+      "about": "the post-deployment command fails: the deployment stays finished",
+      "view": true,
+      "application": {
+        "post_deployment_command": "sh -c 'exit 3'"
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"new1\",\"Names\":\"app0000000000000000000001-20261120T101112\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        },
+        {
+          "match": "exit 3",
+          "output": "half\n",
+          "errorOutput": "boom\n",
+          "exitCode": 3
+        }
+      ]
+    },
+    {
+      "id": "run.post.none-running",
+      "about": "a post-deployment command with no container",
+      "application": {
+        "post_deployment_command": "true"
+      }
+    },
+    {
+      "id": "queue.busy",
+      "about": "another deployment of the application runs: queued, not started",
+      "earlierDeployments": [
+        {
+          "deployment_uuid": "dep0000000000000000000000",
+          "status": "in_progress",
+          "commit": "other"
+        }
+      ]
+    },
+    {
+      "id": "queue.skipped",
+      "about": "the same commit is already queued",
+      "earlierDeployments": [
+        {
+          "deployment_uuid": "dep0000000000000000000000",
+          "status": "queued",
+          "commit": "HEAD"
+        }
+      ]
+    },
+    {
+      "id": "queue.skipped.in-progress",
+      "about": "the same commit already runs",
+      "earlierDeployments": [
+        {
+          "deployment_uuid": "dep0000000000000000000000",
+          "status": "in_progress",
+          "commit": "HEAD"
+        }
+      ]
+    },
+    {
+      "id": "queue.force",
+      "about": "force_rebuild is queued although the same commit already runs",
+      "earlierDeployments": [
+        {
+          "deployment_uuid": "dep0000000000000000000000",
+          "status": "in_progress",
+          "commit": "HEAD"
+        }
+      ],
+      "deployment": {
+        "force_rebuild": true
+      }
+    },
+    {
+      "id": "queue.full",
+      "about": "the server's queue is full",
+      "serverSettings": {
+        "deployment_queue_limit": 1
+      },
+      "earlierDeployments": [
+        {
+          "deployment_uuid": "dep0000000000000000000000",
+          "status": "queued",
+          "commit": "other",
+          "application_id": "999"
+        }
+      ]
+    },
+    {
+      "id": "queue.concurrent-builds",
+      "about": "the server runs as many builds as it allows",
+      "serverSettings": {
+        "concurrent_builds": 1
+      },
+      "earlierDeployments": [
+        {
+          "deployment_uuid": "dep0000000000000000000000",
+          "status": "in_progress",
+          "commit": "other",
+          "application_id": "999"
+        }
+      ]
+    },
+    {
+      "id": "queue.finished-before",
+      "about": "earlier deployments ended: this one starts",
+      "earlierDeployments": [
+        {
+          "deployment_uuid": "dep0000000000000000000000",
+          "status": "finished",
+          "commit": "HEAD"
+        },
+        {
+          "deployment_uuid": "dep000000000000000000000f",
+          "status": "failed",
+          "commit": "HEAD"
+        }
+      ]
+    },
+    {
+      "id": "run.force",
+      "about": "a forced deployment",
+      "deployment": {
+        "force_rebuild": true
+      }
+    },
+    {
+      "id": "run.restart",
+      "about": "a restart of a Docker image application is a regular deployment",
+      "deployment": {
+        "restart_only": true
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        }
+      ]
+    },
+    {
+      "id": "run.rollback",
+      "about": "a rollback deploys the tag in the commit",
+      "deployment": {
+        "rollback": true,
+        "commit": "1.26"
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        }
+      ]
+    },
+    {
+      "id": "run.commit",
+      "about": "a commit is ignored by a Docker image deployment that is no rollback",
+      "deployment": {
+        "commit": "abc1234"
+      }
+    },
+    {
+      "id": "compose.no-domain",
+      "about": "no domain",
+      "application": {
+        "fqdn": null
+      }
+    },
+    {
+      "id": "compose.domains",
+      "about": "several domains, one with a path",
+      "application": {
+        "fqdn": "https://app.example.com,http://www.example.com/api,https://[2001:db8::1]:8443"
+      }
+    },
+    {
+      "id": "compose.caddy",
+      "about": "a server with the Caddy proxy",
+      "server": {
+        "proxy": {
+          "type": "CADDY",
+          "status": "running"
+        }
+      }
+    },
+    {
+      "id": "compose.no-proxy",
+      "about": "a server without a proxy",
+      "server": {
+        "proxy": {
+          "type": "NONE"
+        }
+      }
+    },
+    {
+      "id": "compose.network",
+      "about": "another destination network",
+      "destination": {
+        "network": "prod-net"
+      }
+    },
+    {
+      "id": "compose.names",
+      "about": "names that need quotes in YAML and escapes in labels",
+      "application": {
+        "name": "My App: #1 \"quoted\" & 'single'"
+      },
+      "project": {
+        "name": "Project: Ünïcode $HOME"
+      },
+      "environment": {
+        "name": "staging - 2"
+      }
+    },
+    {
+      "id": "compose.ports",
+      "about": "several exposed ports",
+      "application": {
+        "ports_exposes": "3000,3001"
+      }
+    },
+    {
+      "id": "compose.ports-mappings",
+      "about": "ports mapped to the host: no rolling update",
+      "application": {
+        "ports_mappings": "8080:80,127.0.0.1:8443:443"
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        }
+      ]
+    },
+    {
+      "id": "compose.aliases",
+      "about": "network aliases",
+      "application": {
+        "custom_network_aliases": "[\"api\",\"web-1\"]"
+      }
+    },
+    {
+      "id": "compose.limits",
+      "about": "resource limits",
+      "application": {
+        "limits_memory": "512m",
+        "limits_memory_swap": "1g",
+        "limits_memory_swappiness": 10,
+        "limits_memory_reservation": "256m",
+        "limits_cpus": "1.5",
+        "limits_cpuset": "0,1",
+        "limits_cpu_shares": 512
+      }
+    },
+    {
+      "id": "compose.limits.cpus",
+      "about": "CPU limits that are whole, small and not a number",
+      "application": {
+        "limits_cpus": "2",
+        "limits_cpuset": "0-3"
+      }
+    },
+    {
+      "id": "compose.limits.cpus.tiny",
+      "about": "a small CPU limit",
+      "application": {
+        "limits_cpus": "0.05"
+      }
+    },
+    {
+      "id": "compose.limits.cpus.text",
+      "about": "a CPU limit that is no number",
+      "application": {
+        "limits_cpus": "1,5"
+      }
+    },
+    {
+      "id": "compose.stop-grace",
+      "about": "a stop grace period",
+      "settings": {
+        "stop_grace_period": 45
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        }
+      ]
+    },
+    {
+      "id": "compose.stop-grace.out-of-range",
+      "about": "a stop grace period out of range",
+      "settings": {
+        "stop_grace_period": 99999
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        }
+      ]
+    },
+    {
+      "id": "compose.image.sha256",
+      "about": "an image by digest",
+      "application": {
+        "docker_registry_image_name": "ghcr.io/acme/app",
+        "docker_registry_image_tag": "sha256-abababababababababababababababababababababababababababababababab"
+      }
+    },
+    {
+      "id": "compose.image.no-tag",
+      "about": "no tag is latest",
+      "application": {
+        "docker_registry_image_tag": null
+      }
+    },
+    {
+      "id": "compose.image.registry",
+      "about": "a registry with a port",
+      "application": {
+        "docker_registry_image_name": "registry.example.com:5000/team/app",
+        "docker_registry_image_tag": "v1.2.3"
+      }
+    },
+    {
+      "id": "compose.static",
+      "about": "is_static: port 80",
+      "application": {
+        "ports_exposes": "3000",
+        "health_check_enabled": true,
+        "health_check_start_period": 0
+      },
+      "settings": {
+        "is_static": true
+      }
+    },
+    {
+      "id": "compose.consistent-name",
+      "about": "a consistent container name: the service is named after the application",
+      "settings": {
+        "is_consistent_container_name_enabled": true
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"same\",\"Names\":\"app0000000000000000000001\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        }
+      ]
+    },
+    {
+      "id": "compose.consistent-name.custom",
+      "about": "a custom internal name",
+      "settings": {
+        "is_consistent_container_name_enabled": true,
+        "custom_internal_name": "my-api"
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        }
+      ]
+    },
+    {
+      "id": "compose.name-prefix",
+      "about": "a container name prefix",
+      "settings": {
+        "custom_container_name_prefix": "api"
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        }
+      ]
+    },
+    {
+      "id": "compose.labels.custom",
+      "about": "stored labels: coolify.* lines go, the rest stays",
+      "application": {
+        "custom_labels": "dHJhZWZpay5lbmFibGU9dHJ1ZQpjb29saWZ5Lm1hbmFnZWQ9dHJ1ZQp0cmFlZmlrLmh0dHAucm91dGVycy54LnJ1bGU9SG9zdChgYS5leGFtcGxlLmNvbWApICYmIFBhdGhQcmVmaXgoYC9gKQpjb29saWZ5Lm5hbWU9b2xkCm15LmxhYmVsPWhhcyAkZG9sbGFyIGFuZCAke0JSQUNFU30="
+      }
+    },
+    {
+      "id": "compose.labels.custom.editable",
+      "about": "labels edited by hand, escaping on",
+      "application": {
+        "custom_labels": "YS5iPWMNCnByaWNlPSQ1CgplbXB0eT0Kbm9lcXVhbHMKdHJhZWZpay5odHRwLnJvdXRlcnMueC5ydWxlPUhvc3QoYFsyMDAxOmRiODo6MV1gKQ=="
+      },
+      "settings": {
+        "is_container_label_readonly_enabled": false
+      }
+    },
+    {
+      "id": "compose.labels.custom.no-escape",
+      "about": "labels edited by hand, escaping off",
+      "application": {
+        "custom_labels": "cHJpY2U9JDUKcmVmPSR7VkFSfQ=="
+      },
+      "settings": {
+        "is_container_label_readonly_enabled": false,
+        "is_container_label_escape_enabled": false
+      }
+    },
+    {
+      "id": "compose.labels.custom.plain",
+      "about": "labels stored as text, not base64",
+      "application": {
+        "custom_labels": "traefik.enable=false\nx=y"
+      },
+      "settings": {
+        "is_container_label_readonly_enabled": false
+      }
+    },
+    {
+      "id": "compose.labels.basic-auth",
+      "about": "generated labels with HTTP Basic Authentication: the $ of the hash",
+      "application": {
+        "custom_labels": "dHJhZWZpay5odHRwLm1pZGRsZXdhcmVzLmF1dGguYmFzaWNhdXRoLnVzZXJzPWFkbWluOiQyeSQxMCRhYmNkZWZnaGlqa2xtbm9wcXJzdHV1SjRaMlpxMVpxMVpxMVpxMVpxMVpxMVpxMVpxMVpxMQpjYWRkeV8wLmJhc2ljYXV0aC5hZG1pbj0iJDJ5JDEwJHh5eiI="
+      }
+    },
+    {
+      "id": "compose.healthcheck",
+      "about": "the HTTP healthcheck with its defaults",
+      "application": {
+        "health_check_enabled": true,
+        "health_check_start_period": 0
+      }
+    },
+    {
+      "id": "compose.healthcheck.full",
+      "about": "path, port, host, method and scheme",
+      "application": {
+        "health_check_enabled": true,
+        "health_check_start_period": 0,
+        "health_check_method": "POST",
+        "health_check_scheme": "https",
+        "health_check_host": "127.0.0.1",
+        "health_check_port": "8443",
+        "health_check_path": "/healthz",
+        "health_check_interval": 7,
+        "health_check_timeout": 3,
+        "health_check_retries": 2
+      }
+    },
+    {
+      "id": "compose.healthcheck.head",
+      "about": "HEAD with an expected text: the text is not checked",
+      "application": {
+        "health_check_enabled": true,
+        "health_check_start_period": 0,
+        "health_check_method": "HEAD",
+        "health_check_response_text": "ok"
+      }
+    },
+    {
+      "id": "compose.healthcheck.code",
+      "about": "an expected error code",
+      "application": {
+        "health_check_enabled": true,
+        "health_check_start_period": 0,
+        "health_check_return_code": 401,
+        "health_check_path": "/private"
+      }
+    },
+    {
+      "id": "compose.healthcheck.text",
+      "about": "an expected response text with $ and quotes",
+      "application": {
+        "health_check_enabled": true,
+        "health_check_start_period": 0,
+        "health_check_response_text": "status: 'ok' $1"
+      }
+    },
+    {
+      "id": "compose.healthcheck.code-text",
+      "about": "an expected error code and text over https",
+      "application": {
+        "health_check_enabled": true,
+        "health_check_start_period": 0,
+        "health_check_return_code": 503,
+        "health_check_response_text": "maintenance",
+        "health_check_scheme": "https"
+      }
+    },
+    {
+      "id": "compose.healthcheck.text.control",
+      "about": "an expected text with a control character",
+      "application": {
+        "health_check_enabled": true,
+        "health_check_start_period": 0,
+        "health_check_response_text": "a\tb"
+      }
+    },
+    {
+      "id": "compose.healthcheck.invalid",
+      "about": "values the deployment refuses fall back",
+      "application": {
+        "health_check_enabled": true,
+        "health_check_start_period": 0,
+        "health_check_method": "get",
+        "health_check_scheme": "ftp",
+        "health_check_host": "bad host",
+        "health_check_path": "/a b"
+      }
+    },
+    {
+      "id": "compose.healthcheck.ipv6",
+      "about": "an IPv6 host",
+      "application": {
+        "health_check_enabled": true,
+        "health_check_start_period": 0,
+        "health_check_host": "::1"
+      }
+    },
+    {
+      "id": "compose.healthcheck.cmd",
+      "about": "a command healthcheck",
+      "application": {
+        "health_check_enabled": true,
+        "health_check_start_period": 0,
+        "health_check_type": "cmd",
+        "health_check_command": "pg_isready -U postgres\n-d app"
+      }
+    },
+    {
+      "id": "compose.healthcheck.cmd.invalid",
+      "about": "a command healthcheck with forbidden characters",
+      "application": {
+        "health_check_enabled": true,
+        "health_check_start_period": 0,
+        "health_check_type": "cmd",
+        "health_check_command": "curl localhost | grep ok"
+      }
+    },
+    {
+      "id": "compose.healthcheck.no-port",
+      "about": "no healthcheck port and no exposed port",
+      "application": {
+        "health_check_enabled": true,
+        "health_check_start_period": 0,
+        "ports_exposes": null,
+        "fqdn": null
+      }
+    },
+    {
+      "id": "compose.gpu",
+      "about": "GPU access",
+      "settings": {
+        "is_gpu_enabled": true,
+        "gpu_driver": "nvidia",
+        "gpu_count": "2",
+        "gpu_options": "a=1\nb=two"
+      }
+    },
+    {
+      "id": "compose.gpu.devices",
+      "about": "GPU device ids and YAML options",
+      "settings": {
+        "is_gpu_enabled": true,
+        "gpu_driver": " nvidia ",
+        "gpu_count": "",
+        "gpu_device_ids": "0, GPU-1,,2",
+        "gpu_options": "key: value\nflag: true\nn: 3"
+      }
+    },
+    {
+      "id": "compose.gpu.all",
+      "about": "all GPUs, options that cannot be parsed",
+      "settings": {
+        "is_gpu_enabled": true,
+        "gpu_driver": "",
+        "gpu_count": "all",
+        "gpu_options": "- a\n- b"
+      },
+      "application": {
+        "custom_docker_run_options": "--gpus all --cap-add NET_ADMIN"
+      }
+    },
+    {
+      "id": "compose.log-drain",
+      "about": "a log drain through Fluent Bit",
+      "serverSettings": {
+        "is_logdrain_axiom_enabled": true
+      },
+      "settings": {
+        "is_log_drain_enabled": true
+      }
+    },
+    {
+      "id": "compose.log-drain.cloudwatch",
+      "about": "a CloudWatch log drain",
+      "serverSettings": {
+        "is_logdrain_cloudwatch_enabled": true,
+        "logdrain_cloudwatch_region": "eu-west-1",
+        "logdrain_cloudwatch_group": "/apps/prod",
+        "logdrain_cloudwatch_stream_prefix": "app-"
+      },
+      "settings": {
+        "is_log_drain_enabled": true
+      }
+    },
+    {
+      "id": "compose.log-drain.cloudwatch.bare",
+      "about": "a CloudWatch log drain without a prefix",
+      "serverSettings": {
+        "is_logdrain_cloudwatch_enabled": true,
+        "logdrain_cloudwatch_region": "us-east-1",
+        "logdrain_cloudwatch_group": "g"
+      },
+      "settings": {
+        "is_log_drain_enabled": true
+      }
+    },
+    {
+      "id": "compose.log-drain.app-off",
+      "about": "the server drains logs, the application does not",
+      "serverSettings": {
+        "is_logdrain_axiom_enabled": true
+      }
+    },
+    {
+      "id": "compose.volumes",
+      "about": "persistent storages: a named volume and a host path",
+      "persistentStorages": [
+        {
+          "name": "app0000000000000000000001-data",
+          "mount_path": "/var/lib/data"
+        },
+        {
+          "name": "app0000000000000000000001-cfg",
+          "mount_path": "/etc/app",
+          "host_path": "/srv/app/cfg"
+        },
+        {
+          "name": "cache",
+          "mount_path": "/cache",
+          "host_path": ""
+        }
+      ]
+    },
+    {
+      "id": "compose.volumes.directory",
+      "about": "a directory mount among the file storages",
+      "persistentStorages": [
+        {
+          "name": "data",
+          "mount_path": "/data"
+        }
+      ],
+      "fileStorages": [
+        {
+          "fs_path": "/data/coolify/applications/app0000000000000000000001/uploads",
+          "mount_path": "/app/uploads",
+          "is_directory": true
+        }
+      ]
+    },
+    {
+      "id": "compose.options.caps",
+      "about": "capabilities, devices and sysctls",
+      "application": {
+        "custom_docker_run_options": "--cap-add=NET_ADMIN --cap-add SYS_PTRACE --cap-drop ALL --device=/dev/fuse --sysctl net.ipv4.ip_forward=1 --security-opt apparmor=unconfined"
+      }
+    },
+    {
+      "id": "compose.options.ulimit",
+      "about": "ulimits",
+      "application": {
+        "custom_docker_run_options": "--ulimit nofile=1024:2048 --ulimit nproc=512 --ulimit bad"
+      }
+    },
+    {
+      "id": "compose.options.misc",
+      "about": "shm, hostname, runtime, init, privileged, read-only, pids",
+      "application": {
+        "custom_docker_run_options": "--shm-size=256m --hostname web1 --runtime=runsc --init --privileged=false --read-only --pids-limit 100 --dns 1.1.1.1 --dns=8.8.8.8 --tmpfs /run:rw,size=64m"
+      }
+    },
+    {
+      "id": "compose.options.tty",
+      "about": "interactive and tty",
+      "application": {
+        "custom_docker_run_options": "-it --add-host=db:10.0.0.9 --add-host \"host.docker.internal:host-gateway\""
+      }
+    },
+    {
+      "id": "compose.options.entrypoint",
+      "about": "an entrypoint with quotes",
+      "application": {
+        "custom_docker_run_options": "--entrypoint \"sh -c \\\"echo hi\\\"\" --memory 1g"
+      }
+    },
+    {
+      "id": "compose.options.gpus",
+      "about": "--gpus with devices",
+      "application": {
+        "custom_docker_run_options": "--gpus '\"device=0,2\"'"
+      }
+    },
+    {
+      "id": "compose.options.gpus.count",
+      "about": "--gpus with a count",
+      "application": {
+        "custom_docker_run_options": "--gpus 2 --ipc=host"
+      }
+    },
+    {
+      "id": "compose.options.ip",
+      "about": "a fixed IP: no rolling update, the networks entry is replaced",
+      "application": {
+        "custom_docker_run_options": "--ip 10.0.1.7 --ip6 fd00::7"
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        }
+      ]
+    },
+    {
+      "id": "compose.options.ip.consistent",
+      "about": "a fixed IP with a consistent container name",
+      "application": {
+        "custom_docker_run_options": "--ip 10.0.1.7 --cap-add NET_RAW"
+      },
+      "settings": {
+        "is_consistent_container_name_enabled": true
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        }
+      ]
+    },
+    {
+      "id": "compose.options.seccomp",
+      "about": "a seccomp profile is mounted into the helper",
+      "application": {
+        "custom_docker_run_options": "--security-opt seccomp=/etc/docker/seccomp/app.json --security-opt no-new-privileges"
+      }
+    },
+    {
+      "id": "compose.options.unsupported",
+      "about": "options that are not supported",
+      "application": {
+        "custom_docker_run_options": "--network host -e FOO=bar --restart always --cap-add CHOWN -p 80:80 --name x"
+      }
+    },
+    {
+      "id": "compose.options.mac",
+      "about": "mac address, memory flags that map",
+      "application": {
+        "custom_docker_run_options": "--mac-address 02:42:ac:11:00:02 --ipc host --pid=host --user 1000:1000 --workdir /srv --label a=b --env-file /x --volume /a:/b --publish 1:2 --expose 9 --stop-signal SIGINT --stop-timeout 5 --oom-kill-disable --group-add audio"
+      }
+    },
+    {
+      "id": "compose.kitchen-sink",
+      "about": "many settings together",
+      "application": {
+        "health_check_enabled": true,
+        "health_check_start_period": 0,
+        "ports_exposes": "8080,9090",
+        "ports_mappings": "80:8080",
+        "custom_network_aliases": "[\"svc\"]",
+        "limits_memory": "1g",
+        "limits_cpus": "0.5",
+        "limits_cpuset": "1",
+        "custom_docker_run_options": "--cap-add NET_ADMIN --ulimit nofile=65535:65535 --ip 10.0.1.9 -t"
+      },
+      "settings": {
+        "stop_grace_period": 10,
+        "is_gpu_enabled": true,
+        "gpu_count": "1",
+        "is_log_drain_enabled": true
+      },
+      "serverSettings": {
+        "is_logdrain_newrelic_enabled": true
+      },
+      "persistentStorages": [
+        {
+          "name": "v1",
+          "mount_path": "/v1"
+        }
+      ],
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"nginx:1.26\"}\n"
+        }
+      ]
+    },
+    {
+      "id": "env.plain",
+      "about": "runtime variables in their saved order",
+      "variables": [
+        {
+          "key": "B_SECOND",
+          "value": "two",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "A_FIRST",
+          "value": "one",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "EMPTY",
+          "value": "",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "SPACES",
+          "value": "  padded  ",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "QUOTES",
+          "value": "say \"hi\" \\ back",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        }
+      ]
+    },
+    {
+      "id": "env.sorted",
+      "about": "is_env_sorting_enabled: by key",
+      "settings": {
+        "is_env_sorting_enabled": true
+      },
+      "variables": [
+        {
+          "key": "B_SECOND",
+          "value": "two",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "A_FIRST",
+          "value": "one",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "a_lower",
+          "value": "x",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        }
+      ]
+    },
+    {
+      "id": "env.interpolation",
+      "about": "$ references: interpolated unless literal, multiline or JSON",
+      "variables": [
+        {
+          "key": "BASE",
+          "value": "https://example.com",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "REF",
+          "value": "$BASE/api and ${BASE:-x}",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "LITERAL",
+          "value": "cost $5 ${NOT}",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": true,
+          "is_multiline": false
+        },
+        {
+          "key": "MULTI",
+          "value": "line1 $A\nline2",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": true
+        },
+        {
+          "key": "JSON",
+          "value": "{\"a\":\"$b\",\"c\":[1,2]}",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "JSONLIST",
+          "value": "[\"$x\"]",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "NOTJSON",
+          "value": "{not json $y}",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        }
+      ]
+    },
+    {
+      "id": "env.service-order",
+      "about": "variables that reference SERVICE_ come last",
+      "variables": [
+        {
+          "key": "LATE",
+          "value": "$SERVICE_URL_APP",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "LATE2",
+          "value": "x ${SERVICE_FQDN_APP}",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "EARLY",
+          "value": "1",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        }
+      ]
+    },
+    {
+      "id": "env.runtime-only",
+      "about": "build-time only variables stay out; a runtime-only one is in",
+      "variables": [
+        {
+          "key": "BUILD_ONLY",
+          "value": "b",
+          "is_runtime": false,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "RUN_ONLY",
+          "value": "r",
+          "is_runtime": true,
+          "is_buildtime": false,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "NIXPACKS_NODE_VERSION",
+          "value": "22",
+          "is_runtime": false,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        }
+      ]
+    },
+    {
+      "id": "env.shared",
+      "about": "references to shared variables of the team, project, environment and server",
+      "sharedVariables": [
+        {
+          "key": "API_URL",
+          "value": "https://team.example.com",
+          "type": "team"
+        },
+        {
+          "key": "REGION",
+          "value": "eu-$1",
+          "type": "project"
+        },
+        {
+          "key": "STAGE",
+          "value": "prod",
+          "type": "environment"
+        },
+        {
+          "key": "LOCKED",
+          "value": "s3cr3t-locked-value",
+          "type": "team",
+          "is_shown_once": true
+        },
+        {
+          "key": "MULTI",
+          "value": "l1\nl2",
+          "type": "team",
+          "is_multiline": true
+        }
+      ],
+      "variables": [
+        {
+          "key": "API",
+          "value": "{{team.API_URL}}/v1",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "WHERE",
+          "value": "{{project.REGION}}-{{environment.STAGE}}",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "MISSING",
+          "value": "{{team.NOPE}} stays",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "SPACED",
+          "value": "{{ team.API_URL }}",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "SERVER",
+          "value": "{{server.COOLIFY_SERVER_NAME}} {{server.COOLIFY_SERVER_UUID}}",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "SECRET",
+          "value": "{{team.LOCKED}}",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "ML",
+          "value": "{{team.MULTI}}",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        }
+      ],
+      "responses": [
+        {
+          "match": "pull'",
+          "output": "using s3cr3t-locked-value and https://team.example.com/v1\n"
+        }
+      ]
+    },
+    {
+      "id": "env.port-host",
+      "about": "PORT and HOST are the user's",
+      "variables": [
+        {
+          "key": "PORT",
+          "value": "80",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "HOST",
+          "value": "127.0.0.1",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        }
+      ]
+    },
+    {
+      "id": "env.port-mismatch",
+      "about": "PORT differs from the exposed port: a warning",
+      "variables": [
+        {
+          "key": "PORT",
+          "value": " 3000 ",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        }
+      ]
+    },
+    {
+      "id": "env.port-mismatch.manual-labels",
+      "about": "no warning while labels are edited by hand",
+      "application": {
+        "custom_labels": "YT1i"
+      },
+      "settings": {
+        "is_container_label_readonly_enabled": false
+      },
+      "variables": [
+        {
+          "key": "PORT",
+          "value": "3000",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        }
+      ]
+    },
+    {
+      "id": "env.own-coolify",
+      "about": "the user's own SOURCE_COMMIT, COOLIFY_* and default variables win",
+      "variables": [
+        {
+          "key": "SOURCE_COMMIT",
+          "value": "mine",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "COOLIFY_FQDN",
+          "value": "f",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "COOLIFY_URL",
+          "value": "u",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "COOLIFY_BRANCH",
+          "value": "b",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "COOLIFY_RESOURCE_UUID",
+          "value": "r",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "COOLIFY_CONTAINER_NAME",
+          "value": "c",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "COOLIFY_APP_NAME",
+          "value": "n",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "COOLIFY_SERVER_IP",
+          "value": "1.1.1.1",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        }
+      ]
+    },
+    {
+      "id": "env.no-defaults",
+      "about": "include_coolify_default_variables off",
+      "settings": {
+        "include_coolify_default_variables": false
+      }
+    },
+    {
+      "id": "env.empty",
+      "about": "nothing to write: an empty .env file",
+      "application": {
+        "fqdn": null
+      },
+      "settings": {
+        "include_coolify_default_variables": false
+      },
+      "variables": [
+        {
+          "key": "SOURCE_COMMIT",
+          "value": "x",
+          "is_runtime": false,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "COOLIFY_FQDN",
+          "value": "x",
+          "is_runtime": false,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "COOLIFY_URL",
+          "value": "x",
+          "is_runtime": false,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "COOLIFY_BRANCH",
+          "value": "x",
+          "is_runtime": false,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "COOLIFY_RESOURCE_UUID",
+          "value": "x",
+          "is_runtime": false,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "COOLIFY_CONTAINER_NAME",
+          "value": "x",
+          "is_runtime": false,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "PORT",
+          "value": "x",
+          "is_runtime": false,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "HOST",
+          "value": "x",
+          "is_runtime": false,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        }
+      ]
+    },
+    {
+      "id": "env.no-domain",
+      "about": "no domain: empty COOLIFY_URL and COOLIFY_FQDN",
+      "application": {
+        "fqdn": null
+      }
+    },
+    {
+      "id": "env.domains",
+      "about": "several domains",
+      "application": {
+        "fqdn": "https://a.example.com:8443/path,http://b.example.com"
+      }
+    },
+    {
+      "id": "env.legacy-keys",
+      "about": "names new variables cannot use",
+      "variables": [
+        {
+          "key": "L1",
+          "value": "1",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false,
+          "stored_key": "my-var"
+        },
+        {
+          "key": "with.dot",
+          "value": "2",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "L3",
+          "value": "3",
+          "is_runtime": true,
+          "is_buildtime": false,
+          "is_literal": false,
+          "is_multiline": false,
+          "stored_key": "9lives"
+        },
+        {
+          "key": "L4",
+          "value": "4",
+          "is_runtime": false,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false,
+          "stored_key": "build-only"
+        },
+        {
+          "key": "L5",
+          "value": "5",
+          "is_runtime": false,
+          "is_buildtime": false,
+          "is_literal": false,
+          "is_multiline": false,
+          "stored_key": "no use"
+        }
+      ]
+    },
+    {
+      "id": "env.redaction",
+      "about": "values in command output are hidden: all values, locked or not",
+      "view": true,
+      "variables": [
+        {
+          "key": "API_TOKEN",
+          "value": "tok_live_0123456789",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "SHORT",
+          "value": "abc",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "LOCKED",
+          "value": "pw",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false,
+          "is_shown_once": true
+        },
+        {
+          "key": "PLAIN",
+          "value": "plainvalue123",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        }
+      ],
+      "responses": [
+        {
+          "match": "pull'",
+          "output": "token tok_live_0123456789 short abc locked pw plain plainvalue123 password=hunter2 user@example.com\n"
+        }
+      ]
+    },
+    {
+      "id": "env.redaction.locked-only",
+      "about": "redact_all_env_values_in_logs off: only locked values are hidden",
+      "settings": {
+        "redact_all_env_values_in_logs": false
+      },
+      "variables": [
+        {
+          "key": "API_TOKEN",
+          "value": "tok_live_0123456789",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        },
+        {
+          "key": "LOCKED",
+          "value": "pw-locked-1",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false,
+          "is_shown_once": true
+        },
+        {
+          "key": "ML",
+          "value": "first line\nsecond line",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": true,
+          "is_shown_once": true
+        }
+      ],
+      "responses": [
+        {
+          "match": "pull'",
+          "output": "token tok_live_0123456789 locked pw-locked-1 and second line\n"
+        }
+      ]
+    },
+    {
+      "id": "env.vault.literal",
+      "about": "a literal {{vault.KEY}} stays text",
+      "variables": [
+        {
+          "key": "V",
+          "value": "{{vault.API_KEY}}",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": true,
+          "is_multiline": false
+        }
+      ]
+    },
+    {
+      "id": "env.vault",
+      "about": "a {{vault.KEY}} reference without a secret manager stops the deployment",
+      "variables": [
+        {
+          "key": "V",
+          "value": "prefix-{{vault.API_KEY}}",
+          "is_runtime": true,
+          "is_buildtime": true,
+          "is_literal": false,
+          "is_multiline": false
+        }
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "id": "yaml.scalars",
+      "fn": "yamlDump",
+      "args": [
+        {
+          "s": "plain",
+          "n": 1,
+          "f": 1.5,
+          "z": 0,
+          "big": 100000000000000000000,
+          "neg": -3,
+          "t": true,
+          "fa": false,
+          "nul": null,
+          "empty": "",
+          "space": " lead",
+          "trail": "trail ",
+          "colon": "a: b",
+          "hash": "a #b",
+          "dash": "- a",
+          "q": "it's",
+          "dq": "say \"x\"",
+          "nl": "a\nb",
+          "tab": "a\tb",
+          "num": "123",
+          "flt": "1.5",
+          "exp": "1e3",
+          "hex": "0x1F",
+          "oct": "0o17",
+          "bin": "0b11",
+          "yes": "yes",
+          "no": "No",
+          "tru": "true",
+          "nulls": "null",
+          "tilde": "~",
+          "star": "*a",
+          "amp": "&a",
+          "bang": "!a",
+          "pct": "%a",
+          "at": "@a",
+          "tick": "`a",
+          "brace": "{a}",
+          "brack": "[a]",
+          "comma": "a,b",
+          "pipe": "|a",
+          "gt": ">a",
+          "eq": "=",
+          "qm": "? a",
+          "date": "2026-11-20",
+          "time": "12:30:45",
+          "ver": "1.2.3",
+          "under": "1_000",
+          "plus": "+1",
+          "inf": ".inf",
+          "nan": ".NaN",
+          "dot": ".",
+          "minus": "-",
+          "colonEnd": "a:",
+          "url": "https://a.example.com/x?y=1&z=2",
+          "backslash": "a\\b",
+          "uni": "Ünïcode ✓",
+          "cr": "a\rb",
+          "bell": "a\u0007b",
+          "ctl": "\u001b[0m"
+        }
+      ]
+    },
+    {
+      "id": "yaml.lists",
+      "fn": "yamlDump",
+      "args": [
+        {
+          "empty": [],
+          "emptyMap": {},
+          "list": [
+            "a",
+            1,
+            true,
+            null,
+            [
+              "x",
+              "y"
+            ],
+            {
+              "k": "v",
+              "l": [
+                1
+              ]
+            }
+          ],
+          "nested": {
+            "a": {
+              "b": {
+                "c": {
+                  "d": [
+                    "deep"
+                  ]
+                }
+              }
+            }
+          },
+          "listOfMaps": [
+            {
+              "a": 1,
+              "b": 2
+            },
+            {
+              "c": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "yaml.keys",
+      "fn": "yamlDump",
+      "args": [
+        {
+          "123": "numeric key",
+          "with space": 1,
+          "with:colon": 2,
+          "true": "bool key",
+          "": "empty key",
+          "a.b": 3,
+          "{x}": 4,
+          "'q'": 5,
+          "-dash": 6,
+          "#hash": 7
+        }
+      ]
+    },
+    {
+      "id": "yaml.strings",
+      "fn": "yamlDump",
+      "args": [
+        [
+          "",
+          " ",
+          "a",
+          "A b",
+          "'",
+          "\"",
+          "''",
+          "a'b\"c",
+          "#",
+          "a#b",
+          "a # b",
+          ":",
+          "a:b",
+          ": a",
+          "@",
+          "%",
+          "true",
+          "True",
+          "TRUE",
+          "false",
+          "on",
+          "off",
+          "y",
+          "n",
+          "null",
+          "Null",
+          "~",
+          "0",
+          "00",
+          "007",
+          "1.0",
+          "-1",
+          "+1",
+          ".5",
+          "1.",
+          "1e5",
+          "0x10",
+          "1,000",
+          "1 000",
+          "12:30",
+          "2026-01-01T00:00:00Z",
+          "\n",
+          "a\n",
+          "\na",
+          "a\\nb",
+          "é",
+          " ",
+          "tab\there",
+          "a\\b\n",
+          "q\"x\n",
+          "\\\"\n",
+          "back\\slash",
+          " nbsp",
+          "a b",
+          "﻿bom",
+          " em",
+          "a b",
+          "\u0001",
+          "a\u0007b",
+          "a\u001bb",
+          "x\u0000y",
+          "{{upstreams 80}}",
+          "Host(`a`) && PathPrefix(`/`)",
+          "zstd gzip",
+          "/*",
+          "-Server",
+          "{path} /index.html",
+          "<<",
+          "=",
+          "!!str x",
+          "|",
+          ">",
+          "a|b",
+          "*",
+          "a*",
+          "?",
+          "-",
+          "- ",
+          "--",
+          "---",
+          "...",
+          "[",
+          "]",
+          "{",
+          "}",
+          ",",
+          "`",
+          "a`b",
+          "a, b",
+          "$5",
+          "$$",
+          "${A}",
+          "100%",
+          "a=b",
+          "a=b c",
+          "key=va:lue",
+          "k: v",
+          "caddy_0=https://app.example.com",
+          "traefik.http.routers.r.rule=Host(`a.b`) && PathPrefix(`/`)",
+          "x=1e3",
+          "x='y'",
+          "x=\"y\"",
+          "x= y",
+          " x=y",
+          "x=y ",
+          "0.0",
+          ".inf",
+          "-.inf",
+          ".nan",
+          "0b1",
+          "0o7",
+          "1_0",
+          "١"
+        ]
+      ]
+    },
+    {
+      "id": "yaml.numbers",
+      "fn": "yamlDump",
+      "args": [
+        [
+          0,
+          1,
+          -1,
+          0.5,
+          1.5,
+          0.05,
+          1e-7,
+          0.0001,
+          0.00001,
+          123456789.123,
+          1e+21,
+          1.5e+300,
+          0.30000000000000004,
+          512,
+          1024,
+          99999999999999.5,
+          1234567890123456.8,
+          100000000000000.5,
+          0.30000000000000004,
+          0.3333333333333333,
+          2.5e-10
+        ]
+      ]
+    },
+    {
+      "id": "yaml.depth",
+      "fn": "yamlDump",
+      "args": [
+        {
+          "a": {
+            "b": {
+              "c": {
+                "d": {
+                  "e": {
+                    "f": {
+                      "g": {
+                        "h": {
+                          "i": {
+                            "j": {
+                              "k": {
+                                "l": "deep"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "run-options.compose.empty",
+      "fn": "convertDockerRunToCompose",
+      "args": [
+        ""
+      ]
+    },
+    {
+      "id": "run-options.unsupported.empty",
+      "fn": "unsupportedDockerRunOptions",
+      "args": [
+        ""
+      ]
+    },
+    {
+      "id": "run-options.seccomp.empty",
+      "fn": "seccompProfileMountFlags",
+      "args": [
+        ""
+      ]
+    },
+    {
+      "id": "run-options.compose.null",
+      "fn": "convertDockerRunToCompose",
+      "args": [
+        null
+      ]
+    },
+    {
+      "id": "run-options.unsupported.null",
+      "fn": "unsupportedDockerRunOptions",
+      "args": [
+        null
+      ]
+    },
+    {
+      "id": "run-options.seccomp.null",
+      "fn": "seccompProfileMountFlags",
+      "args": [
+        null
+      ]
+    },
+    {
+      "id": "run-options.compose.caps",
+      "fn": "convertDockerRunToCompose",
+      "args": [
+        "--cap-add=NET_ADMIN --cap-add SYS_PTRACE --cap-drop ALL"
+      ]
+    },
+    {
+      "id": "run-options.unsupported.caps",
+      "fn": "unsupportedDockerRunOptions",
+      "args": [
+        "--cap-add=NET_ADMIN --cap-add SYS_PTRACE --cap-drop ALL"
+      ]
+    },
+    {
+      "id": "run-options.seccomp.caps",
+      "fn": "seccompProfileMountFlags",
+      "args": [
+        "--cap-add=NET_ADMIN --cap-add SYS_PTRACE --cap-drop ALL"
+      ]
+    },
+    {
+      "id": "run-options.compose.dup",
+      "fn": "convertDockerRunToCompose",
+      "args": [
+        "--cap-add A --cap-add A --cap-add B"
+      ]
+    },
+    {
+      "id": "run-options.unsupported.dup",
+      "fn": "unsupportedDockerRunOptions",
+      "args": [
+        "--cap-add A --cap-add A --cap-add B"
+      ]
+    },
+    {
+      "id": "run-options.seccomp.dup",
+      "fn": "seccompProfileMountFlags",
+      "args": [
+        "--cap-add A --cap-add A --cap-add B"
+      ]
+    },
+    {
+      "id": "run-options.compose.ulimit",
+      "fn": "convertDockerRunToCompose",
+      "args": [
+        "--ulimit nofile=1024:2048 --ulimit nproc=512 --ulimit bad --ulimit a=1:2:3"
+      ]
+    },
+    {
+      "id": "run-options.unsupported.ulimit",
+      "fn": "unsupportedDockerRunOptions",
+      "args": [
+        "--ulimit nofile=1024:2048 --ulimit nproc=512 --ulimit bad --ulimit a=1:2:3"
+      ]
+    },
+    {
+      "id": "run-options.seccomp.ulimit",
+      "fn": "seccompProfileMountFlags",
+      "args": [
+        "--ulimit nofile=1024:2048 --ulimit nproc=512 --ulimit bad --ulimit a=1:2:3"
+      ]
+    },
+    {
+      "id": "run-options.compose.misc",
+      "fn": "convertDockerRunToCompose",
+      "args": [
+        "--shm-size=256m --hostname web1 --runtime=runsc --init --privileged=false --read-only --pids-limit 100"
+      ]
+    },
+    {
+      "id": "run-options.unsupported.misc",
+      "fn": "unsupportedDockerRunOptions",
+      "args": [
+        "--shm-size=256m --hostname web1 --runtime=runsc --init --privileged=false --read-only --pids-limit 100"
+      ]
+    },
+    {
+      "id": "run-options.seccomp.misc",
+      "fn": "seccompProfileMountFlags",
+      "args": [
+        "--shm-size=256m --hostname web1 --runtime=runsc --init --privileged=false --read-only --pids-limit 100"
+      ]
+    },
+    {
+      "id": "run-options.compose.pids",
+      "fn": "convertDockerRunToCompose",
+      "args": [
+        "--pids-limit -1 --pids-limit=abc"
+      ]
+    },
+    {
+      "id": "run-options.unsupported.pids",
+      "fn": "unsupportedDockerRunOptions",
+      "args": [
+        "--pids-limit -1 --pids-limit=abc"
+      ]
+    },
+    {
+      "id": "run-options.seccomp.pids",
+      "fn": "seccompProfileMountFlags",
+      "args": [
+        "--pids-limit -1 --pids-limit=abc"
+      ]
+    },
+    {
+      "id": "run-options.compose.bools",
+      "fn": "convertDockerRunToCompose",
+      "args": [
+        "--init=false --privileged --read-only=FALSE --init true"
+      ]
+    },
+    {
+      "id": "run-options.unsupported.bools",
+      "fn": "unsupportedDockerRunOptions",
+      "args": [
+        "--init=false --privileged --read-only=FALSE --init true"
+      ]
+    },
+    {
+      "id": "run-options.seccomp.bools",
+      "fn": "seccompProfileMountFlags",
+      "args": [
+        "--init=false --privileged --read-only=FALSE --init true"
+      ]
+    },
+    {
+      "id": "run-options.compose.tty",
+      "fn": "convertDockerRunToCompose",
+      "args": [
+        "-it"
+      ]
+    },
+    {
+      "id": "run-options.unsupported.tty",
+      "fn": "unsupportedDockerRunOptions",
+      "args": [
+        "-it"
+      ]
+    },
+    {
+      "id": "run-options.seccomp.tty",
+      "fn": "seccompProfileMountFlags",
+      "args": [
+        "-it"
+      ]
+    },
+    {
+      "id": "run-options.compose.tty2",
+      "fn": "convertDockerRunToCompose",
+      "args": [
+        "-t -i --interactive --tty -d -dit"
+      ]
+    },
+    {
+      "id": "run-options.unsupported.tty2",
+      "fn": "unsupportedDockerRunOptions",
+      "args": [
+        "-t -i --interactive --tty -d -dit"
+      ]
+    },
+    {
+      "id": "run-options.seccomp.tty2",
+      "fn": "seccompProfileMountFlags",
+      "args": [
+        "-t -i --interactive --tty -d -dit"
+      ]
+    },
+    {
+      "id": "run-options.compose.entry",
+      "fn": "convertDockerRunToCompose",
+      "args": [
+        "--entrypoint \"sh -c \\\"echo hi\\\"\""
+      ]
+    },
+    {
+      "id": "run-options.unsupported.entry",
+      "fn": "unsupportedDockerRunOptions",
+      "args": [
+        "--entrypoint \"sh -c \\\"echo hi\\\"\""
+      ]
+    },
+    {
+      "id": "run-options.seccomp.entry",
+      "fn": "seccompProfileMountFlags",
+      "args": [
+        "--entrypoint \"sh -c \\\"echo hi\\\"\""
+      ]
+    },
+    {
+      "id": "run-options.compose.entry2",
+      "fn": "convertDockerRunToCompose",
+      "args": [
+        "--entrypoint='python -c \"x\"' --entrypoint /bin/sh"
+      ]
+    },
+    {
+      "id": "run-options.unsupported.entry2",
+      "fn": "unsupportedDockerRunOptions",
+      "args": [
+        "--entrypoint='python -c \"x\"' --entrypoint /bin/sh"
+      ]
+    },
+    {
+      "id": "run-options.seccomp.entry2",
+      "fn": "seccompProfileMountFlags",
+      "args": [
+        "--entrypoint='python -c \"x\"' --entrypoint /bin/sh"
+      ]
+    },
+    {
+      "id": "run-options.compose.entry3",
+      "fn": "convertDockerRunToCompose",
+      "args": [
+        "--entrypoint \"-it\" -x"
+      ]
+    },
+    {
+      "id": "run-options.unsupported.entry3",
+      "fn": "unsupportedDockerRunOptions",
+      "args": [
+        "--entrypoint \"-it\" -x"
+      ]
+    },
+    {
+      "id": "run-options.seccomp.entry3",
+      "fn": "seccompProfileMountFlags",
+      "args": [
+        "--entrypoint \"-it\" -x"
+      ]
+    },
+    {
+      "id": "run-options.compose.gpus",
+      "fn": "convertDockerRunToCompose",
+      "args": [
+        "--gpus all"
+      ]
+    },
+    {
+      "id": "run-options.unsupported.gpus",
+      "fn": "unsupportedDockerRunOptions",
+      "args": [
+        "--gpus all"
+      ]
+    },
+    {
+      "id": "run-options.seccomp.gpus",
+      "fn": "seccompProfileMountFlags",
+      "args": [
+        "--gpus all"
+      ]
+    },
+    {
+      "id": "run-options.compose.gpus2",
+      "fn": "convertDockerRunToCompose",
+      "args": [
+        "--gpus '\"device=0,2\"'"
+      ]
+    },
+    {
+      "id": "run-options.unsupported.gpus2",
+      "fn": "unsupportedDockerRunOptions",
+      "args": [
+        "--gpus '\"device=0,2\"'"
+      ]
+    },
+    {
+      "id": "run-options.seccomp.gpus2",
+      "fn": "seccompProfileMountFlags",
+      "args": [
+        "--gpus '\"device=0,2\"'"
+      ]
+    },
+    {
+      "id": "run-options.compose.gpus3",
+      "fn": "convertDockerRunToCompose",
+      "args": [
+        "--gpus 2"
+      ]
+    },
+    {
+      "id": "run-options.unsupported.gpus3",
+      "fn": "unsupportedDockerRunOptions",
+      "args": [
+        "--gpus 2"
+      ]
+    },
+    {
+      "id": "run-options.seccomp.gpus3",
+      "fn": "seccompProfileMountFlags",
+      "args": [
+        "--gpus 2"
+      ]
+    },
+    {
+      "id": "run-options.compose.gpus4",
+      "fn": "convertDockerRunToCompose",
+      "args": [
+        "--gpus device=GPU-abc"
+      ]
+    },
+    {
+      "id": "run-options.unsupported.gpus4",
+      "fn": "unsupportedDockerRunOptions",
+      "args": [
+        "--gpus device=GPU-abc"
+      ]
+    },
+    {
+      "id": "run-options.seccomp.gpus4",
+      "fn": "seccompProfileMountFlags",
+      "args": [
+        "--gpus device=GPU-abc"
+      ]
+    },
+    {
+      "id": "run-options.compose.ip",
+      "fn": "convertDockerRunToCompose",
+      "args": [
+        "--ip 10.0.0.2 --ip6 fd00::2"
+      ]
+    },
+    {
+      "id": "run-options.unsupported.ip",
+      "fn": "unsupportedDockerRunOptions",
+      "args": [
+        "--ip 10.0.0.2 --ip6 fd00::2"
+      ]
+    },
+    {
+      "id": "run-options.seccomp.ip",
+      "fn": "seccompProfileMountFlags",
+      "args": [
+        "--ip 10.0.0.2 --ip6 fd00::2"
+      ]
+    },
+    {
+      "id": "run-options.compose.quotes",
+      "fn": "convertDockerRunToCompose",
+      "args": [
+        "--add-host \"a b:1.2.3.4\" --label 'x=y z' --hostname \"h\\\"q\\$d\\\\\""
+      ]
+    },
+    {
+      "id": "run-options.unsupported.quotes",
+      "fn": "unsupportedDockerRunOptions",
+      "args": [
+        "--add-host \"a b:1.2.3.4\" --label 'x=y z' --hostname \"h\\\"q\\$d\\\\\""
+      ]
+    },
+    {
+      "id": "run-options.seccomp.quotes",
+      "fn": "seccompProfileMountFlags",
+      "args": [
+        "--add-host \"a b:1.2.3.4\" --label 'x=y z' --hostname \"h\\\"q\\$d\\\\\""
+      ]
+    },
+    {
+      "id": "run-options.compose.empty_value",
+      "fn": "convertDockerRunToCompose",
+      "args": [
+        "--cap-add --cap-drop="
+      ]
+    },
+    {
+      "id": "run-options.unsupported.empty_value",
+      "fn": "unsupportedDockerRunOptions",
+      "args": [
+        "--cap-add --cap-drop="
+      ]
+    },
+    {
+      "id": "run-options.seccomp.empty_value",
+      "fn": "seccompProfileMountFlags",
+      "args": [
+        "--cap-add --cap-drop="
+      ]
+    },
+    {
+      "id": "run-options.compose.unknown",
+      "fn": "convertDockerRunToCompose",
+      "args": [
+        "--network host -e A=B --foo bar -p 80:80"
+      ]
+    },
+    {
+      "id": "run-options.unsupported.unknown",
+      "fn": "unsupportedDockerRunOptions",
+      "args": [
+        "--network host -e A=B --foo bar -p 80:80"
+      ]
+    },
+    {
+      "id": "run-options.seccomp.unknown",
+      "fn": "seccompProfileMountFlags",
+      "args": [
+        "--network host -e A=B --foo bar -p 80:80"
+      ]
+    },
+    {
+      "id": "run-options.compose.seccomp",
+      "fn": "convertDockerRunToCompose",
+      "args": [
+        "--security-opt seccomp=/etc/x.json --security-opt seccomp:unconfined --security-opt=seccomp=/a/../b.json --security-opt seccomp=/ok/p.json"
+      ]
+    },
+    {
+      "id": "run-options.unsupported.seccomp",
+      "fn": "unsupportedDockerRunOptions",
+      "args": [
+        "--security-opt seccomp=/etc/x.json --security-opt seccomp:unconfined --security-opt=seccomp=/a/../b.json --security-opt seccomp=/ok/p.json"
+      ]
+    },
+    {
+      "id": "run-options.seccomp.seccomp",
+      "fn": "seccompProfileMountFlags",
+      "args": [
+        "--security-opt seccomp=/etc/x.json --security-opt seccomp:unconfined --security-opt=seccomp=/a/../b.json --security-opt seccomp=/ok/p.json"
+      ]
+    },
+    {
+      "id": "run-options.compose.dns",
+      "fn": "convertDockerRunToCompose",
+      "args": [
+        "--dns 1.1.1.1 --dns 8.8.8.8 --tmpfs /run --sysctl a=b --device /dev/x:/dev/y"
+      ]
+    },
+    {
+      "id": "run-options.unsupported.dns",
+      "fn": "unsupportedDockerRunOptions",
+      "args": [
+        "--dns 1.1.1.1 --dns 8.8.8.8 --tmpfs /run --sysctl a=b --device /dev/x:/dev/y"
+      ]
+    },
+    {
+      "id": "run-options.seccomp.dns",
+      "fn": "seccompProfileMountFlags",
+      "args": [
+        "--dns 1.1.1.1 --dns 8.8.8.8 --tmpfs /run --sysctl a=b --device /dev/x:/dev/y"
+      ]
+    },
+    {
+      "id": "run-options.compose.multi",
+      "fn": "convertDockerRunToCompose",
+      "args": [
+        "--cap-add NET_ADMIN\n--cap-add SYS_ADMIN\t--init"
+      ]
+    },
+    {
+      "id": "run-options.unsupported.multi",
+      "fn": "unsupportedDockerRunOptions",
+      "args": [
+        "--cap-add NET_ADMIN\n--cap-add SYS_ADMIN\t--init"
+      ]
+    },
+    {
+      "id": "run-options.seccomp.multi",
+      "fn": "seccompProfileMountFlags",
+      "args": [
+        "--cap-add NET_ADMIN\n--cap-add SYS_ADMIN\t--init"
+      ]
+    },
+    {
+      "id": "run-options.compose.mac",
+      "fn": "convertDockerRunToCompose",
+      "args": [
+        "--mac-address 02:42:ac:11:00:02 --ipc host --pid=host --user 1000:1000 --workdir /srv --stop-signal SIGINT --stop-timeout 5 --oom-kill-disable --group-add audio --memory 1g --cpus 2 --restart always --env-file /x --volume /a:/b --publish 1:2 --expose 9 --name n --domainname d --platform linux/amd64 --pull always --log-driver json-file --log-opt max-size=1m --health-cmd x --no-healthcheck --storage-opt size=1G --cgroup-parent /x --userns host --uts host --isolation default --link a:b --blkio-weight 10 --memory-swap 2g --memory-reservation 1g --memory-swappiness 5 --cpu-shares 10 --cpuset-cpus 0 --oom-score-adj 5 --kernel-memory 1g --volumes-from x --volume-driver local --device-cgroup-rule 'c 1:3 mr' --cap-add=ALL"
+      ]
+    },
+    {
+      "id": "run-options.unsupported.mac",
+      "fn": "unsupportedDockerRunOptions",
+      "args": [
+        "--mac-address 02:42:ac:11:00:02 --ipc host --pid=host --user 1000:1000 --workdir /srv --stop-signal SIGINT --stop-timeout 5 --oom-kill-disable --group-add audio --memory 1g --cpus 2 --restart always --env-file /x --volume /a:/b --publish 1:2 --expose 9 --name n --domainname d --platform linux/amd64 --pull always --log-driver json-file --log-opt max-size=1m --health-cmd x --no-healthcheck --storage-opt size=1G --cgroup-parent /x --userns host --uts host --isolation default --link a:b --blkio-weight 10 --memory-swap 2g --memory-reservation 1g --memory-swappiness 5 --cpu-shares 10 --cpuset-cpus 0 --oom-score-adj 5 --kernel-memory 1g --volumes-from x --volume-driver local --device-cgroup-rule 'c 1:3 mr' --cap-add=ALL"
+      ]
+    },
+    {
+      "id": "run-options.seccomp.mac",
+      "fn": "seccompProfileMountFlags",
+      "args": [
+        "--mac-address 02:42:ac:11:00:02 --ipc host --pid=host --user 1000:1000 --workdir /srv --stop-signal SIGINT --stop-timeout 5 --oom-kill-disable --group-add audio --memory 1g --cpus 2 --restart always --env-file /x --volume /a:/b --publish 1:2 --expose 9 --name n --domainname d --platform linux/amd64 --pull always --log-driver json-file --log-opt max-size=1m --health-cmd x --no-healthcheck --storage-opt size=1G --cgroup-parent /x --userns host --uts host --isolation default --link a:b --blkio-weight 10 --memory-swap 2g --memory-reservation 1g --memory-swappiness 5 --cpu-shares 10 --cpuset-cpus 0 --oom-score-adj 5 --kernel-memory 1g --volumes-from x --volume-driver local --device-cgroup-rule 'c 1:3 mr' --cap-add=ALL"
+      ]
+    },
+    {
+      "id": "env-value.0",
+      "fn": "escapeComposeEnvFileValue",
+      "args": [
+        null
+      ]
+    },
+    {
+      "id": "env-value.0.interpolated",
+      "fn": "escapeComposeEnvFileValue",
+      "args": [
+        null,
+        true
+      ]
+    },
+    {
+      "id": "env-value.1",
+      "fn": "escapeComposeEnvFileValue",
+      "args": [
+        ""
+      ]
+    },
+    {
+      "id": "env-value.1.interpolated",
+      "fn": "escapeComposeEnvFileValue",
+      "args": [
+        "",
+        true
+      ]
+    },
+    {
+      "id": "env-value.2",
+      "fn": "escapeComposeEnvFileValue",
+      "args": [
+        "plain"
+      ]
+    },
+    {
+      "id": "env-value.2.interpolated",
+      "fn": "escapeComposeEnvFileValue",
+      "args": [
+        "plain",
+        true
+      ]
+    },
+    {
+      "id": "env-value.3",
+      "fn": "escapeComposeEnvFileValue",
+      "args": [
+        "q\"uote"
+      ]
+    },
+    {
+      "id": "env-value.3.interpolated",
+      "fn": "escapeComposeEnvFileValue",
+      "args": [
+        "q\"uote",
+        true
+      ]
+    },
+    {
+      "id": "env-value.4",
+      "fn": "escapeComposeEnvFileValue",
+      "args": [
+        "back\\slash"
+      ]
+    },
+    {
+      "id": "env-value.4.interpolated",
+      "fn": "escapeComposeEnvFileValue",
+      "args": [
+        "back\\slash",
+        true
+      ]
+    },
+    {
+      "id": "env-value.5",
+      "fn": "escapeComposeEnvFileValue",
+      "args": [
+        "$VAR and ${X}"
+      ]
+    },
+    {
+      "id": "env-value.5.interpolated",
+      "fn": "escapeComposeEnvFileValue",
+      "args": [
+        "$VAR and ${X}",
+        true
+      ]
+    },
+    {
+      "id": "env-value.6",
+      "fn": "escapeComposeEnvFileValue",
+      "args": [
+        "multi\nline"
+      ]
+    },
+    {
+      "id": "env-value.6.interpolated",
+      "fn": "escapeComposeEnvFileValue",
+      "args": [
+        "multi\nline",
+        true
+      ]
+    },
+    {
+      "id": "env-value.7",
+      "fn": "escapeComposeEnvFileValue",
+      "args": [
+        "'single'"
+      ]
+    },
+    {
+      "id": "env-value.7.interpolated",
+      "fn": "escapeComposeEnvFileValue",
+      "args": [
+        "'single'",
+        true
+      ]
+    },
+    {
+      "id": "env-value.8",
+      "fn": "escapeComposeEnvFileValue",
+      "args": [
+        " spaces "
+      ]
+    },
+    {
+      "id": "env-value.8.interpolated",
+      "fn": "escapeComposeEnvFileValue",
+      "args": [
+        " spaces ",
+        true
+      ]
+    },
+    {
+      "id": "redact.plain",
+      "fn": "redactText",
+      "args": [
+        "nothing to hide here",
+        [],
+        []
+      ]
+    },
+    {
+      "id": "redact.known",
+      "fn": "redactText",
+      "args": [
+        "the token is tok_live_0123456789 and short abc",
+        [
+          "tok_live_0123456789",
+          "abc"
+        ],
+        []
+      ]
+    },
+    {
+      "id": "redact.locked",
+      "fn": "redactText",
+      "args": [
+        "pw is pw, power is not; (pw) pw.",
+        [],
+        [
+          "pw"
+        ]
+      ]
+    },
+    {
+      "id": "redact.locked.long",
+      "fn": "redactText",
+      "args": [
+        "value s3cr3t-locked-value twice s3cr3t-locked-value",
+        [],
+        [
+          "s3cr3t-locked-value"
+        ]
+      ]
+    },
+    {
+      "id": "redact.variants",
+      "fn": "redactText",
+      "args": [
+        "url a%20b%2Fc json \"q\\\"x\" raw a b/c",
+        [
+          "a b/c",
+          "\"q\"x\"12"
+        ],
+        []
+      ]
+    },
+    {
+      "id": "redact.overlap",
+      "fn": "redactText",
+      "args": [
+        "abcdefgh12 abcdefgh",
+        [
+          "abcdefgh",
+          "abcdefgh12"
+        ],
+        []
+      ]
+    },
+    {
+      "id": "redact.assign",
+      "fn": "redactText",
+      "args": [
+        "DB_PASSWORD=hunter2 password: 'a b' api_key=\"k\" TOKEN=abc; secret = x, {\"token\":\"t\"} smtp_password=p github-token:q MY_SECRET_KEY=1 NOT_A_THING=2",
+        [],
+        []
+      ]
+    },
+    {
+      "id": "redact.assign.prose",
+      "fn": "redactText",
+      "args": [
+        "Failed to refresh token: Connection refused\nToken: abc123\ntoken: Bearer\npassword: correct horse",
+        [],
+        []
+      ]
+    },
+    {
+      "id": "redact.assign.quoted",
+      "fn": "redactText",
+      "args": [
+        "docker run -e 'DB_PASSWORD=a b c' -e \"API_TOKEN=x y\" -e 'PLAIN=a b'",
+        [],
+        []
+      ]
+    },
+    {
+      "id": "redact.auth",
+      "fn": "redactText",
+      "args": [
+        "Authorization: Basic dXNlcjpwYXNz\nproxy-authorization:  Bearer x\nX: Bearer abc.def.ghi and Bearer simpletoken, next",
+        [],
+        []
+      ]
+    },
+    {
+      "id": "redact.urls",
+      "fn": "redactText",
+      "args": [
+        "https://user:pass@example.com/x postgres://u:p%40ss@db:5432/app https://x-access-token:ghs_abc@github.com/a/b.git https://oauth2:glpat-xyz@gitlab.com/a redis://:pw@cache",
+        [],
+        []
+      ]
+    },
+    {
+      "id": "redact.email",
+      "fn": "redactText",
+      "args": [
+        "mail admin@example.com or first.last+tag@sub.example.co.uk",
+        [],
+        []
+      ]
+    },
+    {
+      "id": "redact.tokens",
+      "fn": "redactText",
+      "args": [
+        "ghp_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa glpat-bbbbbbbbbbbbbbbbbbbb AKIAAAAAAAAAAAAAAAAA aws_secret_access_key=cccccccccccccccccccccccccccccccccccccccc api_key: dddddddddddddddd ghp_short",
+        [],
+        []
+      ]
+    },
+    {
+      "id": "redact.private-key",
+      "fn": "redactText",
+      "args": [
+        "before\n-----BEGIN OPENSSH PRIVATE KEY-----\nabc\ndef\n-----END OPENSSH PRIVATE KEY-----\nafter\n-----BEGIN RSA PRIVATE KEY-----\nunfinished",
+        [],
+        []
+      ]
+    },
+    {
+      "id": "redact.ansi",
+      "fn": "redactText",
+      "args": [
+        "\u001b[32mgreen\u001b[0m and \u0007bell and \u0000nul tab\there\r\nnext",
+        [],
+        []
+      ]
+    },
+    {
+      "id": "redact.yaml",
+      "fn": "redactText",
+      "args": [
+        "password: hunter2\n  token: \"abc\"\nkey: value\nsecret: [a, b]\ncredentials: {a: b}\nDATABASE_URL=postgres://a\nconnection_string: Server=x;Password=y;",
+        [],
+        []
+      ]
+    },
+    {
+      "id": "redact.empty-secrets",
+      "fn": "redactText",
+      "args": [
+        "a b c",
+        [
+          "",
+          " ",
+          null,
+          12345678,
+          "short"
+        ],
+        [
+          "",
+          "  ",
+          "x"
+        ]
+      ]
+    },
+    {
+      "id": "redact.unicode",
+      "fn": "redactText",
+      "args": [
+        "pässwörd ist geheim-wörtlich und pw: ünï",
+        [
+          "geheim-wörtlich"
+        ],
+        [
+          "ünï"
+        ]
+      ]
+    },
+    {
+      "id": "take-output.0",
+      "fn": "takeCompleteOutput",
+      "args": [
+        "",
+        false
+      ]
+    },
+    {
+      "id": "take-output.1",
+      "fn": "takeCompleteOutput",
+      "args": [
+        "no newline",
+        false
+      ]
+    },
+    {
+      "id": "take-output.2",
+      "fn": "takeCompleteOutput",
+      "args": [
+        "a\nb",
+        false
+      ]
+    },
+    {
+      "id": "take-output.3",
+      "fn": "takeCompleteOutput",
+      "args": [
+        "a\nb\n",
+        false
+      ]
+    },
+    {
+      "id": "take-output.4",
+      "fn": "takeCompleteOutput",
+      "args": [
+        "a\rb",
+        false
+      ]
+    },
+    {
+      "id": "take-output.5",
+      "fn": "takeCompleteOutput",
+      "args": [
+        "a\n-----BEGIN RSA PRIVATE KEY-----\nxx\n",
+        false
+      ]
+    },
+    {
+      "id": "take-output.6",
+      "fn": "takeCompleteOutput",
+      "args": [
+        "tail",
+        true
+      ]
+    },
+    {
+      "id": "take-output.7",
+      "fn": "takeCompleteOutput",
+      "args": [
+        "-----BEGIN RSA PRIVATE KEY-----\nxx",
+        true
+      ]
+    },
+    {
+      "id": "take-output.8",
+      "fn": "takeCompleteOutput",
+      "args": [
+        "a\n-----BEGIN PRIVATE KEY-----\nxx\n-----END PRIVATE KEY-----\nb\n",
+        false
+      ]
+    },
+    {
+      "id": "git-ssh.none",
+      "fn": "gitSshSetupCommand",
+      "args": [
+        "dep0000000000000000000001",
+        null
+      ]
+    },
+    {
+      "id": "git-ssh.known-hosts",
+      "fn": "gitSshSetupCommand",
+      "args": [
+        "dep1",
+        "git.example.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIazEu89wgQZ4bqs3d63QSMzYVa0MuJ2e2gKTKqu+UUO\n\n  [git.example.com]:2222   ssh-rsa   AAAAB3NzaC1yc2E=  \nnot a line\ngithub.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIazEu89wgQZ4bqs3d63QSMzYVa0MuJ2e2gKTKqu+UUO\ngit.example.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIazEu89wgQZ4bqs3d63QSMzYVa0MuJ2e2gKTKqu+UUO"
+      ]
+    },
+    {
+      "id": "docker-stop.0",
+      "fn": "dockerStopCommand",
+      "args": [
+        30,
+        "'a'",
+        null
+      ]
+    },
+    {
+      "id": "docker-stop.1",
+      "fn": "dockerStopCommand",
+      "args": [
+        30,
+        "'a'",
+        "27.5.1"
+      ]
+    },
+    {
+      "id": "docker-stop.2",
+      "fn": "dockerStopCommand",
+      "args": [
+        5,
+        "'a' 'b'",
+        "28.0.0"
+      ]
+    },
+    {
+      "id": "docker-stop.3",
+      "fn": "dockerStopCommand",
+      "args": [
+        1,
+        "x",
+        "29.1.0-rc.1"
+      ]
+    },
+    {
+      "id": "docker-stop.4",
+      "fn": "dockerStopCommand",
+      "args": [
+        10,
+        "x",
+        "garbage"
+      ]
+    },
+    {
+      "id": "shell-arg.0",
+      "fn": "escapeshellarg",
+      "args": [
+        ""
+      ]
+    },
+    {
+      "id": "shell-arg.1",
+      "fn": "escapeshellarg",
+      "args": [
+        "plain"
+      ]
+    },
+    {
+      "id": "shell-arg.2",
+      "fn": "escapeshellarg",
+      "args": [
+        "it's"
+      ]
+    },
+    {
+      "id": "shell-arg.3",
+      "fn": "escapeshellarg",
+      "args": [
+        "a b"
+      ]
+    },
+    {
+      "id": "shell-arg.4",
+      "fn": "escapeshellarg",
+      "args": [
+        "$x `y` \\z"
+      ]
+    },
+    {
+      "id": "shell-arg.5",
+      "fn": "escapeshellarg",
+      "args": [
+        "ünï"
+      ]
+    },
+    {
+      "id": "shell-arg.6",
+      "fn": "escapeshellarg",
+      "args": [
+        "a'b'c"
+      ]
+    },
+    {
+      "id": "gpu-options.0",
+      "fn": "parseGpuOptions",
+      "args": [
+        null
+      ]
+    },
+    {
+      "id": "gpu-options.1",
+      "fn": "parseGpuOptions",
+      "args": [
+        ""
+      ]
+    },
+    {
+      "id": "gpu-options.2",
+      "fn": "parseGpuOptions",
+      "args": [
+        "a=1\nb=two"
+      ]
+    },
+    {
+      "id": "gpu-options.3",
+      "fn": "parseGpuOptions",
+      "args": [
+        "key: value\nflag: true\nn: 3"
+      ]
+    },
+    {
+      "id": "gpu-options.4",
+      "fn": "parseGpuOptions",
+      "args": [
+        "- a\n- b"
+      ]
+    },
+    {
+      "id": "gpu-options.5",
+      "fn": "parseGpuOptions",
+      "args": [
+        "a"
+      ]
+    },
+    {
+      "id": "gpu-options.6",
+      "fn": "parseGpuOptions",
+      "args": [
+        "a=1\n\n b = 2 \nc"
+      ]
+    },
+    {
+      "id": "gpu-options.7",
+      "fn": "parseGpuOptions",
+      "args": [
+        "{a: 1, b: {c: 2}}"
+      ]
+    },
+    {
+      "id": "gpu-options.8",
+      "fn": "parseGpuOptions",
+      "args": [
+        "a: [1]"
+      ]
+    },
+    {
+      "id": "gpu-options.9",
+      "fn": "parseGpuOptions",
+      "args": [
+        "just text"
+      ]
+    },
+    {
+      "id": "gpu-options.10",
+      "fn": "parseGpuOptions",
+      "args": [
+        "a=1=2"
+      ]
+    },
+    {
+      "id": "gpu-options.11",
+      "fn": "parseGpuOptions",
+      "args": [
+        "=x"
+      ]
+    },
+    {
+      "id": "readme.plain",
+      "fn": "generate_readme_file",
+      "args": [
+        "app",
+        "2026-11-20 10:11:12"
+      ]
+    },
+    {
+      "id": "readme.odd",
+      "fn": "generate_readme_file",
+      "args": [
+        "My App: #1 \"quoted\" & 'single' <b> $x `y`",
+        "2026-11-20 10:11:12"
+      ]
+    }
+  ]
+}
