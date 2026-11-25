@@ -174,6 +174,18 @@ export {
   type SslCertificateOwner,
 } from "./ssl-certificates.js";
 export {
+  findApplicationLabelSource,
+  updateApplicationLabels,
+  updateApplicationLabelSettings,
+  APPLICATION_LABEL_COLUMNS,
+  APPLICATION_LABEL_SETTING_COLUMNS,
+  type DeployApplicationLabelRow,
+  type ApplicationLabelColumn,
+  type ApplicationLabelChanges,
+  type ApplicationLabelSettingColumn,
+  type ApplicationLabelSettingChanges,
+} from "./application-labels.js";
+export {
   findApplicationByUuid,
   listEnvironmentApplications,
   insertDockerImageApplication,

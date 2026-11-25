@@ -13,6 +13,8 @@
 //   GET    /applications/{uuid}             Configuration + General: the application with its project, environment,
 //                                           destination and server
 //   PATCH  /applications/{uuid}             General::submit, the fields of a Docker image application
+//   POST   /applications/{uuid}/labels/reset  General::resetDefaultLabels (application-labels.ts, as are the label
+//                                           and HTTP Basic Authentication fields of the GET and the PATCH)
 //   POST   /applications/{uuid}/deploy      Heading::deploy    501: needs the SSH executor
 //   POST   /applications/{uuid}/restart     Heading::restart   501
 //   POST   /applications/{uuid}/stop        Heading::stop      501
@@ -57,12 +59,12 @@ import { authorizeDeploy, columnCipher, readJson } from "./cloud-tokens.js";
 import { handleEnvironmentVariables } from "./environment-variables.js";
 import { validateCreateDockerImage, validateGeneral } from "../applications/validation.js";
 import { handleApplicationSettings, isApplicationSettingsSection } from "./application-settings.js";
+import { assertLabelInput, instantSaveLabels, labelSqlContext, resetLabels, saveLabelsAfterGeneral, showApplicationWithLabels, validateLabelBody } from "./application-labels.js";
 import {
   ApplicationError,
   createDockerImageApplication,
   environmentResources,
   newResourcePage,
-  showApplication,
   unavailableAction,
   updateGeneral,
   type ApplicationAction,
@@ -104,7 +106,7 @@ export const runApplicationsInOrg: ApplicationRunner = async (env, orgId, fn) =>
       const ciphers = Object.fromEntries(
         APPLICATION_WEBHOOK_SECRET_COLUMNS.map((c) => [c, columnCipher(tx, orgId, env.DEPLOY_ENCRYPTION_KEY, `applications.${c}`)]),
       ) as Record<ApplicationWebhookSecretColumn, KeyCipher>;
-      return fn({ store: sqlStore(tx, orgId), encrypt: (column, plaintext) => ciphers[column].encrypt(plaintext) });
+      return fn({ store: sqlStore(tx, orgId), encrypt: (column, plaintext) => ciphers[column].encrypt(plaintext), labels: labelSqlContext(tx, orgId, env.DEPLOY_ENCRYPTION_KEY) });
     });
   } finally {
     await db.dispose();
@@ -161,6 +163,8 @@ export async function handleApplications(
   } else if (segments.length === 2 && UUID_RE.test(first!) && ACTIONS.includes(second!)) {
     // @can('deploy', $application)
     if (method === "POST") op = { write: true, run: () => action(first!, second as ApplicationAction) };
+  } else if (segments.length === 3 && UUID_RE.test(first!) && second === "labels" && segments[2] === "reset") {
+    if (method === "POST") op = { write: true, run: () => labelsReset(first!) };
   } else {
     return notFound();
   }
@@ -175,7 +179,7 @@ export async function handleApplications(
   }
 
   async function show(uuid: string, canWrite: boolean): Promise<Response> {
-    const application = await runner(env, orgId, (c) => showApplication(c, uuid, canWrite));
+    const application = await runner(env, orgId, (c) => showApplicationWithLabels(c, uuid, canWrite));
     if (!application) return notFound();
     // The views' @can('update' | 'deploy', $application).
     return successResponse({ application, canUpdate: canWrite, canDeploy: canWrite }, requestId);
@@ -184,15 +188,24 @@ export async function handleApplications(
   async function update(uuid: string): Promise<Response> {
     const body = await readJson(request);
     const saved = await runner(env, orgId, async (c) => {
+      // General::instantSave(): a listbox of the Labels or Authentication section.
+      if (body.instantSave === true) return instantSaveLabels(c, uuid, body);
       const current = await c.store.findByUuid(uuid);
       if (!current) return null;
       const v = validateGeneral(body, { fqdn: current.fqdn ?? null });
-      if (!v.ok) return { errors: v.errors };
-      return updateGeneral(c, uuid, v.input);
+      const labels = validateLabelBody(body);
+      if (!v.ok || Object.keys(labels.errors).length) return { errors: { ...(v.ok ? {} : v.errors), ...labels.errors } };
+      await assertLabelInput(c, uuid, labels.input);
+      return saveLabelsAfterGeneral(c, uuid, await updateGeneral(c, uuid, v.input), labels.input, { portsExposes: current.ports_exposes ?? null });
     });
     if (!saved) return notFound();
     if ("errors" in saved) return validationError(requestId, saved.errors);
     return successResponse(saved, requestId);
+  }
+
+  async function labelsReset(uuid: string): Promise<Response> {
+    const reset = await runner(env, orgId, (c) => resetLabels(c, uuid));
+    return reset ? successResponse(reset, requestId) : notFound();
   }
 
   async function action(uuid: string, name: ApplicationAction): Promise<Response> {

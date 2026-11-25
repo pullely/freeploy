@@ -3,12 +3,11 @@
 //
 // /project/{uuid}/environment/{env_uuid}/application/{app_uuid}
 // (project.application.configuration): the configuration frame and the General
-// page of a Docker image application — details, access, the image, the
-// deployment commands, networking and the container's Docker options.
-// Not here yet: HTTP Basic Authentication, the container labels (both need
-// Coolify's label generator) and the internal hostname of a running container
-// (nothing is deployed yet). Domains are edited on the Domains page, as in
-// Coolify.
+// page of a Docker image application — details, access with HTTP Basic
+// Authentication, the image, the deployment commands, networking, and the
+// container's Docker options and labels (ApplicationLabels.tsx).
+// Not here yet: the internal hostname of a running container (nothing is
+// deployed yet). Domains are edited on the Domains page, as in Coolify.
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Layout, useSignedIn } from "../layout/Layout";
 import { getJson, postJson, summarize } from "../lib/api";
@@ -17,6 +16,7 @@ import { Reicon } from "../components/Reicon";
 import { Button, Callout, FormInput, ModalInput, SettingsSection, SettingsSubsection, UnsavedBar } from "../components/Coolify";
 import { environmentPath, environmentUuidFromPath, limit, projectUuidFromPath } from "./ProjectChrome";
 import { applicationPath, applicationsApi, applicationUuidFromPath, ApplicationWorkspace, type ApplicationInfo, type ApplicationShowData } from "./ApplicationChrome";
+import { ApplicationAuthentication, ApplicationContainerLabels } from "./ApplicationLabels";
 
 /** The form's fields: General's properties that apply to a Docker image application. */
 const FIELDS = [
@@ -30,6 +30,10 @@ const FIELDS = [
   "customDockerRunOptions",
   "preDeploymentCommand",
   "postDeploymentCommand",
+  "httpBasicAuthUsername",
+  "httpBasicAuthPassword",
+  // Editable only while labels are managed manually.
+  "customLabels",
 ] as const;
 type Field = (typeof FIELDS)[number];
 type Form = Record<Field, string>;
@@ -106,6 +110,31 @@ function ApplicationGeneralContent() {
     else notify.success(r.data.message);
   }, [base, form, saved]);
 
+  /** What instantSave() and resetDefaultLabels() answer: the application, and its labels in the form; other unsaved edits stay. */
+  const refreshed = useCallback((application: ApplicationInfo) => {
+    setData((d) => (d ? { ...d, application } : d));
+    setForm((f) => (f ? { ...f, customLabels: application.customLabels ?? "" } : f));
+    setSaved((s) => (s ? { ...s, customLabels: application.customLabels ?? "" } : s));
+  }, []);
+  /** General::instantSave(): a listbox of the Authentication or Labels section, then 'Settings saved.'. */
+  const instantSave = useCallback(
+    (fields: Record<string, unknown>) => {
+      void (async () => {
+        const r = await postJson<Saved>(base, { ...fields, instantSave: true }, "PATCH");
+        if (!r.ok) return notify.error(summarize(r.error.messages));
+        refreshed(r.data.application);
+        notify.success(r.data.message);
+      })();
+    },
+    [base, refreshed],
+  );
+  /** General::resetDefaultLabels(true) */
+  const resetLabels = useCallback(async () => {
+    const r = await postJson<{ application: ApplicationInfo }>(`${base}/labels/reset`, {});
+    if (!r.ok) return notify.error(summarize(r.error.messages));
+    refreshed(r.data.application);
+  }, [base, refreshed]);
+
   if (!data || !form || !saved) return null;
   const { application, canUpdate } = data;
   const dirty = FIELDS.some((f) => form[f] !== saved[f]);
@@ -180,6 +209,8 @@ function ApplicationGeneralContent() {
                 </div>
               </section>
 
+              <ApplicationAuthentication application={application} canUpdate={canUpdate} instantSave={instantSave} username={field("httpBasicAuthUsername")} password={field("httpBasicAuthPassword")} />
+
               <section id="internal-access-section" className="pt-5">
                 <h3 className="mb-4 text-sm font-semibold text-black dark:text-fg">Internal access</h3>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -247,6 +278,7 @@ function ApplicationGeneralContent() {
                 placeholder="--cap-add SYS_ADMIN --device=/dev/fuse --security-opt apparmor:unconfined --ulimit nofile=1024:1024 --tmpfs /run:rw,noexec,nosuid,size=65536k --hostname=myapp"
                 label="Custom Docker options"
               />
+              <ApplicationContainerLabels application={application} canUpdate={canUpdate} instantSave={instantSave} labels={field("customLabels")} onReset={resetLabels} />
             </SettingsSection>
           </div>
         </form>

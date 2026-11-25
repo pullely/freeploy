@@ -37,6 +37,17 @@ export interface ApplicationInfo {
   postDeploymentCommandContainer: string | null;
   isContainerLabelReadonlyEnabled: boolean;
   isContainerLabelEscapeEnabled: boolean;
+  // The container labels and HTTP Basic Authentication (ApplicationLabels.tsx); the text and the password are null for a reader.
+  customLabels?: string | null;
+  isHttpBasicAuthEnabled?: boolean;
+  httpBasicAuthUsername?: string | null;
+  httpBasicAuthPassword?: string | null;
+  httpBasicAuthHashAlgorithm?: "bcrypt" | "argon2id";
+  httpBasicAuthBcryptCost?: number;
+  httpBasicAuthArgon2idMemoryCost?: number;
+  httpBasicAuthArgon2idTimeCost?: number;
+  supportsArgon2id?: boolean;
+  proxyType?: string | null;
   project: { uuid: string; name: string };
   environment: { uuid: string; name: string };
   destination: { uuid: string; name: string; network: string; type: "standalone" | "swarm" } | null;

@@ -685,6 +685,8 @@ export interface ListboxOption {
   value: string;
   label: string;
   description?: string;
+  /** Shown, not selectable. */
+  disabled?: boolean;
 }
 
 /**
@@ -760,6 +762,7 @@ export function Listbox(props: {
   }, [open]);
 
   function choose(option: ListboxOption) {
+    if (option.disabled) return;
     if (props.values) return props.onValues?.(isSelected(option) ? props.values.filter((v) => v !== option.value) : [...props.values, option.value]);
     setOpen(false);
     if (option.value !== props.value) props.onChange(option.value);
@@ -841,7 +844,7 @@ export function Listbox(props: {
             {open
               ? visible.map((o) => (
                   <div key={o.value}>
-                    <button type="button" className="listbox-option" role="option" aria-selected={isSelected(o)} onClick={() => choose(o)}>
+                    <button type="button" className={o.disabled ? "listbox-option listbox-option-disabled" : "listbox-option"} role="option" aria-selected={isSelected(o)} onClick={() => choose(o)}>
                       <span className="flex min-w-0 items-center gap-2 text-left">
                         <span className="flex min-w-0 flex-col items-start">
                           <span className="flex min-w-0 items-baseline gap-2">
