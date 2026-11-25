@@ -4,10 +4,7 @@
 // pivot (610 makes a tag name unique per org, not across orgs), what a clone
 // replicates column for column, what a deletion removes row for row — and
 // row-level security keeping each org's rows to itself.
-import { readFileSync } from "node:fs";
-import { resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { PGlite } from "@electric-sql/pglite";
+import type { PGlite } from "@electric-sql/pglite";
 import {
   withOrg,
   asPlatformAdmin,
@@ -70,32 +67,20 @@ import {
   type NewDockerImageApplication,
   type StorageOwner,
 } from "@saas/db/deploy";
-import type { SqlExecutor, TransactionalSqlExecutor } from "@saas/db/hyperdrive";
+import type { TransactionalSqlExecutor } from "@saas/db/hyperdrive";
+import { deployDatabase, deployDatabaseAfter, executor, migrationSql, sqlState } from "./deploy-schema.js";
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
-const migration = (m: string) => readFileSync(resolve(root, `packages/db/src/migrations/${m}/up.sql`), "utf8");
-const BEFORE = ["500_deploy_core", "510_deploy_org_keys", "520_deploy_schema_fold_fixes"].map(migration).join("\n");
-const TAGS_PER_ORG = migration("610_deploy_tags_org_name_unique");
+// The step this suite tests by itself: what came before 610, then 610. Everything else runs on the schema at head.
+const BEFORE_610 = ["500_deploy_core", "510_deploy_org_keys", "520_deploy_schema_fold_fixes"];
+const TAGS_PER_ORG = migrationSql("610_deploy_tags_org_name_unique");
 const A = "00000000-0000-4000-8000-00000000000a";
 const B = "00000000-0000-4000-8000-00000000000b";
 const APP1 = "app1aaaaaaaaaaaaaaaaaaaa";
 const APP2 = "app2aaaaaaaaaaaaaaaaaaaa";
 const APPB = "app1bbbbbbbbbbbbbbbbbbbb";
 
-function executor(db: PGlite): TransactionalSqlExecutor {
-  const wrap = (q: { query: PGlite["query"] }): SqlExecutor => ({
-    async execute(text, params) {
-      const r = await q.query(text, params ?? []);
-      return { rows: r.rows as never[], rowCount: r.rows.length };
-    },
-  });
-  return { ...wrap(db), transaction: (fn) => db.transaction((tx) => fn(wrap(tx as never))) };
-}
-
 let db: PGlite;
 let ex: TransactionalSqlExecutor;
-/** Whether 500–520 alone let two orgs use the same tag name (they must not: that is why 610 exists). */
-let sameNameBefore610 = true;
 
 interface Fixture {
   serverId: string | number;
@@ -146,34 +131,47 @@ const owner = (key: string): StorageOwner => ({ type: APPLICATION_MORPH_CLASS, i
 const parsed = (value: unknown): unknown => (typeof value === "string" ? JSON.parse(value) : value);
 
 beforeAll(async () => {
-  db = new PGlite();
-  await db.exec(BEFORE);
+  db = await deployDatabase();
   ex = executor(db);
   fx.a = await fixture(A, "a");
   fx.b = await fixture(B, "b");
   ids.app1 = (await withOrg(ex, A, (tx) => insertDockerImageApplication(tx, newApp(A, fx.a!, APP1)))).id;
   ids.app2 = (await withOrg(ex, A, (tx) => insertDockerImageApplication(tx, newApp(A, fx.a!, APP2, { fqdn: null })))).id;
   ids.appb = (await withOrg(ex, B, (tx) => insertDockerImageApplication(tx, newApp(B, fx.b!, APPB)))).id;
-
-  // Before 610: a tag name one org uses is refused to every other org.
-  await withOrg(ex, A, (tx) => insertTag(tx, { orgId: A, uuid: "tag-early-a", name: "early" }));
-  try {
-    await withOrg(ex, B, (tx) => insertTag(tx, { orgId: B, uuid: "tag-early-b", name: "early" }));
-  } catch {
-    sameNameBefore610 = false;
-  }
-  await db.exec(TAGS_PER_ORG);
 }, 120_000);
 afterAll(async () => db?.close());
 
 describe("tag names are unique per org (610_deploy_tags_org_name_unique)", () => {
   it("500–520 refuse a name another org uses; 610 lets each org have it once", async () => {
-    expect(sameNameBefore610).toBe(false);
+    const step = await deployDatabaseAfter(BEFORE_610);
+    try {
+      const old = executor(step);
+      // Before 610: a tag name one org uses is refused to every other org.
+      await withOrg(old, A, (tx) => insertTag(tx, { orgId: A, uuid: "tag-early-a", name: "early" }));
+      let sameNameBefore610 = true;
+      try {
+        await withOrg(old, B, (tx) => insertTag(tx, { orgId: B, uuid: "tag-early-b", name: "early" }));
+      } catch {
+        sameNameBefore610 = false;
+      }
+      expect(sameNameBefore610).toBe(false);
+      await step.exec(TAGS_PER_ORG);
+      const b = await withOrg(old, B, (tx) => insertTag(tx, { orgId: B, uuid: "tag-early-b", name: "early" }));
+      expect(b.name).toBe("early");
+      await expect(withOrg(old, A, (tx) => insertTag(tx, { orgId: A, uuid: "tag-early-a2", name: "early" }))).rejects.toThrow();
+      // Applying it again changes nothing.
+      await step.exec(TAGS_PER_ORG);
+      expect((await step.query<{ n: number }>("SELECT count(*)::int AS n FROM deploy.tags WHERE name = 'early'")).rows[0]!.n).toBe(2);
+    } finally {
+      await step.close();
+    }
+  }, 120_000);
+
+  it("holds on the schema at head", async () => {
+    await withOrg(ex, A, (tx) => insertTag(tx, { orgId: A, uuid: "tag-early-a", name: "early" }));
     const b = await withOrg(ex, B, (tx) => insertTag(tx, { orgId: B, uuid: "tag-early-b", name: "early" }));
     expect(b.name).toBe("early");
-    await expect(withOrg(ex, A, (tx) => insertTag(tx, { orgId: A, uuid: "tag-early-a2", name: "early" }))).rejects.toThrow();
-    // Applying it again changes nothing.
-    await db.exec(TAGS_PER_ORG);
+    expect(await sqlState(() => withOrg(ex, A, (tx) => insertTag(tx, { orgId: A, uuid: "tag-early-a2", name: "early" })))).toBe("23505");
     expect(await count("tags", "name = 'early'", [])).toBe(2);
   });
 });

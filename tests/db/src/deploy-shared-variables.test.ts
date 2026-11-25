@@ -2,11 +2,7 @@
 // store functions of @saas/db/deploy inside withOrg(), the value column
 // encrypted with the org's data key, the four scopes (590 lets `type` be
 // 'server'), and row-level security keeping each org's variables to itself.
-import { readFileSync } from "node:fs";
-import { resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { webcrypto } from "node:crypto";
-import { PGlite } from "@electric-sql/pglite";
+import type { PGlite } from "@electric-sql/pglite";
 import {
   withOrg,
   loadKek,
@@ -38,48 +34,32 @@ import {
   type SharedVariableOwner,
 } from "@saas/db/deploy";
 import type { SqlExecutor, TransactionalSqlExecutor } from "@saas/db/hyperdrive";
+import { deployDatabase, deployDatabaseAfter, executor, migrationSql, TEST_KEK as KEK } from "./deploy-schema.js";
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
-const migration = (m: string) => readFileSync(resolve(root, `packages/db/src/migrations/${m}/up.sql`), "utf8");
-const BEFORE = ["500_deploy_core", "510_deploy_org_keys", "520_deploy_schema_fold_fixes"].map(migration).join("\n");
-const SERVER_SCOPE = migration("590_deploy_shared_variables_server_scope");
+// The step this suite tests by itself: what came before 590, then 590. Everything else runs on the schema at head.
+const BEFORE_590 = ["500_deploy_core", "510_deploy_org_keys", "520_deploy_schema_fold_fixes"];
+const SERVER_SCOPE = migrationSql("590_deploy_shared_variables_server_scope");
 const A = "00000000-0000-4000-8000-00000000000a";
 const B = "00000000-0000-4000-8000-00000000000b";
-const KEK = Buffer.from(new Uint8Array(32).fill(7)).toString("base64");
 const COLUMN = "shared_environment_variables.value";
 const TEAM: SharedVariableOwner = { type: "team", id: null };
 
-if (!globalThis.crypto) (globalThis as { crypto: unknown }).crypto = webcrypto;
-
-function executor(db: PGlite): TransactionalSqlExecutor {
-  const wrap = (q: { query: PGlite["query"] }): SqlExecutor => ({
-    async execute(text, params) {
-      const r = await q.query(text, params ?? []);
-      return { rows: r.rows as never[], rowCount: r.rows.length };
-    },
-  });
-  return { ...wrap(db), transaction: (fn) => db.transaction((tx) => fn(wrap(tx as never))) };
-}
-
 let db: PGlite;
 let ex: TransactionalSqlExecutor;
-/** Whether 500–520 alone accept a server-wide variable (they must not: that is why 590 exists). */
-let serverScopeBefore590 = true;
 const owners: Record<string, SharedVariableOwner> = {};
 
 async function encrypted(org: string, tx: SqlExecutor, value: string) {
   return encryptField(await orgDek(tx, org, await loadKek(KEK)), COLUMN, value);
 }
 
-function add(org: string, owner: SharedVariableOwner, key: string, value = "v", extra: { comment?: string | null; isMultiline?: boolean; isLiteral?: boolean } = {}) {
-  return withOrg(ex, org, async (tx) => insertSharedVariable(tx, { orgId: org, owner, key, value: await encrypted(org, tx, value), ...extra }));
+function add(org: string, owner: SharedVariableOwner, key: string, value = "v", extra: { comment?: string | null; isMultiline?: boolean; isLiteral?: boolean } = {}, on: TransactionalSqlExecutor = ex) {
+  return withOrg(on, org, async (tx) => insertSharedVariable(tx, { orgId: org, owner, key, value: await encrypted(org, tx, value), ...extra }));
 }
 
 const keysOf = (org: string, owner: SharedVariableOwner) => withOrg(ex, org, async (tx) => (await listSharedVariables(tx, owner)).map((v) => v.key));
 
 beforeAll(async () => {
-  db = new PGlite();
-  await db.exec(BEFORE);
+  db = await deployDatabase();
   ex = executor(db);
 
   for (const [org, name] of [
@@ -95,13 +75,6 @@ beforeAll(async () => {
     owners[`${name}.environment`] = { type: "environment", id: environment.id };
     owners[`${name}.server`] = { type: "server", id: server.id };
   }
-
-  try {
-    await add(A, owners["a.server"]!, "TOO_EARLY");
-  } catch {
-    serverScopeBefore590 = false;
-  }
-  await db.exec(SERVER_SCOPE);
 }, 120_000);
 afterAll(async () => db?.close());
 
@@ -112,13 +85,33 @@ describe("deploy.shared_environment_variables", () => {
   });
 
   it("refuses a server-wide variable until 590 widens the type check, which still refuses an unknown type", async () => {
-    expect(serverScopeBefore590).toBe(false);
+    const step = await deployDatabaseAfter(BEFORE_590);
+    try {
+      const old = executor(step);
+      // The server's id is all the variable needs of it: deploy has no foreign keys.
+      const server: SharedVariableOwner = { type: "server", id: 1 };
+      let serverScopeBefore590 = true;
+      try {
+        await add(A, server, "TOO_EARLY", "v", {}, old);
+      } catch {
+        serverScopeBefore590 = false;
+      }
+      expect(serverScopeBefore590).toBe(false);
+      await step.exec(SERVER_SCOPE);
+      expect(await add(A, server, "ON_TIME", "v", {}, old)).toMatchObject({ key: "ON_TIME", type: "server" });
+      await expect(
+        withOrg(old, A, (tx) => tx.execute(`INSERT INTO deploy.shared_environment_variables (key, value, type, org_id) VALUES ('X', 'x', 'instance', $1)`, [A])),
+      ).rejects.toThrow();
+      // Applying it again changes nothing (the runner may retry a migration).
+      await step.exec(SERVER_SCOPE);
+    } finally {
+      await step.close();
+    }
+    // And at head the unknown type is still refused.
     await expect(
       withOrg(ex, A, (tx) => tx.execute(`INSERT INTO deploy.shared_environment_variables (key, value, type, org_id) VALUES ('X', 'x', 'instance', $1)`, [A])),
     ).rejects.toThrow();
-    // Applying it again changes nothing (the runner may retry a migration).
-    await db.exec(SERVER_SCOPE);
-  });
+  }, 120_000);
 
   it("stores a variable for each scope: the type and the owner's column follow the owner, the value is a ciphertext", async () => {
     const team = await add(A, TEAM, "TEAM_KEY", "team-secret", { comment: "a note", isLiteral: true });

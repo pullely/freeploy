@@ -10,9 +10,8 @@
 // tests use (tests/deploy-core-worker/fixtures/databases/goldens.json, emitted
 // by Coolify's own PHP).
 import { readFileSync } from "node:fs";
-import { resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { PGlite } from "@electric-sql/pglite";
+import { resolve } from "node:path";
+import type { PGlite } from "@electric-sql/pglite";
 import {
   withOrg,
   asPlatformAdmin,
@@ -51,12 +50,12 @@ import {
   type DeployDestinationRow,
   type NewDatabase,
 } from "@saas/db/deploy";
-import type { SqlExecutor, TransactionalSqlExecutor } from "@saas/db/hyperdrive";
+import type { TransactionalSqlExecutor } from "@saas/db/hyperdrive";
+import { deployDatabase, deployDatabaseAfter, executor, migrationSql, REPO_ROOT } from "./deploy-schema.js";
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
-const migration = (m: string) => readFileSync(resolve(root, `packages/db/src/migrations/${m}/up.sql`), "utf8");
-const BEFORE_630 = ["500_deploy_core", "510_deploy_org_keys", "520_deploy_schema_fold_fixes", "590_deploy_shared_variables_server_scope", "610_deploy_tags_org_name_unique"].map(migration).join("\n");
-const M630 = migration("630_deploy_database_public_port_timeout");
+// The step this suite tests by itself: what came before 630, then 630. Everything else runs on the schema at head.
+const BEFORE_630 = ["500_deploy_core", "510_deploy_org_keys", "520_deploy_schema_fold_fixes", "590_deploy_shared_variables_server_scope", "610_deploy_tags_org_name_unique"];
+const M630 = migrationSql("630_deploy_database_public_port_timeout");
 const A = "00000000-0000-4000-8000-00000000000a";
 const B = "00000000-0000-4000-8000-00000000000b";
 
@@ -64,17 +63,7 @@ interface Golden {
   types: Record<string, { morphClass: string; table: string; encrypted: string[] }>;
   created: Record<string, { attributes: Record<string, unknown>; volumes: Array<{ name: string; mount_path: string; host_path: string | null; resource_type: string }>; environmentVariables: Array<Record<string, unknown>> }>;
 }
-const goldens = JSON.parse(readFileSync(resolve(root, "tests/deploy-core-worker/fixtures/databases/goldens.json"), "utf8")) as Golden;
-
-function executor(db: PGlite): TransactionalSqlExecutor {
-  const wrap = (q: { query: PGlite["query"] }): SqlExecutor => ({
-    async execute(text, params) {
-      const r = await q.query(text, params ?? []);
-      return { rows: r.rows as never[], rowCount: r.rows.length };
-    },
-  });
-  return { ...wrap(db), transaction: (fn) => db.transaction((tx) => fn(wrap(tx as never))) };
-}
+const goldens = JSON.parse(readFileSync(resolve(REPO_ROOT, "tests/deploy-core-worker/fixtures/databases/goldens.json"), "utf8")) as Golden;
 
 let db: PGlite;
 let ex: TransactionalSqlExecutor;
@@ -148,30 +137,38 @@ function newDatabase(org: string, f: Fixture, engine: DatabaseEngine, uuid: stri
 }
 
 beforeAll(async () => {
-  db = new PGlite();
-  await db.exec(BEFORE_630);
+  db = await deployDatabase();
   ex = executor(db);
+  fx.a = await fixture(A, "a");
+  fx.b = await fixture(B, "b");
 }, 120_000);
 afterAll(async () => db?.close());
 
 describe("630_deploy_database_public_port_timeout", () => {
   const TABLES = [...DATABASE_ENGINES.map((e) => DATABASE_TABLES[e].table), "service_databases"];
-  const columns = async () =>
-    (await admin("SELECT table_name, column_default, is_nullable, data_type FROM information_schema.columns WHERE table_schema = 'deploy' AND column_name = 'public_port_timeout' ORDER BY table_name")).rows;
+  const columns = async (of: PGlite = step) =>
+    (await of.query<{ table_name: string; column_default: string | null; is_nullable: string; data_type: string }>("SELECT table_name, column_default, is_nullable, data_type FROM information_schema.columns WHERE table_schema = 'deploy' AND column_name = 'public_port_timeout' ORDER BY table_name")).rows;
+  let step: PGlite;
+  beforeAll(async () => {
+    step = await deployDatabaseAfter(BEFORE_630);
+  }, 120_000);
+  afterAll(async () => step?.close());
 
   it("adds the column Coolify's 2026_02_27 migration adds, to the same nine tables: integer, nullable, default 3600", async () => {
     expect(await columns()).toEqual([]);
-    await db.exec(M630);
+    await step.exec(M630);
     expect(await columns()).toEqual([...TABLES].sort().map((table_name) => ({ table_name, column_default: "3600", is_nullable: "YES", data_type: "integer" })));
     // SQLite has no proxy (Coolify's migration leaves it out).
     expect((await columns()).map((c) => c.table_name)).not.toContain("standalone_sqlites");
   });
 
   it("can run again", async () => {
-    await db.exec(M630);
+    await step.exec(M630);
     expect(await columns()).toHaveLength(9);
-    fx.a = await fixture(A, "a");
-    fx.b = await fixture(B, "b");
+  });
+
+  it("is what the schema at head still has", async () => {
+    expect(await columns(db)).toEqual([...TABLES].sort().map((table_name) => ({ table_name, column_default: "3600", is_nullable: "YES", data_type: "integer" })));
   });
 });
 
@@ -262,12 +259,12 @@ describe("insertDatabase — create_standalone_*() and the created hook", () => 
     const read = async (engine: DatabaseEngine) => (await raw(DATABASE_TABLES[engine].table, "uuid = $1", [`db${engine}aaaaaaaaaaaa`]))[0]!;
     expect(await read("postgresql")).toMatchObject({ image: "postgres:18-alpine", postgres_user: "postgres", postgres_db: "postgres", postgres_initdb_args: null, postgres_host_auth_method: null, postgres_conf: null, init_scripts: null, enable_ssl: false, ssl_mode: "require" });
     expect(await read("redis")).toMatchObject({ image: "valkey/valkey:9-alpine", redis_conf: null, enable_ssl: false, legacy_password_quoting: false });
-    expect(await read("mongodb")).toMatchObject({ image: "mongo:7", mongo_conf: null, mongo_initdb_root_username: "root", mongo_initdb_database: "default", ssl_mode: "require" });
-    expect(await read("mysql")).toMatchObject({ image: "mysql:8", mysql_user: "mysql", mysql_database: "default", mysql_conf: null, enable_ssl: false, ssl_mode: "REQUIRED" });
-    expect(await read("mariadb")).toMatchObject({ image: "mariadb:11", mariadb_user: "mariadb", mariadb_database: "default", mariadb_conf: null, enable_ssl: false });
+    expect(await read("mongodb")).toMatchObject({ image: "mongo:9", mongo_conf: null, mongo_initdb_root_username: "root", mongo_initdb_database: "default", ssl_mode: "require" });
+    expect(await read("mysql")).toMatchObject({ image: "mysql:9.7", mysql_user: "mysql", mysql_database: "default", mysql_conf: null, enable_ssl: false, ssl_mode: "REQUIRED" });
+    expect(await read("mariadb")).toMatchObject({ image: "mariadb:12.3", mariadb_user: "mariadb", mariadb_database: "default", mariadb_conf: null, enable_ssl: false });
     expect(await read("keydb")).toMatchObject({ image: "eqalpha/keydb:latest", keydb_conf: null, enable_ssl: false, legacy_password_quoting: false });
     expect(await read("dragonfly")).toMatchObject({ image: "docker.dragonflydb.io/dragonflydb/dragonfly", enable_ssl: false, legacy_password_quoting: false });
-    expect(await read("clickhouse")).toMatchObject({ image: "clickhouse/clickhouse-server:25.11", clickhouse_admin_user: "default", clickhouse_db: "default" });
+    expect(await read("clickhouse")).toMatchObject({ image: "clickhouse/clickhouse-server:26.8", clickhouse_admin_user: "default", clickhouse_db: "default" });
   });
 
   it("a Supabase image's user, a Swarm destination, and a column that is not the engine's", async () => {

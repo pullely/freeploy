@@ -21,12 +21,16 @@ import type {
   SharedVariableChanges,
   SharedVariableOwner,
 } from "@saas/db/deploy";
+import { DEPLOY_UNIQUE_INDEXES } from "@saas/db/deploy";
+import { DUPLICATE_ENTRY, refusedBy } from "./unique-violation.js";
 
 const ORG = "org_" + "0".repeat(31) + "a";
 const ORG_UUID = "00000000-0000-0000-0000-00000000000a";
 const BASE = `https://x/v1/organizations/${ORG}/deploy/shared-variables`;
 const actor = { subjectId: "usr_1", subjectType: "user" };
 const PROJECT = "prjaaaaaaaaaaaaaaaaaaaaa";
+/** handleError()'s text for a unique violation, and what a store write gets from the index (DP-63). */
+const UNIQUE = { ...DEPLOY_UNIQUE_INDEXES, message: DUPLICATE_ENTRY, refusedBy };
 const ENVIRONMENT = "envaaaaaaaaaaaaaaaaaaaaa";
 const SERVER = "srvaaaaaaaaaaaaaaaaaaaaa";
 const KEY_REGEX = "The key must start with a letter or underscore and may only contain letters, numbers, underscores, and dots.";
@@ -984,5 +988,41 @@ describe("routing", () => {
     expect((await route(new Request(BASE.replace(ORG, "nope"), { headers: { "x-actor-subject-id": "usr_1", "x-actor-subject-type": "user" } }), t.env)).status).toBe(404);
     // Five segments below the collection is no route.
     expect((await route(new Request(`${BASE}/project/${PROJECT}/1/lock/x`, { method: "POST" }), t.env)).status).toBe(404);
+  });
+});
+
+describe("two requests at once: the unique index answers as the question before the write does (DP-63)", () => {
+  it("a key stored between the look-up and the write: 'Variable already exists.' on add, 'Duplicate entry found…' on rename and in the developer view", async () => {
+    const t = setup();
+    const scope = `project/${PROJECT}`;
+    const id = await t.add(scope, "FIRST", "1");
+    const rows = t.store.rows.length;
+
+    t.store.insert = UNIQUE.refusedBy(UNIQUE.sharedVariableProject);
+    const added = await t.call("POST", scope, { key: "SECOND", value: "x", is_multiline: false, is_literal: false });
+    expect([added.status, added.body.error?.message]).toEqual([422, "Variable already exists."]);
+    const bulk = await t.bulk(scope, "FIRST=1\nTHIRD=3");
+    expect([bulk.status, bulk.body.error?.message]).toEqual([409, UNIQUE.message]);
+
+    t.store.update = UNIQUE.refusedBy(UNIQUE.sharedVariableProject);
+    const renamed = await t.edit(scope, id, { key: "SECOND", value: "1" });
+    expect([renamed.status, renamed.body.error]).toEqual([409, expect.objectContaining({ code: "conflict", message: UNIQUE.message })]);
+    expect(t.store.rows).toHaveLength(rows);
+  });
+
+  it("each scope's own index is read, and nothing else is taken for a duplicate", async () => {
+    for (const [scope, index] of [
+      [`project/${PROJECT}`, UNIQUE.sharedVariableProject],
+      [`environment/${ENVIRONMENT}`, UNIQUE.sharedVariableEnvironment],
+      [`server/${SERVER}`, UNIQUE.sharedVariableServer],
+    ] as const) {
+      const t = setup();
+      t.store.insert = UNIQUE.refusedBy(index);
+      const r = await t.call("POST", scope, { key: "RACED", value: "x", is_multiline: false, is_literal: false });
+      expect([scope, r.status, r.body.error?.message]).toEqual([scope, 422, "Variable already exists."]);
+    }
+    const t = setup();
+    t.store.insert = UNIQUE.refusedBy("shared_environment_variables_pkey");
+    expect((await t.call("POST", "team", { key: "RACED", value: "x", is_multiline: false, is_literal: false })).status).toBe(503);
   });
 });

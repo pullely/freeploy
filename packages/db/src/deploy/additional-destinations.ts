@@ -109,13 +109,18 @@ export async function additionalDestinationExists(tx: SqlExecutor, applicationId
  * additional_networks()->syncWithoutDetaching([$networkId => ['server_id' =>
  * $serverId]]): the network is attached once — a second call for the same
  * network changes its pivot's server and adds no row. The pivot's status
- * starts as the column's default, 'exited'. True when a row was added.
+ * starts as the column's default, 'exited'. True when a row was added. Two
+ * requests at once attach it once: the unique index of
+ * 660_deploy_schema_catch_up refuses the second row, and that is no error.
  */
 export async function attachAdditionalDestination(tx: SqlExecutor, orgId: string, applicationId: string | number, serverId: string | number, networkId: string | number): Promise<boolean> {
   const updated = await tx.execute("UPDATE deploy.additional_destinations SET server_id = $3 WHERE application_id = $1 AND standalone_docker_id = $2 RETURNING id", [applicationId, networkId, serverId]);
   if (updated.rows.length > 0) return false;
-  await tx.execute("INSERT INTO deploy.additional_destinations (application_id, server_id, standalone_docker_id, org_id) VALUES ($1, $2, $3, $4)", [applicationId, serverId, networkId, orgId]);
-  return true;
+  const inserted = await tx.execute(
+    "INSERT INTO deploy.additional_destinations (application_id, server_id, standalone_docker_id, org_id) VALUES ($1, $2, $3, $4) ON CONFLICT (application_id, server_id, standalone_docker_id) DO NOTHING RETURNING id",
+    [applicationId, serverId, networkId, orgId],
+  );
+  return inserted.rows.length > 0;
 }
 
 /** additional_networks()->wherePivot('server_id', $serverId)->detach($networkId). True when it was attached. */
@@ -129,7 +134,10 @@ export async function detachAdditionalDestination(tx: SqlExecutor, applicationId
  * becomes the network, the network leaves the additional destinations, and
  * the former main destination joins them (`attach`: with the column's default
  * status). `main` is null when the application has no standalone main
- * destination left to keep. False when the application is gone.
+ * destination left to keep. False when the application is gone. When the
+ * former main destination is already an additional one (addServer() takes
+ * any network of a usable server, the main one too), the attach violates the
+ * pivot's unique index, as in Coolify: the caller asks first.
  */
 export async function promoteAdditionalDestination(
   tx: SqlExecutor,

@@ -9,14 +9,12 @@
 // is not listed in LEFT, and holds
 // specs/epics/freeploy-coolify-parity/parity/schema-diff.md to renderReport().
 import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-import { PGlite } from "@electric-sql/pglite";
-import { manifest } from "@saas/db";
+import { resolve } from "node:path";
 import { dumpSchema } from "../../../packages/db/scripts/coolify-schema/catalog.js";
 import type { SchemaColumn, SchemaDump, SchemaIndex } from "../../../packages/db/scripts/coolify-schema/catalog.js";
+import { REPO_ROOT as root, deployDatabaseAfter } from "./deploy-schema.js";
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+export { deployMigrationIds, migrationSql } from "./deploy-schema.js";
 export const COOLIFY_SCHEMA_PATH = resolve(root, "packages/db/scripts/coolify-schema/coolify-schema.json");
 export const REPORT_PATH = resolve(root, "specs/epics/freeploy-coolify-parity/parity/schema-diff.md");
 /** The catch-up migration of DP-60: the report shows the schema before and after it. */
@@ -29,22 +27,10 @@ export function loadCoolifySchema(): CoolifySchemaFile {
   return JSON.parse(readFileSync(COOLIFY_SCHEMA_PATH, "utf8")) as CoolifySchemaFile;
 }
 
-/** The deploy migrations of the manifest, in order. */
-export function deployMigrationIds(): string[] {
-  return manifest.migrations.filter((m) => m.context === "deploy").map((m) => m.id);
-}
-
-export function migrationSql(id: string): string {
-  const entry = manifest.migrations.find((m) => m.id === id);
-  if (!entry) throw new Error(`no migration ${id} in the manifest`);
-  return readFileSync(resolve(root, "packages/db/src/migrations", entry.path), "utf8");
-}
-
 /** The `deploy` schema of a fresh database after these migrations. */
 export async function deploySchemaAfter(ids: readonly string[]): Promise<SchemaDump> {
-  const db = new PGlite();
+  const db = await deployDatabaseAfter(ids);
   try {
-    for (const id of ids) await db.exec(migrationSql(id));
     return await dumpSchema(async (sql, params) => (await db.query<Record<string, unknown>>(sql, params)).rows, "deploy");
   } finally {
     await db.close();

@@ -3,10 +3,7 @@
 // deployment of an application at a time, the server's concurrent builds), starting what waits, the log, the
 // status updates the job makes, the history list with its search and filters, what the job reads of an
 // application — and row-level security keeping each org's deployments to itself.
-import { readFileSync } from "node:fs";
-import { resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { PGlite } from "@electric-sql/pglite";
+import type { PGlite } from "@electric-sql/pglite";
 import {
   withOrg,
   asPlatformAdmin,
@@ -47,22 +44,11 @@ import {
   type NewDeploymentLogEntry,
   type NewDockerImageApplication,
 } from "@saas/db/deploy";
-import type { SqlExecutor, TransactionalSqlExecutor } from "@saas/db/hyperdrive";
+import type { TransactionalSqlExecutor } from "@saas/db/hyperdrive";
+import { deployDatabase, executor } from "./deploy-schema.js";
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
-const SQL = ["500_deploy_core", "510_deploy_org_keys", "520_deploy_schema_fold_fixes"].map((m) => readFileSync(resolve(root, `packages/db/src/migrations/${m}/up.sql`), "utf8")).join("\n");
 const A = "00000000-0000-4000-8000-00000000000a";
 const B = "00000000-0000-4000-8000-00000000000b";
-
-function executor(db: PGlite): TransactionalSqlExecutor {
-  const wrap = (q: { query: PGlite["query"] }): SqlExecutor => ({
-    async execute(text, params) {
-      const r = await q.query(text, params ?? []);
-      return { rows: r.rows as never[], rowCount: r.rows.length };
-    },
-  });
-  return { ...wrap(db), transaction: (fn) => db.transaction((tx) => fn(wrap(tx as never))) };
-}
 
 let db: PGlite;
 let ex: TransactionalSqlExecutor;
@@ -100,8 +86,7 @@ async function fixture(org: string, tag: string): Promise<Fixture> {
 }
 
 beforeAll(async () => {
-  db = new PGlite();
-  await db.exec(SQL);
+  db = await deployDatabase();
   ex = executor(db);
   fx.a = await fixture(A, "a");
   fx.b = await fixture(B, "b");
@@ -434,7 +419,7 @@ describe("what the job reads", () => {
 
   it("its storages", async () => {
     await withOrg(ex, A, async (tx) => {
-      await tx.execute("INSERT INTO deploy.local_persistent_volumes (name, mount_path, host_path, resource_id, resource_type, org_id) VALUES ('data', '/data', NULL, $1, $2, $3), ('cfg', '/etc/app', '/srv/cfg', $1, $2, $3)", [fx.a!.app1, "App\\Models\\Application", A]);
+      await tx.execute("INSERT INTO deploy.local_persistent_volumes (uuid, name, mount_path, host_path, resource_id, resource_type, org_id) VALUES ('pvol1', 'data', '/data', NULL, $1, $2, $3), ('pvol2', 'cfg', '/etc/app', '/srv/cfg', $1, $2, $3)", [fx.a!.app1, "App\\Models\\Application", A]);
       await tx.execute("INSERT INTO deploy.local_file_volumes (uuid, fs_path, mount_path, content, is_directory, resource_id, resource_type, org_id) VALUES ('vol1', '/data/x/app.conf', '/etc/app.conf', 'a=b', false, $1, $2, $3), ('vol2', '/data/x/uploads', '/uploads', NULL, true, $1, $2, $3)", [fx.a!.app1, "App\\Models\\Application", A]);
     });
     expect((await withOrg(ex, A, (tx) => listApplicationPersistentStorages(tx, fx.a!.app1))).map((s) => [s.name, s.mount_path, s.host_path])).toEqual([["data", "/data", null], ["cfg", "/etc/app", "/srv/cfg"]]);

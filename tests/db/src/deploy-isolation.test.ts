@@ -6,16 +6,11 @@
 //   3. org B cannot write a row that claims org A;
 //   4. with no org set, nothing is visible and nothing can be written;
 //   5. the platform-admin flag (DP12 operator) sees every org.
-import { readFileSync } from "node:fs";
-import { resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { PGlite } from "@electric-sql/pglite";
+import { resolve } from "node:path";
+import type { PGlite } from "@electric-sql/pglite";
+import { deployDatabase, deployMigrationIds, migrationSql, REPO_ROOT } from "./deploy-schema.js";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const SQL500 = readFileSync(resolve(__dirname, "../../../packages/db/src/migrations/500_deploy_core/up.sql"), "utf8");
-// Every later deploy migration, the catch-up of DP-60 (660) included: isolation is proven on the schema stage and prod run.
-const LATER = ["510_deploy_org_keys", "520_deploy_schema_fold_fixes", "590_deploy_shared_variables_server_scope", "610_deploy_tags_org_name_unique", "630_deploy_database_public_port_timeout", "660_deploy_schema_catch_up"];
-const SQL = [SQL500, ...LATER.map((m) => readFileSync(resolve(__dirname, `../../../packages/db/src/migrations/${m}/up.sql`), "utf8"))].join("\n");
+const SQL500 = migrationSql("500_deploy_core");
 const ORG_A = "00000000-0000-4000-8000-00000000000a";
 const ORG_B = "00000000-0000-4000-8000-00000000000b";
 
@@ -65,8 +60,8 @@ function insertSql(table: string, org: string, n: number): string {
 }
 
 beforeAll(async () => {
-  db = new PGlite();
-  await db.exec(SQL);
+  // Every deploy migration of the manifest: isolation is proven on the schema stage and prod run.
+  db = await deployDatabase();
   const t = await db.query<{ table_name: string }>("SELECT table_name FROM information_schema.tables WHERE table_schema = 'deploy' ORDER BY 1");
   tables = t.rows.map((r) => r.table_name);
   for (const name of tables) {
@@ -115,8 +110,8 @@ describe("deploy schema", () => {
 describe("cross-org isolation, table by table", () => {
   // One test per table so a failure names the table.
   const names = (() => {
-    const sql = SQL;
-    return [...sql.matchAll(/CREATE TABLE IF NOT EXISTS deploy\.(\w+)/g)].map((m) => m[1]!);
+    const sql = deployMigrationIds().map(migrationSql).join("\n");
+    return [...new Set([...sql.matchAll(/CREATE TABLE IF NOT EXISTS deploy\.(\w+)/g)].map((m) => m[1]!))];
   })();
 
   it.each(names)("%s", async (table) => {
@@ -161,6 +156,6 @@ describe("deploy migration registration", () => {
 
   it("the committed SQL is exactly what the generator produces", async () => {
     const { execFileSync } = await import("node:child_process");
-    expect(() => execFileSync("node", [resolve(__dirname, "../../../packages/db/scripts/generate-deploy-schema.ts"), "--check"], { stdio: "pipe" })).not.toThrow();
+    expect(() => execFileSync("node", [resolve(REPO_ROOT, "packages/db/scripts/generate-deploy-schema.ts"), "--check"], { stdio: "pipe" })).not.toThrow();
   });
 });

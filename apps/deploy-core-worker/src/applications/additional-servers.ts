@@ -6,7 +6,7 @@
 // it is also deployed to, and the servers it can be added to. Adding a server
 // and making one primary are rows only, as in Coolify. Stopping, deploying
 // and removing a server the application may run on need the SSH executor.
-import type { DeployDestinationServerRow, DeployServerNetworkRow } from "@saas/db/deploy";
+import { DEPLOY_UNIQUE_INDEXES, refusingDuplicates, type DeployDestinationServerRow, type DeployServerNetworkRow } from "@saas/db/deploy";
 import { effectiveServerRole } from "../servers/service.js";
 import type { ApplicationShow } from "./service.js";
 import { SettingsError, jsonValue } from "./settings.js";
@@ -30,6 +30,8 @@ export const SERVERS_MESSAGES = {
     `The primary server uses ${primary} and ${name} uses ${proxy}. All servers of an application must use the same proxy, because they share the same proxy labels.`,
   /** redeploy(): the description's text (Coolify adds a link to its documentation). */
   imageNeeded: "Before deploying to multiple servers, you must first set a Docker image in the General tab.",
+  /** promote(): handleError() on the pivot's unique index — the main destination is already an additional one. */
+  duplicate: "Duplicate entry found. Please use a different name.",
   /** removeServer() */
   mainServer: "You are trying to remove the main server.",
   /** Freeploy's: the SSH executor is not deployed yet. */
@@ -159,6 +161,10 @@ async function unavailableReason(ctx: ApplicationMoreContext, l: LoadedApplicati
  * additional destination (syncWithoutDetaching). Rows only; nothing is
  * deployed there until the application is deployed. Null when the
  * application, the server or the network is not the org's.
+ *
+ * As in Coolify, nothing here refuses the application's own main network:
+ * the page does not offer it, a direct call attaches it, and promote() is
+ * where that row is in the way.
  */
 export async function addServer(ctx: ApplicationMoreContext, uuid: string, body: Body): Promise<ServersSaved | null> {
   const l = await loadApplication(ctx, uuid, true);
@@ -180,6 +186,13 @@ export async function addServer(ctx: ApplicationMoreContext, uuid: string, body:
  * transaction. Coolify then reads the containers' status from the server
  * (refreshServers), which needs the SSH executor: the rows are stored and the
  * answer says what did not run.
+ *
+ * When the main destination is already one of the additional ones (see
+ * addServer()), Coolify's attach() violates the pivot's unique index, its
+ * transaction rolls back and handleError() shows "Duplicate entry found.":
+ * nothing is promoted. Here the row is looked for first, with the same
+ * answer and nothing changed; the index still answers for two promotions at
+ * the same moment.
  */
 export async function promoteServer(ctx: ApplicationMoreContext, uuid: string, networkId: string, body: Body): Promise<ServersSaved | null> {
   const l = await loadApplication(ctx, uuid, true);
@@ -189,7 +202,10 @@ export async function promoteServer(ctx: ApplicationMoreContext, uuid: string, n
   const network = server ? await ctx.store.findNetwork(server.id, networkId) : null;
   if (!server || !network || !(await ctx.store.hasAdditionalDestination(l.row.id, server.id, network.id))) return null;
   const standaloneMain = l.application.destination?.type === "standalone" && l.frame.destination_id !== null && l.row.server_id !== null;
-  await ctx.store.promoteDestination(l.row.id, { serverId: server.id, networkId: network.id }, standaloneMain ? { serverId: l.row.server_id!, networkId: l.frame.destination_id! } : null);
+  const main = standaloneMain ? { serverId: l.row.server_id!, networkId: l.frame.destination_id! } : null;
+  const duplicate = (): SettingsError => new SettingsError(SERVERS_MESSAGES.duplicate, 422);
+  if (main && (await ctx.store.hasAdditionalDestination(l.row.id, main.serverId, main.networkId))) throw duplicate();
+  await refusingDuplicates([DEPLOY_UNIQUE_INDEXES.additionalDestination], () => ctx.store.promoteDestination(l.row.id, { serverId: server.id, networkId: network.id }, main), duplicate);
   const reloaded = await loadApplication(ctx, uuid, true);
   return reloaded && { ...(await page(ctx, reloaded, true)), unavailable: SERVERS_MESSAGES.statusUnavailable };
 }

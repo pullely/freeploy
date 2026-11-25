@@ -9,7 +9,7 @@ import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Layout } from "../layout/Layout";
 import { getJson } from "../lib/api";
 import { Reicon } from "../components/Reicon";
-import { Button, Checkbox, DangerZone, Empty, FormInput, ModalConfirmation, ModalInput, SettingsSection, StatusBadge, UnsavedBar } from "../components/Coolify";
+import { Button, Checkbox, DangerCallout, DangerZone, Empty, FormInput, ModalConfirmation, ModalInput, SettingsSection, StatusBadge, UnsavedBar } from "../components/Coolify";
 import { applicationsApi, ApplicationWorkspace } from "./ApplicationChrome";
 import { inlineErrors, useApplicationSection, type ApplicationSectionData } from "./ApplicationSection";
 import { sendJson, showError, showSaved } from "./ApplicationResource";
@@ -147,6 +147,7 @@ function ShowTask(props: { base: string; page: TaskPage; canUpdate: boolean; onS
   const [form, setForm] = useState(initial);
   const [loaded, setLoaded] = useState(initial);
   const [isEnabled, setIsEnabled] = useState(task.isEnabled);
+  const [disabledReason, setDisabledReason] = useState(task.disabledReason);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const set = (field: "name" | "command" | "frequency" | "container" | "timeout") => (value: string) => setForm({ ...form, [field]: value });
@@ -175,7 +176,10 @@ function ShowTask(props: { base: string; page: TaskPage; canUpdate: boolean; onS
   async function action(path: "toggle" | "execute") {
     const r = await sendJson<Saved>("POST", `${base}/${path}`);
     if (!r.ok) return showError(r.error);
-    if (r.data.task) setIsEnabled(r.data.task.isEnabled);
+    if (r.data.task) {
+      setIsEnabled(r.data.task.isEnabled);
+      setDisabledReason(r.data.task.disabledReason);
+    }
     props.onSaved(r.data);
   }
 
@@ -204,6 +208,12 @@ function ShowTask(props: { base: string; page: TaskPage; canUpdate: boolean; onS
           </button>
         ))}
       </nav>
+
+      {!isEnabled && disabledReason ? (
+        <DangerCallout title="Disabled because it keeps failing" className="">
+          {disabledReason} Fix the task, then click Enable.
+        </DangerCallout>
+      ) : null}
 
       {section === "general" ? (
         <form

@@ -1,11 +1,7 @@
 // deploy.private_keys (DP-36) against a real Postgres: the store functions of
 // @saas/db/deploy inside withOrg(), the private_key column encrypted with the
 // org's data key, and row-level security keeping each org's keys to itself.
-import { readFileSync } from "node:fs";
-import { resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { webcrypto } from "node:crypto";
-import { PGlite } from "@electric-sql/pglite";
+import type { PGlite } from "@electric-sql/pglite";
 import {
   withOrg,
   loadKek,
@@ -22,33 +18,18 @@ import {
   privateKeyIsInUse,
   privateKeyUsages,
 } from "@saas/db/deploy";
-import type { SqlExecutor, TransactionalSqlExecutor } from "@saas/db/hyperdrive";
+import type { TransactionalSqlExecutor } from "@saas/db/hyperdrive";
+import { deployDatabase, executor, TEST_KEK as KEK } from "./deploy-schema.js";
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
-const SQL = ["500_deploy_core", "510_deploy_org_keys", "520_deploy_schema_fold_fixes"].map((m) => readFileSync(resolve(root, `packages/db/src/migrations/${m}/up.sql`), "utf8")).join("\n");
 const A = "00000000-0000-4000-8000-00000000000a";
 const B = "00000000-0000-4000-8000-00000000000b";
-const KEK = Buffer.from(new Uint8Array(32).fill(7)).toString("base64");
 const COLUMN = "private_keys.private_key";
 const PEM = "-----BEGIN OPENSSH PRIVATE KEY-----\nfake\n-----END OPENSSH PRIVATE KEY-----\n";
-
-if (!globalThis.crypto) (globalThis as { crypto: unknown }).crypto = webcrypto;
-
-function executor(db: PGlite): TransactionalSqlExecutor {
-  const wrap = (q: { query: PGlite["query"] }): SqlExecutor => ({
-    async execute(text, params) {
-      const r = await q.query(text, params ?? []);
-      return { rows: r.rows as never[], rowCount: r.rows.length };
-    },
-  });
-  return { ...wrap(db), transaction: (fn) => db.transaction((tx) => fn(wrap(tx as never))) };
-}
 
 let db: PGlite;
 let ex: TransactionalSqlExecutor;
 beforeAll(async () => {
-  db = new PGlite();
-  await db.exec(SQL);
+  db = await deployDatabase();
   ex = executor(db);
 }, 120_000);
 afterAll(async () => db?.close());

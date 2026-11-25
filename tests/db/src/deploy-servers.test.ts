@@ -1,10 +1,7 @@
 // deploy.servers and deploy.server_settings (DP-37) against a real Postgres:
 // the store functions of @saas/db/deploy inside withOrg(), and row-level
 // security keeping each org's servers to itself.
-import { readFileSync } from "node:fs";
-import { resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { PGlite } from "@electric-sql/pglite";
+import type { PGlite } from "@electric-sql/pglite";
 import {
   withOrg,
   insertPrivateKey,
@@ -19,31 +16,20 @@ import {
   otherBuildServerExists,
   listServerPrivateKeys,
   privateKeyIsInUse,
+  findDestinationServer,
 } from "@saas/db/deploy";
-import type { SqlExecutor, TransactionalSqlExecutor } from "@saas/db/hyperdrive";
+import type { TransactionalSqlExecutor } from "@saas/db/hyperdrive";
+import { deployDatabase, executor } from "./deploy-schema.js";
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
-const SQL = ["500_deploy_core", "510_deploy_org_keys", "520_deploy_schema_fold_fixes"].map((m) => readFileSync(resolve(root, `packages/db/src/migrations/${m}/up.sql`), "utf8")).join("\n");
 const A = "00000000-0000-4000-8000-00000000000a";
 const B = "00000000-0000-4000-8000-00000000000b";
 const PROXY = { redirect_enabled: true, status: "exited", type: "TRAEFIK" };
-
-function executor(db: PGlite): TransactionalSqlExecutor {
-  const wrap = (q: { query: PGlite["query"] }): SqlExecutor => ({
-    async execute(text, params) {
-      const r = await q.query(text, params ?? []);
-      return { rows: r.rows as never[], rowCount: r.rows.length };
-    },
-  });
-  return { ...wrap(db), transaction: (fn) => db.transaction((tx) => fn(wrap(tx as never))) };
-}
 
 let db: PGlite;
 let ex: TransactionalSqlExecutor;
 const keyIds: Record<string, string | number> = {};
 beforeAll(async () => {
-  db = new PGlite();
-  await db.exec(SQL);
+  db = await deployDatabase();
   ex = executor(db);
   for (const [org, uuid] of [
     [A, "keyaaaaaaaaaaaaaaaaaaaaa"],
@@ -154,5 +140,20 @@ describe("deploy.servers", () => {
     expect(await withOrg(ex, A, (tx) => findServerByUuid(tx, "srvbbbbbbbbbbbbbbbbbbbbb"))).toBeNull();
     const settings = await withOrg(ex, A, (tx) => tx.execute(`SELECT 1 FROM deploy.server_settings WHERE server_id = $1`, [b.id]));
     expect(settings.rows).toHaveLength(0);
+  });
+});
+
+describe("servers.proxy is nullable (660_deploy_schema_catch_up, as Coolify's column)", () => {
+  it("a server without a proxy is listed and found, with proxy null, like any other", async () => {
+    const zeta = (await withOrg(ex, A, (tx) => findServerByUuid(tx, "srvaaaaaaaaaaaaaaaaaaaaa")))!;
+    await withOrg(ex, A, (tx) => tx.execute("UPDATE deploy.servers SET proxy = NULL WHERE id = $1", [zeta.id]));
+    try {
+      expect((await withOrg(ex, A, (tx) => findServerByUuid(tx, "srvaaaaaaaaaaaaaaaaaaaaa")))!.proxy).toBeNull();
+      expect((await withOrg(ex, A, listServers)).map((s) => s.uuid)).toContain("srvaaaaaaaaaaaaaaaaaaaaa");
+      // What the application pages read of it (additional servers, labels): null, not an error.
+      expect((await withOrg(ex, A, (tx) => findDestinationServer(tx, zeta.id)))!.proxy).toBeNull();
+    } finally {
+      await withOrg(ex, A, (tx) => tx.execute("UPDATE deploy.servers SET proxy = $2::json WHERE id = $1", [zeta.id, JSON.stringify(PROXY)]));
+    }
   });
 });

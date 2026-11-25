@@ -26,6 +26,8 @@ import type {
   GitSourceKind,
   ScheduledTaskChanges,
 } from "@saas/db/deploy";
+import { DEPLOY_UNIQUE_INDEXES } from "@saas/db/deploy";
+import { DUPLICATE_ENTRY, refusedBy } from "./unique-violation.js";
 
 const ORG = "org_" + "0".repeat(31) + "a";
 const ORG_UUID = "00000000-0000-0000-0000-00000000000a";
@@ -78,6 +80,7 @@ interface Task extends Record<string, unknown> {
   container: string | null;
   timeout: number;
   use_shell: boolean;
+  disabled_reason: string | null;
 }
 
 const sealed = (plaintext: string) => `fp1:1:${Buffer.from(plaintext).toString("base64")}`;
@@ -253,7 +256,7 @@ class MemoryStore implements ApplicationMoreStore {
     return t ? this.task(t) : null;
   }
   async insertTask(t: { applicationId: Id; uuid: string; name: string; command: string; frequency: string; container: string | null; timeout: number; useShell: boolean }) {
-    const row: Task = { id: this.next++, applicationId: t.applicationId, uuid: t.uuid, enabled: true, name: t.name, command: t.command, frequency: t.frequency, container: t.container, timeout: t.timeout, use_shell: t.useShell };
+    const row: Task = { id: this.next++, applicationId: t.applicationId, uuid: t.uuid, enabled: true, name: t.name, command: t.command, frequency: t.frequency, container: t.container, timeout: t.timeout, use_shell: t.useShell, disabled_reason: null };
     this.taskRows.push(row);
     return this.task(row);
   }
@@ -862,6 +865,11 @@ describe("the Scheduled Tasks page (ScheduledTask\\All, Add, Show, Executions)",
     expect(r.status).toBe(200);
     expect(r.data.task).toEqual({ uuid, name: "Cleanup", command: "php artisan cleanup", frequency: "daily", container: "", timeout: 300, useShell: true, isEnabled: true, disabledReason: null });
     expect([r.data.executions, r.data.serverTimezone]).toEqual([[], "Europe/Madrid"]);
+    // $task->disabled_reason is the row's (660_deploy_schema_catch_up), not a constant.
+    const reason = "Disabled automatically after 5 failed runs in a row since 2026-11-01 10:00:00.";
+    Object.assign(t.store.taskRows[0]!, { enabled: false, disabled_reason: reason });
+    expect((await t.get(`scheduled-tasks/${uuid}`)).data.task).toMatchObject({ isEnabled: false, disabledReason: reason });
+    Object.assign(t.store.taskRows[0]!, { enabled: true, disabled_reason: null });
     // What a scheduler would record is listed, the newest first, and shows in the list as the task's status.
     t.store.executionRows.push({ id: 1, taskId: t.store.taskRows[0]!.id, status: "failed", message: "boom", created_at: "2026-11-01 10:00:00", finished_at: "2026-11-01 10:00:05" });
     t.store.executionRows.push({ id: 2, taskId: t.store.taskRows[0]!.id, status: "success", message: "done", created_at: "2026-11-02 10:00:00", finished_at: "2026-11-02 10:00:03" });
@@ -1074,5 +1082,43 @@ describe("routing and authorization", () => {
     const bare: Env = { ENVIRONMENT: "test" };
     expect((await route(new Request(`${BASE}/applications/app1/scheduled-tasks/abc/execute`, { method: "POST", headers }), bare)).status).toBe(503);
     expect((await route(new Request(`${BASE}/applications/app1/source`, { headers }), bare)).status).toBe(503);
+  });
+});
+
+describe("the main network as an additional destination (DP-63)", () => {
+  // Coolify's Destination::addServer() takes any network of a usable server — the page does not offer the main one, a
+  // direct call attaches it. promote() then attaches the former main destination again: the pivot's unique index
+  // refuses, the transaction rolls back and handleError() says "Duplicate entry found.".
+  it("is attached as in Coolify, and a promotion is then refused with nothing changed", async () => {
+    const t = setup();
+    expect((await t.post("servers", { network_id: 21, server_id: 7 })).status).toBe(200);
+    expect((await t.post("servers", { network_id: 22, server_id: 8 })).status).toBe(200);
+    const pivots = [
+      { applicationId: 1, serverId: 7, networkId: 21, status: "exited" },
+      { applicationId: 1, serverId: 8, networkId: 22, status: "exited" },
+    ];
+    expect(t.store.pivots).toEqual(pivots);
+    let promotions = 0;
+    const promote = t.store.promoteDestination.bind(t.store);
+    t.store.promoteDestination = async (...args) => {
+      promotions += 1;
+      return promote(...args);
+    };
+    expect(t.refused(await t.post("servers/22/promote", { server_id: 8 }))).toEqual([422, DUPLICATE_ENTRY]);
+    // Asked before the write: no second (application, server, network) row, and the main destination stays.
+    expect([promotions, t.store.pivots, t.store.app.destination_id, t.store.app.server_id]).toEqual([0, pivots, 21, 7]);
+    // Coolify does not let that row go either: removeServer() sees the main server first. The row stays until the
+    // application moves to another destination; the page never offers the main network, so only a direct call gets here.
+    expect(t.refused(await t.del("servers/21?server_id=7"))).toEqual([422, "You are trying to remove the main server."]);
+    expect(t.store.pivots).toEqual(pivots);
+  });
+
+  it("two promotions at once: the index's refusal is the same answer", async () => {
+    const t = setup();
+    await t.post("servers", { network_id: 22, server_id: 8 });
+    t.store.promoteDestination = refusedBy(DEPLOY_UNIQUE_INDEXES.additionalDestination);
+    expect(t.refused(await t.post("servers/22/promote", { server_id: 8 }))).toEqual([422, DUPLICATE_ENTRY]);
+    t.store.promoteDestination = refusedBy("additional_destinations_pkey");
+    expect((await t.post("servers/22/promote", { server_id: 8 })).status).toBe(503);
   });
 });

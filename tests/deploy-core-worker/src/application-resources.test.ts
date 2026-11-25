@@ -35,6 +35,8 @@ import type {
   FileVolumeChanges,
   PersistentVolumeChanges,
 } from "@saas/db/deploy";
+import { DEPLOY_UNIQUE_INDEXES } from "@saas/db/deploy";
+import { DUPLICATE_ENTRY, refusedBy } from "./unique-violation.js";
 
 const ORG = "org_" + "0".repeat(31) + "a";
 const ORG_UUID = "00000000-0000-0000-0000-00000000000a";
@@ -1313,5 +1315,39 @@ describe("routing and authorization", () => {
     expect((await route(new Request(`${BASE}/applications/app1`, { method: "DELETE", headers }), bare)).status).toBe(503);
     // Five segments below /applications are no route at all.
     expect((await route(new Request(`${BASE}/applications/app1/storages/volumes/1/more/still`, { headers }), bare)).status).toBe(404);
+  });
+});
+
+describe("two requests at once: the unique index answers as the question before the write does (DP-63)", () => {
+  it("a volume name or a mount path stored between the look-up and the write is 'Duplicate entry found…'", async () => {
+    const t = setup();
+    await t.post("storages", { type: "volume", name: "data", mount_path: "/data" });
+    const volume = t.store.volumeRows[0]!;
+
+    t.store.insertVolume = refusedBy(DEPLOY_UNIQUE_INDEXES.persistentVolumeName);
+    expect(t.refused(await t.post("storages", { type: "volume", name: "cache", mount_path: "/cache" }))).toEqual([422, DUPLICATE_ENTRY]);
+    t.store.updateVolume = refusedBy(DEPLOY_UNIQUE_INDEXES.persistentVolumeName);
+    expect(t.refused(await t.patch(`storages/volumes/${volume.id}`, { name: "app1-cache", mount_path: "/data", renameConfirmed: true }))).toEqual([422, DUPLICATE_ENTRY]);
+
+    t.store.insertFile = refusedBy(DEPLOY_UNIQUE_INDEXES.fileVolumeMountPath);
+    expect(t.refused(await t.post("storages", { type: "file", file_storage_path: "/etc/app.conf" }))).toEqual([422, DUPLICATE_ENTRY]);
+    expect(t.refused(await t.post("storages", { type: "host-file", host_file_storage_source: "/srv/app.conf", host_file_storage_destination: "/etc/app.conf" }))).toEqual([422, DUPLICATE_ENTRY]);
+    expect(t.refused(await t.post("storages", { type: "directory", file_storage_directory_source: "/srv/etc", file_storage_directory_destination: "/etc/app" }))).toEqual([422, DUPLICATE_ENTRY]);
+    expect([t.store.volumeRows.map((v) => v.name), t.store.mountRows]).toEqual([["app1-data"], []]);
+
+    // Another index is no duplicate name.
+    t.store.insertFile = refusedBy("local_file_volumes_pkey");
+    expect((await t.post("storages", { type: "file", file_storage_path: "/etc/app.conf" })).status).toBe(503);
+  });
+
+  it("a tag another request attached first is 'Duplicate tags.', by id and by name", async () => {
+    const t = setup();
+    t.store.tagRows.push({ id: 2, uuid: "tag2", name: "web" });
+    t.store.attachTag = refusedBy(DEPLOY_UNIQUE_INDEXES.taggable);
+    const byId = await t.post("tags/2");
+    expect([byId.status, byId.error.message, byId.error.details.description]).toEqual([422, "Duplicate tags.", "Tag web already added."]);
+    // Typed: the transaction is over with the refusal, so the request ends there with the same words.
+    const typed = await t.post("tags", { newTags: "Web" });
+    expect([typed.status, typed.error.message, typed.error.details.description]).toEqual([422, "Duplicate tags.", "Tag Web already added."]);
   });
 });

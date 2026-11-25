@@ -18,6 +18,7 @@ import type {
   NewProject,
   ProjectChanges,
 } from "@saas/db/deploy";
+import { DEPLOY_UNIQUE_INDEXES, refusingDuplicates } from "@saas/db/deploy";
 import { newPublicId } from "../helpers/names.js";
 import type { NameDescriptionInput } from "./validation.js";
 
@@ -54,6 +55,9 @@ export const PROJECT_MESSAGES = {
 } as const;
 
 /** A failure Coolify reports through dispatch('error'). */
+/** unique(name, project_id): the answer of the question before the write, for the write the index refuses. */
+const refusingDuplicateName = <T>(write: () => Promise<T>): Promise<T> => refusingDuplicates([DEPLOY_UNIQUE_INDEXES.environmentName], write, () => new ProjectError(PROJECT_MESSAGES.duplicate));
+
 export class ProjectError extends Error {
   constructor(
     message: string,
@@ -254,7 +258,7 @@ export async function createEnvironment(store: ProjectStore, projectUuid: string
   if (!project) return null;
   const name = customizeEnvironmentName(input.name);
   if (await store.environmentNameExists(project.id, name)) throw new ProjectError(PROJECT_MESSAGES.duplicate);
-  const environment = await store.insertEnvironment({ projectId: project.id, uuid: newPublicId(), name });
+  const environment = await refusingDuplicateName(() => store.insertEnvironment({ projectId: project.id, uuid: newPublicId(), name }));
   return { uuid: environment.uuid, name: environment.name };
 }
 
@@ -283,7 +287,7 @@ export async function updateEnvironment(store: ProjectStore, projectUuid: string
   if (!environment) return null;
   const name = customizeEnvironmentName(input.name);
   if (await store.environmentNameExists(project.id, name, environment.id)) throw new ProjectError(PROJECT_MESSAGES.duplicate);
-  return store.updateEnvironment(environment.id, { name, description: input.description });
+  return refusingDuplicateName(() => store.updateEnvironment(environment.id, { name, description: input.description }));
 }
 
 /** DeleteEnvironment::delete(): only an empty environment is deleted. */

@@ -3,7 +3,7 @@
 //
 // A resource's Tags page, for an application: the org's tags are reusable
 // labels, attached to and removed from the application. Rows only.
-import type { DeployTagRow } from "@saas/db/deploy";
+import { DEPLOY_UNIQUE_INDEXES, refusingDuplicates, type DeployTagRow } from "@saas/db/deploy";
 import { blank, length, type FieldErrors } from "../private-keys/validation.js";
 import { newPublicId } from "../helpers/names.js";
 import type { ApplicationShow } from "./service.js";
@@ -106,10 +106,18 @@ export async function addTags(ctx: ApplicationResourcesContext, uuid: string, bo
       continue;
     }
     const tag = found ?? (await ctx.store.insertTag({ uuid: newPublicId(), name }));
-    await ctx.store.attachTag(l.row.id, tag.id);
+    await attachOnce(ctx, l.row.id, tag.id, stripped);
   }
   return { ...(await page(ctx, l, true)), message: null, errors };
 }
+
+/** taggable_unique (tag_id, taggable_id, taggable_type): a tag another request attached since this one asked. */
+const attachOnce = (ctx: ApplicationResourcesContext, applicationId: string | number, tagId: string | number, typed: string): Promise<void> =>
+  refusingDuplicates(
+    [DEPLOY_UNIQUE_INDEXES.taggable],
+    () => ctx.store.attachTag(applicationId, tagId),
+    () => new SettingsError(TAG_MESSAGES.duplicateTags, 422, { description: TAG_MESSAGES.duplicateTagsDescription(typed) }),
+  );
 
 /** Tags::addTag(): one of the org's tags, by id. Null when the application or the tag is not the org's. */
 export async function addTag(ctx: ApplicationResourcesContext, uuid: string, id: string): Promise<TagsSaved | null> {
@@ -117,7 +125,7 @@ export async function addTag(ctx: ApplicationResourcesContext, uuid: string, id:
   const tag = l ? await ctx.store.findTagById(id) : null;
   if (!l || !tag) return null;
   if (await ctx.store.hasTag(l.row.id, tag.id)) throw new SettingsError(TAG_MESSAGES.duplicateTags, 422, { description: TAG_MESSAGES.duplicateTagsDescription(tag.name) });
-  await ctx.store.attachTag(l.row.id, tag.id);
+  await attachOnce(ctx, l.row.id, tag.id, tag.name);
   return { ...(await page(ctx, l, true)), message: TAG_MESSAGES.tagAdded, errors: [] };
 }
 
