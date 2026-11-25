@@ -24,6 +24,7 @@ const ApplicationDomainsPage = lazy(() => import("./pages/ApplicationDomains").t
 const ApplicationAdvancedPage = lazy(() => import("./pages/ApplicationAdvanced").then((m) => ({ default: m.ApplicationAdvancedPage })));
 const ApplicationHealthcheckPage = lazy(() => import("./pages/ApplicationHealthcheck").then((m) => ({ default: m.ApplicationHealthcheckPage })));
 const ApplicationResourceLimitsPage = lazy(() => import("./pages/ApplicationResourceLimits").then((m) => ({ default: m.ApplicationResourceLimitsPage })));
+const ApplicationEnvironmentVariablesPage = lazy(() => import("./pages/ApplicationEnvironmentVariables").then((m) => ({ default: m.ApplicationEnvironmentVariablesPage })));
 const EnvironmentEditPage = lazy(() => import("./pages/EnvironmentEdit").then((m) => ({ default: m.EnvironmentEditPage })));
 const PrivateKeysPage = lazy(() => import("./pages/PrivateKeys").then((m) => ({ default: m.PrivateKeysPage })));
 const CloudTokensPage = lazy(() => import("./pages/CloudTokens").then((m) => ({ default: m.CloudTokensPage })));
@@ -158,6 +159,12 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <ApplicationResourceLimitsPage />
+        </Suspense>
+      );
+    case "project.application.environment-variables":
+      return (
+        <Suspense fallback={null}>
+          <ApplicationEnvironmentVariablesPage />
         </Suspense>
       );
     case "security.private-key.index":

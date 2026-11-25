@@ -32,8 +32,8 @@ function resolveActor(request: Request): ActorContext | null {
 
 /** Projects: the collection and up to four segments below it (a page of a project's environment). */
 export const ORG_DEPLOY_PROJECTS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/projects((?:\/[^/]+){0,4})\/?$/;
-/** Applications: the collection, an application, and one of its actions. */
-export const ORG_DEPLOY_APPLICATIONS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/applications((?:\/[^/]+){0,2})\/?$/;
+/** Applications: the collection, an application, one of its actions, and up to four segments for its environment variables. */
+export const ORG_DEPLOY_APPLICATIONS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/applications((?:\/[^/]+){0,4})\/?$/;
 /** Keys & Tokens → Cloud Tokens: the collection, a token, and a token's validate action. */
 export const ORG_DEPLOY_CLOUD_TOKENS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/cloud-tokens((?:\/[^/]+){0,2})\/?$/;
 /** Keys & Tokens → Cloud-Init Scripts: the collection and a script. */

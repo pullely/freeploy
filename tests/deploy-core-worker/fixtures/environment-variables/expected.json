@@ -1,0 +1,1268 @@
+{
+    "parseEnvFormatToArray": [
+        {
+            "name": "simple",
+            "input": "A=1\nB=two",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "1",
+                    "comment": null
+                },
+                {
+                    "key": "B",
+                    "value": "two",
+                    "comment": null
+                }
+            ]
+        },
+        {
+            "name": "empty value",
+            "input": "EMPTY=\nNEXT=x",
+            "expected": [
+                {
+                    "key": "EMPTY",
+                    "value": "",
+                    "comment": null
+                },
+                {
+                    "key": "NEXT",
+                    "value": "x",
+                    "comment": null
+                }
+            ]
+        },
+        {
+            "name": "no equals sign is skipped",
+            "input": "JUSTAKEY\nA=1",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "1",
+                    "comment": null
+                }
+            ]
+        },
+        {
+            "name": "blank lines and comment lines",
+            "input": "\n# a comment\nA=1\n\n#B=2\n",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "1",
+                    "comment": null
+                }
+            ]
+        },
+        {
+            "name": "indented comment is not a comment",
+            "input": "  # not a comment=x\nA=1",
+            "expected": [
+                {
+                    "key": "  # not a comment",
+                    "value": "x",
+                    "comment": null
+                },
+                {
+                    "key": "A",
+                    "value": "1",
+                    "comment": null
+                }
+            ]
+        },
+        {
+            "name": "equals in value",
+            "input": "URL=postgres://u:p@h/db?sslmode=require&x=1",
+            "expected": [
+                {
+                    "key": "URL",
+                    "value": "postgres://u:p@h/db?sslmode=require&x=1",
+                    "comment": null
+                }
+            ]
+        },
+        {
+            "name": "key keeps its spaces",
+            "input": " SPACED = v ",
+            "expected": [
+                {
+                    "key": " SPACED ",
+                    "value": "v",
+                    "comment": null
+                }
+            ]
+        },
+        {
+            "name": "export prefix is part of the key",
+            "input": "export FOO=bar",
+            "expected": [
+                {
+                    "key": "export FOO",
+                    "value": "bar",
+                    "comment": null
+                }
+            ]
+        },
+        {
+            "name": "unquoted value is trimmed",
+            "input": "A=   padded   \nB=\ttabbed\t",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "padded",
+                    "comment": null
+                },
+                {
+                    "key": "B",
+                    "value": "tabbed",
+                    "comment": null
+                }
+            ]
+        },
+        {
+            "name": "unquoted inline comment needs whitespace before #",
+            "input": "A=value #comment\nB=value#notcomment\nC=value   #  spaced comment  \nD=value #\nE=a\t#tab comment",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "value",
+                    "comment": "comment"
+                },
+                {
+                    "key": "B",
+                    "value": "value#notcomment",
+                    "comment": null
+                },
+                {
+                    "key": "C",
+                    "value": "value",
+                    "comment": "spaced comment"
+                },
+                {
+                    "key": "D",
+                    "value": "value",
+                    "comment": null
+                },
+                {
+                    "key": "E",
+                    "value": "a",
+                    "comment": "tab comment"
+                }
+            ]
+        },
+        {
+            "name": "unquoted comment only",
+            "input": "A= #only comment",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "",
+                    "comment": "only comment"
+                }
+            ]
+        },
+        {
+            "name": "unquoted with two hashes",
+            "input": "A=one #two #three",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "one",
+                    "comment": "two #three"
+                }
+            ]
+        },
+        {
+            "name": "double quoted",
+            "input": "A=\"hello world\"",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "hello world",
+                    "comment": null
+                }
+            ]
+        },
+        {
+            "name": "double quoted keeps edge spaces",
+            "input": "A=\"  padded  \"",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "  padded  ",
+                    "comment": null
+                }
+            ]
+        },
+        {
+            "name": "double quoted with hash inside",
+            "input": "A=\"value #not a comment\"",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "value #not a comment",
+                    "comment": null
+                }
+            ]
+        },
+        {
+            "name": "double quoted then comment",
+            "input": "A=\"value\" # the comment",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "value",
+                    "comment": "the comment"
+                }
+            ]
+        },
+        {
+            "name": "double quoted then comment without space",
+            "input": "A=\"value\"#tight",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "value",
+                    "comment": "tight"
+                }
+            ]
+        },
+        {
+            "name": "double quoted then text without hash",
+            "input": "A=\"value\" trailing",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "value",
+                    "comment": null
+                }
+            ]
+        },
+        {
+            "name": "double quoted ends at the first quote, escapes are not read",
+            "input": "A=\"say \\\"hi\\\" now\" # c",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "say \\",
+                    "comment": "c"
+                }
+            ]
+        },
+        {
+            "name": "double quoted without closing quote",
+            "input": "A=\"unterminated value # x",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "unterminated value # x",
+                    "comment": null
+                }
+            ]
+        },
+        {
+            "name": "double quoted empty",
+            "input": "A=\"\"",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "",
+                    "comment": null
+                }
+            ]
+        },
+        {
+            "name": "single quoted",
+            "input": "A='hello world'",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "hello world",
+                    "comment": null
+                }
+            ]
+        },
+        {
+            "name": "single quoted with double quotes inside",
+            "input": "A='say \"hi\"'",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "say \"hi\"",
+                    "comment": null
+                }
+            ]
+        },
+        {
+            "name": "single quoted then comment",
+            "input": "A='v' #c",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "v",
+                    "comment": "c"
+                }
+            ]
+        },
+        {
+            "name": "single quoted without closing quote",
+            "input": "A='unterminated",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "unterminated",
+                    "comment": null
+                }
+            ]
+        },
+        {
+            "name": "single quoted empty then empty comment",
+            "input": "A='' #",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "",
+                    "comment": null
+                }
+            ]
+        },
+        {
+            "name": "quote not at the start is literal",
+            "input": "A=it\"s \"quoted\" here",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "it\"s \"quoted\" here",
+                    "comment": null
+                }
+            ]
+        },
+        {
+            "name": "backslashes are literal",
+            "input": "A=line\\nbreak\\ttab\\\\end",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "line\\nbreak\\ttab\\\\end",
+                    "comment": null
+                }
+            ]
+        },
+        {
+            "name": "dollar signs are literal",
+            "input": "A=$OTHER ${BRACED} $$",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "$OTHER ${BRACED} $$",
+                    "comment": null
+                }
+            ]
+        },
+        {
+            "name": "multiline quoted value is cut at the line end",
+            "input": "A=\"first\nsecond\"\nB=2",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "first",
+                    "comment": null
+                },
+                {
+                    "key": "B",
+                    "value": "2",
+                    "comment": null
+                }
+            ]
+        },
+        {
+            "name": "duplicate key: the last value, the first position",
+            "input": "A=1\nB=2\nA=3 #again",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "3",
+                    "comment": "again"
+                },
+                {
+                    "key": "B",
+                    "value": "2",
+                    "comment": null
+                }
+            ]
+        },
+        {
+            "name": "carriage returns",
+            "input": "A=1\r\nB=\"two\"\r\nC='three' # c\r\n",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "1",
+                    "comment": null
+                },
+                {
+                    "key": "B",
+                    "value": "two",
+                    "comment": null
+                },
+                {
+                    "key": "C",
+                    "value": "three",
+                    "comment": "c"
+                }
+            ]
+        },
+        {
+            "name": "empty key",
+            "input": "=value",
+            "expected": [
+                {
+                    "key": "",
+                    "value": "value",
+                    "comment": null
+                }
+            ]
+        },
+        {
+            "name": "shared variable reference",
+            "input": "A={{team.SECRET}}",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "{{team.SECRET}}",
+                    "comment": null
+                }
+            ]
+        },
+        {
+            "name": "unicode",
+            "input": "A=žluťoučký kůň #poznámka",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "žluťoučký kůň",
+                    "comment": "poznámka"
+                }
+            ]
+        },
+        {
+            "name": "no-break space before # is not whitespace",
+            "input": "A=value #x",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "value #x",
+                    "comment": null
+                }
+            ]
+        },
+        {
+            "name": "empty text",
+            "input": "",
+            "expected": []
+        }
+    ],
+    "parseEnvDevView": [
+        {
+            "name": "no directives",
+            "input": "A=1\nB=2",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "1",
+                    "comment": null,
+                    "settings": []
+                },
+                {
+                    "key": "B",
+                    "value": "2",
+                    "comment": null,
+                    "settings": []
+                }
+            ]
+        },
+        {
+            "name": "literal",
+            "input": "# coolify: literal\nA=$x",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "$x",
+                    "comment": null,
+                    "settings": {
+                        "is_literal": true
+                    }
+                }
+            ]
+        },
+        {
+            "name": "all flags",
+            "input": "# coolify: literal buildtime=false runtime=false\nA=1\nB=2",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "1",
+                    "comment": null,
+                    "settings": {
+                        "is_literal": true,
+                        "is_buildtime": false,
+                        "is_runtime": false
+                    }
+                },
+                {
+                    "key": "B",
+                    "value": "2",
+                    "comment": null,
+                    "settings": []
+                }
+            ]
+        },
+        {
+            "name": "explicit true and false",
+            "input": "# coolify: literal=false buildtime=true\nA=1",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "1",
+                    "comment": null,
+                    "settings": {
+                        "is_literal": false,
+                        "is_buildtime": true
+                    }
+                }
+            ]
+        },
+        {
+            "name": "extra whitespace between flags",
+            "input": "# coolify:   literal \t runtime=false  \nA=1",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "1",
+                    "comment": null,
+                    "settings": {
+                        "is_literal": true,
+                        "is_runtime": false
+                    }
+                }
+            ]
+        },
+        {
+            "name": "directive without space after the colon",
+            "input": "# coolify:literal\nA=1",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "1",
+                    "comment": null,
+                    "settings": {
+                        "is_literal": true
+                    }
+                }
+            ]
+        },
+        {
+            "name": "a plain comment is not a directive",
+            "input": "# coolify literal\nA=1\n#coolify: literal\nB=2",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "1",
+                    "comment": null,
+                    "settings": []
+                },
+                {
+                    "key": "B",
+                    "value": "2",
+                    "comment": null,
+                    "settings": []
+                }
+            ]
+        },
+        {
+            "name": "directive applies to its line only",
+            "input": "# coolify: literal\nA=1\nB=2",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "1",
+                    "comment": null,
+                    "settings": {
+                        "is_literal": true
+                    }
+                },
+                {
+                    "key": "B",
+                    "value": "2",
+                    "comment": null,
+                    "settings": []
+                }
+            ]
+        },
+        {
+            "name": "duplicate key: the last directive wins, settings reset",
+            "input": "# coolify: literal\nA=1\nA=2",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "2",
+                    "comment": null,
+                    "settings": []
+                }
+            ]
+        },
+        {
+            "name": "repeated flag: the last wins",
+            "input": "# coolify: literal literal=false\nA=1",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "1",
+                    "comment": null,
+                    "settings": {
+                        "is_literal": false
+                    }
+                }
+            ]
+        },
+        {
+            "name": "directive with a carriage return",
+            "input": "# coolify: literal\r\nA=1\r\n",
+            "expected": [
+                {
+                    "key": "A",
+                    "value": "1",
+                    "comment": null,
+                    "settings": {
+                        "is_literal": true
+                    }
+                }
+            ]
+        },
+        {
+            "name": "error: no flags",
+            "input": "# coolify:\nA=1",
+            "error": "Line 1: the \"# coolify:\" line has no flags."
+        },
+        {
+            "name": "error: no flags, only spaces",
+            "input": "A=0\n# coolify:   \nA=1",
+            "error": "Line 2: the \"# coolify:\" line has no flags."
+        },
+        {
+            "name": "error: unknown flag",
+            "input": "# coolify: multiline\nA=1",
+            "error": "Line 1: unknown flag \"multiline\". Allowed flags: literal, buildtime, runtime."
+        },
+        {
+            "name": "error: bad value",
+            "input": "# coolify: literal=yes\nA=1",
+            "error": "Line 1: the value of \"literal\" must be true or false."
+        },
+        {
+            "name": "error: empty value",
+            "input": "# coolify: literal=\nA=1",
+            "error": "Line 1: the value of \"literal\" must be true or false."
+        },
+        {
+            "name": "error: directive before a blank line",
+            "input": "# coolify: literal\n\nA=1",
+            "error": "Line 1: a \"# coolify:\" line must be directly above a KEY=value line."
+        },
+        {
+            "name": "error: directive before a comment",
+            "input": "A=1\n\n# coolify: literal\n# note\nB=1",
+            "error": "Line 3: a \"# coolify:\" line must be directly above a KEY=value line."
+        },
+        {
+            "name": "error: directive before a line without =",
+            "input": "# coolify: literal\nNOEQUALS",
+            "error": "Line 1: a \"# coolify:\" line must be directly above a KEY=value line."
+        },
+        {
+            "name": "error: two directives",
+            "input": "# coolify: literal\n# coolify: runtime=false\nA=1",
+            "error": "Line 1: a \"# coolify:\" line must be directly above a KEY=value line."
+        },
+        {
+            "name": "error: directive on the last line",
+            "input": "A=1\n# coolify: literal",
+            "error": "Line 2: a \"# coolify:\" line must be directly above a KEY=value line."
+        },
+        {
+            "name": "error: directive with carriage return before blank",
+            "input": "# coolify: literal\r\n\r\nA=1",
+            "error": "Line 1: a \"# coolify:\" line must be directly above a KEY=value line."
+        },
+        {
+            "name": "null text",
+            "input": null,
+            "expected": []
+        }
+    ],
+    "formatEnvValueForDevView": [
+        {
+            "input": null,
+            "expected": "",
+            "readBack": ""
+        },
+        {
+            "input": "",
+            "expected": "",
+            "readBack": ""
+        },
+        {
+            "input": "plain",
+            "expected": "plain",
+            "readBack": "plain"
+        },
+        {
+            "input": "with space",
+            "expected": "with space",
+            "readBack": "with space"
+        },
+        {
+            "input": " leading",
+            "expected": "' leading'",
+            "readBack": " leading"
+        },
+        {
+            "input": "trailing ",
+            "expected": "'trailing '",
+            "readBack": "trailing "
+        },
+        {
+            "input": "\ttab",
+            "expected": "'\ttab'",
+            "readBack": "\ttab"
+        },
+        {
+            "input": "a #hash",
+            "expected": "'a #hash'",
+            "readBack": "a #hash"
+        },
+        {
+            "input": "a#hash",
+            "expected": "a#hash",
+            "readBack": "a#hash"
+        },
+        {
+            "input": "a\t#hash",
+            "expected": "'a\t#hash'",
+            "readBack": "a\t#hash"
+        },
+        {
+            "input": "\"quoted\"",
+            "expected": "'\"quoted\"'",
+            "readBack": "\"quoted\""
+        },
+        {
+            "input": "'quoted'",
+            "expected": "\"'quoted'\"",
+            "readBack": "'quoted'"
+        },
+        {
+            "input": "\"both' kinds",
+            "expected": null
+        },
+        {
+            "input": "it's",
+            "expected": "it's",
+            "readBack": "it's"
+        },
+        {
+            "input": " it's padded",
+            "expected": "\" it's padded\"",
+            "readBack": " it's padded"
+        },
+        {
+            "input": " \"both\" 'kinds' ",
+            "expected": null
+        },
+        {
+            "input": "line\nbreak",
+            "expected": null
+        },
+        {
+            "input": "trailing newline\n",
+            "expected": null
+        },
+        {
+            "input": "say \"hi\" #now",
+            "expected": "'say \"hi\" #now'",
+            "readBack": "say \"hi\" #now"
+        },
+        {
+            "input": "#starts with hash",
+            "expected": "#starts with hash",
+            "readBack": "#starts with hash"
+        },
+        {
+            "input": "=equals",
+            "expected": "=equals",
+            "readBack": "=equals"
+        },
+        {
+            "input": "nbsp ",
+            "expected": "nbsp ",
+            "readBack": "nbsp "
+        },
+        {
+            "input": "\u0000nul",
+            "expected": "'\u0000nul'",
+            "readBack": "\u0000nul"
+        }
+    ],
+    "formatEnvVariableForDevView": [
+        {
+            "variable": {
+                "key": "PLAIN",
+                "value": "v",
+                "is_shown_once": false,
+                "is_multiline": false,
+                "is_literal": false,
+                "is_buildtime": true,
+                "is_runtime": true
+            },
+            "canView": "PLAIN=v",
+            "cannotView": "PLAIN=(Hidden, only admins can view)"
+        },
+        {
+            "variable": {
+                "key": "EMPTY",
+                "value": null,
+                "is_shown_once": false,
+                "is_multiline": false,
+                "is_literal": false,
+                "is_buildtime": true,
+                "is_runtime": true
+            },
+            "canView": "EMPTY=",
+            "cannotView": "EMPTY=(Hidden, only admins can view)"
+        },
+        {
+            "variable": {
+                "key": "SPACED",
+                "value": " padded ",
+                "is_shown_once": false,
+                "is_multiline": false,
+                "is_literal": false,
+                "is_buildtime": true,
+                "is_runtime": true
+            },
+            "canView": "SPACED=' padded '",
+            "cannotView": "SPACED=(Hidden, only admins can view)"
+        },
+        {
+            "variable": {
+                "key": "LOCKED",
+                "value": "secret",
+                "is_shown_once": true,
+                "is_multiline": false,
+                "is_literal": false,
+                "is_buildtime": true,
+                "is_runtime": true
+            },
+            "canView": "LOCKED=(Locked Secret, delete and add again to change)",
+            "cannotView": "LOCKED=(Hidden, only admins can view)"
+        },
+        {
+            "variable": {
+                "key": "MULTI",
+                "value": "a\nb",
+                "is_shown_once": false,
+                "is_multiline": true,
+                "is_literal": false,
+                "is_buildtime": true,
+                "is_runtime": true
+            },
+            "canView": "MULTI=(Multiline environment variable, edit in normal view)",
+            "cannotView": "MULTI=(Hidden, only admins can view)"
+        },
+        {
+            "variable": {
+                "key": "MULTI_FLAG_ONLY",
+                "value": "one line",
+                "is_shown_once": false,
+                "is_multiline": true,
+                "is_literal": false,
+                "is_buildtime": true,
+                "is_runtime": true
+            },
+            "canView": "MULTI_FLAG_ONLY=(Multiline environment variable, edit in normal view)",
+            "cannotView": "MULTI_FLAG_ONLY=(Hidden, only admins can view)"
+        },
+        {
+            "variable": {
+                "key": "UNSHOWABLE",
+                "value": " \"both\" 'kinds' ",
+                "is_shown_once": false,
+                "is_multiline": false,
+                "is_literal": false,
+                "is_buildtime": true,
+                "is_runtime": true
+            },
+            "canView": "UNSHOWABLE=(Value cannot be shown in this view, edit in normal view)",
+            "cannotView": "UNSHOWABLE=(Hidden, only admins can view)"
+        },
+        {
+            "variable": {
+                "key": "BREAK",
+                "value": "a\nb",
+                "is_shown_once": false,
+                "is_multiline": false,
+                "is_literal": false,
+                "is_buildtime": true,
+                "is_runtime": true
+            },
+            "canView": "BREAK=(Value cannot be shown in this view, edit in normal view)",
+            "cannotView": "BREAK=(Hidden, only admins can view)"
+        },
+        {
+            "variable": {
+                "key": "LITERAL",
+                "value": "$x",
+                "is_shown_once": false,
+                "is_multiline": false,
+                "is_literal": true,
+                "is_buildtime": true,
+                "is_runtime": true
+            },
+            "canView": "# coolify: literal\nLITERAL=$x",
+            "cannotView": "LITERAL=(Hidden, only admins can view)"
+        },
+        {
+            "variable": {
+                "key": "NO_BUILD",
+                "value": "v",
+                "is_shown_once": false,
+                "is_multiline": false,
+                "is_literal": false,
+                "is_buildtime": false,
+                "is_runtime": true
+            },
+            "canView": "# coolify: buildtime=false\nNO_BUILD=v",
+            "cannotView": "NO_BUILD=(Hidden, only admins can view)"
+        },
+        {
+            "variable": {
+                "key": "NO_RUN",
+                "value": "v",
+                "is_shown_once": false,
+                "is_multiline": false,
+                "is_literal": false,
+                "is_buildtime": true,
+                "is_runtime": false
+            },
+            "canView": "# coolify: runtime=false\nNO_RUN=v",
+            "cannotView": "NO_RUN=(Hidden, only admins can view)"
+        },
+        {
+            "variable": {
+                "key": "ALL",
+                "value": "a #b",
+                "is_shown_once": false,
+                "is_multiline": false,
+                "is_literal": true,
+                "is_buildtime": false,
+                "is_runtime": false
+            },
+            "canView": "# coolify: literal buildtime=false runtime=false\nALL='a #b'",
+            "cannotView": "ALL=(Hidden, only admins can view)"
+        },
+        {
+            "variable": {
+                "key": "LOCKED_LITERAL",
+                "value": "v",
+                "is_shown_once": true,
+                "is_multiline": false,
+                "is_literal": true,
+                "is_buildtime": true,
+                "is_runtime": true
+            },
+            "canView": "LOCKED_LITERAL=(Locked Secret, delete and add again to change)",
+            "cannotView": "LOCKED_LITERAL=(Hidden, only admins can view)"
+        }
+    ],
+    "withoutEdgeLineBreaks": [
+        {
+            "input": "",
+            "expected": ""
+        },
+        {
+            "input": "plain",
+            "expected": "plain"
+        },
+        {
+            "input": "\nplain\n",
+            "expected": "plain"
+        },
+        {
+            "input": "\r\nplain\r\n",
+            "expected": "plain"
+        },
+        {
+            "input": "  spaced  ",
+            "expected": "  spaced  "
+        },
+        {
+            "input": "\n  spaced\t\n",
+            "expected": "  spaced\t"
+        },
+        {
+            "input": "a\nb",
+            "expected": "a\nb"
+        },
+        {
+            "input": "a\nb\n",
+            "expected": "a\nb\n"
+        },
+        {
+            "input": "\n\na\nb\n",
+            "expected": "\n\na\nb\n"
+        },
+        {
+            "input": "\n",
+            "expected": ""
+        },
+        {
+            "input": "\r\n\r\n",
+            "expected": ""
+        },
+        {
+            "input": "a\rb\n",
+            "expected": "a\rb"
+        },
+        {
+            "input": "-----BEGIN KEY-----\nabc\n-----END KEY-----\n",
+            "expected": "-----BEGIN KEY-----\nabc\n-----END KEY-----\n"
+        }
+    ],
+    "sharedVariableReferences": [
+        {
+            "input": "{{team.KEY}}",
+            "expected": [
+                {
+                    "reference": "{{team.KEY}}",
+                    "type": "team",
+                    "key": "KEY"
+                }
+            ]
+        },
+        {
+            "input": "{{ team.KEY }}",
+            "expected": [
+                {
+                    "reference": "{{ team.KEY }}",
+                    "type": "team",
+                    "key": "KEY"
+                }
+            ]
+        },
+        {
+            "input": "{{\tproject.DB_URL\n}}",
+            "expected": [
+                {
+                    "reference": "{{\tproject.DB_URL\n}}",
+                    "type": "project",
+                    "key": "DB_URL"
+                }
+            ]
+        },
+        {
+            "input": "prefix {{environment.A}} middle {{server.B}} suffix",
+            "expected": [
+                {
+                    "reference": "{{environment.A}}",
+                    "type": "environment",
+                    "key": "A"
+                },
+                {
+                    "reference": "{{server.B}}",
+                    "type": "server",
+                    "key": "B"
+                }
+            ]
+        },
+        {
+            "input": "{{team.A}}{{team.A}}",
+            "expected": [
+                {
+                    "reference": "{{team.A}}",
+                    "type": "team",
+                    "key": "A"
+                },
+                {
+                    "reference": "{{team.A}}",
+                    "type": "team",
+                    "key": "A"
+                }
+            ]
+        },
+        {
+            "input": "{{unknown.KEY}}",
+            "expected": [
+                {
+                    "reference": "{{unknown.KEY}}",
+                    "type": "unknown",
+                    "key": "KEY"
+                }
+            ]
+        },
+        {
+            "input": "{{team.}}",
+            "expected": []
+        },
+        {
+            "input": "{{team}}",
+            "expected": []
+        },
+        {
+            "input": "{{ team . KEY }}",
+            "expected": []
+        },
+        {
+            "input": "{{team.KEY.WITH.DOTS}}",
+            "expected": [
+                {
+                    "reference": "{{team.KEY.WITH.DOTS}}",
+                    "type": "team",
+                    "key": "KEY.WITH.DOTS"
+                }
+            ]
+        },
+        {
+            "input": "{{team.a-b/c}}",
+            "expected": [
+                {
+                    "reference": "{{team.a-b/c}}",
+                    "type": "team",
+                    "key": "a-b/c"
+                }
+            ]
+        },
+        {
+            "input": "{team.KEY}",
+            "expected": []
+        },
+        {
+            "input": "{{{team.KEY}}}",
+            "expected": [
+                {
+                    "reference": "{{team.KEY}}",
+                    "type": "team",
+                    "key": "KEY"
+                }
+            ]
+        },
+        {
+            "input": "{{team.KEY}",
+            "expected": []
+        },
+        {
+            "input": "no reference",
+            "expected": []
+        },
+        {
+            "input": "",
+            "expected": []
+        },
+        {
+            "input": "{{TEAM.KEY}}",
+            "expected": [
+                {
+                    "reference": "{{TEAM.KEY}}",
+                    "type": "TEAM",
+                    "key": "KEY"
+                }
+            ]
+        },
+        {
+            "input": "{{team.KEY }} {{project.KEY}}",
+            "expected": [
+                {
+                    "reference": "{{team.KEY }}",
+                    "type": "team",
+                    "key": "KEY"
+                },
+                {
+                    "reference": "{{project.KEY}}",
+                    "type": "project",
+                    "key": "KEY"
+                }
+            ]
+        },
+        {
+            "input": "{{vault.SECRET}}",
+            "expected": [
+                {
+                    "reference": "{{vault.SECRET}}",
+                    "type": "vault",
+                    "key": "SECRET"
+                }
+            ]
+        }
+    ],
+    "isSharedReference": [
+        {
+            "input": "{{team.KEY}}",
+            "expected": true
+        },
+        {
+            "input": " {{ team.KEY }} ",
+            "expected": true
+        },
+        {
+            "input": "{{project.A}}\n",
+            "expected": true
+        },
+        {
+            "input": "x{{team.KEY}}",
+            "expected": false
+        },
+        {
+            "input": "{{team.KEY}}x",
+            "expected": false
+        },
+        {
+            "input": "{{team.A}} and {{team.B}}",
+            "expected": true
+        },
+        {
+            "input": "{{unknown.KEY}}",
+            "expected": false
+        },
+        {
+            "input": "{{team}}",
+            "expected": false
+        },
+        {
+            "input": "{{server.}}",
+            "expected": true
+        },
+        {
+            "input": "{{environment.A\nB}}",
+            "expected": true
+        },
+        {
+            "input": "",
+            "expected": false
+        },
+        {
+            "input": "   ",
+            "expected": false
+        },
+        {
+            "input": "plain",
+            "expected": false
+        },
+        {
+            "input": "{{vault.KEY}}",
+            "expected": false
+        },
+        {
+            "input": "{{ server.X}}",
+            "expected": true
+        }
+    ]
+}
