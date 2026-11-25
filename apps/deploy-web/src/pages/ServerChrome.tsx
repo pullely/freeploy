@@ -52,7 +52,7 @@ export const SERVER_ROLE_OPTIONS = [
   { value: "both", label: "Deployments and builds", description: "Builds and runs your resources on this server. Can also run GitHub Actions runners." },
 ];
 
-export type ServerMenu = "general" | "advanced" | "private-key" | "cloud-provider-token" | "sentinel" | "destinations" | "swarm" | "docker-cleanup" | "registries" | "log-drains" | "danger";
+export type ServerMenu = "general" | "advanced" | "private-key" | "cloud-provider-token" | "ca-certificate" | "sentinel" | "destinations" | "swarm" | "docker-cleanup" | "registries" | "log-drains" | "danger";
 
 /** data_get_str(…)->limit($n): the first n characters and "...". */
 export function limit(value: string, n: number): string {
@@ -215,7 +215,7 @@ export function ServerSidebar({ server, active, canUpdate }: { server: ServerInf
     { label: "Advanced", path: "/advanced", icon: "grid", group: "Settings", active: active === "advanced", disabled: off },
     { label: "Private Key", path: "/private-key", icon: "keys", group: "Settings", active: active === "private-key" },
     { label: "Cloud Token", path: "/cloud-provider-token", icon: "subscription", group: "Settings", active: active === "cloud-provider-token", visible: server.hasCloudProvider },
-    { label: "CA Certificate", path: "/ca-certificate", icon: "file", group: "Settings", disabled: off },
+    { label: "CA Certificate", path: "/ca-certificate", icon: "file", group: "Settings", active: active === "ca-certificate", disabled: off },
     { label: "Security", path: "/security", icon: "shield-alert", group: "Security", visible: canUpdate, warning: server.sshHostKeyPending },
     { label: "Cloudflare Tunnel", path: "/cloudflare-tunnel", icon: "cloudflare", group: "Networking", visible: !server.isLocalhost },
     { label: "Proxy", path: "/proxy", icon: "network", group: "Platform", visible: !server.isSwarmWorker && canHostResources, disabled: off },

@@ -18,6 +18,8 @@
 //   POST   /servers/{uuid}/check-connection  PrivateKey/Show::checkConnection — not available yet
 //   …      /servers/{uuid}/cloud-provider-token[/validate]
 //                                            the Cloud Token page (DP-45): handleServerCloudToken in cloud-tokens.ts
+//   …      /servers/{uuid}/ca-certificate[/regenerate]
+//                                            the CA Certificate page (DP-48): handleServerCaCertificate in ca-certificate.ts
 //   DELETE /servers/{uuid}                   Delete::delete (no body: the edge does not forward one)
 //   …      /servers/{uuid}/{advanced,docker-cleanup,log-drains,swarm,sentinel}[/{action}]
 //                                            the settings pages (DP-42): see server-settings.ts
@@ -59,6 +61,7 @@ import { deniedResponse, errorResponse, methodNotAllowed, successResponse, valid
 import type { KeyCipher } from "../private-keys/service.js";
 import { handleServerCloudToken } from "./cloud-tokens.js";
 import { handleServerRegistries } from "./registries.js";
+import { handleServerCaCertificate } from "./ca-certificate.js";
 import { SERVER_MESSAGES, SERVER_ROLES, validateCreateServer, validateUpdateServer, type ServerRole } from "../servers/validation.js";
 import {
   changeServerRole,
@@ -160,6 +163,10 @@ export async function handleServers(
   // So does the Registries page (DP-47).
   if (segments.length >= 2 && segments[1] === "registries") {
     return handleServerRegistries(env, requestId, actor, orgId, segments[0]!, segments.slice(2), request);
+  }
+  // The CA Certificate page routes and authorizes itself too (DP-48).
+  if (segments.length >= 2 && segments[1] === "ca-certificate" && UUID_RE.test(segments[0]!)) {
+    return handleServerCaCertificate(env, requestId, actor, orgId, segments[0]!, segments.slice(2), request);
   }
   const [first, second, third] = segments;
   const section = SETTINGS_SECTIONS.includes(second as SettingsSection) ? (second as SettingsSection) : null;

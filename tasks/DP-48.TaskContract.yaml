@@ -1,0 +1,21 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-48
+  title: "DP4: a server's CA certificate (API and page)"
+spec:
+  goal: A server's CA Certificate page works as in Coolify without SSH — every member of the org reads the certificate and when it ends; who may write regenerates it (a new secp521r1 key and a self-signed certificate for ten years, made in the Worker with Web Crypto exactly as Coolify's SslHelper makes it with OpenSSL) or replaces it with a pasted certificate, which is normalized and must be for the stored CA key, with Coolify's messages word for word. The certificate and its private key are encrypted with the org's key, every query is confined to the org by row-level security, and the private key is never returned. The same library makes leaf certificates signed by the CA, for the database pages to come. Writing the certificate to the server and signing the databases' certificates again need the SSH executor, so the change is stored and the answer says the on-server step is not available yet; the commands that write the file are ported and tested, ready for the executor. No server gets a CA certificate on its own yet (Coolify makes it while installing Docker or when a database first needs it), so the page starts empty until Regenerate. /server/{uuid}/ca-certificate is ported from Coolify's view.
+  affects:
+    - apps/deploy-core-worker/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - on stage a signed-in org owner opens /server/{uuid}/ca-certificate of a server without a CA certificate, regenerates it, and reads "CA Certificate regenerated successfully." and then "Writing the CA certificate to the server needs the SSH executor, which is not available yet."; the certificate shown is accepted by `openssl x509 -text` as a CA with pathlen 0 valid ten years
+    - on stage PATCH /v1/organizations/{org}/deploy/servers/{uuid}/ca-certificate with a certificate made for another key answers 422 "This certificate does not match the CA private key of this server. …" and the stored certificate is unchanged
+    - on stage deploy.ssl_certificates holds the certificate and the private key as fp1 ciphertexts, and no API answer contains the private key
+    - /server/{uuid}/ca-certificate passes the stage DOM gate or each difference is listed with its cause
+  gates: []
