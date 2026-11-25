@@ -95,7 +95,7 @@ export function isTransferredAway(row: { server_metadata: unknown }): boolean {
 }
 
 /** Server::isFunctional(): reachable, usable, not disabled, a real address. */
-export function isFunctional(row: DeployServerRow): boolean {
+export function isFunctional(row: Pick<DeployServerRow, "is_reachable" | "is_usable" | "force_disabled" | "ip">): boolean {
   return Boolean(row.is_reachable) && Boolean(row.is_usable) && row.force_disabled === false && !PLACEHOLDER_IPS.includes(row.ip);
 }
 

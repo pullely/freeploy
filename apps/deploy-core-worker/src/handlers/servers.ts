@@ -22,6 +22,8 @@
 //   …      /servers/{uuid}/{advanced,docker-cleanup,log-drains,swarm,sentinel}[/{action}]
 //                                            the settings pages (DP-42): see server-settings.ts
 //   …      /servers/{uuid}/destinations[/scan] the server's destinations (DP-44): see destinations.ts
+//   …      /servers/{uuid}/registries[/{registry}[/check]]
+//                                            the Registries page (DP-47): handleServerRegistries in registries.ts
 //
 // Coolify's policy: view = team member, create/update/delete = team admin.
 // Here: deploy.resource.read and deploy.resource.write, asked of policy-worker
@@ -56,6 +58,7 @@ import { authorizeViaPolicy, type AuthorizeResult } from "../policy-client.js";
 import { deniedResponse, errorResponse, methodNotAllowed, successResponse, validationError } from "../http.js";
 import type { KeyCipher } from "../private-keys/service.js";
 import { handleServerCloudToken } from "./cloud-tokens.js";
+import { handleServerRegistries } from "./registries.js";
 import { SERVER_MESSAGES, SERVER_ROLES, validateCreateServer, validateUpdateServer, type ServerRole } from "../servers/validation.js";
 import {
   changeServerRole,
@@ -153,6 +156,10 @@ export async function handleServers(
   // The Cloud Token page routes and authorizes itself (DP-45).
   if (segments.length >= 2 && segments[1] === "cloud-provider-token" && UUID_RE.test(segments[0]!)) {
     return handleServerCloudToken(env, requestId, actor, orgId, segments[0]!, segments.slice(2), request);
+  }
+  // So does the Registries page (DP-47).
+  if (segments.length >= 2 && segments[1] === "registries") {
+    return handleServerRegistries(env, requestId, actor, orgId, segments[0]!, segments.slice(2), request);
   }
   const [first, second, third] = segments;
   const section = SETTINGS_SECTIONS.includes(second as SettingsSection) ? (second as SettingsSection) : null;

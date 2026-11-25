@@ -156,3 +156,10 @@ export {
   type NewCloudInitScript,
   type CloudInitScriptChanges,
 } from "./cloud-init-scripts.js";
+export {
+  listRegistryServers,
+  listServerImageUsers,
+  listBuildServerApplications,
+  type DeployRegistryServerRow,
+  type DeployRegistryUserRow,
+} from "./registries.js";
