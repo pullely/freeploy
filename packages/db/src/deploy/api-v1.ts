@@ -4,6 +4,8 @@
 // hands them to the serializer. org_id (Freeploy's tenancy column) is left out; the caller adds Coolify's
 // team_id. Every call runs inside withOrg(), so row-level security confines it to one org.
 import type { SqlExecutor } from "../hyperdrive/executor.js";
+import { DATABASE_ENGINES, DATABASE_TABLES } from "./databases.js";
+import { DESTINATION_MORPH_CLASS } from "./destinations.js";
 
 /** One row: its columns in table order. */
 export type ApiRow = Array<[string, unknown]>;
@@ -21,6 +23,19 @@ const TABLES = [
   "standalone_dockers",
   "additional_destinations",
   "application_deployment_queues",
+  // DP-73: the standalone databases, their backup schedules, executions and S3 destinations
+  "standalone_postgresqls",
+  "standalone_redis",
+  "standalone_mongodbs",
+  "standalone_mysqls",
+  "standalone_mariadbs",
+  "standalone_keydbs",
+  "standalone_dragonflies",
+  "standalone_clickhouses",
+  "scheduled_database_backups",
+  "scheduled_database_backup_executions",
+  "scheduled_database_backup_s3_storage",
+  "s3_storages",
 ] as const;
 export type ApiTable = (typeof TABLES)[number];
 
@@ -38,4 +53,20 @@ export async function apiRows(tx: SqlExecutor, table: ApiTable, where: string | 
 
 export function apiValue(row: ApiRow, column: string): unknown {
   return row.find(([k]) => k === column)?.[1];
+}
+
+/**
+ * isPublicPortAlreadyUsed($server, $port, $id) (DP-73): a public database of the server's destinations, of any engine,
+ * listens on the port. Coolify leaves out every database whose id is $id — of any engine, not only the one being
+ * changed — and so does this.
+ */
+export async function databasePublicPortTaken(tx: SqlExecutor, serverId: string | number, port: number, excludeId: string | number | null = null): Promise<boolean> {
+  const parts = DATABASE_ENGINES.map(
+    (engine) => `SELECT d.id FROM deploy.${DATABASE_TABLES[engine].table} d
+      LEFT JOIN deploy.standalone_dockers sd ON sd.id = d.destination_id AND d.destination_type = $3
+      LEFT JOIN deploy.swarm_dockers wd ON wd.id = d.destination_id AND d.destination_type = $4
+     WHERE d.deleted_at IS NULL AND d.is_public AND d.public_port = $2 AND COALESCE(sd.server_id, wd.server_id) = $1`,
+  );
+  const r = await tx.execute<{ id: string | number }>(`SELECT id FROM (${parts.join(" UNION ALL ")}) u`, [serverId, port, DESTINATION_MORPH_CLASS.standalone, DESTINATION_MORPH_CLASS.swarm]);
+  return r.rows.some((row) => excludeId === null || String(row.id) !== String(excludeId));
 }

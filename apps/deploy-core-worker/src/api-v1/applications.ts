@@ -96,7 +96,7 @@ async function applicationRow(rows: Rows, uuid: string): Promise<ApiRow | null> 
 const denied = async (c: ApiV1Context, write: boolean): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized());
 
 /** A server row as Eloquent's toArray() writes a loaded relation: Coolify's column order, team_id, is_coolify_host, then its loaded settings. */
-function nestedServer(c: ApiV1Context, server: ApiRow, settings: ApiRow | undefined): PhpObject {
+export function nestedServer(c: ApiV1Context, server: ApiRow, settings: ApiRow | undefined): PhpObject {
   const visible = c.canReadSensitive ? ["logdrain_axiom_api_key", "logdrain_newrelic_license_key"] : [];
   const model = toModel(inCoolifyOrder([...server, ["team_id", c.orgPublicId]], "servers"), SERVER, { visible, extra: [["is_coolify_host", rowValue(server, "id") === 0]] });
   const settingsVisible = c.canReadSensitive ? ["sentinel_token", "sentinel_custom_url", "logdrain_newrelic_license_key", "logdrain_axiom_api_key", "logdrain_custom_config", "logdrain_custom_config_parser"] : [];

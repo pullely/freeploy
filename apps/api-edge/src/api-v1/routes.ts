@@ -65,6 +65,34 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("POST", "/applications/{uuid}/start", "deploy", "deploy"),
   r("POST", "/applications/{uuid}/restart", "deploy", "deploy"),
   r("POST", "/applications/{uuid}/stop", "deploy", "deploy"),
+
+  // DP-73: the standalone databases (the eight engines Freeploy has; POST /databases/sqlite is not ported) and their
+  // backup schedules
+  r("GET", "/databases", "read", "deploy"),
+  r("POST", "/databases/postgresql", "write", "deploy"),
+  r("POST", "/databases/mysql", "write", "deploy"),
+  r("POST", "/databases/mariadb", "write", "deploy"),
+  r("POST", "/databases/mongodb", "write", "deploy"),
+  r("POST", "/databases/redis", "write", "deploy"),
+  r("POST", "/databases/clickhouse", "write", "deploy"),
+  r("POST", "/databases/dragonfly", "write", "deploy"),
+  r("POST", "/databases/keydb", "write", "deploy"),
+  r("GET", "/databases/{uuid}", "read", "deploy"),
+  r("GET", "/databases/{uuid}/backups", "read", "deploy"),
+  r("GET", "/databases/{uuid}/backups/{scheduled_backup_uuid}/executions", "read", "deploy"),
+  r("PATCH", "/databases/{uuid}", "write", "deploy"),
+  r("POST", "/databases/{uuid}/backups", "write", "deploy"),
+  r("PATCH", "/databases/{uuid}/backups/{scheduled_backup_uuid}", "write", "deploy"),
+  r("DELETE", "/databases/{uuid}", "delete", "deploy"),
+  r("DELETE", "/databases/{uuid}/backups/{scheduled_backup_uuid}", "delete", "deploy"),
+  r("DELETE", "/databases/{uuid}/backups/{scheduled_backup_uuid}/executions/{execution_uuid}", "delete", "deploy"),
+  // OtherController::post_required
+  r("GET", "/databases/{uuid}/start", "deploy", "deploy"),
+  r("GET", "/databases/{uuid}/restart", "deploy", "deploy"),
+  r("GET", "/databases/{uuid}/stop", "deploy", "deploy"),
+  r("POST", "/databases/{uuid}/start", "deploy", "deploy"),
+  r("POST", "/databases/{uuid}/restart", "deploy", "deploy"),
+  r("POST", "/databases/{uuid}/stop", "deploy", "deploy"),
 ];
 
 /** Laravel's route parameters match one segment ([^/]+). */

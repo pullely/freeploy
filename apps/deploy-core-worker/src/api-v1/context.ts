@@ -20,6 +20,8 @@ export interface ApiV1Context {
   url: URL;
   /** canReadResourceSecretsFromApi() / canReadServerSecretsFromApi(): root or read:sensitive, for an owner or admin (api-edge). */
   canReadSensitive: boolean;
+  /** The token's abilities (Sanctum's tokenCan(): root grants every one), DP-73. */
+  abilities: readonly string[];
   /** $this->authorize(): policy-worker's deploy.resource.write (true) or deploy.resource.read. */
   allows(write: boolean): Promise<boolean>;
   sql: SqlRunner;
@@ -50,3 +52,6 @@ export function queryBoolean(url: URL, name: string, fallback: boolean): boolean
   if (v === null) return fallback;
   return ["1", "true", "on", "yes"].includes(v.trim().toLowerCase());
 }
+
+/** $request->user()->tokenCan('deploy') || tokenCan('root') (RequiresDeployAbility::hasDeployAbility). */
+export const hasDeployAbility = (c: ApiV1Context): boolean => c.abilities.includes("deploy") || c.abilities.includes("root");

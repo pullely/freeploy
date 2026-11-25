@@ -12,6 +12,14 @@ import { manifest } from "@saas/db";
 import type { SqlExecutor, TransactionalSqlExecutor } from "@saas/db/hyperdrive";
 import {
   APPLICATION_WEBHOOK_SECRET_COLUMNS,
+  DATABASE_TABLES,
+  databaseOwner,
+  insertDatabase,
+  insertDatabaseBackup,
+  insertDatabaseVariable,
+  insertS3Storage,
+  syncScheduleS3Storages,
+  type DatabaseEngine,
   PUBLIC_GITHUB_SOURCE,
   insertBuiltApplication,
   insertDockerImageApplication,
@@ -24,6 +32,7 @@ import {
 } from "@saas/db/deploy";
 import { columnCipher } from "@deploy-core-worker/handlers/cloud-tokens";
 import { ENVIRONMENT_VARIABLE_VERSION } from "@deploy-core-worker/environment-variables/service";
+import { defaultVolumes } from "@deploy-core-worker/databases/engines";
 import { CASES } from "./api-v1-goldens.js";
 
 
@@ -145,6 +154,57 @@ export async function fixtureDatabase(): Promise<FixtureDatabase> {
       await insertEnvironmentVariable(tx, "application", v.application, { ...row, uuid: v.uuid, isPreview: false });
       // EnvironmentVariable's created hook: the application's preview copy.
       await insertEnvironmentVariable(tx, "application", v.application, { ...row, uuid: `${v.uuid.slice(0, 20)}prev`, isPreview: true });
+    });
+  }
+  // DP-73: an S3 storage per team, the databases (insertDatabase() with the columns Coolify's create_standalone_*()
+  // filled, the created hook's volumes, Redis's two variables), their backup schedules and two executions.
+  for (const s of f.s3Storages) {
+    await withOrg(db, org(s.team), async (tx) => {
+      await insertS3Storage(tx, {
+        orgId: org(s.team), uuid: s.uuid, type: "s3", name: s.name, description: s.description, region: s.region,
+        key: await encrypt(tx, s.team, "s3_storages.key", s.key), secret: await encrypt(tx, s.team, "s3_storages.secret", s.secret),
+        bucket: s.bucket, endpoint: s.endpoint, usePathStyleEndpoint: false, skipTlsVerification: false, isUsable: s.is_usable, unusableEmailSent: false,
+      });
+    });
+  }
+  for (const d of f.databases) {
+    const engine = d.engine as DatabaseEngine;
+    await withOrg(db, org(d.team), async (tx) => {
+      const values: Record<string, string | number | boolean> = {};
+      for (const [column, value] of Object.entries(d.columns)) {
+        if (column === "redis_password") continue;
+        values[column] = DATABASE_TABLES[engine].encrypted.includes(column) ? await encrypt(tx, d.team, `${DATABASE_TABLES[engine].table}.${column}`, String(value)) : value;
+      }
+      const volumes = defaultVolumes(engine, d.uuid, String(d.columns.image)).map((v, i) => ({ uuid: `${d.uuid.slice(0, 20)}vol${i}`, name: v.name, mountPath: v.mountPath }));
+      const row = await insertDatabase(tx, engine, { orgId: org(d.team), uuid: d.uuid, name: d.name, environmentId: d.environment_id, destinationId: d.destination_id, destinationType: "standalone", values, volumes });
+      if (engine === "redis") {
+        for (const [key, value] of [["REDIS_PASSWORD", String(d.columns.redis_password)], ["REDIS_USERNAME", "default"]] as const) {
+          await insertDatabaseVariable(tx, databaseOwner(engine, row.id), { orgId: org(d.team), uuid: `${d.uuid.slice(0, 20)}${key === "REDIS_PASSWORD" ? "pass" : "user"}`, key, value: await encrypt(tx, d.team, "environment_variables.value", value), isShared: false, version: ENVIRONMENT_VARIABLE_VERSION });
+        }
+      }
+    });
+  }
+  for (const b of f.backups) {
+    const engine = b.engine as DatabaseEngine;
+    await withOrg(db, org(b.team), async (tx) => {
+      const created = await insertDatabaseBackup(tx, { orgId: org(b.team), uuid: b.uuid, frequency: b.frequency, databaseType: DATABASE_TABLES[engine].morphClass, databaseId: b.database_id, databasesToBackup: b.databases_to_backup });
+      if (b.save_s3) {
+        await tx.execute("UPDATE deploy.scheduled_database_backups SET save_s3 = true WHERE id = $1", [created.id]);
+        await syncScheduleS3Storages(tx, "database", created.id, b.s3, org(b.team));
+      }
+      await tx.execute("UPDATE deploy.scheduled_database_backups SET created_at = $2 WHERE id = $1", [created.id, b.created_at]);
+    });
+  }
+  for (const x of f.executions) {
+    const team = f.backups.find((b) => b.id === x.backup)!.team;
+    await withOrg(db, org(team), async (tx) => {
+      await tx.execute(
+        `INSERT INTO deploy.scheduled_database_backup_executions (id, uuid, scheduled_database_backup_id, status, message, size, filename, database_name, created_at, updated_at, finished_at, org_id)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9, $10, $11)`,
+        [x.id, x.uuid, x.backup, x.status, x.message, x.size === null ? null : String(x.size), x.filename, x.database_name, x.created_at, x.finished_at, org(team)],
+      );
+      // The created hook: the schedule's last_execution_at.
+      await tx.execute("UPDATE deploy.scheduled_database_backups SET last_execution_at = $2 WHERE id = $1", [x.backup, x.created_at]);
     });
   }
   return {

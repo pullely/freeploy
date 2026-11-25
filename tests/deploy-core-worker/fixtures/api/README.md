@@ -1,13 +1,14 @@
-# Coolify's /api/v1 goldens (DP-70, DP-71)
+# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73)
 
 What Coolify's real API answers, so that Freeploy's `/api/v1` (api-edge's middleware and limiters,
 identity-worker's teams and tokens, deploy-core-worker's projects, environments, private keys and servers —
-DP-70 — and its applications and their environment variables — DP-71) can be replayed against it byte for byte.
+DP-70 —, its applications and their environment variables — DP-71 — and its standalone databases and their backup
+schedules — DP-73) can be replayed against it byte for byte.
 
 | File | What it is |
 |---|---|
 | `cases.mjs` | writes `cases.json` (`node cases.mjs > cases.json`): the fixture and every request |
-| `cases.json` | the fixture (teams, users with their roles, projects and environments, private keys from `../ssh-keys`, a server per team with its default destination, applications and their variables, API tokens with fixed plain text) and the requests: a method, a path, a token of the fixture (sent as `Bearer <id>\|<plain text>`) or a raw `Authorization` header, a JSON body or raw content, the client IP, the instance settings (`is_api_enabled`, `allowed_ips`) and the limits (`API_RATE_LIMIT`, `API_FAILED_REQUEST_RATE_LIMIT`); a `sequence` is several requests sharing one cache, with `advance` moving the clock |
+| `cases.json` | the fixture (teams, users with their roles, projects and environments, private keys from `../ssh-keys`, a server per team with its default destination, applications and their variables, an S3 storage per team, the eight standalone database engines — made by Coolify's `create_standalone_<engine>()` helpers, so the created hook's volumes and Redis's variables are made too — and another team's PostgreSQL, four backup schedules and two executions, API tokens with fixed plain text) and the requests: a method, a path, a token of the fixture (sent as `Bearer <id>\|<plain text>`) or a raw `Authorization` header, a JSON body or raw content, the client IP, the instance settings (`is_api_enabled`, `allowed_ips`) and the limits (`API_RATE_LIMIT`, `API_FAILED_REQUEST_RATE_LIMIT`); a `sequence` is several requests sharing one cache, with `advance` moving the clock |
 | `emit.php` | sends each request through Coolify's HTTP kernel and prints the answers. Nothing in it is a port |
 | `goldens.json` | its output: per request the status, the rate-limit headers and content type, and the body exactly as Coolify wrote it; for a write, the rows it left (`after`); and the column order of the tables whose rows the API writes unsorted (`columns`: a loaded relation such as an application's destination, its server and their settings). Never edited by hand |
 | `freeploy-rows.json` | not Coolify's: the rows Freeploy's own database gives for the fixture (every column, type and default), written and checked by `tests/db/src/deploy-api-v1.test.ts`; DP-70's replay (`src/api-v1.test.ts`) makes its memory stores from them |
@@ -17,6 +18,11 @@ makes PGlite with every migration of the deploy bounded context, makes the fixtu
 Coolify's order (so every serial id is the fixture's), and runs each case in a transaction it rolls back, as `emit.php`
 does; the handler calls the services with their SQL stores, so a write's rows are compared too (the golden's `after`,
 the same SQL run on Freeploy's tables). PGlite is tests/db's dependency, mapped by this package's jest and tsconfig.
+DP-73's replay (`src/api-v1-databases.test.ts`) is the same, with the databases made by `insertDatabase()` (the columns
+Coolify's helpers filled, the data volumes, Redis's two variables), the S3 storages, the schedules and their executions.
+A sequence does not roll back with its transaction, so an id a case's write takes is not compared (`after` reads
+whether a row is the fixture's instead), and the schedules' numeric retention sizes are read as `::float8::text`: the
+two drivers give a numeric differently.
 
 ## How the goldens are made
 
@@ -48,7 +54,8 @@ Both sides go through the same masking before they are compared (`src/api-v1-gol
 
 - dates: Laravel's (`2026-01-01T00:00:00.000000Z`) as `<date>`, a column without a cast
   (`2026-01-01 00:00:00`) as `<sql-date>`;
-- a uuid the fixture did not give — made by the request — as `<new-uuid>`;
+- a uuid the fixture did not give — made by the request — as `<new-uuid>`, also where a connection URL names it as its
+  host (`internal_db_url`, DP-73);
 - the team's id (`team_id`, `current_team_id`, a team's `id`): Coolify's integer, Freeploy's org id
   (`org_…`), as `<team>`; a member's `id` (Coolify's integer, Freeploy's `usr_…`) as `<user:EMAIL>`;
 - the id of a server's settings row (an auto-increment neither side fixes) as `<settings-id>`;

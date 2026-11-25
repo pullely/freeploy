@@ -258,10 +258,20 @@ export const DATABASE_GENERAL_COLUMNS = [
   "name", "description", "image", "ports_mappings", "is_public", "public_port", "public_port_timeout", "is_log_drain_enabled", "custom_docker_run_options",
 ] as const;
 
-/** The columns of an engine a caller may write: General's, the SSL ones the table has, and the engine's own. */
+/**
+ * The common columns Coolify's /api/v1 also writes (DP-73): create_standalone_*()'s and update_by_uuid's resource
+ * limits, health check and log settings, which the console writes through their own pages.
+ */
+export const DATABASE_API_COLUMNS = [
+  "limits_memory", "limits_memory_swap", "limits_memory_swappiness", "limits_memory_reservation", "limits_cpus", "limits_cpuset", "limits_cpu_shares",
+  "health_check_enabled", "health_check_interval", "health_check_timeout", "health_check_retries", "health_check_start_period",
+  "redact_all_env_values_in_logs", "include_coolify_default_variables",
+] as const;
+
+/** The columns of an engine a caller may write: General's, the API's, the SSL ones the table has, and the engine's own. */
 export function writableDatabaseColumns(engine: DatabaseEngine): string[] {
   const t = DATABASE_TABLES[engine];
-  return [...DATABASE_GENERAL_COLUMNS, ...(t.enableSsl ? ["enable_ssl"] : []), ...(t.sslMode ? ["ssl_mode"] : []), ...t.columns];
+  return [...DATABASE_GENERAL_COLUMNS, ...DATABASE_API_COLUMNS, ...(t.enableSsl ? ["enable_ssl"] : []), ...(t.sslMode ? ["ssl_mode"] : []), ...t.columns];
 }
 
 export interface NewDatabaseVolume {

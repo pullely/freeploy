@@ -59,6 +59,11 @@ export interface Fixture {
   destinations: Array<{ id: number; uuid: string; server_id: number }>;
   applications: Array<{ id: number; uuid: string; team: number; environment_id: number; destination_id: number; name: string; fqdn: string | null; columns: Record<string, string | number | boolean> }>;
   variables: Array<{ uuid: string; application: number; key: string; value: string; is_literal: boolean; is_multiline: boolean; is_shown_once: boolean; is_runtime: boolean; is_buildtime: boolean; comment: string | null }>;
+  /** DP-73: an S3 storage per team, the standalone databases, their backup schedules and two executions. */
+  s3Storages: Array<{ id: number; uuid: string; team: number; name: string; description: string | null; region: string; key: string; secret: string; bucket: string; endpoint: string; is_usable: boolean }>;
+  databases: Array<{ engine: string; id: number; uuid: string; team: number; environment_id: number; destination_id: number; name: string; columns: Record<string, string | number | boolean> }>;
+  backups: Array<{ id: number; uuid: string; team: number; engine: string; database_id: number; frequency: string; save_s3: boolean; s3: number[]; databases_to_backup: string | null; created_at: string }>;
+  executions: Array<{ id: number; uuid: string; backup: number; status: string; message: string; size: number | null; filename: string | null; database_name: string; created_at: string; finished_at: string }>;
 }
 
 export const CASES = JSON.parse(readFileSync(resolve(API_FIXTURES, "cases.json"), "utf8")) as { fixture: Fixture; cases: Case[] };
@@ -79,6 +84,10 @@ const FIXTURE_UUIDS = new Set<string>([
   ...CASES.fixture.destinations.map((d) => d.uuid),
   ...CASES.fixture.applications.map((a) => a.uuid),
   ...CASES.fixture.variables.map((v) => v.uuid),
+  ...CASES.fixture.s3Storages.map((s) => s.uuid),
+  ...CASES.fixture.databases.map((d) => d.uuid),
+  ...CASES.fixture.backups.map((b) => b.uuid),
+  ...CASES.fixture.executions.map((x) => x.uuid),
 ]);
 
 const LARAVEL_DATE = /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{6}Z$/;
@@ -90,7 +99,7 @@ const SECRET_KEYS = new Set(["sentinel_token"]);
 
 /**
  * The masking: dates (both formats) as <date> or <sql-date>; a uuid the fixture did not give (made by the
- * request) as <new-uuid>; the team id as <team>; a member's id as <user:email>; the id of a server's settings
+ * request) as <new-uuid>, also where a connection URL names it as its host; the team id as <team>; a member's id as <user:email>; the id of a server's settings
  * row (an auto-increment neither side fixes) as <settings-id>; the Sentinel token as <secret>.
  */
 export function mask(value: PhpValue, context: { teamIdKey?: boolean } = {}, parentKey = ""): PhpValue {
@@ -115,6 +124,8 @@ export function mask(value: PhpValue, context: { teamIdKey?: boolean } = {}, par
     if (LARAVEL_DATE.test(value)) return "<date>";
     if (SQL_DATE.test(value)) return "<sql-date>";
     if (PUBLIC_ID.test(value) && !FIXTURE_UUIDS.has(value)) return "<new-uuid>";
+    // A connection URL names its database by uuid (the host of internal_db_url): a database the request made (DP-73).
+    if (value.includes("://")) return value.replace(/@([a-z0-9]{24}):/g, (all, uuid: string) => (FIXTURE_UUIDS.has(uuid) ? all : "@<new-uuid>:"));
   }
   return value;
 }
