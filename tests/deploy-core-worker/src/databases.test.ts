@@ -1005,6 +1005,8 @@ describe("SSL — HasDatabaseStatusInfo", () => {
     expect(t.refused(await t.call("POST", `${uuid}/ssl/regenerate`))).toEqual([422, "No existing SSL certificate found for this database."]);
     t.store.certificates.push({ databaseId: t.store.row(uuid).id, valid_until: "2027-11-24 10:00:00" });
     expect(((await t.database(uuid)).ssl as { certificateValidUntil: string }).certificateValidUntil).toBe("2027-11-24 10:00:00");
+    // This harness gives the service no access to certificate rows (ctx.server); with it the certificate is
+    // regenerated — database-operations-api.test.ts.
     expect(t.refused(await t.call("POST", `${uuid}/ssl/regenerate`))).toEqual([501, DATABASE_SERVICE_MESSAGES.certificateUnavailable]);
     expect((await t.call("POST", "nope/ssl/regenerate")).status).toBe(404);
     expect((await t.call("GET", `${uuid}/ssl/regenerate`)).status).toBe(405);

@@ -15,9 +15,11 @@
 //   PATCH  /databases/{uuid}              General::submit, or — named by `action` — "instantSave" (the Access
 //                                         listbox), "instantSaveAdvanced" (the Log drain listbox), "instantSaveSSL"
 //   DELETE /databases/{uuid}              Danger::delete: a database that was never started; else 501
-//   POST   /databases/{uuid}/start        Heading::start     501: needs the SSH executor
-//   POST   /databases/{uuid}/restart      Heading::restart   501
-//   POST   /databases/{uuid}/stop         Heading::stop      501
+//   POST   /databases/{uuid}/start        Heading::start     501 without the SSH executor (env.SSH_SESSION);
+//   POST   /databases/{uuid}/restart      Heading::restart   with it, the engine of databases/start-engine.ts
+//   POST   /databases/{uuid}/stop         Heading::stop      runs and the answer carries what it did; stop takes
+//                                         { dockerCleanup } (the page's checkbox, checked unless false), which
+//                                         resets the restart counters
 //   POST   /databases/{uuid}/init-scripts     Postgresql\General::save_new_init_script { new_filename, new_content }
 //   PATCH  /databases/{uuid}/init-scripts     save_init_script { originalFilename, filename, content }
 //   DELETE /databases/{uuid}/init-scripts?filename=…   delete_init_script   501
@@ -49,6 +51,11 @@ import {
   databaseOwner,
 } from "@saas/db/deploy";
 import { errorResponse, methodNotAllowed, successResponse, validationError } from "../http.js";
+import { sessionExecutor, sessionFetch } from "../deployments/session-executor.js";
+import { loadServerConnection } from "../deployments/sql.js";
+import type { DeploymentExecutor } from "../deployments/engine.js";
+import { performDatabaseAction, type DatabaseServerAccess } from "../databases/operations.js";
+import { loadDatabaseOperationContext, sqlDatabaseOperationStore, type DatabaseOperationTarget, type OrgRun } from "../databases/start-sql.js";
 import type { KeyCipher } from "../private-keys/service.js";
 import { authorizeDeploy, columnCipher, readJson } from "./cloud-tokens.js";
 import { deleteOptions } from "../applications/danger.js";
@@ -97,6 +104,28 @@ function sqlStore(tx: SqlExecutor, orgId: string): DatabaseStore {
   };
 }
 
+/** Coolify's constants.ssh.command_timeout: seconds a command batch on a server may run. */
+const SSH_COMMAND_TIMEOUT = 3600;
+
+/** The SSH executor of a database's server; null without the binding, without a server, or without its key. */
+async function serverExecutor(env: Env, tx: SqlExecutor, orgId: string, target: DatabaseOperationTarget): Promise<DeploymentExecutor | null> {
+  if (!env.SSH_SESSION || target.serverId === null) return null;
+  const connection = await loadServerConnection(tx, orgId, env.DEPLOY_ENCRYPTION_KEY, target.serverId);
+  return connection ? sessionExecutor(sessionFetch(env.SSH_SESSION, connection.serverUuid), connection.conn, SSH_COMMAND_TIMEOUT) : null;
+}
+
+/** One database's rows and server. `run` decides the transactions of the reads after the first and of every write. */
+async function serverAccess(env: Env, orgId: string, uuid: string, tx: SqlExecutor, run: OrgRun): Promise<DatabaseServerAccess | null> {
+  const secret = env.DEPLOY_ENCRYPTION_KEY;
+  const loaded = await loadDatabaseOperationContext(tx, orgId, secret, uuid);
+  if (!loaded) return null;
+  return {
+    context: () => run(async (t) => (await loadDatabaseOperationContext(t, orgId, secret, uuid))?.ctx ?? loaded.ctx),
+    store: sqlDatabaseOperationStore(run, orgId, secret, loaded.target),
+    executor: await serverExecutor(env, tx, orgId, loaded.target),
+  };
+}
+
 export const runDatabasesInOrg: DatabaseRunner = async (env, orgId, fn) => {
   const db = createSqlExecutor(env.PLATFORM_DB!);
   try {
@@ -108,8 +137,27 @@ export const runDatabasesInOrg: DatabaseRunner = async (env, orgId, fn) => {
         if (!found) ciphers.set(column, (found = columnCipher(tx, orgId, env.DEPLOY_ENCRYPTION_KEY, column)));
         return found;
       };
-      return fn({ store: sqlStore(tx, orgId), cipher });
+      // What runs on the server within a request (the TCP proxy, a certificate's files) shares the request's transaction.
+      return fn({ store: sqlStore(tx, orgId), cipher, server: (uuid) => serverAccess(env, orgId, uuid, tx, (work) => work(tx)) });
     });
+  } finally {
+    await db.dispose();
+  }
+};
+
+/**
+ * Runs fn with one database's rows and server for Start, Restart or Stop; null when the database is not the
+ * org's. Every write is its own transaction, as each of Coolify's queries is: what a start has stored — that the
+ * database was handed to a server, above all — stays when a later step fails.
+ */
+export type DatabaseActionRunner = <T>(env: Env, orgId: string, uuid: string, fn: (access: DatabaseServerAccess) => Promise<T>) => Promise<T | null>;
+
+export const runDatabaseActionInOrg: DatabaseActionRunner = async (env, orgId, uuid, fn) => {
+  const db = createSqlExecutor(env.PLATFORM_DB!);
+  try {
+    const run: OrgRun = (work) => withOrg(db, orgId, work);
+    const access = await run((tx) => serverAccess(env, orgId, uuid, tx, run));
+    return access ? await fn(access) : null;
   } finally {
     await db.dispose();
   }
@@ -136,7 +184,16 @@ interface Op {
  * segments: what follows /databases, split on "/" ([] for the collection).
  * `runner` is replaceable for tests.
  */
-export async function handleDatabases(env: Env, requestId: string, actor: ActorContext, orgId: string, segments: string[], request: Request, runner: DatabaseRunner = runDatabasesInOrg): Promise<Response> {
+export async function handleDatabases(
+  env: Env,
+  requestId: string,
+  actor: ActorContext,
+  orgId: string,
+  segments: string[],
+  request: Request,
+  runner: DatabaseRunner = runDatabasesInOrg,
+  actionRunner: DatabaseActionRunner = runDatabaseActionInOrg,
+): Promise<Response> {
   const notFound = () => errorResponse("not_found", "Not found", 404, requestId);
   const method = request.method;
   const [uuid, second, third] = segments;
@@ -195,6 +252,20 @@ export async function handleDatabases(env: Env, requestId: string, actor: ActorC
 
   const auth = await authorizeDeploy(env, requestId, actor, orgId, op.write);
   if (!auth.ok) return auth.response;
+  // Start, Restart and Stop with the SSH executor: the engine runs, each of its writes in a transaction of its own.
+  if (env.SSH_SESSION && segments.length === 2 && ACTIONS.includes(second!)) {
+    try {
+      // Heading's $docker_cleanup: checked unless the body says false.
+      const dockerCleanup = second === "stop" ? (await readJson(request)).dockerCleanup !== false : true;
+      const answer = await actionRunner(env, orgId, uuid!, (access) => performDatabaseAction(access, second as DatabaseAction, dockerCleanup));
+      if (!answer) return notFound();
+      // Coolify's dispatch('error', …): the reason nothing ran.
+      if (answer.refused !== null) return errorResponse("validation_failed", answer.refused, 422, requestId);
+      return successResponse(answer, requestId);
+    } catch {
+      return errorResponse("internal_error", "Service unavailable", 503, requestId);
+    }
+  }
   const run = op.run;
   try {
     const body = method === "POST" || method === "PATCH" ? await readJson(request) : {};
