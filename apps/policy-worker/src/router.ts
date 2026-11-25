@@ -33,7 +33,7 @@ export async function route(request: Request, env: Env): Promise<Response> {
     }
 
     if (method === "POST" && path === "/v1/internal/policy/authorize") {
-      return await handleAuthorize(request, requestId);
+      return await handleAuthorize(request, requestId, env.PLATFORM_OPERATORS);
     }
 
     if (method === "POST" && path === "/v1/internal/policy/effective-permissions") {

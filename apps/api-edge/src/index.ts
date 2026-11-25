@@ -23,6 +23,7 @@ import {
 import { isSoloMode, isSoloSuppressed } from "./solo-mode";
 import { isApiV1Route, handleApiV1 } from "./api-v1/index";
 import { isGitWebhookRoute, handleGitWebhookRoute } from "./git-webhooks-facade";
+import { isPlatformRoute, handlePlatformRoute } from "./platform-facade";
 
 // Durable Object class backing the PERF5 Stage B rate-limit counters. Must be
 // exported from the Worker entry so the runtime can instantiate it for the
@@ -78,6 +79,9 @@ export default {
       response = await handleMeteringRoute(request, env, requestId, url.pathname);
     } else if (isBillingRoute(url.pathname)) {
       response = await handleBillingRoute(request, env, requestId, url.pathname);
+    } else if (isPlatformRoute(url.pathname)) {
+      // The platform operator's pages (DP-79): every denial, and every failure to authenticate, is a 404.
+      response = await handlePlatformRoute(request, env, requestId, url.pathname);
     } else if (isDeployRoute(url.pathname)) {
       response = await handleDeployRoute(request, env, requestId, url.pathname);
     } else if (isProjectRoute(url.pathname)) {

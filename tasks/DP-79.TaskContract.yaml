@@ -1,0 +1,33 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-79
+  title: "DP12: the platform operator, its General and Advanced settings, Admin and Team → Admin View"
+spec:
+  goal: Coolify's instance-level pages belong to Freeploy's platform operator and to no customer org. A platform operator is a Freeploy user the deployment names in policy-worker's PLATFORM_OPERATORS runtime secret; three new platform actions (platform.settings.read, platform.settings.update, platform.admin.read) are decided by policy-worker from that list alone — no org role (owner, admin, builder, viewer, billing_admin), no forged fact, no API key, and so no Coolify API token with the root ability ever passes. api-edge forwards /v1/platform/* to deploy-core-worker, answering every failure to authenticate with the same 404 as an unknown route; deploy-core-worker asks policy-worker and answers every denial with the platform's 404. The operator gets Coolify's /settings (General — the instance Name) and /settings/advanced (Registration, Destructive action confirmation, Passkeys, DNS validation, Sponsorship reminders, default off) with Settings\Index's and Settings\Advanced's rules and messages, stored as Coolify's instance settings row 0 of deploy.instance_settings owned by no org (no migration; row-level security hides it from every org), read and written in asPlatformAdmin(); Coolify's /admin (current user, active and inactive subscribers, user lookup) and Team → Admin View (/team/admin: users searched, filtered by the current team, sorted, paged) read only, over identity, membership and billing data through membership-worker's new internal routes on the existing binding — no impersonation (Switch user) and no user deletion. The sidebar shows the Settings submenu, Admin and Team → Admin View to operators only. The role matrix compares team.viewAdmin (Coolify's isAdminOfTeam, asked only by the audit log's filters) with audit.read (64 compared, 14 skipped). Every other instance setting is recorded in the status note as the edge's or the deployment's configuration or as not applicable to a hosted service; /settings/updates, /settings/image-scanning, /settings/backup, /settings/email and /settings/oauth are not ported. The billing, membership, notifications and events binding loop is unchanged.
+  affects:
+    - packages/policy-engine/**
+    - packages/db/**
+    - apps/policy-worker/**
+    - apps/membership-worker/**
+    - apps/deploy-core-worker/**
+    - apps/api-edge/**
+    - apps/deploy-web/**
+    - tools/parity/port/patches/**
+    - tests/policy-engine/**
+    - tests/policy-worker/**
+    - tests/membership-worker/**
+    - tests/deploy-core-worker/**
+    - tests/api-edge/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - tests/deploy-core-worker/src/platform.test.ts, with policy-worker's own router as the decision, shows every platform route answering 404 — and opening no settings store and asking membership for no platform data — to a user who is owner, admin, builder, viewer or billing_admin of every org, to an API key's service principal with an owner role (Coolify's root), with the operator's id too, and to no actor; and 200 to the operator
+    - tests/api-edge/src/platform-facade.test.ts shows /v1/platform/* answering 404 without credentials, with a session identity refuses and with a Coolify API token with the root ability, and /api/v1 answering Coolify's 404 fallback for settings and admin paths to a root token
+    - tests/policy-engine/src/platform.test.ts and tests/policy-worker/src/platform.test.ts show no org role, forged fact or non-user subject granted a platform action, and nobody while PLATFORM_OPERATORS is unset
+    - tests/policy-worker/src/role-matrix.test.ts compares 64 abilities × owner, admin and member to Coolify 91b7e3e's Gate with no mismatch (team.viewAdmin now compared), and lists the 14 skipped abilities
+    - tests/db/src/platform-admin.test.ts shows the platform settings row invisible and unwritable to every org, created with Coolify's defaults and the sponsorship reminder off, and the Admin View's users and subscriber counts on the real migrations
+    - on stage, with PLATFORM_OPERATORS set to the owner's user id, the operator sees Settings, Admin and Team → Admin View in the sidebar, saves a Name on /settings ("Instance settings updated successfully!") and turns Registration off on /settings/advanced ("Settings updated!"); a customer org's owner gets the 404 page on /settings, /settings/advanced, /admin and /team/admin, and no Settings submenu
+    - visual gate on /settings, /settings/advanced, /admin and /team/admin (needs the reference captured as Coolify's instance admin)
+  gates: []

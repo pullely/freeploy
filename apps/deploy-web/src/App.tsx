@@ -89,6 +89,11 @@ const InvitationPage = lazy(() => import("./pages/Team").then((m) => ({ default:
 const TeamAuditLogPage = lazy(() => import("./pages/TeamAuditLog").then((m) => ({ default: m.TeamAuditLogPage })));
 const TeamDangerPage = lazy(() => import("./pages/TeamDanger").then((m) => ({ default: m.TeamDangerPage })));
 const BoardingPage = lazy(() => import("./pages/Boarding").then((m) => ({ default: m.BoardingPage })));
+// The platform operator's pages (DP-79).
+const SettingsGeneralPage = lazy(() => import("./pages/PlatformSettings").then((m) => ({ default: m.SettingsGeneralPage })));
+const SettingsAdvancedPage = lazy(() => import("./pages/PlatformSettings").then((m) => ({ default: m.SettingsAdvancedPage })));
+const AdminPage = lazy(() => import("./pages/PlatformAdmin").then((m) => ({ default: m.AdminPage })));
+const TeamAdminViewPage = lazy(() => import("./pages/PlatformAdmin").then((m) => ({ default: m.TeamAdminViewPage })));
 
 /** routes/web.php: security.private-key.show is redirect()->route('security.private-key.index'). */
 function RedirectTo({ path }: { path: string }) {
@@ -626,6 +631,30 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <BoardingPage />
+        </Suspense>
+      );
+    case "settings.index":
+      return (
+        <Suspense fallback={null}>
+          <SettingsGeneralPage />
+        </Suspense>
+      );
+    case "settings.advanced":
+      return (
+        <Suspense fallback={null}>
+          <SettingsAdvancedPage />
+        </Suspense>
+      );
+    case "admin.index":
+      return (
+        <Suspense fallback={null}>
+          <AdminPage />
+        </Suspense>
+      );
+    case "team.admin-view":
+      return (
+        <Suspense fallback={null}>
+          <TeamAdminViewPage />
         </Suspense>
       );
     default:

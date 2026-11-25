@@ -53,3 +53,12 @@ exercised through `api-edge` (this Worker has no public URL).
 - **Only an owner can delete a team**: intended (Freeploy DP-75).
   `organization.delete` is the owner's alone, as Coolify's
   `TeamPolicy::delete`; membership-worker asks it for the team's Danger Zone.
+- **Every /settings, /admin and /team/admin call answers 404, the
+  operator's too**: `PLATFORM_OPERATORS` is not set (Freeploy DP12). The
+  platform actions (`platform.settings.read|update`, `platform.admin.read`)
+  are decided from this runtime secret alone — the Freeploy user ids
+  (`usr_…`) of the platform operators, comma-separated — never from org
+  roles or the memberships a caller sends: set it with
+  `orun secrets set PLATFORM_OPERATORS --org <ws> --env <env>` (the
+  secrets-live step pushes it to this Worker on the next deploy). Unset, nobody is an operator; no customer org, of any
+  role, and no API token (Coolify's `root` ability included) ever is.

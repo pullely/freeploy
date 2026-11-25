@@ -13,6 +13,7 @@ import { appearance, type PageWidth } from "../theme";
 import { useDisclosures } from "./disclosures";
 import { activeSubmenu, childActive, mainMenuActive, sidebarMenu, type NavSwap } from "./sidebar";
 import { Toasts } from "./Toasts";
+import { platformSlots } from "./PlatformMenu";
 import { showMonthlyReminder } from "../lib/reminder";
 
 export interface Me {
@@ -100,9 +101,25 @@ export function Layout(props: LayoutProps) {
   // The sidebar (desktop) and the mobile drawer each keep their own open submenu, as each
   // navbar has its own Alpine state; both start on the submenu that holds this page.
   const path = window.location.pathname;
-  const active = activeSubmenu(path);
+  // isInstanceAdmin(): whether the user is a platform operator (DP-79). Anyone else gets a 404 here and
+  // keeps the sidebar of the reference; an operator's also has Settings, Admin and Team → Admin View.
+  const [operator, setOperator] = useState(false);
+  const active = activeSubmenu(path, operator);
   const [desktopNav, setDesktopNav] = useState<{ submenu: string; navSwap: NavSwap }>({ submenu: active, navSwap: "" });
   const [mobileNav, setMobileNav] = useState<{ submenu: string; navSwap: NavSwap }>({ submenu: active, navSwap: "" });
+  useEffect(() => {
+    if (!sessionToken()) return;
+    void getJson<{ operator: boolean }>("/v1/platform/operator").then((r) => {
+      if (r.data?.operator !== true) return;
+      setOperator(true);
+      // The sidebar starts on the submenu that holds this page, which may be one only an operator has.
+      const opened = activeSubmenu(window.location.pathname, true);
+      if (opened) {
+        setDesktopNav({ submenu: opened, navSwap: "" });
+        setMobileNav({ submenu: opened, navSwap: "" });
+      }
+    });
+  }, []);
   useEffect(() => {
     document.title = `${props.documentTitle ?? props.title} | Freeploy`;
   }, [props.title, props.documentTitle]);
@@ -138,13 +155,16 @@ export function Layout(props: LayoutProps) {
     setReminderHidden(true);
   }
   const here = props.navHref ?? (window.location.pathname.replace(/\/$/, "") || "/");
+  const nav = (href: string): { className: string; "aria-current"?: "page" } =>
+    href === here || childActive(path, href, operator) || mainMenuActive(path, href) ? { className: "menu-item menu-item-active", "aria-current": "page" } : { className: "menu-item" };
   return (
     <MeContext.Provider value={{ me, setMe }}>
     <LayoutMarkup
       pageTitle={props.title}
       pageHref={props.href}
       searchTitle={props.searchTitle ?? "Search (Press / or Ctrl+K)"}
-      nav={(href) => (href === here || childActive(path, href) || mainMenuActive(path, href) ? { className: "menu-item menu-item-active", "aria-current": "page" } : { className: "menu-item" })}
+      nav={nav}
+      {...(operator ? { platform: platformSlots(nav) } : {})}
       desktopMenu={sidebarMenu(desktopNav, active, setDesktopNav)}
       mobileMenu={sidebarMenu(mobileNav, active, setMobileNav)}
       mainClass={pageWidth === "centered" ? MAIN : `${MAIN} app-main-wide`}

@@ -15,6 +15,7 @@ import { handleTeam, handleTeamInvitation } from "./handlers/team.js";
 import { handleSyncAccountChildren } from "./handlers/sync-account-children.js";
 import { handleResolveBillingParent } from "./handlers/resolve-billing-parent.js";
 import { handleCreateServicePrincipalBinding, handleListServicePrincipalBindings, handleRevokeServicePrincipalBinding } from "./handlers/service-principal-bindings.js";
+import { handlePlatformAdmin, PLATFORM_SUBSCRIBERS_PATH, PLATFORM_USERS_PATH } from "./handlers/platform-admin.js";
 import { errorResponse, notFound, methodNotAllowed } from "./http.js";
 import { generateRequestId } from "./ids.js";
 
@@ -74,6 +75,12 @@ export async function route(request: Request, env: Env): Promise<Response> {
         return handleSyncAccountChildren(request, env, requestId);
       }
       return methodNotAllowed(requestId);
+    }
+
+    // Internal, read-only Admin View data for the platform operator (DP-79): deploy-core-worker's
+    // platform routes, after policy-worker allowed `platform.admin.read`. Service-binding only.
+    if (url.pathname === PLATFORM_USERS_PATH || url.pathname === PLATFORM_SUBSCRIBERS_PATH) {
+      return handlePlatformAdmin(request, env, requestId, url.pathname);
     }
 
     // Internal billing-parent resolution (MO4): billing-worker resolves a child
