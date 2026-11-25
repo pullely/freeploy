@@ -29,7 +29,7 @@ describe("deploy-core-worker", () => {
     expect((await route(new Request("https://x/v1/nope"), env())).status).toBe(404);
   });
 
-  it("405s a non-GET on the projects list", async () => {
+  it("405s a method the projects list does not take", async () => {
     const res = await route(new Request(`https://x/v1/organizations/${ORG}/deploy/projects`, { method: "DELETE", headers: actor }), env());
     expect(res.status).toBe(405);
   });
@@ -58,20 +58,20 @@ describe("deploy-core-worker", () => {
     expect(res.status).toBe(404);
   });
 
-  it("404s when policy denies deploy.resource.read, and asks for exactly that action", async () => {
-    let asked = "";
+  it("404s when policy denies deploy.resource.read, and asks for that action (and whether the caller may write)", async () => {
+    const asked: string[] = [];
     const res = await route(
       new Request(`https://x/v1/organizations/${ORG}/deploy/projects`, { headers: actor }),
       env({
         PLATFORM_DB: { connectionString: "postgres://unused" } as Hyperdrive,
         MEMBERSHIP_WORKER: fetcher(() => json({ data: { memberships: [] } })),
         POLICY_WORKER: fetcher(async (req) => {
-          asked = JSON.stringify(await req.json());
+          asked.push(((await req.json()) as { action: string }).action);
           return json({ data: { decision: "deny", allow: false } });
         }),
       }),
     );
     expect(res.status).toBe(404);
-    expect(asked).toContain("deploy.resource.read");
+    expect(asked.sort()).toEqual(["deploy.resource.read", "deploy.resource.write"]);
   });
 });

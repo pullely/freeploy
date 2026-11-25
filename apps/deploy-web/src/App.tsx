@@ -14,6 +14,11 @@ import { lazy, Suspense, useEffect } from "react";
 const TwoFactorRequiredPage = lazy(() => import("./pages/TwoFactorRequired").then((m) => ({ default: m.TwoFactorRequiredPage })));
 const ProfilePage = lazy(() => import("./pages/Profile").then((m) => ({ default: m.ProfilePage })));
 const AppearancePage = lazy(() => import("./pages/Appearance").then((m) => ({ default: m.AppearancePage })));
+const ProjectsPage = lazy(() => import("./pages/Projects").then((m) => ({ default: m.ProjectsPage })));
+const ProjectShowPage = lazy(() => import("./pages/ProjectShow").then((m) => ({ default: m.ProjectShowPage })));
+const ProjectEditPage = lazy(() => import("./pages/ProjectEdit").then((m) => ({ default: m.ProjectEditPage })));
+const EnvironmentResourcesPage = lazy(() => import("./pages/EnvironmentResources").then((m) => ({ default: m.EnvironmentResourcesPage })));
+const EnvironmentEditPage = lazy(() => import("./pages/EnvironmentEdit").then((m) => ({ default: m.EnvironmentEditPage })));
 const PrivateKeysPage = lazy(() => import("./pages/PrivateKeys").then((m) => ({ default: m.PrivateKeysPage })));
 const CloudTokensPage = lazy(() => import("./pages/CloudTokens").then((m) => ({ default: m.CloudTokensPage })));
 const CloudTokenShowPage = lazy(() => import("./pages/CloudTokenEditor").then((m) => ({ default: m.CloudTokenShowPage })));
@@ -77,6 +82,36 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <AppearancePage />
+        </Suspense>
+      );
+    case "project.index":
+      return (
+        <Suspense fallback={null}>
+          <ProjectsPage />
+        </Suspense>
+      );
+    case "project.show":
+      return (
+        <Suspense fallback={null}>
+          <ProjectShowPage />
+        </Suspense>
+      );
+    case "project.edit":
+      return (
+        <Suspense fallback={null}>
+          <ProjectEditPage />
+        </Suspense>
+      );
+    case "project.resource.index":
+      return (
+        <Suspense fallback={null}>
+          <EnvironmentResourcesPage />
+        </Suspense>
+      );
+    case "project.environment.edit":
+      return (
+        <Suspense fallback={null}>
+          <EnvironmentEditPage />
         </Suspense>
       );
     case "security.private-key.index":

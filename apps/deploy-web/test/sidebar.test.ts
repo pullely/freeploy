@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { activeSubmenu, childActive, requestIs, sidebarMenu, SUBMENUS, type NavSwap } from "../src/layout/sidebar.ts";
+import { activeSubmenu, childActive, mainMenuActive, requestIs, sidebarMenu, SUBMENUS, type NavSwap } from "../src/layout/sidebar.ts";
 
 const PANELS = ["", ...SUBMENUS.map((s) => s.label)];
 
@@ -64,4 +64,13 @@ test("a parent entry opens its submenu forward; Back opens the main menu", () =>
   menu = sidebarMenu(state, "", set);
   assert.equal(menu.list, "flex flex-col gap-y-0.5 nav-swap-back");
   assert.deepEqual(menu.panel(""), {});
+});
+
+test("Projects is the current main menu entry on every project and environment page", () => {
+  for (const path of ["/projects", "/projects/", "/projects/canvas", "/project/abc", "/project/abc/edit", "/project/abc/environment/def", "/project/abc/environment/def/edit", "/project/abc/environment/def/new"]) {
+    assert.equal(mainMenuActive(path, "/projects"), true, path);
+    assert.equal(activeSubmenu(path), "", path);
+  }
+  for (const path of ["/", "/servers", "/shared-variables/projects", "/shared-variables/project/abc", "/project", "/projectsx"]) assert.equal(mainMenuActive(path, "/projects"), false, path);
+  assert.equal(mainMenuActive("/projects", "/servers"), false);
 });

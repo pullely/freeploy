@@ -3,10 +3,10 @@ import { handleDestinations } from "./handlers/destinations.js";
 import { handleHealth } from "./handlers/health.js";
 import { handleCloudTokens } from "./handlers/cloud-tokens.js";
 import { handleCloudInitScripts } from "./handlers/cloud-init-scripts.js";
-import { handleListProjects } from "./handlers/list-projects.js";
+import { handleProjects } from "./handlers/projects.js";
 import { handlePrivateKeys } from "./handlers/private-keys.js";
 import { handleServers } from "./handlers/servers.js";
-import { errorResponse, notFound, methodNotAllowed } from "./http.js";
+import { errorResponse, notFound } from "./http.js";
 import { generateRequestId, parseOrgPublicId } from "./ids.js";
 
 const REQUEST_ID_RE = /^[\w-]{1,128}$/;
@@ -27,7 +27,8 @@ function resolveActor(request: Request): ActorContext | null {
   return subjectId && subjectType ? { subjectId, subjectType } : null;
 }
 
-export const ORG_DEPLOY_PROJECTS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/projects$/;
+/** Projects: the collection and up to three segments below it (a project's environment). */
+export const ORG_DEPLOY_PROJECTS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/projects((?:\/[^/]+){0,3})\/?$/;
 /** Keys & Tokens → Cloud Tokens: the collection, a token, and a token's validate action. */
 export const ORG_DEPLOY_CLOUD_TOKENS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/cloud-tokens((?:\/[^/]+){0,2})\/?$/;
 /** Keys & Tokens → Cloud-Init Scripts: the collection and a script. */
@@ -47,12 +48,12 @@ export async function route(request: Request, env: Env): Promise<Response> {
 
     const projects = url.pathname.match(ORG_DEPLOY_PROJECTS_RE);
     if (projects) {
-      if (request.method !== "GET") return methodNotAllowed(requestId);
       const orgId = parseOrgPublicId(projects[1]!);
       if (!orgId) return errorResponse("not_found", "Not found", 404, requestId);
       const actor = resolveActor(request);
       if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
-      return handleListProjects(env, requestId, actor, orgId);
+      const segments = (projects[2] ?? "").split("/").filter(Boolean);
+      return handleProjects(env, requestId, actor, orgId, segments, request);
     }
 
     const cloudTokens = url.pathname.match(ORG_DEPLOY_CLOUD_TOKENS_RE);
