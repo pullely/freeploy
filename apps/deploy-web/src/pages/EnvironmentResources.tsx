@@ -17,12 +17,13 @@ import { CanvasViewToggle, ClientPagination, ListSearch, SortDropdown, SortHeade
 import { environmentPath, environmentUuidFromPath, limit, ProjectBreadcrumb, projectPath, projectsApi, projectUuidFromPath, type EnvironmentShowData } from "./ProjectChrome";
 import { applicationPath } from "./ApplicationChrome";
 import { databasePath } from "./DatabaseChrome";
+import { servicePath } from "../lib/service-templates";
 
 /** Index::toSearchableArray(). */
 interface ResourceItem {
   uuid: string;
   name: string;
-  type: "application" | "database";
+  type: "application" | "database" | "service";
   typeLabel: string;
   /** A database's type(), "standalone-postgresql": which logo it has. */
   databaseType?: string;
@@ -72,6 +73,14 @@ const SORT_OPTIONS: SortOption[] = [
 
 /** <x-resource-logo>: how the application is built, else the resource type icon. */
 function ResourceLogo({ item }: { item: ResourceItem }) {
+  // A service's logo is its template's; Freeploy ships none yet, so Coolify's placeholder (DP-59).
+  if (item.type === "service") {
+    return (
+      <span className="flex size-full items-center justify-center" data-resource-logo-image="">
+        <img src="/svgs/default.webp" alt="" className="size-full object-contain" />
+      </span>
+    );
+  }
   if (item.type === "database") {
     // resource_logo(): the engine's logo, with a dark variant for KeyDB and Dragonfly.
     const engine = (item.databaseType ?? "").replace(/^standalone-/, "");
@@ -339,7 +348,7 @@ function EnvironmentResourcesContent() {
             ) : null}
           </Empty>
         ) : (
-          <ResourceList list={list} href={(item) => (item.type === "database" ? databasePath : applicationPath)(project.uuid, environment.uuid, item.uuid)} canvasUrl={`${here}/canvas`} />
+          <ResourceList list={list} href={(item) => (item.type === "database" ? databasePath : item.type === "service" ? servicePath : applicationPath)(project.uuid, environment.uuid, item.uuid)} canvasUrl={`${here}/canvas`} />
         )}
       </div>
     </div>

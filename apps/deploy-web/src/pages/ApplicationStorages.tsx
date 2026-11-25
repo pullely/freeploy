@@ -22,7 +22,7 @@ import { resourceApi, resourceFrame, useResourceSection, yesNo, type PatchResult
 import { ResourceWorkspace } from "./ResourceWorkspace";
 import { sendJson, showError, showSaved } from "./ApplicationResource";
 
-interface Volume {
+export interface Volume {
   id: string;
   name: string;
   mountPath: string;
@@ -33,7 +33,7 @@ interface Volume {
   backup: { enabled: boolean; s3: boolean };
 }
 
-interface Mount {
+export interface Mount {
   id: string;
   fsPath: string;
   mountPath: string;
@@ -48,7 +48,7 @@ interface Mount {
   hasEnabledBackup: boolean;
 }
 
-interface Storages {
+export interface Storages {
   isSwarm: boolean;
   gitBased: boolean;
   hostPath: string;
@@ -60,19 +60,19 @@ interface Storages {
 }
 
 type Data = ResourceSectionData & Storages;
-type Saved = Storages & { message: string | null; unavailable?: string };
-type Send = (method: "POST" | "PATCH" | "DELETE", path: string, body?: Record<string, unknown>) => Promise<PatchResult<Saved>>;
-type Tab = "volumes" | "files" | "directories";
+export type Saved = Storages & { message: string | null; unavailable?: string };
+export type Send = (method: "POST" | "PATCH" | "DELETE", path: string, body?: Record<string, unknown>) => Promise<PatchResult<Saved>>;
+export type Tab = "volumes" | "files" | "directories";
 type MountType = "volume" | "file" | "host-file" | "directory";
 
 const PR_SUFFIX_HELPER = "Adds -pr-N to the storage name or path so each preview uses isolated data. Disabling it shares production data with previews.";
-const TAB_BASE = "h-7 rounded-md px-2.5 text-[12px] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40";
-const TAB_ACTIVE = "bg-white text-black shadow-sm ring-1 ring-neutral-200 dark:bg-white/[0.09] dark:text-fg dark:ring-white/[0.08]";
-const TAB_INACTIVE = "text-neutral-500 hover:text-black dark:text-fg-faint dark:hover:text-fg";
+export const TAB_BASE = "h-7 rounded-md px-2.5 text-[12px] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40";
+export const TAB_ACTIVE = "bg-white text-black shadow-sm ring-1 ring-neutral-200 dark:bg-white/[0.09] dark:text-fg dark:ring-white/[0.08]";
+export const TAB_INACTIVE = "text-neutral-500 hover:text-black dark:text-fg-faint dark:hover:text-fg";
 const MODAL_INTRO = "text-[13px] leading-5 text-neutral-500 dark:text-fg-dim";
 
 /** Storage::resolveDefaultTab(): the first kind that has mounts. */
-const defaultTab = (s: Storages): Tab => (s.volumes.length ? "volumes" : s.files.length ? "files" : s.directories.length ? "directories" : "volumes");
+export const defaultTab = (s: Storages): Tab => (s.volumes.length ? "volumes" : s.files.length ? "files" : s.directories.length ? "directories" : "volumes");
 
 /** The "Add mount" menu and its four dialogs. */
 function AddMount({ uuid, storages, send, onAdded }: { uuid: string; storages: Storages; send: Send; onAdded: (tab: Tab) => void }) {
@@ -251,7 +251,7 @@ function BackupBadge({ backup }: { backup: Volume["backup"] }) {
 }
 
 /** <livewire:project.shared.storages.all>: the volumes as rows, each a form of its own. */
-function VolumeList({ storages, canUpdate, compose, send }: { storages: Storages; canUpdate: boolean; compose: boolean; send: Send }) {
+export function VolumeList({ storages, canUpdate, compose, send }: { storages: Storages; canUpdate: boolean; compose: boolean; send: Send }) {
   const formsOf = (volumes: Volume[]) => Object.fromEntries(volumes.map((v) => [v.id, { name: v.name, mountPath: v.mountPath, isPreviewSuffixEnabled: v.isPreviewSuffixEnabled }]));
   const [forms, setForms] = useState(() => formsOf(storages.volumes));
   const [pendingRename, setPendingRename] = useState<{ storageId: string; from: string; to: string } | null>(null);
@@ -500,7 +500,7 @@ function VolumeList({ storages, canUpdate, compose, send }: { storages: Storages
 }
 
 /** <livewire:project.service.file-storage>: one file, host file or directory mount. */
-function FileStorage({ mount, gitBased, canUpdate, send }: { mount: Mount; gitBased: boolean; canUpdate: boolean; send: Send }) {
+export function FileStorage({ mount, gitBased, canUpdate, send }: { mount: Mount; gitBased: boolean; canUpdate: boolean; send: Send }) {
   const [content, setContent] = useState(mount.content ?? "");
   const [saving, setSaving] = useState(false);
   useEffect(() => {

@@ -23,3 +23,7 @@ for variant in traefik-exact caddy-exact; do
   # shellcheck disable=SC2086 -- the selection is a list of names
   php "$here/emit.php" "$root" "$catalogue" "--variant=$variant" $selection | gzip -9n > "$here/goldens-$variant.json.gz"
 done
+
+# Editing a template's Compose file and saving it through StackForm (DP-66): the cases, then the goldens.
+node "$here/gen-reparse-cases.mjs" "$catalogue" > "$here/reparse-cases.json"
+php "$here/emit-reparse.php" "$root" "$catalogue" "$here/reparse-cases.json" | gzip -9n > "$here/reparse-goldens.json.gz"

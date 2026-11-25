@@ -49,8 +49,8 @@ export function DangerContent({ kind }: { kind: ResourceKind }) {
   const { canDelete } = data;
   const resource = resourceFrame(data);
   const base = resourceApi(kind, me.team?.id, resource.uuid);
-  // $resourceLabel: 'application' for an application, 'resource' for every database type.
-  const resourceLabel = kind === "application" ? "application" : "resource";
+  // $resourceLabel: 'application' for an application, 'service' for a service, 'resource' for every database type.
+  const resourceLabel = kind === "application" ? "application" : kind === "service" ? "service" : "resource";
   const flushable = "database" in data && FLUSHABLE.includes(data.database.databaseType);
   // @can('manage', $resource)
   const canManage = "database" in data && data.canManage;
@@ -65,7 +65,8 @@ export function DangerContent({ kind }: { kind: ResourceKind }) {
   /** Danger::delete(): then redirectRoute('project.resource.index'). */
   async function remove(selectedActions: string[]) {
     const query = CHECKBOXES.map((c) => `${c.id}=${selectedActions.includes(c.id)}`).join("&");
-    const r = await sendJson<{ deleted: boolean }>("DELETE", `${base}?${query}`);
+    // A service's delete is DELETE …/services/{uuid}/danger (DP-66).
+    const r = await sendJson<{ deleted: boolean }>("DELETE", kind === "service" ? `${base}/danger?${query}` : `${base}?${query}`);
     if (!r.ok) return showError(r.error);
     window.location.assign(environmentPath(resource.project.uuid, resource.environment.uuid));
   }

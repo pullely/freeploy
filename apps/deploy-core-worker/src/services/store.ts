@@ -69,6 +69,8 @@ export interface ServiceEnvironmentVariableRow {
   /** The Coolify version that created the variable. */
   version: string;
   preserve_compose_null: boolean;
+  /** Locked: never shown again. The parser does not read it; a stored service's rows carry it (DP-66). */
+  is_shown_once?: boolean;
 }
 
 export type ServicePartKind = ServicePart["kind"];

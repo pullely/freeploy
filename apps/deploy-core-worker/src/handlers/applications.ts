@@ -54,6 +54,9 @@ import {
   findApplicationByUuid,
   listEnvironmentApplications,
   listEnvironmentDatabases,
+  listEnvironmentServiceResources,
+  listResourceTags,
+  SERVICE_MORPH_CLASS,
   insertDockerImageApplication,
   updateApplicationGeneral,
   listApplicationDomains,
@@ -74,6 +77,7 @@ import { BUILD_MESSAGES, builtAnswer, prepareBuild, saveBuild, showBuild } from 
 import type { GithubDeps } from "../applications/github.js";
 import { handleApplicationResources, isApplicationResourceRoute } from "./application-resources.js";
 import { handleApplicationMore, isApplicationMoreRoute } from "./application-more.js";
+import { serviceListResources } from "../services/resources.js";
 import {
   ApplicationError,
   createDockerImageApplication,
@@ -111,6 +115,12 @@ function sqlStore(tx: SqlExecutor, orgId: string): ApplicationStore {
     updateGeneral: (id, changes) => updateApplicationGeneral(tx, id, changes),
     domains: () => listApplicationDomains(tx),
     listDatabasesForEnvironment: (environmentId) => listEnvironmentDatabases(tx, environmentId),
+    listServicesForEnvironment: async (environmentId) => {
+      const services = await listEnvironmentServiceResources(tx, environmentId);
+      const tags = new Map<string, { id: string; name: string }[]>();
+      for (const service of services) tags.set(service.uuid, (await listResourceTags(tx, { type: SERVICE_MORPH_CLASS, id: service.id })).map((tag) => ({ id: String(tag.id), name: tag.name })));
+      return serviceListResources(services, tags);
+    },
   };
 }
 

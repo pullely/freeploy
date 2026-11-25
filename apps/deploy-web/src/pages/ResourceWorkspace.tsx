@@ -8,6 +8,7 @@
 import type { ReactNode } from "react";
 import { ApplicationWorkspace } from "./ApplicationChrome";
 import { DatabaseWorkspace } from "./DatabaseChrome";
+import { ServiceWorkspace } from "./ServiceChrome";
 import type { ResourceSectionData } from "./ApplicationSection";
 
 export function ResourceWorkspace({ data, orgId, active, children }: { data: ResourceSectionData; orgId: string | undefined; active: string; children: ReactNode }) {
@@ -16,6 +17,13 @@ export function ResourceWorkspace({ data, orgId, active, children }: { data: Res
       <ApplicationWorkspace application={data.application} orgId={orgId} active={active} canUpdate={data.canUpdate} canDeploy={data.canDeploy}>
         {children}
       </ApplicationWorkspace>
+    );
+  }
+  if ("service" in data) {
+    return (
+      <ServiceWorkspace service={data.service} orgId={orgId} active={active} canUpdate={data.canUpdate}>
+        {children}
+      </ServiceWorkspace>
     );
   }
   return (

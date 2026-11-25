@@ -67,7 +67,7 @@ function databaseSelect(engine: DatabaseEngine): string {
 }
 
 /** The resources that have environment variables. */
-const ENVIRONMENT_VARIABLE_RESOURCES: Readonly<Record<"application" | DatabaseEnvironmentVariableResourceType, EnvironmentVariableResource>> = {
+const ENVIRONMENT_VARIABLE_RESOURCES: Readonly<Record<"application" | DatabaseEnvironmentVariableResourceType | "service", EnvironmentVariableResource>> = {
   application: {
     morphClass: "App\\Models\\Application",
     select: `SELECT a.id, a.uuid, a.name, a.build_pack, a.git_repository, a.dockerfile,
@@ -86,6 +86,23 @@ const ENVIRONMENT_VARIABLE_RESOURCES: Readonly<Record<"application" | DatabaseEn
     settings: { table: "deploy.application_settings", key: "application_id", columns: ENVIRONMENT_VARIABLE_SETTING_COLUMNS },
   },
   ...databaseResources(),
+  // A service (DP-66): its Compose file as written, its own server_id for the `server` scope, and — as for a
+  // database — the two switches on its own row (Service has no settings row).
+  service: {
+    morphClass: "App\\Models\\Service",
+    select: `SELECT s.id, s.uuid, s.name, NULL::varchar AS build_pack, NULL::varchar AS git_repository, NULL::text AS dockerfile,
+                    s.docker_compose_raw AS docker_compose,
+                    s.environment_id, e.uuid AS environment_uuid, e.project_id, p.uuid AS project_uuid,
+                    sv.id AS server_id, sv.uuid AS server_uuid,
+                    NULL::boolean AS is_env_sorting_enabled, NULL::boolean AS use_build_secrets,
+                    s.include_coolify_default_variables, s.redact_all_env_values_in_logs
+               FROM deploy.services s
+               JOIN deploy.environments e ON e.id = s.environment_id
+               JOIN deploy.projects p ON p.id = e.project_id
+               LEFT JOIN deploy.servers sv ON sv.id = s.server_id AND sv.deleted_at IS NULL
+              WHERE s.uuid = $1 AND s.deleted_at IS NULL`,
+    settings: { table: "deploy.services", key: "id", columns: ["include_coolify_default_variables", "redact_all_env_values_in_logs"] },
+  },
 };
 
 function databaseResources(): Record<DatabaseEnvironmentVariableResourceType, EnvironmentVariableResource> {

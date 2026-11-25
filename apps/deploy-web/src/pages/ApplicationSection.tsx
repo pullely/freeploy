@@ -14,6 +14,8 @@ import { edgeBase, getJson, sessionToken } from "../lib/api";
 import { environmentPath, environmentUuidFromPath, limit, projectUuidFromPath } from "./ProjectChrome";
 import { applicationsApi, applicationUuidFromPath, type ApplicationInfo } from "./ApplicationChrome";
 import { databasesApi, databaseUuidFromPath, type DatabaseInfo } from "./DatabaseChrome";
+import { serviceApi, type ServiceInfo } from "./ServiceChrome";
+import { serviceUuidFromPath } from "../lib/service-templates";
 
 /** What every section's GET answers beside its own data. */
 export interface ApplicationSectionData {
@@ -22,8 +24,8 @@ export interface ApplicationSectionData {
   canDeploy: boolean;
 }
 
-/** The two resources whose configuration pages share Coolify's components. */
-export type ResourceKind = "application" | "database";
+/** The resources whose configuration pages share Coolify's components. */
+export type ResourceKind = "application" | "database" | "service";
 
 /** What a database's section GET answers beside its own data. */
 export interface DatabaseSectionData {
@@ -33,16 +35,25 @@ export interface DatabaseSectionData {
   canDelete: boolean;
 }
 
-export type ResourceSectionData = ApplicationSectionData | DatabaseSectionData;
+/** What a service's section GET answers beside its own data (DP-66). */
+export interface ServiceSectionData {
+  service: ServiceInfo;
+  canUpdate: boolean;
+  canManage: boolean;
+  canDelete: boolean;
+}
+
+export type ResourceSectionData = ApplicationSectionData | DatabaseSectionData | ServiceSectionData;
 
 /** The resource of a section's answer: what both kinds have (uuid, name, project, environment, destination, server). */
-export const resourceFrame = (data: ResourceSectionData): ApplicationInfo | DatabaseInfo => ("application" in data ? data.application : data.database);
+export const resourceFrame = (data: ResourceSectionData): ApplicationInfo | DatabaseInfo | ServiceInfo => ("application" in data ? data.application : "database" in data ? data.database : data.service);
 
 /** The API base of one resource: /applications/{uuid} or /databases/{uuid}. */
-export const resourceApi = (kind: ResourceKind, orgId: string | undefined, uuid: string): string => `${kind === "application" ? applicationsApi(orgId) : databasesApi(orgId)}/${encodeURIComponent(uuid)}`;
+export const resourceApi = (kind: ResourceKind, orgId: string | undefined, uuid: string): string =>
+  kind === "service" ? serviceApi(orgId, uuid) : `${kind === "application" ? applicationsApi(orgId) : databasesApi(orgId)}/${encodeURIComponent(uuid)}`;
 
 /** The resource's uuid from its page's path (…/application/{uuid}/… or …/database/{uuid}/…). */
-export const resourceUuidFromPath = (kind: ResourceKind): string => (kind === "application" ? applicationUuidFromPath() : databaseUuidFromPath());
+export const resourceUuidFromPath = (kind: ResourceKind): string => (kind === "application" ? applicationUuidFromPath() : kind === "database" ? databaseUuidFromPath() : serviceUuidFromPath());
 
 export interface PatchError {
   status: number;

@@ -643,7 +643,8 @@ export function EnvironmentVariablesContent({ kind }: { kind: ResourceKind }) {
 
   useEffect(() => {
     void (async () => {
-      const r = await getJson<ResourceSectionData>(resourceBase);
+      // A service's frame is its configuration page's (DP-66).
+      const r = await getJson<ResourceSectionData>(kind === "service" ? `${resourceBase}/configuration` : resourceBase);
       // Configuration::mount(): the resource through its project and environment, or a 404.
       if (!r.data) {
         if (r.status === 404) window.location.replace(environmentPath(projectUuid, environmentUuid));
