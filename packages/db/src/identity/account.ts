@@ -2,20 +2,29 @@
 // deactivated and anonymised rather than removed, because sessions and
 // security events reference it. Credentials, passkeys, 2FA, OAuth links and
 // pending requests are deleted, every session revoked, and the address freed.
-import type { SqlExecutor } from "../hyperdrive/executor.js";
+import type { SqlExecutor, TransactionalSqlExecutor } from "../hyperdrive/executor.js";
+import { withOrg } from "../deploy/index.js";
 
-export function createAccountStore(db: SqlExecutor) {
+export function createAccountStore(db: TransactionalSqlExecutor) {
   return {
-    /** Projects, servers and Git sources an org still holds (Team::isEmpty()). */
+    /**
+     * Projects, servers and Git sources an org still holds (Team::isEmpty()).
+     *
+     * Read inside withOrg(): every deploy table forces row-level security, so a
+     * plain query only sees rows when the connection's role bypasses RLS. Inside
+     * withOrg the transaction runs as deploy_app with the org set, which sees
+     * exactly that org's rows whatever role the worker connects as.
+     */
     async orgResourceCount(orgId: string): Promise<number> {
-      const r = await db.execute<{ n: number }>(
-        `SELECT (SELECT count(*) FROM deploy.projects WHERE org_id = $1)
-              + (SELECT count(*) FROM deploy.servers WHERE org_id = $1)
-              + (SELECT count(*) FROM deploy.github_apps WHERE org_id = $1)
-              + (SELECT count(*) FROM deploy.gitlab_apps WHERE org_id = $1) AS n`,
-        [orgId],
-      );
-      return Number(r.rows[0]?.n ?? 0);
+      return withOrg(db, orgId, async (tx) => {
+        const r = await tx.execute<{ n: number }>(
+          `SELECT (SELECT count(*) FROM deploy.projects)
+                + (SELECT count(*) FROM deploy.servers)
+                + (SELECT count(*) FROM deploy.github_apps)
+                + (SELECT count(*) FROM deploy.gitlab_apps) AS n`,
+        );
+        return Number(r.rows[0]?.n ?? 0);
+      });
     },
     async deactivate(userId: string): Promise<void> {
       for (const table of ["avatars", "password_credentials", "password_resets", "two_factor", "passkeys", "email_changes", "auth_identities", "login_challenges"]) {

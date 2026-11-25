@@ -10,7 +10,7 @@
 // Freeploy runs in Solo mode, so every user's one team is a personal team they
 // own alone; the multi-member rules (another owner or admin) arrive with DP10.
 import type { Env } from "../env.js";
-import { createSqlExecutor, type SqlExecutor } from "@saas/db/hyperdrive";
+import { createSqlExecutor, type TransactionalSqlExecutor } from "@saas/db/hyperdrive";
 import { createAccountStore, createIdentityRepository, createPasswordStore } from "@saas/db/identity";
 import { hexToUuid } from "@saas/db/ids";
 import { createAuthService } from "../services/auth.js";
@@ -32,7 +32,7 @@ async function teamsOf(env: Env, requestId: string, user: { publicId: string; em
   return body?.data?.organizations ?? [];
 }
 
-export async function deletionBlockers(db: SqlExecutor, teams: Team[]): Promise<string[]> {
+export async function deletionBlockers(db: TransactionalSqlExecutor, teams: Team[]): Promise<string[]> {
   const store = createAccountStore(db);
   const out: string[] = [];
   for (const t of teams) {
@@ -45,7 +45,7 @@ export async function deletionBlockers(db: SqlExecutor, teams: Team[]): Promise<
 /** DeleteUserAccount::confirmationActions() without Cloud's team removal. */
 export const DELETION_ACTIONS = ["Your account will be permanently deleted from Freeploy."];
 
-async function withUser(request: Request, env: Env, requestId: string, fn: (db: SqlExecutor, user: { id: string; publicId: string; email: string }) => Promise<Response>): Promise<Response> {
+async function withUser(request: Request, env: Env, requestId: string, fn: (db: TransactionalSqlExecutor, user: { id: string; publicId: string; email: string }) => Promise<Response>): Promise<Response> {
   const token = extractBearerToken(request);
   if (!token) return errorResponse("unauthenticated", "Missing or invalid Authorization header", 401, requestId);
   if (!env.PLATFORM_DB) return errorResponse("internal_error", "Database not configured", 503, requestId);
