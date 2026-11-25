@@ -103,23 +103,26 @@ function sqlStore(tx: SqlExecutor, orgId: string): ServiceConfigurationStore {
   };
 }
 
+/** A service's configuration stores and ciphers over one org's transaction (also /api/v1's, DP-74). */
+export function serviceResourcesContext(tx: SqlExecutor, orgId: string, secret: string | undefined): ServiceResourcesContext {
+  const ciphers = new Map<string, KeyCipher>();
+  const cipher = (column: string): KeyCipher => {
+    let found = ciphers.get(column);
+    if (!found) ciphers.set(column, (found = columnCipher(tx, orgId, secret, column)));
+    return found;
+  };
+  return {
+    configuration: { store: sqlStore(tx, orgId), ciphers: { variables: cipher("environment_variables.value"), content: cipher("local_file_volumes.content") } },
+    rows: (morphClass) => resourceRowsSqlStore(tx, orgId, morphClass),
+    content: cipher("local_file_volumes.content"),
+    deleteService: (serviceId) => deleteService(tx, serviceId),
+  };
+}
+
 export const runServiceConfigurationInOrg: ServiceConfigurationRunner = async (env, orgId, fn) => {
   const db = createSqlExecutor(env.PLATFORM_DB!);
   try {
-    return await withOrg(db, orgId, (tx) => {
-      const ciphers = new Map<string, KeyCipher>();
-      const cipher = (column: string): KeyCipher => {
-        let found = ciphers.get(column);
-        if (!found) ciphers.set(column, (found = columnCipher(tx, orgId, env.DEPLOY_ENCRYPTION_KEY, column)));
-        return found;
-      };
-      return fn({
-        configuration: { store: sqlStore(tx, orgId), ciphers: { variables: cipher("environment_variables.value"), content: cipher("local_file_volumes.content") } },
-        rows: (morphClass) => resourceRowsSqlStore(tx, orgId, morphClass),
-        content: cipher("local_file_volumes.content"),
-        deleteService: (serviceId) => deleteService(tx, serviceId),
-      });
-    });
+    return await withOrg(db, orgId, (tx) => fn(serviceResourcesContext(tx, orgId, env.DEPLOY_ENCRYPTION_KEY)));
   } finally {
     await db.dispose();
   }

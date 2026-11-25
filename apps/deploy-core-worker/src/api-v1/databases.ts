@@ -136,7 +136,7 @@ function param(c: ApiV1Context, all: Record<string, unknown>, name: string, rout
 }
 
 /** isBase64Encoded() and mb_detect_encoding(…, 'UTF-8', true): the decoded text, or null when either fails. */
-function decodeBase64Text(value: unknown): string | null {
+export function decodeBase64Text(value: unknown): string | null {
   if (typeof value !== "string" || !/^[A-Za-z0-9+/]*={0,2}$/.test(value)) return null;
   let binary: string;
   try {
@@ -408,7 +408,7 @@ async function createDatabaseApi(c: ApiV1Context, engine: DatabaseEngine): Promi
       { values, redisPassword },
     );
     const db = (await findDatabaseByUuid(tx, created!.uuid))!;
-    for (const name of tags) await attachTagTo(tx, c, engine, db.id, name);
+    for (const name of tags) await attachTagTo(tx, c, { type: DATABASE_TABLES[engine].morphClass, id: db.id }, name);
     // createdDatabasePayload(): the connection URLs need sensitive read access; Dragonfly answers the uuid only.
     const payload: Array<[string, PhpValue]> = [["uuid", db.uuid]];
     if (c.canReadSensitive && engine !== "dragonfly") {
@@ -430,17 +430,16 @@ function columnValue(column: string, v: unknown): DatabaseColumnValue {
 }
 
 /** normalizeTagNames(): strtolower(trim(strip_tags((string) $name))), unique. */
-function normalizeTags(tags: unknown): string[] {
+export function normalizeTags(tags: unknown): string[] {
   const list = Array.isArray(tags) ? tags : tags !== null && typeof tags === "object" ? Object.values(tags) : [];
   const names = list.map((t) => stripTags(t === null || t === undefined ? "" : String(t)).trim().replace(/[A-Z]/g, (ch) => ch.toLowerCase()));
   return [...new Set(names)];
 }
 
 /** attachTagsToResource(): Tag::createOrFirst(team, name), then syncWithoutDetaching(). */
-async function attachTagTo(tx: SqlExecutor, c: ApiV1Context, engine: DatabaseEngine, id: string | number, name: string): Promise<void> {
+export async function attachTagTo(tx: SqlExecutor, c: ApiV1Context, resource: { type: string; id: string | number }, name: string): Promise<void> {
   const stored = tagName(name);
   const tag = (await findTagByName(tx, stored)) ?? (await insertTag(tx, { orgId: c.orgId, uuid: newPublicId(), name: stored }));
-  const resource = { type: DATABASE_TABLES[engine].morphClass, id };
   if (!(await resourceHasTag(tx, resource, tag.id))) await attachTag(tx, c.orgId, resource, tag.id);
 }
 

@@ -28,6 +28,7 @@ import {
   insertPrivateKey,
   insertProject,
   insertServer,
+  insertParsedService,
   withOrg,
 } from "@saas/db/deploy";
 import { columnCipher } from "@deploy-core-worker/handlers/cloud-tokens";
@@ -205,6 +206,36 @@ export async function fixtureDatabase(): Promise<FixtureDatabase> {
       );
       // The created hook: the schedule's last_execution_at.
       await tx.execute("UPDATE deploy.scheduled_database_backups SET last_execution_at = $2 WHERE id = $1", [x.backup, x.created_at]);
+    });
+  }
+  // DP-74: the services with their fixed columns (insertParsedService() with the parts and variables emit.php made through
+  // the models; the description and a variable's lock after it, as the insert does not take them).
+  for (const s of f.services) {
+    await withOrg(db, org(s.team), async (tx) => {
+      const part = (p: { id: number; uuid: string; name: string; image: string }) => ({ localId: p.id, uuid: p.uuid, name: p.name, humanName: null, ports: null, image: p.image, excludeFromStatus: false, isLogDrainEnabled: false, isGzipEnabled: true, isStripprefixEnabled: true, isMigrated: false, isRemovedFromCompose: false });
+      const variables = [];
+      for (const v of f.serviceVariables.filter((x) => x.service === s.id)) {
+        variables.push({ uuid: v.uuid, key: v.key, value: await encrypt(tx, s.team, "environment_variables.value", v.value), isPreview: false, isRequired: false, isShared: false, isLiteral: false, isMultiline: false, comment: v.comment, version: ENVIRONMENT_VARIABLE_VERSION, preserveComposeNull: false });
+      }
+      const id = await insertParsedService(tx, {
+        orgId: org(s.team), uuid: s.uuid, name: s.name, environmentId: s.environment_id, serverId: s.server_id, destinationId: s.destination_id, destinationType: "standalone",
+        dockerComposeRaw: s.docker_compose_raw, dockerCompose: s.docker_compose, connectToDockerNetwork: false, serviceType: s.service_type, composeParsingVersion: "5", isContainerLabelEscapeEnabled: true, includeCoolifyDefaultVariables: true,
+        applications: f.serviceApplications.filter((a) => a.service === s.id).map((a) => ({ ...part(a), fqdn: a.fqdn, noindexDomains: null, redirect: "both", isForceHttpsEnabled: true, isPermanentRedirectEnabled: false, domainPortOverrides: null, traefikCertificateResolver: null })),
+        databases: f.serviceDatabases.filter((d) => d.service === s.id).map(part),
+        variables,
+        persistentVolumes: [],
+        fileVolumes: [],
+      });
+      await tx.execute("UPDATE deploy.services SET description = $2 WHERE id = $1", [id, s.description]);
+      // DP-74: the deployments of team 1's applications are inserted with team 1's service, the other team's with its own.
+      for (const q of f.deployments.filter((d) => f.applications.find((a) => a.id === d.application)!.team === s.team)) {
+        await tx.execute(
+          `INSERT INTO deploy.application_deployment_queues (id, deployment_uuid, application_id, status, commit, server_id, destination_id, application_name, server_name, logs, created_at, updated_at, finished_at, org_id)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $11, $12, $13)`,
+          [q.id, q.uuid, String(q.application), q.status, q.commit, q.server_id, String(q.destination_id), q.application_name, q.server_name, q.logs, q.created_at, q.finished_at, org(s.team)],
+        );
+      }
+      for (const v of f.serviceVariables.filter((x) => x.service === s.id && x.is_shown_once)) await tx.execute("UPDATE deploy.environment_variables SET is_shown_once = true WHERE uuid = $1", [v.uuid]);
     });
   }
   return {

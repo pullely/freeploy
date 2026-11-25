@@ -36,6 +36,10 @@ const TABLES = [
   "scheduled_database_backup_executions",
   "scheduled_database_backup_s3_storage",
   "s3_storages",
+  // DP-74: services and their applications and databases
+  "services",
+  "service_applications",
+  "service_databases",
 ] as const;
 export type ApiTable = (typeof TABLES)[number];
 

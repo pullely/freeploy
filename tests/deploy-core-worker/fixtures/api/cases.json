@@ -526,6 +526,159 @@
     "finished_at": "2025-12-31 00:00:05"
    }
   ],
+  "services": [
+   {
+    "id": 1,
+    "uuid": "f1parityservice000000001",
+    "team": 1,
+    "environment_id": 1,
+    "server_id": 1,
+    "destination_id": 1,
+    "name": "parity-service",
+    "description": "The fixture's service",
+    "docker_compose_raw": "services:\n  web:\n    image: 'nginx:alpine'\n    environment:\n      - 'FOO=${FOO:-bar}'\n  db:\n    image: 'postgres:16-alpine'\n    environment:\n      - 'POSTGRES_PASSWORD=${DB_PASSWORD}'\n",
+    "docker_compose": "services:\n  web:\n    image: 'nginx:alpine'\n    environment:\n      FOO: bar\n  db:\n    image: 'postgres:16-alpine'\n    environment:\n      POSTGRES_PASSWORD: dbSecretPass1\n",
+    "service_type": null
+   },
+   {
+    "id": 2,
+    "uuid": "f2otherservice0000000002",
+    "team": 2,
+    "environment_id": 4,
+    "server_id": 2,
+    "destination_id": 2,
+    "name": "other-service",
+    "description": null,
+    "docker_compose_raw": "services:\n  web:\n    image: 'nginx:alpine'\n",
+    "docker_compose": null,
+    "service_type": null
+   }
+  ],
+  "serviceApplications": [
+   {
+    "id": 1,
+    "uuid": "g1paritywebapplication01",
+    "service": 1,
+    "name": "web",
+    "image": "nginx:alpine",
+    "fqdn": "https://web.example.com"
+   },
+   {
+    "id": 2,
+    "uuid": "g2otherwebapplication002",
+    "service": 2,
+    "name": "web",
+    "image": "nginx:alpine",
+    "fqdn": null
+   }
+  ],
+  "serviceDatabases": [
+   {
+    "id": 1,
+    "uuid": "h1paritydatabase00000001",
+    "service": 1,
+    "name": "db",
+    "image": "postgres:16-alpine"
+   }
+  ],
+  "serviceVariables": [
+   {
+    "uuid": "w1parityservicefoo000001",
+    "service": 1,
+    "key": "FOO",
+    "value": "bar",
+    "is_shown_once": false,
+    "comment": null
+   },
+   {
+    "uuid": "w2parityservicepass00002",
+    "service": 1,
+    "key": "DB_PASSWORD",
+    "value": "dbSecretPass1",
+    "is_shown_once": true,
+    "comment": "Locked"
+   },
+   {
+    "uuid": "w3otherservicevar0000003",
+    "service": 2,
+    "key": "OTHER_SERVICE",
+    "value": "theirs",
+    "is_shown_once": false,
+    "comment": null
+   }
+  ],
+  "deployments": [
+   {
+    "id": 1,
+    "uuid": "q1parityinprogress000001",
+    "application": 1,
+    "status": "in_progress",
+    "commit": "HEAD",
+    "server_id": 1,
+    "destination_id": 1,
+    "application_name": "parity-image",
+    "server_name": "parity-server",
+    "logs": "[{\"command\":null,\"output\":\"Pulling nginx:alpine.\",\"type\":\"stdout\",\"timestamp\":\"2025-12-30T10:00:01.000000Z\",\"hidden\":false,\"batch\":1,\"order\":1}]",
+    "created_at": "2025-12-31 10:00:00",
+    "finished_at": null
+   },
+   {
+    "id": 2,
+    "uuid": "q2parityqueued0000000002",
+    "application": 1,
+    "status": "queued",
+    "commit": "HEAD",
+    "server_id": 1,
+    "destination_id": 1,
+    "application_name": "parity-image",
+    "server_name": "parity-server",
+    "logs": null,
+    "created_at": "2025-12-31 11:00:00",
+    "finished_at": null
+   },
+   {
+    "id": 3,
+    "uuid": "q3parityfinished00000003",
+    "application": 1,
+    "status": "finished",
+    "commit": "HEAD",
+    "server_id": 1,
+    "destination_id": 1,
+    "application_name": "parity-image",
+    "server_name": "parity-server",
+    "logs": "[{\"command\":null,\"output\":\"Deployment finished.\",\"type\":\"stdout\",\"timestamp\":\"2025-12-30T10:00:01.000000Z\",\"hidden\":false,\"batch\":1,\"order\":1}]",
+    "created_at": "2025-12-30 10:00:00",
+    "finished_at": "2025-12-30 10:05:00"
+   },
+   {
+    "id": 4,
+    "uuid": "q4otherinprogress0000004",
+    "application": 3,
+    "status": "in_progress",
+    "commit": "HEAD",
+    "server_id": 2,
+    "destination_id": 2,
+    "application_name": "other-image",
+    "server_name": "other-server",
+    "logs": null,
+    "created_at": "2025-12-31 12:00:00",
+    "finished_at": null
+   },
+   {
+    "id": 5,
+    "uuid": "q5paritygitfailed0000005",
+    "application": 2,
+    "status": "failed",
+    "commit": "a1b2c3d",
+    "server_id": 1,
+    "destination_id": 1,
+    "application_name": "parity-git",
+    "server_name": "parity-server",
+    "logs": "[{\"command\":null,\"output\":\"Build failed.\",\"type\":\"stdout\",\"timestamp\":\"2025-12-30T10:00:01.000000Z\",\"hidden\":false,\"batch\":1,\"order\":1}]",
+    "created_at": "2025-12-29 10:00:00",
+    "finished_at": "2025-12-29 10:01:00"
+   }
+  ],
   "tokens": [
    {
     "key": "root",
@@ -665,7 +818,10 @@
   "environment_variables",
   "application_deployment_queues",
   "scheduled_database_backups",
-  "scheduled_database_backup_executions"
+  "scheduled_database_backup_executions",
+  "services",
+  "service_applications",
+  "service_databases"
  ],
  "cases": [
   {
@@ -1670,6 +1826,9 @@
    "token": "delete",
    "method": "DELETE",
    "path": "/api/v1/applications/a2paritygitapp0000000002",
+   "setup": [
+    "delete from application_deployment_queues where application_id in ('1', '2')"
+   ],
    "after": {
     "applications": "select uuid, deleted_at is not null as deleted from applications where environment_id in (1, 2) order by id"
    }
@@ -1678,7 +1837,10 @@
    "name": "applications: delete with options",
    "token": "delete",
    "method": "DELETE",
-   "path": "/api/v1/applications/a1parityimageapp00000001?delete_volumes=false&docker_cleanup=0"
+   "path": "/api/v1/applications/a1parityimageapp00000001?delete_volumes=false&docker_cleanup=0",
+   "setup": [
+    "delete from application_deployment_queues where application_id in ('1', '2')"
+   ]
   },
   {
    "name": "applications: delete unknown",
@@ -3536,6 +3698,1389 @@
    "token": "delete",
    "method": "DELETE",
    "path": "/api/v1/databases/b1paritypostgres00000001/backups/c2paritypgs3backup000002/executions/x1parityexecutionok00001"
+  },
+  {
+   "name": "services: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/services"
+  },
+  {
+   "name": "services: list, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/services"
+  },
+  {
+   "name": "services: list, member with read:sensitive",
+   "token": "memberSensitive",
+   "method": "GET",
+   "path": "/api/v1/services"
+  },
+  {
+   "name": "services: show",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/services/f1parityservice000000001"
+  },
+  {
+   "name": "services: show, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/services/f1parityservice000000001"
+  },
+  {
+   "name": "services: show another team's",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/services/f2otherservice0000000002"
+  },
+  {
+   "name": "services: show unknown",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/services/nonexistentuuid"
+  },
+  {
+   "name": "services: create from a template",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services",
+   "body": {
+    "type": "excalidraw",
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001"
+   },
+   "after": {
+    "service": "select case when name ~ '^service-[A-Za-z0-9]{10}$' then 'service-<random>' else regexp_replace(regexp_replace(name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') end as name, description, docker_compose_raw, regexp_replace(regexp_replace(docker_compose, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as docker_compose, connect_to_docker_network, service_type, compose_parsing_version, is_container_label_escape_enabled, redact_all_env_values_in_logs, include_coolify_default_variables, environment_id, server_id, destination_id, destination_type, deleted_at is not null as deleted from services where id > 2 order by id",
+    "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id > 2 order by a.id",
+    "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id > 2 order by d.id",
+    "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id > 2 order by e.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) order by v.id",
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+   }
+  },
+  {
+   "name": "services: create from a template with every field",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services",
+   "body": {
+    "type": "excalidraw",
+    "name": "api-excalidraw",
+    "description": "From the API",
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_uuid": "e2alphastaging0000000002",
+    "server_uuid": "s1parityserveruuid000001",
+    "destination_uuid": "d1paritydestination00001",
+    "connect_to_docker_network": true,
+    "is_container_label_escape_enabled": false,
+    "redact_all_env_values_in_logs": false,
+    "urls": [
+     {
+      "name": "excalidraw",
+      "url": "https://draw.example.com"
+     }
+    ],
+    "tags": [
+     "whiteboards",
+     " API "
+    ]
+   },
+   "after": {
+    "service": "select case when name ~ '^service-[A-Za-z0-9]{10}$' then 'service-<random>' else regexp_replace(regexp_replace(name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') end as name, description, docker_compose_raw, regexp_replace(regexp_replace(docker_compose, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as docker_compose, connect_to_docker_network, service_type, compose_parsing_version, is_container_label_escape_enabled, redact_all_env_values_in_logs, include_coolify_default_variables, environment_id, server_id, destination_id, destination_type, deleted_at is not null as deleted from services where id > 2 order by id",
+    "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id > 2 order by a.id",
+    "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id > 2 order by d.id",
+    "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id > 2 order by e.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) order by v.id",
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+   }
+  },
+  {
+   "name": "services: create a template with prerequisites",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services",
+   "body": {
+    "type": "beszel",
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001"
+   },
+   "after": {
+    "service": "select case when name ~ '^service-[A-Za-z0-9]{10}$' then 'service-<random>' else regexp_replace(regexp_replace(name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') end as name, description, docker_compose_raw, regexp_replace(regexp_replace(docker_compose, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as docker_compose, connect_to_docker_network, service_type, compose_parsing_version, is_container_label_escape_enabled, redact_all_env_values_in_logs, include_coolify_default_variables, environment_id, server_id, destination_id, destination_type, deleted_at is not null as deleted from services where id > 2 order by id",
+    "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id > 2 order by a.id",
+    "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id > 2 order by d.id",
+    "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id > 2 order by e.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) order by v.id",
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+   }
+  },
+  {
+   "name": "services: create a template with a dash in its name",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services",
+   "body": {
+    "type": "it-tools",
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001"
+   },
+   "after": {
+    "service": "select case when name ~ '^service-[A-Za-z0-9]{10}$' then 'service-<random>' else regexp_replace(regexp_replace(name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') end as name, description, docker_compose_raw, regexp_replace(regexp_replace(docker_compose, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as docker_compose, connect_to_docker_network, service_type, compose_parsing_version, is_container_label_escape_enabled, redact_all_env_values_in_logs, include_coolify_default_variables, environment_id, server_id, destination_id, destination_type, deleted_at is not null as deleted from services where id > 2 order by id",
+    "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id > 2 order by a.id",
+    "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id > 2 order by d.id",
+    "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id > 2 order by e.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) order by v.id",
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+   }
+  },
+  {
+   "name": "services: create, unknown type",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services",
+   "body": {
+    "type": "nope",
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001"
+   }
+  },
+  {
+   "name": "services: create, a type and a Compose file",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services",
+   "body": {
+    "type": "excalidraw",
+    "docker_compose_raw": "c2VydmljZXM6CiAgYXBwOgogICAgaW1hZ2U6ICd0cmFlZmlrL3dob2FtaTpsYXRlc3QnCiAgICBlbnZpcm9ubWVudDoKICAgICAgLSBTRVJWSUNFX1VSTF9BUFBfODAKICAgICAgLSAnR1JFRVRJTkc9JHtHUkVFVElORzotaGVsbG99JwogICAgdm9sdW1lczoKICAgICAgLSAnYXBwLWRhdGE6L2RhdGEnCiAgY2FjaGU6CiAgICBpbWFnZTogJ3JlZGlzOjctYWxwaW5lJwo=",
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001"
+   }
+  },
+  {
+   "name": "services: create, neither a type nor a Compose file",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001"
+   }
+  },
+  {
+   "name": "services: create, invalid",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services",
+   "body": {
+    "type": 5,
+    "project_uuid": "p1alphaprojectuuid000001",
+    "server_uuid": [],
+    "name": "x",
+    "description": "<b>",
+    "instant_deploy": "no",
+    "connect_to_docker_network": "maybe",
+    "urls": [
+     {
+      "name": "excalidraw",
+      "url": "https://a.example.com",
+      "port": 80
+     },
+     {
+      "url": "not a url"
+     }
+    ],
+    "tags": [
+     "a"
+    ],
+    "extra": 1
+   }
+  },
+  {
+   "name": "services: create, urls not a list",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services",
+   "body": {
+    "type": "excalidraw",
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "urls": "https://draw.example.com"
+   }
+  },
+  {
+   "name": "services: create, a short tag",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services",
+   "body": {
+    "type": "excalidraw",
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "tags": [
+     "<i>x</i>"
+    ]
+   }
+  },
+  {
+   "name": "services: create, no environment",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services",
+   "body": {
+    "type": "excalidraw",
+    "project_uuid": "p1alphaprojectuuid000001",
+    "server_uuid": "s1parityserveruuid000001"
+   }
+  },
+  {
+   "name": "services: create in an unknown project",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services",
+   "body": {
+    "type": "excalidraw",
+    "project_uuid": "nonexistentuuid",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001"
+   }
+  },
+  {
+   "name": "services: create in an unknown environment",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services",
+   "body": {
+    "type": "excalidraw",
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "nope",
+    "server_uuid": "s1parityserveruuid000001"
+   }
+  },
+  {
+   "name": "services: create on an unknown server",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services",
+   "body": {
+    "type": "excalidraw",
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "nonexistentuuid"
+   }
+  },
+  {
+   "name": "services: create on another team's server",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services",
+   "body": {
+    "type": "excalidraw",
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s2otherteamserver0000002"
+   }
+  },
+  {
+   "name": "services: create, urls of an unknown container",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services",
+   "body": {
+    "type": "excalidraw",
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "urls": [
+     {
+      "name": "nope",
+      "url": "https://draw.example.com"
+     }
+    ]
+   },
+   "after": {
+    "service": "select case when name ~ '^service-[A-Za-z0-9]{10}$' then 'service-<random>' else regexp_replace(regexp_replace(name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') end as name, description, docker_compose_raw, regexp_replace(regexp_replace(docker_compose, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as docker_compose, connect_to_docker_network, service_type, compose_parsing_version, is_container_label_escape_enabled, redact_all_env_values_in_logs, include_coolify_default_variables, environment_id, server_id, destination_id, destination_type, deleted_at is not null as deleted from services where id > 2 order by id",
+    "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id > 2 order by a.id",
+    "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id > 2 order by d.id",
+    "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id > 2 order by e.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) order by v.id",
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+   }
+  },
+  {
+   "name": "services: create, an invalid url",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services",
+   "body": {
+    "type": "excalidraw",
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "urls": [
+     {
+      "name": "excalidraw",
+      "url": "ftp://draw.example.com"
+     }
+    ]
+   }
+  },
+  {
+   "name": "services: create, a url another resource uses",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services",
+   "body": {
+    "type": "excalidraw",
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "urls": [
+     {
+      "name": "excalidraw",
+      "url": "https://image.example.com"
+     }
+    ]
+   },
+   "after": {
+    "service": "select case when name ~ '^service-[A-Za-z0-9]{10}$' then 'service-<random>' else regexp_replace(regexp_replace(name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') end as name, description, docker_compose_raw, regexp_replace(regexp_replace(docker_compose, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as docker_compose, connect_to_docker_network, service_type, compose_parsing_version, is_container_label_escape_enabled, redact_all_env_values_in_logs, include_coolify_default_variables, environment_id, server_id, destination_id, destination_type, deleted_at is not null as deleted from services where id > 2 order by id",
+    "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id > 2 order by a.id",
+    "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id > 2 order by d.id",
+    "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id > 2 order by e.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) order by v.id",
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+   }
+  },
+  {
+   "name": "services: create, a url another resource uses, forced",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services",
+   "body": {
+    "type": "excalidraw",
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "urls": [
+     {
+      "name": "excalidraw",
+      "url": "https://web.example.com"
+     }
+    ],
+    "force_domain_override": true
+   },
+   "after": {
+    "service": "select case when name ~ '^service-[A-Za-z0-9]{10}$' then 'service-<random>' else regexp_replace(regexp_replace(name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') end as name, description, docker_compose_raw, regexp_replace(regexp_replace(docker_compose, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as docker_compose, connect_to_docker_network, service_type, compose_parsing_version, is_container_label_escape_enabled, redact_all_env_values_in_logs, include_coolify_default_variables, environment_id, server_id, destination_id, destination_type, deleted_at is not null as deleted from services where id > 2 order by id",
+    "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id > 2 order by a.id",
+    "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id > 2 order by d.id",
+    "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id > 2 order by e.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) order by v.id",
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+   }
+  },
+  {
+   "name": "services: create, instant deploy without the deploy permission",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services",
+   "body": {
+    "type": "excalidraw",
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "instant_deploy": true
+   }
+  },
+  {
+   "name": "services: create, instant deploy",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/services",
+   "body": {
+    "type": "excalidraw",
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "instant_deploy": true
+   },
+   "after": {
+    "service": "select case when name ~ '^service-[A-Za-z0-9]{10}$' then 'service-<random>' else regexp_replace(regexp_replace(name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') end as name, description, docker_compose_raw, regexp_replace(regexp_replace(docker_compose, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as docker_compose, connect_to_docker_network, service_type, compose_parsing_version, is_container_label_escape_enabled, redact_all_env_values_in_logs, include_coolify_default_variables, environment_id, server_id, destination_id, destination_type, deleted_at is not null as deleted from services where id > 2 order by id",
+    "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id > 2 order by a.id",
+    "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id > 2 order by d.id",
+    "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id > 2 order by e.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) order by v.id",
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+   }
+  },
+  {
+   "name": "services: create, not JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services",
+   "raw": "type=excalidraw",
+   "contentType": "application/x-www-form-urlencoded"
+  },
+  {
+   "name": "services: create, empty JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services",
+   "raw": "{}"
+  },
+  {
+   "name": "services: create from a Compose file",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services",
+   "body": {
+    "docker_compose_raw": "c2VydmljZXM6CiAgYXBwOgogICAgaW1hZ2U6ICd0cmFlZmlrL3dob2FtaTpsYXRlc3QnCiAgICBlbnZpcm9ubWVudDoKICAgICAgLSBTRVJWSUNFX1VSTF9BUFBfODAKICAgICAgLSAnR1JFRVRJTkc9JHtHUkVFVElORzotaGVsbG99JwogICAgdm9sdW1lczoKICAgICAgLSAnYXBwLWRhdGE6L2RhdGEnCiAgY2FjaGU6CiAgICBpbWFnZTogJ3JlZGlzOjctYWxwaW5lJwo=",
+    "name": "api-compose",
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001"
+   },
+   "after": {
+    "service": "select case when name ~ '^service-[A-Za-z0-9]{10}$' then 'service-<random>' else regexp_replace(regexp_replace(name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') end as name, description, docker_compose_raw, regexp_replace(regexp_replace(docker_compose, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as docker_compose, connect_to_docker_network, service_type, compose_parsing_version, is_container_label_escape_enabled, redact_all_env_values_in_logs, include_coolify_default_variables, environment_id, server_id, destination_id, destination_type, deleted_at is not null as deleted from services where id > 2 order by id",
+    "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id > 2 order by a.id",
+    "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id > 2 order by d.id",
+    "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id > 2 order by e.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) order by v.id",
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+   }
+  },
+  {
+   "name": "services: create from a Compose file without a name",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services",
+   "body": {
+    "docker_compose_raw": "c2VydmljZXM6CiAgaGVsbG86CiAgICBpbWFnZTogJ2hlbGxvLXdvcmxkJwo=",
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "connect_to_docker_network": true
+   },
+   "after": {
+    "service": "select case when name ~ '^service-[A-Za-z0-9]{10}$' then 'service-<random>' else regexp_replace(regexp_replace(name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') end as name, description, docker_compose_raw, regexp_replace(regexp_replace(docker_compose, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as docker_compose, connect_to_docker_network, service_type, compose_parsing_version, is_container_label_escape_enabled, redact_all_env_values_in_logs, include_coolify_default_variables, environment_id, server_id, destination_id, destination_type, deleted_at is not null as deleted from services where id > 2 order by id",
+    "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id > 2 order by a.id",
+    "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id > 2 order by d.id",
+    "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id > 2 order by e.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) order by v.id",
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+   }
+  },
+  {
+   "name": "services: create from a Compose file, not base64",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services",
+   "body": {
+    "docker_compose_raw": "services: {}",
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001"
+   }
+  },
+  {
+   "name": "services: create from a Compose file, a command in it",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services",
+   "body": {
+    "docker_compose_raw": "c2VydmljZXM6CiAgYXBwOgogICAgaW1hZ2U6ICdhbHBpbmUnCiAgICB2b2x1bWVzOgogICAgICAtICckKHRvdWNoIC90bXAvcHduZWQpOi9kYXRhJwo=",
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001"
+   }
+  },
+  {
+   "name": "services: create from a Compose file, extra field",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services",
+   "body": {
+    "docker_compose_raw": "c2VydmljZXM6CiAgYXBwOgogICAgaW1hZ2U6ICd0cmFlZmlrL3dob2FtaTpsYXRlc3QnCiAgICBlbnZpcm9ubWVudDoKICAgICAgLSBTRVJWSUNFX1VSTF9BUFBfODAKICAgICAgLSAnR1JFRVRJTkc9JHtHUkVFVElORzotaGVsbG99JwogICAgdm9sdW1lczoKICAgICAgLSAnYXBwLWRhdGE6L2RhdGEnCiAgY2FjaGU6CiAgICBpbWFnZTogJ3JlZGlzOjctYWxwaW5lJwo=",
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "type": "",
+    "foo": 1
+   }
+  },
+  {
+   "name": "services: update",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001",
+   "body": {
+    "name": "renamed-service",
+    "description": "Renamed"
+   },
+   "after": {
+    "service": "select case when name ~ '^service-[A-Za-z0-9]{10}$' then 'service-<random>' else regexp_replace(regexp_replace(name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') end as name, description, docker_compose_raw, regexp_replace(regexp_replace(docker_compose, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as docker_compose, connect_to_docker_network, service_type, compose_parsing_version, is_container_label_escape_enabled, redact_all_env_values_in_logs, include_coolify_default_variables, environment_id, server_id, destination_id, destination_type, deleted_at is not null as deleted from services where id = 1 order by id",
+    "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id = 1 order by a.id",
+    "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id = 1 order by d.id",
+    "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id = 1 order by e.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) order by v.id",
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+   }
+  },
+  {
+   "name": "services: update the flags",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001",
+   "body": {
+    "connect_to_docker_network": true,
+    "is_container_label_escape_enabled": false,
+    "redact_all_env_values_in_logs": false,
+    "include_coolify_default_variables": false
+   },
+   "after": {
+    "service": "select case when name ~ '^service-[A-Za-z0-9]{10}$' then 'service-<random>' else regexp_replace(regexp_replace(name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') end as name, description, docker_compose_raw, regexp_replace(regexp_replace(docker_compose, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as docker_compose, connect_to_docker_network, service_type, compose_parsing_version, is_container_label_escape_enabled, redact_all_env_values_in_logs, include_coolify_default_variables, environment_id, server_id, destination_id, destination_type, deleted_at is not null as deleted from services where id = 1 order by id",
+    "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id = 1 order by a.id",
+    "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id = 1 order by d.id",
+    "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id = 1 order by e.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) order by v.id",
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+   }
+  },
+  {
+   "name": "services: update the Compose file",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001",
+   "body": {
+    "docker_compose_raw": "c2VydmljZXM6CiAgd2ViOgogICAgaW1hZ2U6ICduZ2lueDoxLjI3LWFscGluZScKICAgIGVudmlyb25tZW50OgogICAgICAtICdGT089JHtGT086LWJhcn0nCiAgICAgIC0gJ0JBWj0ke0JBWjotcXV4fScKICBkYjoKICAgIGltYWdlOiAncG9zdGdyZXM6MTYtYWxwaW5lJwogICAgZW52aXJvbm1lbnQ6CiAgICAgIC0gJ1BPU1RHUkVTX1BBU1NXT1JEPSR7REJfUEFTU1dPUkR9Jwo="
+   },
+   "after": {
+    "service": "select case when name ~ '^service-[A-Za-z0-9]{10}$' then 'service-<random>' else regexp_replace(regexp_replace(name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') end as name, description, docker_compose_raw, regexp_replace(regexp_replace(docker_compose, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as docker_compose, connect_to_docker_network, service_type, compose_parsing_version, is_container_label_escape_enabled, redact_all_env_values_in_logs, include_coolify_default_variables, environment_id, server_id, destination_id, destination_type, deleted_at is not null as deleted from services where id = 1 order by id",
+    "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id = 1 order by a.id",
+    "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id = 1 order by d.id",
+    "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id = 1 order by e.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) order by v.id",
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+   }
+  },
+  {
+   "name": "services: update the urls",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001",
+   "body": {
+    "urls": [
+     {
+      "name": "web",
+      "url": "https://www.example.com,https://web2.example.com"
+     }
+    ]
+   },
+   "after": {
+    "service": "select case when name ~ '^service-[A-Za-z0-9]{10}$' then 'service-<random>' else regexp_replace(regexp_replace(name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') end as name, description, docker_compose_raw, regexp_replace(regexp_replace(docker_compose, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as docker_compose, connect_to_docker_network, service_type, compose_parsing_version, is_container_label_escape_enabled, redact_all_env_values_in_logs, include_coolify_default_variables, environment_id, server_id, destination_id, destination_type, deleted_at is not null as deleted from services where id = 1 order by id",
+    "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id = 1 order by a.id",
+    "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id = 1 order by d.id",
+    "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id = 1 order by e.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) order by v.id",
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+   }
+  },
+  {
+   "name": "services: update, a url another resource uses",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001",
+   "body": {
+    "urls": [
+     {
+      "name": "web",
+      "url": "https://image.example.com"
+     }
+    ]
+   },
+   "after": {
+    "service": "select case when name ~ '^service-[A-Za-z0-9]{10}$' then 'service-<random>' else regexp_replace(regexp_replace(name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') end as name, description, docker_compose_raw, regexp_replace(regexp_replace(docker_compose, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as docker_compose, connect_to_docker_network, service_type, compose_parsing_version, is_container_label_escape_enabled, redact_all_env_values_in_logs, include_coolify_default_variables, environment_id, server_id, destination_id, destination_type, deleted_at is not null as deleted from services where id = 1 order by id",
+    "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id = 1 order by a.id",
+    "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id = 1 order by d.id",
+    "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id = 1 order by e.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) order by v.id",
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+   }
+  },
+  {
+   "name": "services: update, urls of an unknown container",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001",
+   "body": {
+    "name": "kept-service",
+    "urls": [
+     {
+      "name": "db",
+      "url": "https://db.example.com"
+     }
+    ]
+   },
+   "after": {
+    "service": "select case when name ~ '^service-[A-Za-z0-9]{10}$' then 'service-<random>' else regexp_replace(regexp_replace(name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') end as name, description, docker_compose_raw, regexp_replace(regexp_replace(docker_compose, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as docker_compose, connect_to_docker_network, service_type, compose_parsing_version, is_container_label_escape_enabled, redact_all_env_values_in_logs, include_coolify_default_variables, environment_id, server_id, destination_id, destination_type, deleted_at is not null as deleted from services where id = 1 order by id",
+    "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id = 1 order by a.id",
+    "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id = 1 order by d.id",
+    "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id = 1 order by e.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) order by v.id",
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+   }
+  },
+  {
+   "name": "services: update, a url removed",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001",
+   "body": {
+    "urls": [
+     {
+      "name": "web",
+      "url": null
+     }
+    ]
+   },
+   "after": {
+    "service": "select case when name ~ '^service-[A-Za-z0-9]{10}$' then 'service-<random>' else regexp_replace(regexp_replace(name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') end as name, description, docker_compose_raw, regexp_replace(regexp_replace(docker_compose, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as docker_compose, connect_to_docker_network, service_type, compose_parsing_version, is_container_label_escape_enabled, redact_all_env_values_in_logs, include_coolify_default_variables, environment_id, server_id, destination_id, destination_type, deleted_at is not null as deleted from services where id = 1 order by id",
+    "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id = 1 order by a.id",
+    "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id = 1 order by d.id",
+    "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id = 1 order by e.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) order by v.id",
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+   }
+  },
+  {
+   "name": "services: update, invalid",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001",
+   "body": {
+    "name": "",
+    "description": 5,
+    "docker_compose_raw": 5,
+    "include_coolify_default_variables": "x",
+    "type": "excalidraw",
+    "urls": [
+     {
+      "name": "web"
+     }
+    ]
+   }
+  },
+  {
+   "name": "services: update, Compose file not base64",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001",
+   "body": {
+    "docker_compose_raw": "services:"
+   }
+  },
+  {
+   "name": "services: update, instant deploy without the deploy permission",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001",
+   "body": {
+    "name": "x-service",
+    "instant_deploy": true
+   }
+  },
+  {
+   "name": "services: update, instant deploy",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001",
+   "body": {
+    "name": "x-service",
+    "instant_deploy": true
+   },
+   "after": {
+    "service": "select case when name ~ '^service-[A-Za-z0-9]{10}$' then 'service-<random>' else regexp_replace(regexp_replace(name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') end as name, description, docker_compose_raw, regexp_replace(regexp_replace(docker_compose, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as docker_compose, connect_to_docker_network, service_type, compose_parsing_version, is_container_label_escape_enabled, redact_all_env_values_in_logs, include_coolify_default_variables, environment_id, server_id, destination_id, destination_type, deleted_at is not null as deleted from services where id = 1 order by id",
+    "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id = 1 order by a.id",
+    "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id = 1 order by d.id",
+    "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id = 1 order by e.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) order by v.id",
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+   }
+  },
+  {
+   "name": "services: update unknown",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/nonexistentuuid",
+   "body": {
+    "name": "nope-service"
+   }
+  },
+  {
+   "name": "services: update another team's",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f2otherservice0000000002",
+   "body": {
+    "name": "mine-service"
+   }
+  },
+  {
+   "name": "services: update, empty JSON",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001",
+   "raw": "{}"
+  },
+  {
+   "name": "services: delete",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/services/f1parityservice000000001",
+   "after": {
+    "service": "select count(*)::int as n from services where uuid = 'f1parityservice000000001' and deleted_at is null"
+   }
+  },
+  {
+   "name": "services: delete with options",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/services/f1parityservice000000001?delete_volumes=false&docker_cleanup=0&delete_configurations=false&delete_connected_networks=false",
+   "after": {
+    "service": "select count(*)::int as n from services where uuid = 'f1parityservice000000001' and deleted_at is null"
+   }
+  },
+  {
+   "name": "services: delete, from Coolify only",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/services/f1parityservice000000001?delete_from_coolify_only=true",
+   "after": {
+    "service": "select count(*)::int as n from services where uuid = 'f1parityservice000000001' and deleted_at is null"
+   }
+  },
+  {
+   "name": "services: delete unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/services/nonexistentuuid"
+  },
+  {
+   "name": "services: delete another team's",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/services/f2otherservice0000000002"
+  },
+  {
+   "name": "services: start",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/start"
+  },
+  {
+   "name": "services: start unknown",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/services/nonexistentuuid/start"
+  },
+  {
+   "name": "services: start with GET",
+   "token": "root",
+   "method": "GET",
+   "path": "/api/v1/services/f1parityservice000000001/start"
+  },
+  {
+   "name": "services: restart",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/restart"
+  },
+  {
+   "name": "services: restart unknown",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/services/nonexistentuuid/restart"
+  },
+  {
+   "name": "services: restart with GET",
+   "token": "root",
+   "method": "GET",
+   "path": "/api/v1/services/f1parityservice000000001/restart"
+  },
+  {
+   "name": "services: stop",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/stop"
+  },
+  {
+   "name": "services: stop unknown",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/services/nonexistentuuid/stop"
+  },
+  {
+   "name": "services: stop with GET",
+   "token": "root",
+   "method": "GET",
+   "path": "/api/v1/services/f1parityservice000000001/stop"
+  },
+  {
+   "name": "services: start a running service",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/start",
+   "setup": [
+    "update service_applications set status = 'running:healthy' where id = 1",
+    "update service_databases set status = 'running:healthy' where id = 1"
+   ]
+  },
+  {
+   "name": "services: stop with a write token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/stop"
+  },
+  {
+   "name": "service envs: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/services/f1parityservice000000001/envs"
+  },
+  {
+   "name": "service envs: list, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/services/f1parityservice000000001/envs"
+  },
+  {
+   "name": "service envs: list, member with read:sensitive",
+   "token": "memberSensitive",
+   "method": "GET",
+   "path": "/api/v1/services/f1parityservice000000001/envs"
+  },
+  {
+   "name": "service envs: list of unknown",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/services/nonexistentuuid/envs"
+  },
+  {
+   "name": "service envs: list another team's",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/services/f2otherservice0000000002/envs"
+  },
+  {
+   "name": "service envs: create",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/envs",
+   "body": {
+    "key": "NEW_KEY",
+    "value": "new value"
+   },
+   "after": {
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, \"order\", version from environment_variables where resourceable_type = 'App\\Models\\Service' and resourceable_id = 1 order by id"
+   }
+  },
+  {
+   "name": "service envs: create with every field",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/envs",
+   "body": {
+    "key": " spaced key ",
+    "value": "  kept  ",
+    "is_literal": true,
+    "is_multiline": true,
+    "is_shown_once": false,
+    "comment": "A comment"
+   },
+   "after": {
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, \"order\", version from environment_variables where resourceable_type = 'App\\Models\\Service' and resourceable_id = 1 order by id"
+   }
+  },
+  {
+   "name": "service envs: create a locked variable",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/envs",
+   "body": {
+    "key": "LOCKED",
+    "value": "hidden",
+    "is_shown_once": true
+   },
+   "after": {
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, \"order\", version from environment_variables where resourceable_type = 'App\\Models\\Service' and resourceable_id = 1 order by id"
+   }
+  },
+  {
+   "name": "service envs: create an existing key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/envs",
+   "body": {
+    "key": "FOO",
+    "value": "again"
+   }
+  },
+  {
+   "name": "service envs: create, invalid",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/envs",
+   "body": {
+    "key": "1BAD-KEY",
+    "value": 5,
+    "is_literal": "maybe",
+    "comment": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "is_preview": true
+   }
+  },
+  {
+   "name": "service envs: create, no key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/envs",
+   "body": {
+    "value": "v"
+   }
+  },
+  {
+   "name": "service envs: create in unknown",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/nonexistentuuid/envs",
+   "body": {
+    "key": "A",
+    "value": "v"
+   }
+  },
+  {
+   "name": "service envs: update",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001/envs",
+   "body": {
+    "key": "FOO",
+    "value": "changed",
+    "is_literal": true,
+    "comment": "Changed"
+   },
+   "after": {
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, \"order\", version from environment_variables where resourceable_type = 'App\\Models\\Service' and resourceable_id = 1 order by id"
+   }
+  },
+  {
+   "name": "service envs: update, read:sensitive answer",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001/envs",
+   "body": {
+    "key": "FOO",
+    "value": "changed",
+    "is_multiline": true
+   }
+  },
+  {
+   "name": "service envs: update a locked variable",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001/envs",
+   "body": {
+    "key": "DB_PASSWORD",
+    "value": "newDbPass1"
+   },
+   "after": {
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, \"order\", version from environment_variables where resourceable_type = 'App\\Models\\Service' and resourceable_id = 1 order by id"
+   }
+  },
+  {
+   "name": "service envs: update unknown key",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001/envs",
+   "body": {
+    "key": "NOPE",
+    "value": "x"
+   }
+  },
+  {
+   "name": "service envs: update, invalid",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001/envs",
+   "body": {
+    "value": [
+     "x"
+    ],
+    "is_shown_once": 2
+   }
+  },
+  {
+   "name": "service envs: bulk",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001/envs/bulk",
+   "body": {
+    "data": [
+     {
+      "key": "FOO",
+      "value": "bulk foo"
+     },
+     {
+      "key": "BULK_NEW",
+      "value": "new",
+      "is_literal": true,
+      "ignored": "x"
+     },
+     {
+      "key": "BULK_LOCKED",
+      "value": "l",
+      "is_shown_once": true
+     }
+    ]
+   },
+   "after": {
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, \"order\", version from environment_variables where resourceable_type = 'App\\Models\\Service' and resourceable_id = 1 order by id"
+   }
+  },
+  {
+   "name": "service envs: bulk, root answer",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001/envs/bulk",
+   "body": {
+    "data": [
+     {
+      "key": "FOO",
+      "comment": "Bulk"
+     },
+     {
+      "key": "BULK_TWO",
+      "value": null
+     }
+    ]
+   }
+  },
+  {
+   "name": "service envs: bulk, no data",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001/envs/bulk",
+   "body": {
+    "data": []
+   }
+  },
+  {
+   "name": "service envs: bulk, invalid item",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001/envs/bulk",
+   "body": {
+    "data": [
+     {
+      "key": "GOOD",
+      "value": "1"
+     },
+     {
+      "key": "BAD KEY!",
+      "value": "x"
+     }
+    ]
+   },
+   "after": {
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, \"order\", version from environment_variables where resourceable_type = 'App\\Models\\Service' and resourceable_id = 1 order by id"
+   }
+  },
+  {
+   "name": "service envs: bulk in unknown",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/nonexistentuuid/envs/bulk",
+   "body": {
+    "data": [
+     {
+      "key": "A"
+     }
+    ]
+   }
+  },
+  {
+   "name": "service envs: delete",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/services/f1parityservice000000001/envs/w1parityservicefoo000001",
+   "after": {
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, \"order\", version from environment_variables where resourceable_type = 'App\\Models\\Service' and resourceable_id = 1 order by id"
+   }
+  },
+  {
+   "name": "service envs: delete unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/services/f1parityservice000000001/envs/nonexistentuuid"
+  },
+  {
+   "name": "service envs: delete another service's",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/services/f1parityservice000000001/envs/w3otherservicevar0000003"
+  },
+  {
+   "name": "service envs: delete an application's",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/services/f1parityservice000000001/envs/v1parityfoovariable00001"
+  },
+  {
+   "name": "deployments: by application",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/deployments/applications/a1parityimageapp00000001"
+  },
+  {
+   "name": "deployments: by application, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/deployments/applications/a1parityimageapp00000001"
+  },
+  {
+   "name": "deployments: by application, skip and take",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/deployments/applications/a1parityimageapp00000001?skip=1&take=1"
+  },
+  {
+   "name": "deployments: by application, taken past the end",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/deployments/applications/a1parityimageapp00000001?skip=5"
+  },
+  {
+   "name": "deployments: by application, invalid skip and take",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/deployments/applications/a1parityimageapp00000001?skip=-1&take=abc"
+  },
+  {
+   "name": "deployments: by application, take zero",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/deployments/applications/a1parityimageapp00000001?take=0"
+  },
+  {
+   "name": "deployments: by a git application",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/deployments/applications/a2paritygitapp0000000002"
+  },
+  {
+   "name": "deployments: by another team's application",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/deployments/applications/a3otherteamapp0000000003"
+  },
+  {
+   "name": "deployments: by an unknown application",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/deployments/applications/nonexistentuuid"
+  },
+  {
+   "name": "deployments: cancel a running one",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/deployments/q1parityinprogress000001/cancel",
+   "after": {
+    "deployments": "select deployment_uuid, application_id, status, finished_at is not null as finished from application_deployment_queues where application_id in ('1', '2') order by id"
+   }
+  },
+  {
+   "name": "deployments: cancel a queued one",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/deployments/q2parityqueued0000000002/cancel",
+   "after": {
+    "deployments": "select deployment_uuid, application_id, status, finished_at is not null as finished from application_deployment_queues where application_id in ('1', '2') order by id"
+   }
+  },
+  {
+   "name": "deployments: cancel a finished one",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/deployments/q3parityfinished00000003/cancel",
+   "after": {
+    "deployments": "select deployment_uuid, application_id, status, finished_at is not null as finished from application_deployment_queues where application_id in ('1', '2') order by id"
+   }
+  },
+  {
+   "name": "deployments: cancel a failed one",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/deployments/q5paritygitfailed0000005/cancel"
+  },
+  {
+   "name": "deployments: cancel another team's",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/deployments/q4otherinprogress0000004/cancel",
+   "after": {
+    "deployments": "select deployment_uuid, application_id, status, finished_at is not null as finished from application_deployment_queues where application_id in ('1', '2') order by id"
+   }
+  },
+  {
+   "name": "deployments: cancel unknown",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/deployments/nonexistentuuid/cancel"
+  },
+  {
+   "name": "deployments: cancel with a write token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/deployments/q1parityinprogress000001/cancel"
+  },
+  {
+   "name": "deploy: with GET",
+   "token": "root",
+   "method": "GET",
+   "path": "/api/v1/deploy?uuid=a1parityimageapp00000001"
+  },
+  {
+   "name": "deploy: nothing named",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/deploy"
+  },
+  {
+   "name": "deploy: uuid and tag",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/deploy?uuid=a1parityimageapp00000001&tag=web"
+  },
+  {
+   "name": "deploy: tag and pull request",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/deploy?tag=web&pr=3"
+  },
+  {
+   "name": "deploy: an unknown cancel_previous",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/deploy?uuid=a1parityimageapp00000001&cancel_previous=all"
+  },
+  {
+   "name": "deploy: a pull request too large",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/deploy?uuid=a1parityimageapp00000001&pull_request_id=2147483648"
+  },
+  {
+   "name": "deploy: an invalid docker tag",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/deploy?uuid=a1parityimageapp00000001&pr=2&docker_tag=bad%20tag"
+  },
+  {
+   "name": "deploy: a docker tag without a pull request",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/deploy?uuid=a1parityimageapp00000001&docker_tag=v2"
+  },
+  {
+   "name": "deploy: a docker tag and a tag",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/deploy?tag=web&docker_tag=v2"
+  },
+  {
+   "name": "deploy: unknown uuids",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/deploy?uuid=nonexistentuuid,alsonotthere"
+  },
+  {
+   "name": "deploy: only commas",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/deploy?uuid=,,"
+  },
+  {
+   "name": "deploy: another team's application",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/deploy?uuid=a3otherteamapp0000000003"
+  },
+  {
+   "name": "deploy: an unknown tag",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/deploy?tag=nope"
+  },
+  {
+   "name": "deploy: only commas for tags",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/deploy?tag=,,"
+  },
+  {
+   "name": "deploy: an application",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/deploy?uuid=a1parityimageapp00000001",
+   "after": {
+    "deployments": "select deployment_uuid, application_id, status, finished_at is not null as finished from application_deployment_queues where application_id in ('1', '2') order by id"
+   }
+  },
+  {
+   "name": "deploy: an application, in the body",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/deploy",
+   "body": {
+    "uuid": "a2paritygitapp0000000002",
+    "force": true
+   },
+   "after": {
+    "deployments": "select deployment_uuid, application_id, status, finished_at is not null as finished from application_deployment_queues where application_id in ('1', '2') order by id"
+   }
+  },
+  {
+   "name": "deploy: a pull request that does not exist",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/deploy?uuid=a2paritygitapp0000000002&pr=7",
+   "after": {
+    "deployments": "select deployment_uuid, application_id, status, finished_at is not null as finished from application_deployment_queues where application_id in ('1', '2') order by id"
+   }
+  },
+  {
+   "name": "deploy: a service",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/deploy?uuid=f1parityservice000000001"
+  },
+  {
+   "name": "deploy: a database",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/deploy?uuid=b2parityredis00000000002"
+  },
+  {
+   "name": "deploy: with a read token",
+   "token": "read",
+   "method": "POST",
+   "path": "/api/v1/deploy?uuid=a1parityimageapp00000001"
   }
  ]
 }

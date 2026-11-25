@@ -93,6 +93,32 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("POST", "/databases/{uuid}/start", "deploy", "deploy"),
   r("POST", "/databases/{uuid}/restart", "deploy", "deploy"),
   r("POST", "/databases/{uuid}/stop", "deploy", "deploy"),
+
+  // DP-74: deploying and deployments (GET /deployments and GET /deployments/{uuid} are not ported), then services and
+  // their environment variables. routes/api.php's /deploy and /deployments come before /servers; no route here
+  // matches both, so the order between the groups does not change which route answers.
+  // OtherController::post_required
+  r("GET", "/deploy", "deploy", "deploy"),
+  r("POST", "/deploy", "deploy", "deploy"),
+  r("POST", "/deployments/{uuid}/cancel", "deploy", "deploy"),
+  r("GET", "/deployments/applications/{uuid}", "read", "deploy"),
+  r("GET", "/services", "read", "deploy"),
+  r("POST", "/services", "write", "deploy"),
+  r("GET", "/services/{uuid}", "read", "deploy"),
+  r("PATCH", "/services/{uuid}", "write", "deploy"),
+  r("DELETE", "/services/{uuid}", "delete", "deploy"),
+  r("GET", "/services/{uuid}/envs", "read", "deploy"),
+  r("POST", "/services/{uuid}/envs", "write", "deploy"),
+  r("PATCH", "/services/{uuid}/envs/bulk", "write", "deploy"),
+  r("PATCH", "/services/{uuid}/envs", "write", "deploy"),
+  r("DELETE", "/services/{uuid}/envs/{env_uuid}", "delete", "deploy"),
+  // OtherController::post_required
+  r("GET", "/services/{uuid}/start", "deploy", "deploy"),
+  r("GET", "/services/{uuid}/restart", "deploy", "deploy"),
+  r("GET", "/services/{uuid}/stop", "deploy", "deploy"),
+  r("POST", "/services/{uuid}/start", "deploy", "deploy"),
+  r("POST", "/services/{uuid}/restart", "deploy", "deploy"),
+  r("POST", "/services/{uuid}/stop", "deploy", "deploy"),
 ];
 
 /** Laravel's route parameters match one segment ([^/]+). */

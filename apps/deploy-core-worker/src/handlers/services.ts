@@ -54,15 +54,18 @@ function sqlStore(tx: SqlExecutor, orgId: string): ServiceStore {
   };
 }
 
+/** One org's service store and ciphers over a transaction (also /api/v1's, DP-74). */
+export function serviceContext(tx: SqlExecutor, orgId: string, secret: string | undefined): ServiceContext {
+  // One cipher per encrypted column: the value is bound to "<table>.<column>".
+  const variables = columnCipher(tx, orgId, secret, "environment_variables.value");
+  const files = columnCipher(tx, orgId, secret, "local_file_volumes.content");
+  return { store: sqlStore(tx, orgId), encryptVariable: (plaintext) => variables.encrypt(plaintext), encryptFileContent: (plaintext) => files.encrypt(plaintext) };
+}
+
 export const runServicesInOrg: ServiceRunner = async (env, orgId, fn) => {
   const db = createSqlExecutor(env.PLATFORM_DB!);
   try {
-    return await withOrg(db, orgId, (tx) => {
-      // One cipher per encrypted column: the value is bound to "<table>.<column>".
-      const variables = columnCipher(tx, orgId, env.DEPLOY_ENCRYPTION_KEY, "environment_variables.value");
-      const files = columnCipher(tx, orgId, env.DEPLOY_ENCRYPTION_KEY, "local_file_volumes.content");
-      return fn({ store: sqlStore(tx, orgId), encryptVariable: (plaintext) => variables.encrypt(plaintext), encryptFileContent: (plaintext) => files.encrypt(plaintext) });
-    });
+    return await withOrg(db, orgId, (tx) => fn(serviceContext(tx, orgId, env.DEPLOY_ENCRYPTION_KEY)));
   } finally {
     await db.dispose();
   }

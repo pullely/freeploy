@@ -1,0 +1,22 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-74
+  title: "DP9: /api/v1 for services and their environment variables, and for deployments — an application's deployments, cancel, deploy by uuid or tag"
+spec:
+  goal: Coolify's /api/v1 answers, on DP-70's pipeline (api-edge's middleware and routes, deploy-core-worker's internal mount), for an org's services and their environment variables and for deployments, on the services and stores the console uses — the service rows and parser of the New Resource page (newServiceFromTemplate(), createServiceFromTemplate(), parseService(), the same parse for a Compose file the request gives), the rows loaded, parsed again and written back as StackForm::submit() does, updateCompose() for a container's urls, deleteServiceNow()'s never-started rule, the Environment Variables page's createVariable() and saveVariable(), the deployment queue's rows and the console's "not available yet" answers — with Coolify's controllers' validation, messages, status codes, key order and read:sensitive hiding, every body in Coolify's own JSON bytes. 16 more of openapi.json's 330 operations are ported (73 in all) — services list, show, create (from a one-click template or a Compose file), update, delete, start, stop and restart, their environment variables list, create, update, bulk update and delete (13), and POST /deploy, POST /deployments/{uuid}/cancel and GET /deployments/applications/{uuid} (3) — each replayed byte for byte (masked ids, uuids — also a created service's uuid in a generated domain — and dates) against goldens emitted by Coolify's real PHP, and each write's rows compared with the rows Coolify's left; the other 257 answer Coolify's 404 shape. Start and restart of a service, an instant deploy, cancelling a queued or running deployment and a deploy that would queue or start anything answer 501 "… needs the SSH executor, which is not available yet." in Coolify's envelope, after Coolify's own refusals. Not ported in the groups done — GET /deployments and GET /deployments/{uuid} (they serialize the deployment's application with its environment, project and team, and the team is membership-worker's organization), the services' logs, storages, storage backup schedules, tags, DNS, scheduled tasks, move, migrate, clone, vulnerabilities and their applications' and databases' own routes. Cut, from the end of the task's order — GET /resources and GET /projects/{uuid}/{environment}, servers create, update, delete, resources and domains, PATCH /team, S3 storages, cloud tokens and scheduled tasks.
+  affects:
+    - apps/api-edge/**
+    - apps/deploy-core-worker/**
+    - packages/db/**
+    - tests/api-edge/**
+    - tests/deploy-core-worker/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - every case of tests/deploy-core-worker/fixtures/api/cases.json (422 cases, 127 of them DP-74's) replays against Freeploy byte-equal to goldens.json after the documented masking, except the listed departures (a service's start and restart, an instant deploy, cancelling a queued or running deployment and a deploy that would run answer 501; another team's deployment is not told apart from an unknown one; the list of service types is Freeploy's catalogue, Coolify's committed list and the four templates generated since), DP-70's not-ported operations, which answer Coolify's 404, and the middleware answers, which tests/api-edge replays
+    - the rows each DP-74 write leaves in Freeploy's database (PGlite with the deploy schema at head) equal the golden's `after` rows — created services with their parts, variables, volumes, tags and generated Compose file — except the listed departures, which store nothing
+    - deploy-core-worker's COOLIFY_COLUMNS equals the column order emit.php reads from Coolify's schema, services and their parts included
+    - specs/epics/freeploy-coolify-parity/parity/openapi.operations.json marks the 16 operations ported with taskKey DP-74 (73 ported of 330 in all), and node tools/parity/inventory.ts --check passes
+    - on stage, POST https://<edge>/api/v1/services with a write token and a one-click type creates the service with its parts and variables, starting nothing, and GET /api/v1/services answers it as Coolify does
+  gates: []

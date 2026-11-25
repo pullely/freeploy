@@ -1,14 +1,15 @@
-# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73)
+# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74)
 
 What Coolify's real API answers, so that Freeploy's `/api/v1` (api-edge's middleware and limiters,
 identity-worker's teams and tokens, deploy-core-worker's projects, environments, private keys and servers —
 DP-70 —, its applications and their environment variables — DP-71 — and its standalone databases and their backup
-schedules — DP-73) can be replayed against it byte for byte.
+schedules — DP-73 — and its services and their environment variables, an application's deployments, cancelling a deployment and
+deploying by uuid or tag — DP-74) can be replayed against it byte for byte.
 
 | File | What it is |
 |---|---|
 | `cases.mjs` | writes `cases.json` (`node cases.mjs > cases.json`): the fixture and every request |
-| `cases.json` | the fixture (teams, users with their roles, projects and environments, private keys from `../ssh-keys`, a server per team with its default destination, applications and their variables, an S3 storage per team, the eight standalone database engines — made by Coolify's `create_standalone_<engine>()` helpers, so the created hook's volumes and Redis's variables are made too — and another team's PostgreSQL, four backup schedules and two executions, API tokens with fixed plain text) and the requests: a method, a path, a token of the fixture (sent as `Bearer <id>\|<plain text>`) or a raw `Authorization` header, a JSON body or raw content, the client IP, the instance settings (`is_api_enabled`, `allowed_ips`) and the limits (`API_RATE_LIMIT`, `API_FAILED_REQUEST_RATE_LIMIT`); a `sequence` is several requests sharing one cache, with `advance` moving the clock |
+| `cases.json` | the fixture (teams, users with their roles, projects and environments, private keys from `../ssh-keys`, a server per team with its default destination, applications and their variables, an S3 storage per team, the eight standalone database engines — made by Coolify's `create_standalone_<engine>()` helpers, so the created hook's volumes and Redis's variables are made too — and another team's PostgreSQL, four backup schedules and two executions, a service per team with its parts and variables and five deployments (DP-74), API tokens with fixed plain text) and the requests: a method, a path, a token of the fixture (sent as `Bearer <id>\|<plain text>`) or a raw `Authorization` header, a JSON body or raw content, the client IP, the instance settings (`is_api_enabled`, `allowed_ips`) and the limits (`API_RATE_LIMIT`, `API_FAILED_REQUEST_RATE_LIMIT`); a `sequence` is several requests sharing one cache, with `advance` moving the clock |
 | `emit.php` | sends each request through Coolify's HTTP kernel and prints the answers. Nothing in it is a port |
 | `goldens.json` | its output: per request the status, the rate-limit headers and content type, and the body exactly as Coolify wrote it; for a write, the rows it left (`after`); and the column order of the tables whose rows the API writes unsorted (`columns`: a loaded relation such as an application's destination, its server and their settings). Never edited by hand |
 | `freeploy-rows.json` | not Coolify's: the rows Freeploy's own database gives for the fixture (every column, type and default), written and checked by `tests/db/src/deploy-api-v1.test.ts`; DP-70's replay (`src/api-v1.test.ts`) makes its memory stores from them |
@@ -23,6 +24,11 @@ Coolify's helpers filled, the data volumes, Redis's two variables), the S3 stora
 A sequence does not roll back with its transaction, so an id a case's write takes is not compared (`after` reads
 whether a row is the fixture's instead), and the schedules' numeric retention sizes are read as `::float8::text`: the
 two drivers give a numeric differently.
+DP-74's replay (`src/api-v1-services.test.ts`) adds a service per team (`insertParsedService()` with the columns, parts and
+variables emit.php makes through the models) and five deployments in the queue, and runs a case's `setup` (SQL emit.php runs
+before the request, on the tables of the same names). A write that makes random values is compared on what is not random: the
+`after` queries write a uuid the request made as `<uuid>` and the random name of a service made from a Compose file without
+one (`str()->random(10)`) as `service-<random>`, inside the names, domains and generated Compose files they read.
 
 ## How the goldens are made
 
@@ -63,7 +69,9 @@ Both sides go through the same masking before they are compared (`src/api-v1-gol
   Freeploy's server creation stores none;
 - the `name` of a server's default destination (`destination.name`): Coolify's `coolify`, Freeploy's `freeploy` (a
   label in the console, `DEFAULT_STANDALONE_DESTINATION`; the network is `coolify` on both) as
-  `<default-destination-name>` (DP-71).
+  `<default-destination-name>` (DP-71);
+- a uuid the request made where a generated domain names its container after it (`http://<name>-<uuid>.<host>` of a
+  created service's `domains`) as `-<new-uuid>.` (DP-74).
 
 Everything else — every other key, its position, its type, every message — is compared byte for byte, the
 JSON written again by `phpJsonEncode` (PHP's `json_encode`, `\/` included); a test checks that it writes
