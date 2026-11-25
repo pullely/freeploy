@@ -830,7 +830,7 @@ describe("the Scheduled Tasks page (ScheduledTask\\All, Add, Show, Executions)",
       expect([frequency, (await t.post("scheduled-tasks", { ...TASK, frequency })).status]).toEqual([frequency, 201]);
     }
     const before = t.store.taskRows.length;
-    for (const frequency of ["every_hour", "sometimes", "* * * *", "61 * * * *", "0 0 * * * *", " daily"]) {
+    for (const frequency of ["every_hour", "sometimes", "* * * *", "61 * * * *", "0 0 * * * *", " daily", "0 0 * * MON-FRI", "@midnight"]) {
       expect([frequency, ...t.refused(await t.post("scheduled-tasks", { ...TASK, frequency }))]).toEqual([frequency, 422, "Invalid Cron / Human expression."]);
     }
     expect(t.store.taskRows).toHaveLength(before);

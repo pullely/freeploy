@@ -1,7 +1,8 @@
 // Derived from coollabsio/coolify@91b7e3e:bootstrap/helpers/shared.php (validate_cron_expression) and
 // bootstrap/helpers/constants.php (VALID_CRON_STRINGS) (Apache-2.0), modified.
 //
-// Cron expression checks for backup schedules (DP-65).
+// Coolify's validate_cron_expression(), for every caller: backup schedules (DP-65), and since DP-68 the
+// server settings pages and scheduled tasks too (servers/settings-validation.ts delegates here).
 //
 // The five-field parser below is an independent implementation, written from
 // the verdicts Coolify's PHP gives (tests/deploy-core-worker/fixtures/s3,
@@ -19,20 +20,7 @@
 // ones, a single value with a step, empty list items, non-digits), and a
 // schedule that can never fire (31 April, 30 February).
 
-/** Coolify's VALID_CRON_STRINGS: accepted by name, exactly as written. */
-const NAMED_SCHEDULES: ReadonlySet<string> = new Set([
-  "every_minute",
-  "hourly",
-  "daily",
-  "weekly",
-  "monthly",
-  "yearly",
-  "@hourly",
-  "@daily",
-  "@weekly",
-  "@monthly",
-  "@yearly",
-]);
+import { VALID_CRON_STRINGS } from "./cron-presets.js";
 
 interface FieldSpec {
   lo: number;
@@ -159,6 +147,7 @@ export function isValidCronExpression(expression: string, now: Date = new Date()
  */
 export function validateCronExpressionStrict(expression: unknown): boolean {
   if (typeof expression !== "string" || expression === "" || expression === "0") return false;
-  if (NAMED_SCHEDULES.has(expression)) return true;
+  // Coolify's VALID_CRON_STRINGS: accepted by name, exactly as written.
+  if (Object.hasOwn(VALID_CRON_STRINGS, expression)) return true;
   return isValidCronExpression(expression);
 }

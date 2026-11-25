@@ -3,6 +3,8 @@
 // secrets encrypted), what needs SSH answering "not available yet", and the
 // routing and authorization through handleServers. The SQL behind the store
 // is tested in tests/db.
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { route } from "@deploy-core-worker/router";
 import type { Env } from "@deploy-core-worker/env";
 import { handleServers, type ServerRunner } from "@deploy-core-worker/handlers/servers";
@@ -12,7 +14,6 @@ import { sentinelStatus } from "@deploy-core-worker/servers/settings";
 import {
   attribute,
   fluentBitConfigError,
-  isValidCronExpression,
   validateAdvanced,
   validateCronExpression,
   validateDockerCleanup,
@@ -177,10 +178,21 @@ describe("rules and messages (Laravel's defaults with the Livewire property as a
     });
   });
 
-  it("validate_cron_expression: presets and five-field expressions", () => {
-    for (const ok of ["daily", "@hourly", "every_minute", "*/10 * * * *", "0 23 * * *", "0 0 1 JAN MON-FRI", "15,45 1-5/2 L * 5L"]) expect(validateCronExpression(ok)).toBe(true);
-    for (const bad of ["", "nope", "* * * *", "60 * * * *", "* 24 * * *", "* * 0 * *", "*/0 * * * *", "* * * * * *"]) expect(validateCronExpression(bad)).toBe(false);
-    expect(isValidCronExpression("@midnight")).toBe(true);
+  it("validate_cron_expression: Coolify's verdict for every golden expression (fixtures/s3, emitted by its real PHP)", () => {
+    const { cron } = JSON.parse(readFileSync(join(process.cwd(), "fixtures", "s3", "goldens.json"), "utf8")) as { cron: Array<{ value: string; valid: boolean }> };
+    expect(cron.length).toBeGreaterThan(40);
+    for (const { value, valid } of cron) expect([value, validateCronExpression(value)]).toEqual([value, valid]);
+  });
+
+  it("validate_cron_expression: what the server settings pages accept, and what Coolify refuses that an earlier port accepted", () => {
+    for (const ok of ["daily", "@hourly", "every_minute", "*/10 * * * *", "0 23 * * *", "*/15 9-17 * * 1-5", "0 0 1 JAN *"]) expect([ok, validateCronExpression(ok)]).toEqual([ok, true]);
+    // Refused by Coolify's validate_cron_expression() at 91b7e3e (checked against its real PHP): weekday names in a range,
+    // L, the @midnight macro, and the usual malformed inputs.
+    for (const bad of ["0 0 1 JAN MON-FRI", "15,45 1-5/2 L * 5L", "@midnight", "", "nope", "* * * *", "60 * * * *", "* 24 * * *", "* * 0 * *", "*/0 * * * *", "* * * * * *", "0"]) {
+      expect([bad, validateCronExpression(bad)]).toEqual([bad, false]);
+    }
+    expect(validateCronExpression(undefined)).toBe(false);
+    expect(validateCronExpression(5)).toBe(false);
   });
 
   it("Log Drains: one at a time, the enabled drain's fields, the field formats", () => {
@@ -255,6 +267,11 @@ describe("Advanced and Docker Cleanup", () => {
     expect(bad.status).toBe(422);
     expect(bad.body.error?.message).toBe("Invalid Cron / Human expression for Disk Usage Check Frequency.");
     expect(t.store.row.concurrent_builds).toBe(2);
+    // Coolify refuses these too (DP-68): a weekday range by name, and the @midnight macro.
+    for (const frequency of ["0 23 * * MON-FRI", "@midnight"]) {
+      expect((await t.call("PATCH", `${UUID}/advanced`, advanced({ serverDiskUsageCheckFrequency: frequency }))).body.error?.message).toBe("Invalid Cron / Human expression for Disk Usage Check Frequency.");
+    }
+    expect(t.store.row.concurrent_builds).toBe(2);
     expect((await t.call("PATCH", `${UUID}/advanced`, advanced({ serverDiskUsageCheckFrequency: "whenever", instantSave: true }))).status).toBe(200);
     expect((await t.call("PATCH", `${UUID}/advanced`, advanced({ concurrentBuilds: "0" }))).body.error?.details.fields).toEqual({ concurrentBuilds: ["The concurrent builds field must be at least 1."] });
   });
@@ -266,6 +283,10 @@ describe("Advanced and Docker Cleanup", () => {
     expect(t.store.row).toMatchObject({ docker_cleanup_frequency: "0 0 * * *", force_docker_cleanup: false, delete_unused_volumes: true });
     const bad = await t.call("PATCH", `${UUID}/docker-cleanup`, { dockerCleanupFrequency: "sometimes", dockerCleanupThreshold: 70 });
     expect(bad.body.error?.message).toBe("Invalid Cron / Human expression for Docker Cleanup Frequency.");
+    for (const frequency of ["0 0 * * MON-FRI", "@midnight", "0 0 L * *"]) {
+      expect((await t.call("PATCH", `${UUID}/docker-cleanup`, { dockerCleanupFrequency: frequency, dockerCleanupThreshold: 70 })).body.error?.message).toBe("Invalid Cron / Human expression for Docker Cleanup Frequency.");
+    }
+    expect(t.store.row.docker_cleanup_frequency).toBe("0 0 * * *");
     const run = await t.call("POST", `${UUID}/docker-cleanup/run`, {});
     expect(run.status).toBe(501);
     expect(run.body.error).toMatchObject({ code: "unsupported", message: "Running Docker cleanup needs the SSH executor, which is not available yet." });
