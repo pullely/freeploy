@@ -1,16 +1,22 @@
-# Coolify's /api/v1 goldens (DP-70)
+# Coolify's /api/v1 goldens (DP-70, DP-71)
 
 What Coolify's real API answers, so that Freeploy's `/api/v1` (api-edge's middleware and limiters,
-identity-worker's teams and tokens, deploy-core-worker's projects, environments, private keys and servers)
-can be replayed against it byte for byte.
+identity-worker's teams and tokens, deploy-core-worker's projects, environments, private keys and servers —
+DP-70 — and its applications and their environment variables — DP-71) can be replayed against it byte for byte.
 
 | File | What it is |
 |---|---|
 | `cases.mjs` | writes `cases.json` (`node cases.mjs > cases.json`): the fixture and every request |
-| `cases.json` | the fixture (teams, users with their roles, projects and environments, private keys from `../ssh-keys`, a server, API tokens with fixed plain text) and the requests: a method, a path, a token of the fixture (sent as `Bearer <id>\|<plain text>`) or a raw `Authorization` header, a JSON body or raw content, the client IP, the instance settings (`is_api_enabled`, `allowed_ips`) and the limits (`API_RATE_LIMIT`, `API_FAILED_REQUEST_RATE_LIMIT`); a `sequence` is several requests sharing one cache, with `advance` moving the clock |
+| `cases.json` | the fixture (teams, users with their roles, projects and environments, private keys from `../ssh-keys`, a server per team with its default destination, applications and their variables, API tokens with fixed plain text) and the requests: a method, a path, a token of the fixture (sent as `Bearer <id>\|<plain text>`) or a raw `Authorization` header, a JSON body or raw content, the client IP, the instance settings (`is_api_enabled`, `allowed_ips`) and the limits (`API_RATE_LIMIT`, `API_FAILED_REQUEST_RATE_LIMIT`); a `sequence` is several requests sharing one cache, with `advance` moving the clock |
 | `emit.php` | sends each request through Coolify's HTTP kernel and prints the answers. Nothing in it is a port |
-| `goldens.json` | its output: per request the status, the rate-limit headers and content type, and the body exactly as Coolify wrote it; for a write, the rows it left (`after`). Never edited by hand |
-| `freeploy-rows.json` | not Coolify's: the rows Freeploy's own database gives for the fixture (every column, type and default), written and checked by `tests/db/src/deploy-api-v1.test.ts`; the replay's memory stores are made from them |
+| `goldens.json` | its output: per request the status, the rate-limit headers and content type, and the body exactly as Coolify wrote it; for a write, the rows it left (`after`); and the column order of the tables whose rows the API writes unsorted (`columns`: a loaded relation such as an application's destination, its server and their settings). Never edited by hand |
+| `freeploy-rows.json` | not Coolify's: the rows Freeploy's own database gives for the fixture (every column, type and default), written and checked by `tests/db/src/deploy-api-v1.test.ts`; DP-70's replay (`src/api-v1.test.ts`) makes its memory stores from them |
+
+DP-71's replay (`src/api-v1-resources.test.ts`) runs on Freeploy's own database instead: `src/api-v1-database.ts`
+makes PGlite with every migration of the deploy bounded context, makes the fixture with Freeploy's insert functions in
+Coolify's order (so every serial id is the fixture's), and runs each case in a transaction it rolls back, as `emit.php`
+does; the handler calls the services with their SQL stores, so a write's rows are compared too (the golden's `after`,
+the same SQL run on Freeploy's tables). PGlite is tests/db's dependency, mapped by this package's jest and tsconfig.
 
 ## How the goldens are made
 
@@ -25,8 +31,11 @@ DB_HOST=127.0.0.1 DB_PORT=5432 DB_DATABASE=<scratch db> DB_USERNAME=<user> DB_PA
   php emit.php <scratch copy> cases.json > goldens.json
 ```
 
-`emit.php` runs `migrate:fresh`, makes the fixture with its ids and uuids, and sends every case through
-`Illuminate\Contracts\Http\Kernel::handle()` with `Accept: application/json`: the global middleware
+`emit.php` runs `migrate:fresh`, makes the fixture with its ids and uuids (the applications and variables through their
+models, so their hooks run; each server's default destination given the fixture's uuid), and sends every case through
+`Illuminate\Contracts\Http\Kernel::handle()` with `Accept: application/json`, the request made as `Request::capture()`
+makes it in production (`createFromBase()`: a JSON body is also the request bag `$request->get()` reads; a form body is
+parsed as PHP parses `$_POST`), and Server's request-scoped identity map (a static array) flushed before each request: the global middleware
 (`ThrottleFailedApiRequests` among them), the `api` group's `throttle:api`, then the route's
 `auth:sanctum`, `api.token.team`, `ApiAllowed`, `api.sensitive` and `api.ability`. Each case is a database
 transaction that is rolled back, with an empty cache. Fixed: the clock (2026-01-01T00:00:00Z), `APP_DEBUG`
@@ -44,7 +53,10 @@ Both sides go through the same masking before they are compared (`src/api-v1-gol
   (`org_…`), as `<team>`; a member's `id` (Coolify's integer, Freeploy's `usr_…`) as `<user:EMAIL>`;
 - the id of a server's settings row (an auto-increment neither side fixes) as `<settings-id>`;
 - `sentinel_token` as `<secret>`: Coolify writes its encrypted text, which no other system can make, and
-  Freeploy's server creation stores none.
+  Freeploy's server creation stores none;
+- the `name` of a server's default destination (`destination.name`): Coolify's `coolify`, Freeploy's `freeploy` (a
+  label in the console, `DEFAULT_STANDALONE_DESTINATION`; the network is `coolify` on both) as
+  `<default-destination-name>` (DP-71).
 
 Everything else — every other key, its position, its type, every message — is compared byte for byte, the
 JSON written again by `phpJsonEncode` (PHP's `json_encode`, `\/` included); a test checks that it writes

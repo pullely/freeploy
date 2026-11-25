@@ -150,6 +150,149 @@
     "port": 22,
     "team": 1,
     "private_key_id": 1
+   },
+   {
+    "id": 2,
+    "uuid": "s2otherteamserver0000002",
+    "name": "other-server",
+    "description": null,
+    "ip": "203.0.113.20",
+    "user": "root",
+    "port": 22,
+    "team": 2,
+    "private_key_id": 3
+   }
+  ],
+  "destinations": [
+   {
+    "id": 1,
+    "uuid": "d1paritydestination00001",
+    "server_id": 1
+   },
+   {
+    "id": 2,
+    "uuid": "d2otherdestination000002",
+    "server_id": 2
+   }
+  ],
+  "applications": [
+   {
+    "id": 1,
+    "uuid": "a1parityimageapp00000001",
+    "team": 1,
+    "environment_id": 1,
+    "destination_id": 1,
+    "name": "parity-image",
+    "fqdn": "https://image.example.com",
+    "columns": {
+     "repository_project_id": 0,
+     "git_repository": "coollabsio/coolify",
+     "git_branch": "main",
+     "build_pack": "dockerimage",
+     "ports_exposes": "80",
+     "docker_registry_image_name": "nginx",
+     "docker_registry_image_tag": "alpine",
+     "health_check_enabled": false,
+     "manual_webhook_secret_github": "imagegithubxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "manual_webhook_secret_gitlab": "imagegitlabxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "manual_webhook_secret_bitbucket": "imagebitbucketxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "manual_webhook_secret_gitea": "imagegiteaxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    }
+   },
+   {
+    "id": 2,
+    "uuid": "a2paritygitapp0000000002",
+    "team": 1,
+    "environment_id": 1,
+    "destination_id": 1,
+    "name": "parity-git",
+    "fqdn": null,
+    "columns": {
+     "git_repository": "coollabsio/coolify-examples",
+     "git_branch": "main",
+     "build_pack": "nixpacks",
+     "ports_exposes": "3000",
+     "base_directory": "/",
+     "source_id": 0,
+     "source_type": "App\\Models\\GithubApp",
+     "manual_webhook_secret_github": "gitgithubxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "manual_webhook_secret_gitlab": "gitgitlabxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "manual_webhook_secret_bitbucket": "gitbitbucketxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "manual_webhook_secret_gitea": "gitgiteaxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    }
+   },
+   {
+    "id": 3,
+    "uuid": "a3otherteamapp0000000003",
+    "team": 2,
+    "environment_id": 4,
+    "destination_id": 2,
+    "name": "other-image",
+    "fqdn": null,
+    "columns": {
+     "repository_project_id": 0,
+     "git_repository": "coollabsio/coolify",
+     "git_branch": "main",
+     "build_pack": "dockerimage",
+     "ports_exposes": "80",
+     "docker_registry_image_name": "redis",
+     "docker_registry_image_tag": "7",
+     "health_check_enabled": false,
+     "manual_webhook_secret_github": "othergithubxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "manual_webhook_secret_gitlab": "othergitlabxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "manual_webhook_secret_bitbucket": "otherbitbucketxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "manual_webhook_secret_gitea": "othergiteaxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    }
+   }
+  ],
+  "variables": [
+   {
+    "uuid": "v1parityfoovariable00001",
+    "application": 1,
+    "key": "FOO",
+    "value": "bar",
+    "is_literal": false,
+    "is_multiline": false,
+    "is_shown_once": false,
+    "is_runtime": true,
+    "is_buildtime": true,
+    "comment": null
+   },
+   {
+    "uuid": "v2paritysecretvariable02",
+    "application": 1,
+    "key": "SECRET_TOKEN",
+    "value": "s3cr3t-value",
+    "is_literal": true,
+    "is_multiline": false,
+    "is_shown_once": true,
+    "is_runtime": true,
+    "is_buildtime": false,
+    "comment": "Shown once"
+   },
+   {
+    "uuid": "v3paritymultilinevar0003",
+    "application": 1,
+    "key": "MULTI",
+    "value": "line one\nline two",
+    "is_literal": false,
+    "is_multiline": true,
+    "is_shown_once": false,
+    "is_runtime": false,
+    "is_buildtime": true,
+    "comment": null
+   },
+   {
+    "uuid": "v4otherteamvariable00004",
+    "application": 3,
+    "key": "OTHER",
+    "value": "theirs",
+    "is_literal": false,
+    "is_multiline": false,
+    "is_shown_once": false,
+    "is_runtime": true,
+    "is_buildtime": true,
+    "comment": null
    }
   ],
   "tokens": [
@@ -282,6 +425,15 @@
    }
   ]
  },
+ "columnsOf": [
+  "servers",
+  "server_settings",
+  "standalone_dockers",
+  "application_settings",
+  "applications",
+  "environment_variables",
+  "application_deployment_queues"
+ ],
  "cases": [
   {
    "name": "auth: no token",
@@ -1177,6 +1329,485 @@
    "token": "read",
    "method": "POST",
    "path": "/api/v1/servers/s1parityserveruuid000001/validate"
+  },
+  {
+   "name": "applications: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications"
+  },
+  {
+   "name": "applications: list, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/applications"
+  },
+  {
+   "name": "applications: list, root",
+   "token": "root",
+   "method": "GET",
+   "path": "/api/v1/applications"
+  },
+  {
+   "name": "applications: list by an unknown tag",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications?tag=nope"
+  },
+  {
+   "name": "applications: show",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001"
+  },
+  {
+   "name": "applications: show, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001"
+  },
+  {
+   "name": "applications: show a git application",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a2paritygitapp0000000002"
+  },
+  {
+   "name": "applications: show another team's",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a3otherteamapp0000000003"
+  },
+  {
+   "name": "applications: show unknown",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/nonexistentuuid"
+  },
+  {
+   "name": "applications: logs",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/logs"
+  },
+  {
+   "name": "applications: logs of unknown",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/applications/nonexistentuuid/logs"
+  },
+  {
+   "name": "applications: start",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/start"
+  },
+  {
+   "name": "applications: start unknown",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/nonexistentuuid/start"
+  },
+  {
+   "name": "applications: start with GET",
+   "token": "root",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/start"
+  },
+  {
+   "name": "applications: restart",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/restart"
+  },
+  {
+   "name": "applications: stop",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/stop"
+  },
+  {
+   "name": "applications: stop unknown",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/nonexistentuuid/stop"
+  },
+  {
+   "name": "applications: delete",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a2paritygitapp0000000002",
+   "after": {
+    "applications": "select uuid, deleted_at is not null as deleted from applications where environment_id in (1, 2) order by id"
+   }
+  },
+  {
+   "name": "applications: delete with options",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001?delete_volumes=false&docker_cleanup=0"
+  },
+  {
+   "name": "applications: delete unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/nonexistentuuid"
+  },
+  {
+   "name": "applications: delete another team's",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a3otherteamapp0000000003"
+  },
+  {
+   "name": "application envs: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/envs"
+  },
+  {
+   "name": "application envs: list, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/envs"
+  },
+  {
+   "name": "application envs: list, member with read:sensitive",
+   "token": "memberSensitive",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/envs"
+  },
+  {
+   "name": "application envs: list of a git application",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/envs"
+  },
+  {
+   "name": "application envs: list of unknown",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/nonexistentuuid/envs"
+  },
+  {
+   "name": "application envs: list another team's",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a3otherteamapp0000000003/envs"
+  },
+  {
+   "name": "application envs: create",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/envs",
+   "body": {
+    "key": "NEW_KEY",
+    "value": "new value"
+   },
+   "after": {
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, comment, \"order\", version from environment_variables where resourceable_id = 1 order by id"
+   }
+  },
+  {
+   "name": "application envs: create with every field",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/envs",
+   "body": {
+    "key": " spaced key ",
+    "value": "  kept  ",
+    "is_preview": false,
+    "is_literal": true,
+    "is_multiline": true,
+    "is_shown_once": true,
+    "is_runtime": false,
+    "is_buildtime": false,
+    "comment": "A comment"
+   },
+   "after": {
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, comment, \"order\", version from environment_variables where resourceable_id = 1 order by id"
+   }
+  },
+  {
+   "name": "application envs: create a preview variable",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/envs",
+   "body": {
+    "key": "PREVIEW_ONLY",
+    "value": "p",
+    "is_preview": true
+   },
+   "after": {
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, comment, \"order\", version from environment_variables where resourceable_id = 1 order by id"
+   }
+  },
+  {
+   "name": "application envs: create an existing key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/envs",
+   "body": {
+    "key": "FOO",
+    "value": "again"
+   }
+  },
+  {
+   "name": "application envs: create an existing preview key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/envs",
+   "body": {
+    "key": "FOO",
+    "value": "again",
+    "is_preview": true
+   }
+  },
+  {
+   "name": "application envs: create, invalid",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/envs",
+   "body": {
+    "key": "1BAD-KEY",
+    "value": 5,
+    "is_literal": "maybe",
+    "comment": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "extra": 1
+   }
+  },
+  {
+   "name": "application envs: create, no key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/envs",
+   "body": {
+    "value": "v"
+   }
+  },
+  {
+   "name": "application envs: create, key with a dollar",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/envs",
+   "body": {
+    "key": "A$B",
+    "value": "v"
+   }
+  },
+  {
+   "name": "application envs: create, not JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/envs",
+   "raw": "key=A",
+   "contentType": "application/x-www-form-urlencoded"
+  },
+  {
+   "name": "application envs: create in unknown",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/nonexistentuuid/envs",
+   "body": {
+    "key": "A",
+    "value": "v"
+   }
+  },
+  {
+   "name": "application envs: update",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/envs",
+   "body": {
+    "key": "FOO",
+    "value": "changed",
+    "is_literal": true,
+    "comment": "Changed"
+   },
+   "after": {
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, comment, \"order\", version from environment_variables where resourceable_id = 1 order by id"
+   }
+  },
+  {
+   "name": "application envs: update, read:sensitive answer",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/envs",
+   "body": {
+    "key": "FOO",
+    "value": "changed"
+   }
+  },
+  {
+   "name": "application envs: update a locked variable",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/envs",
+   "body": {
+    "key": "SECRET_TOKEN",
+    "value": "new secret",
+    "is_shown_once": false
+   }
+  },
+  {
+   "name": "application envs: update the preview copy",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/envs",
+   "body": {
+    "key": "FOO",
+    "value": "preview value",
+    "is_preview": true
+   },
+   "after": {
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, comment, \"order\", version from environment_variables where resourceable_id = 1 order by id"
+   }
+  },
+  {
+   "name": "application envs: update unknown key",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/envs",
+   "body": {
+    "key": "NOPE",
+    "value": "x"
+   }
+  },
+  {
+   "name": "application envs: update, invalid",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/envs",
+   "body": {
+    "value": [
+     "x"
+    ],
+    "is_runtime": 2,
+    "uuid": "x"
+   }
+  },
+  {
+   "name": "application envs: update, empty JSON",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/envs",
+   "raw": "{}"
+  },
+  {
+   "name": "application envs: bulk",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/envs/bulk",
+   "body": {
+    "data": [
+     {
+      "key": "FOO",
+      "value": "bulk foo"
+     },
+     {
+      "key": "BULK_NEW",
+      "value": "new",
+      "is_literal": true,
+      "ignored": "x"
+     },
+     {
+      "key": "BULK_PREVIEW",
+      "value": "p",
+      "is_preview": true
+     }
+    ]
+   },
+   "after": {
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, comment, \"order\", version from environment_variables where resourceable_id = 1 order by id"
+   }
+  },
+  {
+   "name": "application envs: bulk, root answer",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/envs/bulk",
+   "body": {
+    "data": [
+     {
+      "key": "FOO",
+      "is_buildtime": false
+     },
+     {
+      "key": "BULK_TWO",
+      "value": null
+     }
+    ]
+   }
+  },
+  {
+   "name": "application envs: bulk, no data",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/envs/bulk",
+   "body": {
+    "items": []
+   }
+  },
+  {
+   "name": "application envs: bulk, invalid item",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/envs/bulk",
+   "body": {
+    "data": [
+     {
+      "key": "GOOD",
+      "value": "1"
+     },
+     {
+      "key": "",
+      "value": "x"
+     }
+    ]
+   },
+   "after": {
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, comment, \"order\", version from environment_variables where resourceable_id = 1 order by id"
+   }
+  },
+  {
+   "name": "application envs: bulk in unknown",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/nonexistentuuid/envs/bulk",
+   "body": {
+    "data": [
+     {
+      "key": "A"
+     }
+    ]
+   }
+  },
+  {
+   "name": "application envs: delete",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/envs/v1parityfoovariable00001",
+   "after": {
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, comment, \"order\", version from environment_variables where resourceable_id = 1 order by id"
+   }
+  },
+  {
+   "name": "application envs: delete unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/envs/nonexistentuuid"
+  },
+  {
+   "name": "application envs: delete another application's",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/envs/v4otherteamvariable00004"
+  },
+  {
+   "name": "application envs: delete in unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/nonexistentuuid/envs/v1parityfoovariable00001"
   }
  ]
 }

@@ -1,0 +1,22 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-71
+  title: "DP9: /api/v1 for applications — list, show, delete, logs, start, restart, stop and environment variables"
+spec:
+  goal: Coolify's /api/v1 answers, on DP-70's pipeline (api-edge's middleware and routes, deploy-core-worker's internal mount), for an org's applications and their environment variables, on the services the console uses — the Danger Zone's delete (deleteApplicationNow) and the Environment Variables page's model hooks (createVariable, saveVariable) — with Coolify's controllers' validation, messages, status codes, key order and read:sensitive hiding, every body in Coolify's own JSON bytes. 12 more of openapi.json's 330 operations are ported (36 in all) — applications list (and ?tag), show, delete (Coolify's query options), logs, start, restart and stop (the last four answer 501 "… needs the SSH executor, which is not available yet." in Coolify's envelope), and the environment variables' list, create, update, bulk update and delete — each replayed byte for byte (masked ids, uuids, dates and the default destination's name) against goldens emitted by Coolify's real PHP, and each write's rows compared with the rows Coolify's left; the other 294 answer Coolify's 404 shape. Cut — in the applications group, the six create types (public, private GitHub App, private Gitea App, private deploy key, Dockerfile, Docker image) and PATCH /applications/{uuid}, whose API takes ~100 fields of its own and its domain checks; and every group after it in the task's order — databases, services, deployments, resources, a project's environment details, servers create, update, delete, resources and domains, S3 storages, cloud tokens, scheduled tasks, PATCH /team.
+  affects:
+    - apps/api-edge/**
+    - apps/deploy-core-worker/**
+    - packages/db/**
+    - tests/api-edge/**
+    - tests/deploy-core-worker/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - every case of tests/deploy-core-worker/fixtures/api/cases.json (153 cases, 53 of them DP-71's) replays against Freeploy byte-equal to goldens.json after the documented masking, except the listed departures (logs, start, restart and stop answer 501), DP-70's not-ported operations, which answer Coolify's 404, and the middleware answers, which tests/api-edge replays
+    - the rows each DP-71 write leaves in Freeploy's database (PGlite with the deploy schema at head) equal the golden's `after` rows, except the listed departure (a deleted application's rows are removed, not soft-deleted)
+    - deploy-core-worker's COOLIFY_COLUMNS equals the column order emit.php reads from Coolify's schema
+    - specs/epics/freeploy-coolify-parity/parity/openapi.operations.json marks the 12 operations ported with taskKey DP-71 (36 ported of 330 in all), and node tools/parity/inventory.ts --check passes
+    - on stage, GET https://<edge>/api/v1/applications with a read token answers the org's applications as Coolify does, and POST /api/v1/applications/{uuid}/envs with a write token creates the variable and its preview copy
+  gates: []

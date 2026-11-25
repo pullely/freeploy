@@ -145,7 +145,7 @@ export function showsPreview(type: EnvironmentVariableResourceType, resource: Pi
 }
 
 /** The value accessor: null for a stored null or '', else the decrypted value without its edge line breaks. */
-async function storedValue(ctx: EnvironmentVariableContext, row: Pick<Row, "value">): Promise<string | null> {
+export async function storedValue(ctx: EnvironmentVariableContext, row: Pick<Row, "value">): Promise<string | null> {
   if (!row.value) return null;
   return withoutEdgeLineBreaks(await ctx.cipher.decrypt(row.value));
 }
@@ -165,7 +165,7 @@ function scopesOf(resource: Resource): Record<SharedVariableType, SharedVariable
  * display and copy (displayRealValue) a locked shared variable keeps its
  * reference text; a deployment and is_really_required reveal it.
  */
-async function realValue(ctx: EnvironmentVariableContext, resource: Resource, value: string | null, revealLockedSharedVariables: boolean): Promise<string | null> {
+export async function realValue(ctx: EnvironmentVariableContext, resource: Resource, value: string | null, revealLockedSharedVariables: boolean): Promise<string | null> {
   if (value === null || value === "") return value;
   const scopes = scopesOf(resource);
   const found = new Map<string, ResolvedSharedVariable | null>();
@@ -334,7 +334,7 @@ export async function showEnvironmentVariable(ctx: EnvironmentVariableContext, u
 }
 
 /** What a new variable is, before the model's hooks. */
-interface NewVariable {
+export interface NewVariable {
   key: string;
   value: string | null;
   comment: string | null;
@@ -360,7 +360,7 @@ function rejectNulByte(value: string | null): void {
  * created hook gives an application's production variable its preview copy
  * (without an order) when the key has none.
  */
-async function createVariable(ctx: EnvironmentVariableContext, resource: Resource, variable: NewVariable): Promise<Row> {
+export async function createVariable(ctx: EnvironmentVariableContext, resource: Resource, variable: NewVariable): Promise<Row> {
   const value = variable.value === null ? null : withoutEdgeLineBreaks(variable.value);
   rejectNulByte(value);
   const row = await ctx.store.insert(resource.id, {
@@ -387,7 +387,7 @@ async function createVariable(ctx: EnvironmentVariableContext, resource: Resourc
 }
 
 /** What a save may change of an existing variable; `value` is the plaintext. */
-interface VariableChanges {
+export interface VariableChanges {
   key?: string;
   value?: string | null;
   comment?: string | null;
@@ -407,7 +407,7 @@ interface VariableChanges {
  * a changed value and sets is_shared from the value. `current` is the stored
  * value, decrypted. Answers whether anything was written.
  */
-async function saveVariable(ctx: EnvironmentVariableContext, row: Row, current: string | null, changes: VariableChanges): Promise<boolean> {
+export async function saveVariable(ctx: EnvironmentVariableContext, row: Row, current: string | null, changes: VariableChanges): Promise<boolean> {
   const dirty: EnvironmentVariableChanges = {};
   let value = current;
   if (changes.value !== undefined) {
