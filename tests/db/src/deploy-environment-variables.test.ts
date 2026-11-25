@@ -161,7 +161,6 @@ describe("deploy.environment_variables", () => {
       resourceable_id: Number(fx.a!.applicationId),
       org_id: A,
       // Columns Freeploy does not write keep the schema's defaults.
-      is_build_time: false,
       uses_legacy_escaping: false,
       preserve_compose_null: false,
     });

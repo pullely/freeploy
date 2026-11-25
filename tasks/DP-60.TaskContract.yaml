@@ -1,0 +1,20 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-60
+  title: "DP2 follow-up: the deploy schema catches up with Coolify's migrations"
+spec:
+  goal: The deploy schema is held to Coolify's real schema instead of to a reading of its migration files. Coolify's 531 migrations at 91b7e3e are run by Laravel on PostgreSQL and the catalogs dumped (columns with type, length, nullability and default, primary keys, unique and non-unique indexes, foreign keys, CHECK constraints, storage options, and the list of raw statements); the same catalog queries describe deploy after packages/db's migrations, and the two are compared table by table with the design's differences (the tables Lumen owns, team_id as org_id, org_id on every table, no foreign-key constraints) excluded by rule and reported. One migration, 660_deploy_schema_catch_up, closes what the comparison found — the columns the schema fold missed, the types, nullability and defaults Coolify changed later, a column Coolify dropped, one widened CHECK, the non-unique indexes and storage options, and every unique index, scoped for many orgs in one database, each with the reason no existing row can violate it — and a test fails on the next gap. Not part of this task — rewriting the services that work around a gap (they are listed in the status note), creating activity_log (left, with its reason), foreign-key constraints, and changing 500–630.
+  affects:
+    - packages/db/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - packages/db/scripts/coolify-schema/coolify-schema.json is the dump of a PostgreSQL in which all 531 migrations of coollabsio/coolify@91b7e3e ran, and a second run on a fresh database reproduces it byte for byte (dump-coolify-schema.ts --check)
+    - specs/epics/freeploy-coolify-parity/parity/schema-diff.md lists 0 unexplained differences over the 75 compared tables and every difference left with its reason, and tests/db fails when the file is not what the comparison renders
+    - 660_deploy_schema_catch_up applies on top of 630 on a schema that holds rows, applies a second time without changing anything, and is in the manifest with its checksum
+    - tests/db fails for a Coolify column, unique index, index or CHECK value that deploy lacks, naming the table, and for a unique index of 660 without a scope or a safety argument
+    - the cross-org isolation test passes for all 76 deploy tables on the schema after 660
+    - on stage and prod the migration runner reports 660_deploy_schema_catch_up applied after the merge, and the pages that read deploy tables (servers, private keys) still load
+  gates: []

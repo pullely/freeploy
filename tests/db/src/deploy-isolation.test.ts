@@ -13,7 +13,9 @@ import { PGlite } from "@electric-sql/pglite";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const SQL500 = readFileSync(resolve(__dirname, "../../../packages/db/src/migrations/500_deploy_core/up.sql"), "utf8");
-const SQL = [SQL500, ...["510_deploy_org_keys", "520_deploy_schema_fold_fixes"].map((m) => readFileSync(resolve(__dirname, `../../../packages/db/src/migrations/${m}/up.sql`), "utf8"))].join("\n");
+// Every later deploy migration, the catch-up of DP-60 (660) included: isolation is proven on the schema stage and prod run.
+const LATER = ["510_deploy_org_keys", "520_deploy_schema_fold_fixes", "590_deploy_shared_variables_server_scope", "610_deploy_tags_org_name_unique", "630_deploy_database_public_port_timeout", "660_deploy_schema_catch_up"];
+const SQL = [SQL500, ...LATER.map((m) => readFileSync(resolve(__dirname, `../../../packages/db/src/migrations/${m}/up.sql`), "utf8"))].join("\n");
 const ORG_A = "00000000-0000-4000-8000-00000000000a";
 const ORG_B = "00000000-0000-4000-8000-00000000000b";
 
