@@ -1,0 +1,2616 @@
+{
+ "dump": [
+  {
+   "id": "strings",
+   "value": [
+    "",
+    " ",
+    "plain",
+    "two words",
+    "trailing ",
+    " leading",
+    "123",
+    "-123",
+    "+123",
+    "0123",
+    "1.5",
+    "1.",
+    ".5",
+    "1e3",
+    "1E-3",
+    "0x1F",
+    "0o17",
+    "017",
+    "1_000",
+    "1.2.3",
+    "3.8",
+    "1,5",
+    " 12",
+    "12 ",
+    "12\n",
+    "\t12",
+    "true",
+    "True",
+    "TRUE",
+    "false",
+    "null",
+    "Null",
+    "~",
+    "yes",
+    "No",
+    "on",
+    "OFF",
+    "y",
+    "N",
+    ".inf",
+    "-.inf",
+    ".NaN",
+    "...",
+    "---",
+    "a: b",
+    "a:b",
+    "a :b",
+    "key:",
+    ":x",
+    "a#b",
+    "a #b",
+    "#x",
+    "a, b",
+    "[x]",
+    "{x}",
+    "x]",
+    "&anchor",
+    "*alias",
+    "a&b",
+    "a*b",
+    "?x",
+    "x?",
+    "-x",
+    "- x",
+    "-",
+    "|x",
+    ">x",
+    "<x",
+    "=x",
+    "!x",
+    "%x",
+    "@x",
+    "`x",
+    "x!",
+    "it's",
+    "say \"hi\"",
+    "it's \"both\"",
+    "'quoted'",
+    "\"dq\"",
+    "''",
+    "'",
+    "back\\slash",
+    "back\\\\two",
+    "q\\\"x",
+    "line1\nline2",
+    "line1\nline2\n",
+    "\nlead",
+    "tab\there",
+    "cr\rhere",
+    "bell\u0007",
+    "esc\u001b[0m",
+    "nul\u0000x",
+    "nbsp\u00a0x",
+    "nel\u0085x",
+    "ls\u2028x",
+    "ps\u2029x",
+    "\ufeffbom",
+    "\u3000ideographic",
+    "\u00a0lead",
+    "caf\u00e9",
+    "\u65e5\u672c\u8a9e",
+    "emoji \ud83d\ude00",
+    "\u0001ctl",
+    "ctl\u0019x",
+    "del\u007fx",
+    "2024-01-01",
+    "2024-1-1",
+    "2001-12-14t21:59:43.10-05:00",
+    "2001-12-14 21:59:43",
+    "12:30:00",
+    "1:2",
+    "http://example.com",
+    "host:8080",
+    "8080:80",
+    "127.0.0.1:8080:80",
+    "${VAR}",
+    "${VAR:-default}",
+    "$VAR",
+    "$$",
+    "a=b",
+    "KEY=value with spaces",
+    "KEY=",
+    "/path/to:/target:ro",
+    "./rel",
+    "~/home",
+    "C:\\dir",
+    "50%",
+    "x%",
+    "@",
+    "a@b",
+    "<<",
+    "=",
+    "==",
+    "!!str x",
+    "0",
+    "-0",
+    "00",
+    "0.0",
+    "-",
+    "+",
+    ".",
+    "1e",
+    "e1",
+    "0b101",
+    "1__0",
+    "_1",
+    "1_",
+    "+.5",
+    "-.5",
+    "5e+3",
+    "NaN",
+    "INF",
+    "9223372036854775807",
+    "9223372036854775808",
+    "1.0E+25",
+    "0xZZ",
+    "0o8",
+    "{{ template }}",
+    "{{.Name}}",
+    "a | b",
+    "a > b",
+    "CMD-SHELL",
+    "curl -f http://localhost || exit 1",
+    "tcp://0.0.0.0:2375",
+    "unix:///var/run/docker.sock"
+   ]
+  },
+  {
+   "id": "strings-as-map-values",
+   "value": {
+    "$map": [
+     [
+      "k0",
+      ""
+     ],
+     [
+      "k1",
+      " "
+     ],
+     [
+      "k2",
+      "plain"
+     ],
+     [
+      "k3",
+      "two words"
+     ],
+     [
+      "k4",
+      "trailing "
+     ],
+     [
+      "k5",
+      " leading"
+     ],
+     [
+      "k6",
+      "123"
+     ],
+     [
+      "k7",
+      "-123"
+     ],
+     [
+      "k8",
+      "+123"
+     ],
+     [
+      "k9",
+      "0123"
+     ],
+     [
+      "k10",
+      "1.5"
+     ],
+     [
+      "k11",
+      "1."
+     ],
+     [
+      "k12",
+      ".5"
+     ],
+     [
+      "k13",
+      "1e3"
+     ],
+     [
+      "k14",
+      "1E-3"
+     ],
+     [
+      "k15",
+      "0x1F"
+     ],
+     [
+      "k16",
+      "0o17"
+     ],
+     [
+      "k17",
+      "017"
+     ],
+     [
+      "k18",
+      "1_000"
+     ],
+     [
+      "k19",
+      "1.2.3"
+     ],
+     [
+      "k20",
+      "3.8"
+     ],
+     [
+      "k21",
+      "1,5"
+     ],
+     [
+      "k22",
+      " 12"
+     ],
+     [
+      "k23",
+      "12 "
+     ],
+     [
+      "k24",
+      "12\n"
+     ],
+     [
+      "k25",
+      "\t12"
+     ],
+     [
+      "k26",
+      "true"
+     ],
+     [
+      "k27",
+      "True"
+     ],
+     [
+      "k28",
+      "TRUE"
+     ],
+     [
+      "k29",
+      "false"
+     ],
+     [
+      "k30",
+      "null"
+     ],
+     [
+      "k31",
+      "Null"
+     ],
+     [
+      "k32",
+      "~"
+     ],
+     [
+      "k33",
+      "yes"
+     ],
+     [
+      "k34",
+      "No"
+     ],
+     [
+      "k35",
+      "on"
+     ],
+     [
+      "k36",
+      "OFF"
+     ],
+     [
+      "k37",
+      "y"
+     ],
+     [
+      "k38",
+      "N"
+     ],
+     [
+      "k39",
+      ".inf"
+     ],
+     [
+      "k40",
+      "-.inf"
+     ],
+     [
+      "k41",
+      ".NaN"
+     ],
+     [
+      "k42",
+      "..."
+     ],
+     [
+      "k43",
+      "---"
+     ],
+     [
+      "k44",
+      "a: b"
+     ],
+     [
+      "k45",
+      "a:b"
+     ],
+     [
+      "k46",
+      "a :b"
+     ],
+     [
+      "k47",
+      "key:"
+     ],
+     [
+      "k48",
+      ":x"
+     ],
+     [
+      "k49",
+      "a#b"
+     ],
+     [
+      "k50",
+      "a #b"
+     ],
+     [
+      "k51",
+      "#x"
+     ],
+     [
+      "k52",
+      "a, b"
+     ],
+     [
+      "k53",
+      "[x]"
+     ],
+     [
+      "k54",
+      "{x}"
+     ],
+     [
+      "k55",
+      "x]"
+     ],
+     [
+      "k56",
+      "&anchor"
+     ],
+     [
+      "k57",
+      "*alias"
+     ],
+     [
+      "k58",
+      "a&b"
+     ],
+     [
+      "k59",
+      "a*b"
+     ],
+     [
+      "k60",
+      "?x"
+     ],
+     [
+      "k61",
+      "x?"
+     ],
+     [
+      "k62",
+      "-x"
+     ],
+     [
+      "k63",
+      "- x"
+     ],
+     [
+      "k64",
+      "-"
+     ],
+     [
+      "k65",
+      "|x"
+     ],
+     [
+      "k66",
+      ">x"
+     ],
+     [
+      "k67",
+      "<x"
+     ],
+     [
+      "k68",
+      "=x"
+     ],
+     [
+      "k69",
+      "!x"
+     ],
+     [
+      "k70",
+      "%x"
+     ],
+     [
+      "k71",
+      "@x"
+     ],
+     [
+      "k72",
+      "`x"
+     ],
+     [
+      "k73",
+      "x!"
+     ],
+     [
+      "k74",
+      "it's"
+     ],
+     [
+      "k75",
+      "say \"hi\""
+     ],
+     [
+      "k76",
+      "it's \"both\""
+     ],
+     [
+      "k77",
+      "'quoted'"
+     ],
+     [
+      "k78",
+      "\"dq\""
+     ],
+     [
+      "k79",
+      "''"
+     ],
+     [
+      "k80",
+      "'"
+     ],
+     [
+      "k81",
+      "back\\slash"
+     ],
+     [
+      "k82",
+      "back\\\\two"
+     ],
+     [
+      "k83",
+      "q\\\"x"
+     ],
+     [
+      "k84",
+      "line1\nline2"
+     ],
+     [
+      "k85",
+      "line1\nline2\n"
+     ],
+     [
+      "k86",
+      "\nlead"
+     ],
+     [
+      "k87",
+      "tab\there"
+     ],
+     [
+      "k88",
+      "cr\rhere"
+     ],
+     [
+      "k89",
+      "bell\u0007"
+     ],
+     [
+      "k90",
+      "esc\u001b[0m"
+     ],
+     [
+      "k91",
+      "nul\u0000x"
+     ],
+     [
+      "k92",
+      "nbsp\u00a0x"
+     ],
+     [
+      "k93",
+      "nel\u0085x"
+     ],
+     [
+      "k94",
+      "ls\u2028x"
+     ],
+     [
+      "k95",
+      "ps\u2029x"
+     ],
+     [
+      "k96",
+      "\ufeffbom"
+     ],
+     [
+      "k97",
+      "\u3000ideographic"
+     ],
+     [
+      "k98",
+      "\u00a0lead"
+     ],
+     [
+      "k99",
+      "caf\u00e9"
+     ],
+     [
+      "k100",
+      "\u65e5\u672c\u8a9e"
+     ],
+     [
+      "k101",
+      "emoji \ud83d\ude00"
+     ],
+     [
+      "k102",
+      "\u0001ctl"
+     ],
+     [
+      "k103",
+      "ctl\u0019x"
+     ],
+     [
+      "k104",
+      "del\u007fx"
+     ],
+     [
+      "k105",
+      "2024-01-01"
+     ],
+     [
+      "k106",
+      "2024-1-1"
+     ],
+     [
+      "k107",
+      "2001-12-14t21:59:43.10-05:00"
+     ],
+     [
+      "k108",
+      "2001-12-14 21:59:43"
+     ],
+     [
+      "k109",
+      "12:30:00"
+     ],
+     [
+      "k110",
+      "1:2"
+     ],
+     [
+      "k111",
+      "http://example.com"
+     ],
+     [
+      "k112",
+      "host:8080"
+     ],
+     [
+      "k113",
+      "8080:80"
+     ],
+     [
+      "k114",
+      "127.0.0.1:8080:80"
+     ],
+     [
+      "k115",
+      "${VAR}"
+     ],
+     [
+      "k116",
+      "${VAR:-default}"
+     ],
+     [
+      "k117",
+      "$VAR"
+     ],
+     [
+      "k118",
+      "$$"
+     ],
+     [
+      "k119",
+      "a=b"
+     ],
+     [
+      "k120",
+      "KEY=value with spaces"
+     ],
+     [
+      "k121",
+      "KEY="
+     ],
+     [
+      "k122",
+      "/path/to:/target:ro"
+     ],
+     [
+      "k123",
+      "./rel"
+     ],
+     [
+      "k124",
+      "~/home"
+     ],
+     [
+      "k125",
+      "C:\\dir"
+     ],
+     [
+      "k126",
+      "50%"
+     ],
+     [
+      "k127",
+      "x%"
+     ],
+     [
+      "k128",
+      "@"
+     ],
+     [
+      "k129",
+      "a@b"
+     ],
+     [
+      "k130",
+      "<<"
+     ],
+     [
+      "k131",
+      "="
+     ],
+     [
+      "k132",
+      "=="
+     ],
+     [
+      "k133",
+      "!!str x"
+     ],
+     [
+      "k134",
+      "0"
+     ],
+     [
+      "k135",
+      "-0"
+     ],
+     [
+      "k136",
+      "00"
+     ],
+     [
+      "k137",
+      "0.0"
+     ],
+     [
+      "k138",
+      "-"
+     ],
+     [
+      "k139",
+      "+"
+     ],
+     [
+      "k140",
+      "."
+     ],
+     [
+      "k141",
+      "1e"
+     ],
+     [
+      "k142",
+      "e1"
+     ],
+     [
+      "k143",
+      "0b101"
+     ],
+     [
+      "k144",
+      "1__0"
+     ],
+     [
+      "k145",
+      "_1"
+     ],
+     [
+      "k146",
+      "1_"
+     ],
+     [
+      "k147",
+      "+.5"
+     ],
+     [
+      "k148",
+      "-.5"
+     ],
+     [
+      "k149",
+      "5e+3"
+     ],
+     [
+      "k150",
+      "NaN"
+     ],
+     [
+      "k151",
+      "INF"
+     ],
+     [
+      "k152",
+      "9223372036854775807"
+     ],
+     [
+      "k153",
+      "9223372036854775808"
+     ],
+     [
+      "k154",
+      "1.0E+25"
+     ],
+     [
+      "k155",
+      "0xZZ"
+     ],
+     [
+      "k156",
+      "0o8"
+     ],
+     [
+      "k157",
+      "{{ template }}"
+     ],
+     [
+      "k158",
+      "{{.Name}}"
+     ],
+     [
+      "k159",
+      "a | b"
+     ],
+     [
+      "k160",
+      "a > b"
+     ],
+     [
+      "k161",
+      "CMD-SHELL"
+     ],
+     [
+      "k162",
+      "curl -f http://localhost || exit 1"
+     ],
+     [
+      "k163",
+      "tcp://0.0.0.0:2375"
+     ],
+     [
+      "k164",
+      "unix:///var/run/docker.sock"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "strings-as-keys",
+   "value": {
+    "$map": [
+     [
+      " ",
+      1
+     ],
+     [
+      "plain",
+      2
+     ],
+     [
+      "two words",
+      3
+     ],
+     [
+      "trailing ",
+      4
+     ],
+     [
+      " leading",
+      5
+     ],
+     [
+      "+123",
+      8
+     ],
+     [
+      "1.5",
+      10
+     ],
+     [
+      "1.",
+      11
+     ],
+     [
+      ".5",
+      12
+     ],
+     [
+      "1e3",
+      13
+     ],
+     [
+      "1E-3",
+      14
+     ],
+     [
+      "0x1F",
+      15
+     ],
+     [
+      "0o17",
+      16
+     ],
+     [
+      "1_000",
+      18
+     ],
+     [
+      "1.2.3",
+      19
+     ],
+     [
+      "3.8",
+      20
+     ],
+     [
+      "1,5",
+      21
+     ],
+     [
+      " 12",
+      22
+     ],
+     [
+      "12 ",
+      23
+     ],
+     [
+      "12\n",
+      24
+     ],
+     [
+      "\t12",
+      25
+     ],
+     [
+      "true",
+      26
+     ],
+     [
+      "True",
+      27
+     ],
+     [
+      "TRUE",
+      28
+     ],
+     [
+      "false",
+      29
+     ],
+     [
+      "null",
+      30
+     ],
+     [
+      "Null",
+      31
+     ],
+     [
+      "~",
+      32
+     ],
+     [
+      "yes",
+      33
+     ],
+     [
+      "No",
+      34
+     ],
+     [
+      "on",
+      35
+     ],
+     [
+      "OFF",
+      36
+     ],
+     [
+      "y",
+      37
+     ],
+     [
+      "N",
+      38
+     ],
+     [
+      ".inf",
+      39
+     ],
+     [
+      "-.inf",
+      40
+     ],
+     [
+      ".NaN",
+      41
+     ],
+     [
+      "...",
+      42
+     ],
+     [
+      "---",
+      43
+     ],
+     [
+      "a: b",
+      44
+     ],
+     [
+      "a:b",
+      45
+     ],
+     [
+      "a :b",
+      46
+     ],
+     [
+      "key:",
+      47
+     ],
+     [
+      ":x",
+      48
+     ],
+     [
+      "a#b",
+      49
+     ],
+     [
+      "a #b",
+      50
+     ],
+     [
+      "#x",
+      51
+     ],
+     [
+      "a, b",
+      52
+     ],
+     [
+      "[x]",
+      53
+     ],
+     [
+      "{x}",
+      54
+     ],
+     [
+      "x]",
+      55
+     ],
+     [
+      "&anchor",
+      56
+     ],
+     [
+      "*alias",
+      57
+     ],
+     [
+      "a&b",
+      58
+     ],
+     [
+      "a*b",
+      59
+     ],
+     [
+      "?x",
+      60
+     ],
+     [
+      "x?",
+      61
+     ],
+     [
+      "-x",
+      62
+     ],
+     [
+      "- x",
+      63
+     ],
+     [
+      "-",
+      64
+     ],
+     [
+      "|x",
+      65
+     ],
+     [
+      ">x",
+      66
+     ],
+     [
+      "<x",
+      67
+     ],
+     [
+      "=x",
+      68
+     ],
+     [
+      "!x",
+      69
+     ],
+     [
+      "%x",
+      70
+     ],
+     [
+      "@x",
+      71
+     ],
+     [
+      "`x",
+      72
+     ],
+     [
+      "x!",
+      73
+     ],
+     [
+      "it's",
+      74
+     ],
+     [
+      "say \"hi\"",
+      75
+     ],
+     [
+      "it's \"both\"",
+      76
+     ],
+     [
+      "'quoted'",
+      77
+     ],
+     [
+      "\"dq\"",
+      78
+     ],
+     [
+      "''",
+      79
+     ],
+     [
+      "'",
+      80
+     ],
+     [
+      "back\\slash",
+      81
+     ],
+     [
+      "back\\\\two",
+      82
+     ],
+     [
+      "q\\\"x",
+      83
+     ],
+     [
+      "line1\nline2",
+      84
+     ],
+     [
+      "line1\nline2\n",
+      85
+     ],
+     [
+      "\nlead",
+      86
+     ],
+     [
+      "tab\there",
+      87
+     ],
+     [
+      "cr\rhere",
+      88
+     ],
+     [
+      "bell\u0007",
+      89
+     ],
+     [
+      "esc\u001b[0m",
+      90
+     ],
+     [
+      "nul\u0000x",
+      91
+     ],
+     [
+      "nbsp\u00a0x",
+      92
+     ],
+     [
+      "nel\u0085x",
+      93
+     ],
+     [
+      "ls\u2028x",
+      94
+     ],
+     [
+      "ps\u2029x",
+      95
+     ],
+     [
+      "\ufeffbom",
+      96
+     ],
+     [
+      "\u3000ideographic",
+      97
+     ],
+     [
+      "\u00a0lead",
+      98
+     ],
+     [
+      "caf\u00e9",
+      99
+     ],
+     [
+      "\u65e5\u672c\u8a9e",
+      100
+     ],
+     [
+      "emoji \ud83d\ude00",
+      101
+     ],
+     [
+      "\u0001ctl",
+      102
+     ],
+     [
+      "ctl\u0019x",
+      103
+     ],
+     [
+      "del\u007fx",
+      104
+     ],
+     [
+      "2024-01-01",
+      105
+     ],
+     [
+      "2024-1-1",
+      106
+     ],
+     [
+      "2001-12-14t21:59:43.10-05:00",
+      107
+     ],
+     [
+      "2001-12-14 21:59:43",
+      108
+     ],
+     [
+      "12:30:00",
+      109
+     ],
+     [
+      "1:2",
+      110
+     ],
+     [
+      "http://example.com",
+      111
+     ],
+     [
+      "host:8080",
+      112
+     ],
+     [
+      "8080:80",
+      113
+     ],
+     [
+      "127.0.0.1:8080:80",
+      114
+     ],
+     [
+      "${VAR}",
+      115
+     ],
+     [
+      "${VAR:-default}",
+      116
+     ],
+     [
+      "$VAR",
+      117
+     ],
+     [
+      "$$",
+      118
+     ],
+     [
+      "a=b",
+      119
+     ],
+     [
+      "KEY=value with spaces",
+      120
+     ],
+     [
+      "KEY=",
+      121
+     ],
+     [
+      "/path/to:/target:ro",
+      122
+     ],
+     [
+      "./rel",
+      123
+     ],
+     [
+      "~/home",
+      124
+     ],
+     [
+      "C:\\dir",
+      125
+     ],
+     [
+      "50%",
+      126
+     ],
+     [
+      "x%",
+      127
+     ],
+     [
+      "@",
+      128
+     ],
+     [
+      "a@b",
+      129
+     ],
+     [
+      "<<",
+      130
+     ],
+     [
+      "=",
+      131
+     ],
+     [
+      "==",
+      132
+     ],
+     [
+      "!!str x",
+      133
+     ],
+     [
+      "0.0",
+      137
+     ],
+     [
+      "-",
+      138
+     ],
+     [
+      "+",
+      139
+     ],
+     [
+      ".",
+      140
+     ],
+     [
+      "1e",
+      141
+     ],
+     [
+      "e1",
+      142
+     ],
+     [
+      "0b101",
+      143
+     ],
+     [
+      "1__0",
+      144
+     ],
+     [
+      "_1",
+      145
+     ],
+     [
+      "1_",
+      146
+     ],
+     [
+      "+.5",
+      147
+     ],
+     [
+      "-.5",
+      148
+     ],
+     [
+      "5e+3",
+      149
+     ],
+     [
+      "NaN",
+      150
+     ],
+     [
+      "INF",
+      151
+     ],
+     [
+      "1.0E+25",
+      154
+     ],
+     [
+      "0xZZ",
+      155
+     ],
+     [
+      "0o8",
+      156
+     ],
+     [
+      "{{ template }}",
+      157
+     ],
+     [
+      "{{.Name}}",
+      158
+     ],
+     [
+      "a | b",
+      159
+     ],
+     [
+      "a > b",
+      160
+     ],
+     [
+      "CMD-SHELL",
+      161
+     ],
+     [
+      "curl -f http://localhost || exit 1",
+      162
+     ],
+     [
+      "tcp://0.0.0.0:2375",
+      163
+     ],
+     [
+      "unix:///var/run/docker.sock",
+      164
+     ]
+    ]
+   }
+  },
+  {
+   "id": "scalars",
+   "value": [
+    null,
+    true,
+    false,
+    0,
+    1,
+    -1,
+    2147483648,
+    9007199254740991,
+    {
+     "$float": "0"
+    },
+    {
+     "$float": "-0"
+    },
+    {
+     "$float": "1"
+    },
+    {
+     "$float": "1.5"
+    },
+    {
+     "$float": "-1.5"
+    },
+    {
+     "$float": "3.8"
+    },
+    {
+     "$float": "0.1"
+    },
+    {
+     "$float": "100000000000000"
+    },
+    {
+     "$float": "1.0E+15"
+    },
+    {
+     "$float": "1.0E+25"
+    },
+    {
+     "$float": "1.5E+25"
+    },
+    {
+     "$float": "1.0E-5"
+    },
+    {
+     "$float": "0.0001"
+    },
+    {
+     "$float": "1.23456789012345678"
+    },
+    {
+     "$float": "0.30000000000000004"
+    },
+    {
+     "$float": "INF"
+    },
+    {
+     "$float": "-INF"
+    },
+    {
+     "$float": "NAN"
+    },
+    {
+     "$float": "2.5E-10"
+    },
+    {
+     "$float": "123456789012345678"
+    }
+   ]
+  },
+  {
+   "id": "root-null",
+   "value": null
+  },
+  {
+   "id": "root-string",
+   "value": "a: b"
+  },
+  {
+   "id": "root-int",
+   "value": 5
+  },
+  {
+   "id": "root-empty",
+   "value": []
+  },
+  {
+   "id": "root-list",
+   "value": [
+    "a",
+    1,
+    null
+   ]
+  },
+  {
+   "id": "empties",
+   "value": {
+    "$map": [
+     [
+      "map",
+      []
+     ],
+     [
+      "nested",
+      {
+       "$map": [
+        [
+         "a",
+         []
+        ],
+        [
+         "b",
+         [
+          []
+         ]
+        ],
+        [
+         "c",
+         {
+          "$map": [
+           [
+            "d",
+            []
+           ]
+          ]
+         }
+        ]
+       ]
+      }
+     ],
+     [
+      "list",
+      [
+       [],
+       [
+        []
+       ],
+       {
+        "$map": [
+         [
+          "x",
+          []
+         ]
+        ]
+       }
+      ]
+     ],
+     [
+      "null",
+      null
+     ],
+     [
+      "empty",
+      ""
+     ]
+    ]
+   }
+  },
+  {
+   "id": "list-of-maps",
+   "value": [
+    {
+     "$map": [
+      [
+       "a",
+       1
+      ],
+      [
+       "b",
+       {
+        "$map": [
+         [
+          "c",
+          2
+         ]
+        ]
+       }
+      ]
+     ]
+    },
+    {
+     "$map": [
+      [
+       "d",
+       [
+        1,
+        2
+       ]
+      ]
+     ]
+    },
+    [
+     "x",
+     [
+      "y"
+     ]
+    ],
+    "z"
+   ]
+  },
+  {
+   "id": "int-keys",
+   "value": {
+    "$map": [
+     [
+      0,
+      "a"
+     ],
+     [
+      1,
+      "b"
+     ],
+     [
+      3,
+      "c"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "int-keys-from-1",
+   "value": {
+    "$map": [
+     [
+      1,
+      "a"
+     ],
+     [
+      2,
+      "b"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "int-keys-reversed",
+   "value": {
+    "$map": [
+     [
+      1,
+      "a"
+     ],
+     [
+      0,
+      "b"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "mixed-keys",
+   "value": {
+    "$map": [
+     [
+      0,
+      "a"
+     ],
+     [
+      "x",
+      "b"
+     ],
+     [
+      1,
+      "c"
+     ],
+     [
+      -5,
+      "d"
+     ],
+     [
+      80,
+      {
+       "$map": [
+        [
+         443,
+         "e"
+        ]
+       ]
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "id": "multiline",
+   "value": {
+    "$map": [
+     [
+      "script",
+      "#!/bin/sh\nset -e\necho \"hi\"\n"
+     ],
+     [
+      "two",
+      "a\nb"
+     ],
+     [
+      "list",
+      [
+       "a\nb",
+       "c\n"
+      ]
+     ],
+     [
+      "lead",
+      "  indented\nline"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "deep-mixed",
+   "value": {
+    "$map": [
+     [
+      "l1",
+      [
+       {
+        "$map": [
+         [
+          "l3",
+          [
+           {
+            "$map": [
+             [
+              "l5",
+              [
+               {
+                "$map": [
+                 [
+                  "l7",
+                  [
+                   {
+                    "$map": [
+                     [
+                      "l9",
+                      [
+                       {
+                        "$map": [
+                         [
+                          "l11",
+                          [
+                           {
+                            "$map": [
+                             [
+                              "l13",
+                              "leaf"
+                             ],
+                             [
+                              "s13",
+                              "v"
+                             ]
+                            ]
+                           },
+                           "v12"
+                          ]
+                         ],
+                         [
+                          "s11",
+                          "v"
+                         ]
+                        ]
+                       },
+                       "v10"
+                      ]
+                     ],
+                     [
+                      "s9",
+                      "v"
+                     ]
+                    ]
+                   },
+                   "v8"
+                  ]
+                 ],
+                 [
+                  "s7",
+                  "v"
+                 ]
+                ]
+               },
+               "v6"
+              ]
+             ],
+             [
+              "s5",
+              "v"
+             ]
+            ]
+           },
+           "v4"
+          ]
+         ],
+         [
+          "s3",
+          "v"
+         ]
+        ]
+       },
+       "v2"
+      ]
+     ],
+     [
+      "s1",
+      "v"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "deep-maps",
+   "value": {
+    "$map": [
+     [
+      "l1",
+      {
+       "$map": [
+        [
+         "l2",
+         {
+          "$map": [
+           [
+            "l3",
+            {
+             "$map": [
+              [
+               "l4",
+               {
+                "$map": [
+                 [
+                  "l5",
+                  {
+                   "$map": [
+                    [
+                     "l6",
+                     {
+                      "$map": [
+                       [
+                        "l7",
+                        {
+                         "$map": [
+                          [
+                           "l8",
+                           {
+                            "$map": [
+                             [
+                              "l9",
+                              {
+                               "$map": [
+                                [
+                                 "l10",
+                                 {
+                                  "$map": [
+                                   [
+                                    "l11",
+                                    {
+                                     "$map": [
+                                      [
+                                       "l12",
+                                       {
+                                        "$map": [
+                                         [
+                                          "leaf",
+                                          "x: y"
+                                         ],
+                                         [
+                                          "n",
+                                          1
+                                         ],
+                                         [
+                                          "e",
+                                          []
+                                         ],
+                                         [
+                                          "l",
+                                          [
+                                           "a b",
+                                           "c"
+                                          ]
+                                         ]
+                                        ]
+                                       }
+                                      ]
+                                     ]
+                                    }
+                                   ]
+                                  ]
+                                 }
+                                ]
+                               ]
+                              }
+                             ]
+                            ]
+                           }
+                          ]
+                         ]
+                        }
+                       ]
+                      ]
+                     }
+                    ]
+                   ]
+                  }
+                 ]
+                ]
+               }
+              ]
+             ]
+            }
+           ]
+          ]
+         }
+        ]
+       ]
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "id": "deep-lists",
+   "value": [
+    [
+     [
+      [
+       [
+        [
+         [
+          [
+           [
+            [
+             [
+              [
+               [
+                "leaf",
+                1,
+                null,
+                {
+                 "$map": [
+                  [
+                   "a",
+                   "b c"
+                  ]
+                 ]
+                }
+               ]
+              ]
+             ]
+            ]
+           ]
+          ]
+         ]
+        ]
+       ]
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "id": "compose-like",
+   "value": {
+    "$map": [
+     [
+      "services",
+      {
+       "$map": [
+        [
+         "app",
+         {
+          "$map": [
+           [
+            "image",
+            "nginx:1.25"
+           ],
+           [
+            "ports",
+            [
+             "80:80",
+             8080,
+             "127.0.0.1:53:53/udp"
+            ]
+           ],
+           [
+            "environment",
+            {
+             "$map": [
+              [
+               "A",
+               "1"
+              ],
+              [
+               "B",
+               null
+              ],
+              [
+               "C",
+               true
+              ],
+              [
+               "D",
+               ""
+              ],
+              [
+               "E",
+               "${E:-x}"
+              ],
+              [
+               "F",
+               3
+              ],
+              [
+               "G",
+               {
+                "$float": "1.5"
+               }
+              ]
+             ]
+            }
+           ],
+           [
+            "healthcheck",
+            {
+             "$map": [
+              [
+               "test",
+               [
+                "CMD",
+                "curl",
+                "-f",
+                "http://localhost"
+               ]
+              ],
+              [
+               "interval",
+               "5s"
+              ],
+              [
+               "retries",
+               10
+              ]
+             ]
+            }
+           ],
+           [
+            "labels",
+            [
+             "traefik.enable=true",
+             "traefik.http.routers.x.rule=Host(`a.example.com`) && PathPrefix(`/`)",
+             "caddy_0.header=-Server"
+            ]
+           ],
+           [
+            "command",
+            "sh -c 'echo hi'"
+           ],
+           [
+            "user",
+            "1000:1000"
+           ],
+           [
+            "cpus",
+            {
+             "$float": "0.5"
+            }
+           ],
+           [
+            "mem_limit",
+            "512m"
+           ]
+          ]
+         }
+        ]
+       ]
+      }
+     ],
+     [
+      "volumes",
+      {
+       "$map": [
+        [
+         "data",
+         null
+        ],
+        [
+         "x",
+         {
+          "$map": [
+           [
+            "external",
+            true
+           ]
+          ]
+         }
+        ]
+       ]
+      }
+     ],
+     [
+      "networks",
+      {
+       "$map": [
+        [
+         "net",
+         {
+          "$map": [
+           [
+            "name",
+            "net"
+           ],
+           [
+            "external",
+            true
+           ]
+          ]
+         }
+        ]
+       ]
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "id": "unicode-spaces",
+   "value": [
+    "a\u2003b",
+    "a\ufeffb",
+    "a\u180eb",
+    "a\u3000b",
+    "a\u202fb",
+    "tab\tin",
+    "x\u2003",
+    "\u2003x",
+    "a\u200bb",
+    "a\u00adb"
+   ]
+  }
+ ],
+ "parse": [
+  {
+   "id": "scalars",
+   "yaml": "a: 1\nb: -1\nc: +1\nd: 0755\ne: 0o755\nf: 0x1F\ng: 1_000\nh: 1.5\ni: .5\nj: 1e3\nk: 1.10.0\nl: 3.8\nm: '3.8'\nn: \"1\"\no: 010\np: -0\nq: 1.\nr: +.5\ns: 0x\nt: 1_0.5_0\nu: 9223372036854775807\nv: 9223372036854775808\nw: -9223372036854775808\nx: 0.0\ny: 00\nz: 1e\n"
+  },
+  {
+   "id": "words",
+   "yaml": "a: true\nb: True\nc: TRUE\nd: false\ne: null\nf: Null\ng: ~\nh:\ni: yes\nj: no\nk: on\nl: off\nm: y\nn: .inf\no: -.inf\np: .NaN\nq: .Inf\nr: 'true'\ns: \"null\"\nt: NULL\nu: FALSE\n"
+  },
+  {
+   "id": "dates",
+   "yaml": "a: 2024-01-01\nb: 2001-12-14t21:59:43.10-05:00\nc: 2001-12-14 21:59:43\nd: '2024-01-01'\ne: 2024-1-1\nf: 2001-12-15T02:59:43Z\ng: 2001-12-14 21:59:43.5 +01:30\nh: 12:30:00\ni: 2024-01-01T00:00:00\n"
+  },
+  {
+   "id": "strings",
+   "yaml": "a: plain text\nb: with # comment\nc: no#comment\nd: 'single ''quoted'''\ne: \"double \\\"quoted\\\" \\n nl \\t tab \\u00e9 \\x41\"\nf: http://example.com:8080/x\ng: a:b\nh: -x\ni: \"\"\nj: ''\nk: ${VAR:-default}\nl: $VAR\nm: 80:80\nn: \"80:80\"\no: a, b\np: 50%\nq: '@x'\n"
+  },
+  {
+   "id": "block-scalars",
+   "yaml": "a: |\n  line1\n  line2\nb: >\n  folded\n  text\n\n  para\nc: |-\n  strip\nd: |+\n  keep\n\ne: >-\n  one\n  two\nf: |2\n    indented\n  less\ng: end\n"
+  },
+  {
+   "id": "multiline-plain",
+   "yaml": "a: first\n  second\n  third\nb: one\n\n  two\nc: x\n"
+  },
+  {
+   "id": "flow",
+   "yaml": "a: [1, two, '3', 4.5, true, null, ~]\nb: {x: 1, y: two, z: [a, b]}\nc: []\nd: {}\ne: [a, {b: c}]\nf: [ ]\ng: { }\nh: {80: x, 'k': 0755}\n"
+  },
+  {
+   "id": "lists",
+   "yaml": "- a\n- 1\n-\n- - nested\n  - 2\n- key: value\n  other: 2\n- [x, y]\n"
+  },
+  {
+   "id": "nested",
+   "yaml": "services:\n  app:\n    image: nginx\n    ports:\n      - 80:80\n      - \"443:443\"\n      - 8080\n    environment:\n      - A=1\n      - B\n      - C=\n    deploy:\n      resources:\n        limits:\n          cpus: 0.5\n          memory: 512M\n"
+  },
+  {
+   "id": "unindented-list",
+   "yaml": "ports:\n- 80:80\n- 443:443\nother: 1\n"
+  },
+  {
+   "id": "int-keys",
+   "yaml": "80: a\n443: b\n'8080': c\n\"09\": d\n-1: e\n"
+  },
+  {
+   "id": "anchors",
+   "yaml": "base: &base\n  a: 1\n  b: [x, y]\nuse: *base\nscalar: &s hello\nagain: *s\nlist:\n  - *s\n  - *base\n"
+  },
+  {
+   "id": "merge",
+   "yaml": "x-common: &common\n  restart: always\n  image: base\n  environment:\n    A: 1\nsvc:\n  image: first\n  <<: *common\n  restart: no\n  extra: 1\nsvc2:\n  <<: *common\n  image: override\nsvc3:\n  before: 1\n  <<: *common\n  after: 2\n"
+  },
+  {
+   "id": "merge-list",
+   "yaml": "a: &a\n  x: 1\n  y: 1\nb: &b\n  y: 2\n  z: 2\nc:\n  <<: [*a, *b]\n  z: 3\nd:\n  w: 0\n  <<: [*b, *a]\n"
+  },
+  {
+   "id": "merge-inline",
+   "yaml": "a: &a {x: 1, y: 2}\nb:\n  <<: *a\n  y: 3\nc:\n  y: 0\n  <<: {x: 9, q: 8}\n"
+  },
+  {
+   "id": "merge-nested-anchor",
+   "yaml": "x-env: &env\n  A: a\n  B: b\nx-svc: &svc\n  environment:\n    <<: *env\n    C: c\n  image: i\none:\n  <<: *svc\ntwo:\n  <<: *svc\n  environment:\n    <<: *env\n    A: override\n"
+  },
+  {
+   "id": "quoted-merge-key",
+   "yaml": "a: &a\n  x: 1\nb:\n  '<<': *a\n"
+  },
+  {
+   "id": "anchor-on-own-line",
+   "compose": true,
+   "yaml": "x-common:\n  &common\n  restart: always\nservices:\n  app:\n    <<: *common\n    image: nginx\n"
+  },
+  {
+   "id": "bom",
+   "compose": true,
+   "yaml": "\ufeffservices:\n  app:\n    image: nginx\n"
+  },
+  {
+   "id": "comments",
+   "yaml": "# top\na: 1 # trailing\n# middle\nb:\n  # inner\n  c: 2\n\n\nd: '#notcomment'\n"
+  },
+  {
+   "id": "document-marker",
+   "yaml": "---\na: 1\n"
+  },
+  {
+   "id": "duplicate-key",
+   "yaml": "a: 1\na: 2\n"
+  },
+  {
+   "id": "duplicate-key-null",
+   "yaml": "a:\na: 2\n"
+  },
+  {
+   "id": "bool-key",
+   "yaml": "true: 1\n"
+  },
+  {
+   "id": "null-key",
+   "yaml": "~: 1\n"
+  },
+  {
+   "id": "float-key",
+   "yaml": "1.5: 1\n"
+  },
+  {
+   "id": "missing-alias",
+   "yaml": "a: *nope\n"
+  },
+  {
+   "id": "bad-indent",
+   "yaml": "a:\n  b: 1\n c: 2\n"
+  },
+  {
+   "id": "tab-indent",
+   "yaml": "a:\n\tb: 1\n"
+  },
+  {
+   "id": "tags",
+   "yaml": "a: !!str 123\nb: !!str true\nc: !!float 1\nd: !!str\n"
+  },
+  {
+   "id": "long-string-keys",
+   "yaml": "\"key with spaces\": 1\n'quoted: colon': 2\nkey with spaces: 3\n"
+  },
+  {
+   "id": "healthcheck",
+   "yaml": "test: [\"CMD-SHELL\", \"pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}\"]\ninterval: 5s\ntimeout: 20s\nretries: 10\n"
+  },
+  {
+   "id": "command-folded",
+   "yaml": "command: >\n  sh -c \"echo one &&\n         echo two\"\nentrypoint: [\"/bin/sh\", \"-c\"]\n"
+  },
+  {
+   "id": "empty-document",
+   "yaml": ""
+  },
+  {
+   "id": "only-comment",
+   "yaml": "# nothing\n"
+  },
+  {
+   "id": "scalar-document",
+   "yaml": "just a string\n"
+  },
+  {
+   "id": "crlf",
+   "yaml": "a: 1\r\nb:\r\n  - x\r\n  - y\r\n"
+  },
+  {
+   "id": "windows-path",
+   "yaml": "a: C:\\Users\\x\nb: \"C:\\\\Users\\\\x\"\n"
+  },
+  {
+   "id": "special-values",
+   "yaml": "a: '   spaced   '\nb:    padded   \nc: \"tab\\there\"\nd: |\n  trailing spaces   \n"
+  },
+  {
+   "id": "version",
+   "yaml": "version: '3.8'\nother: 3.8\nthird: \"3\"\nfourth: 3\n"
+  },
+  {
+   "id": "deep",
+   "yaml": "a:\n  b:\n    c:\n      d:\n        e:\n          f:\n            g:\n              h:\n                i:\n                  j:\n                    k:\n                      l:\n                        m: deep\n                        n: [1, 2]\n"
+  },
+  {
+   "id": "line-01",
+   "yaml": "a:\n  - |\n    x\nb: 1\n"
+  },
+  {
+   "id": "line-02",
+   "yaml": "a:\n  - k: v\n    c: |\n      x\nb: 1\n"
+  },
+  {
+   "id": "line-03",
+   "yaml": "a:\n  - k: v\n    c: |\n      x\n  - z\nb: 1\n"
+  },
+  {
+   "id": "line-04",
+   "yaml": "a:\n  - |\n    x\n  - y\n"
+  },
+  {
+   "id": "line-05",
+   "yaml": "a:\n  - k:\n      c: |\n        x\n    d: 1\n"
+  },
+  {
+   "id": "line-06",
+   "yaml": "a:\n  - k:\n      c: |\n        x\nb: 1\n"
+  },
+  {
+   "id": "line-07",
+   "yaml": "- |\n  x\n- y\n"
+  },
+  {
+   "id": "line-08",
+   "yaml": "a:\n  b: |\n    x\nc: 1\n"
+  },
+  {
+   "id": "line-09",
+   "yaml": "a:\n  - k: v\n    c: |\n      x\n\n\nb: 1\n"
+  },
+  {
+   "id": "line-10",
+   "yaml": "a:\n  - |+\n    x\n\nb: 1\n"
+  },
+  {
+   "id": "line-11",
+   "yaml": "a:\n  - k: v\n    c: >\n      x\n      y\nb: 1\n"
+  },
+  {
+   "id": "line-12",
+   "yaml": "a:\n  - k: v\n    c: |\n      x\n    d: 2\nb: 1\n"
+  },
+  {
+   "id": "line-13",
+   "yaml": "a:\n  - k: v\n    c:\n      e: |\n        x\nb: 1\n"
+  },
+  {
+   "id": "line-14",
+   "yaml": "a:\n  - - |\n      x\nb: 1\n"
+  },
+  {
+   "id": "line-15",
+   "yaml": "a:\n  - |\n    x\n"
+  },
+  {
+   "id": "line-16",
+   "yaml": "a:\n  - |\n    x\n\n  - y\n"
+  },
+  {
+   "id": "line-17",
+   "yaml": "a:\n  - k: v\n    c: |\n      x\n  # comment\n  - z\n"
+  },
+  {
+   "id": "line-18",
+   "yaml": "a:\n  - k: v\n    c: |\n      x\n\n  - z\n"
+  },
+  {
+   "id": "line-19",
+   "yaml": "a: one\n  two\nb: 1\n"
+  },
+  {
+   "id": "line-20",
+   "yaml": "a:\n  - one\n    two\n"
+  },
+  {
+   "id": "line-21",
+   "yaml": "a: one\n\n  two\n"
+  },
+  {
+   "id": "line-22",
+   "yaml": "a:\n  - k: |\n      x\n"
+  },
+  {
+   "id": "line-23",
+   "yaml": "a:\n  - k: v\n    c: |-\n      x\n  - z\n"
+  },
+  {
+   "id": "line-24",
+   "yaml": "a:\n  - k: v\n    c: |+\n      x\n  - z\n"
+  },
+  {
+   "id": "line-25",
+   "yaml": "a:\n  - k: v\n    c: |+\n      x\n\n  - z\n"
+  },
+  {
+   "id": "line-26",
+   "yaml": "a:\n- |\n  x\nb: 1\n"
+  },
+  {
+   "id": "line-27",
+   "yaml": "a:\n  b:\n    - |\n      x\n  c: 1\n"
+  },
+  {
+   "id": "line-28",
+   "yaml": "a:\n  - |\n    x\n\n\n"
+  },
+  {
+   "id": "line-29",
+   "yaml": "a:\n  b: |\n    x"
+  },
+  {
+   "id": "line-30",
+   "yaml": "a:\n  - k: v\n    c: |\n      x\n\n      y\n\n  - z\n"
+  },
+  {
+   "id": "line-31",
+   "yaml": "a:\n  - b:\n      - |\n        x\n    c: 1\n"
+  },
+  {
+   "id": "line-32",
+   "yaml": "a:\n  - b:\n      - k: v\n        c: |\n          x\n  - z\n"
+  },
+  {
+   "id": "line-33",
+   "yaml": "a:\n  - one\n\n    two\n"
+  },
+  {
+   "id": "line-34",
+   "yaml": "a:\n  b: one\n\n    two\n  c: 1\n"
+  },
+  {
+   "id": "line-35",
+   "yaml": "a:\n  - k: |\n      x\n    j: >\n      y\n"
+  },
+  {
+   "id": "line-36",
+   "yaml": "a:\n  - >\n    x\n    y\n  - z\n"
+  },
+  {
+   "id": "line-40",
+   "yaml": "# h1\n# h2\n\na:\n  - |\n    x\nb: 1\n"
+  },
+  {
+   "id": "line-41",
+   "yaml": "# h1\n# h2\n\na:\n  - k: v\n    c: |\n      x\n  - z\nb: 1\n"
+  },
+  {
+   "id": "line-42",
+   "yaml": "# h1\n# h2\n# h3\n# h4\n\na:\n  - k: v\n    c: |\n      x\n  - z\nb: 1\nc: 2\n"
+  },
+  {
+   "id": "line-43",
+   "yaml": "# h1\n# h2\n\na:\n  b: |\n    x\nc: 1\n"
+  },
+  {
+   "id": "line-44",
+   "yaml": "# h1\n# h2\n\na:\n  b: |\n    x\n  d: 2\nc: 1\n"
+  },
+  {
+   "id": "line-45",
+   "yaml": "# h1\n# h2\n\na:\n  b: |\n    x\n\nc: 1\n"
+  },
+  {
+   "id": "line-46",
+   "yaml": "# h1\n# h2\n\na:\n  b: |\n    x\n  # comment\nc: 1\n"
+  },
+  {
+   "id": "line-47",
+   "yaml": "# h1\n# h2\n\na:\n  b: |+\n    x\nc: 1\n"
+  },
+  {
+   "id": "line-48",
+   "yaml": "# h1\n# h2\n\na:\n  b: >\n    x\n    y\nc: 1\n"
+  },
+  {
+   "id": "line-49",
+   "yaml": "# h1\n# h2\n\na:\n  b: |-\n    x\nc: 1\n"
+  },
+  {
+   "id": "line-50",
+   "yaml": "# h1\n# h2\n\na:\n  b:\n    - q\n    - |\n      x\n  c: 1\nd: 1\n"
+  },
+  {
+   "id": "line-51",
+   "yaml": "---\n# h1\n\na:\n  b: |\n    x\nc: 1\n"
+  },
+  {
+   "id": "line-52",
+   "yaml": "# h1\n---\n# h2\n\na:\n  b: |\n    x\nc: 1\n"
+  },
+  {
+   "id": "line-53",
+   "yaml": "# h1\n# h2\n\na: |\n  x\nc: 1\n"
+  },
+  {
+   "id": "line-54",
+   "yaml": "# h1\n# h2\n\nc: 1\na: |\n  x\n"
+  },
+  {
+   "id": "line-55",
+   "yaml": "# h1\n# h2\n\nc: 1\na: |\n  x"
+  },
+  {
+   "id": "line-56",
+   "yaml": "\n\n\na:\n  b: |\n    x\nc: 1\n"
+  },
+  {
+   "id": "line-57",
+   "yaml": "# h1\n# h2\n# h3\n\na:\n  b: |\n    x\n# comment at zero\nc: 1\n"
+  },
+  {
+   "id": "line-58",
+   "yaml": "# h1\n# h2\n# h3\n\na:\n  b: |\n    x\n      more\n   \nc: 1\n"
+  },
+  {
+   "id": "line-59",
+   "yaml": "# h1\n# h2\n# h3\n\na:\n  b:\n    c: |\n      x\n  d: 1\ne: 1\nf: 1\n"
+  },
+  {
+   "id": "line-60",
+   "yaml": "# h1\n# h2\n# h3\n# h4\n# h5\n# h6\n\na:\n  b:\n    c: |\n      x\n  d: 1\ne: 1\nf: 1\ng:\n  - 1\n"
+  },
+  {
+   "id": "line-61",
+   "yaml": "# h1\n# h2\n# h3\n\na:\n  - b: |\n      x\n    c: |\n      y\n  - d: |\n      z\ne: 1\n"
+  },
+  {
+   "id": "line-62",
+   "yaml": "# h1\r\n# h2\r\n\r\na:\r\n  b: |\r\n    x\r\nc: 1\r\n"
+  },
+  {
+   "id": "line-63",
+   "yaml": "# h1\n# h2\n# h3\n\na:\n  - b\n  - >+\n    x\n\nc: 1\n"
+  }
+ ]
+}

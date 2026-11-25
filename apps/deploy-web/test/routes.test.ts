@@ -120,7 +120,10 @@ test("an application's configuration routes map to General, Domains, Advanced, H
   assert.equal(pageFor(`${application}/environment-variables/more`), "not-ported");
   assert.equal(pageFor("/project/abc123def456ghi789jkl012/environment/mno345pqr678stu901vwx234/application"), "not-ported");
   assert.equal(pageFor("/project/abc123def456ghi789jkl012/environment/mno345pqr678stu901vwx234/database"), "not-ported");
-  assert.equal(pageFor("/project/abc123def456ghi789jkl012/environment/mno345pqr678stu901vwx234/service/svc1"), "not-ported");
+  // A service has its first page (DP-59); the pages below it are not ported.
+  assert.equal(pageFor("/project/abc123def456ghi789jkl012/environment/mno345pqr678stu901vwx234/service/svc1"), "project.service.configuration");
+  assert.equal(pageFor("/project/abc123def456ghi789jkl012/environment/mno345pqr678stu901vwx234/service/svc1/environment-variables"), "not-ported");
+  assert.equal(pageFor("/project/abc123def456ghi789jkl012/environment/mno345pqr678stu901vwx234/service"), "not-ported");
 });
 
 test("a database's configuration route maps to General; every other entry of its menu is not ported", () => {

@@ -30,7 +30,8 @@ naming the Coolify source it came from. The derived areas are:
 | `apps/deploy-core-worker` — domain logic, Workflows, Queues | `app/Models/**`, `app/Actions/**`, `app/Jobs/**`, `app/Livewire/**` (logic) | translated from PHP/Laravel to TypeScript on Cloudflare Workers; jobs became Workflows and Queue consumers; scheduler became Cron Triggers; scoped to one org |
 | `apps/deploy-core-worker` — server command generation | `bootstrap/helpers/*.php` | translated to TypeScript; generated shell commands kept byte-for-byte identical |
 | `apps/deploy-web` — UI | `resources/views/**` (Blade), `resources/css/**`, `resources/js/**` (Svelte canvases), `lang/**` | Blade/Livewire/Alpine re-implemented in React with the same DOM and classes; CSS, fonts, Svelte components and strings reused; brand marks replaced |
-| `apps/deploy-core-worker` — service catalog | `templates/compose/*.yaml` | reused; parsed by a TypeScript port of `parsers.php` / `services.php` |
+| `apps/deploy-core-worker` — service catalog (`src/services/catalogue-data.ts`) | `templates/compose/*.yaml` | reused as Coolify's own generator writes them (`app/Console/Commands/Generate/Services.php`, ported in `catalogue-build.ts`); parsed by a TypeScript port of `parsers.php` / `services.php` |
+| `apps/deploy-core-worker` — Compose YAML (`src/compose/yaml.ts`) | `symfony/yaml` v8.1.11 (`Inline.php`, `Dumper.php`, `Escaper.php`, `Parser.php`), MIT, Copyright (c) Fabien Potencier | the scalar typing, merge key rules and dumper re-implemented in TypeScript so that a file reads and prints as Coolify's does |
 | `apps/api-edge` — `/api/v1` | `routes/api.php`, `app/Http/Controllers/Api/**`, `openapi.json` | re-implemented on Workers; bearer tokens scoped to one org |
 | `specs/epics/freeploy-coolify-parity/parity/openapi.json` | `openapi.json` | verbatim copy, used as the API contract |
 
@@ -50,7 +51,9 @@ basement.studio), both under the SIL Open Font License 1.1
 
 `apps/deploy-web/public/svgs/` carries Coolify's `public/svgs/` icons for the
 notification channels (Discord, Telegram, Slack, Pushover), unmodified; those
-marks belong to their respective owners and only identify the channel.
+marks belong to their respective owners and only identify the channel. It
+also carries `default.webp`, Coolify's placeholder image for a service without
+a logo, unmodified.
 
 `apps/deploy-web/coolify/views/` is a verbatim copy of Coolify's
 `resources/views/**`, used only as a Tailwind class source; it is not served.
@@ -60,6 +63,12 @@ marks belong to their respective owners and only identify the channel.
 Logos under `public/svgs` (or the equivalent in `apps/deploy-web`) belong to
 their respective projects and are shown only where Coolify shows them, to
 identify a one-click service.
+
+## yaml
+
+`apps/deploy-core-worker` reads Compose files with **yaml** 2.x
+(<https://github.com/eemeli/yaml>), Copyright Eemeli Aro, under the ISC
+License. It is bundled into the Worker unmodified.
 
 ## Freeploy baseline
 

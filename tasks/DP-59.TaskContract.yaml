@@ -1,0 +1,25 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-59
+  title: "DP8: the service template catalogue and the Compose service parser"
+spec:
+  goal: Freeploy carries Coolify's one-click service catalogue and creates a service from a template the way Coolify does, without deploying it. The Compose reader and writer (Symfony's scalar typing, merge rules and Yaml::dump($x, 10, 2)), the catalogue generator (generate:services) and serviceParser with everything it calls (magic variables, generated values, volumes, networks, ports, labels, the service-specific domains, Create.php's creation) are TypeScript, held to Coolify's own PHP at 91b7e3e — all 390 template files round-trip byte-equal, all 359 catalogue entries equal the generator's, and for all 359 services the parsed Compose file and every stored row equal what PHP produces with a database (SQLite, Coolify's migrations), on the first parse and on a second, with 34 of them checked again on servers with Traefik's and with Caddy's exact labels and a wildcard domain. Generated random values are replayed from PHP's output into the port after their shape is checked. The catalogue (359 entries, since 31 templates are marked ignore) is bundled into deploy-core-worker; it is not byte-equal to Coolify's committed service-templates-latest.json, which is older than its templates, and its template dates are Coolify's where the Compose text is unchanged and null for 8. GET …/deploy/services/templates lists the catalogue for the New Resource page, POST …/deploy/services stores a service with its applications, databases, encrypted environment variables and volumes, GET …/deploy/services/{uuid} reads it back; the New Resource page lists the services with search and category filter and a created service lands on a first page of its own. Deploying a service, its configuration pages, a service from a pasted Compose file, Compose applications (applicationParser), re-parsing through the API, log drain logging, shared variable references in service values, parser versions below 3 and the service logos are not part of this task.
+  affects:
+    - apps/deploy-core-worker/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+    - THIRD_PARTY_NOTICES.md
+    - pnpm-lock.yaml
+  doneWhen:
+    - tests/deploy-core-worker's compose-yaml.test.ts passes — every dump and parse case of fixtures/compose-yaml/cases.json returns what Symfony returned (goldens.json), and each of the 390 files of Coolify's templates/compose has the sha256 PHP got for Yaml::dump(Yaml::parse($raw), 10, 2)
+    - tests/deploy-core-worker's service-catalogue.test.ts passes — the generator gives Coolify's 359 entries in Coolify's order with every field equal to fixtures/services/catalogue-golden.json, and its JSON text is exactly the catalogue the Worker ships
+    - tests/deploy-core-worker's service-parser.test.ts passes — for all 359 services of fixtures/services/goldens.json.gz the port's rows and Compose files equal PHP's after the first and after the second parse (573 applications, 219 databases, 5849 environment variables, 791 volumes, 125 file storages), and the same for the 34 services of each server variant
+    - tests/deploy-core-worker's services.test.ts and tests/db's deploy-services.test.ts pass — the template list equals Select::loadServices for all 359 services apart from the tracking parameters, a created service is stored with its parsed rows and encrypted values, and row-level security keeps each org's services to itself
+    - on stage a signed-in org owner opens a project environment's New Resource page, sees the Services section with its 359 templates, narrows it with the search and with the category filter, chooses Umami and a server, and lands on the page of a service named umami-<uuid> that lists the application umami with a generated domain and the database postgresql
+    - on stage POST …/deploy/services with type "one-click-service-does-not-exist" answers 422 on the type field, with a destination of another org answers 404, and a member without deploy.resource.write gets 404 on POST and can still read …/deploy/services/templates
+  gates: []
