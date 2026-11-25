@@ -10,6 +10,7 @@ import { handlePrivateKeys } from "./handlers/private-keys.js";
 import { handleRegistries } from "./handlers/registries.js";
 import { handleServers } from "./handlers/servers.js";
 import { handleSharedVariables } from "./handlers/shared-variables.js";
+import { handleServices } from "./handlers/services.js";
 import { errorResponse, notFound } from "./http.js";
 import { generateRequestId, parseOrgPublicId } from "./ids.js";
 
@@ -37,6 +38,8 @@ export const ORG_DEPLOY_PROJECTS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/pr
 export const ORG_DEPLOY_APPLICATIONS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/applications((?:\/[^/]+){0,4})\/?$/;
 /** Standalone databases: the collection and up to three segments below it (a database, one of its actions, an action's part). */
 export const ORG_DEPLOY_DATABASES_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/databases((?:\/[^/]+){0,3})\/?$/;
+/** One-click services (DP-59): the collection, the template catalogue and a service. */
+export const ORG_DEPLOY_SERVICES_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/services((?:\/[^/]+){0,1})\/?$/;
 /** Keys & Tokens → Cloud Tokens: the collection, a token, and a token's validate action. */
 export const ORG_DEPLOY_CLOUD_TOKENS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/cloud-tokens((?:\/[^/]+){0,2})\/?$/;
 /** Keys & Tokens → Cloud-Init Scripts: the collection and a script. */
@@ -151,6 +154,15 @@ export async function route(request: Request, env: Env): Promise<Response> {
       if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
       const segments = (sharedVariables[2] ?? "").split("/").filter(Boolean);
       return handleSharedVariables(env, requestId, actor, orgId, segments, request);
+    }
+    const services = url.pathname.match(ORG_DEPLOY_SERVICES_RE);
+    if (services) {
+      const orgId = parseOrgPublicId(services[1]!);
+      if (!orgId) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
+      const segments = (services[2] ?? "").split("/").filter(Boolean);
+      return handleServices(env, requestId, actor, orgId, segments, request);
     }
     return notFound(requestId, url.pathname);
   } catch {

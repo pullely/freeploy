@@ -1,0 +1,3753 @@
+{
+    "dump": {
+        "strings": "- ''\n- ' '\n- plain\n- 'two words'\n- 'trailing '\n- ' leading'\n- '123'\n- '-123'\n- '+123'\n- '0123'\n- '1.5'\n- '1.'\n- '.5'\n- '1e3'\n- '1E-3'\n- '0x1F'\n- '0o17'\n- '017'\n- '1_000'\n- 1.2.3\n- '3.8'\n- '1,5'\n- ' 12'\n- '12 '\n- \"12\\n\"\n- \"\\t12\"\n- 'true'\n- 'True'\n- 'TRUE'\n- 'false'\n- 'null'\n- 'Null'\n- '~'\n- 'yes'\n- 'No'\n- 'on'\n- 'OFF'\n- 'y'\n- 'N'\n- '.inf'\n- '-.inf'\n- '.NaN'\n- '...'\n- '---'\n- 'a: b'\n- 'a:b'\n- 'a :b'\n- 'key:'\n- ':x'\n- 'a#b'\n- 'a #b'\n- '#x'\n- 'a, b'\n- '[x]'\n- '{x}'\n- 'x]'\n- '&anchor'\n- '*alias'\n- 'a&b'\n- 'a*b'\n- '?x'\n- 'x?'\n- '-x'\n- '- x'\n- '-'\n- '|x'\n- '>x'\n- '<x'\n- '=x'\n- '!x'\n- '%x'\n- '@x'\n- '`x'\n- x!\n- \"it's\"\n- 'say \"hi\"'\n- 'it''s \"both\"'\n- \"'quoted'\"\n- '\"dq\"'\n- \"''\"\n- \"'\"\n- back\\slash\n- back\\\\two\n- 'q\\\"x'\n- \"line1\\nline2\"\n- \"line1\\nline2\\n\"\n- \"\\nlead\"\n- \"tab\\there\"\n- \"cr\\rhere\"\n- \"bell\\a\"\n- \"esc\\e[0m\"\n- \"nul\\0x\"\n- \"nbsp\\_x\"\n- \"nel\\Nx\"\n- \"ls\\Lx\"\n- \"ps\\Px\"\n- '﻿bom'\n- '　ideographic'\n- \"\\_lead\"\n- café\n- 日本語\n- 'emoji 😀'\n- !!binary AWN0bA==\n- !!binary Y3RsGXg=\n- \"del\\x7fx\"\n- '2024-01-01'\n- '2024-1-1'\n- '2001-12-14t21:59:43.10-05:00'\n- '2001-12-14 21:59:43'\n- '12:30:00'\n- '1:2'\n- 'http://example.com'\n- 'host:8080'\n- '8080:80'\n- '127.0.0.1:8080:80'\n- '${VAR}'\n- '${VAR:-default}'\n- $VAR\n- $$\n- a=b\n- 'KEY=value with spaces'\n- KEY=\n- '/path/to:/target:ro'\n- ./rel\n- ~/home\n- 'C:\\dir'\n- 50%\n- x%\n- '@'\n- a@b\n- '<<'\n- '='\n- '=='\n- '!!str x'\n- '0'\n- '-0'\n- '00'\n- '0.0'\n- '-'\n- +\n- .\n- 1e\n- e1\n- 0b101\n- '1__0'\n- _1\n- '1_'\n- '+.5'\n- '-.5'\n- '5e+3'\n- NaN\n- INF\n- '9223372036854775807'\n- '9223372036854775808'\n- '1.0E+25'\n- 0xZZ\n- 0o8\n- '{{ template }}'\n- '{{.Name}}'\n- 'a | b'\n- 'a > b'\n- CMD-SHELL\n- 'curl -f http://localhost || exit 1'\n- 'tcp://0.0.0.0:2375'\n- 'unix:///var/run/docker.sock'\n",
+        "strings-as-map-values": "k0: ''\nk1: ' '\nk2: plain\nk3: 'two words'\nk4: 'trailing '\nk5: ' leading'\nk6: '123'\nk7: '-123'\nk8: '+123'\nk9: '0123'\nk10: '1.5'\nk11: '1.'\nk12: '.5'\nk13: '1e3'\nk14: '1E-3'\nk15: '0x1F'\nk16: '0o17'\nk17: '017'\nk18: '1_000'\nk19: 1.2.3\nk20: '3.8'\nk21: '1,5'\nk22: ' 12'\nk23: '12 '\nk24: \"12\\n\"\nk25: \"\\t12\"\nk26: 'true'\nk27: 'True'\nk28: 'TRUE'\nk29: 'false'\nk30: 'null'\nk31: 'Null'\nk32: '~'\nk33: 'yes'\nk34: 'No'\nk35: 'on'\nk36: 'OFF'\nk37: 'y'\nk38: 'N'\nk39: '.inf'\nk40: '-.inf'\nk41: '.NaN'\nk42: '...'\nk43: '---'\nk44: 'a: b'\nk45: 'a:b'\nk46: 'a :b'\nk47: 'key:'\nk48: ':x'\nk49: 'a#b'\nk50: 'a #b'\nk51: '#x'\nk52: 'a, b'\nk53: '[x]'\nk54: '{x}'\nk55: 'x]'\nk56: '&anchor'\nk57: '*alias'\nk58: 'a&b'\nk59: 'a*b'\nk60: '?x'\nk61: 'x?'\nk62: '-x'\nk63: '- x'\nk64: '-'\nk65: '|x'\nk66: '>x'\nk67: '<x'\nk68: '=x'\nk69: '!x'\nk70: '%x'\nk71: '@x'\nk72: '`x'\nk73: x!\nk74: \"it's\"\nk75: 'say \"hi\"'\nk76: 'it''s \"both\"'\nk77: \"'quoted'\"\nk78: '\"dq\"'\nk79: \"''\"\nk80: \"'\"\nk81: back\\slash\nk82: back\\\\two\nk83: 'q\\\"x'\nk84: \"line1\\nline2\"\nk85: \"line1\\nline2\\n\"\nk86: \"\\nlead\"\nk87: \"tab\\there\"\nk88: \"cr\\rhere\"\nk89: \"bell\\a\"\nk90: \"esc\\e[0m\"\nk91: \"nul\\0x\"\nk92: \"nbsp\\_x\"\nk93: \"nel\\Nx\"\nk94: \"ls\\Lx\"\nk95: \"ps\\Px\"\nk96: '﻿bom'\nk97: '　ideographic'\nk98: \"\\_lead\"\nk99: café\nk100: 日本語\nk101: 'emoji 😀'\nk102: !!binary AWN0bA==\nk103: !!binary Y3RsGXg=\nk104: \"del\\x7fx\"\nk105: '2024-01-01'\nk106: '2024-1-1'\nk107: '2001-12-14t21:59:43.10-05:00'\nk108: '2001-12-14 21:59:43'\nk109: '12:30:00'\nk110: '1:2'\nk111: 'http://example.com'\nk112: 'host:8080'\nk113: '8080:80'\nk114: '127.0.0.1:8080:80'\nk115: '${VAR}'\nk116: '${VAR:-default}'\nk117: $VAR\nk118: $$\nk119: a=b\nk120: 'KEY=value with spaces'\nk121: KEY=\nk122: '/path/to:/target:ro'\nk123: ./rel\nk124: ~/home\nk125: 'C:\\dir'\nk126: 50%\nk127: x%\nk128: '@'\nk129: a@b\nk130: '<<'\nk131: '='\nk132: '=='\nk133: '!!str x'\nk134: '0'\nk135: '-0'\nk136: '00'\nk137: '0.0'\nk138: '-'\nk139: +\nk140: .\nk141: 1e\nk142: e1\nk143: 0b101\nk144: '1__0'\nk145: _1\nk146: '1_'\nk147: '+.5'\nk148: '-.5'\nk149: '5e+3'\nk150: NaN\nk151: INF\nk152: '9223372036854775807'\nk153: '9223372036854775808'\nk154: '1.0E+25'\nk155: 0xZZ\nk156: 0o8\nk157: '{{ template }}'\nk158: '{{.Name}}'\nk159: 'a | b'\nk160: 'a > b'\nk161: CMD-SHELL\nk162: 'curl -f http://localhost || exit 1'\nk163: 'tcp://0.0.0.0:2375'\nk164: 'unix:///var/run/docker.sock'\n",
+        "strings-as-keys": "' ': 1\nplain: 2\n'two words': 3\n'trailing ': 4\n' leading': 5\n'+123': 8\n'1.5': 10\n'1.': 11\n'.5': 12\n'1e3': 13\n'1E-3': 14\n'0x1F': 15\n'0o17': 16\n'1_000': 18\n1.2.3: 19\n'3.8': 20\n'1,5': 21\n' 12': 22\n'12 ': 23\n\"12\\n\": 24\n\"\\t12\": 25\n'true': 26\n'True': 27\n'TRUE': 28\n'false': 29\n'null': 30\n'Null': 31\n'~': 32\n'yes': 33\n'No': 34\n'on': 35\n'OFF': 36\n'y': 37\n'N': 38\n'.inf': 39\n'-.inf': 40\n'.NaN': 41\n'...': 42\n'---': 43\n'a: b': 44\n'a:b': 45\n'a :b': 46\n'key:': 47\n':x': 48\n'a#b': 49\n'a #b': 50\n'#x': 51\n'a, b': 52\n'[x]': 53\n'{x}': 54\n'x]': 55\n'&anchor': 56\n'*alias': 57\n'a&b': 58\n'a*b': 59\n'?x': 60\n'x?': 61\n'-x': 62\n'- x': 63\n'-': 138\n'|x': 65\n'>x': 66\n'<x': 67\n'=x': 68\n'!x': 69\n'%x': 70\n'@x': 71\n'`x': 72\nx!: 73\n\"it's\": 74\n'say \"hi\"': 75\n'it''s \"both\"': 76\n\"'quoted'\": 77\n'\"dq\"': 78\n\"''\": 79\n\"'\": 80\nback\\slash: 81\nback\\\\two: 82\n'q\\\"x': 83\n\"line1\\nline2\": 84\n\"line1\\nline2\\n\": 85\n\"\\nlead\": 86\n\"tab\\there\": 87\n\"cr\\rhere\": 88\n\"bell\\a\": 89\n\"esc\\e[0m\": 90\n\"nul\\0x\": 91\n\"nbsp\\_x\": 92\n\"nel\\Nx\": 93\n\"ls\\Lx\": 94\n\"ps\\Px\": 95\n'﻿bom': 96\n'　ideographic': 97\n\"\\_lead\": 98\ncafé: 99\n日本語: 100\n'emoji 😀': 101\n!!binary AWN0bA==: 102\n!!binary Y3RsGXg=: 103\n\"del\\x7fx\": 104\n'2024-01-01': 105\n'2024-1-1': 106\n'2001-12-14t21:59:43.10-05:00': 107\n'2001-12-14 21:59:43': 108\n'12:30:00': 109\n'1:2': 110\n'http://example.com': 111\n'host:8080': 112\n'8080:80': 113\n'127.0.0.1:8080:80': 114\n'${VAR}': 115\n'${VAR:-default}': 116\n$VAR: 117\n$$: 118\na=b: 119\n'KEY=value with spaces': 120\nKEY=: 121\n'/path/to:/target:ro': 122\n./rel: 123\n~/home: 124\n'C:\\dir': 125\n50%: 126\nx%: 127\n'@': 128\na@b: 129\n'<<': 130\n'=': 131\n'==': 132\n'!!str x': 133\n'0.0': 137\n+: 139\n.: 140\n1e: 141\ne1: 142\n0b101: 143\n'1__0': 144\n_1: 145\n'1_': 146\n'+.5': 147\n'-.5': 148\n'5e+3': 149\nNaN: 150\nINF: 151\n'1.0E+25': 154\n0xZZ: 155\n0o8: 156\n'{{ template }}': 157\n'{{.Name}}': 158\n'a | b': 159\n'a > b': 160\nCMD-SHELL: 161\n'curl -f http://localhost || exit 1': 162\n'tcp://0.0.0.0:2375': 163\n'unix:///var/run/docker.sock': 164\n",
+        "scalars": "- null\n- true\n- false\n- 0\n- 1\n- -1\n- 2147483648\n- 9007199254740991\n- 0.0\n- -0.0\n- 1.0\n- 1.5\n- -1.5\n- 3.8\n- 0.1\n- 1.0E+14\n- 1.0E+15\n- 1.0E+25\n- 1.5E+25\n- 1.0E-5\n- 0.0001\n- 1.2345678901235\n- 0.3\n- .Inf\n- -.Inf\n- .NaN\n- 2.5E-10\n- 1.2345678901235E+17\n",
+        "root-null": "null",
+        "root-string": "'a: b'",
+        "root-int": "5",
+        "root-empty": "{}",
+        "root-list": "- a\n- 1\n- null\n",
+        "empties": "map: {}\nnested:\n  a: {}\n  b:\n    - {}\n  c:\n    d: {}\nlist:\n  - {}\n  -\n    - {}\n  -\n    x: {}\n'null': null\nempty: ''\n",
+        "list-of-maps": "-\n  a: 1\n  b:\n    c: 2\n-\n  d:\n    - 1\n    - 2\n-\n  - x\n  -\n    - 'y'\n- z\n",
+        "int-keys": "0: a\n1: b\n3: c\n",
+        "int-keys-from-1": "1: a\n2: b\n",
+        "int-keys-reversed": "1: a\n0: b\n",
+        "mixed-keys": "0: a\nx: b\n1: c\n-5: d\n80:\n  443: e\n",
+        "multiline": "script: \"#!/bin/sh\\nset -e\\necho \\\"hi\\\"\\n\"\ntwo: \"a\\nb\"\nlist:\n  - \"a\\nb\"\n  - \"c\\n\"\nlead: \"  indented\\nline\"\n",
+        "deep-mixed": "l1:\n  -\n    l3:\n      -\n        l5:\n          -\n            l7:\n              -\n                l9:\n                  - { l11: [{ l13: leaf, s13: v }, v12], s11: v }\n                  - v10\n                s9: v\n              - v8\n            s7: v\n          - v6\n        s5: v\n      - v4\n    s3: v\n  - v2\ns1: v\n",
+        "deep-maps": "l1:\n  l2:\n    l3:\n      l4:\n        l5:\n          l6:\n            l7:\n              l8:\n                l9:\n                  l10: { l11: { l12: { leaf: 'x: y', 'n': 1, e: {}, l: ['a b', c] } } }\n",
+        "deep-lists": "-\n  -\n    -\n      -\n        -\n          -\n            -\n              -\n                -\n                  - [[[leaf, 1, null, { a: 'b c' }]]]\n",
+        "compose-like": "services:\n  app:\n    image: 'nginx:1.25'\n    ports:\n      - '80:80'\n      - 8080\n      - '127.0.0.1:53:53/udp'\n    environment:\n      A: '1'\n      B: null\n      C: true\n      D: ''\n      E: '${E:-x}'\n      F: 3\n      G: 1.5\n    healthcheck:\n      test:\n        - CMD\n        - curl\n        - '-f'\n        - 'http://localhost'\n      interval: 5s\n      retries: 10\n    labels:\n      - traefik.enable=true\n      - 'traefik.http.routers.x.rule=Host(`a.example.com`) && PathPrefix(`/`)'\n      - caddy_0.header=-Server\n    command: \"sh -c 'echo hi'\"\n    user: '1000:1000'\n    cpus: 0.5\n    mem_limit: 512m\nvolumes:\n  data: null\n  x:\n    external: true\nnetworks:\n  net:\n    name: net\n    external: true\n",
+        "unicode-spaces": "- 'a b'\n- a﻿b\n- 'a᠎b'\n- 'a　b'\n- 'a b'\n- \"tab\\tin\"\n- 'x '\n- ' x'\n- a​b\n- a­b\n"
+    },
+    "parse": {
+        "scalars": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        1
+                    ],
+                    [
+                        "b",
+                        -1
+                    ],
+                    [
+                        "c",
+                        1
+                    ],
+                    [
+                        "d",
+                        "0755"
+                    ],
+                    [
+                        "e",
+                        493
+                    ],
+                    [
+                        "f",
+                        31
+                    ],
+                    [
+                        "g",
+                        1000
+                    ],
+                    [
+                        "h",
+                        {
+                            "$float": "1.5"
+                        }
+                    ],
+                    [
+                        "i",
+                        {
+                            "$float": "0.5"
+                        }
+                    ],
+                    [
+                        "j",
+                        {
+                            "$float": "1000"
+                        }
+                    ],
+                    [
+                        "k",
+                        "1.10.0"
+                    ],
+                    [
+                        "l",
+                        {
+                            "$float": "3.8"
+                        }
+                    ],
+                    [
+                        "m",
+                        "3.8"
+                    ],
+                    [
+                        "n",
+                        "1"
+                    ],
+                    [
+                        "o",
+                        "010"
+                    ],
+                    [
+                        "p",
+                        "-0"
+                    ],
+                    [
+                        "q",
+                        {
+                            "$float": "1"
+                        }
+                    ],
+                    [
+                        "r",
+                        {
+                            "$float": "0.5"
+                        }
+                    ],
+                    [
+                        "s",
+                        "0x"
+                    ],
+                    [
+                        "t",
+                        {
+                            "$float": "10.5"
+                        }
+                    ],
+                    [
+                        "u",
+                        9223372036854775807
+                    ],
+                    [
+                        "v",
+                        "9223372036854775808"
+                    ],
+                    [
+                        "w",
+                        -9223372036854775808
+                    ],
+                    [
+                        "x",
+                        {
+                            "$float": "0"
+                        }
+                    ],
+                    [
+                        "y",
+                        "00"
+                    ],
+                    [
+                        "z",
+                        "1e"
+                    ]
+                ]
+            },
+            "dump": "a: 1\nb: -1\nc: 1\nd: '0755'\ne: 493\nf: 31\ng: 1000\nh: 1.5\ni: 0.5\nj: 1000.0\nk: 1.10.0\nl: 3.8\nm: '3.8'\n'n': '1'\no: '010'\np: '-0'\nq: 1.0\nr: 0.5\ns: 0x\nt: 10.5\nu: 9223372036854775807\nv: '9223372036854775808'\nw: -9223372036854775808\nx: 0.0\n'y': '00'\nz: 1e\n"
+        },
+        "words": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        true
+                    ],
+                    [
+                        "b",
+                        true
+                    ],
+                    [
+                        "c",
+                        true
+                    ],
+                    [
+                        "d",
+                        false
+                    ],
+                    [
+                        "e",
+                        null
+                    ],
+                    [
+                        "f",
+                        null
+                    ],
+                    [
+                        "g",
+                        null
+                    ],
+                    [
+                        "h",
+                        null
+                    ],
+                    [
+                        "i",
+                        "yes"
+                    ],
+                    [
+                        "j",
+                        "no"
+                    ],
+                    [
+                        "k",
+                        "on"
+                    ],
+                    [
+                        "l",
+                        "off"
+                    ],
+                    [
+                        "m",
+                        "y"
+                    ],
+                    [
+                        "n",
+                        {
+                            "$float": "INF"
+                        }
+                    ],
+                    [
+                        "o",
+                        {
+                            "$float": "-INF"
+                        }
+                    ],
+                    [
+                        "p",
+                        {
+                            "$float": "NAN"
+                        }
+                    ],
+                    [
+                        "q",
+                        {
+                            "$float": "INF"
+                        }
+                    ],
+                    [
+                        "r",
+                        "true"
+                    ],
+                    [
+                        "s",
+                        "null"
+                    ],
+                    [
+                        "t",
+                        null
+                    ],
+                    [
+                        "u",
+                        false
+                    ]
+                ]
+            },
+            "dump": "a: true\nb: true\nc: true\nd: false\ne: null\nf: null\ng: null\nh: null\ni: 'yes'\nj: 'no'\nk: 'on'\nl: 'off'\nm: 'y'\n'n': .Inf\no: -.Inf\np: .NaN\nq: .Inf\nr: 'true'\ns: 'null'\nt: null\nu: false\n"
+        },
+        "dates": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        1704067200
+                    ],
+                    [
+                        "b",
+                        {
+                            "$float": "1008385183.1"
+                        }
+                    ],
+                    [
+                        "c",
+                        1008367183
+                    ],
+                    [
+                        "d",
+                        "2024-01-01"
+                    ],
+                    [
+                        "e",
+                        1704067200
+                    ],
+                    [
+                        "f",
+                        1008385183
+                    ],
+                    [
+                        "g",
+                        {
+                            "$float": "1008361783.5"
+                        }
+                    ],
+                    [
+                        "h",
+                        "12:30:00"
+                    ],
+                    [
+                        "i",
+                        1704067200
+                    ]
+                ]
+            },
+            "dump": "a: 1704067200\nb: 1008385183.1\nc: 1008367183\nd: '2024-01-01'\ne: 1704067200\nf: 1008385183\ng: 1008361783.5\nh: '12:30:00'\ni: 1704067200\n"
+        },
+        "strings": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        "plain text"
+                    ],
+                    [
+                        "b",
+                        "with"
+                    ],
+                    [
+                        "c",
+                        "no#comment"
+                    ],
+                    [
+                        "d",
+                        "single 'quoted'"
+                    ],
+                    [
+                        "e",
+                        "double \"quoted\" \n nl \t tab é A"
+                    ],
+                    [
+                        "f",
+                        "http://example.com:8080/x"
+                    ],
+                    [
+                        "g",
+                        "a:b"
+                    ],
+                    [
+                        "h",
+                        "-x"
+                    ],
+                    [
+                        "i",
+                        ""
+                    ],
+                    [
+                        "j",
+                        ""
+                    ],
+                    [
+                        "k",
+                        "${VAR:-default}"
+                    ],
+                    [
+                        "l",
+                        "$VAR"
+                    ],
+                    [
+                        "m",
+                        "80:80"
+                    ],
+                    [
+                        "n",
+                        "80:80"
+                    ],
+                    [
+                        "o",
+                        "a, b"
+                    ],
+                    [
+                        "p",
+                        "50%"
+                    ],
+                    [
+                        "q",
+                        "@x"
+                    ]
+                ]
+            },
+            "dump": "a: 'plain text'\nb: with\nc: 'no#comment'\nd: \"single 'quoted'\"\ne: \"double \\\"quoted\\\" \\n nl \\t tab é A\"\nf: 'http://example.com:8080/x'\ng: 'a:b'\nh: '-x'\ni: ''\nj: ''\nk: '${VAR:-default}'\nl: $VAR\nm: '80:80'\n'n': '80:80'\no: 'a, b'\np: 50%\nq: '@x'\n"
+        },
+        "block-scalars": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        "line1\nline2\n"
+                    ],
+                    [
+                        "b",
+                        "folded text\npara\n"
+                    ],
+                    [
+                        "c",
+                        "strip"
+                    ],
+                    [
+                        "d",
+                        "keep\n\n"
+                    ],
+                    [
+                        "e",
+                        "one two"
+                    ],
+                    [
+                        "f",
+                        "  indented\nless\n"
+                    ],
+                    [
+                        "g",
+                        "end"
+                    ]
+                ]
+            },
+            "dump": "a: \"line1\\nline2\\n\"\nb: \"folded text\\npara\\n\"\nc: strip\nd: \"keep\\n\\n\"\ne: 'one two'\nf: \"  indented\\nless\\n\"\ng: end\n"
+        },
+        "multiline-plain": {
+            "ok": false,
+            "error": "Unable to parse at line 6 (near \"  two\")."
+        },
+        "flow": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    1
+                                ],
+                                [
+                                    1,
+                                    "two"
+                                ],
+                                [
+                                    2,
+                                    "3"
+                                ],
+                                [
+                                    3,
+                                    {
+                                        "$float": "4.5"
+                                    }
+                                ],
+                                [
+                                    4,
+                                    true
+                                ],
+                                [
+                                    5,
+                                    null
+                                ],
+                                [
+                                    6,
+                                    null
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "b",
+                        {
+                            "$map": [
+                                [
+                                    "x",
+                                    1
+                                ],
+                                [
+                                    "y",
+                                    "two"
+                                ],
+                                [
+                                    "z",
+                                    {
+                                        "$map": [
+                                            [
+                                                0,
+                                                "a"
+                                            ],
+                                            [
+                                                1,
+                                                "b"
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "c",
+                        {
+                            "$map": []
+                        }
+                    ],
+                    [
+                        "d",
+                        {
+                            "$map": []
+                        }
+                    ],
+                    [
+                        "e",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    "a"
+                                ],
+                                [
+                                    1,
+                                    {
+                                        "$map": [
+                                            [
+                                                "b",
+                                                "c"
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "f",
+                        {
+                            "$map": []
+                        }
+                    ],
+                    [
+                        "g",
+                        {
+                            "$map": []
+                        }
+                    ],
+                    [
+                        "h",
+                        {
+                            "$map": [
+                                [
+                                    80,
+                                    "x"
+                                ],
+                                [
+                                    "k",
+                                    "0755"
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "a:\n  - 1\n  - two\n  - '3'\n  - 4.5\n  - true\n  - null\n  - null\nb:\n  x: 1\n  'y': two\n  z:\n    - a\n    - b\nc: {}\nd: {}\ne:\n  - a\n  -\n    b: c\nf: {}\ng: {}\nh:\n  80: x\n  k: '0755'\n"
+        },
+        "lists": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        0,
+                        "a"
+                    ],
+                    [
+                        1,
+                        1
+                    ],
+                    [
+                        2,
+                        null
+                    ],
+                    [
+                        3,
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    "nested"
+                                ],
+                                [
+                                    1,
+                                    2
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        4,
+                        {
+                            "$map": [
+                                [
+                                    "key",
+                                    "value"
+                                ],
+                                [
+                                    "other",
+                                    2
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        5,
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    "x"
+                                ],
+                                [
+                                    1,
+                                    "y"
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "- a\n- 1\n- null\n-\n  - nested\n  - 2\n-\n  key: value\n  other: 2\n-\n  - x\n  - 'y'\n"
+        },
+        "nested": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "services",
+                        {
+                            "$map": [
+                                [
+                                    "app",
+                                    {
+                                        "$map": [
+                                            [
+                                                "image",
+                                                "nginx"
+                                            ],
+                                            [
+                                                "ports",
+                                                {
+                                                    "$map": [
+                                                        [
+                                                            0,
+                                                            "80:80"
+                                                        ],
+                                                        [
+                                                            1,
+                                                            "443:443"
+                                                        ],
+                                                        [
+                                                            2,
+                                                            8080
+                                                        ]
+                                                    ]
+                                                }
+                                            ],
+                                            [
+                                                "environment",
+                                                {
+                                                    "$map": [
+                                                        [
+                                                            0,
+                                                            "A=1"
+                                                        ],
+                                                        [
+                                                            1,
+                                                            "B"
+                                                        ],
+                                                        [
+                                                            2,
+                                                            "C="
+                                                        ]
+                                                    ]
+                                                }
+                                            ],
+                                            [
+                                                "deploy",
+                                                {
+                                                    "$map": [
+                                                        [
+                                                            "resources",
+                                                            {
+                                                                "$map": [
+                                                                    [
+                                                                        "limits",
+                                                                        {
+                                                                            "$map": [
+                                                                                [
+                                                                                    "cpus",
+                                                                                    {
+                                                                                        "$float": "0.5"
+                                                                                    }
+                                                                                ],
+                                                                                [
+                                                                                    "memory",
+                                                                                    "512M"
+                                                                                ]
+                                                                            ]
+                                                                        }
+                                                                    ]
+                                                                ]
+                                                            }
+                                                        ]
+                                                    ]
+                                                }
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "services:\n  app:\n    image: nginx\n    ports:\n      - '80:80'\n      - '443:443'\n      - 8080\n    environment:\n      - A=1\n      - B\n      - C=\n    deploy:\n      resources:\n        limits:\n          cpus: 0.5\n          memory: 512M\n"
+        },
+        "unindented-list": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "ports",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    "80:80"
+                                ],
+                                [
+                                    1,
+                                    "443:443"
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "other",
+                        1
+                    ]
+                ]
+            },
+            "dump": "ports:\n  - '80:80'\n  - '443:443'\nother: 1\n"
+        },
+        "int-keys": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        80,
+                        "a"
+                    ],
+                    [
+                        443,
+                        "b"
+                    ],
+                    [
+                        8080,
+                        "c"
+                    ],
+                    [
+                        "09",
+                        "d"
+                    ],
+                    [
+                        -1,
+                        "e"
+                    ]
+                ]
+            },
+            "dump": "80: a\n443: b\n8080: c\n'09': d\n-1: e\n"
+        },
+        "anchors": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "base",
+                        {
+                            "$map": [
+                                [
+                                    "a",
+                                    1
+                                ],
+                                [
+                                    "b",
+                                    {
+                                        "$map": [
+                                            [
+                                                0,
+                                                "x"
+                                            ],
+                                            [
+                                                1,
+                                                "y"
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "use",
+                        {
+                            "$map": [
+                                [
+                                    "a",
+                                    1
+                                ],
+                                [
+                                    "b",
+                                    {
+                                        "$map": [
+                                            [
+                                                0,
+                                                "x"
+                                            ],
+                                            [
+                                                1,
+                                                "y"
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "scalar",
+                        "hello"
+                    ],
+                    [
+                        "again",
+                        "hello"
+                    ],
+                    [
+                        "list",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    "hello"
+                                ],
+                                [
+                                    1,
+                                    {
+                                        "$map": [
+                                            [
+                                                "a",
+                                                1
+                                            ],
+                                            [
+                                                "b",
+                                                {
+                                                    "$map": [
+                                                        [
+                                                            0,
+                                                            "x"
+                                                        ],
+                                                        [
+                                                            1,
+                                                            "y"
+                                                        ]
+                                                    ]
+                                                }
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "base:\n  a: 1\n  b:\n    - x\n    - 'y'\nuse:\n  a: 1\n  b:\n    - x\n    - 'y'\nscalar: hello\nagain: hello\nlist:\n  - hello\n  -\n    a: 1\n    b:\n      - x\n      - 'y'\n"
+        },
+        "merge": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "x-common",
+                        {
+                            "$map": [
+                                [
+                                    "restart",
+                                    "always"
+                                ],
+                                [
+                                    "image",
+                                    "base"
+                                ],
+                                [
+                                    "environment",
+                                    {
+                                        "$map": [
+                                            [
+                                                "A",
+                                                1
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "svc",
+                        {
+                            "$map": [
+                                [
+                                    "image",
+                                    "first"
+                                ],
+                                [
+                                    "restart",
+                                    "no"
+                                ],
+                                [
+                                    "environment",
+                                    {
+                                        "$map": [
+                                            [
+                                                "A",
+                                                1
+                                            ]
+                                        ]
+                                    }
+                                ],
+                                [
+                                    "extra",
+                                    1
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "svc2",
+                        {
+                            "$map": [
+                                [
+                                    "restart",
+                                    "always"
+                                ],
+                                [
+                                    "image",
+                                    "override"
+                                ],
+                                [
+                                    "environment",
+                                    {
+                                        "$map": [
+                                            [
+                                                "A",
+                                                1
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "svc3",
+                        {
+                            "$map": [
+                                [
+                                    "before",
+                                    1
+                                ],
+                                [
+                                    "restart",
+                                    "always"
+                                ],
+                                [
+                                    "image",
+                                    "base"
+                                ],
+                                [
+                                    "environment",
+                                    {
+                                        "$map": [
+                                            [
+                                                "A",
+                                                1
+                                            ]
+                                        ]
+                                    }
+                                ],
+                                [
+                                    "after",
+                                    2
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "x-common:\n  restart: always\n  image: base\n  environment:\n    A: 1\nsvc:\n  image: first\n  restart: 'no'\n  environment:\n    A: 1\n  extra: 1\nsvc2:\n  restart: always\n  image: override\n  environment:\n    A: 1\nsvc3:\n  before: 1\n  restart: always\n  image: base\n  environment:\n    A: 1\n  after: 2\n"
+        },
+        "merge-list": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    "x",
+                                    1
+                                ],
+                                [
+                                    "y",
+                                    1
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "b",
+                        {
+                            "$map": [
+                                [
+                                    "y",
+                                    2
+                                ],
+                                [
+                                    "z",
+                                    2
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "c",
+                        {
+                            "$map": [
+                                [
+                                    "x",
+                                    1
+                                ],
+                                [
+                                    "y",
+                                    1
+                                ],
+                                [
+                                    "z",
+                                    3
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "d",
+                        {
+                            "$map": [
+                                [
+                                    "w",
+                                    0
+                                ],
+                                [
+                                    "y",
+                                    2
+                                ],
+                                [
+                                    "z",
+                                    2
+                                ],
+                                [
+                                    "x",
+                                    1
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "a:\n  x: 1\n  'y': 1\nb:\n  'y': 2\n  z: 2\nc:\n  x: 1\n  'y': 1\n  z: 3\nd:\n  w: 0\n  'y': 2\n  z: 2\n  x: 1\n"
+        },
+        "merge-inline": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    "x",
+                                    1
+                                ],
+                                [
+                                    "y",
+                                    2
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "b",
+                        {
+                            "$map": [
+                                [
+                                    "x",
+                                    1
+                                ],
+                                [
+                                    "y",
+                                    3
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "c",
+                        {
+                            "$map": [
+                                [
+                                    "y",
+                                    0
+                                ],
+                                [
+                                    "x",
+                                    9
+                                ],
+                                [
+                                    "q",
+                                    8
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "a:\n  x: 1\n  'y': 2\nb:\n  x: 1\n  'y': 3\nc:\n  'y': 0\n  x: 9\n  q: 8\n"
+        },
+        "merge-nested-anchor": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "x-env",
+                        {
+                            "$map": [
+                                [
+                                    "A",
+                                    "a"
+                                ],
+                                [
+                                    "B",
+                                    "b"
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "x-svc",
+                        {
+                            "$map": [
+                                [
+                                    "environment",
+                                    {
+                                        "$map": [
+                                            [
+                                                "A",
+                                                "a"
+                                            ],
+                                            [
+                                                "B",
+                                                "b"
+                                            ],
+                                            [
+                                                "C",
+                                                "c"
+                                            ]
+                                        ]
+                                    }
+                                ],
+                                [
+                                    "image",
+                                    "i"
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "one",
+                        {
+                            "$map": [
+                                [
+                                    "environment",
+                                    {
+                                        "$map": [
+                                            [
+                                                "A",
+                                                "a"
+                                            ],
+                                            [
+                                                "B",
+                                                "b"
+                                            ],
+                                            [
+                                                "C",
+                                                "c"
+                                            ]
+                                        ]
+                                    }
+                                ],
+                                [
+                                    "image",
+                                    "i"
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "two",
+                        {
+                            "$map": [
+                                [
+                                    "environment",
+                                    {
+                                        "$map": [
+                                            [
+                                                "A",
+                                                "override"
+                                            ],
+                                            [
+                                                "B",
+                                                "b"
+                                            ]
+                                        ]
+                                    }
+                                ],
+                                [
+                                    "image",
+                                    "i"
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "x-env:\n  A: a\n  B: b\nx-svc:\n  environment:\n    A: a\n    B: b\n    C: c\n  image: i\none:\n  environment:\n    A: a\n    B: b\n    C: c\n  image: i\ntwo:\n  environment:\n    A: override\n    B: b\n  image: i\n"
+        },
+        "quoted-merge-key": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    "x",
+                                    1
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "b",
+                        {
+                            "$map": [
+                                [
+                                    "<<",
+                                    {
+                                        "$map": [
+                                            [
+                                                "x",
+                                                1
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "a:\n  x: 1\nb:\n  '<<':\n    x: 1\n"
+        },
+        "anchor-on-own-line": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "x-common",
+                        {
+                            "$map": [
+                                [
+                                    "restart",
+                                    "always"
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "services",
+                        {
+                            "$map": [
+                                [
+                                    "app",
+                                    {
+                                        "$map": [
+                                            [
+                                                "restart",
+                                                "always"
+                                            ],
+                                            [
+                                                "image",
+                                                "nginx"
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "x-common:\n  restart: always\nservices:\n  app:\n    restart: always\n    image: nginx\n"
+        },
+        "bom": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "services",
+                        {
+                            "$map": [
+                                [
+                                    "app",
+                                    {
+                                        "$map": [
+                                            [
+                                                "image",
+                                                "nginx"
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "services:\n  app:\n    image: nginx\n"
+        },
+        "comments": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        1
+                    ],
+                    [
+                        "b",
+                        {
+                            "$map": [
+                                [
+                                    "c",
+                                    2
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "d",
+                        "#notcomment"
+                    ]
+                ]
+            },
+            "dump": "a: 1\nb:\n  c: 2\nd: '#notcomment'\n"
+        },
+        "document-marker": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a: 1\n"
+        },
+        "duplicate-key": {
+            "ok": false,
+            "error": "Duplicate key \"a\" detected at line 2 (near \"a: 2\")."
+        },
+        "duplicate-key-null": {
+            "ok": false,
+            "error": "Duplicate key \"a\" detected at line 2 (near \"a: 2\")."
+        },
+        "bool-key": {
+            "ok": false,
+            "error": "Non-string keys are not supported. Quote your evaluable mapping keys instead at line 1 (near \"true: 1\")."
+        },
+        "null-key": {
+            "ok": false,
+            "error": "Non-string keys are not supported. Quote your evaluable mapping keys instead at line 1 (near \"~: 1\")."
+        },
+        "float-key": {
+            "ok": false,
+            "error": "Numeric keys are not supported. Quote your evaluable mapping keys instead at line 1 (near \"1.5: 1\")."
+        },
+        "missing-alias": {
+            "ok": false,
+            "error": "Reference \"nope\" does not exist at line 1 (near \"a: *nope\")."
+        },
+        "bad-indent": {
+            "ok": false,
+            "error": "Indentation problem at line 3 (near \" c: 2\")."
+        },
+        "tab-indent": {
+            "ok": false,
+            "error": "A YAML file cannot contain tabs as indentation at line 2 (near \"\tb: 1\")."
+        },
+        "tags": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        "123"
+                    ],
+                    [
+                        "b",
+                        "true"
+                    ],
+                    [
+                        "c",
+                        {
+                            "$float": "1"
+                        }
+                    ],
+                    [
+                        "d",
+                        ""
+                    ]
+                ]
+            },
+            "dump": "a: '123'\nb: 'true'\nc: 1.0\nd: ''\n"
+        },
+        "long-string-keys": {
+            "ok": false,
+            "error": "Duplicate key \"key with spaces\" detected at line 3 (near \"key with spaces: 3\")."
+        },
+        "healthcheck": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "test",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    "CMD-SHELL"
+                                ],
+                                [
+                                    1,
+                                    "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "interval",
+                        "5s"
+                    ],
+                    [
+                        "timeout",
+                        "20s"
+                    ],
+                    [
+                        "retries",
+                        10
+                    ]
+                ]
+            },
+            "dump": "test:\n  - CMD-SHELL\n  - 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}'\ninterval: 5s\ntimeout: 20s\nretries: 10\n"
+        },
+        "command-folded": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "command",
+                        "sh -c \"echo one &&\n       echo two\"\n"
+                    ],
+                    [
+                        "entrypoint",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    "/bin/sh"
+                                ],
+                                [
+                                    1,
+                                    "-c"
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "command: \"sh -c \\\"echo one &&\\n       echo two\\\"\\n\"\nentrypoint:\n  - /bin/sh\n  - '-c'\n"
+        },
+        "empty-document": {
+            "ok": true,
+            "value": null,
+            "dump": "null"
+        },
+        "only-comment": {
+            "ok": true,
+            "value": null,
+            "dump": "null"
+        },
+        "scalar-document": {
+            "ok": true,
+            "value": "just a string",
+            "dump": "'just a string'"
+        },
+        "crlf": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        1
+                    ],
+                    [
+                        "b",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    "x"
+                                ],
+                                [
+                                    1,
+                                    "y"
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "a: 1\nb:\n  - x\n  - 'y'\n"
+        },
+        "windows-path": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        "C:\\Users\\x"
+                    ],
+                    [
+                        "b",
+                        "C:\\Users\\x"
+                    ]
+                ]
+            },
+            "dump": "a: 'C:\\Users\\x'\nb: 'C:\\Users\\x'\n"
+        },
+        "special-values": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        "   spaced   "
+                    ],
+                    [
+                        "b",
+                        "padded"
+                    ],
+                    [
+                        "c",
+                        "tab\there"
+                    ],
+                    [
+                        "d",
+                        "trailing spaces   \n"
+                    ]
+                ]
+            },
+            "dump": "a: '   spaced   '\nb: padded\nc: \"tab\\there\"\nd: \"trailing spaces   \\n\"\n"
+        },
+        "version": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "version",
+                        "3.8"
+                    ],
+                    [
+                        "other",
+                        {
+                            "$float": "3.8"
+                        }
+                    ],
+                    [
+                        "third",
+                        "3"
+                    ],
+                    [
+                        "fourth",
+                        3
+                    ]
+                ]
+            },
+            "dump": "version: '3.8'\nother: 3.8\nthird: '3'\nfourth: 3\n"
+        },
+        "deep": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    "b",
+                                    {
+                                        "$map": [
+                                            [
+                                                "c",
+                                                {
+                                                    "$map": [
+                                                        [
+                                                            "d",
+                                                            {
+                                                                "$map": [
+                                                                    [
+                                                                        "e",
+                                                                        {
+                                                                            "$map": [
+                                                                                [
+                                                                                    "f",
+                                                                                    {
+                                                                                        "$map": [
+                                                                                            [
+                                                                                                "g",
+                                                                                                {
+                                                                                                    "$map": [
+                                                                                                        [
+                                                                                                            "h",
+                                                                                                            {
+                                                                                                                "$map": [
+                                                                                                                    [
+                                                                                                                        "i",
+                                                                                                                        {
+                                                                                                                            "$map": [
+                                                                                                                                [
+                                                                                                                                    "j",
+                                                                                                                                    {
+                                                                                                                                        "$map": [
+                                                                                                                                            [
+                                                                                                                                                "k",
+                                                                                                                                                {
+                                                                                                                                                    "$map": [
+                                                                                                                                                        [
+                                                                                                                                                            "l",
+                                                                                                                                                            {
+                                                                                                                                                                "$map": [
+                                                                                                                                                                    [
+                                                                                                                                                                        "m",
+                                                                                                                                                                        "deep"
+                                                                                                                                                                    ],
+                                                                                                                                                                    [
+                                                                                                                                                                        "n",
+                                                                                                                                                                        {
+                                                                                                                                                                            "$map": [
+                                                                                                                                                                                [
+                                                                                                                                                                                    0,
+                                                                                                                                                                                    1
+                                                                                                                                                                                ],
+                                                                                                                                                                                [
+                                                                                                                                                                                    1,
+                                                                                                                                                                                    2
+                                                                                                                                                                                ]
+                                                                                                                                                                            ]
+                                                                                                                                                                        }
+                                                                                                                                                                    ]
+                                                                                                                                                                ]
+                                                                                                                                                            }
+                                                                                                                                                        ]
+                                                                                                                                                    ]
+                                                                                                                                                }
+                                                                                                                                            ]
+                                                                                                                                        ]
+                                                                                                                                    }
+                                                                                                                                ]
+                                                                                                                            ]
+                                                                                                                        }
+                                                                                                                    ]
+                                                                                                                ]
+                                                                                                            }
+                                                                                                        ]
+                                                                                                    ]
+                                                                                                }
+                                                                                            ]
+                                                                                        ]
+                                                                                    }
+                                                                                ]
+                                                                            ]
+                                                                        }
+                                                                    ]
+                                                                ]
+                                                            }
+                                                        ]
+                                                    ]
+                                                }
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "a:\n  b:\n    c:\n      d:\n        e:\n          f:\n            g:\n              h:\n                i:\n                  j: { k: { l: { m: deep, 'n': [1, 2] } } }\n"
+        },
+        "line-01": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    "x\n"
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "b",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  - \"x\\n\"\nb: 1\n"
+        },
+        "line-02": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    {
+                                        "$map": [
+                                            [
+                                                "k",
+                                                "v"
+                                            ],
+                                            [
+                                                "c",
+                                                "x\n"
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "b",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  -\n    k: v\n    c: \"x\\n\"\nb: 1\n"
+        },
+        "line-03": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    {
+                                        "$map": [
+                                            [
+                                                "k",
+                                                "v"
+                                            ],
+                                            [
+                                                "c",
+                                                "x\n"
+                                            ]
+                                        ]
+                                    }
+                                ],
+                                [
+                                    1,
+                                    "z"
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "b",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  -\n    k: v\n    c: \"x\\n\"\n  - z\nb: 1\n"
+        },
+        "line-04": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    "x\n"
+                                ],
+                                [
+                                    1,
+                                    "y"
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "a:\n  - \"x\\n\"\n  - 'y'\n"
+        },
+        "line-05": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    {
+                                        "$map": [
+                                            [
+                                                "k",
+                                                {
+                                                    "$map": [
+                                                        [
+                                                            "c",
+                                                            "x\n"
+                                                        ]
+                                                    ]
+                                                }
+                                            ],
+                                            [
+                                                "d",
+                                                1
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "a:\n  -\n    k:\n      c: \"x\\n\"\n    d: 1\n"
+        },
+        "line-06": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    {
+                                        "$map": [
+                                            [
+                                                "k",
+                                                {
+                                                    "$map": [
+                                                        [
+                                                            "c",
+                                                            "x\n"
+                                                        ]
+                                                    ]
+                                                }
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "b",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  -\n    k:\n      c: \"x\\n\"\nb: 1\n"
+        },
+        "line-07": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        0,
+                        "x\n"
+                    ],
+                    [
+                        1,
+                        "y"
+                    ]
+                ]
+            },
+            "dump": "- \"x\\n\"\n- 'y'\n"
+        },
+        "line-08": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    "b",
+                                    "x\n"
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "c",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  b: \"x\\n\"\nc: 1\n"
+        },
+        "line-09": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    {
+                                        "$map": [
+                                            [
+                                                "k",
+                                                "v"
+                                            ],
+                                            [
+                                                "c",
+                                                "x\n"
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "b",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  -\n    k: v\n    c: \"x\\n\"\nb: 1\n"
+        },
+        "line-10": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    "x\n\n"
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "b",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  - \"x\\n\\n\"\nb: 1\n"
+        },
+        "line-11": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    {
+                                        "$map": [
+                                            [
+                                                "k",
+                                                "v"
+                                            ],
+                                            [
+                                                "c",
+                                                "x y\n"
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "b",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  -\n    k: v\n    c: \"x y\\n\"\nb: 1\n"
+        },
+        "line-12": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    {
+                                        "$map": [
+                                            [
+                                                "k",
+                                                "v"
+                                            ],
+                                            [
+                                                "c",
+                                                "x\n"
+                                            ],
+                                            [
+                                                "d",
+                                                2
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "b",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  -\n    k: v\n    c: \"x\\n\"\n    d: 2\nb: 1\n"
+        },
+        "line-13": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    {
+                                        "$map": [
+                                            [
+                                                "k",
+                                                "v"
+                                            ],
+                                            [
+                                                "c",
+                                                {
+                                                    "$map": [
+                                                        [
+                                                            "e",
+                                                            "x\n"
+                                                        ]
+                                                    ]
+                                                }
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "b",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  -\n    k: v\n    c:\n      e: \"x\\n\"\nb: 1\n"
+        },
+        "line-14": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    {
+                                        "$map": [
+                                            [
+                                                0,
+                                                "x\n"
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "b",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  -\n    - \"x\\n\"\nb: 1\n"
+        },
+        "line-15": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    "x\n"
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "a:\n  - \"x\\n\"\n"
+        },
+        "line-16": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    "x\n"
+                                ],
+                                [
+                                    1,
+                                    "y"
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "a:\n  - \"x\\n\"\n  - 'y'\n"
+        },
+        "line-17": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    {
+                                        "$map": [
+                                            [
+                                                "k",
+                                                "v"
+                                            ],
+                                            [
+                                                "c",
+                                                "x\n"
+                                            ]
+                                        ]
+                                    }
+                                ],
+                                [
+                                    1,
+                                    "z"
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "a:\n  -\n    k: v\n    c: \"x\\n\"\n  - z\n"
+        },
+        "line-18": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    {
+                                        "$map": [
+                                            [
+                                                "k",
+                                                "v"
+                                            ],
+                                            [
+                                                "c",
+                                                "x\n"
+                                            ]
+                                        ]
+                                    }
+                                ],
+                                [
+                                    1,
+                                    "z"
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "a:\n  -\n    k: v\n    c: \"x\\n\"\n  - z\n"
+        },
+        "line-19": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        "one two"
+                    ],
+                    [
+                        "b",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a: 'one two'\nb: 1\n"
+        },
+        "line-20": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    "one two"
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "a:\n  - 'one two'\n"
+        },
+        "line-21": {
+            "ok": false,
+            "error": "Unable to parse at line 3 (near \"  two\")."
+        },
+        "line-22": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    {
+                                        "$map": [
+                                            [
+                                                "k",
+                                                "x\n"
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "a:\n  -\n    k: \"x\\n\"\n"
+        },
+        "line-23": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    {
+                                        "$map": [
+                                            [
+                                                "k",
+                                                "v"
+                                            ],
+                                            [
+                                                "c",
+                                                "x"
+                                            ]
+                                        ]
+                                    }
+                                ],
+                                [
+                                    1,
+                                    "z"
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "a:\n  -\n    k: v\n    c: x\n  - z\n"
+        },
+        "line-24": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    {
+                                        "$map": [
+                                            [
+                                                "k",
+                                                "v"
+                                            ],
+                                            [
+                                                "c",
+                                                "x\n"
+                                            ]
+                                        ]
+                                    }
+                                ],
+                                [
+                                    1,
+                                    "z"
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "a:\n  -\n    k: v\n    c: \"x\\n\"\n  - z\n"
+        },
+        "line-25": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    {
+                                        "$map": [
+                                            [
+                                                "k",
+                                                "v"
+                                            ],
+                                            [
+                                                "c",
+                                                "x\n\n"
+                                            ]
+                                        ]
+                                    }
+                                ],
+                                [
+                                    1,
+                                    "z"
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "a:\n  -\n    k: v\n    c: \"x\\n\\n\"\n  - z\n"
+        },
+        "line-26": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    "x\n"
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "b",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  - \"x\\n\"\nb: 1\n"
+        },
+        "line-27": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    "b",
+                                    {
+                                        "$map": [
+                                            [
+                                                0,
+                                                "x\n"
+                                            ]
+                                        ]
+                                    }
+                                ],
+                                [
+                                    "c",
+                                    1
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "a:\n  b:\n    - \"x\\n\"\n  c: 1\n"
+        },
+        "line-28": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    "x\n"
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "a:\n  - \"x\\n\"\n"
+        },
+        "line-29": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    "b",
+                                    "x"
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "a:\n  b: x\n"
+        },
+        "line-30": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    {
+                                        "$map": [
+                                            [
+                                                "k",
+                                                "v"
+                                            ],
+                                            [
+                                                "c",
+                                                "x\n\ny\n"
+                                            ]
+                                        ]
+                                    }
+                                ],
+                                [
+                                    1,
+                                    "z"
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "a:\n  -\n    k: v\n    c: \"x\\n\\ny\\n\"\n  - z\n"
+        },
+        "line-31": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    {
+                                        "$map": [
+                                            [
+                                                "b",
+                                                {
+                                                    "$map": [
+                                                        [
+                                                            0,
+                                                            "x\n"
+                                                        ]
+                                                    ]
+                                                }
+                                            ],
+                                            [
+                                                "c",
+                                                1
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "a:\n  -\n    b:\n      - \"x\\n\"\n    c: 1\n"
+        },
+        "line-32": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    {
+                                        "$map": [
+                                            [
+                                                "b",
+                                                {
+                                                    "$map": [
+                                                        [
+                                                            0,
+                                                            {
+                                                                "$map": [
+                                                                    [
+                                                                        "k",
+                                                                        "v"
+                                                                    ],
+                                                                    [
+                                                                        "c",
+                                                                        "x\n"
+                                                                    ]
+                                                                ]
+                                                            }
+                                                        ]
+                                                    ]
+                                                }
+                                            ]
+                                        ]
+                                    }
+                                ],
+                                [
+                                    1,
+                                    "z"
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "a:\n  -\n    b:\n      -\n        k: v\n        c: \"x\\n\"\n  - z\n"
+        },
+        "line-33": {
+            "ok": false,
+            "error": "Unable to parse at line 4 (near \"  two\")."
+        },
+        "line-34": {
+            "ok": false,
+            "error": "Unable to parse at line 4 (near \"  two\")."
+        },
+        "line-35": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    {
+                                        "$map": [
+                                            [
+                                                "k",
+                                                "x\n"
+                                            ],
+                                            [
+                                                "j",
+                                                "y\n"
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "a:\n  -\n    k: \"x\\n\"\n    j: \"y\\n\"\n"
+        },
+        "line-36": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    "x y\n"
+                                ],
+                                [
+                                    1,
+                                    "z"
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "a:\n  - \"x y\\n\"\n  - z\n"
+        },
+        "line-40": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    "x"
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "b",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  - x\nb: 1\n"
+        },
+        "line-41": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    {
+                                        "$map": [
+                                            [
+                                                "k",
+                                                "v"
+                                            ],
+                                            [
+                                                "c",
+                                                "x"
+                                            ]
+                                        ]
+                                    }
+                                ],
+                                [
+                                    1,
+                                    "z"
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "b",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  -\n    k: v\n    c: x\n  - z\nb: 1\n"
+        },
+        "line-42": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    {
+                                        "$map": [
+                                            [
+                                                "k",
+                                                "v"
+                                            ],
+                                            [
+                                                "c",
+                                                "x"
+                                            ]
+                                        ]
+                                    }
+                                ],
+                                [
+                                    1,
+                                    "z"
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "b",
+                        1
+                    ],
+                    [
+                        "c",
+                        2
+                    ]
+                ]
+            },
+            "dump": "a:\n  -\n    k: v\n    c: x\n  - z\nb: 1\nc: 2\n"
+        },
+        "line-43": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    "b",
+                                    "x"
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "c",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  b: x\nc: 1\n"
+        },
+        "line-44": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    "b",
+                                    "x\n"
+                                ],
+                                [
+                                    "d",
+                                    2
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "c",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  b: \"x\\n\"\n  d: 2\nc: 1\n"
+        },
+        "line-45": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    "b",
+                                    "x\n"
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "c",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  b: \"x\\n\"\nc: 1\n"
+        },
+        "line-46": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    "b",
+                                    "x\n"
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "c",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  b: \"x\\n\"\nc: 1\n"
+        },
+        "line-47": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    "b",
+                                    "x"
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "c",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  b: x\nc: 1\n"
+        },
+        "line-48": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    "b",
+                                    "x y"
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "c",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  b: 'x y'\nc: 1\n"
+        },
+        "line-49": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    "b",
+                                    "x"
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "c",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  b: x\nc: 1\n"
+        },
+        "line-50": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    "b",
+                                    {
+                                        "$map": [
+                                            [
+                                                0,
+                                                "q"
+                                            ],
+                                            [
+                                                1,
+                                                "x"
+                                            ]
+                                        ]
+                                    }
+                                ],
+                                [
+                                    "c",
+                                    1
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "d",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  b:\n    - q\n    - x\n  c: 1\nd: 1\n"
+        },
+        "line-51": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    "b",
+                                    "x"
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "c",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  b: x\nc: 1\n"
+        },
+        "line-52": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    "b",
+                                    "x"
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "c",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  b: x\nc: 1\n"
+        },
+        "line-53": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        "x\n"
+                    ],
+                    [
+                        "c",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a: \"x\\n\"\nc: 1\n"
+        },
+        "line-54": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "c",
+                        1
+                    ],
+                    [
+                        "a",
+                        "x\n"
+                    ]
+                ]
+            },
+            "dump": "c: 1\na: \"x\\n\"\n"
+        },
+        "line-55": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "c",
+                        1
+                    ],
+                    [
+                        "a",
+                        "x"
+                    ]
+                ]
+            },
+            "dump": "c: 1\na: x\n"
+        },
+        "line-56": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    "b",
+                                    "x"
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "c",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  b: x\nc: 1\n"
+        },
+        "line-57": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    "b",
+                                    "x\n"
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "c",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  b: \"x\\n\"\nc: 1\n"
+        },
+        "line-58": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    "b",
+                                    "x\n  more\n"
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "c",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  b: \"x\\n  more\\n\"\nc: 1\n"
+        },
+        "line-59": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    "b",
+                                    {
+                                        "$map": [
+                                            [
+                                                "c",
+                                                "x"
+                                            ]
+                                        ]
+                                    }
+                                ],
+                                [
+                                    "d",
+                                    1
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "e",
+                        1
+                    ],
+                    [
+                        "f",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  b:\n    c: x\n  d: 1\ne: 1\nf: 1\n"
+        },
+        "line-60": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    "b",
+                                    {
+                                        "$map": [
+                                            [
+                                                "c",
+                                                "x"
+                                            ]
+                                        ]
+                                    }
+                                ],
+                                [
+                                    "d",
+                                    1
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "e",
+                        1
+                    ],
+                    [
+                        "f",
+                        1
+                    ],
+                    [
+                        "g",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    1
+                                ]
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "dump": "a:\n  b:\n    c: x\n  d: 1\ne: 1\nf: 1\ng:\n  - 1\n"
+        },
+        "line-61": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    {
+                                        "$map": [
+                                            [
+                                                "b",
+                                                "x\n"
+                                            ],
+                                            [
+                                                "c",
+                                                "y"
+                                            ]
+                                        ]
+                                    }
+                                ],
+                                [
+                                    1,
+                                    {
+                                        "$map": [
+                                            [
+                                                "d",
+                                                "z"
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "e",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  -\n    b: \"x\\n\"\n    c: 'y'\n  -\n    d: z\ne: 1\n"
+        },
+        "line-62": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    "b",
+                                    "x"
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "c",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  b: x\nc: 1\n"
+        },
+        "line-63": {
+            "ok": true,
+            "value": {
+                "$map": [
+                    [
+                        "a",
+                        {
+                            "$map": [
+                                [
+                                    0,
+                                    "b"
+                                ],
+                                [
+                                    1,
+                                    "x\n"
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        "c",
+                        1
+                    ]
+                ]
+            },
+            "dump": "a:\n  - b\n  - \"x\\n\"\nc: 1\n"
+        }
+    },
+    "templates": {
+        "9router.yaml": "4a08ce76751a8992ab2e41aa632a969508c79e82657856cbb476e56dd96abd9c",
+        "activepieces.yaml": "c57b977b50436f9b20e57912ee6818c935e4f8e5481672b63793837408802d78",
+        "actualbudget.yaml": "101597390986a034d082d4a71f61496c614ae1edbd836b4350d1ffdde5d4b6a2",
+        "affine.yaml": "a12f9db17494fe8fe539da9a57f885cf8a49740671c230ddb4feb379cc5e5b1b",
+        "alexandrie.yaml": "a84e5eb6ce50e5d50ea054e06721b979bf41c86d5804f6742bb5a32b67a7dc27",
+        "anythingllm.yaml": "07f0be36a6b55e4ee161faac17f97b5ee196a30a32c001cade7245c19a0b1997",
+        "appflowy.yaml": "5df8b856213143ac6c2095dd329c4644993f03348140658b51564e3d3d7c53a2",
+        "apprise-api.yaml": "bf972677fe28d22d259daa61b1e04b1e760c4ab83a62b7ac4a9fbab8c8e9572b",
+        "appsmith.yaml": "f9a1a16a94b1e82d0c234cb9ae0cad602e9bd16131c1e200f088d6a8851486e8",
+        "appwrite.yaml": "a1499a4a8860f8a7cccd1fd5abb4b38a56570338b000e9143abd1f10c247fa1d",
+        "argilla.yaml": "9274383a28a78f5e67d7fd883732c9d45fbead8594935aa3ed9cf907a01ce431",
+        "audiobookshelf.yaml": "b2547ca046f5a955f6b151a08a454015e7f2f93e03c4186d09a9c4824b5be5ce",
+        "authentik.yaml": "72037e6b7b9766f2313c05080f7660a54936d41ec6f0c4caccd96a5567a018fb",
+        "autobase.yaml": "321768fe288bfff16f12f98e4262436d87368b94fd626fa2410b022540a3e544",
+        "azimutt.yaml": "a91fad2f8ab4013a703c1a0ec68de8fa13e22fc90b224260907edc33a69b05d3",
+        "babybuddy.yaml": "e71d4392584af21f01d18de42c3ed432b01636b4aacaa752275daf985d49227f",
+        "bento-pdf.yaml": "1999589b04cbe568a080febc5b2949e5967f73eb0e03fa30340cd2cd20f52846",
+        "beszel-agent.yaml": "60806fb5d92f43acae3e01eb5631a34a8da10d7bd15597020de1d02dca274226",
+        "beszel.yaml": "dc2a075a842ee335ddb6b19527d7e42d0fe78c6c1bf3728e5004573c8a7f3b85",
+        "bitcoin-core.yaml": "8e962b546020c05295fb289060c6a55be9c5293c066fd54f96aeabe5ad7b9062",
+        "bluesky-pds.yaml": "e6d77ea3754549f9ce4781c5e8f45fbecc9c4c90a12997fe34dea948a1513e66",
+        "bookstack.yaml": "508c943c118e6b8f1a50c7d628e5aba8d15b53f15a5dac17653e7178d5289f07",
+        "browserless.yaml": "c8db329d6d41af7b96410973d2627c41c8bcc31a4cf7422729d714962082dd85",
+        "budge.yaml": "e9adac00714e8f34ff2077521e614c3dd36149df1b0c54f52b5cfad8e0bd250f",
+        "budibase.yaml": "eec650bf76eeafc4c65d1daae8915e198406f4a699d92ca1fcd1de7d508258dc",
+        "bugsink.yaml": "a339f753dc94a84d447b000c1d54e7c6c72b84a28d99787b8a60d5d79ce8147e",
+        "bulwark.yaml": "730f7c47ef2818f35cac7ed8ebe842d145e3092d32c30920243a2385889a1a3e",
+        "buzz.yaml": "a64f8cf161f664d6e0dc6310580312f28dd60313d8c414fbee37b864ff9b21ff",
+        "calcom.yaml": "e0e59494194c903d568ce2e48a44c19484264c02c881d9275049df1ec6190b4c",
+        "calibre-web-automated-book-downloader.yaml": "59a6b7a0a45d04f33868e58843907aa3a93f2b27006e474af3f2844e5494ce9c",
+        "calibre-web.yaml": "6e168780b1aa0ee373d6945efc4d697692f25cb84615ba791ed62093414ef719",
+        "cap-captcha.yaml": "638cb8dcbcd25fe6094736776bf3a38846ab454c1009c1e2603a434365f25170",
+        "cap.yaml": "0ceebd92cbcaef334374e3a75c44f70188641404f0b07da37011336adfcd4c21",
+        "castopod.yaml": "395929cb25da3477e6a96d8f1b43b64f8611ec284492ff5e6ab65cdececa5f35",
+        "celld.yaml": "a027e4d6b2346cd302cc7fa79bb000374cc203fdca0258d4ad8e9b68d6431d1a",
+        "changedetection.yaml": "f510486d08c55a848d76f3b5285e589401e44789796c4092c7a20b2725f49235",
+        "chaskiq.yaml": "6f08e9e63ab0fd6e0f4fa96c0c195510d47a04b5978069cae0604474d305cda3",
+        "chatwoot.yaml": "35f7b5c9fd89b409f401f3e850ea7d301e911d6c1b5151471ad12065e3f9ece7",
+        "checkmate.yaml": "f4b15186274f24b0e32d7d5f5fd9c4f21e217051d3df1598ba76d4d235cfc791",
+        "chibisafe.yaml": "12ebe87954ee01cdb0c3507f629d300b05155575c67a89c0cfca2539acdc2615",
+        "chroma.yaml": "401939f9a0750fe26d6bb502068e2b63144cc04368c2a689958186c4f1ef47d6",
+        "classicpress-with-mariadb.yaml": "4cb7bac9ecf64866a5ded4ba4a0369e38e027b92f7436636a9c8e12966cf8d3f",
+        "classicpress-with-mysql.yaml": "3a1a7d16947a4df5b58ab9c70fd7cb9ba34dba428af5f2609c1fc85f84898cab",
+        "classicpress-without-database.yaml": "8006ff614cf51c062e9ce2b63ff0b4fd998a6ddbfa3844819ea9ed7be6d0da14",
+        "cloudbeaver.yaml": "2b96296e10cf9714c14f4d99c47e98d0132c345c898ab233621f5ee1eff34c76",
+        "cloudflare-ddns.yaml": "70834e02f4f6fa32546fdc128e5d4787b2b26be88a4f00f8970e7179e486582d",
+        "cloudflared.yaml": "0eab78b4bf45bc7e6fe456d7faf2e5b39223ccc905f7c10dd394e6561240b43f",
+        "cloudreve.yaml": "7ffa5e5f76ab89864d7b3fbd075cb8f411cfa4d38c9e697c775a6b27da8814c6",
+        "cockpit.yaml": "a8cd32edc125cc8d108273f5ecdc794edd172f816440bff4b545c1622389a444",
+        "code-server.yaml": "10bbc8ca5a7762cbc666365d54996b89337955bde9f2de66191a6fd3f5f30f46",
+        "coder.yaml": "0d141695623da7102c1c1360ede25273a7be61ea8f5ae0cce774ff03f94c7112",
+        "codimd.yaml": "6702baf3cda4bbe870561564f8f14f20ac9ec29b4124da35a565ed23c1ffe1a7",
+        "convertx.yml": "6a0b9d4b4222bebc8c8ba5e1fb4dc09938de94fc1155eca83c17fee5d38d5e57",
+        "convex.yaml": "743a53859cb2928d33fc164b468b0e36587d61045c92fbdd0a27837c24f5dff5",
+        "cryptgeon.yaml": "10df603257a77f8d750bf4bed518c9742d69c5cbb85b2353abfe6f56c70fc1b1",
+        "cyberchef.yaml": "f63c6e674aa6d2605e8e470598533b30cf2388440358d1e874839e2dc34555ac",
+        "dashy.yaml": "32f179c798590e93006a3ca841b8b157547d883af48da600d40588ddc2fa9622",
+        "databasus.yaml": "5bb16bb34557138251bf6e6c358576317a2ae0a3d388940dbfb1a4a5a1bf4bfb",
+        "deno-kv.yaml": "6d1851f7368c9b56ac31c250006df6c6c0caafae111bed8dccc81de909266fb1",
+        "dify.yaml": "fc84ac313a68471721350fd3bbba68ba89bc035ac0b35fb798a32d2efda5d31c",
+        "directus-with-postgresql.yaml": "e7e3bb3e20a819c08b4f7f6404e4cf79caa97967b339a8437b1802e2dbd3a021",
+        "directus.yaml": "b30553ddc43cc13eabd5f0f59fc0dd4f10bdf7b6c15b2137fff71cd04bf401c2",
+        "diun.yaml": "a3b9202a1661112fc4a3582797127ac9a2f248858ad3fb43edc1dd90bc89a2ba",
+        "docker-registry.yaml": "8ed6237285c5f5ec18f11e77a91e5afdf72e0d853be71906f3742c5d569b8d9f",
+        "docling.yaml": "e267a04c2f03ca464540f89e3db1175b88341ae41563f96dc8b590f07b620a36",
+        "docmost.yaml": "18cc4c4770ac9f0e1a4da8878fc9392efae1f347e1813ab8fc34fe61a4f8a888",
+        "documenso.yaml": "436507529f18b4572319176163222f86d9d34679c2e53f132f16a48c3498f459",
+        "docuseal-with-postgres.yaml": "e503ab3744371629221f47a6afc7a556c487fb2d3550ffe865da22f563915442",
+        "docuseal.yaml": "6a82444368fcd5a2ae68577899205a848473a898f4da57dc2b876bae4b1d3dca",
+        "dokuwiki.yaml": "f86074fa7ade982e36f58af8b5c565448460bab6ad57944173bf53a75063bc27",
+        "dolibarr.yaml": "f9b154c4cc8e64f2289b5014a1310c878d3b5c2a5e7640540b39dc3c9f1e315a",
+        "dozzle-with-auth.yaml": "fe006ba67529516267f1d8f906864f57aedf6fdf8dbea6becbf54ff6ed022497",
+        "dozzle.yaml": "ce21fc1edc3f75e38d065bd2472ab8cfd35dc2ccc59ad59f151ba58d8699c15a",
+        "drizzle-gateway.yaml": "ce539bd1f08082f05b25cf9fd9f2f166741205f6268ede7b7ad782f000603ead",
+        "drupal-with-postgresql.yaml": "7c01107178c64d0723b9155a2c6c50c3f04c4e30d65faae9ac8f5a3dd71cb9cf",
+        "duplicati.yaml": "028e51fd4f2fb6df45a62f9b3b4bbd4a4f872c404be335ea1b19aabf450b5164",
+        "easyappointments.yaml": "8a659f6029f07ed6a85539db153cac8b76ec7e49861e66e376ef693c3e594c12",
+        "edgedb.yaml": "e8b90a8dfdc886d039185ab76e78dcb07d9d3b0db4a0ab5581cbfa2aa0d192a4",
+        "elasticsearch-with-kibana.yaml": "a7d5a0f9ef0313e180d338ec2a7ecac1c3888b4dd05f2776e7599516d6d68333",
+        "elasticsearch.yaml": "7cceaafd666dce6ce0cf0055627496b6cf78fef65cfedefa07c8cb22d49a6a94",
+        "electricsql.yaml": "0d2820174847da277df613e5f2fd23829a6691301faf327d3fdecf6bf10d213d",
+        "emby.yaml": "dae24fcd42aa6c0e2dc1d9d9f8924b65979d2df5625c38206b2a0da0985a8df4",
+        "embystat.yaml": "bb3c6b08ab59a9dc02a153810b28b2ce49ce61fd6ee41b05ac409d0b2792cf6d",
+        "emqx-enterprise.yaml": "6c7b9ef99c1767a61c11034f079881bd14fcef0825ac2ced9c71b6bf1726c1e3",
+        "engram.yaml": "375bea22fc4377a86e030c09b1f069412a747f3529250ffb2d386666b2dde6e1",
+        "ente-photos-with-s3.yaml": "516aef41a60d65a2e857963453a658b4903e8cc0764d59aa70e0f8a4214f32b7",
+        "ente-photos.yaml": "43ee16018cb99587bdc42862fd25df6c5de053962d237f1308c8aba90fdae3a9",
+        "esphome.yaml": "3c957954063bdf950396aac90909d7b3265dc186966560b00614379aff50748b",
+        "espocrm.yaml": "1ba5eae2c9b98b79fbfdec4682add7ef61a555673b2fba3786a9c518679979b7",
+        "evolution-api.yaml": "0f702e6f2fd476c4c935e1cd46cffa1a0e3c5899f0110e4b59d03c7b7f10c2a2",
+        "excalidraw.yaml": "e348afac95bb44462d5487182d766ccdfdda10b1e675bf8fad43b1d9155de0ac",
+        "executor.yaml": "1960ba0d06baa99803b2a3530892855e374b59115b65ad570442e180bcf64046",
+        "faraday.yaml": "cf9552b867d278d00204b824890c9a2ac5fd2ba1fec49bb446e93009f012823f",
+        "fider.yaml": "259423a995ec8e91263469f7838e85688f5268844f5338ae399111831ff44cd5",
+        "filebrowser.yaml": "d2d5b9fba6a1a249c4079900c7b4d00517db2c6b047d737d09f4f073b99e46c1",
+        "fileflows.yaml": "a26aa978ebf5fcd19b54a8222b368cbd67ad78d0bd6a325dc452f00f33ebdd35",
+        "firefly.yaml": "8deed58d49d0e51f47cfb208165a4587ceb8b9e4461a2ba610728bb51b383ed2",
+        "firefox.yaml": "1283a75c3cf32fba19a5e0d128e6f0d0682b2741d4673605b9a11d9a3c618c80",
+        "fizzy.yaml": "9fa86bc6bf201d6ca5ea0f7aa7382204062594601745c398dd9596fbbbb3be35",
+        "flipt.yaml": "177ae9bf4a97122ef5a5b1012bed37e7b577192b8df2cb5c0a49c9134946e7dc",
+        "flowise-with-databases.yaml": "9ee2857bbde27a00ec040992dfd2dac02080b32b950de8cd3209a7a768e4e83e",
+        "flowise.yaml": "164db4ed49701a59ecbd4585c105c0924fafcb785d0ad329f1f4027521390307",
+        "forgejo-with-mariadb.yaml": "4aa969f122ecc39a87dfb2f69385bab442e9d6960572bacbdcde59f2e2bb4065",
+        "forgejo-with-mysql.yaml": "73e129a03d94cfde9398fe271e7182492fc92b1f931cf29b7ac95e4412b5c922",
+        "forgejo-with-postgresql.yaml": "b01d7e79a369e164883af396d12b1aa9445fd98eadb5d35c4795e16c76fdd240",
+        "forgejo-with-runner-with-mariadb.yaml": "fd8f1900806a14ec682cde3842ae8870d18f2532015a78af49cbfa3aa821a3a3",
+        "forgejo-with-runner-with-mysql.yaml": "aa107900d89946a3d9f5768f6c8f2cc863b8cca3500e449ac6fa69da15b8e7ee",
+        "forgejo-with-runner-with-postgresql.yaml": "3968668bc80cfa3e2b71bbfe75837d0737b4f2a244168d64dae46ce06f894ccb",
+        "forgejo-with-runner.yaml": "c6dd700f68d05315ae95fdcdff7db57da9dc820622804e1b307ebb6967f12cdd",
+        "forgejo.yaml": "b5e43ec775ed79a03ed550cf606b5108c15f81193904003bd276e4e04c920476",
+        "formbricks.yaml": "7c424b16f136e3fe0ae42822aa0b7530f7849d2b7790a2679479c420d91c589c",
+        "foundryvtt.yaml": "bd7bbf388c7e3f41921fdeed7e305624cd28c6a64345b1027e079ac6fb0708d4",
+        "freescout.yaml": "40ca57b24114bc712f13656a81a6c21f6ae10959e1ca3e84be595ce7af548759",
+        "freshrss-with-mariadb.yaml": "9eb2179c34e05fdd080ff249d16ed671b360961c0c55d47d8153760509c39b03",
+        "freshrss-with-mysql.yaml": "7cce8ab906338482f76f4ca171634dd8fb9420b27728bc6c77a6ec55ed195168",
+        "freshrss-with-postgresql.yaml": "1d06963a4e4d30cdfbe6b66805227c644cabaf957bb4a9fd3aef3afed48e6b02",
+        "freshrss.yaml": "67c7b983ff20a215d6f8048dae9cd4a5eaada2514b54529bab9d9d67deb95d99",
+        "garage.yaml": "7a78c4751fe1cd8243e2624af00140e98b07a67e52743ffd4010d9d343350b03",
+        "getoutline.yaml": "d320c49b594bc467e9f3efd2e38b115ba5d5c701cc65d6d47b1319217d219f83",
+        "ghost.yaml": "08a01c4f8cb9794e37f7ee3cd0787d58c6577f3cc54901447abe2709e68c7c6c",
+        "gitea-runner.yaml": "8e883ca248c855c01d5d6e34eb1e33985faadb27fd059ee50d54a9f73f757c8e",
+        "gitea-with-mariadb.yaml": "d6b40c68d27ee467a7e0ab0c21674999b5a0c7eb19f9de10deef62fc4d0e2acb",
+        "gitea-with-mysql.yaml": "a8531065e08a172d59ac68660fffcf455b95b6f16f64c7fa3d8e5ce8587396ff",
+        "gitea-with-postgresql.yaml": "b115480af57f82e32b7b9b53b3ebb88702fded2e804c3766fec88ffd2480ae3b",
+        "gitea.yaml": "76333afab2faa9e3a48f4e1fff1aab1e2733120159bd70fd47caa39f55b19a13",
+        "github-runner.yaml": "7040e426201394f6a437636afdb959e40c52e66cc6d23e6d25f7975e427fce1e",
+        "gitlab.yaml": "7448340ef5926e5ef87e136e2eb6c7544cf4fcdf37cb198a731ff73c73db27ff",
+        "glance.yaml": "92430d9aeb057493649085a7f175f7a31eacb73174d73513479771ec88777588",
+        "glances.yaml": "425314152eac107f3d43a5b0d6825255c9c91e59ab40e6ce6ddbbe3a3174500a",
+        "glitchtip.yaml": "99e42225d6f727ea285e8c7c3531334a17a8ce8fa217bed72fb3cc189aab3bf3",
+        "glpi.yaml": "14905b181cfbf8288846f2623993460008eff9d7a6779f2e1cfa6c3977b7ef75",
+        "goatcounter.yaml": "77be52cf90ab56a2f3d423ce97f530abf427501aa22aca9a7c3346569cf6c718",
+        "gotenberg.yaml": "4863b4c91cfc46dfe468b5c01ced2b56ccecb3d48f6f8bc281c0c7027bb29883",
+        "gotify.yaml": "a987527dfe8061e036ebfa7cf351652a8382d0cf2ba6a1d98b9fdcfd984764ee",
+        "gowa.yaml": "6906b09e99ecce722bfb929e4b488a7efffe8b47965da543d40809f0d61cf557",
+        "grafana-with-postgresql.yaml": "861df9484b18859bab6b6fa2fe46c93661495e0a26608c337e0d16fdd9cb5e1f",
+        "grafana.yaml": "9e03dbb544a7e54a098171ae529f7557a20effba816fc81cd87a4a19479130e2",
+        "gramps-web.yaml": "0b912ab7f4149ea8b0b4a5b3d2715fd6a8cdb065bf8a9d5a23d895391f25a36e",
+        "grimmory.yaml": "7d8e41414e5d1d021c0e1f49e4cee6ac9eabe09b01e3cd3b951b6bf142a98320",
+        "grist.yaml": "a8839946541bbea2896fdf8849637cd3faa655fff22d778f35c5887ce9052626",
+        "grocy.yaml": "fe4fc1030619efc1b4acf300a4165f51ed285f974c4afc11ea18e0de6635262c",
+        "hatchet.yaml": "c43fe86238cdc16d3e053cf39f38ba81650a4b888bc925209925894df5ea5b5b",
+        "healthchecks.yaml": "660e6114b5a97f2b7cdb5350ef8cbad40ca54bc6c233d0e6bf6683ede5edb401",
+        "heimdall.yaml": "20f23073e88797912a83ba7d743788f0bccc4e2c3cf0300aedd06caf031f0921",
+        "hermes-agent-with-webui.yaml": "fc97a4101af1061c7b6db4ac5f438fcbaeaf8e8c03a5daf07ab67b71e6a121e3",
+        "hermes-agent.yaml": "18b9bb9c23ff1b40ee16c02e01d3f6e4d336a5a4f05ea58bc5b8e27dfe6a2ec0",
+        "heyform.yaml": "32da1a155568499a39c9d94343c7c59c7a55e937d873ab96a65bc8a964a6acc8",
+        "hi-events.yaml": "a62d7da251d58f4571ec2ef4c6834dc13bc480a6d5f358a7823f1cd44606e97d",
+        "homarr.yaml": "c5765341005db632e3714c1c013e48c0223813c1ddb8e5af560e3ab4851e94e3",
+        "home-assistant.yaml": "70c6f6d57d457c9981a56ff4efdaf0cb5a9203121e2b71763e6866dc9caeb937",
+        "homebox.yaml": "4203bb651cce122c2fe4f4601b5001b2dd3464cee613c638c740b7d4c229facc",
+        "homepage.yaml": "229c6566fcc894de856a87efc6d1fd8ecb539b7e4055219587dbaf26134bd421",
+        "honcho.yaml": "1b3e056106fe976f782adf49f44cb5669e461d72bbdf368fa8a0462346d11583",
+        "hoppscotch.yaml": "bdc02c5701d74a810c4e2d1b882ce525aeaac676c1a85168a9b56f5367fd7fc0",
+        "huly.yaml": "9ca44b7a7f6f1f554d6ceba2394f80a033b96d549924b8a22e5866423b0cc702",
+        "imgcompress.yaml": "361cac67883dd9180beb19d9ec9eaa6c3da9176af9dafc832ce92b01da5c480c",
+        "immich.yaml": "f1ae64b1c260bc16bfe579e7f50ea979b84dd74be5fb2dc4d1a52cf0da7cf83d",
+        "infisical.yaml": "76563342175b5953324fad077d90b76dda4638817530c184622fbeca7d685e26",
+        "influxdb.yaml": "b2753006060c8cdabee03e985659d18e16cee2cd648e029f88e1f6f2efc86ea2",
+        "inngest.yaml": "ade9a035a3f8ddef86d09473f4c49e0e7c299bae6a5a710cb3b761b68751f22f",
+        "invoice-ninja.yaml": "679b94f28d9d184bb2a50a9134e10261132148352f885ebd07c6819c3eb33217",
+        "it-tools.yaml": "adccecab2c71f759add9ff7cb640ce51edb0eb9116a5dd23c05d988194eca6cc",
+        "jean.yaml": "6651a2984153c36eeab01dc31a2acea0d009f9d8af7d05ac32a532437ca2f074",
+        "jellyfin.yaml": "be0c2a123620d48e72f54ad5f18820d0c544597bb9ace7e3e04b3f5347bb71e2",
+        "jenkins.yaml": "13ae32e7c168c00c1f50f5039c0c219d73c81bde5d6ecca3ec24b537e47c91d3",
+        "jitsi.yaml": "08b766f67e096151a17eed53c3756b3e02cdd8062e859f5c451783d70b3fd4aa",
+        "joomla-with-mariadb.yaml": "d588de018ac9e69daae61ccf04727405e6595ffbacf587bf3daf63096668ccc4",
+        "joplin.yaml": "3187f62e5d2f1d1cad0177776ba9a866f1a5a4082eb7d7ddf6d8222f327badb1",
+        "jupyter-notebook-python.yaml": "73e89659365a64774465039f599ec5df22041e5113c272b31b76a9ef052a374a",
+        "karakeep.yaml": "09c582b24cc7dba4a1e9e3cbca62a8566b7d81014eaf8ce1d27d359c09cc8c91",
+        "keycloak-with-postgres.yaml": "b9f6637730ccd8ca8a463f942d2518c6048f2474c5c457b24ca9c31a5140e9b5",
+        "keycloak.yaml": "13dce9b433b44f8060997a5199f4ae57fc9b3d012bdabef8a5442aa6a3b875e4",
+        "kimai.yaml": "15f24f0c96d1c78c644de188567900e4767f5933f3cbeb6ca056cd873957c34a",
+        "kuzzle.yaml": "aa12b377c5a6088ed6f5db9ea0802b53388ff0046e40123f50409623e43c38e7",
+        "labelstudio.yaml": "7f341f015dd0b6fabad3abcf6b61066a0acd359a1b536c3459d243d2fcb66764",
+        "langflow.yaml": "a557fc602279f003d80298d8c6ac26a81f06d969eff1ba4570ad05e7a047ec84",
+        "langfuse.yaml": "ebd8d1755cf23ae8ad7d76afcdcee7b6d024f88c7387e6cd4b659795a4333f03",
+        "leantime.yaml": "a012434e699d6e13de190027bf23b88196852aa49d0822a7e9ece25e830f8248",
+        "librechat.yaml": "4efe101960a321efdef867d90fb1ea1f4e2126c72ab08c00f36048380d28e789",
+        "libreoffice.yaml": "f03195f9eec53651a3f023fcb9a1bb2ec5ee77b23392eb569d99f2f79ed54be1",
+        "librespeed.yaml": "a7898dd3e59a7b477bb55090fcfa12c262044d573f67e2a01f301ba1552c7fae",
+        "libretranslate.yaml": "fd4a81b3a482fb174d0cbb24f4f5b512633bb3e603ff475938b0ea08efaa954a",
+        "lidarr.yml": "502fcd0d45d11e49bf014970bd61baf9f77f2fed14d94eef2ee20bec199cdd8a",
+        "limesurvey.yaml": "102535fc9b4ab8450585f0a086c79b681a8a29599b414d0c4ee1d56fe82c44e8",
+        "linkding-plus.yaml": "700384f72fcbeacbad3dd4229a21c336e2c502360a5447479159385ae5b8a085",
+        "linkding.yaml": "bd7bb612381a54f164ea82e998ec2b66637fa764a99bf5f63602cb4dc7dcac23",
+        "linkwarden.yaml": "46ea5fec25b8bd1cffb3dfe02a008b956343f608a7d0977cfd50df85af02cf4a",
+        "listmonk.yaml": "a54b9aa9a4acb5585cce99caa92e35ec495738f5768b8d1fd2677ffdd46f3cb0",
+        "litellm.yaml": "5ce4345516e3559e18016a566a21089ad0abf10e24b831ab957058f71111a34f",
+        "litequeen.yaml": "f5a50b15b79ae260010ddd041a2c2e0a5eda08ae3714a8d7c33c99c0226f956b",
+        "lobe-chat.yaml": "460ae233af35ce99787868d0d95e0cdafb731f7d2e78e8f8de92218963806863",
+        "logto.yaml": "9914762ec6a55a2f9999abc9930564a9ae099538ec6baeda9292810873a28010",
+        "lowcoder.yaml": "1783f3ed921551c17ca556632776088ba8c5b7135ce0e887bd527396ff9d92e6",
+        "macos.yaml": "e1193ea2c262e9eb86e780e4667072ac1e85ee5eba0d1c70f7359157547ea5b4",
+        "mage-ai.yaml": "dbd448f534e794e45b27d12e38a84fdb999d271f9b3e20cbb940242130358542",
+        "mailpit.yaml": "1742823d07b6d5f6685705ba741f3876332a4786c19c5df1041b95ff012bd97e",
+        "marimo.yml": "3701d52517b36cb2fc4198c3470afe6c2d16e659b7917ed2183eea19e4501b47",
+        "martin.yaml": "de307b2a50ffa8ca04bf02872cf1e26da23348ac2c67b4a6fc320d17c39ddae2",
+        "matrix-synapse-with-postgresql.yaml": "ffaaf9aa31d113eef06897e93367fd158521a7941cd1592e1a78fb46a713d3a2",
+        "matrix-synapse-with-sqlite.yaml": "0ba0a4335463da19d80ac64dc24da33b2721c0ec41c82060c99a43f692e254d9",
+        "mattermost.yaml": "7a21f6438635a539c02d5d236437bbac0d6c1f08d258c8f9d1dff361ed9ee2fd",
+        "mautic5.yaml": "30cb42b33bf3b9a314d049fee2cf4210b5279882fd5913783f7ce3ed48d22e9c",
+        "maybe.yaml": "82308c3545ff0c1fa51f08f70445e0943f150260f5f6e969d07de9cc50afe4c0",
+        "mealie.yaml": "c02a37585457d13f4f43b4ad528934be042b8f289ddd7ddfe4b1beb8d896fc35",
+        "mediawiki.yaml": "7af74cd2f7acfe34485dfad31126c01323aad43e8925e2d438e338f4e065b6f7",
+        "meilisearch.yaml": "7cc1a8132ecdea663f96dd58c4702cb6ce1ccfcd751e6a71e9a8f18763d3aa4a",
+        "memos.yaml": "681d9852e200a1ee980c64aa4489e0d74348cabef5baa78b99db89e50d30cbf9",
+        "metabase.yaml": "0803de1d6eab1bc9051935df9d699e152af0562fc72f4b33ce5d939caf9e5a06",
+        "metamcp.yaml": "04a71e580328b28d66bc0a05d4cc12f4165516b82e0f056403503b3dab4e2dec",
+        "metube.yaml": "c0facdb62f2056a7b458d69ec5547f2edb5136b833bb4363f502d217022d7bb8",
+        "mindsdb.yaml": "80f189625b7f072acd9052856af918fe0bb7f48b2cb0960b2afcbeebf4f3d110",
+        "minecraft.yaml": "1935c5bfcea7a3df82481f3f1fcb2b417b8150e1667b30bebc2f2c883a5102db",
+        "miniflux.yaml": "c780dfb7b77d96e948f494e608ba2463c9fdab3583f9b4c43d69f03e20edd06b",
+        "minio-community-edition.yaml": "7754677b9700106784d8511eb419276094e4530d94fb92672507469ea5529f83",
+        "minio.yaml": "7754677b9700106784d8511eb419276094e4530d94fb92672507469ea5529f83",
+        "mixpost.yaml": "a04bb01f64c6544890d036883f9e8fc39381c8ffcb847ea3c28f3ebb34b9e237",
+        "moodle.yaml": "8fd6c07e4ee2f94283a9c4f32de0c91abbb4b5b4105ff25723bf145589a06f8c",
+        "mosquitto.yaml": "14d729cfafaa26970f3abb728bdbd7310269d707daba9b5db9732f19fc84c441",
+        "n8n-with-postgres-and-worker.yaml": "419e2c3a53841455972aa89dfe672c212bce03091a594efbbf6c3f28d42bf9bc",
+        "n8n-with-postgres-worker-and-ai-assistant.yaml": "cb8a251a2d4d9d555d3f0539dadd8c19bdf8600a279bade0e0f7e877f4d064cd",
+        "n8n-with-postgresql.yaml": "4e018aa0108dd284bfb945bdf1805d7a172b034ce7aff118dce9f62c5059cbc0",
+        "n8n.yaml": "20fc6f89d3c9ab9a2cf6bb300f68b4a4e4201347fd0c22de40fc6d1a85a9a81d",
+        "navidrome.yaml": "067fb1cb6c6023e6864b9f5aac81d6907dc1931ec7efbe0c6c56897d7cd35638",
+        "neon-ws-proxy.yaml": "af8934574b4ee858362ad607cd5ee44f7d94c6be69eb1136199f1dfd2685e8c5",
+        "netbird-client.yaml": "b7438df0ae0b3b49c1fb6701e05c6affd4baaf64da306c3f28e65304941f24b8",
+        "netbird-proxy.yaml": "eccb5d67b7a6d5640a3feff4c899452aebb7be7bd13dddf3b26de46575173560",
+        "netbird.yaml": "db1568c8e5168e2ba7809fe30f8909460e2cb2e316e6536246c9a1dd106054b4",
+        "newapi.yaml": "380c77fbc6c9448c138f8b003f88c24759e5b01461146340c5dced1f061fa793",
+        "newt-pangolin.yaml": "18f5a06d27e6eeefd1f506ed745d3d9020ea6242ff7ec46b0e10c04ee1d4fd56",
+        "next-image-transformation.yaml": "12e99f4313de690e6298ab744df3ca2b59c017970e503bf6caf6a8cc673da32e",
+        "nextcloud-with-mariadb.yaml": "a5933c7f79cd26d15c1571b62875ed684c6f733fb664f70139dbcd150c009229",
+        "nextcloud-with-mysql.yaml": "f8d0808e968f8f4d24ce10655b93ef800b1bef18f4e10d38d61890f88119b33f",
+        "nextcloud-with-postgres.yaml": "c574be6ae0079187e3a57f0d031fb6c2b81623b5cf1a5a27d70c6b4d76518e78",
+        "nextcloud.yaml": "f06ed413aeeb2e78c2e174e546c768ae95ef3676f9b81905d429f898b7fc1739",
+        "nexus-arm.yaml": "32f9ba37f98bfcd8aa6cad1ebcada9c00f91a66e10625b8dbdbf143ed84b3f35",
+        "nexus.yaml": "5f1b9c6e139057fea6f1ee0fd36f58f6bf12e80a42398bc189b2fb0bc8a1f8c7",
+        "nitropage-with-postgresql.yaml": "f28bec31631953db068f6e310ad7253e5015717b185595f0ac9c3ef49e47acf5",
+        "nitropage.yaml": "7d2a253e0c7f78494d7e57c6a1745ccd7c02c0071951d8f36ecb23cad08ca335",
+        "nocobase.yaml": "ed0eea017877875e041b9b1bfc859924855a24ab6de5161d6652666b23802d2a",
+        "nocodb.yaml": "2f9c302350278b8564cc14f0b3355cebad73599bccb75c7f3a21ef09f994e195",
+        "nodebb.yaml": "37a87562a5e97fb1d62d8c71d189fb85f5b3c013862c887ee84a6c2d26215ea8",
+        "ntfy.yaml": "4c3bdf1c0aaadd2d0ab0dfdedbbe0353370eefaefe7aa2e461fa7dfd9bda45dc",
+        "observium.yaml": "02cfd6d70f0378a3a97e4cb05ce2d326e701ee099529ca8edb20cfdce3833893",
+        "obsidian-livesync.yaml": "3a63f5c897d4c210ff0bbc2a2e9b046f8013ba06de16df0561e639f914a7d708",
+        "obsidian.yaml": "352b1521658a7cfde3a857cd067df2227e0c34d935b07ef4162c4b722bef4a17",
+        "odoo.yaml": "eacf93ebacd8ac9e5bf38ca2047d152bf2bd47655a7cb352db4f984fef7acf3e",
+        "ollama-with-open-webui.yaml": "abbd5690d6494f20ea706c957eba34c2881264398f3d50bca8510923d5b93797",
+        "once-campfire.yaml": "8fcad258145aa857c36b45d934928c56ec3ab613bce7a48b128abd968655e21c",
+        "onedev.yaml": "296c92c90a321cd3b6cf0aa931c98ba79a75d652823f202c3ab5917f44f66849",
+        "onetimesecret.yaml": "02cc77e847fc77e9aa67c981076b85f132ace489c20311ecb3e6f21c093aa4e0",
+        "open-archiver.yaml": "48ed1c3f5ef9bee273499d53e1115ce517ca5e2fcff418edc223b5ef294a2aa3",
+        "open-webui.yaml": "f0b91e796441d73f1c8f1f9d9c3622428f79abddb7eaae894a2c2b4d08d9e7fa",
+        "openclaw.yaml": "a9ab56b94e365f78ffa1b711f80f82c0e6b45a6d4323c6da94587410e8a9b745",
+        "openobserve.yaml": "9484ee6fa7365ce632a07a97d09c953bcc84bb333cabec2e0b66fcfa1c58522b",
+        "openpanel.yaml": "1945fd64e25d1458a8c942ea1f357fd22f3579bec77f144dd5c3fff7067e8f86",
+        "openwa-with-postgresql-and-redis.yaml": "946fbc1f4fecd8b61317b056531a0e74105137cb1b691ca98a5b7f2dab68c4c7",
+        "openwa.yaml": "9b3141eaacb7a9cd37d737b87eaecb8f730265351cad0a06648fdd8f2975faf0",
+        "opnform.yaml": "f6f795f979582b2ea0232e8b220fbba6fc41f666e546c5bcb8eedcca613c6a5e",
+        "orangehrm.yaml": "f956f7565966b8a59c68edefc62f2c38ebef2b4c4284887015126477e72ada6a",
+        "orbit.yaml": "acd93ef36cbd6601a3b4af34ccab996496879b5393e536d58a72bdb736d067c7",
+        "organizr.yaml": "29439afa30ce6f490527c98558cebd4bf39a1713d97a6a03c76317864fdfdf04",
+        "overseerr.yaml": "8f26cb39aece5b30824ec2dbb7161a3bc2e95cd73813f5830b556ac9a67abc42",
+        "owncloud.yaml": "512e686c1f530fdd64b292dafea7e36f392420cb6e143851724da85f6f3e32cb",
+        "pairdrop.yaml": "f083a77079c160564c22c531640ef440a8384b17f6504f0daf32910fcfb3be5e",
+        "palworld.yaml": "c1fcaa4dec4a5c647cde26ae3a0c569041e49c16eb8b64ac0d8a0d26328401cf",
+        "paperless.yaml": "9200c979d7582fa517b2375befcef1078257109586d99e9e8e236c0ebc897a03",
+        "passbolt.yaml": "df48d5c4608a885818b347ea68c5c9faf6027ae0f1853fda76795b703fd07d57",
+        "paymenter.yaml": "36991d986881ea332a326ae4b076e8d8923b5fcd52824204ce381a5aea8252cf",
+        "peertube.yaml": "4d7479702bfa459ec6932da750709c42e9a7f4b94e714b75db85bbdc224ac357",
+        "penpot-with-s3.yaml": "96bf6d31c2bcc22e3b457d699879b4512a05811164999bef89370ea0a04b6716",
+        "penpot.yaml": "f540c6a1c10487fb088fd5b6cc090e8324fd7730bc74313c2ed861bd12e589ab",
+        "peppermint.yaml": "3918bd09ed433b2f221ba387ce996870ff377b7b8c298b9792638fab79558e26",
+        "pgadmin.yaml": "fa1231a80504634846ef0e513a3b9614d7f47234450f4258f740b031c4da2622",
+        "pgbackweb.yaml": "450146ac2e87bced386d8af870b7c7890ed948be027a41678a675ae7e22c8359",
+        "phpmyadmin.yaml": "d4312d8898f664ad6ca8d0c87442cab4b2c738a2905d0605e3adc0adc9a2c3e1",
+        "pi-hole.yaml": "295e00de1d1fe3c8c54947d75e236187c942c92d27a86dc1337e9f8b4fe79e6b",
+        "pingvinshare-with-clamav.yaml": "b6e32cc1ad28c63b5d3b864e159dee6b1348d9607089f7948c74688f7a2c7cd6",
+        "pingvinshare.yaml": "754971450e14a5c1a7938b2adff0587cc9db443f050b9e06db27a47e08491852",
+        "plane.yaml": "a08f1413bd8a6b10dd4efa3979cfd7caba07a0226b3e440f953ccc8b7304641b",
+        "plausible.yaml": "dd54ce41f3a655f238e21aead11163bbf770f4c03f2f159acf5c227cfe9b8304",
+        "plex.yaml": "e79377d58f3678aab4f3c2f6e9031c130ac5ec8573f3bc8e9121e62722e81935",
+        "plunk.yaml": "b0606e6d87ce9ac934af5d020681ff1e2dfed9c7849449eaee0ab49208f7c2df",
+        "pocket-id-with-postgresql.yaml": "8901de833106d1df956fc57871d7a975746779ec24e284441c88e438815ff10e",
+        "pocket-id.yaml": "833ee0ccbb27efea12c1f675d0744eda376379a6b32bdce535d8ef4c3ea9ebe4",
+        "pocketbase.yaml": "91f5419d37bcf59fc6186df1ae0fc3497b0bf8c86c266493e64a155fd81cd672",
+        "portabase.yaml": "b21975d0b42f7ce5a06d94eb42e3f178f3a392d8875b6b7ece8a04dd90734dba",
+        "portainer.yaml": "163049c9bdf5f5892bfbd88bbe6f233c3d4419e57fbe4ac76a5f48c95418c317",
+        "posthog.yaml": "c3485e3d80981bb3460bc024e6f53c83e77314f40c9f306527491dee7ea78c1c",
+        "postiz.yaml": "3b808a22daa67d6c41fb424ccee41885fe15555e8d4f224237dbfe770526bc4d",
+        "prefect.yaml": "38928674bf265de353cae15f5938de128427783c586e3675ae8d05883c3cad9d",
+        "privatebin.yaml": "b65f0b8910dfb7592eb78b23486c26b6b61763b8efa6eb86d7c5f6d770a30a9f",
+        "prowlarr.yaml": "33f538f927a300b02af1a79b974a6e710a3ded1af23c23630a26704f16a4b645",
+        "proxyscotch.yaml": "330d6fa7db1990de7040666752106f3451d32760e2218421c7330d6e8525ae88",
+        "pterodactyl-panel.yaml": "4b919429c6a403baf702b566da2fe199e7b50f5cd8e08ecf2392efdee6c34bd3",
+        "pterodactyl-with-wings.yaml": "672ff0e30fa6c7d476f65b7c43badc3c4410779608f4e2390eeb389fb24f719a",
+        "pydio-cells.yml": "93a023ccf14e089e85240484a82e894ca9afbaba51a3fb2bab4c2e962e40118b",
+        "qbittorrent.yaml": "126a270f73c2685b539d03ea3eee101baa5f54dac81d6c57427200252b68573f",
+        "qdrant.yaml": "e14e1760cdf9b6cbfae7126a271697e94dd3fca18a6adcc704ac3b2cd80a7c4c",
+        "rabbitmq.yaml": "15b99bb5f1dbc33db9e6368c73cc462a27a7701a4bdd0723ae5022867b5fa4a7",
+        "radarr.yaml": "ce7ba03497d184daa5cde43b798b53be0533c1ce181cf409d269cf5dea210f69",
+        "rallly.yaml": "f8d6442c0a450851d34ea42a140c2b48dbbfcdc86bc5514729b6218c932b6836",
+        "reactive-resume.yaml": "8b5c57540b6b54d1b381aa3228a0063cc34149256f60c0da7d090556e79a7faa",
+        "readeck.yaml": "24b747513c8cd9c93b54702f1071fbf7476a1f44cd51d44743b633498134ebf9",
+        "redis-insight.yaml": "465f7618f6b281fd2b307edc208215e7cab96478fb5194f87a9940d5019882d3",
+        "redlib.yaml": "89420bca0c1a772851c938878c90683702a098899ef9d56b295097277f507ead",
+        "redmine.yaml": "51430007bb9897b274535e0fde30e86e6c911f06fb0d38826fd07ad791933a73",
+        "rivet-engine.yaml": "21f965798d720c4c15c6c7196967684bdfe38f9030a20a4c3f385d08ef64a864",
+        "rocketchat.yaml": "7b75975ef41fc80b1902875b39597ad75f18263e60066f2f363d3d5d6765d18e",
+        "rustfs.yaml": "9ee47c1108b8c9e2b5b9709dcb6d2c17495576e2a17032eae4a29d55946c458c",
+        "rybbit.yaml": "cfb2bd112e6d784f3a76c4d3ccdc3c351dd40f87b2f0f4fa827ac0f6e1620aad",
+        "ryot.yaml": "cf0bbe060fd65e9465832342604657ee9333a7fe73f6b141725cbd316ca96c16",
+        "satisfactory.yaml": "919cff6fa8402eefbf8642f0d1cac4cfd3b72d02d770fd3bca1de49e1e104e06",
+        "seafile.yaml": "60cffb50fad59993d2030be65f05a338452486b4b51437a56661a61ac163b22d",
+        "searxng.yaml": "6d57c47e9cf1437f39b141fac136cc682342426599b020593f8e7ac56fbedbd7",
+        "seaweedfs.yaml": "4bb9ef9650af7da3e7a24fcff8932ac1cf8009d0061c23f764c6dc1c503a548b",
+        "sequin.yaml": "d47a976ba60be42c4a7308973b386dd4585b38c1d17cfb4d055d3126476d0976",
+        "sessy.yaml": "0179cc35a12e85e7a6b016c0d78f65a4ff4205466dae99543d30278965d274cd",
+        "sftpgo.yaml": "6d1fbde8a10db0db28e065f01a4bd32d0eaf0fc9a3d2f920c9f175955065a60f",
+        "shlink.yaml": "1f0a9be78c8e2f424afde424f8c1fa1e56ba0693b00a0939b7978cc88fb1560a",
+        "signoz.yaml": "58ce7e68534f9af2cf7812bfa38bbf9db5ae0ec4fa408a6b3baf075b2354c10c",
+        "silverbullet.yaml": "41edff341e373e47a5c0e9aed604a1f052dac7ed2dff451cff521ac9c20d77ae",
+        "siyuan.yaml": "922a733745db729092ca5c9f80afdefb9f0d73e713a460883fed749678908c93",
+        "slash.yaml": "fc061eee591320d560b7538b45ec523f3eabc65c8b69bf51f7f29dc39c074ec9",
+        "snapdrop.yaml": "4caa84b211bae81c470c5a76bcf9e4bec723c72b19bba1c02d53110b1608c26f",
+        "snipe-it.yaml": "4cbb4cfb4e0da8821487941473a727bdb33a601fde0c7ff3146be4b5efeddbf9",
+        "soju.yaml": "3ac615287e2e0baa84416361e0455443f23410b55c6119436ed9dd9a2b1c6e3f",
+        "soketi-app-manager.yaml": "3322537266baed9b8ecbe1c7918f410c31d885b871fe35dfef19108997cdde7d",
+        "soketi.yaml": "7b361c13b6f132cf9a46106592b98e9ec55ee52a6802d5489a35681421367c08",
+        "sonarqube.yaml": "9acac0d5560a5e9c007fbf20aba21783ab12741caa8c3bda9c2cc7e73717345d",
+        "sonarr.yaml": "1e996b6aa3d9c6e163339eedf89983b302256dea87249e3bd05265f9398c2979",
+        "spacebot.yaml": "2a0a07d209470392bf3a2c8fc466f72639f75a4ad63cfea04763cf183ec08fbd",
+        "sparkyfitness.yaml": "be3cc1ee837701198fb52a87189ffce719258de69a2d0f768d97259a51feef50",
+        "stalwart.yaml": "339832d592598d698f6961141166b4c35c84b5c867bdb64924860f4c48eee635",
+        "statusnook.yaml": "dd322a3099a21af6ef1174d0507b3eec6485b6db9b06fc74cfb53a54b0980711",
+        "stirling-pdf.yaml": "e86b12546f1e1198998d238850613c0db841e4d6482ee9eb690582d7427f5af9",
+        "strapi.yaml": "0a7ecc04dd00c4613c7da56c5058f7a09c10f8f6402cd959e390b16d69b86ae5",
+        "supabase.yaml": "da818683557af3ad4fe5e2f174d5aec2fa348d1e8cc5c2ac5c8b4c2845b1545b",
+        "superset-with-postgresql.yaml": "4177c5a93e4a357430404a1c16b16ba1d478dfc646353d0be933741b1f406652",
+        "supertokens-with-mysql.yaml": "58dbadac8410523c00f499a689472f5cf65bb92462351ae0d3aeccbbad4f699a",
+        "supertokens-with-postgresql.yaml": "f83d7b5c1f051185f827ab4846d9892b5ad27966cf70d1d3c772aeb30924ffdc",
+        "sure.yaml": "a58e33ff93a04ff62a52f6122f61914563aaac9200becd2ab343b44b2892f178",
+        "swetrix.yaml": "8a956b97951c6c2055fbcd00d9693396c08b32c98b33718cd1d75c19711c019e",
+        "syncthing.yaml": "993ef2ca3076ded0fcda199e9000122ec4c7dff9a32476052f04fe9ded2b6341",
+        "tailscale-client.yaml": "ea01ccc5229e654854da7677e9b1d770a418a37b9dd21be417de90ce67e24ec0",
+        "teable.yaml": "bbb68b533fd5060b458dd6b7bf16dc96c97d6c570191b0fd5f5592e566f25455",
+        "termix.yaml": "7cab281e08892fefa21d20781a888b1f5d7e0690754abbec48ae3d20c66d1590",
+        "terraria-server.yaml": "dc4e125897aca0931e170e68dc1c7615209bf925fa275096b79e043cb10a9294",
+        "tolgee.yaml": "6d72fc87d26876dbb03448cd9ddfe6d660a6f5a73710ef702f8417f661fe23b4",
+        "traccar.yaml": "edec82166693302347947b703f7babdabe31e0d41cfbad317883da73ca695d19",
+        "trailbase.yaml": "4b8dd25fe55dabe87aa9f3c0cf1c5fb7e4ee22ec014c6635bdc04f197374b995",
+        "transmission.yaml": "02729a8dc2484acd6d1411b402710e22ecc76ade7b25d8ba72ca158f4fd802fe",
+        "trigger.yaml": "c841b89b8d595de7af848fb5b221efaabda7a15a689ac6f3ed2ea0bec43f973e",
+        "triliumnext.yaml": "dfbbb4e4af05b846c631e7682155eafa97fb34dbc9b0cf1eda75a247a2b0741f",
+        "twenty.yaml": "f7ae838a3112ae0963c6136220843e8d43c432ed1485b65a77b8dbc18f582213",
+        "typesense.yaml": "5f4daeba217c7c27442fc8f1c33dfc5d4996df0624164760000a90f5cd199433",
+        "umami.yaml": "087b6f3a257424e574c7b18301f55866cd720ca1bec17f3bc54915336619e3c2",
+        "unleash-with-postgresql.yaml": "3ae72a46aa92a1d3bf99fafa5e296840d17b52b74e4cf76fc9b5c7d7d6b7f0ca",
+        "unleash-without-database.yaml": "abdbd5fced2cef91815a4d20d07c9f2ad1fa11efaea1d84ce682d6ed638ff461",
+        "unstructured.yaml": "2e9703cd1a5aea68eda55aa1162df6d830d43bce03977f8159bbbce39db97a0b",
+        "uptime-kuma-with-mariadb.yaml": "4b9f8062f81106d8fc990ec4e7093dde81f6a107b7c20343669f3cb508031432",
+        "uptime-kuma-with-mysql.yaml": "a334d989aad20d2b571d8684d09285cae700681f57f4eb76c6af343d4eab8bc4",
+        "uptime-kuma.yaml": "30f8c4e9d39661c6a21c7288e7f0282a2e6d1debe8d12a0ecfe68bc8e1a97368",
+        "usesend.yaml": "dad29652b62ff639754be9f8a7636cf128cfcd3fc6801e21790184f05f3eb2e8",
+        "vault.yaml": "14f82ed631aa0915ed944d2fdbe1cf95b413998e2ebe164ecba500f3b6c92380",
+        "vaultwarden.yaml": "322c7388060de172d49d1776ca456c9618e17074ff6957d23d7aab8ebdfd8e6f",
+        "vert.yaml": "81b01feee9bfd3e83a6d86f8cd31896a78ad88ccfec371bf1ed0bca881f0de6a",
+        "vikunja-with-postgresql.yaml": "e70fa1339b538229c18c6ebd4723c9ace430cfee8ca5f0115c5f3d1551a06ccb",
+        "vikunja.yaml": "3079d896af464846b1b5b4aedf3228e8aa8cb85238b6c70c77efd1a9817eb50f",
+        "vvveb-with-mariadb.yaml": "73fce607b9c0bc762d844090d7f2bf59d778762f6de42de6a412c5498a10118c",
+        "vvveb-with-mysql.yaml": "45016428485749695407def53fd9123fe1e575ada74a4d4e264fcccfe4a62cc0",
+        "vvveb.yaml": "028e721a541537084b6135c95609b044b098242bafb0795cb64f157db4ff77f5",
+        "wakapi.yaml": "6f652899a241c2e804ea775feb8295674a304758c6686dc41cc54c5c12133ebf",
+        "weaviate.yaml": "341ce0b56e3ec04f00431e5262e378bbafda8585b7ef444feb7795e54a7d5b08",
+        "web-check.yaml": "57c6c1d61a2f56848ca784efbf2e53efb0156096e70a8b4cf5f3197d5377b05a",
+        "weblate.yaml": "327d5f495fa0aeaf5635c27ce419092b696807c80256e40d769265d18e5261ee",
+        "whoogle.yaml": "8d7689bf6367242e1e1e7d86620a2dbd3b694c2355e2aa47a0a73ef368009aee",
+        "wikijs.yaml": "356bc167589c3151f63dca3c325e885122e1e747cc7cfd79bffdfaf3256f60cb",
+        "windmill.yaml": "5efd4a38a965b2df7ddd70f183be965ae0aadbbc3baa56e4fccd4fa74ddbeebc",
+        "windows.yaml": "4e37c71892c5026d80be2faa69398966be6f69de8402be405c7219c5b3e7de6f",
+        "wings.yaml": "ae3db568523d34891b239237f42d9cb8ba96e9d96dbc1e980efa8239b6656163",
+        "wireguard-easy.yaml": "c4a65ee84db9ce3c33c3b99c5dc6321491a2b8dcd5defae6865f6b5479cf0ca7",
+        "wordpress-with-mariadb.yaml": "f816b362bdc4489323437e4d90e8b76a2a0b3e75e9fb4f0ec851db9d0b1e3629",
+        "wordpress-with-mysql.yaml": "b56581194fd63662696578a4b0925ca4125f7dc89a0b2ce801e4e235883413ca",
+        "wordpress-with-openlitespeed.yaml": "bb51aa5f046b963e338b688a077673f91724d2ff8c2f82ce84a5acfdf9c8fc57",
+        "wordpress-without-database.yaml": "acf545a0e7186ac18da01c6d5b07ab52c39019a38d0bd4b04657297a80f8b5d2",
+        "yamtrack-with-postgresql.yaml": "818c3740e118906dd33f69fc7901b83566869d72faf361ff59630a04297dbf6e",
+        "yamtrack.yaml": "e022c47eac0cfe996527a9ff50f2395f47203a6949a9ccc2db3b151b20364646",
+        "zep.yaml": "295649c10aaf4ad325af2ecc6708c8bbd19742c94af4cfc1dcb26e0506c8be87",
+        "zero.yaml": "9634fb9674976d4b06f9fffce3b0c0f048cdabb9bbfb2e80798916a6b990f5fe",
+        "zipline.yaml": "d56a8a3f5b4e278d8f398416f6cd3870596c2b7cf67607d914846c2ce6f8f118"
+    }
+}

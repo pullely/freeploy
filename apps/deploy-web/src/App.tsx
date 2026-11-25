@@ -19,6 +19,7 @@ const ProjectShowPage = lazy(() => import("./pages/ProjectShow").then((m) => ({ 
 const ProjectEditPage = lazy(() => import("./pages/ProjectEdit").then((m) => ({ default: m.ProjectEditPage })));
 const EnvironmentResourcesPage = lazy(() => import("./pages/EnvironmentResources").then((m) => ({ default: m.EnvironmentResourcesPage })));
 const ResourceCreatePage = lazy(() => import("./pages/ResourceCreate").then((m) => ({ default: m.ResourceCreatePage })));
+const ServiceShowPage = lazy(() => import("./pages/ServiceShow").then((m) => ({ default: m.ServiceShowPage })));
 const ApplicationGeneralPage = lazy(() => import("./pages/ApplicationGeneral").then((m) => ({ default: m.ApplicationGeneralPage })));
 const ApplicationDomainsPage = lazy(() => import("./pages/ApplicationDomains").then((m) => ({ default: m.ApplicationDomainsPage })));
 const ApplicationAdvancedPage = lazy(() => import("./pages/ApplicationAdvanced").then((m) => ({ default: m.ApplicationAdvancedPage })));
@@ -249,6 +250,12 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <ApplicationDeploymentPage />
+        </Suspense>
+      );
+    case "project.service.configuration":
+      return (
+        <Suspense fallback={null}>
+          <ServiceShowPage />
         </Suspense>
       );
     case "security.private-key.index":

@@ -465,3 +465,24 @@ export {
   type ApplicationDeploymentState,
   type DeployServerSshRow,
 } from "./deployments.js";
+// DP-59: services — the row a one-click service starts as and what its Compose file is parsed into.
+export {
+  insertParsedService,
+  findServiceByUuid,
+  listEnvironmentServices,
+  listServiceApplications,
+  listServiceDatabases,
+  findServiceServer,
+  SERVICE_MORPH_CLASS,
+  SERVICE_PART_MORPH_CLASS,
+  type ServicePartKind,
+  type NewParsedService,
+  type NewServiceApplication,
+  type NewServiceDatabase,
+  type NewServiceVariable,
+  type NewServicePersistentVolume,
+  type NewServiceFileVolume,
+  type DeployServiceRow,
+  type DeployServicePartRow,
+  type DeployServiceServerRow,
+} from "./services.js";

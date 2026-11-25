@@ -8,11 +8,12 @@
 // on this same URL with ?type=…&destination=…&server_id=…; there the type's
 // own form shows. The Docker Image form is here; the Dockerfile and Public Git
 // Repository forms are in ResourceCreateBuilt.tsx; every other type stays in
-// the grid and ends on the not-ported notice. The one-click services (their
-// 390 templates) and the category filter's values are not ported; server_id
-// is the server's uuid, not a numeric id. The database steps — the image of a
-// PostgreSQL or Redis / Valkey database, and the page that creates a database
-// — are ResourceCreateDatabase.tsx.
+// the grid and ends on the not-ported notice. The one-click services, their
+// category filter and the page a chosen service is created on are in
+// ResourceCreateServices.tsx; server_id is the server's uuid, not a numeric
+// id. The database steps — the image of a PostgreSQL or Redis / Valkey
+// database, and the page that creates a database — are
+// ResourceCreateDatabase.tsx.
 import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { Layout, useSignedIn } from "../layout/Layout";
 import { getJson, postJson, summarize } from "../lib/api";
@@ -26,6 +27,8 @@ import { BetaBadge } from "./ServerChrome";
 import { splitPastedImageName, type ImageForm } from "../lib/docker-image";
 import { DockerfileForm, PublicGitRepositoryForm } from "./ResourceCreateBuilt";
 import { CreatingDatabase, DATABASE_IMAGE_STEPS, DatabaseImageStep, isDatabaseType } from "./ResourceCreateDatabase";
+import { CategoryFilter, OneClickServiceCreate, ServicesSection, useServiceTemplates } from "./ResourceCreateServices";
+import { filterServices, isOneClickType } from "../lib/service-templates";
 
 interface ResourceType {
   id: string;
@@ -203,6 +206,9 @@ function TypeSection({ icon, title, view, children }: { icon: string; title: str
 
 /** Select's "type" step: search, view, the resource type filter, and the types. */
 function TypeStep({ data, canvasUrl, onSelect, onReload }: { data: NewResourceData; canvasUrl: string; onSelect: (type: string) => void; onReload: () => void }) {
+  const { me } = useSignedIn();
+  const templates = useServiceTemplates(me.team?.id);
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [search, setSearch] = useState("");
   const [resourceType, setResourceType] = useState("all");
   const [view, setView] = useState<ViewMode>(storedView);
@@ -232,6 +238,8 @@ function TypeStep({ data, canvasUrl, onSelect, onReload }: { data: NewResourceDa
   }, [data, search]);
   const showApplications = (resourceType === "all" || resourceType === "applications") && git.length + docker.length > 0;
   const showDatabases = (resourceType === "all" || resourceType === "databases") && databases.length > 0;
+  const services = useMemo(() => filterServices(templates.services, search, selectedCategory), [templates, search, selectedCategory]);
+  const showServices = (resourceType === "all" || resourceType === "services") && services.length > 0;
 
   return (
     <div>
@@ -315,15 +323,7 @@ function TypeStep({ data, canvasUrl, onSelect, onReload }: { data: NewResourceDa
               )}
             </TableDropdown>
 
-            {/* The category filter lists the service templates' categories: none until the templates are ported. */}
-            <div className="relative w-48">
-              <button type="button" className="listbox-trigger" disabled aria-haspopup="listbox" title="All categories">
-                <span className="listbox-trigger-label capitalize">All categories</span>
-                <svg className="size-3.5 shrink-0 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m8 9 4-4 4 4m0 6-4 4-4-4" />
-                </svg>
-              </button>
-            </div>
+            <CategoryFilter categories={templates.categories} selected={selectedCategory} onSelect={setSelectedCategory} />
           </div>
         </div>
       </SettingsSection>
@@ -382,7 +382,9 @@ function TypeStep({ data, canvasUrl, onSelect, onReload }: { data: NewResourceDa
           </TypeSection>
         ) : null}
 
-        {!showApplications && !showDatabases ? (
+        {showServices ? <ServicesSection services={services} list={view === "list"} classes={VIEW_CLASSES[view]} onSelect={onSelect} /> : null}
+
+        {!showApplications && !showDatabases && !showServices ? (
           <div>
             <Empty title="No resources found" description="Try a different search or resource type." iconName="layers" size="sm" />
           </div>
@@ -667,6 +669,7 @@ function ResourceCreateContent() {
     if (type === "docker-image") content = <DockerImage orgId={me.team?.id} data={data} destination={destination} serverUuid={query.get("server_id")} />;
     else if (type === "dockerfile") content = <DockerfileForm {...target} />;
     else if (type === "public") content = <PublicGitRepositoryForm {...target} />;
+    else if (isOneClickType(type)) content = <OneClickServiceCreate {...target} type={type} back={`${here}/new`} />;
     else if (isDatabaseType(type)) {
       const databaseImage = query.get("database_image");
       const server = data.servers.find((s) => s.destinations.some((d) => d.uuid === destination))!;
