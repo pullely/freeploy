@@ -1,5 +1,5 @@
 # Parity harness (freeploy-coolify-parity DP1). Measures Freeploy against a
-# reference Coolify built from source at COOLIFY_REF.
+# reference Coolify built from source at COOLIFY_REF. Run on demand only.
 #
 #   unit       — harness self-tests (the gate can say no) + inventory --check
 #   reference  — build and start Coolify at COOLIFY_REF, seed fixtures through
@@ -15,23 +15,15 @@
 name: parity
 
 on:
+  # Parity runs locally, not on every push or pull request (to save CI time):
+  # `npm test` and `inventory.ts --check` in tools/parity on each change, and
+  # tools/parity/local-stage.sh against stage after a deploy. This workflow is
+  # for a full run on demand (a reference rebuild, a new Coolify commit).
   workflow_dispatch:
     inputs:
       only:
         description: "Regex on route ids to capture (default: every visual route)"
         required: false
-  push:
-    branches: [main]
-    paths:
-      - "tools/parity/**"
-      - "apps/deploy-web/**"
-      - "specs/epics/freeploy-coolify-parity/parity/routes.web.json"
-      - ".github/workflows/parity.yml"
-  pull_request:
-    paths:
-      - "tools/parity/**"
-      - "apps/deploy-web/**"
-      - ".github/workflows/parity.yml"
 
 concurrency:
   group: parity-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}

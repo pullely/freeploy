@@ -1,0 +1,17 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-76
+  title: "DP1 follow-up: parity runs locally; the CI workflow is on demand only"
+spec:
+  goal: The parity workflow stops running on every pull request and push to main, to save CI time. It stays available on demand (workflow_dispatch) for a full run. Each change runs the harness's checks locally instead, and tools/parity/local-stage.sh can compare stage outside a Mac, from a local reference capture and credentials in the environment.
+  affects:
+    - .github/workflows/parity.yml
+    - tools/parity/local-stage.sh
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - a pull request that changes apps/deploy-web or tools/parity starts no parity workflow run
+    - the parity workflow can still be started by hand (workflow_dispatch)
+    - tools/parity npm test and inventory.ts --check pass
+  gates: []
