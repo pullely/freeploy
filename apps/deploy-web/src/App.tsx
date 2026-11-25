@@ -79,6 +79,9 @@ const StorageShowPage = lazy(() => import("./pages/Storages").then((m) => ({ def
 const DatabaseBackupsPage = lazy(() => import("./pages/DatabaseBackups").then((m) => ({ default: m.DatabaseBackupsPage })));
 const ServerDeletePage = lazy(() => import("./pages/ServerDelete").then((m) => ({ default: m.ServerDeletePage })));
 const NotificationSettingsPage = lazy(() => import("./pages/NotificationSettings").then((m) => ({ default: m.NotificationSettingsPage })));
+const TeamGeneralPage = lazy(() => import("./pages/Team").then((m) => ({ default: m.TeamGeneralPage })));
+const TeamMembersPage = lazy(() => import("./pages/Team").then((m) => ({ default: m.TeamMembersPage })));
+const InvitationPage = lazy(() => import("./pages/Team").then((m) => ({ default: m.InvitationPage })));
 
 /** routes/web.php: security.private-key.show is redirect()->route('security.private-key.index'). */
 function RedirectTo({ path }: { path: string }) {
@@ -532,6 +535,24 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <NotificationSettingsPage channel={pageFor(window.location.pathname).slice("notifications.".length) as "email"} />
+        </Suspense>
+      );
+    case "team.index":
+      return (
+        <Suspense fallback={null}>
+          <TeamGeneralPage />
+        </Suspense>
+      );
+    case "team.member.index":
+      return (
+        <Suspense fallback={null}>
+          <TeamMembersPage />
+        </Suspense>
+      );
+    case "team.invitation.show":
+      return (
+        <Suspense fallback={null}>
+          <InvitationPage />
         </Suspense>
       );
     default:

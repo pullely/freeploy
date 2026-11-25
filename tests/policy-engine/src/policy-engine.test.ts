@@ -84,20 +84,22 @@ describe("authorize", () => {
   describe("deploy console actions (DP-40)", () => {
     // #18 granted these to roles but left them out of the known actions, so
     // every request was denied as unknown_action before roles were consulted.
+    // DP-69: builder is Coolify's member, which reads and changes nothing (role-matrix.test.ts).
     it.each([
-      ["owner", true, true],
-      ["admin", true, true],
-      ["builder", true, true],
-      ["viewer", true, false],
-      ["billing_admin", false, false],
-    ])("%s: read %s, write %s", (role, read, write) => {
+      ["owner", true, true, true],
+      ["admin", true, true, true],
+      ["builder", true, false, true],
+      ["viewer", true, false, true],
+      ["billing_admin", false, false, false],
+    ])("%s: read %s, write %s, team %s", (role, read, write, team) => {
       const facts = [orgFact(role, "org_1")];
       expect(authorize(authReq("deploy.resource.read", "org_1", facts)).allow).toBe(read);
       expect(authorize(authReq("deploy.resource.write", "org_1", facts)).allow).toBe(write);
+      expect(authorize(authReq("deploy.team.read", "org_1", facts)).allow).toBe(team);
     });
 
     it("is never unknown_action", () => {
-      for (const action of ["deploy.resource.read", "deploy.resource.write"]) {
+      for (const action of ["deploy.resource.read", "deploy.resource.write", "deploy.team.read"]) {
         expect(authorize(authReq(action, "org_1", [])).reason).toBe("no_matching_role");
       }
     });
@@ -708,7 +710,7 @@ describe("listEffectivePermissions", () => {
     expect(result.derivedScope.orgId).toBe("org_1");
 
     const allowed = result.permissions.filter((p) => p.allow);
-    expect(allowed.length).toBe(33); // 31 + deploy.resource.read/write (DP-40)
+    expect(allowed.length).toBe(34); // 31 + deploy.resource.read/write (DP-40) + deploy.team.read (DP-69)
   });
 
   it("returns limited permissions for viewer", () => {
@@ -721,6 +723,7 @@ describe("listEffectivePermissions", () => {
     const allowed = result.permissions.filter((p) => p.allow);
     expect(allowed.map((p) => p.action).sort()).toEqual([
       "deploy.resource.read",
+      "deploy.team.read",
       "organization.config.read",
       "organization.integration.read",
       "organization.metering.read",

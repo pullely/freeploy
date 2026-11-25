@@ -289,3 +289,14 @@ test("a service's configuration route maps to General, its shared pages to their
   assert.equal(pageFor(`${service}/sub000000000000000000001/backups`), "not-ported");
   assert.equal(pageFor(`${service}/environment-variables/more`), "not-ported");
 });
+
+test("the team pages and the invitation page (DP-69); the team's other pages are not ported", () => {
+  assert.equal(pageFor("/team"), "team.index");
+  assert.equal(pageFor("/team/"), "team.index");
+  assert.equal(pageFor("/team/members"), "team.member.index");
+  assert.equal(pageFor("/team/members/"), "team.member.index");
+  assert.equal(pageFor("/invitations/inv_0123456789abcdef0123456789abcdef"), "team.invitation.show");
+  for (const other of ["/team/audit-log", "/team/image-scanning", "/team/admin", "/team/danger", "/team/members/7/avatar", "/invitations", "/invitations/a/b"]) {
+    assert.equal(pageFor(other), "not-ported", other);
+  }
+});

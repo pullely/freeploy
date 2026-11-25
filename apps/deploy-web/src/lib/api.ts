@@ -67,10 +67,11 @@ export function summarize(messages: string[]): string {
 }
 
 /** POST JSON to the edge; on failure, the field messages flattened the way Laravel shows them. */
-export async function postJson<T>(path: string, body: unknown, method: "POST" | "PATCH" | "PUT" | "DELETE" = "POST"): Promise<{ ok: true; data: T } | { ok: false; error: ApiError }> {
+export async function postJson<T>(path: string, body: unknown, method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE" = "POST"): Promise<{ ok: true; data: T } | { ok: false; error: ApiError }> {
   let res: Response;
   try {
-    res = await fetch(edgeBase() + path, { method, headers: { "content-type": "application/json", ...authHeaders() }, body: JSON.stringify(body) });
+    // A GET carries no body; it is here for a read whose error message the page shows (DP-69).
+    res = await fetch(edgeBase() + path, method === "GET" ? { headers: authHeaders() } : { method, headers: { "content-type": "application/json", ...authHeaders() }, body: JSON.stringify(body) });
   } catch {
     return { ok: false, error: { status: 0, messages: ["Network error. Please try again."] } };
   }

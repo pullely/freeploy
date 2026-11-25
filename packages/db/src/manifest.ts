@@ -300,5 +300,14 @@ export const manifest: MigrationManifest = {
       description:
         "Schema catch-up (freeploy-coolify-parity DP-60) — every column, type, default, CHECK value, index and unique index (org-scoped) that Coolify's real schema has and the fold missed, found by comparing catalogs; drops environment_variables.is_build_time as Coolify did",
     },
+    {
+      id: "710_membership_org_description",
+      context: "membership",
+      path: "710_membership_org_description/up.sql",
+      checksum:
+        "5f9e0642f69e3bef855fbd6fe7a5226407ef01ce54c269af1501cdc8030b43dd",
+      description:
+        "A team's description (freeploy-coolify-parity DP10) — nullable organizations.description for the deploy console's team General page, as Coolify's teams.description",
+    },
   ],
 };

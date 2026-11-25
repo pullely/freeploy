@@ -13,6 +13,7 @@
       "@saas/contracts/*": ["../../packages/contracts/src/*.ts"],
       "@saas/db/hyperdrive": ["../../packages/db/src/hyperdrive/index.ts"],
       "@saas/db/membership": ["../../packages/db/src/membership/index.ts"],
+      "@saas/policy-engine": ["../../packages/policy-engine/src/index.ts"],
       "@membership-worker/*": ["../../apps/membership-worker/src/*.ts"]
     }
   },

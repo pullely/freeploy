@@ -311,7 +311,7 @@ export function FormInput(props: {
   label?: string;
   value: string;
   onChange?: (v: string) => void;
-  type?: "text" | "password" | "number";
+  type?: "text" | "password" | "number" | "email";
   placeholder?: string;
   min?: number;
   max?: number;
@@ -383,7 +383,7 @@ export function FormInput(props: {
       </div>
     );
   } else {
-    field = input("text");
+    field = input(type === "email" ? "email" : "text");
   }
   return (
     <div className="w-full">

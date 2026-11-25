@@ -11,6 +11,7 @@ import { handleListInvitations } from "./handlers/list-invitations.js";
 import { handleRevokeInvitation } from "./handlers/revoke-invitation.js";
 import { handleAcceptInvitation } from "./handlers/accept-invitation.js";
 import { handleAuthorizationContext } from "./handlers/authorization-context.js";
+import { handleTeam, handleTeamInvitation } from "./handlers/team.js";
 import { handleSyncAccountChildren } from "./handlers/sync-account-children.js";
 import { handleResolveBillingParent } from "./handlers/resolve-billing-parent.js";
 import { handleCreateServicePrincipalBinding, handleListServicePrincipalBindings, handleRevokeServicePrincipalBinding } from "./handlers/service-principal-bindings.js";
@@ -43,6 +44,9 @@ const ORG_MEMBER_ID_RE = /^\/v1\/organizations\/([^/]+)\/members\/([^/]+)$/;
 const ORG_INVITATIONS_ACCEPT_RE = /^\/v1\/organizations\/([^/]+)\/invitations\/accept$/;
 const ORG_INVITATIONS_RE = /^\/v1\/organizations\/([^/]+)\/invitations$/;
 const ORG_INVITATION_ID_RE = /^\/v1\/organizations\/([^/]+)\/invitations\/([^/]+)$/;
+// The deploy console's team pages (DP-69, handlers/team.ts).
+const ORG_TEAM_RE = /^\/v1\/organizations\/([^/]+)\/team((?:\/[^/]+){0,2})\/?$/;
+const TEAM_INVITATION_RE = /^\/v1\/team-invitations\/([^/]+)\/?$/;
 const SP_BINDINGS_PATH = "/v1/internal/membership/service-principal-bindings";
 const SP_BINDING_ID_RE = /^\/v1\/internal\/membership\/service-principal-bindings\/([^/]+)$/;
 
@@ -116,6 +120,25 @@ export async function route(request: Request, env: Env): Promise<Response> {
         return handleListOrganizations(env, requestId, actor, url);
       }
       return methodNotAllowed(requestId);
+    }
+
+    const teamMatch = url.pathname.match(ORG_TEAM_RE);
+    if (teamMatch) {
+      const actor = resolveActor(request);
+      if (!actor) {
+        return errorResponse("unauthenticated", "Authentication required", 401, requestId);
+      }
+      return handleTeam(request, env, requestId, actor, teamMatch[1]!, teamMatch[2]!.split("/").filter(Boolean));
+    }
+
+    const teamInvitationMatch = url.pathname.match(TEAM_INVITATION_RE);
+    if (teamInvitationMatch) {
+      const actor = resolveActor(request);
+      const actorEmail = request.headers.get("x-actor-email");
+      if (!actor || !actorEmail) {
+        return errorResponse("unauthenticated", "Authentication required", 401, requestId);
+      }
+      return handleTeamInvitation(request, env, requestId, { ...actor, email: actorEmail }, teamInvitationMatch[1]!);
     }
 
     const acceptMatch = url.pathname.match(ORG_INVITATIONS_ACCEPT_RE);

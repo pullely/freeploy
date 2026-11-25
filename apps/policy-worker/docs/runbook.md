@@ -42,3 +42,11 @@ exercised through `api-edge` (this Worker has no public URL).
   to redeploy it. Also check the action is in `ALL_KNOWN_ACTIONS` as well as
   in a role's grants: a missing one is denied as `unknown_action` before any
   role is consulted (DP-40).
+- **A builder can no longer change deploy resources**: intended (Freeploy
+  DP-69). The deploy console's roles are Coolify's — owner, admin, and its
+  member, which Freeploy stores as `builder` and which reads and changes
+  nothing — so `builder` lost `deploy.resource.write`, and every org role
+  but `billing_admin` has `deploy.team.read`. The decisions are held to
+  Coolify's own policies ability by ability in
+  `tests/policy-worker/src/role-matrix.test.ts`
+  (`tests/policy-worker/fixtures/role-matrix/README.md`).

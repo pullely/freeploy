@@ -1,0 +1,761 @@
+{
+    "coolify": "91b7e3e",
+    "roles": [
+        "owner",
+        "admin",
+        "member"
+    ],
+    "matrix": {
+        "servers.viewAny": {
+            "owner": true,
+            "admin": true,
+            "member": true
+        },
+        "servers.view": {
+            "owner": true,
+            "admin": true,
+            "member": true
+        },
+        "servers.viewSharedVariables": {
+            "owner": true,
+            "admin": true,
+            "member": true
+        },
+        "servers.create": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "servers.placeResource": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "servers.update": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "servers.transfer": {
+            "owner": true,
+            "admin": false,
+            "member": false
+        },
+        "servers.delete": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "servers.manageProxy": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "servers.manageSentinel": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "servers.viewSentinel": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "servers.manageCaCertificate": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "servers.viewSecurity": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "private-keys.viewAny": {
+            "owner": true,
+            "admin": true,
+            "member": true
+        },
+        "private-keys.view": {
+            "owner": true,
+            "admin": true,
+            "member": true
+        },
+        "private-keys.create": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "private-keys.update": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "private-keys.delete": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "projects.viewAny": {
+            "owner": true,
+            "admin": true,
+            "member": true
+        },
+        "projects.view": {
+            "owner": true,
+            "admin": true,
+            "member": true
+        },
+        "projects.viewSharedVariables": {
+            "owner": true,
+            "admin": true,
+            "member": true
+        },
+        "projects.create": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "projects.update": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "projects.delete": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "environments.viewAny": {
+            "owner": true,
+            "admin": true,
+            "member": true
+        },
+        "environments.view": {
+            "owner": true,
+            "admin": true,
+            "member": true
+        },
+        "environments.viewSharedVariables": {
+            "owner": true,
+            "admin": true,
+            "member": true
+        },
+        "environments.create": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "environments.update": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "environments.delete": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "applications.viewAny": {
+            "owner": true,
+            "admin": true,
+            "member": true
+        },
+        "applications.view": {
+            "owner": true,
+            "admin": true,
+            "member": true
+        },
+        "applications.create": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "applications.update": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "applications.delete": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "applications.uploadBackup": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "applications.deploy": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "applications.viewSensitive": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "applications.manageEnvironment": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "databases.viewAny": {
+            "owner": true,
+            "admin": true,
+            "member": true
+        },
+        "databases.view": {
+            "owner": true,
+            "admin": true,
+            "member": true
+        },
+        "databases.create": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "databases.update": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "databases.delete": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "databases.manage": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "databases.uploadBackup": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "databases.manageBackups": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "databases.viewSensitive": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "databases.manageEnvironment": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "services.viewAny": {
+            "owner": true,
+            "admin": true,
+            "member": true
+        },
+        "services.view": {
+            "owner": true,
+            "admin": true,
+            "member": true
+        },
+        "services.create": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "services.update": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "services.delete": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "services.stop": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "services.viewSensitive": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "services.manageEnvironment": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "services.uploadBackup": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "services.deploy": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "storages.viewAny": {
+            "owner": true,
+            "admin": true,
+            "member": true
+        },
+        "storages.view": {
+            "owner": true,
+            "admin": true,
+            "member": true
+        },
+        "storages.create": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "storages.update": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "storages.delete": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "storages.validateConnection": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "notifications.view": {
+            "owner": true,
+            "admin": true,
+            "member": true
+        },
+        "notifications.update": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "notifications.manage": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "notifications.sendTest": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "team.viewAny": {
+            "owner": true,
+            "admin": true,
+            "member": true
+        },
+        "team.view": {
+            "owner": true,
+            "admin": true,
+            "member": true
+        },
+        "team.viewSharedVariables": {
+            "owner": true,
+            "admin": true,
+            "member": true
+        },
+        "team.create": {
+            "owner": true,
+            "admin": true,
+            "member": true
+        },
+        "team.update": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "team.delete": {
+            "owner": true,
+            "admin": false,
+            "member": false
+        },
+        "team.manageMembers": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "team.viewAdmin": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        },
+        "team.manageInvitations": {
+            "owner": true,
+            "admin": true,
+            "member": false
+        }
+    },
+    "teamValidation": {
+        "valid": {
+            "input": {
+                "name": "Parity User's Team",
+                "description": null
+            },
+            "errors": {
+                "name": [
+                    "The name may only contain letters (including Unicode), numbers, spaces, and these characters: - _ . / @ & ( ) # , : +"
+                ]
+            }
+        },
+        "valid-description": {
+            "input": {
+                "name": "Acme",
+                "description": "Ops & dev (EU) - \"main\""
+            },
+            "errors": {}
+        },
+        "empty-name": {
+            "input": {
+                "name": "",
+                "description": null
+            },
+            "errors": {
+                "name": [
+                    "The Name field is required."
+                ]
+            }
+        },
+        "blank-name": {
+            "input": {
+                "name": "   ",
+                "description": null
+            },
+            "errors": {
+                "name": [
+                    "The Name field is required."
+                ]
+            }
+        },
+        "short-name": {
+            "input": {
+                "name": "ab",
+                "description": null
+            },
+            "errors": {
+                "name": [
+                    "The name must be at least 3 characters."
+                ]
+            }
+        },
+        "long-name": {
+            "input": {
+                "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "description": null
+            },
+            "errors": {
+                "name": [
+                    "The name may not be greater than 255 characters."
+                ]
+            }
+        },
+        "max-name": {
+            "input": {
+                "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "description": null
+            },
+            "errors": {}
+        },
+        "unicode-name": {
+            "input": {
+                "name": "Équipe Ünïcødé",
+                "description": null
+            },
+            "errors": {}
+        },
+        "bad-name": {
+            "input": {
+                "name": "Team <script>",
+                "description": null
+            },
+            "errors": {
+                "name": [
+                    "The name may only contain letters (including Unicode), numbers, spaces, and these characters: - _ . / @ & ( ) # , : +"
+                ]
+            }
+        },
+        "bad-name-short": {
+            "input": {
+                "name": "<a",
+                "description": null
+            },
+            "errors": {
+                "name": [
+                    "The name must be at least 3 characters.",
+                    "The name may only contain letters (including Unicode), numbers, spaces, and these characters: - _ . / @ & ( ) # , : +"
+                ]
+            }
+        },
+        "name-semicolon": {
+            "input": {
+                "name": "Team; rm",
+                "description": null
+            },
+            "errors": {
+                "name": [
+                    "The name may only contain letters (including Unicode), numbers, spaces, and these characters: - _ . / @ & ( ) # , : +"
+                ]
+            }
+        },
+        "name-apostrophe": {
+            "input": {
+                "name": "O'Brien",
+                "description": null
+            },
+            "errors": {
+                "name": [
+                    "The name may only contain letters (including Unicode), numbers, spaces, and these characters: - _ . / @ & ( ) # , : +"
+                ]
+            }
+        },
+        "empty-description": {
+            "input": {
+                "name": "Team",
+                "description": ""
+            },
+            "errors": {}
+        },
+        "long-description": {
+            "input": {
+                "name": "Team",
+                "description": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+            },
+            "errors": {
+                "description": [
+                    "The description may not be greater than 255 characters."
+                ]
+            }
+        },
+        "bad-description": {
+            "input": {
+                "name": "Team",
+                "description": "a <b>bold</b> one"
+            },
+            "errors": {
+                "description": [
+                    "The description may only contain letters (including Unicode), numbers, spaces, and common punctuation: - _ . , ! ? ( ) ' \" + = * / @ &"
+                ]
+            }
+        },
+        "description-hash": {
+            "input": {
+                "name": "Team",
+                "description": "Team #1"
+            },
+            "errors": {
+                "description": [
+                    "The description may only contain letters (including Unicode), numbers, spaces, and common punctuation: - _ . , ! ? ( ) ' \" + = * / @ &"
+                ]
+            }
+        },
+        "both-bad": {
+            "input": {
+                "name": "",
+                "description": "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+            },
+            "errors": {
+                "name": [
+                    "The Name field is required."
+                ],
+                "description": [
+                    "The description may not be greater than 255 characters.",
+                    "The description may only contain letters (including Unicode), numbers, spaces, and common punctuation: - _ . , ! ? ( ) ' \" + = * / @ &"
+                ]
+            }
+        }
+    },
+    "inviteValidation": {
+        "valid": {
+            "input": {
+                "email": "teammate@example.com",
+                "role": "member"
+            },
+            "errors": {}
+        },
+        "valid-admin": {
+            "input": {
+                "email": "Teammate@Example.com",
+                "role": "admin"
+            },
+            "errors": {}
+        },
+        "valid-owner": {
+            "input": {
+                "email": "a.b+c@example.co.uk",
+                "role": "owner"
+            },
+            "errors": {}
+        },
+        "valid-no-tld": {
+            "input": {
+                "email": "user@localhost",
+                "role": "member"
+            },
+            "errors": {}
+        },
+        "empty": {
+            "input": {
+                "email": "",
+                "role": ""
+            },
+            "errors": {
+                "email": [
+                    "The email field is required."
+                ],
+                "role": [
+                    "The role field is required."
+                ]
+            }
+        },
+        "no-at": {
+            "input": {
+                "email": "teammate.example.com",
+                "role": "member"
+            },
+            "errors": {
+                "email": [
+                    "The email field must be a valid email address."
+                ]
+            }
+        },
+        "two-at": {
+            "input": {
+                "email": "a@b@example.com",
+                "role": "member"
+            },
+            "errors": {
+                "email": [
+                    "The email field must be a valid email address."
+                ]
+            }
+        },
+        "space": {
+            "input": {
+                "email": "team mate@example.com",
+                "role": "member"
+            },
+            "errors": {
+                "email": [
+                    "The email field must be a valid email address."
+                ]
+            }
+        },
+        "no-local": {
+            "input": {
+                "email": "@example.com",
+                "role": "member"
+            },
+            "errors": {
+                "email": [
+                    "The email field must be a valid email address."
+                ]
+            }
+        },
+        "no-domain": {
+            "input": {
+                "email": "teammate@",
+                "role": "member"
+            },
+            "errors": {
+                "email": [
+                    "The email field must be a valid email address."
+                ]
+            }
+        },
+        "trailing-dot": {
+            "input": {
+                "email": "teammate.@example.com",
+                "role": "member"
+            },
+            "errors": {
+                "email": [
+                    "The email field must be a valid email address."
+                ]
+            }
+        },
+        "double-dot": {
+            "input": {
+                "email": "team..mate@example.com",
+                "role": "member"
+            },
+            "errors": {
+                "email": [
+                    "The email field must be a valid email address."
+                ]
+            }
+        },
+        "bad-role": {
+            "input": {
+                "email": "teammate@example.com",
+                "role": "viewer"
+            },
+            "errors": {
+                "role": [
+                    "The selected role is invalid."
+                ]
+            }
+        },
+        "role-case": {
+            "input": {
+                "email": "teammate@example.com",
+                "role": "Admin"
+            },
+            "errors": {
+                "role": [
+                    "The selected role is invalid."
+                ]
+            }
+        },
+        "builder-role": {
+            "input": {
+                "email": "teammate@example.com",
+                "role": "builder"
+            },
+            "errors": {
+                "role": [
+                    "The selected role is invalid."
+                ]
+            }
+        }
+    },
+    "invitationExpiry": {
+        "expiration_days": 3,
+        "cases": [
+            {
+                "ageSeconds": 0,
+                "expired": false
+            },
+            {
+                "ageSeconds": 3600,
+                "expired": false
+            },
+            {
+                "ageSeconds": 259199,
+                "expired": false
+            },
+            {
+                "ageSeconds": 259200,
+                "expired": false
+            },
+            {
+                "ageSeconds": 259201,
+                "expired": true
+            },
+            {
+                "ageSeconds": 345600,
+                "expired": true
+            }
+        ]
+    }
+}
