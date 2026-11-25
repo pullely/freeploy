@@ -1,0 +1,21 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-49
+  title: "DP5: new resource, and a Docker image application with its General configuration (API and pages)"
+spec:
+  goal: An org opens New Resource in an environment, sees Coolify's application and database types, picks Docker Image with a server and a destination, and gets an application stored as Coolify stores it — the application row and its settings row with the model hooks' defaults, the image name, tag or digest parsed as DockerImageParser does, a generated sslip.io or wildcard domain — without anything being deployed; it then reads and saves the application's General configuration (name, description, image, ports, network aliases, Docker options, deployment commands, domains through the API) with Coolify's rules and Laravel's messages word for word, and sees the application in the environment's resources; every query is confined to the org by row-level security. /project/{uuid}/environment/{env_uuid}/new and /project/{uuid}/environment/{env_uuid}/application/{app_uuid} are ported from the Blade views, and the environment page lists its applications. Deploy, Restart and Stop answer "not available yet" (they need the SSH executor and the deployment Workflow). Every other resource type, the one-click services, the application's other configuration pages, container labels, HTTP Basic Authentication and deleting an application are not part of this task; their links lead to the not-ported notice.
+  affects:
+    - apps/deploy-core-worker/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - on stage a signed-in org owner with a validated server opens New resource in an environment, chooses Docker Image, enters nginx with the tag alpine, lands on the application's configuration page with the status Exited, renames it and changes its exposed ports, and both changes and the application's row on the environment page are there after a reload
+    - on stage POST /v1/organizations/{org}/deploy/applications with a tag and a SHA256 digest answers 422 "Provide either a tag or SHA256 digest, not both." on both fields, POST …/applications/{uuid}/deploy answers 501 "Deploying the application needs the SSH executor, which is not available yet.", and a member without deploy.resource.write gets 404 on every write and canUpdate false on the read
+    - the environment and its project cannot be deleted, and the destination shows the application under Resources, while the application exists
+    - /project/{uuid}/environment/{env_uuid}/new and /project/{uuid}/environment/{env_uuid}/application/{app_uuid} pass the stage DOM gate or each difference is listed with its cause
+  gates: []

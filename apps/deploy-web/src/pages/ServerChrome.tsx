@@ -65,7 +65,7 @@ export function serverUuidFromPath(pathname = window.location.pathname): string 
   return decodeURIComponent(pathname.split("/")[2] ?? "");
 }
 
-function BetaBadge() {
+export function BetaBadge() {
   return (
     <span className="inline-flex items-center ml-auto shrink-0">
       <span role="img" aria-label="Beta" data-tooltip="Beta" className="inline-flex items-center justify-center p-0.5 rounded-full cursor-help text-coollabs dark:text-brand-light">

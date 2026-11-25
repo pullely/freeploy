@@ -1,4 +1,5 @@
 import type { Env } from "./env.js";
+import { ENVIRONMENT_RESOURCE_PAGES, handleApplications, handleEnvironmentResources } from "./handlers/applications.js";
 import { handleDestinations } from "./handlers/destinations.js";
 import { handleHealth } from "./handlers/health.js";
 import { handleCloudTokens } from "./handlers/cloud-tokens.js";
@@ -28,8 +29,10 @@ function resolveActor(request: Request): ActorContext | null {
   return subjectId && subjectType ? { subjectId, subjectType } : null;
 }
 
-/** Projects: the collection and up to three segments below it (a project's environment). */
-export const ORG_DEPLOY_PROJECTS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/projects((?:\/[^/]+){0,3})\/?$/;
+/** Projects: the collection and up to four segments below it (a page of a project's environment). */
+export const ORG_DEPLOY_PROJECTS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/projects((?:\/[^/]+){0,4})\/?$/;
+/** Applications: the collection, an application, and one of its actions. */
+export const ORG_DEPLOY_APPLICATIONS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/applications((?:\/[^/]+){0,2})\/?$/;
 /** Keys & Tokens → Cloud Tokens: the collection, a token, and a token's validate action. */
 export const ORG_DEPLOY_CLOUD_TOKENS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/cloud-tokens((?:\/[^/]+){0,2})\/?$/;
 /** Keys & Tokens → Cloud-Init Scripts: the collection and a script. */
@@ -57,7 +60,21 @@ export async function route(request: Request, env: Env): Promise<Response> {
       const actor = resolveActor(request);
       if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
       const segments = (projects[2] ?? "").split("/").filter(Boolean);
+      // …/projects/{uuid}/environments/{env_uuid}/{new,resources}: the New Resource page and the environment's resources.
+      if (segments.length === 4 && segments[1] === "environments" && ENVIRONMENT_RESOURCE_PAGES.includes(segments[3]!)) {
+        return handleEnvironmentResources(env, requestId, actor, orgId, { projectUuid: segments[0]!, environmentUuid: segments[2]!, page: segments[3]! }, request);
+      }
       return handleProjects(env, requestId, actor, orgId, segments, request);
+    }
+
+    const applications = url.pathname.match(ORG_DEPLOY_APPLICATIONS_RE);
+    if (applications) {
+      const orgId = parseOrgPublicId(applications[1]!);
+      if (!orgId) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
+      const segments = (applications[2] ?? "").split("/").filter(Boolean);
+      return handleApplications(env, requestId, actor, orgId, segments, request);
     }
 
     const cloudTokens = url.pathname.match(ORG_DEPLOY_CLOUD_TOKENS_RE);

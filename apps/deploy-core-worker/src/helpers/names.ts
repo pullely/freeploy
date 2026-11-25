@@ -24,6 +24,13 @@ function pick<T>(list: readonly T[]): T {
   return list[randomIndex(list.length)]!;
 }
 
+/** Laravel's Str::random(): letters and digits. */
+export function randomString(length: number): string {
+  let value = "";
+  for (let i = 0; i < length; i++) value += ALPHABET[randomIndex(ALPHABET.length)];
+  return value;
+}
+
 /** Coolify's new_public_id(): 24 lowercase letters and digits. */
 export function newPublicId(length = 24): string {
   let id = "";
