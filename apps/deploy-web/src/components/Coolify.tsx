@@ -393,7 +393,7 @@ export function FormInput(props: {
   );
 }
 
-/** <x-forms.textarea monospace>. */
+/** <x-forms.textarea>, monospace unless `monospace` is false. */
 export function FormTextarea(props: {
   id: string;
   label?: string;
@@ -403,15 +403,17 @@ export function FormTextarea(props: {
   placeholder?: string;
   required?: boolean;
   disabled?: boolean;
+  helper?: string;
+  monospace?: boolean;
   error?: string | undefined;
 }) {
   return (
     <div className="flex-1 form-control">
-      {props.label ? <Label label={props.label} required={props.required} /> : null}
+      {props.label ? <Label label={props.label} required={props.required} helper={props.helper} /> : null}
       <textarea
         placeholder={props.placeholder}
         spellCheck="false"
-        className="input scrollbar font-mono"
+        className={props.monospace === false ? "input scrollbar" : "input scrollbar font-mono"}
         rows={props.rows ?? 10}
         required={props.required}
         disabled={props.disabled}

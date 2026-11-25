@@ -46,6 +46,9 @@ test("the current page's submenu is marked, and so is its parent entry", () => {
   assert.equal(menu.list, "flex flex-col gap-y-0.5");
   assert.equal(childActive("/security/private-key/abc", "/security/private-key"), true);
   assert.equal(childActive("/security/private-key", "/security/api-tokens"), false);
+  assert.equal(childActive("/security/cloud-tokens/abc", "/security/cloud-tokens"), true);
+  assert.equal(childActive("/security/cloud-init-scripts/abc", "/security/cloud-init-scripts"), true);
+  assert.equal(childActive("/security/cloud-init-scripts", "/security/cloud-tokens"), false);
 });
 
 test("a parent entry opens its submenu forward; Back opens the main menu", () => {

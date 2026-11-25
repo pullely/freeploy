@@ -16,6 +16,8 @@
 //   GET    /servers/{uuid}/private-key       PrivateKey/Show
 //   PATCH  /servers/{uuid}/private-key       PrivateKey/Show::setPrivateKey { private_key_uuid }
 //   POST   /servers/{uuid}/check-connection  PrivateKey/Show::checkConnection — not available yet
+//   …      /servers/{uuid}/cloud-provider-token[/validate]
+//                                            the Cloud Token page (DP-45): handleServerCloudToken in cloud-tokens.ts
 //   DELETE /servers/{uuid}                   Delete::delete (no body: the edge does not forward one)
 //   …      /servers/{uuid}/{advanced,docker-cleanup,log-drains,swarm,sentinel}[/{action}]
 //                                            the settings pages (DP-42): see server-settings.ts
@@ -53,6 +55,7 @@ import { fetchAuthorizationContext } from "../membership-client.js";
 import { authorizeViaPolicy, type AuthorizeResult } from "../policy-client.js";
 import { deniedResponse, errorResponse, methodNotAllowed, successResponse, validationError } from "../http.js";
 import type { KeyCipher } from "../private-keys/service.js";
+import { handleServerCloudToken } from "./cloud-tokens.js";
 import { SERVER_MESSAGES, SERVER_ROLES, validateCreateServer, validateUpdateServer, type ServerRole } from "../servers/validation.js";
 import {
   changeServerRole,
@@ -147,6 +150,10 @@ export async function handleServers(
   destinationsRunner: DestinationRunner = runDestinationsInOrg,
 ): Promise<Response> {
   const method = request.method;
+  // The Cloud Token page routes and authorizes itself (DP-45).
+  if (segments.length >= 2 && segments[1] === "cloud-provider-token" && UUID_RE.test(segments[0]!)) {
+    return handleServerCloudToken(env, requestId, actor, orgId, segments[0]!, segments.slice(2), request);
+  }
   const [first, second, third] = segments;
   const section = SETTINGS_SECTIONS.includes(second as SettingsSection) ? (second as SettingsSection) : null;
   type Op = { write: boolean; run: () => Promise<Response> };

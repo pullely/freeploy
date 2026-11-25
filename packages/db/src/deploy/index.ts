@@ -118,3 +118,30 @@ export {
   type DeployDestinationResourceRow,
   type NewDestination,
 } from "./destinations.js";
+export {
+  listCloudProviderTokens,
+  findCloudProviderTokenByUuid,
+  findCloudProviderTokenById,
+  insertCloudProviderToken,
+  updateCloudProviderToken,
+  deleteCloudProviderToken,
+  cloudProviderTokenServerCount,
+  findServerCloud,
+  setServerCloudProviderToken,
+  type DeployCloudProviderTokenRow,
+  type DeployCloudProviderTokenWithSecretRow,
+  type NewCloudProviderToken,
+  type CloudProviderTokenChanges,
+  type DeployServerCloudRow,
+} from "./cloud-tokens.js";
+export {
+  listCloudInitScripts,
+  findCloudInitScriptByUuid,
+  insertCloudInitScript,
+  updateCloudInitScript,
+  deleteCloudInitScript,
+  type DeployCloudInitScriptRow,
+  type DeployCloudInitScriptWithSecretRow,
+  type NewCloudInitScript,
+  type CloudInitScriptChanges,
+} from "./cloud-init-scripts.js";

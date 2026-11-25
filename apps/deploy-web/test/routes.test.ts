@@ -26,6 +26,13 @@ test("routes/web.php paths map to ported pages; the rest are not ported", () => 
   assert.equal(pageFor("/security/private-key/"), "security.private-key.index");
   assert.equal(pageFor("/security/private-key/abc123def456ghi789jkl012"), "security.private-key.show");
   assert.equal(pageFor("/security/private-key/abc/rotate"), "not-ported");
+  assert.equal(pageFor("/security/cloud-tokens"), "security.cloud-tokens");
+  assert.equal(pageFor("/security/cloud-tokens/"), "security.cloud-tokens");
+  assert.equal(pageFor("/security/cloud-tokens/abc123def456ghi789jkl012"), "security.cloud-tokens.show");
+  assert.equal(pageFor("/security/cloud-tokens/abc/validate"), "not-ported");
+  assert.equal(pageFor("/security/cloud-init-scripts"), "security.cloud-init-scripts");
+  assert.equal(pageFor("/security/cloud-init-scripts/abc123def456ghi789jkl012/"), "security.cloud-init-scripts.show");
+  assert.equal(pageFor("/security/integration-tokens"), "not-ported");
   assert.equal(pageFor("/security/api-tokens"), "not-ported");
   assert.equal(pageFor("/servers"), "server.index");
   assert.equal(pageFor("/servers/"), "server.index");
@@ -35,6 +42,7 @@ test("routes/web.php paths map to ported pages; the rest are not ported", () => 
   assert.equal(pageFor("/servers/canvas"), "not-ported");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012"), "server.show");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/private-key"), "server.private-key");
+  assert.equal(pageFor("/server/abc123def456ghi789jkl012/cloud-provider-token"), "server.cloud-provider-token");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/danger"), "server.delete");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/proxy"), "not-ported");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/advanced"), "server.advanced");
