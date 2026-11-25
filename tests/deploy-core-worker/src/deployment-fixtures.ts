@@ -2,15 +2,21 @@
 // was given, as the plain row data the engine reads; an executor that plays the processes Coolify started,
 // one by one, and refuses any other; and a store that keeps what the engine writes. For the
 // deployments*.test.ts files.
-import type { DeployDeploymentApplicationRow, DeployDeploymentRow, NewDeploymentLogEntry } from "@saas/db/deploy";
+import type { ApplicationHealthcheckChanges, DeployDeploymentApplicationRow, DeployDeploymentBuildRow, DeployDeploymentRow, NewDeploymentLogEntry } from "@saas/db/deploy";
 import { normalizeDomainPortOverrides } from "@deploy-core-worker/applications/domains";
 import { labelApplication } from "@deploy-core-worker/applications/labels-service";
 import { resolveRealValue, sharedVariableReferences } from "@deploy-core-worker/environment-variables/references";
 import { withoutEdgeLineBreaks } from "@deploy-core-worker/environment-variables/env-format";
 import { generateLabelsApplication } from "@deploy-core-worker/labels/labels";
-import type { DeploymentContext, DeploymentEffect, DeploymentExecutor, DeploymentStore, EngineDeps, RemoteProcess } from "@deploy-core-worker/deployments/engine";
+import { DEFAULT_ENGINE_CONFIG, type DeploymentContext, type DeploymentEffect, type DeploymentExecutor, type DeploymentStore, type EngineDeps, type RemoteProcess } from "@deploy-core-worker/deployments/engine";
 import type { RuntimeVariable } from "@deploy-core-worker/deployments/runtime-env";
-import { GOLDEN_NOW, type GoldenLog, type GoldenProcess, type Json, type RunCase } from "./deployment-goldens";
+import { GOLDEN_NOW, goldenRun, type GoldenLog, type GoldenProcess, type GoldenRun, type Json, type RunCase } from "./deployment-goldens";
+
+/** The APP_KEY the goldens were made with — the one of Coolify's own .env.testing, which the `testing` environment reads: the key of the build secrets hash. */
+export const GOLDEN_APP_KEY = "base64:8VEfVNVkXQ9mH2L33WBWNMF4eQ0BWD5CTzB8mIxcl+k=";
+
+/** What Coolify's rows held when the job started (goldens.json's `build`); undefined for a case without a golden run. */
+const before = (run: RunCase): GoldenRun["build"] | undefined => (goldenRun(run.id) as GoldenRun | undefined)?.build;
 
 export const ORG = "00000000-0000-4000-8000-00000000000a";
 
@@ -23,8 +29,10 @@ const int = (value: unknown, fallback: number): number => (typeof value === "num
  * Coolify's schema (which deploy.applications, deploy.application_settings and deploy.server_settings share).
  */
 export function applicationRow(run: RunCase): DeployDeploymentApplicationRow {
-  const a = run.application;
-  const s = run.settings;
+  // What the user changed since the last deployment is what the job reads.
+  const a = { ...run.application, ...run.changedSince?.application };
+  const s = { ...run.settings, ...run.changedSince?.settings };
+  const stored = before(run)?.row;
   const ss = run.serverSettings;
   // The saving hook of Coolify's model: the domains without their ports, and the ports apart.
   const domains = normalizeDomainPortOverrides(text(a.fqdn), null);
@@ -36,7 +44,7 @@ export function applicationRow(run: RunCase): DeployDeploymentApplicationRow {
     status: "exited",
     fqdn: domains.fqdn,
     git_branch: text(a.git_branch, "main")!,
-    has_dockerfile: false,
+    has_dockerfile: typeof a.dockerfile === "string" && a.dockerfile !== "",
     dockerfile_target_build: text(a.dockerfile_target_build),
     docker_registry_image_name: text(a.docker_registry_image_name),
     docker_registry_image_tag: text(a.docker_registry_image_tag),
@@ -63,7 +71,7 @@ export function applicationRow(run: RunCase): DeployDeploymentApplicationRow {
     health_check_timeout: int(a.health_check_timeout, 5),
     health_check_retries: int(a.health_check_retries, 10),
     health_check_start_period: int(a.health_check_start_period, 5),
-    custom_healthcheck_found: false,
+    custom_healthcheck_found: a.custom_healthcheck_found === true,
     limits_cpus: text(a.limits_cpus, "0")!,
     limits_cpuset: text(a.limits_cpuset),
     limits_cpu_shares: int(a.limits_cpu_shares, 1024),
@@ -73,7 +81,7 @@ export function applicationRow(run: RunCase): DeployDeploymentApplicationRow {
     limits_memory_reservation: text(a.limits_memory_reservation, "0")!,
     // The creating hook of Coolify's model: its current parser version.
     compose_parsing_version: "5",
-    git_ssh_known_hosts: null,
+    git_ssh_known_hosts: text(stored?.git_ssh_known_hosts ?? a.git_ssh_known_hosts),
     redirect: "both",
     is_http_basic_auth_enabled: false,
     http_basic_auth_username: null,
@@ -107,7 +115,7 @@ export function applicationRow(run: RunCase): DeployDeploymentApplicationRow {
     include_coolify_default_variables: bool(s.include_coolify_default_variables, true),
     redact_all_env_values_in_logs: bool(s.redact_all_env_values_in_logs, true),
     use_build_secrets: bool(s.use_build_secrets, false),
-    include_network_hosts_in_build: true,
+    include_network_hosts_in_build: bool(s.include_network_hosts_in_build, true),
     is_debug_enabled: false,
     environment_id: 1,
     environment_uuid: "env0000000000000000000001",
@@ -157,7 +165,7 @@ export function variablesOf(run: RunCase): RuntimeVariable[] {
     const found = shared.find((v) => v.type === type && v.key === key);
     return found ? { value: text(found.value, "")!, isShownOnce: found.is_shown_once === true } : null;
   };
-  const variables = run.variables.map((v): RuntimeVariable => {
+  const byCase = run.variables.map((v): RuntimeVariable => {
     // The model's accessor: nothing stored is null, and a single-line value loses its edge line breaks.
     const stored = text(v.value);
     const value = stored === null || stored === "" ? null : withoutEdgeLineBreaks(stored);
@@ -173,9 +181,56 @@ export function variablesOf(run: RunCase): RuntimeVariable[] {
       referencesLockedSharedVariable: sharedVariableReferences(value).some((r) => find(r.type, r.key)?.isShownOnce === true),
     };
   });
+  const variables = [...byCase];
   // orderBy('key') of the SQLite the goldens were made with: by code unit.
   if (run.settings.is_env_sorting_enabled === true) variables.sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0));
-  return variables;
+  const rows = before(run)?.variables;
+  if (!rows || rows.length < run.variables.length) return variables;
+  // The rows Coolify had: the case's variables in the order they were created, after the ones the model's
+  // creating hook made (a Nixpacks application's NIXPACKS_NODE_VERSION), in the order the job reads them.
+  const byId = [...rows].sort((x, y) => x.id - y.id);
+  const made = byId.slice(0, rows.length - run.variables.length);
+  const own = new Map(byId.slice(made.length).map((row, index) => [row.id, index]));
+  const created = run.variables.map((_, index) => variables.find((v) => v === byCase[index])!);
+  return rows.map((row): RuntimeVariable => {
+    const index = own.get(row.id);
+    if (index !== undefined) return { ...created[index]!, id: row.id };
+    return { id: row.id, key: row.key, value: row.value, realValue: row.value, is_literal: row.is_literal, is_multiline: row.is_multiline, is_runtime: row.is_runtime, is_buildtime: row.is_buildtime, is_shown_once: false, referencesLockedSharedVariable: false };
+  });
+}
+
+/** The Git and build columns of a case's application, as Coolify stored them (after its mutators and defaults). */
+export function buildRow(run: RunCase): DeployDeploymentBuildRow {
+  const stored = before(run)?.row ?? {};
+  const flag = (name: string, fallback: boolean): boolean => (stored[name] === undefined || stored[name] === null ? fallback : Boolean(stored[name]));
+  return {
+    application_id: 1,
+    git_repository: text(stored.git_repository, text(run.application.git_repository, "")!)!,
+    git_commit_sha: text(stored.git_commit_sha, "HEAD")!,
+    base_directory: text(stored.base_directory, "/"),
+    publish_directory: text(stored.publish_directory),
+    dockerfile: text(stored.dockerfile),
+    dockerfile_location: text(stored.dockerfile_location),
+    install_command: text(stored.install_command),
+    build_command: text(stored.build_command),
+    start_command: text(stored.start_command),
+    static_image: text(stored.static_image, "nginx:alpine"),
+    custom_nginx_configuration: text(stored.custom_nginx_configuration),
+    source_id: stored.source_id === undefined || stored.source_id === null ? null : Number(stored.source_id),
+    source_type: text(stored.source_type),
+    private_key_id: stored.private_key_id === undefined || stored.private_key_id === null ? null : Number(stored.private_key_id),
+    has_git_https_credentials: false,
+    is_spa: flag("is_spa", false),
+    is_git_submodules_enabled: flag("is_git_submodules_enabled", true),
+    is_git_lfs_enabled: flag("is_git_lfs_enabled", true),
+    is_git_shallow_clone_enabled: flag("is_git_shallow_clone_enabled", true),
+    disable_build_cache: flag("disable_build_cache", false),
+    inject_build_args_to_dockerfile: flag("inject_build_args_to_dockerfile", true),
+    include_source_commit_in_build: flag("include_source_commit_in_build", false),
+    is_build_server_enabled: flag("is_build_server_enabled", false),
+    is_preserve_repository_enabled: flag("is_preserve_repository_enabled", false),
+    server_role: "both",
+  };
 }
 
 export function deploymentRow(run: RunCase): DeployDeploymentRow {
@@ -186,7 +241,8 @@ export function deploymentRow(run: RunCase): DeployDeploymentRow {
     deployment_uuid: d.deployment_uuid,
     pull_request_id: 0,
     force_rebuild: d.force_rebuild === true,
-    commit: text(d.commit, "HEAD")!,
+    // $commit ?: ($application->git_commit_sha ?: 'HEAD')
+    commit: text(d.commit, text(run.application.git_commit_sha, "HEAD")!)!,
     status: "in_progress",
     is_webhook: false,
     is_api: false,
@@ -221,6 +277,9 @@ export function contextOf(run: RunCase): DeploymentContext {
     persistentStorages: run.persistentStorages.map((storage, index) => ({ id: index + 1, name: text(storage.name)!, mount_path: text(storage.mount_path)!, host_path: text(storage.host_path) })),
     fileStorages: run.fileStorages.map((storage, index) => ({ id: index + 1, fs_path: text(storage.fs_path)!, mount_path: text(storage.mount_path), is_directory: storage.is_directory === true, has_content: typeof storage.content === "string" })),
     generateLabels: () => generateLabelsApplication(labelApplication(application, null), null),
+    build: buildRow(run),
+    // What Coolify's pendingDeploymentConfigurationDiff() answered for the rows of the case.
+    configurationDiff: before(run)?.configurationDiff ?? { legacyFallback: true, requiresBuild: true },
   };
 }
 
@@ -240,6 +299,10 @@ export interface World {
   deployment: { status: string; finishedAt: boolean; deployStartedAt: boolean; logs: NewDeploymentLogEntry[] };
   application: { status: string; custom_labels: string | null; restart_count: number; last_restart_at: string | null; last_restart_type: string | null; restart_limit_reached: boolean };
   dockerVersion: string | null;
+  /** What a build writes: the commit and its message on the deployment, and on the application its health check and host keys. */
+  build: { commit: string; commitMessage: string | null; healthcheck: Required<ApplicationHealthcheckChanges>; gitSshKnownHosts: string | null; createdVariables: Array<{ key: string; value: string | null; is_preview: boolean }> };
+  /** The deployment uuids deploymentUuidsAmong() knows. */
+  deploymentUuids: string[];
   processes: RemoteProcess[];
   /** The first process that was not the one Coolify started at that point. */
   mismatch: string | null;
@@ -247,6 +310,8 @@ export interface World {
   effects: DeploymentEffect[];
   /** The deployments startNextQueued() answers with. */
   startNext: string[];
+  /** The commit messages earlier deployments stored, by commit (reuse_commit_message). */
+  earlierMessages: Record<string, string>;
   nextQueuedCalls: Array<{ applicationId: string | number; serverId: string | number | null }>;
 }
 
@@ -255,11 +320,27 @@ export function newWorld(run: RunCase): World {
     deployment: { status: "in_progress", finishedAt: false, deployStartedAt: false, logs: [] },
     application: { status: "exited", custom_labels: text(run.application.custom_labels), restart_count: 0, last_restart_at: null, last_restart_type: null, restart_limit_reached: false },
     dockerVersion: text(run.serverSettings.docker_version),
+    build: {
+      commit: deploymentRow(run).commit,
+      commitMessage: null,
+      healthcheck: {
+        health_check_enabled: applicationRow(run).health_check_enabled,
+        health_check_interval: applicationRow(run).health_check_interval,
+        health_check_timeout: applicationRow(run).health_check_timeout,
+        health_check_retries: applicationRow(run).health_check_retries,
+        health_check_start_period: applicationRow(run).health_check_start_period,
+        custom_healthcheck_found: applicationRow(run).custom_healthcheck_found,
+      },
+      gitSshKnownHosts: applicationRow(run).git_ssh_known_hosts,
+      createdVariables: [],
+    },
+    deploymentUuids: [run.deployment.deployment_uuid, ...(run.earlierDeployments ?? []).map((d) => String(d.deployment_uuid))],
     processes: [],
     mismatch: null,
     sleeps: [],
     effects: [],
     startNext: [],
+    earlierMessages: Object.fromEntries((run.earlierDeployments ?? []).filter((d) => typeof d.commit_message === "string" && d.commit_message !== "" && d.status !== "skipped").map((d) => [String(d.commit ?? "HEAD"), String(d.commit_message)])),
     nextQueuedCalls: [],
   };
 }
@@ -294,6 +375,27 @@ export function storeOf(world: World): DeploymentStore {
     startNextQueued: async (applicationId, serverId) => {
       world.nextQueuedCalls.push({ applicationId, serverId });
       return world.startNext;
+    },
+    setCommit: async (_id, commit) => {
+      world.build.commit = commit;
+    },
+    setCommitMessage: async (_applicationId, commit, message) => {
+      if (world.build.commit === commit) world.build.commitMessage = message;
+    },
+    reuseCommitMessage: async (_id, _applicationId, commit) => {
+      if (world.build.commitMessage === null) world.build.commitMessage = world.earlierMessages[commit] ?? null;
+    },
+    updateHealthcheck: async (_id, changes) => {
+      Object.assign(world.build.healthcheck, changes);
+    },
+    mergeGitSshKnownHosts: async (_id, merge) => {
+      const merged = merge(world.build.gitSshKnownHosts);
+      if (merged.changed) world.build.gitSshKnownHosts = merged.knownHosts;
+      return merged;
+    },
+    deploymentUuidsAmong: async (names) => names.filter((name) => world.deploymentUuids.includes(name)),
+    createVariable: async (_id, key, value) => {
+      world.build.createdVariables.push({ key, value, is_preview: false });
     },
   };
 }
@@ -339,5 +441,6 @@ export function depsOf(world: World, executor: DeploymentExecutor): EngineDeps {
     effect: (effect) => {
       world.effects.push(effect);
     },
+    config: { ...DEFAULT_ENGINE_CONFIG, secretsHashKey: GOLDEN_APP_KEY },
   };
 }

@@ -27,22 +27,72 @@
 // runDeployment() runs them all. A step that fails does what handle()'s `catch` and `finally` do: Coolify's
 // failed() as the next step, then the cleanup.
 //
+// The build packs that build on the server (DP-61) — a Dockerfile in a public Git repository, a pasted
+// Dockerfile, Nixpacks and a static site — follow Coolify's deploy_dockerfile_buildpack,
+// deploy_simple_dockerfile, deploy_nixpacks_buildpack, deploy_static_buildpack and just_restart, with
+// check_git_if_build_needed, clone_repository, import_repository, save_git_ssh_known_hosts, generate_image_names,
+// check_image_locally_or_remotely, should_skip_build, save_buildtime_environment_variables,
+// generate_build_env_variables, add_build_env_variables_to_dockerfile, modify_dockerfile_for_secrets,
+// generate_nixpacks_confs, build_image, build_static_image and push_to_docker_registry. What they compute is in
+// build.ts; here is their order, their commands and their log.
+//
 // What Coolify does here and Freeploy does not yet (each named where it would happen): build servers and
-// additional servers, previews, Swarm, the image scan gate, file storages with content, the configuration
-// snapshot of a finished deployment, notifications and the container status check (both asked of `effects`),
-// non-root servers (sudo), the retry of a command after an SSH connection error, and the PID of the SSH
-// process (there is none: the executor owns the connection).
-import type { DeployDeploymentApplicationRow, DeployDeploymentRow, DeployFileStorageRow, DeployPersistentStorageRow, NewDeploymentLogEntry } from "@saas/db/deploy";
-import { DEPLOYMENT_STATUS } from "@saas/db/deploy";
+// additional servers, previews, Swarm, Docker Compose and Railpack, private Git sources, the image scan gate,
+// file storages with content, "Preserve repository", the configuration snapshot of a finished deployment (so a
+// deployment whose image exists rebuilds, as Coolify does after a deployment without a snapshot),
+// notifications and the container status check (both asked of `effects`), non-root servers (sudo), the retry
+// of a command after an SSH connection error (but for the clone), and the PID of the SSH process (there is
+// none: the executor owns the connection).
+import type { ApplicationHealthcheckChanges, DeployDeploymentApplicationRow, DeployDeploymentBuildRow, DeployDeploymentRow, DeployFileStorageRow, DeployPersistentStorageRow, NewDeploymentLogEntry } from "@saas/db/deploy";
+import { DEPLOYMENT_STATUS, GIT_SOURCE_MORPH_CLASS, PUBLIC_GITHUB_SOURCE } from "@saas/db/deploy";
+import { base64Decode as storedBase64Decode, defaultNginxConfiguration, STATIC_IMAGES } from "../applications/build.js";
+import { dockerfileHealthcheckInstruction, dockerfileHealthcheckOptions } from "../applications/dockerfile.js";
+import { convertGitUrl, deploymentType, type ResolvedSource } from "../applications/source.js";
 import { CONTAINER_NAME_PATTERN } from "../applications/validation.js";
+import { isValidEnvironmentVariableKey } from "../environment-variables/validation.js";
 import { DEFAULT_ROLLING_UPDATE_DRAIN_SECONDS, MAX_ROLLING_UPDATE_DRAIN_SECONDS } from "../applications/settings-validation.js";
 import { dockerPsByOwnerCommands, dockerRemoveCommandWithTimeout, dockerStopCommand, parseDockerEngineVersion } from "../helpers/docker.js";
 import { remoteCommandWithTimeout, sanitize_utf8_text } from "../helpers/remote-process.js";
 import { ComposeError, explodeList, generateApplicationContainerName, generateComposeFile, productionImageName, resolveDockerImageTag, stopGracePeriodSeconds, type ComposeInput, type ComposeResult } from "./compose.js";
 import { seccompProfileMountFlags } from "./docker-run-options.js";
-import { gitSshSetupCommand } from "./git-ssh.js";
+import {
+  addHostFlags,
+  analyzeBuildTimeVariables,
+  BUILD_SCRIPT_PATH,
+  BUILD_TIME_ENV_LAUNCHER_PATH,
+  BUILD_TIME_ENV_PATH,
+  BuildError,
+  buildSecretFlags,
+  buildtimeEnvironmentFiles,
+  commitFromLsRemote,
+  coolifyVariables,
+  dockerfileWithBuildArgs,
+  dockerfileWithSecretMounts,
+  generateBuildtimeEnvironmentVariables,
+  generateCoolifyBuildVariables,
+  generateEnvVariables,
+  gitImportCommand,
+  gitLsRemoteCommand,
+  HELPER_DOCKER_CONFIG,
+  LARAVEL_NIXPACKS_VARIABLES,
+  NIXPACKS_PLAN_PATH,
+  nixpacksPlan,
+  nixpacksPlanCommand,
+  nixpacksPlanVariables,
+  rawValue,
+  secretsHash,
+  staticDockerfile,
+  staticSiteDockerfile,
+  usesRemoteSecretReferences,
+  validateBuildEnvironmentVariableKeys,
+  validatedBuildtimeKey,
+  validatePathField,
+  wrapBuildCommand,
+  type BuildInput,
+} from "./build.js";
+import { GIT_PINNED_HOST_KEYS, gitKnownHostsFile, gitKnownHostsLines, gitSshSetupCommand } from "./git-ssh.js";
 import { buildLogEntry, redactLogText, REDACTED } from "./logs.js";
-import { base64DecodeStrict, base64Encode, escapeshellarg, phpTrim, utf8FromBinary } from "./php.js";
+import { base64DecodeStrict, base64Encode, escapeshellarg, phpRtrim, phpTrim, utf8FromBinary } from "./php.js";
 import { generateRuntimeEnvironmentVariables, logRedactionSecretsFor, RuntimeEnvError, validateDeploymentEnvironmentVariableKeys, type EnvLogEntry, type LogRedactionSecrets, type RuntimeVariable } from "./runtime-env.js";
 
 // ── What the engine is given ────────────────────────────────────────────────────────────────────────────
@@ -80,6 +130,25 @@ export interface DeploymentContext {
   fileStorages: DeployFileStorageRow[];
   /** generateLabelsApplication($application, null), with the decrypted Basic Authentication password. */
   generateLabels: () => string[];
+  /** The Git and build columns of the application and its settings, which only a build reads. */
+  build: DeployDeploymentBuildRow;
+  /**
+   * $application->pendingDeploymentConfigurationDiff(), which should_skip_build() asks when the image of the
+   * commit exists. Freeploy stores no configuration snapshot yet, so it is Coolify's answer after a deployment
+   * without one: `legacyFallback`, which rebuilds.
+   */
+  configurationDiff: { legacyFallback: boolean; requiresBuild: boolean };
+}
+
+/** ConfigurationDiff::legacy() */
+export const LEGACY_CONFIGURATION_DIFF = { legacyFallback: true, requiresBuild: true } as const;
+
+/** What save_git_ssh_known_hosts() decides under the application's lock. */
+export interface KnownHostsMerge {
+  knownHosts: string;
+  changed: boolean;
+  added: string[];
+  conflicting: string[];
 }
 
 /** What a deployment writes. Every method is its own transaction, as each of Coolify's queries is. */
@@ -97,6 +166,20 @@ export interface DeploymentStore {
   rememberDockerVersion(serverId: string | number, version: string | null): Promise<void>;
   /** queue_next_deployment(): start what can run now; the uuids of the deployments it started. */
   startNextQueued(applicationId: string | number, serverId: string | number | null): Promise<string[]>;
+  /** The commit the branch's head resolved to, on the deployment. */
+  setCommit(deploymentId: string | number, commit: string): Promise<void>;
+  /** The commit's message, on every deployment of the application of that commit that was not skipped. */
+  setCommitMessage(applicationId: string | number, commit: string, message: string): Promise<void>;
+  /** reuse_commit_message(): the message an earlier deployment of the commit stored, when this one has none. */
+  reuseCommitMessage(deploymentId: string | number, applicationId: string | number, commit: string): Promise<void>;
+  /** What a Dockerfile's HEALTHCHECK, or the Nixpacks Rust rule, changes on the application. */
+  updateHealthcheck(applicationId: string | number, changes: ApplicationHealthcheckChanges): Promise<void>;
+  /** save_git_ssh_known_hosts(), its transaction: the stored keys under the row's lock, and what they become. */
+  mergeGitSshKnownHosts(applicationId: string | number, merge: (stored: string | null) => KnownHostsMerge): Promise<KnownHostsMerge | null>;
+  /** Which of these container names are deployments: their build helpers are named after them. */
+  deploymentUuidsAmong(names: string[]): Promise<string[]>;
+  /** A variable Nixpacks needs for a Laravel application, created with the model's defaults. */
+  createVariable(applicationId: string | number, key: string, value: string): Promise<void>;
 }
 
 /** What Coolify hands to other jobs, notifications and broadcasts: Freeploy's side of each comes later. */
@@ -115,6 +198,11 @@ export interface EngineConfig {
   helperVersion: string;
   /** gethostname(): the worker that runs the deployment. */
   worker: string | null;
+  /**
+   * The key of the build secrets hash (Coolify's APP_KEY): the same key gives the same hash for the same
+   * values, so the Docker build cache survives a deployment that changed no secret.
+   */
+  secretsHashKey?: string;
 }
 
 /** The helper image Coolify 4.7.6 deploys with (config/constants.php, versions.json). */
@@ -167,7 +255,7 @@ function failureOf(error: unknown): Failure {
 
 // ── The state between two steps ─────────────────────────────────────────────────────────────────────────
 
-export const DEPLOYMENT_STEPS = ["start", "detect", "prepare", "configure", "deploy", "health", "drain", "remove_old", "post", "failed", "finish"] as const;
+export const DEPLOYMENT_STEPS = ["start", "detect", "restart", "prepare", "source", "configure", "build", "env", "deploy", "health", "drain", "remove_old", "post", "failed", "finish"] as const;
 export type DeploymentStep = (typeof DEPLOYMENT_STEPS)[number];
 
 export interface EngineState {
@@ -207,7 +295,41 @@ export interface EngineState {
   cleanupAfterFailure: boolean;
   /** What handle() throws in the end; null when it returns. */
   thrown: Failure | null;
+  /** $this->commit: the deployment's, then the one the branch's head resolved to. */
+  commit: string;
+  /** $this->force_rebuild */
+  forceRebuild: boolean;
+  /** $this->restart_only: a restart of a build pack that keeps its image; false once it has to build. */
+  restartOnly: boolean;
+  /** just_restart() ended with a rolling update: the deployment is complete without post_deployment(). */
+  restartSkipsPost: boolean;
+  /** $this->addHosts: the --add-host flags of a build. */
+  addHosts: string;
+  /** $this->dockerBuildkitSupported and $this->dockerSecretsSupported */
+  buildkit: boolean;
+  secretsSupported: boolean;
+  /** $this->coolify_variables; null until check_git_if_build_needed() ran. */
+  coolifyVariables: string | null;
+  /** $this->skip_build: the image of the commit exists and nothing of its build changed. */
+  skipBuild: boolean;
+  /** $this->useBuildtimeEnvironmentLauncher */
+  useLauncher: boolean;
+  /** $this->nixpacks_plan (the plan the build is given) and $this->nixpacks_type */
+  nixpacksPlan: string | null;
+  nixpacksType: string | null;
+  /** Where a step of several parts is: it goes on there after a wait. */
+  phase: number;
+  /** import_repository(): the attempt that runs, and whether the interrupted clone must be cleaned up first. */
+  cloneAttempt: number;
+  cloneCleanup: boolean;
+  /** What the job changed on its application, which it reads again: the health check, the saved host keys. */
+  applicationChanges: ApplicationHealthcheckChanges & { git_ssh_known_hosts?: string };
+  /** The variables the job created, which it reads again before the rows are. */
+  createdVariables: Array<{ key: string; value: string }>;
 }
+
+/** The build packs that keep their image over a restart: the others need the cloned repository to start. */
+const RESTART_REBUILDS: readonly string[] = ["dockerimage", "dockerfile", "dockercompose"];
 
 export function initialState(ctx: DeploymentContext, now: Date): EngineState {
   return {
@@ -229,6 +351,24 @@ export function initialState(ctx: DeploymentContext, now: Date): EngineState {
     failure: null,
     cleanupAfterFailure: false,
     thrown: null,
+    commit: ctx.deployment.commit ?? "HEAD",
+    // A restart reuses the existing image. When a restart must build, the build turns the cache off again.
+    forceRebuild: ctx.deployment.force_rebuild || (Boolean(ctx.build.disable_build_cache) && !ctx.deployment.restart_only),
+    restartOnly: ctx.deployment.restart_only && !RESTART_REBUILDS.includes(ctx.application.build_pack),
+    restartSkipsPost: false,
+    addHosts: "",
+    buildkit: false,
+    secretsSupported: false,
+    coolifyVariables: null,
+    skipBuild: false,
+    useLauncher: false,
+    nixpacksPlan: null,
+    nixpacksType: null,
+    phase: 0,
+    cloneAttempt: 0,
+    cloneCleanup: false,
+    applicationChanges: {},
+    createdVariables: [],
   };
 }
 
@@ -331,6 +471,51 @@ const HELPER_CA_BUNDLE_PATH = "/etc/ssl/certs/ca-certificates.crt";
 /** base_configuration_dir().'/applications' */
 const APPLICATION_CONFIGURATION_DIR = "/data/coolify/applications";
 
+/** The build packs the engine deploys. */
+const BUILD_PACKS: readonly string[] = ["dockerimage", "dockerfile", "nixpacks", "static"];
+/** What a failure about a variable's name carries as its cause. */
+const INVALID_KEY: Failure = { phpClass: "InvalidArgumentException", message: "Invalid build-time environment variable key.", code: 0 };
+/** import_repository(): config('constants.ssh.max_retries'), and the delays of calculateRetryDelay(). */
+const CLONE_MAX_ATTEMPTS = 3;
+const cloneRetryDelay = (attempt: number): number => Math.trunc(Math.min(2 * 2 ** attempt, 30));
+const GIT_HOST_KEY_CHANGED_HINT =
+  "The Git host sent an SSH host key that is not the saved or published key. This can be an attack. Ask the administrator of the Git host if the key changed. Then open Source > SSH host keys, click Fetch current host key, and accept the key only if its fingerprint is the same as the fingerprint from the administrator. For GitHub and Bitbucket Cloud, Fetch current host key also reads the keys that they publish. For GitLab.com, compare the fingerprint with the keys on docs.gitlab.com.";
+/** filled(): not null and not blank. */
+const filled = (value: string | null | undefined): value is string => value !== null && value !== undefined && phpTrim(value) !== "";
+/** PHP's truthiness of a string. */
+const truthy = (value: string | null | undefined): value is string => value !== null && value !== undefined && value !== "" && value !== "0";
+
+/** $application->source of the public GitHub source (id 0), which every org has; null for any other. */
+function publicGitSource(build: Pick<DeployDeploymentBuildRow, "source_id" | "source_type">): ResolvedSource | null {
+  if (build.source_type !== GIT_SOURCE_MORPH_CLASS.github || build.source_id === null || String(build.source_id) !== String(PUBLIC_GITHUB_SOURCE.id)) return null;
+  return { kind: "github", id: "0", name: PUBLIC_GITHUB_SOURCE.name, htmlUrl: PUBLIC_GITHUB_SOURCE.htmlUrl, isPublic: true, account: null, customUser: "git", customPort: 22 };
+}
+
+/**
+ * Why the engine cannot deploy an application's build yet, or null: Docker Compose and Railpack, a build
+ * server, "Preserve repository", and every Git source but a public repository. Asked before a deployment is
+ * queued, and again before one runs anything on the server.
+ */
+export function buildUnavailableReason(
+  application: Pick<DeployDeploymentApplicationRow, "build_pack" | "has_dockerfile">,
+  build: Pick<DeployDeploymentBuildRow, "is_build_server_enabled" | "is_preserve_repository_enabled" | "private_key_id" | "source_id" | "source_type" | "has_git_https_credentials" | "server_role">,
+  restartOnly: boolean,
+): string | null {
+  if (application.build_pack === "dockercompose") return "Deploying a Docker Compose application is not available yet.";
+  if (!BUILD_PACKS.includes(application.build_pack)) return `Deploying the ${application.build_pack} build pack is not available yet.`;
+  if (application.build_pack === "dockerimage") return null;
+  if (build.is_build_server_enabled) return "Building on a build server is not available yet: turn off \"Use a Build Server\" to build on the application's server.";
+  // mustBuildOnBuildServer(): a server for deployments only never builds.
+  if (build.server_role === "deployment") return "The application's server is set to deployments only, so the application is built on a build server, which is not available yet.";
+  if (build.is_preserve_repository_enabled) return "Deploying with \"Preserve Repository During Deployment\" is not available yet.";
+  // A pasted Dockerfile needs no repository, unless a restart reads its commit.
+  if (application.has_dockerfile && !(restartOnly && !RESTART_REBUILDS.includes(application.build_pack))) return null;
+  if (build.private_key_id !== null) return "Deploying from a private repository with a deploy key is not available yet: only public repositories can be deployed.";
+  if (filled(build.source_type) && build.source_id !== null && publicGitSource(build) === null) return "Deploying from a Git App source is not available yet: only public repositories can be deployed.";
+  if (build.has_git_https_credentials) return "Deploying from a repository with HTTPS credentials is not available yet: only public repositories can be deployed.";
+  return null;
+}
+
 /** One command of execute_remote_command(). */
 interface Command {
   command: string;
@@ -355,6 +540,9 @@ class Job {
   private readonly config: EngineConfig;
   private readonly secrets: LogRedactionSecrets;
   private composed: ComposeResult | null = null;
+  /** $this->build_args and $this->build_secrets: made and used inside the build step. */
+  private buildArgs: string[] = [];
+  private buildSecrets = "";
 
   constructor(
     private readonly deps: EngineDeps,
@@ -365,8 +553,59 @@ class Job {
     this.secrets = logRedactionSecretsFor(ctx.variables, ctx.application.redact_all_env_values_in_logs !== false);
   }
 
+  /**
+   * The application's variables as the job reads them: the rows, and the ones it created since (Laravel's two
+   * Nixpacks variables), which stand where a new variable stands on the page — at the end, or by name.
+   */
+  private get variables(): RuntimeVariable[] {
+    const created = this.state.createdVariables.filter((made) => !this.ctx.variables.some((v) => v.key === made.key));
+    if (created.length === 0) return this.ctx.variables;
+    const lastId = Math.max(0, ...this.ctx.variables.map((v) => v.id ?? 0));
+    const all = [
+      ...this.ctx.variables,
+      ...created.map((made, index): RuntimeVariable => ({ id: lastId + index + 1, key: made.key, value: made.value, realValue: made.value, is_literal: false, is_multiline: false, is_runtime: true, is_buildtime: true, is_shown_once: false, referencesLockedSharedVariable: false })),
+    ];
+    return this.ctx.application.is_env_sorting_enabled ? all.sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0)) : all;
+  }
+
+  /** The application as the job holds it: the row, with what the job changed on it since. */
   private get app(): DeployDeploymentApplicationRow {
-    return this.ctx.application;
+    return { ...this.ctx.application, ...this.state.applicationChanges };
+  }
+  private get build(): DeployDeploymentBuildRow {
+    return this.ctx.build;
+  }
+  private get pack(): string {
+    return this.ctx.application.build_pack;
+  }
+  /** "$this->application->dockerfile": a pasted Dockerfile, whatever the build pack says. */
+  private get simple(): boolean {
+    return this.pack !== "dockerimage" && Boolean(this.ctx.application.has_dockerfile);
+  }
+  /** $this->basedir: where the repository is cloned to in the helper container. */
+  private get basedir(): string {
+    return `/artifacts/${this.uuid}`;
+  }
+  /** $this->dockerfile_location: the Dockerfile build pack's own, "/Dockerfile" for every other build. */
+  private get dockerfileLocation(): string {
+    const location = this.build.dockerfile_location;
+    return !this.simple && this.pack === "dockerfile" && truthy(location) ? location : "/Dockerfile";
+  }
+  /** $application->source: the public GitHub source, or none (a repository of any host, by its URL). */
+  private get gitSource(): ResolvedSource | null {
+    return publicGitSource(this.build);
+  }
+  /** customRepository(), and the URL git clones: under the public source's address, or the repository's own. */
+  private get repository(): { name: string; port: string | number; url: string } {
+    const source = this.gitSource;
+    const { repository, port } = convertGitUrl(this.build.git_repository, deploymentType(this.build.private_key_id, source), source);
+    return { name: repository, port, url: source ? `${source.htmlUrl}/${repository}` : repository };
+  }
+  private get buildInput(): BuildInput {
+    return { application: this.app, includeSourceCommit: Boolean(this.build.include_source_commit_in_build), commit: this.state.commit, variables: this.variables };
+  }
+  private get hashKey(): string {
+    return this.config.secretsHashKey ?? "";
   }
   private get id(): string | number {
     return this.ctx.deployment.id;
@@ -374,9 +613,9 @@ class Job {
   private get uuid(): string {
     return this.ctx.deployment.deployment_uuid;
   }
-  /** $this->basedir, and $this->workdir: a Docker image application has no base directory. */
+  /** $this->workdir: the application's base directory in the clone. */
   private get workdir(): string {
-    return `/artifacts/${this.uuid}`;
+    return `${this.basedir}${phpRtrim(this.build.base_directory ?? "", "/")}`;
   }
   private get configurationDir(): string {
     return `${APPLICATION_CONFIGURATION_DIR}/${this.app.uuid}`;
@@ -387,8 +626,16 @@ class Job {
   private get imageTag(): string {
     return resolveDockerImageTag(this.app, this.ctx.deployment);
   }
+  /** generate_image_names(): $this->production_image_name */
   private get image(): string {
-    return productionImageName(this.app.docker_registry_image_name, this.imageTag);
+    if (this.pack === "dockerimage") return productionImageName(this.app.docker_registry_image_name, this.imageTag);
+    const name = truthy(this.app.docker_registry_image_name) ? this.app.docker_registry_image_name : this.app.uuid;
+    return this.simple ? `${name}:latest` : `${name}:${this.state.commit.slice(0, 128)}`;
+  }
+  /** generate_image_names(): $this->build_image_name — what a static site is built in. */
+  private get buildImageName(): string {
+    const name = truthy(this.app.docker_registry_image_name) ? this.app.docker_registry_image_name : this.app.uuid;
+    return this.simple ? `${name}:build` : `${name}:${this.state.commit.slice(0, 128)}-build`;
   }
   private get consistentName(): boolean {
     return Boolean(this.app.is_consistent_container_name_enabled);
@@ -551,11 +798,13 @@ class Job {
     }
     try {
       try {
-        await this.logAll(validateDeploymentEnvironmentVariableKeys(this.ctx.variables));
+        // Only a Docker image deployment never builds: the others can pass build-time variables to a build.
+        if (this.pack === "dockerimage") await this.logAll(validateDeploymentEnvironmentVariableKeys(this.variables));
+        else await this.validateKeys(false);
       } catch (e) {
         if (e instanceof RuntimeEnvError) {
           await this.logAll((e as RuntimeEnvError & { logs?: EnvLogEntry[] }).logs ?? []);
-          throw deploymentException(e.message, 0, { phpClass: "InvalidArgumentException", message: "Invalid build-time environment variable key.", code: 0 }, true);
+          throw deploymentException(e.message, 0, INVALID_KEY, true);
         }
         throw e;
       }
@@ -588,7 +837,17 @@ class Job {
   /** What this engine does not deploy: said before anything runs on the server. */
   private refuseWhatIsNotPorted(): void {
     const app = this.app;
-    if (app.build_pack !== "dockerimage") throw deploymentException(`Deploying the ${app.build_pack} build pack is not available yet.`);
+    const build = this.build;
+    const reason = buildUnavailableReason(app, build, this.state.restartOnly);
+    if (reason !== null) throw deploymentException(reason);
+    // The job's constructor: a base directory that is no safe path never starts a deployment.
+    if (app.build_pack !== "dockerimage" && truthy(build.base_directory) && build.base_directory !== "/") {
+      try {
+        validatePathField(build.base_directory, "base_directory");
+      } catch (e) {
+        throw e instanceof BuildError ? runtimeException(e.message) : e;
+      }
+    }
     if (this.ctx.deployment.pull_request_id !== 0) throw deploymentException("Preview deployments are not available yet.");
     if (app.server_is_swarm_manager || app.server_is_swarm_worker) throw deploymentException("Deploying to a Swarm cluster is not available yet.");
     if ((app.server_user ?? "root") !== "root") throw deploymentException(`Deploying to a server with a non-root user (${app.server_user}) is not available yet.`);
@@ -603,8 +862,22 @@ class Job {
     if (app.dockerfile_target_build !== null && app.dockerfile_target_build !== "" && app.dockerfile_target_build !== "0" && !/^[a-zA-Z0-9][a-zA-Z0-9._-]*$/.test(app.dockerfile_target_build)) {
       throw runtimeException("Invalid dockerfile_target_build: contains forbidden characters.");
     }
-    // The --add-host flags of a build: a Docker image deployment builds nothing, so only the command runs.
-    if (app.include_network_hosts_in_build !== false) await this.instant([`docker network inspect ${escapeshellarg(this.network)} -f '{{json .Containers}}' `]);
+    // networkHostFlags(): the --add-host flags of a build, from the containers on the destination network.
+    this.state.addHosts = "";
+    if (app.include_network_hosts_in_build !== false) {
+      const all = await this.instant([`docker network inspect ${escapeshellarg(this.network)} -f '{{json .Containers}}' `]);
+      const containers = all === null ? [] : parseContainers(all);
+      if (containers.length > 0) {
+        const names = Object.values(containers[0]!)
+          .map((c) => (c !== null && typeof c === "object" ? (c as Container).Name : null))
+          .filter((name): name is string => typeof name === "string" && name !== "");
+        const helpers = names.length > 0 ? await this.deps.store.deploymentUuidsAmong(names) : [];
+        this.state.addHosts = addHostFlags(containers[0], (name) => helpers.includes(name));
+      }
+    }
+    this.state.buildkit = false;
+    this.state.secretsSupported = false;
+    this.state.next = this.state.restartOnly ? "restart" : "prepare";
 
     const serverName = `deployment server (${app.server_name ?? ""})`;
     try {
@@ -620,16 +893,20 @@ class Job {
         return;
       }
       let buildkit = false;
+      const supports = (): void => {
+        buildkit = true;
+        this.state.buildkit = true;
+      };
       // Check buildx availability
       const buildx = await this.instant(["docker buildx version >/dev/null 2>&1 && echo 'available' || echo 'not-available'"]);
       if (phpTrim(buildx ?? "") === "available") {
-        buildkit = true;
+        supports();
         await this.log(`Docker ${dockerVersion ?? ""} with BuildKit and Buildx detected on ${serverName}.`);
       } else {
         // Fallback: test DOCKER_BUILDKIT=1 support via --progress flag
         const test = await this.instant(["DOCKER_BUILDKIT=1 docker build --help 2>&1 | grep -q '\\-\\-progress' && echo 'supported' || echo 'not-supported'"]);
         if (phpTrim(test ?? "") === "supported") {
-          buildkit = true;
+          supports();
           await this.log(`Docker ${dockerVersion ?? ""} with BuildKit support detected on ${serverName}.`);
         } else {
           await this.log(`Docker ${dockerVersion ?? ""} on ${serverName} does not support BuildKit. Build output progress will be limited.`);
@@ -637,22 +914,79 @@ class Job {
       }
       if (app.use_build_secrets && buildkit) {
         const secrets = await this.instant(["docker build --help 2>&1 | grep -q 'secret' && echo 'supported' || echo 'not-supported'"]);
-        if (phpTrim(secrets ?? "") === "supported") await this.log("Build secrets are enabled and will be used for enhanced security.");
-        else await this.log(`Docker on ${serverName} does not support build secrets. Using traditional build arguments.`);
+        if (phpTrim(secrets ?? "") === "supported") {
+          this.state.secretsSupported = true;
+          await this.log("Build secrets are enabled and will be used for enhanced security.");
+        } else await this.log(`Docker on ${serverName} does not support build secrets. Using traditional build arguments.`);
       }
     } catch (e) {
+      this.state.buildkit = false;
+      this.state.secretsSupported = false;
       await this.log(`Could not detect BuildKit capabilities on ${serverName}: ${failureOf(e).message}`);
     }
   }
 
-  /** deploy_dockerimage_buildpack() up to prepare_builder_image(), with the pre-deployment command. */
+  /** The start of every build pack's deployment: its first log line and the helper container. */
   async prepare(): Promise<void> {
     const app = this.app;
-    const tag = this.imageTag;
-    const display = tag.startsWith("sha256-") ? `${app.docker_registry_image_name ?? ""}@sha256:${tag.slice("sha256-".length)}` : `${app.docker_registry_image_name ?? ""}:${tag}`;
-    await this.log(`Starting deployment of ${display} to ${app.server_name ?? ""}.`);
+    if (this.pack === "dockerimage") {
+      const tag = this.imageTag;
+      const display = tag.startsWith("sha256-") ? `${app.docker_registry_image_name ?? ""}@sha256:${tag.slice("sha256-".length)}` : `${app.docker_registry_image_name ?? ""}:${tag}`;
+      await this.log(`Starting deployment of ${display} to ${app.server_name ?? ""}.`);
+      await this.prepareBuilderImage(true);
+      this.state.next = "configure";
+      return;
+    }
+    if (this.simple) {
+      await this.log(`Starting deployment of ${app.name} to ${app.server_name ?? ""}.`);
+    } else {
+      await this.log(`Starting deployment of ${this.repository.name}:${app.git_branch} to ${app.server_name ?? ""}.`);
+      if (this.pack === "dockerfile" && truthy(this.build.dockerfile_location)) await this.guard(() => validatePathField(this.build.dockerfile_location!, "dockerfile_location"));
+    }
+    await this.prepareBuilderImage(true);
+    this.state.phase = 0;
+    this.state.next = "source";
+  }
 
-    // prepare_builder_image()
+  /** A failure build.ts explains, as the PHP exception Coolify throws for it — after the log lines that explain it. */
+  private async guard<T>(fn: () => T | Promise<T>): Promise<T> {
+    try {
+      return await fn();
+    } catch (e) {
+      if (!(e instanceof BuildError)) throw e;
+      await this.logAll(e.logs);
+      if (e.phpClass === "RuntimeException") throw runtimeException(e.message);
+      throw deploymentException(e.message, 0, e.alreadyLogged ? INVALID_KEY : undefined, e.alreadyLogged);
+    }
+  }
+
+  /** validateDeploymentEnvironmentVariableKeys() of a deployment that can build. */
+  private async validateKeys(buildsImage: boolean): Promise<void> {
+    await this.logAll(await this.guard(() => validateBuildEnvironmentVariableKeys(this.variables, buildsImage)));
+  }
+
+  /** withRawBuildSecretValues(): a build secret gets the raw value of its variable, not the form a shell unescapes. */
+  private withRawBuildSecretValues<T>(variables: Array<[string, T]>): Array<[string, T | string]> {
+    const raw = new Map<string, string>();
+    for (const variable of this.variables) if (variable.is_buildtime && variables.some(([key]) => key === variable.key)) raw.set(variable.key, rawValue(variable));
+    return variables.map(([key, value]) => [key, raw.has(key) ? raw.get(key)! : value]);
+  }
+
+  /** generate_docker_env_flags_for_secrets(): the build-time variables in the helper's environment, for --secret. */
+  private async helperSecretEnvFlags(): Promise<string> {
+    if (!this.app.use_build_secrets || this.pack === "dockerimage") return "";
+    return this.guard(() => {
+      // Invalid names stay out of the helper container: a build fails on them before it starts.
+      const variables = [...generateEnvVariables(this.buildInput)].filter(([key]) => isValidEnvironmentVariableKey(key));
+      return this.withRawBuildSecretValues(variables)
+        .map(([key, value]) => `-e ${escapeshellarg(`${validatedBuildtimeKey(key, "the build secret environment")}=${value}`)}`)
+        .join(" ");
+    });
+  }
+
+  /** prepare_builder_image(), with the pre-deployment command. */
+  private async prepareBuilderImage(firstTry: boolean): Promise<void> {
+    const app = this.app;
     await this.checkForCancellation();
     const helperImage = `${this.config.helperImage}:${this.config.helperVersion}`;
     // Get user home directory
@@ -662,6 +996,10 @@ class Job {
     // dockerConfigPath(): the config of the SSH user.
     const configPath = `${home}/.docker/config.json`;
     this.state.dockerConfigPath = (await this.instant([`test -f ${configPath} && echo 'OK' || echo 'NOK'`])) === "OK" ? configPath : null;
+    // Build secrets put user variables such as HOME or DOCKER_CONFIG into the helper environment. DOCKER_CONFIG
+    // comes after them, so the Docker CLI keeps its plugins. Without build secrets the helper environment stays empty.
+    const secretEnvFlags = await this.helperSecretEnvFlags();
+    const envFlags = phpTrim(secretEnvFlags) !== "" ? `${secretEnvFlags} -e DOCKER_CONFIG=${HELPER_DOCKER_CONFIG}` : "";
     const buildxMetadataVolume = `-v ${home}/.docker/buildx:/root/.docker/buildx`;
     // hostCaBundleMount(): the helper trusts the same registries as the Docker daemon.
     const bundle = await this.instant([`for f in ${HOST_CA_BUNDLE_PATHS.join(" ")}; do if [ -f "$f" ]; then echo "$f"; break; fi; done`], false);
@@ -670,20 +1008,19 @@ class Job {
     // docker compose runs in this helper and reads seccomp profile files from the custom Docker options
     const seccompMounts = seccompProfileMountFlags(app.custom_docker_run_options);
     const safeNetwork = escapeshellarg(this.network);
-    // No build secrets in a deployment that builds nothing: the helper's environment stays empty.
-    const envFlags = "";
     const runCommand =
       this.state.dockerConfigPath !== null
         ? `docker run -d --network ${safeNetwork} --name ${this.uuid} ${envFlags} --rm -v ${this.state.dockerConfigPath}:/root/.docker/config.json:ro ${buildxMetadataVolume}${hostCaBundleVolume} -v /var/run/docker.sock:/var/run/docker.sock ${seccompMounts} ${helperImage}`
         : `docker run -d --network ${safeNetwork} --name ${this.uuid} ${envFlags} --rm ${buildxMetadataVolume}${hostCaBundleVolume} -v /var/run/docker.sock:/var/run/docker.sock ${seccompMounts} ${helperImage}`;
-    await this.log(`Preparing container with helper image: ${helperImage}`);
+    if (firstTry) await this.log(`Preparing container with helper image: ${helperImage}`);
+    else await this.log("Preparing container with helper image with updated envs.");
 
     // "docker stop" returns before the --rm auto-removal frees the name, so the "docker run" below can conflict with it.
     await this.removeContainerWithTimeout(this.uuid);
-    const commands: Command[] = [{ command: runCommand, hidden: true }];
+    const commands: Command[] = [{ command: runCommand, hidden: true, ...(phpTrim(secretEnvFlags) !== "" ? { skipCommandLog: true } : {}) }];
     // git and curl use OpenSSL, which reads only the helper bundle
     if (hostCaBundleVolume !== "") commands.push({ command: executeInDocker(this.uuid, `cat ${HELPER_HOST_CA_BUNDLE_PATH} >> ${HELPER_CA_BUNDLE_PATH}`), hidden: true });
-    commands.push({ command: executeInDocker(this.uuid, `mkdir -p ${this.workdir}`) });
+    commands.push({ command: executeInDocker(this.uuid, `mkdir -p ${this.basedir}`) });
     commands.push({ command: executeInDocker(this.uuid, gitSshSetupCommand(this.uuid, app.git_ssh_known_hosts)), hidden: true });
     await this.exec(...commands);
     await this.runPreDeploymentCommand();
@@ -765,30 +1102,80 @@ class Job {
     }
   }
 
-  /** generate_compose_file() and save_runtime_environment_variables(). */
+  /** generate_compose_file(); a Docker image deployment, which builds nothing, writes its .env file right after. */
   async configure(): Promise<void> {
-    // generate_compose_file()
-    await this.checkForCancellation();
-    // create_workdir()
+    await this.generateComposeFile();
+    if (this.pack === "dockerimage") {
+      await this.saveRuntimeEnvironmentVariables();
+      this.state.next = "deploy";
+      return;
+    }
+    this.state.next = this.state.skipBuild ? "env" : "build";
+  }
+
+  /** create_workdir() */
+  private async createWorkdir(): Promise<void> {
     await this.exec({ command: executeInDocker(this.uuid, `mkdir -p ${this.workdir}`) }, { command: `mkdir -p ${this.configurationDir}` });
-    const compose = this.compose();
+  }
+
+  /** generate_compose_file() */
+  private async generateComposeFile(): Promise<void> {
+    await this.checkForCancellation();
+    await this.createWorkdir();
+    let compose = this.compose();
     if (compose.customLabels !== undefined) await this.deps.store.updateApplication(this.app.id, { custom_labels: compose.customLabels });
+    // Check for custom HEALTHCHECK
+    if (this.pack === "dockerfile" || this.simple) {
+      await this.exec({ command: executeInDocker(this.uuid, `cat ${this.workdir}${this.dockerfileLocation}`), hidden: true, save: "dockerfile_from_repo", ignoreErrors: true });
+      await this.parseHealthcheckFromDockerfile(this.state.saved.dockerfile_from_repo ?? null);
+      // The health check the file declares is the one the compose file is written with.
+      this.composed = null;
+      compose = this.compose();
+    }
     await this.logAll(compose.logs);
     this.state.composeGenerated = true;
     this.state.fullHealthcheckUrl = compose.fullHealthcheckUrl;
+  }
 
-    // save_runtime_environment_variables(): the .env file with all runtime variables.
+  /**
+   * Application::parseHealthcheckFromDockerfile(): a HEALTHCHECK in the file gives its timings to an application
+   * whose own health check is off; one that was removed from the file resets them.
+   */
+  private async parseHealthcheckFromDockerfile(dockerfile: string | null): Promise<void> {
+    const app = this.app;
+    const instruction = dockerfileHealthcheckInstruction(dockerfile, app.dockerfile_target_build);
+    let changes: ApplicationHealthcheckChanges | null = null;
+    if (instruction === null) {
+      if (!app.custom_healthcheck_found) return;
+      changes = { custom_healthcheck_found: false, health_check_interval: 5, health_check_timeout: 5, health_check_retries: 10, health_check_start_period: 5 };
+    } else if (app.health_check_enabled === false) {
+      const options = dockerfileHealthcheckOptions(instruction);
+      changes = {
+        health_check_interval: options.interval ?? app.health_check_interval,
+        health_check_timeout: options.timeout ?? app.health_check_timeout,
+        health_check_start_period: options.startPeriod ?? app.health_check_start_period,
+        health_check_retries: options.retries ?? app.health_check_retries,
+        custom_healthcheck_found: true,
+      };
+    }
+    if (changes === null) return;
+    this.state.applicationChanges = { ...this.state.applicationChanges, ...changes };
+    await this.deps.store.updateHealthcheck(app.id, changes);
+  }
+
+  /** save_runtime_environment_variables(): the .env file with all runtime variables, after any build. */
+  private async saveRuntimeEnvironmentVariables(): Promise<void> {
     let env;
     try {
       env = generateRuntimeEnvironmentVariables({
         application: this.app,
         settings: this.app,
-        commit: this.ctx.deployment.commit,
+        commit: this.state.commit,
         containerName: this.state.containerName,
         projectName: this.app.project_name,
         environmentName: this.app.environment_name,
         serverIp: this.app.server_ip,
-        variables: this.ctx.variables,
+        variables: this.variables,
       });
     } catch (e) {
       if (e instanceof RuntimeEnvError) throw deploymentException(e.message, 0, undefined, e.alreadyLogged);
@@ -797,6 +1184,11 @@ class Job {
     await this.logAll(env.logs);
     // Each .env write first removes the file: Coolify writes a regular file, never through a link.
     if (env.lines.length === 0) {
+      if (this.pack !== "dockerimage") {
+        // A built image's compose file is started without an .env file: an earlier one is removed.
+        await this.exec({ command: `rm -f ${this.configurationDir}/.env`, hidden: true, ignoreErrors: true });
+        return;
+      }
       // The compose file always references .env, so an empty one is created.
       await this.log("Creating empty .env file (no environment variables defined).");
       await this.exec({ command: executeInDocker(this.uuid, `rm -f ${this.workdir}/.env && touch ${this.workdir}/.env`) });
@@ -807,6 +1199,554 @@ class Job {
     await this.log("Creating .env file with runtime variables for container.", "stdout", true);
     await this.exec({ command: executeInDocker(this.uuid, `rm -f ${this.workdir}/.env && echo '${encoded}' | base64 -d | tee ${this.workdir}/.env > /dev/null`), skipCommandLog: true });
     await this.exec({ command: `rm -f ${this.configurationDir}/.env`, hidden: true }, { command: `echo '${encoded}' | base64 -d | tee ${this.configurationDir}/.env > /dev/null`, skipCommandLog: true });
+  }
+
+  // ── A build: the repository ──
+
+  /** just_restart(): a restart starts the image of the commit when it is there, and deploys in full when it is not. */
+  async restart(): Promise<void> {
+    const s = this.state;
+    await this.log(`Restarting ${this.repository.name}:${this.app.git_branch} on ${this.app.server_name ?? ""}.`);
+    await this.prepareBuilderImage(true);
+    await this.checkGit();
+    await this.checkImageLocallyOrRemotely();
+    if (await this.shouldSkipBuild()) {
+      s.restartSkipsPost = true;
+      s.next = "configure";
+      return;
+    }
+    // The image is missing, or its build changed: the build pack's own deployment, from its start.
+    s.restartOnly = false;
+    s.next = "prepare";
+  }
+
+  /**
+   * What each build pack does between the helper container and its compose file: read the branch's head, clone,
+   * look for the image of the commit. In parts, so the wait before a clone is tried again is the caller's.
+   */
+  async source(): Promise<void> {
+    const s = this.state;
+    if (this.simple) {
+      // deploy_simple_dockerfile(): the pasted Dockerfile is the whole source.
+      await this.exec({ command: executeInDocker(this.uuid, `echo '${base64Encode(this.build.dockerfile ?? "")}' | base64 -d | tee ${this.workdir}${this.dockerfileLocation} > /dev/null`) });
+      s.next = "configure";
+      return;
+    }
+    type Part = () => Promise<"next" | "again" | "skip">;
+    const then = async (run: Promise<void>): Promise<"next"> => {
+      await run;
+      return "next";
+    };
+    const checkGit: Part = () => then(this.checkGit());
+    const clone: Part = () => this.cloneRepository();
+    const image: Part = async () => {
+      if (s.forceRebuild) return "next";
+      await this.checkImageLocallyOrRemotely();
+      return (await this.shouldSkipBuild()) ? "skip" : "next";
+    };
+    const validate: Part = () => then(this.validateKeys(true));
+    // cleanup_git()
+    const cleanup: Part = () => then(this.exec({ command: executeInDocker(this.uuid, `rm -fr ${this.basedir}/.git`) }));
+    const confs: Part = () => then(this.generateNixpacksConfs());
+    // A Dockerfile is cloned before the image is looked for; Nixpacks and a static site only clone to build.
+    const parts = this.pack === "dockerfile" ? [checkGit, clone, image, validate, cleanup] : this.pack === "nixpacks" ? [checkGit, image, validate, clone, cleanup, confs] : [checkGit, image, validate, clone, cleanup];
+    while (s.phase < parts.length) {
+      const result = await parts[s.phase]!();
+      if (result === "again") return;
+      if (result === "skip") break;
+      s.phase++;
+    }
+    s.phase = 0;
+    s.next = "configure";
+  }
+
+  /** withGitHints(): what usually helps when git fails on the host key, or cannot reach the Git host. */
+  private async logGitHint(message: string): Promise<void> {
+    if (message.includes("Host key verification failed")) {
+      await this.log(GIT_HOST_KEY_CHANGED_HINT, "stderr");
+    } else if (/ssh: connect to host \S+ port \d+: |ssh: Could not resolve hostname |Could not resolve host: |Failed to connect to \S+ port \d+/.test(message)) {
+      await this.log(
+        `The deployment helper container in the Docker network ${this.network} on the server ${this.app.server_name ?? ""} cannot connect to the Git host. The helper container can reach different hosts than the server itself, so a Docker Compose file can load (Freeploy reads it on the server) while the clone fails. Check that the firewall of the server and of the Git host accept connections from Docker networks to the Git host and port, and that the Git host name resolves to an address that the container can reach (Docker containers do not use the /etc/hosts file of the server).`,
+        "stderr",
+      );
+    }
+  }
+
+  /** check_git_if_build_needed(): the commit the branch's head is at, and Coolify's variables of the build. */
+  private async checkGit(): Promise<void> {
+    const s = this.state;
+    const { port, url } = this.repository;
+    // An exact refspec, so a similarly named branch (changeset-release/main) does not match.
+    const lsRemote = gitLsRemoteCommand(this.uuid, port, url, `refs/heads/${this.app.git_branch}`);
+    try {
+      await this.exec({ command: executeInDocker(this.uuid, lsRemote), hidden: true, save: "git_commit_sha" });
+    } catch (e) {
+      await this.logGitHint(failureOf(e).message);
+      throw e;
+    }
+    await this.saveGitSshKnownHosts();
+    const resolvesHead = (): boolean => phpTrim(s.commit) === "" || phpTrim(s.commit) === "HEAD";
+    const answer = s.saved.git_commit_sha;
+    if (answer !== undefined && !this.ctx.deployment.rollback && resolvesHead()) {
+      // The line with the tab is ls-remote's result; warnings can stand before it, even on its line.
+      const commit = commitFromLsRemote(answer);
+      if (commit !== null) {
+        s.commit = commit;
+        await this.deps.store.setCommit(this.id, commit);
+      }
+    }
+    // reuse_commit_message(): a pinned commit can have its message from an earlier deployment.
+    if (!resolvesHead()) await this.deps.store.reuseCommitMessage(this.id, this.app.id, s.commit);
+    s.coolifyVariables = coolifyVariables(this.buildInput);
+    // Restart helper container with actual SOURCE_COMMIT value
+    if (this.app.use_build_secrets && s.commit !== "HEAD") {
+      await this.log("Restarting helper container with actual SOURCE_COMMIT value.");
+      await this.prepareBuilderImage(false);
+    }
+  }
+
+  /** save_git_ssh_known_hosts(): the host keys SSH accepted on first use, so later deployments reject a changed key. */
+  private async saveGitSshKnownHosts(): Promise<void> {
+    const s = this.state;
+    delete s.saved.git_ssh_known_hosts;
+    await this.exec({ command: executeInDocker(this.uuid, `cat ${gitKnownHostsFile(this.uuid)}`), hidden: true, ignoreErrors: true, save: "git_ssh_known_hosts" });
+    // Two first deployments can accept different keys at the same time; the key that was saved first is kept.
+    const hostAndKeyType = (line: string): string => line.split(" ").slice(0, 2).join(" ");
+    const savedTypes = gitKnownHostsLines(this.app.git_ssh_known_hosts).map(hostAndKeyType);
+    // The file also has the built-in keys; they are not saved for the application.
+    const newLines = gitKnownHostsLines(s.saved.git_ssh_known_hosts ?? "").filter((line) => !GIT_PINNED_HOST_KEYS.includes(line) && !savedTypes.includes(hostAndKeyType(line)));
+    if (newLines.length === 0) return;
+    const merged = await this.deps.store.mergeGitSshKnownHosts(this.app.id, (stored) => {
+      const currentLines = gitKnownHostsLines(stored);
+      const currentTypes = currentLines.map(hostAndKeyType);
+      const added: string[] = [];
+      const conflicting: string[] = [];
+      for (const line of newLines.filter((l) => !currentLines.includes(l))) (currentTypes.includes(hostAndKeyType(line)) ? conflicting : added).push(line);
+      return { knownHosts: [...currentLines, ...added].join("\n"), changed: added.length > 0, added, conflicting };
+    });
+    if (merged === null) return;
+    s.applicationChanges = { ...s.applicationChanges, git_ssh_known_hosts: merged.knownHosts };
+    for (const line of merged.added) {
+      const [host, keyType] = line.split(" ");
+      await this.log(`Saved the SSH host key of ${host} (${keyType}). Later deployments accept only this key. You can see or remove it under Source.`);
+    }
+    for (const line of merged.conflicting) {
+      const [host, keyType] = line.split(" ");
+      await this.log(`Freeploy did not save the SSH host key of ${host} (${keyType}). Another deployment saved a different key of this type at the same time. Later deployments accept only the saved key.`, "stderr");
+    }
+  }
+
+  /**
+   * clone_repository() with import_repository(): SSH exits with 255 when the connection drops, which can happen
+   * during a long clone, so only that is tried again — after a wait, and after the interrupted clone is stopped
+   * and its partial checkout removed.
+   */
+  private async cloneRepository(): Promise<"next" | "again"> {
+    const s = this.state;
+    const repository = this.repository;
+    if (s.cloneAttempt === 0) {
+      await this.log("\n----------------------------------------");
+      await this.log(`Importing ${repository.name}:${this.app.git_branch} (commit sha ${s.commit}) to ${this.basedir}.`);
+      s.cloneAttempt = 1;
+    }
+    if (s.cloneCleanup) {
+      s.cloneCleanup = false;
+      try {
+        await this.exec({ command: executeInDocker(this.uuid, `pkill git; rm -rf ${escapeshellarg(this.basedir)}`), hidden: true, ignoreErrors: true });
+      } catch (e) {
+        await this.logGitHint(failureOf(e).message);
+        throw e;
+      }
+    }
+    const command = gitImportCommand({
+      deploymentUuid: this.uuid,
+      fullRepoUrl: repository.url,
+      branch: this.app.git_branch,
+      commit: s.commit,
+      isShallowCloneEnabled: Boolean(this.build.is_git_shallow_clone_enabled),
+      isSubmodulesEnabled: Boolean(this.build.is_git_submodules_enabled),
+      isLfsEnabled: Boolean(this.build.is_git_lfs_enabled),
+    });
+    try {
+      await this.exec({ command, hidden: true });
+    } catch (e) {
+      const failure = failureOf(e);
+      if (failure.phpClass === DEPLOYMENT_EXCEPTION && failure.code === 255 && s.cloneAttempt < CLONE_MAX_ATTEMPTS) {
+        const delay = cloneRetryDelay(s.cloneAttempt - 1);
+        await this.log(`Lost the SSH connection while importing the repository. Retrying in ${delay}s (attempt ${s.cloneAttempt + 1}/${CLONE_MAX_ATTEMPTS}).`, "stderr");
+        s.cloneAttempt++;
+        s.cloneCleanup = true;
+        s.wait = { seconds: delay, ticks: false };
+        return "again";
+      }
+      await this.logGitHint(failure.message);
+      throw e;
+    }
+    await this.saveGitSshKnownHosts();
+    await this.createWorkdir();
+    // The commit belongs to the root repository, which is not the base directory when it is a submodule.
+    await this.exec({ command: executeInDocker(this.uuid, `cd ${this.basedir} && git log -1 ${escapeshellarg(s.commit)} --pretty=%B`), hidden: true, save: "commit_message", ignoreErrors: true });
+    if (s.saved.commit_message !== undefined) await this.deps.store.setCommitMessage(this.app.id, s.commit, phpTrim(s.saved.commit_message));
+    return "next";
+  }
+
+  /** check_image_locally_or_remotely(): the image of the commit, on the server or in the application's registry. */
+  private async checkImageLocallyOrRemotely(): Promise<void> {
+    const image = this.image;
+    await this.exec({ command: `docker images -q ${image} 2>/dev/null`, hidden: true, save: "local_image_found" });
+    if ((this.state.saved.local_image_found ?? "") === "" && truthy(this.app.docker_registry_image_name)) {
+      await this.log(`Image (${image}) not found on the server. Pulling it from the Docker registry.`);
+      await this.exec({ command: `docker pull ${escapeshellarg(image)} 2>/dev/null`, ignoreErrors: true, hidden: true });
+      await this.exec({ command: `docker images -q ${image} 2>/dev/null`, hidden: true, save: "local_image_found" });
+    }
+  }
+
+  /**
+   * should_skip_build(): the image of the commit is started without a build when nothing of its build changed
+   * since the last deployment. True: the caller goes on with the compose file, the .env file and the rolling update.
+   */
+  private async shouldSkipBuild(): Promise<boolean> {
+    const s = this.state;
+    if ((s.saved.local_image_found ?? "") !== "") {
+      // has_remote_buildtime_secret_references()
+      if (this.variables.some((v) => v.is_buildtime && usesRemoteSecretReferences(v))) {
+        await this.log("Remote build-time secrets are configured. Running the build to check for updated values.");
+        return false;
+      }
+      const diff = this.ctx.configurationDiff;
+      if (!diff.requiresBuild) {
+        await this.log(`No build configuration changed & image found (${this.image})${this.simple ? "" : " with the same Git Commit SHA"}. Build step skipped.`);
+        s.skipBuild = true;
+        return true;
+      }
+      if (diff.legacyFallback) await this.log("The last deployment stored no configuration snapshot. Rebuilding image.");
+      else await this.log("Build configuration changed. Rebuilding image.");
+    } else {
+      await this.log(`Image not found (${this.image}). Building new image.`);
+    }
+    if (this.build.disable_build_cache) s.forceRebuild = true;
+    return false;
+  }
+
+  // ── A build: Nixpacks ──
+
+  /** generate_nixpacks_confs(): the plan `nixpacks plan` prints, with Coolify's variables and packages in it. */
+  private async generateNixpacksConfs(): Promise<void> {
+    const s = this.state;
+    const input = this.buildInput;
+    const command = await this.guard(() => nixpacksPlanCommand(input, { build: this.build.build_command, start: this.build.start_command, install: this.build.install_command }, this.workdir));
+    await this.log(`Generating nixpacks configuration with: ${command}`);
+    await this.exec({ command: executeInDocker(this.uuid, command), save: "nixpacks_plan", hidden: true }, { command: executeInDocker(this.uuid, `nixpacks detect ${this.workdir}`), save: "nixpacks_type", hidden: true });
+    if (s.saved.nixpacks_type !== undefined) {
+      s.nixpacksType = phpTrim(s.saved.nixpacks_type);
+      if (s.nixpacksType === "") throw deploymentException("Nixpacks failed to detect the application type. Please check the documentation of Nixpacks: https://nixpacks.com/docs/providers");
+    }
+    const output = s.saved.nixpacks_plan;
+    if (output === undefined || output === "" || output === "0") return;
+    await this.log(`Found application type: ${s.nixpacksType ?? ""}.`);
+    await this.log(`If you need further customization, please check the documentation of Nixpacks: https://nixpacks.com/docs/providers/${s.nixpacksType ?? ""}`);
+    // laravel_finetunes(): the variable the user set, or the default, which is then created.
+    const created: Array<readonly [string, string]> = [];
+    const laravel = (key: string): string | null => {
+      const existing = this.variables.find((v) => v.key === key);
+      if (existing) return existing.value;
+      const fallback = LARAVEL_NIXPACKS_VARIABLES.find(([name]) => name === key)!;
+      created.push(fallback);
+      return fallback[1];
+    };
+    const plan = await this.guard(() => nixpacksPlan(output, input, s.nixpacksType, laravel));
+    for (const [key, value] of created) {
+      await this.deps.store.createVariable(this.app.id, key, value);
+      s.createdVariables = [...s.createdVariables, { key, value }];
+    }
+    await this.logAll(plan.logs);
+    s.nixpacksPlan = plan.plan;
+    // The variables stay out of the log: they would expose the environment.
+    await this.log(`Final Nixpacks plan: ${plan.planForLog}`, "stdout", true);
+    if (s.nixpacksType === "rust") {
+      // temporary: disable healthcheck for rust because the start phase does not have curl/wget
+      s.applicationChanges = { ...s.applicationChanges, health_check_enabled: false };
+      await this.deps.store.updateHealthcheck(this.app.id, { health_check_enabled: false });
+    }
+  }
+
+  // ── A build: the image ──
+
+  /** What each build pack does between its compose file and its .env file: the build. */
+  async buildStep(): Promise<void> {
+    const s = this.state;
+    if (this.simple) {
+      // The image has no commit tag, so only a restart reuses it. A deployment builds the Dockerfile again.
+      if (this.ctx.deployment.restart_only && !s.forceRebuild) {
+        await this.checkImageLocallyOrRemotely();
+        if (await this.shouldSkipBuild()) {
+          // should_skip_build() writes the compose file again before it goes on.
+          s.next = "configure";
+          return;
+        }
+      }
+      await this.validateKeys(true);
+    }
+    // The build-time .env file, before the build.
+    await this.saveBuildtimeEnvironmentVariables();
+    if (this.pack === "static" && !this.simple) {
+      await this.buildStaticImage();
+    } else {
+      await this.generateBuildEnvVariables();
+      if (this.simple || this.pack === "dockerfile") await this.addBuildEnvVariablesToDockerfile();
+      await this.buildImage();
+    }
+    s.next = "env";
+  }
+
+  /** The runtime .env file — after the build, so it also has the runtime-only variables — and the registry. */
+  async env(): Promise<void> {
+    await this.saveRuntimeEnvironmentVariables();
+    await this.pushToDockerRegistry();
+    this.state.next = "deploy";
+  }
+
+  private get planVariables(): Array<[string, unknown]> {
+    return nixpacksPlanVariables(this.state.nixpacksPlan);
+  }
+
+  /** save_buildtime_environment_variables(): /artifacts/build-time.env, outside the Docker context. */
+  private async saveBuildtimeEnvironmentVariables(): Promise<void> {
+    const planVariables = this.pack === "nixpacks" ? this.planVariables : [];
+    const lines = await this.guard(() => generateBuildtimeEnvironmentVariables(this.buildInput, planVariables.length > 0 ? planVariables : null));
+    const { launcher, files } = buildtimeEnvironmentFiles(lines);
+    this.state.useLauncher = launcher;
+    const write = (path: string, contents: string): Command => ({ command: executeInDocker(this.uuid, `echo '${base64Encode(contents)}' | base64 -d | tee ${path} > /dev/null`), skipCommandLog: true });
+    if (!launcher) {
+      if (lines.length > 0) {
+        await this.log("Creating build-time .env file in /artifacts (outside Docker context).", "stdout", true);
+        await this.exec(write(BUILD_TIME_ENV_PATH, lines.join("\n")));
+      } else if (["dockercompose", "dockerfile", "railpack"].includes(this.pack)) {
+        await this.log("Creating empty build-time .env file in /artifacts (no build-time variables defined).", "stdout", true);
+        await this.exec({ command: executeInDocker(this.uuid, `touch ${BUILD_TIME_ENV_PATH}`) });
+      }
+      return;
+    }
+    await this.log("Creating build-time environment files in /artifacts (outside Docker context).", "stdout", true);
+    for (const [path, contents] of files) await this.exec(write(path, contents));
+    await this.exec({ command: executeInDocker(this.uuid, `chmod 700 ${BUILD_TIME_ENV_LAUNCHER_PATH}`) });
+  }
+
+  /** The variables a build is given: the Nixpacks plan's, or the build arguments. */
+  private buildVariables(): Array<[string, unknown]> {
+    return this.pack === "nixpacks" ? this.planVariables : [...generateEnvVariables(this.buildInput)];
+  }
+
+  /** generate_build_env_variables(): the --build-arg flags, or with build secrets the --secret flags. */
+  private async generateBuildEnvVariables(): Promise<void> {
+    const variables = await this.guard(() => this.buildVariables());
+    if (variables.length > 0) await this.logAll(analyzeBuildTimeVariables(variables, this.variables));
+    if (this.state.secretsSupported) {
+      this.buildArgs = [];
+      this.buildSecrets = "";
+      if (variables.length === 0) return;
+      const flags = await this.guard(() => buildSecretFlags(variables));
+      // Docker ignores secret values for the build cache, so the hash goes in as a build arg
+      const hash = await secretsHash(this.hashKey, await this.guard(() => this.withRawBuildSecretValues(variables)));
+      this.buildSecrets = `${flags} --build-arg ${escapeshellarg(`COOLIFY_BUILD_SECRETS_HASH=${hash}`)}`;
+      return;
+    }
+    const hash = variables.length > 0 ? await secretsHash(this.hashKey, variables) : "";
+    // Only the name: Docker takes the value from the environment the build script sources.
+    this.buildArgs = variables.map(([key]) => {
+      if (!isValidEnvironmentVariableKey(key)) throw new PhpException({ phpClass: "InvalidArgumentException", message: "Invalid environment variable key.", code: 0 });
+      return `--build-arg ${escapeshellarg(key)}`;
+    });
+    if (hash !== "") this.buildArgs.push(`--build-arg ${escapeshellarg(`COOLIFY_BUILD_SECRETS_HASH=${hash}`)}`);
+  }
+
+  /** add_build_env_variables_to_dockerfile(): an ARG for every build argument, after each FROM. */
+  private async addBuildEnvVariablesToDockerfile(): Promise<void> {
+    // With build secrets the variables come in with --secret: no ARG is needed.
+    if (this.state.secretsSupported) return;
+    if (this.build.inject_build_args_to_dockerfile === false) {
+      await this.log("Skipping Dockerfile ARG injection (disabled in settings).", "stdout", true);
+      return;
+    }
+    const path = `${this.workdir}${this.dockerfileLocation}`;
+    await this.exec({ command: executeInDocker(this.uuid, `cat ${path}`), hidden: true, save: "dockerfile", ignoreErrors: true });
+    const dockerfile = await this.guard(() => dockerfileWithBuildArgs(this.state.saved.dockerfile, this.variables, this.state.coolifyVariables, this.hashKey));
+    // A file without a FROM is left as it is.
+    if (dockerfile === null) return;
+    await this.log("Final Dockerfile:", "info", true);
+    await this.exec({ command: executeInDocker(this.uuid, `echo '${base64Encode(dockerfile)}' | base64 -d | tee ${path} > /dev/null`), hidden: true, skipCommandLog: true });
+  }
+
+  /** modify_dockerfile_for_secrets(): the secret mounts on every RUN of the Dockerfile the build reads. */
+  private async modifyDockerfileForSecrets(path: string): Promise<void> {
+    if (this.buildSecrets === "" || this.buildSecrets === "0") return;
+    await this.exec({ command: executeInDocker(this.uuid, `cat ${path}`), hidden: true, save: "dockerfile_content" });
+    const dockerfile = await this.guard(() => dockerfileWithSecretMounts(this.state.saved.dockerfile_content, this.buildVariables()));
+    if (dockerfile === null) return;
+    await this.exec({ command: executeInDocker(this.uuid, `echo '${base64Encode(dockerfile)}' | base64 -d | tee ${path} > /dev/null`), hidden: true });
+  }
+
+  /** staticImage(): a stored value Freeploy does not support stops the deployment, instead of another web server. */
+  private staticImage(): string {
+    const image = this.build.static_image ?? "";
+    if (!STATIC_IMAGES.includes(image)) {
+      throw deploymentException(`The static image '${image}' is not supported. Select a supported web server (${STATIC_IMAGES.join(", ")}) in the application settings and deploy again.`);
+    }
+    return image;
+  }
+
+  /** pull_latest_image() */
+  private async pullLatestImage(image: string): Promise<void> {
+    await this.log(`Pulling latest image (${image}) from the registry.`);
+    await this.exec({ command: executeInDocker(this.uuid, `docker pull ${escapeshellarg(image)}`), hidden: true });
+  }
+
+  /** The web server's configuration: the application's own, or the default of a static site or a single page application. */
+  private nginxConfiguration(): string {
+    const custom = this.build.custom_nginx_configuration === null ? "" : storedBase64Decode(this.build.custom_nginx_configuration);
+    return custom !== "" ? custom : defaultNginxConfiguration(this.build.is_spa ? "spa" : "static");
+  }
+
+  /** The build command as a script in the helper: written, shown in the debug log, run. */
+  private buildScript(buildCommand: string): Command[] {
+    return [
+      { command: executeInDocker(this.uuid, `echo '${base64Encode(buildCommand)}' | base64 -d | tee ${BUILD_SCRIPT_PATH} > /dev/null`), hidden: true },
+      { command: executeInDocker(this.uuid, `cat ${BUILD_SCRIPT_PATH}`), hidden: true },
+      { command: executeInDocker(this.uuid, `bash ${BUILD_SCRIPT_PATH}`), hidden: true },
+    ];
+  }
+
+  private writeFile(path: string, contents: string): Command {
+    return { command: executeInDocker(this.uuid, `echo '${base64Encode(contents)}' | base64 -d | tee ${path} > /dev/null`) };
+  }
+
+  /** build_static_image(): the repository's files, copied into the web server's image. */
+  private async buildStaticImage(): Promise<void> {
+    const s = this.state;
+    await this.log("----------------------------------------");
+    await this.log("Static deployment. Copying static assets to the image.");
+    if (truthy(this.build.static_image)) await this.pullLatestImage(this.staticImage());
+    const dockerfile = staticDockerfile(this.staticImage(), this.uuid);
+    const nginx = this.nginxConfiguration();
+    const file = `${this.workdir}/Dockerfile`;
+    const buildCommand = s.buildkit
+      ? `DOCKER_BUILDKIT=1 docker build ${s.addHosts} --network host -f ${file} --progress plain -t ${this.image} ${this.workdir}`
+      : `docker build ${s.addHosts} --network host -f ${file} -t ${this.image} ${this.workdir}`;
+    await this.exec(this.writeFile(file, dockerfile), this.writeFile(`${this.workdir}/nginx.conf`, nginx), ...this.buildScript(buildCommand));
+    await this.log("Building docker image completed.");
+  }
+
+  /** The `docker build` of a Dockerfile, in the three forms Coolify has: with build secrets, with BuildKit, without. */
+  private dockerBuildCommand(options: { file: string; tag: string; pull?: boolean; target?: boolean; noCache: boolean; argsBeforeProgress?: boolean }): string {
+    const s = this.state;
+    const target = this.app.dockerfile_target_build;
+    // "{$this->buildTarget} {$this->addHosts}": each stands between spaces, also when it is empty.
+    const flags = `${options.noCache ? "--no-cache " : ""}${options.pull ? "--pull " : ""}${options.target ? `${truthy(target) ? ` --target ${target} ` : ""} ` : ""}${s.addHosts} --network host -f ${options.file}`;
+    const args = this.buildArgs.join(" ");
+    // The web server's image of a static site has no secrets variant: its build arguments stand before --progress.
+    if (options.argsBeforeProgress) return s.buildkit ? `DOCKER_BUILDKIT=1 docker build ${flags} ${args} --progress plain -t ${options.tag} ${this.workdir}` : `docker build ${flags} ${args} -t ${options.tag} ${this.workdir}`;
+    if (s.secretsSupported) return `DOCKER_BUILDKIT=1 docker build ${flags}${this.buildSecrets !== "" && this.buildSecrets !== "0" ? ` ${this.buildSecrets}` : ""} --progress plain -t ${options.tag} ${this.workdir}`;
+    if (s.buildkit) return `DOCKER_BUILDKIT=1 docker build ${flags} --progress plain -t ${options.tag} ${args} ${this.workdir}`;
+    // No --progress: the legacy builder does not know it.
+    return options.target ? `docker build ${flags} ${args} -t ${options.tag} ${this.workdir}` : `docker build ${flags} -t ${options.tag} ${args} ${this.workdir}`;
+  }
+
+  private wrap(buildCommand: string): string {
+    return wrapBuildCommand(buildCommand, this.workdir, this.state.useLauncher);
+  }
+
+  /** The Nixpacks build: the plan becomes a Dockerfile (`nixpacks build -o`), which Docker builds. */
+  private async buildNixpacks(tag: string): Promise<void> {
+    const s = this.state;
+    await this.exec({ command: executeInDocker(this.uuid, `echo '${base64Encode(s.nixpacksPlan ?? "")}' | base64 -d | tee ${NIXPACKS_PLAN_PATH} > /dev/null`), hidden: true, skipCommandLog: true });
+    const file = `${this.workdir}/.nixpacks/Dockerfile`;
+    const cache = s.forceRebuild ? "--no-cache" : `--cache-key '${this.app.uuid}'`;
+    await this.exec(
+      { command: executeInDocker(this.uuid, `nixpacks build -c ${NIXPACKS_PLAN_PATH} ${cache} --no-error-without-start -n ${tag} ${this.workdir} -o ${this.workdir}`), hidden: true },
+      { command: executeInDocker(this.uuid, `cat ${file}`), hidden: true },
+    );
+    if (s.secretsSupported) await this.modifyDockerfileForSecrets(file);
+    await this.exec(...this.buildScript(this.wrap(this.dockerBuildCommand({ file, tag, noCache: s.forceRebuild }))));
+    await this.exec({ command: executeInDocker(this.uuid, `rm ${NIXPACKS_PLAN_PATH}`), hidden: true });
+  }
+
+  /** The Dockerfile build pack's build: the repository's Dockerfile, with its target stage. */
+  private async buildDockerfile(tag: string): Promise<void> {
+    const s = this.state;
+    const file = `${this.workdir}${this.dockerfileLocation}`;
+    if (s.secretsSupported) await this.modifyDockerfileForSecrets(file);
+    await this.exec(...this.buildScript(this.wrap(this.dockerBuildCommand({ file, tag, target: true, noCache: s.forceRebuild }))));
+  }
+
+  /** build_image() */
+  private async buildImage(): Promise<void> {
+    const s = this.state;
+    // Without build secrets, Coolify's variables are build arguments.
+    if (!s.secretsSupported) {
+      const names = await this.guard(() => generateCoolifyBuildVariables(this.buildInput).map(([key]) => validatedBuildtimeKey(key, "the Coolify build environment")));
+      this.buildArgs.push(...names.map((key) => `--build-arg ${escapeshellarg(key)}`));
+    }
+    await this.log("----------------------------------------");
+    if (this.build.disable_build_cache) await this.log("Docker build cache is disabled. It will not be used during the build process.");
+    if (this.pack === "static") {
+      await this.log("Static deployment. Copying static assets to the image.");
+    } else {
+      await this.log("Building docker image started.");
+      await this.log("To check the current progress, click on Show Debug Logs.");
+    }
+    if (this.app.is_static) {
+      // Built in an image of its own, and its output copied into the web server's image.
+      if (truthy(this.build.static_image)) {
+        await this.pullLatestImage(this.staticImage());
+        await this.log("Continuing with the building process.");
+      }
+      if (this.pack === "nixpacks") await this.buildNixpacks(this.buildImageName);
+      else await this.buildDockerfile(this.buildImageName);
+      const dockerfile = staticSiteDockerfile(this.staticImage(), this.uuid, this.buildImageName, this.build.publish_directory);
+      const file = `${this.workdir}/Dockerfile`;
+      const buildCommand = this.wrap(this.dockerBuildCommand({ file, tag: this.image, noCache: false, argsBeforeProgress: true }));
+      await this.exec(this.writeFile(file, dockerfile), this.writeFile(`${this.workdir}/nginx.conf`, this.nginxConfiguration()), ...this.buildScript(buildCommand));
+    } else if (this.simple) {
+      // Pure Dockerfile based deployment: the base image is pulled again, as nothing else says it changed.
+      const file = `${this.workdir}${this.dockerfileLocation}`;
+      if (s.secretsSupported) await this.modifyDockerfileForSecrets(file);
+      const buildCommand = this.dockerBuildCommand({ file, tag: this.image, pull: true, target: true, noCache: s.forceRebuild });
+      // With build secrets the helper's environment has the variables: the build-time .env file is not sourced.
+      await this.exec(...this.buildScript(s.secretsSupported ? buildCommand : this.wrap(buildCommand)));
+    } else if (this.pack === "nixpacks") {
+      await this.buildNixpacks(this.image);
+    } else {
+      await this.buildDockerfile(this.image);
+    }
+    await this.log("Building docker image completed.");
+  }
+
+  /** push_to_docker_registry(): the built image, and the application's own tag, to its registry. */
+  private async pushToDockerRegistry(): Promise<void> {
+    const app = this.app;
+    const name = app.docker_registry_image_name;
+    if (name === null || name === "") return;
+    if (this.state.restartOnly) return;
+    const image = this.image;
+    try {
+      await this.instant([`docker images --format '{{json .}}' ${image}`]);
+      await this.log("----------------------------------------");
+      await this.log(`Pushing image to docker registry (${image}).`);
+      await this.exec({ command: executeInDocker(this.uuid, `docker push ${escapeshellarg(image)}`), hidden: true });
+      if (filled(app.docker_registry_image_tag)) {
+        // Tag image with docker_registry_image_tag
+        const tagged = `${name}:${app.docker_registry_image_tag}`;
+        await this.log(`Tagging and pushing image with ${app.docker_registry_image_tag} tag.`);
+        await this.exec(
+          { command: executeInDocker(this.uuid, `docker tag ${escapeshellarg(image)} ${escapeshellarg(tagged)}`), ignoreErrors: true, hidden: true },
+          { command: executeInDocker(this.uuid, `docker push ${escapeshellarg(tagged)}`), ignoreErrors: true, hidden: true },
+        );
+      }
+    } catch (e) {
+      const failure = failureOf(e);
+      await this.log("Failed to push image to docker registry. Please check debug logs for more information.");
+      throw deploymentException(`${failure.phpClass}: ${failure.message}`, failure.code, failure);
+    }
   }
 
   /** "Rolling update failed (<class>): <message>" around what rolling_update() does. */
@@ -861,9 +1801,14 @@ class Job {
       // Ensure .env file exists before docker compose tries to load it (defensive programming)
       await this.exec({ command: `touch ${this.configurationDir}/.env`, hidden: true }, { command: `docker network connect ${escapeshellarg(this.network)} coolify-proxy >/dev/null 2>&1 || true`, hidden: true, ignoreErrors: true });
       const project = `docker compose --project-name ${this.app.uuid} --project-directory ${this.workdir}`;
-      await this.pullDockerImage(project);
-      // "{$this->coolify_variables} docker compose …": a Docker image deployment has none, the space stays.
-      await this.exec({ command: executeInDocker(this.uuid, ` ${project} up --build -d`), hidden: true });
+      // "{$this->coolify_variables} docker compose …": a deployment that never read its repository has none, the space stays.
+      const variables = this.state.coolifyVariables ?? "";
+      if (this.pack === "dockerimage") {
+        await this.pullDockerImage(project);
+        await this.exec({ command: executeInDocker(this.uuid, `${variables} ${project} up --build -d`), hidden: true });
+      } else {
+        await this.exec({ command: executeInDocker(this.uuid, `${variables} ${project} -f ${this.workdir}/docker-compose.yaml up --build -d`), hidden: true });
+      }
       await this.log("New container started.");
     } catch (e) {
       const failure = failureOf(e);
@@ -1040,9 +1985,11 @@ class Job {
         }
         for (const name of remove) await this.gracefulShutdownContainer(name);
       } else {
-        await this.log("----------------------------------------");
-        await this.log("WARNING: Dockerfile or Docker Image based deployment detected. The healthcheck needs a curl or wget command to check the health of the application. Please make sure that it is available in the image or turn off healthcheck on Freeploy's UI.");
-        await this.log("----------------------------------------");
+        if (this.simple || this.pack === "dockerfile" || this.pack === "dockerimage") {
+          await this.log("----------------------------------------");
+          await this.log("WARNING: Dockerfile or Docker Image based deployment detected. The healthcheck needs a curl or wget command to check the health of the application. Please make sure that it is available in the image or turn off healthcheck on Freeploy's UI.");
+          await this.log("----------------------------------------");
+        }
         await this.log("New container is not healthy, rolling back to the old container.");
         await this.transitionToStatus("failed");
         await this.gracefulShutdownContainer(s.containerName);
@@ -1117,6 +2064,9 @@ class Job {
   async post(): Promise<void> {
     // Mark deployment as complete FIRST, before any other operations.
     await this.transitionToStatus("finished");
+    this.state.next = "finish";
+    // just_restart(): completeDeployment(), and nothing of post_deployment().
+    if (this.state.restartSkipsPost) return;
     // Then handle side effects - these should not fail the deployment
     try {
       await this.deps.effect({ type: "job", job: "GetContainersStatus", serverId: this.app.server_id });
@@ -1243,15 +2193,14 @@ function lastHealthLog(saved: string | undefined): { output: string; code: strin
 // ── Running it ──────────────────────────────────────────────────────────────────────────────────────────
 
 /** The steps inside handle()'s try: a failure there runs failed(), then the cleanup. */
-const TRY_STEPS: readonly DeploymentStep[] = ["detect", "prepare", "configure", "deploy", "health", "drain", "remove_old", "post"];
-const FOLLOWING: Readonly<Partial<Record<DeploymentStep, DeploymentStep>>> = { detect: "prepare", prepare: "configure", configure: "deploy" };
+const TRY_STEPS: readonly DeploymentStep[] = ["detect", "restart", "prepare", "source", "configure", "build", "env", "deploy", "health", "drain", "remove_old", "post"];
 
 /**
  * One step of the deployment: the state after it. Nothing is thrown for a failed deployment — the state says
  * what to run next (failed(), then the cleanup) and, in the end, what Coolify's job would have thrown.
  */
 export async function runStep(deps: EngineDeps, ctx: DeploymentContext, state: EngineState): Promise<EngineState> {
-  const next: EngineState = { ...state, saved: { ...state.saved }, health: { ...state.health }, wait: null };
+  const next: EngineState = { ...state, saved: { ...state.saved }, health: { ...state.health }, applicationChanges: { ...state.applicationChanges }, wait: null };
   const step = next.next;
   if (step === "done") return next;
   const job = new Job(deps, ctx, next);
@@ -1274,14 +2223,17 @@ export async function runStep(deps: EngineDeps, ctx: DeploymentContext, state: E
   }
   try {
     if (step === "detect") await job.detect();
+    else if (step === "restart") await job.restart();
     else if (step === "prepare") await job.prepare();
+    else if (step === "source") await job.source();
     else if (step === "configure") await job.configure();
+    else if (step === "build") await job.buildStep();
+    else if (step === "env") await job.env();
     else if (step === "deploy") await job.deploy();
     else if (step === "health") await job.health();
     else if (step === "drain") await job.drain();
     else if (step === "remove_old") await job.removeOld();
     else await job.post();
-    if (next.next === step && FOLLOWING[step]) next.next = FOLLOWING[step];
   } catch (e) {
     if (!TRY_STEPS.includes(step)) throw e;
     // "catch (Exception $e) { $this->fail($e); throw $e; } finally { … }"

@@ -11,7 +11,16 @@ import {
   appendDeploymentLog,
   deploymentStatus,
   findDeploymentApplicationById,
+  findDeploymentBuild,
   findDeploymentForJob,
+  findDeploymentUuidsAmong,
+  insertEnvironmentVariable,
+  findEnvironmentVariablesByKey,
+  mergeApplicationGitSshKnownHosts,
+  reuseDeploymentCommitMessage,
+  setDeploymentCommit,
+  setDeploymentCommitMessage,
+  updateApplicationHealthcheck,
   findServerSshConnection,
   findSharedVariableForReference,
   listApplicationFileStorages,
@@ -35,7 +44,9 @@ import type { ExecutorConn } from "../executor.js";
 import { HTTP_BASIC_AUTH_PASSWORD_COLUMN } from "../handlers/application-labels.js";
 import { columnCipher } from "../handlers/cloud-tokens.js";
 import { generateLabelsApplication } from "../labels/labels.js";
-import type { DeploymentContext, DeploymentStore } from "./engine.js";
+import { ENVIRONMENT_VARIABLE_VERSION } from "../environment-variables/service.js";
+import { newPublicId } from "../helpers/names.js";
+import { LEGACY_CONFIGURATION_DIFF, type DeploymentContext, type DeploymentStore } from "./engine.js";
 import type { RuntimeVariable } from "./runtime-env.js";
 
 /**
@@ -72,6 +83,7 @@ export async function loadDeploymentVariables(tx: SqlExecutor, orgId: string, se
       if ((await shared(reference.type, reference.key))?.isShownOnce) referencesLocked = true;
     }
     variables.push({
+      id: Number(row.id),
       key: row.key,
       value,
       realValue: resolveRealValue(value, { find: (type, key) => found.get(`${type}.${key}`) ?? null }),
@@ -91,7 +103,8 @@ export async function loadDeploymentContext(tx: SqlExecutor, orgId: string, secr
   const deployment = await findDeploymentForJob(tx, deploymentUuid);
   if (!deployment) return null;
   const application = await findDeploymentApplicationById(tx, deployment.application_id);
-  if (!application) return null;
+  const build = application ? await findDeploymentBuild(tx, application.id) : null;
+  if (!application || !build) return null;
   const password = application.http_basic_auth_password ? await columnCipher(tx, orgId, secret, HTTP_BASIC_AUTH_PASSWORD_COLUMN).decrypt(application.http_basic_auth_password) : null;
   return {
     orgId,
@@ -101,11 +114,14 @@ export async function loadDeploymentContext(tx: SqlExecutor, orgId: string, secr
     persistentStorages: await listApplicationPersistentStorages(tx, application.id),
     fileStorages: await listApplicationFileStorages(tx, application.id),
     generateLabels: () => generateLabelsApplication(labelApplication(application, password), null),
+    build,
+    // No deployment stores a configuration snapshot yet: Coolify's answer after such a deployment.
+    configurationDiff: LEGACY_CONFIGURATION_DIFF,
   };
 }
 
 /** The deployment's writes, each in a transaction of its own in the org. */
-export function sqlDeploymentStore(db: TransactionalSqlExecutor, orgId: string): DeploymentStore {
+export function sqlDeploymentStore(db: TransactionalSqlExecutor, orgId: string, secret?: string): DeploymentStore {
   const run = <T>(fn: (tx: SqlExecutor) => Promise<T>): Promise<T> => withOrg(db, orgId, fn);
   return {
     status: (id) => run((tx) => deploymentStatus(tx, id)),
@@ -127,6 +143,43 @@ export function sqlDeploymentStore(db: TransactionalSqlExecutor, orgId: string):
     },
     rememberDockerVersion: (serverId, version) => run((tx) => rememberServerDockerVersion(tx, serverId, version)),
     startNextQueued: async (applicationId, serverId) => (await run((tx) => startNextQueuedDeployments(tx, applicationId, serverId))).map((d) => d.deployment_uuid),
+    setCommit: (id, commit) => run((tx) => setDeploymentCommit(tx, id, commit)),
+    setCommitMessage: (applicationId, commit, message) => run((tx) => setDeploymentCommitMessage(tx, applicationId, commit, message)),
+    reuseCommitMessage: async (id, applicationId, commit) => {
+      await run((tx) => reuseDeploymentCommitMessage(tx, id, applicationId, commit));
+    },
+    updateHealthcheck: async (applicationId, changes) => {
+      await run((tx) => updateApplicationHealthcheck(tx, applicationId, changes));
+    },
+    mergeGitSshKnownHosts: (applicationId, merge) => run((tx) => mergeApplicationGitSshKnownHosts(tx, applicationId, merge)),
+    deploymentUuidsAmong: (names) => run((tx) => findDeploymentUuidsAmong(tx, names)),
+    // "new EnvironmentVariable; ->save()": the model's defaults — at build time and at runtime, without an order
+    // (so after the ordered ones) — and, as its created hook does, the preview copy when the key has none.
+    createVariable: async (applicationId, key, value) => {
+      await run(async (tx) => {
+        const encrypted = await columnCipher(tx, orgId, secret, "environment_variables.value").encrypt(value);
+        for (const isPreview of [false, true]) {
+          if (isPreview && (await findEnvironmentVariablesByKey(tx, "application", applicationId, true, key)).length > 0) continue;
+          await insertEnvironmentVariable(tx, "application", applicationId, {
+            orgId,
+            uuid: newPublicId(),
+            key,
+            value: encrypted,
+            comment: null,
+            order: null,
+            isPreview,
+            isMultiline: false,
+            isLiteral: false,
+            isRuntime: true,
+            isBuildtime: true,
+            isRequired: false,
+            isShownOnce: false,
+            isShared: false,
+            version: ENVIRONMENT_VARIABLE_VERSION,
+          });
+        }
+      });
+    },
   };
 }
 

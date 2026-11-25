@@ -486,3 +486,14 @@ export {
   type DeployServicePartRow,
   type DeployServiceServerRow,
 } from "./services.js";
+export {
+  findDeploymentBuild,
+  setDeploymentCommit,
+  setDeploymentCommitMessage,
+  reuseDeploymentCommitMessage,
+  updateApplicationHealthcheck,
+  mergeApplicationGitSshKnownHosts,
+  findDeploymentUuidsAmong,
+  type DeployDeploymentBuildRow,
+  type ApplicationHealthcheckChanges,
+} from "./deployment-builds.js";

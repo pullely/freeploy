@@ -26,6 +26,8 @@ export const RESTART_MODE = "unless-stopped";
 
 /** The columns of deploy.applications the compose file is made of. */
 export interface ComposeApplication {
+  /** Only read for the static build pack, whose web server listens on 80. */
+  build_pack?: string;
   uuid: string;
   name: string;
   ports_exposes: string | null;
@@ -225,7 +227,7 @@ export function generateHealthcheckCommands(application: ComposeApplication, set
   } else {
     port = intval(application.health_check_port);
   }
-  if (settings.is_static) port = 80;
+  if (settings.is_static || application.build_pack === "static") port = 80;
 
   const method = sanitized(application.health_check_method, /^[A-Z]+$/, "GET");
   const scheme = sanitized(application.health_check_scheme, /^https?$/, "http");

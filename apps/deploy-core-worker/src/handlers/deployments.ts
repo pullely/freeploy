@@ -32,6 +32,7 @@ import {
   enqueueDeployment,
   failUnattendedDeployment,
   findDeploymentApplicationById,
+  findDeploymentBuild,
   findDeploymentApplicationByUuid,
   findDeploymentByUuid,
   findRunningDeploymentUrl,
@@ -82,6 +83,7 @@ function sqlStore(tx: SqlExecutor, orgId: string, secret: string | undefined): D
   return {
     findApplication: (uuid) => findDeploymentApplicationByUuid(tx, uuid),
     findApplicationById: (id) => findDeploymentApplicationById(tx, id),
+    findBuild: (applicationId) => findDeploymentBuild(tx, applicationId),
     enqueue: (input) => enqueueDeployment(tx, { ...input, orgId }),
     list: (applicationId, options) => listDeployments(tx, applicationId, options),
     filterOptions: (applicationId) => deploymentFilterOptions(tx, applicationId),

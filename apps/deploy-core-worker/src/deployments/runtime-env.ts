@@ -24,6 +24,8 @@ import { jsonValidate, phpLtrim, phpTrim } from "./php.js";
 
 /** A variable of the application as a deployment reads it. */
 export interface RuntimeVariable {
+  /** Where it stands among the application's variables in the order they were created (the row's id). */
+  id?: number;
   key: string;
   /** The stored value, decrypted, without its edge line breaks; null when nothing is stored. */
   value: string | null;
@@ -54,7 +56,7 @@ export interface RuntimeEnvInput {
 
 export interface EnvLogEntry {
   message: string;
-  type: "stdout" | "stderr" | "info";
+  type: "stdout" | "stderr" | "info" | "warning";
 }
 
 /** What Coolify reports with a DeploymentException; `alreadyLogged` when the log already explains it. */
@@ -76,7 +78,7 @@ export function escapeComposeEnvFileValue(value: string | null, allowInterpolati
 
 /** RemoteSecretReferences::PATTERN */
 const VAULT_REFERENCE = /{{\s*vault\.([A-Za-z0-9_]+)\s*}}/;
-const containsVaultReference = (value: string | null): boolean => value !== null && phpTrim(value) !== "" && VAULT_REFERENCE.test(value);
+export const containsVaultReference = (value: string | null): boolean => value !== null && phpTrim(value) !== "" && VAULT_REFERENCE.test(value);
 
 export const NO_SECRET_MANAGER_MESSAGE = "Environment variables reference remote secrets ({{vault.KEY}}), but no secret manager source is configured for this application.";
 
@@ -86,7 +88,7 @@ const RUNTIME_BUILDPACK_CONTROL_VARIABLES = ["NIXPACKS_PHP_ROOT_DIR", "NIXPACKS_
 const isRuntimeScoped = (key: string): boolean => RUNTIME_BUILDPACK_CONTROL_VARIABLES.includes(key) || !(key.startsWith("NIXPACKS_") || key.startsWith("RAILPACK_"));
 
 /** validDomainsFromFqdn() */
-const validDomains = (fqdn: string | null): string[] => (fqdn ?? "").split(",").map((d) => phpTrim(d)).filter((d) => d !== "" && d !== "0" && isValidDomainUrl(d));
+export const validDomains = (fqdn: string | null): string[] => (fqdn ?? "").split(",").map((d) => phpTrim(d)).filter((d) => d !== "" && d !== "0" && isValidDomainUrl(d));
 
 /** hostsFromFqdn(): comma-separated hosts without scheme, port, or path (the COOLIFY_FQDN value). */
 export function hostsFromFqdn(fqdn: string | null): string {
@@ -250,7 +252,7 @@ export function validateDeploymentEnvironmentVariableKeys(variables: Array<Pick<
 }
 
 /** escapeEnvVariables(): the old escaping of a plain value, which build-time paths still write. */
-function escapeEnvVariables(value: string): string {
+export function escapeEnvVariables(value: string): string {
   const pairs: Array<[string, string]> = [["\\", "\\\\"], ["\r", "\\r"], ["\t", "\\t"], ["\0", "\\0"], ['"', '\\"'], ["'", "\\'"]];
   let out = value;
   for (const [search, replace] of pairs) out = out.split(search).join(replace);
@@ -258,7 +260,7 @@ function escapeEnvVariables(value: string): string {
 }
 
 /** escapeBashEnvValue(): single-quoted for a sourced .env file. */
-const escapeBashEnvValue = (value: string): string => (value === "" ? "''" : `'${value.split("'").join("'\\''")}'`);
+export const escapeBashEnvValue = (value: string): string => (value === "" ? "''" : `'${value.split("'").join("'\\''")}'`);
 
 /** EnvironmentVariable::logRedactionValues(): the forms of a variable's value a log could show. */
 export function logRedactionValues(variable: RuntimeVariable): string[] {

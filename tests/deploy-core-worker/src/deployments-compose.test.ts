@@ -29,14 +29,22 @@ function composeInput(run: RunCase): ComposeInput {
   };
 }
 
+/**
+ * The Docker image runs: their compose file and .env file are functions of the rows alone. Those of a build
+ * (DP-61) also depend on what the job found on the way — the commit, a Dockerfile's HEALTHCHECK, the variables
+ * Nixpacks needs — so they are compared where the job runs: deployments-engine.test.ts replays every one of
+ * them and compares the same two files, byte for byte, as the standard input and the command the job wrote.
+ */
+const imageRuns = runCases.filter((run) => run.application.build_pack === "dockerimage");
+
 /** The runs in which Coolify wrote a compose file, with the text it wrote. */
-const composed = runCases.flatMap((run) => {
+const composed = imageRuns.flatMap((run) => {
   const written = goldenRun(run.id).processes.find((p) => /^docker exec -i \S+ tee \/artifacts\/\S+\/docker-compose\.yaml > \/dev\/null$/.test(p.script));
   return written ? [[run.id, run, written.input ?? ""] as const] : [];
 });
 
 /** The runs in which Coolify wrote a .env file with content, with that content. */
-const envs = runCases.flatMap((run) => {
+const envs = imageRuns.flatMap((run) => {
   const written = goldenRun(run.id).processes.find((p) => /^echo '[A-Za-z0-9+/=]*' \| base64 -d \| tee \/data\/coolify\/applications\/\S+\/\.env > \/dev\/null$/.test(p.script));
   return written ? [[run.id, run, Buffer.from(written.script.split("'")[1]!, "base64").toString("utf8")] as const] : [];
 });

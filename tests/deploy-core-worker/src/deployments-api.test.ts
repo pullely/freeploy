@@ -10,8 +10,8 @@ import { undispatchableReason, deploymentListItem, type DeploymentServiceStore }
 import type { DeploymentExecutor, RemoteProcess } from "@deploy-core-worker/deployments/engine";
 import { sessionExecutor, withStdin } from "@deploy-core-worker/deployments/session-executor";
 import type { RuntimeVariable } from "@deploy-core-worker/deployments/runtime-env";
-import type { DeployDeploymentListRow, DeployDeploymentRow, DeployDeploymentWithLogsRow, DeploymentLogEntry, EnqueueResult, NewDeployment } from "@saas/db/deploy";
-import { applicationRow } from "./deployment-fixtures";
+import type { DeployDeploymentBuildRow, DeployDeploymentListRow, DeployDeploymentRow, DeployDeploymentWithLogsRow, DeploymentLogEntry, EnqueueResult, NewDeployment } from "@saas/db/deploy";
+import { applicationRow, buildRow } from "./deployment-fixtures";
 import { runCases } from "./deployment-goldens";
 
 const ORG = "org_" + "0".repeat(31) + "a";
@@ -54,6 +54,9 @@ class MemoryStore implements DeploymentServiceStore {
 
   findApplication = async (uuid: string) => (uuid === this.application.uuid ? this.application : null);
   findApplicationById = async (id: string | number) => (String(id) === String(this.application.id) ? this.application : null);
+  /** The Git and build columns: those of a public repository on GitHub, unless a test says otherwise. */
+  build: DeployDeploymentBuildRow = buildRow(runCases.find((r) => r.id === "dockerfile.first")!);
+  findBuild = async (id: string | number) => (String(id) === String(this.application.id) ? this.build : null);
   async enqueue(input: Omit<NewDeployment, "orgId">): Promise<EnqueueResult> {
     if (this.rows.filter((r) => r.status === "queued").length >= this.queueLimit) return { status: "queue_full" };
     const existing = this.rows.find((r) => r.commit === input.commit && (r.status === "queued" || r.status === "in_progress"));
@@ -249,12 +252,46 @@ describe("Deploy and Restart", () => {
     expect(undispatchableReason({ docker_registry_image_name: "nginx", docker_registry_image_tag: null }, { commit: "-x" })).toBe("Invalid deployment commit: must not start with a hyphen.");
   });
 
-  it("only a Docker image application can be deployed; nothing is queued for another build pack", async () => {
+  it.each(["dockerfile", "nixpacks", "static"])("a %s application of a public repository is queued with the commit it is pinned to, and its job starts", async (buildPack) => {
     const t = setup({ ssh: true });
-    t.store.application = { ...t.store.application, build_pack: "nixpacks" };
+    t.store.application = { ...t.store.application, build_pack: buildPack, docker_registry_image_name: null, docker_registry_image_tag: null };
+    const head = await t.call("POST", `${APP}/deploy`, {});
+    expect([head.status, head.body.data?.status]).toEqual([201, "queued"]);
+    expect(t.store.rows.map((r) => [r.commit, r.status, r.restart_only])).toEqual([["HEAD", "in_progress", false]]);
+    expect(t.dispatched).toEqual([t.store.rows[0]!.deployment_uuid]);
+    // $commit ?: ($application->git_commit_sha ?: 'HEAD')
+    t.store.rows[0]!.status = "finished";
+    t.store.build = { ...t.store.build, git_commit_sha: "0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c" };
+    const pinned = await t.call("POST", `${APP}/restart`, {});
+    expect(pinned.status).toBe(201);
+    expect(t.store.rows.map((r) => [r.commit, r.restart_only])).toEqual([["HEAD", false], ["0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c", true]]);
+  });
+
+  it("a pasted Dockerfile is deployed whatever its Git columns say", async () => {
+    const t = setup({ ssh: true });
+    t.store.application = { ...t.store.application, build_pack: "dockerfile", has_dockerfile: true, docker_registry_image_name: null, docker_registry_image_tag: null };
+    t.store.build = { ...t.store.build, private_key_id: 4, source_id: null, source_type: null };
+    expect((await t.call("POST", `${APP}/deploy`, {})).status).toBe(201);
+  });
+
+  it.each([
+    ["a Docker Compose application", { build_pack: "dockercompose" }, {}, "Deploying a Docker Compose application is not available yet."],
+    ["a Railpack application", { build_pack: "railpack" }, {}, "Deploying the railpack build pack is not available yet."],
+    ["a build server", { build_pack: "nixpacks" }, { is_build_server_enabled: true }, "Building on a build server is not available yet: turn off \"Use a Build Server\" to build on the application's server."],
+    ["a server for deployments only", { build_pack: "dockerfile" }, { server_role: "deployment" }, "The application's server is set to deployments only, so the application is built on a build server, which is not available yet."],
+    ["a preserved repository", { build_pack: "nixpacks" }, { is_preserve_repository_enabled: true }, "Deploying with \"Preserve Repository During Deployment\" is not available yet."],
+    ["a deploy key", { build_pack: "dockerfile" }, { private_key_id: 4 }, "Deploying from a private repository with a deploy key is not available yet: only public repositories can be deployed."],
+    ["a GitHub App", { build_pack: "static" }, { source_id: 7 }, "Deploying from a Git App source is not available yet: only public repositories can be deployed."],
+    ["a GitLab App", { build_pack: "static" }, { source_id: 0, source_type: "App\\Models\\GitlabApp" }, "Deploying from a Git App source is not available yet: only public repositories can be deployed."],
+    ["HTTPS credentials", { build_pack: "nixpacks" }, { source_id: null, source_type: null, has_git_https_credentials: true }, "Deploying from a repository with HTTPS credentials is not available yet: only public repositories can be deployed."],
+  ])("%s is refused with its reason, and nothing is queued", async (_what, application, build, message) => {
+    const t = setup({ ssh: true });
+    t.store.application = { ...t.store.application, ...application };
+    t.store.build = { ...t.store.build, ...build };
     const r = await t.call("POST", `${APP}/deploy`, {});
-    expect([r.status, r.body.error?.code, r.body.error?.message]).toEqual([501, "unsupported", "Deploying a nixpacks application is not available yet: only Docker image applications can be deployed."]);
+    expect([r.status, r.body.error?.code, r.body.error?.message]).toEqual([501, "unsupported", message]);
     expect(t.store.rows).toEqual([]);
+    expect(t.dispatched).toEqual([]);
   });
 
   it("needs deploy.resource.write, and answers 404 for another org's application", async () => {
