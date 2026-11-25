@@ -257,7 +257,10 @@ export {
   ENVIRONMENT_VARIABLE_MORPH_CLASS,
   ENVIRONMENT_VARIABLE_SETTING_COLUMNS,
   ENVIRONMENT_VARIABLE_COLUMNS,
+  databaseEnvironmentVariableResourceType,
+  environmentVariableSettingColumns,
   type EnvironmentVariableResourceType,
+  type DatabaseEnvironmentVariableResourceType,
   type DeployEnvironmentVariableResourceRow,
   type DeployEnvironmentVariableRow,
   type NewEnvironmentVariable,
@@ -343,6 +346,19 @@ export {
   type DeployOperationDestinationRow,
   type DeployOperationEnvironmentTarget,
   type ApplicationReplica,
+  // DP-64: a standalone database's Resource Operations and Resource Limits.
+  moveDatabase,
+  replicateDatabase,
+  listDatabaseEnvironmentVariableIds,
+  replicateDatabaseEnvironmentVariable,
+  listDatabaseBackupScheduleIds,
+  replicateDatabaseBackupSchedule,
+  findDatabaseLimits,
+  updateDatabaseLimits,
+  DATABASE_LIMIT_COLUMNS,
+  type DatabaseReplica,
+  type DeployDatabaseLimitsRow,
+  type DatabaseLimitChanges,
 } from "./resource-operations.js";
 export { applicationHasDeployments, deleteApplication } from "./application-delete.js";
 // DP-58: an application's Git Source, Servers, Webhooks, Scheduled Tasks and Rollback pages.

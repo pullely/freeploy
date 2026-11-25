@@ -6,8 +6,9 @@
 // What the Environment Variables page does, as plain operations on one
 // resource's variables: the list, a variable's value, add, update, lock,
 // delete, the four switches above the list, and the developer view with its
-// bulk save. The store is bound to one resource type (Coolify's resourceable);
-// only applications are wired. Nothing here talks to a server: the .env file
+// bulk save. The store is bound to one resource type (Coolify's resourceable):
+// an application, or a standalone database by its type() ('standalone-redis',
+// …), which has no preview variables and two of the four switches. Nothing here talks to a server: the .env file
 // of a deployment is written by the deployment job, which does not exist yet.
 import type {
   DeployEnvironmentVariableResourceRow,
@@ -19,6 +20,7 @@ import type {
   NewEnvironmentVariable,
   SharedVariableRefScope,
 } from "@saas/db/deploy";
+import { environmentVariableSettingColumns } from "@saas/db/deploy";
 import { newPublicId } from "../helpers/names.js";
 import type { KeyCipher } from "../private-keys/service.js";
 import type { FieldErrors } from "../private-keys/validation.js";
@@ -111,6 +113,13 @@ export const ENVIRONMENT_VARIABLE_SERVICE_MESSAGES = {
   logRedactionUpdated: "Log redaction setting updated.",
   /** handleError() for a UniqueConstraintViolationException */
   duplicate: "Duplicate entry found. Please use a different name.",
+  /**
+   * handleError() for the Error All::instantSave() raises on a resource without
+   * a settings row (a database): its first line assigns the order switch to
+   * $this->resource->settings, which is null. The view shows neither switch
+   * for such a resource; the API answers what Coolify would show.
+   */
+  noSettingsRow: 'Attempt to assign property "is_env_sorting_enabled" on null',
 } as const;
 
 /** A failure Coolify reports through dispatch('error'), an exception or — with `field` — a ValidationException. */
@@ -529,6 +538,9 @@ export async function deleteEnvironmentVariable(ctx: EnvironmentVariableContext,
 export async function updateEnvironmentVariableSettings(ctx: EnvironmentVariableContext, uuid: string, input: SettingsInput): Promise<{ message: string; settings: EnvironmentVariableSettings } | null> {
   const resource = await ctx.store.findResource(uuid);
   if (!resource) return null;
+  // An application has the four switches; a database has the last two, on its own row.
+  const own = environmentVariableSettingColumns(ctx.resourceType);
+  if ((Object.keys(input) as Array<keyof SettingsInput>).some((field) => !own.includes(field))) throw new EnvironmentVariableError(ENVIRONMENT_VARIABLE_SERVICE_MESSAGES.noSettingsRow, 422);
   if (Object.keys(input).length > 0) await ctx.store.updateSettings(resource.id, input);
   const fields = Object.keys(input);
   const message = fields.length === 1 && fields[0] === "redact_all_env_values_in_logs" ? ENVIRONMENT_VARIABLE_SERVICE_MESSAGES.logRedactionUpdated : ENVIRONMENT_VARIABLE_SERVICE_MESSAGES.settingsUpdated;

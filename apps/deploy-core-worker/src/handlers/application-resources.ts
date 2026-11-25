@@ -83,7 +83,7 @@ import { authorizeDeploy, columnCipher, readJson } from "./cloud-tokens.js";
 import { labelSqlContext } from "./application-labels.js";
 import { resetDefaultLabels } from "../applications/labels-service.js";
 import { SettingsError, SettingsFieldErrors } from "../applications/settings.js";
-import { rowId, type ApplicationResourcesContext, type ApplicationResourcesStore } from "../applications/resources.js";
+import { applicationResources, rowId, type ApplicationResourcesContext, type ApplicationResourcesStore, type ResourcesContext } from "../applications/resources.js";
 import { addStorage, deleteFile, deleteVolume, showStorages, updateFile, updateVolume } from "../applications/storages.js";
 import { addTag, addTags, removeTag, showTags } from "../applications/tags.js";
 import { cloneApplicationTo, moveApplicationTo, showResourceOperations } from "../applications/resource-operations.js";
@@ -180,6 +180,55 @@ function failure(e: unknown, requestId: string): Response {
 
 const flag = (query: URLSearchParams, name: string): boolean => ["1", "true", "on", "yes"].includes((query.get(name) ?? "").trim().toLowerCase());
 
+type Body = Record<string, unknown>;
+/** What a route does once authorized: the answer's data, or null when the resource is not the org's. */
+export interface ResourcePageOp {
+  write: boolean;
+  status?: number;
+  run: (canWrite: boolean, body: Body) => Promise<object | null>;
+}
+
+/**
+ * The routes of the pages Coolify shares between an application and a
+ * standalone database (the same Livewire components with `:resource`):
+ * Persistent Storage, Tags, Resource Operations' read and the Danger Zone's
+ * read. segments: [uuid, page, …]. `run` runs a service with the resource's
+ * context. The operation; null for a method the route does not have;
+ * undefined for a path that is not one of them.
+ */
+export function sharedResourcePageOp(
+  segments: string[],
+  method: string,
+  query: URLSearchParams,
+  run: <T>(fn: (ctx: ResourcesContext) => Promise<T>) => Promise<T>,
+): ResourcePageOp | null | undefined {
+  const [uuid, section, third, fourth] = segments;
+  const depth = segments.length;
+  const id = depth === 4 ? rowId(fourth) : depth === 3 ? rowId(third) : null;
+  const read = (show: (ctx: ResourcesContext, canWrite: boolean) => Promise<object | null>): ResourcePageOp | null =>
+    method === "GET" ? { write: false, run: (w) => run((c) => show(c, w)) } : null;
+  const write = (on: string, save: (ctx: ResourcesContext, body: Body) => Promise<object | null>, status = 200): ResourcePageOp | null =>
+    method === on ? { write: true, status, run: (_w, body) => run((c) => save(c, body)) } : null;
+  if (!uuid) return undefined;
+  if (section === "storages") {
+    if (depth === 2) return read((c, w) => showStorages(c, uuid, w)) ?? write("POST", (c, body) => addStorage(c, uuid, body), 201);
+    if (depth === 4 && id !== null && third === "volumes") {
+      return write("PATCH", (c, body) => updateVolume(c, uuid, id, body)) ?? write("DELETE", (c) => deleteVolume(c, uuid, id, flag(query, "deleteDockerVolume")));
+    }
+    if (depth === 4 && id !== null && third === "files") {
+      return write("PATCH", (c, body) => updateFile(c, uuid, id, body)) ?? write("DELETE", (c) => deleteFile(c, uuid, id, flag(query, "permanently_delete")));
+    }
+  } else if (section === "tags") {
+    if (depth === 2) return read((c, w) => showTags(c, uuid, w)) ?? write("POST", (c, body) => addTags(c, uuid, body));
+    if (depth === 3 && id !== null) return write("POST", (c) => addTag(c, uuid, id)) ?? write("DELETE", (c) => removeTag(c, uuid, id));
+  } else if (section === "resource-operations") {
+    if (depth === 2) return read((c, w) => showResourceOperations(c, uuid, w));
+  } else if (section === "danger") {
+    if (depth === 2) return read((c, w) => showDanger(c, uuid, w));
+  }
+  return undefined;
+}
+
 /**
  * segments: what follows /applications, split on "/" — [uuid] for the DELETE,
  * else [uuid, page, …]. `runner` is replaceable for tests.
@@ -194,41 +243,28 @@ export async function handleApplicationResources(
   runner: ApplicationResourcesRunner = runApplicationResourcesInOrg,
 ): Promise<Response> {
   const notFound = () => errorResponse("not_found", "Not found", 404, requestId);
-  const [uuid, section, third, fourth] = segments;
+  const [uuid, section, third] = segments;
   const method = request.method;
   if (!uuid || !UUID_RE.test(uuid) || !isApplicationResourceRoute(segments, method) || segments.length > 4) return notFound();
   const query = new URL(request.url).searchParams;
   type Run = <T>(fn: (ctx: ApplicationResourcesContext) => Promise<T>) => Promise<T>;
   const run: Run = (fn) => runner(env, orgId, fn);
 
-  type Body = Record<string, unknown>;
   /** What the route does once authorized, or null for a method it does not have; undefined for a path that does not exist. */
-  let op: { write: boolean; status?: number; run: (canWrite: boolean, body: Body) => Promise<object | null> } | null | undefined;
+  let op: ResourcePageOp | null | undefined;
   const depth = segments.length;
-  const id = depth === 4 ? rowId(fourth) : depth === 3 ? rowId(third) : null;
-  const read = (show: (ctx: ApplicationResourcesContext, canWrite: boolean) => Promise<object | null>): typeof op => (method === "GET" ? { write: false, run: (w) => run((c) => show(c, w)) } : null);
-  const write = (on: string, save: (ctx: ApplicationResourcesContext, body: Body) => Promise<object | null>, status = 200): typeof op =>
+  const write = (on: string, save: (ctx: ApplicationResourcesContext, body: Body) => Promise<object | null>, status = 200): ResourcePageOp | null =>
     method === on ? { write: true, status, run: (_w, body) => run((c) => save(c, body)) } : null;
 
   if (depth === 1) {
     // Danger::delete()
     op = write("DELETE", (c) => deleteApplicationNow(c, uuid, deleteOptions(query)));
-  } else if (section === "storages") {
-    if (depth === 2) op = read((c, w) => showStorages(c, uuid, w)) ?? write("POST", (c, body) => addStorage(c, uuid, body), 201);
-    else if (depth === 4 && id !== null && third === "volumes") {
-      op = write("PATCH", (c, body) => updateVolume(c, uuid, id, body)) ?? write("DELETE", (c) => deleteVolume(c, uuid, id, flag(query, "deleteDockerVolume")));
-    } else if (depth === 4 && id !== null && third === "files") {
-      op = write("PATCH", (c, body) => updateFile(c, uuid, id, body)) ?? write("DELETE", (c) => deleteFile(c, uuid, id, flag(query, "permanently_delete")));
-    }
-  } else if (section === "tags") {
-    if (depth === 2) op = read((c, w) => showTags(c, uuid, w)) ?? write("POST", (c, body) => addTags(c, uuid, body));
-    else if (depth === 3 && id !== null) op = write("POST", (c) => addTag(c, uuid, id)) ?? write("DELETE", (c) => removeTag(c, uuid, id));
-  } else if (section === "resource-operations") {
-    if (depth === 2) op = read((c, w) => showResourceOperations(c, uuid, w));
-    else if (depth === 3 && third === "clone") op = write("POST", (c, body) => cloneApplicationTo(c, uuid, body), 201);
-    else if (depth === 3 && third === "move") op = write("POST", (c, body) => moveApplicationTo(c, uuid, body));
-  } else if (section === "danger") {
-    if (depth === 2) op = read((c, w) => showDanger(c, uuid, w));
+  } else if (section === "resource-operations" && depth === 3 && third === "clone") {
+    op = write("POST", (c, body) => cloneApplicationTo(c, uuid, body), 201);
+  } else if (section === "resource-operations" && depth === 3 && third === "move") {
+    op = write("POST", (c, body) => moveApplicationTo(c, uuid, body));
+  } else {
+    op = sharedResourcePageOp(segments, method, query, (fn) => run((c) => fn(applicationResources(c))));
   }
   if (op === undefined) return notFound();
   if (op === null) return methodNotAllowed(requestId);

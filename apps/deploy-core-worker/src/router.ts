@@ -36,8 +36,8 @@ function resolveActor(request: Request): ActorContext | null {
 export const ORG_DEPLOY_PROJECTS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/projects((?:\/[^/]+){0,4})\/?$/;
 /** Applications: the collection and up to four segments below it (an application, one of its actions or pages, a row of a page). */
 export const ORG_DEPLOY_APPLICATIONS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/applications((?:\/[^/]+){0,4})\/?$/;
-/** Standalone databases: the collection and up to three segments below it (a database, one of its actions, an action's part). */
-export const ORG_DEPLOY_DATABASES_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/databases((?:\/[^/]+){0,3})\/?$/;
+/** Standalone databases: the collection and up to four segments below it (a database, one of its actions or pages, a row of a page). */
+export const ORG_DEPLOY_DATABASES_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/databases((?:\/[^/]+){0,4})\/?$/;
 /** One-click services (DP-59): the collection, the template catalogue and a service. */
 export const ORG_DEPLOY_SERVICES_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/services((?:\/[^/]+){0,1})\/?$/;
 /** Keys & Tokens → Cloud Tokens: the collection, a token, and a token's validate action. */

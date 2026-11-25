@@ -1,7 +1,17 @@
 // The URL structure is routes/web.php's, one to one (design §3.1). A route
 // whose page is not ported yet renders NotPorted, which the parity harness
 // reports as a failing (not missing) route once deploy-web is the target.
-export type PageKey = "login" | "register" | "forgot-password" | "reset-password" | "profile.appearance" | "profile" | "profile.passkeys.confirm" | "password.confirm" | "verify.email" | "two-factor.required" | "verify.verify" | "two-factor.login" | "security.private-key.index" | "security.private-key.show" | "security.cloud-tokens" | "security.cloud-tokens.show" | "security.cloud-init-scripts" | "security.cloud-init-scripts.show" | "server.index" | "server.create" | "server.create.manual" | "server.show" | "server.advanced" | "server.private-key" | "server.cloud-provider-token" | "server.ca-certificate" | "server.sentinel" | "server.swarm" | "server.docker-cleanup" | "server.log-drains" | "server.destinations" | "server.delete" | "server.registries" | "registries.index" | "project.index" | "project.show" | "project.edit" | "project.resource.index" | "project.environment.edit" | "project.resource.create" | "project.application.configuration" | "project.application.environment-variables" | "project.application.domains" | "project.application.advanced" | "project.application.healthcheck" | "project.application.resource-limits" | "project.application.persistent-storage" | "project.application.tags" | "project.application.resource-operations" | "project.application.danger" | "project.database.configuration" | "project.application.source" | "project.application.servers" | "project.application.webhooks" | "project.application.scheduled-tasks" | "project.application.rollback" | "project.service.configuration" | "project.application.deployment.index" | "project.application.deployment.show" | "destination.index" | "destination.show" | "destination.danger" | "destination.resources" | "not-ported" | SharedVariablesPageKey;
+export type PageKey = "login" | "register" | "forgot-password" | "reset-password" | "profile.appearance" | "profile" | "profile.passkeys.confirm" | "password.confirm" | "verify.email" | "two-factor.required" | "verify.verify" | "two-factor.login" | "security.private-key.index" | "security.private-key.show" | "security.cloud-tokens" | "security.cloud-tokens.show" | "security.cloud-init-scripts" | "security.cloud-init-scripts.show" | "server.index" | "server.create" | "server.create.manual" | "server.show" | "server.advanced" | "server.private-key" | "server.cloud-provider-token" | "server.ca-certificate" | "server.sentinel" | "server.swarm" | "server.docker-cleanup" | "server.log-drains" | "server.destinations" | "server.delete" | "server.registries" | "registries.index" | "project.index" | "project.show" | "project.edit" | "project.resource.index" | "project.environment.edit" | "project.resource.create" | "project.application.configuration" | "project.application.environment-variables" | "project.application.domains" | "project.application.advanced" | "project.application.healthcheck" | "project.application.resource-limits" | "project.application.persistent-storage" | "project.application.tags" | "project.application.resource-operations" | "project.application.danger" | "project.database.configuration" | DatabaseSharedPageKey | "project.application.source" | "project.application.servers" | "project.application.webhooks" | "project.application.scheduled-tasks" | "project.application.rollback" | "project.service.configuration" | "project.application.deployment.index" | "project.application.deployment.show" | "destination.index" | "destination.show" | "destination.danger" | "destination.resources" | "not-ported" | SharedVariablesPageKey;
+
+/** A database's pages that are Coolify's shared components with the database as their resource (DP-64). */
+export type DatabaseSharedPageKey =
+  | "project.database.environment-variables"
+  | "project.database.persistent-storage"
+  | "project.database.tags"
+  | "project.database.resource-operations"
+  | "project.database.resource-limits"
+  | "project.database.webhooks"
+  | "project.database.danger";
 
 /** The shared-variables.* routes (their canvas routes are not ported). */
 export type SharedVariablesPageKey =
@@ -52,8 +62,16 @@ const ROUTES: Array<[RegExp, PageKey]> = [
   [/^\/project\/[^/]+\/environment\/[^/]+\/application\/[^/]+\/webhooks\/?$/, "project.application.webhooks"],
   [/^\/project\/[^/]+\/environment\/[^/]+\/application\/[^/]+\/scheduled-tasks\/?$/, "project.application.scheduled-tasks"],
   [/^\/project\/[^/]+\/environment\/[^/]+\/application\/[^/]+\/rollback\/?$/, "project.application.rollback"],
-  // A standalone database's configuration: General. Its other pages (…/environment-variables, …/backups, …) are not ported.
+  // A standalone database's configuration: General. Its other pages (…/backups, …/servers, …) are not ported, except the ones below.
   [/^\/project\/[^/]+\/environment\/[^/]+\/database\/[^/]+\/?$/, "project.database.configuration"],
+  // The pages that are the applications' shared components with the database as their resource (DP-64).
+  [/^\/project\/[^/]+\/environment\/[^/]+\/database\/[^/]+\/environment-variables\/?$/, "project.database.environment-variables"],
+  [/^\/project\/[^/]+\/environment\/[^/]+\/database\/[^/]+\/persistent-storage\/?$/, "project.database.persistent-storage"],
+  [/^\/project\/[^/]+\/environment\/[^/]+\/database\/[^/]+\/tags\/?$/, "project.database.tags"],
+  [/^\/project\/[^/]+\/environment\/[^/]+\/database\/[^/]+\/resource-operations\/?$/, "project.database.resource-operations"],
+  [/^\/project\/[^/]+\/environment\/[^/]+\/database\/[^/]+\/resource-limits\/?$/, "project.database.resource-limits"],
+  [/^\/project\/[^/]+\/environment\/[^/]+\/database\/[^/]+\/webhooks\/?$/, "project.database.webhooks"],
+  [/^\/project\/[^/]+\/environment\/[^/]+\/database\/[^/]+\/danger\/?$/, "project.database.danger"],
   // The deployment history and one deployment's logs.
   [/^\/project\/[^/]+\/environment\/[^/]+\/application\/[^/]+\/deployment\/?$/, "project.application.deployment.index"],
   [/^\/project\/[^/]+\/environment\/[^/]+\/application\/[^/]+\/deployment\/[^/]+\/?$/, "project.application.deployment.show"],

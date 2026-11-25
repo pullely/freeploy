@@ -1,7 +1,9 @@
 // Derived from coollabsio/coolify@91b7e3e:app/Livewire/Project/Shared/ResourceOperations.php (mount, moveTo,
 // findResourceTeamEnvironment), bootstrap/helpers/applications.php (clone_application: what it replicates and
-// what it fills in), app/Models/Application.php (the creating and saving hooks a replica passes through) and
-// app/Models/LocalPersistentVolume.php (the replicating hook) (Apache-2.0), modified.
+// what it fills in), app/Models/Application.php (the creating and saving hooks a replica passes through),
+// app/Models/LocalPersistentVolume.php (the replicating hook), app/Models/Standalone*.php (the saving hook),
+// app/Traits/HasS3Destinations.php (copyS3StoragesTo) and app/Livewire/Project/Shared/ResourceLimits.php
+// (Apache-2.0), modified.
 //
 // The rows behind an application's Resource Operations page: where it can be
 // moved or cloned to, the move (one column), and the clone — Eloquent's
@@ -16,6 +18,7 @@ import type { SqlExecutor, SqlRow } from "../hyperdrive/executor.js";
 import { DESTINATION_MORPH_CLASS, type DestinationType } from "./destinations.js";
 import { APPLICATION_MORPH_CLASS } from "./application-create.js";
 import { listEnvironmentVariables } from "./environment-variables.js";
+import { DATABASE_TABLES, type DatabaseEngine } from "./databases.js";
 
 /** Laravel's timestamps are UTC wall-clock times in TIMESTAMP(0) WITHOUT TIME ZONE columns. */
 const NOW = "date_trunc('second', timezone('UTC', now()))";
@@ -240,4 +243,156 @@ export async function listApplicationEnvironmentVariableIds(tx: SqlExecutor, app
  */
 export async function replicateEnvironmentVariable(tx: SqlExecutor, variableId: string | number, replica: { uuid: string; applicationId: string | number }): Promise<void> {
   await replicate(tx, "environment_variables", variableId, { uuid: replica.uuid, resourceable_id: replica.applicationId, resourceable_type: APPLICATION_MORPH_CLASS });
+}
+
+// ---------------------------------------------------------------- standalone databases
+// ResourceOperations::cloneTo()'s database branch and moveTo() for the eight
+// standalone database tables: the same replicate() of the database and of
+// what belongs to it.
+
+/** moveTo() for a database: $resource->fill(['environment_id' => …])->save(). False when the database is gone. */
+export async function moveDatabase(tx: SqlExecutor, engine: DatabaseEngine, id: string | number, environmentId: string | number): Promise<boolean> {
+  const r = await tx.execute(`UPDATE deploy.${DATABASE_TABLES[engine].table} SET environment_id = $2, updated_at = ${NOW} WHERE id = $1 AND deleted_at IS NULL RETURNING id`, [
+    id,
+    environmentId,
+  ]);
+  return r.rows.length > 0;
+}
+
+/** What cloneTo() fills in on the database's replica. */
+export interface DatabaseReplica {
+  /** new_public_id() */
+  uuid: string;
+  /** clone_resource_name() */
+  name: string;
+  environmentId: string | number;
+  destinationId: string | number;
+  destinationType: DestinationType;
+}
+
+/**
+ * $this->resource->replicate(['id', 'created_at', 'updated_at'])->fill([uuid,
+ * name, status 'exited', started_at null, environment_id, destination_id,
+ * destination_type])->save(): the database's row, column for column — its
+ * credentials (as stored: a ciphertext is bound to its org and column, not
+ * its row), public port, configuration and limits — and, by the saving hook
+ * (status is dirty on a new model), last_online_at now. The created hook's
+ * volumes are not made: cloneTo() deletes them before it copies the source's.
+ * Null when the source is gone.
+ */
+export async function replicateDatabase(tx: SqlExecutor, engine: DatabaseEngine, sourceId: string | number, replica: DatabaseReplica): Promise<string | number | null> {
+  const table = DATABASE_TABLES[engine].table;
+  const alive = await tx.execute(`SELECT 1 FROM deploy.${table} WHERE id = $1 AND deleted_at IS NULL`, [sourceId]);
+  if (!alive.rows.length) return null;
+  const id = await replicate(
+    tx,
+    table,
+    sourceId,
+    {
+      uuid: replica.uuid,
+      name: replica.name,
+      status: "exited",
+      started_at: null,
+      environment_id: replica.environmentId,
+      destination_id: replica.destinationId,
+      destination_type: DESTINATION_MORPH_CLASS[replica.destinationType],
+    },
+    ["last_online_at"],
+  );
+  if (id !== null) await tx.execute(`UPDATE deploy.${table} SET last_online_at = ${NOW} WHERE id = $1`, [id]);
+  return id;
+}
+
+/** $this->resource->environment_variables()->get(): the ids of a database's variables (a database has no preview ones). */
+export async function listDatabaseEnvironmentVariableIds(tx: SqlExecutor, engine: DatabaseEngine, databaseId: string | number): Promise<Array<string | number>> {
+  const r = await tx.execute<{ id: string | number }>("SELECT id FROM deploy.environment_variables WHERE resourceable_type = $1 AND resourceable_id = $2 ORDER BY id", [
+    DATABASE_TABLES[engine].morphClass,
+    databaseId,
+  ]);
+  return r.rows.map((row) => row.id);
+}
+
+/**
+ * $environmentVariable->replicate(['id', 'created_at', 'updated_at'])
+ * ->fill([resourceable_id, resourceable_type])->save() for a database's
+ * variable: saved with its events, so the creating hook stamps the current
+ * version. The value is copied as stored. The copy gets its own uuid,
+ * because deploy.environment_variables.uuid is unique (Coolify keeps the
+ * source's).
+ */
+export async function replicateDatabaseEnvironmentVariable(
+  tx: SqlExecutor,
+  variableId: string | number,
+  replica: { uuid: string; engine: DatabaseEngine; databaseId: string | number; version: string },
+): Promise<void> {
+  await replicate(tx, "environment_variables", variableId, {
+    uuid: replica.uuid,
+    resourceable_id: replica.databaseId,
+    resourceable_type: DATABASE_TABLES[replica.engine].morphClass,
+    version: replica.version,
+  });
+}
+
+/** $this->resource->scheduledBackups()->get(): the ids of a database's backup schedules. */
+export async function listDatabaseBackupScheduleIds(tx: SqlExecutor, engine: DatabaseEngine, databaseId: string | number): Promise<Array<string | number>> {
+  const r = await tx.execute<{ id: string | number }>("SELECT id FROM deploy.scheduled_database_backups WHERE database_type = $1 AND database_id = $2 ORDER BY id", [
+    DATABASE_TABLES[engine].morphClass,
+    databaseId,
+  ]);
+  return r.rows.map((row) => row.id);
+}
+
+/**
+ * $backup->replicate(['id', 'created_at', 'updated_at'])->fill([uuid,
+ * database_id, database_type, team_id])->save(), then copyS3StoragesTo():
+ * the schedule for the clone with the source schedule's S3 destinations
+ * (the org's own: both belong to it). Its executions are not copied.
+ */
+export async function replicateDatabaseBackupSchedule(
+  tx: SqlExecutor,
+  scheduleId: string | number,
+  replica: { uuid: string; engine: DatabaseEngine; databaseId: string | number },
+): Promise<void> {
+  const id = await replicate(tx, "scheduled_database_backups", scheduleId, {
+    uuid: replica.uuid,
+    database_id: replica.databaseId,
+    database_type: DATABASE_TABLES[replica.engine].morphClass,
+  });
+  if (id === null) return;
+  await tx.execute(
+    `INSERT INTO deploy.scheduled_database_backup_s3_storage (scheduled_database_backup_id, s3_storage_id, org_id, created_at, updated_at)
+     SELECT $2, l.s3_storage_id, l.org_id, ${NOW}, ${NOW} FROM deploy.scheduled_database_backup_s3_storage l WHERE l.scheduled_database_backup_id = $1 ORDER BY l.id`,
+    [scheduleId, id],
+  );
+}
+
+/** The resource limits of a database: the columns of ResourceLimits. */
+export interface DeployDatabaseLimitsRow extends SqlRow {
+  limits_memory: string;
+  limits_memory_swap: string;
+  limits_memory_swappiness: number;
+  limits_memory_reservation: string;
+  limits_cpus: string;
+  limits_cpuset: string | null;
+  limits_cpu_shares: number;
+}
+
+export const DATABASE_LIMIT_COLUMNS = ["limits_memory", "limits_memory_swap", "limits_memory_swappiness", "limits_memory_reservation", "limits_cpus", "limits_cpuset", "limits_cpu_shares"] as const;
+export type DatabaseLimitChanges = Partial<Record<(typeof DATABASE_LIMIT_COLUMNS)[number], string | number | null>>;
+
+/** ResourceLimits::syncData(): the database's limits. Null when it is gone. */
+export async function findDatabaseLimits(tx: SqlExecutor, engine: DatabaseEngine, id: string | number): Promise<DeployDatabaseLimitsRow | null> {
+  const r = await tx.execute<DeployDatabaseLimitsRow>(`SELECT ${DATABASE_LIMIT_COLUMNS.join(", ")} FROM deploy.${DATABASE_TABLES[engine].table} WHERE id = $1 AND deleted_at IS NULL`, [id]);
+  return r.rows[0] ?? null;
+}
+
+/** ResourceLimits::submit(): $this->resource->save() with the given limits, and updated_at. False when it is gone. */
+export async function updateDatabaseLimits(tx: SqlExecutor, engine: DatabaseEngine, id: string | number, changes: DatabaseLimitChanges): Promise<boolean> {
+  const columns = DATABASE_LIMIT_COLUMNS.filter((c) => changes[c] !== undefined);
+  const sets = columns.map((c, i) => `"${c}" = $${i + 2}`);
+  const r = await tx.execute(`UPDATE deploy.${DATABASE_TABLES[engine].table} SET ${[...sets, `updated_at = ${NOW}`].join(", ")} WHERE id = $1 AND deleted_at IS NULL RETURNING id`, [
+    id,
+    ...columns.map((c) => changes[c] ?? null),
+  ]);
+  return r.rows.length > 0;
 }

@@ -1,7 +1,7 @@
 // Derived from coollabsio/coolify@91b7e3e:bootstrap/helpers/shared.php (base_configuration_dir,
-// application_configuration_dir, validateShellSafePath, validateFileMountPath, validateHostFileMountPath,
+// application_configuration_dir, database_configuration_dir, validateShellSafePath, validateFileMountPath, validateHostFileMountPath,
 // confineFileMountPath, normalizeUnixPath), app/Models/LocalFileVolume.php (resolveHostPath,
-// resourceDirectoryContaining, resolvedFsPath, isOutsideResourceDirectory) and app/Models/Application.php
+// resourceDirectoryContaining, resolvedFsPath, isOutsideResourceDirectory) and app/Models/{Application,Standalone*}.php
 // (workdir) (Apache-2.0), modified.
 //
 // The path rules of file and directory mounts. All of it is lexical: nothing
@@ -15,6 +15,12 @@ export const APPLICATION_CONFIGURATION_DIR = "/data/coolify/applications";
 
 /** Application::workdir() */
 export const applicationWorkdir = (uuid: string): string => `${APPLICATION_CONFIGURATION_DIR}/${uuid}`;
+
+/** database_configuration_dir(): where Coolify keeps a standalone database's files on the server. */
+export const DATABASE_CONFIGURATION_DIR = "/data/coolify/databases";
+
+/** Standalone*::workdir() */
+export const databaseWorkdir = (uuid: string): string => `${DATABASE_CONFIGURATION_DIR}/${uuid}`;
 
 /** validateShellSafePath()'s forbidden characters, in its order. */
 const DANGEROUS: ReadonlyArray<[string, string]> = [

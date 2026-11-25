@@ -38,7 +38,7 @@ const PROVIDERS: Array<{ name: string; key: Provider; secret: string; descriptio
 ];
 
 /** <x-forms.copy-input> with its label. */
-function CopyInput({ label, text }: { label: string; text: string }) {
+export function CopyInput({ label, text }: { label: string; text: string }) {
   return (
     <div className="w-full">
       <label className="mb-1 flex items-center gap-1 text-sm font-medium leading-4">{label}</label>

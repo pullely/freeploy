@@ -3,14 +3,16 @@
 //
 // /project/{uuid}/environment/{env_uuid}/application/{app_uuid}/resource-limits
 // (project.application.resource-limits): the container's CPU and memory
-// limits. They are stored and apply at the next deployment.
+// limits. They are stored and apply at the next deployment. The same
+// component is a database's Resource Limits page (kind "database"), where
+// they apply at the next start.
 import { useEffect, useState, type FormEvent } from "react";
 import { Layout } from "../layout/Layout";
 import { notify } from "../lib/toast";
 import { Reicon } from "../components/Reicon";
 import { FormInput, SettingsSection, UnsavedBar } from "../components/Coolify";
-import { ApplicationWorkspace } from "./ApplicationChrome";
-import { useApplicationSection, type ApplicationSectionData } from "./ApplicationSection";
+import { useResourceSection, type ResourceKind, type ResourceSectionData } from "./ApplicationSection";
+import { ResourceWorkspace } from "./ResourceWorkspace";
 
 interface Limits {
   limitsCpus: string;
@@ -22,9 +24,9 @@ interface Limits {
   limitsMemoryReservation: string;
 }
 
-interface Data extends ApplicationSectionData {
+type Data = ResourceSectionData & {
   settings: Limits;
-}
+};
 
 /** The form's fields (wire:model), as typed. */
 type Form = Record<keyof Limits, string>;
@@ -38,14 +40,15 @@ const formOf = (l: Limits): Form => ({
   limitsMemoryReservation: l.limitsMemoryReservation,
 });
 
-function ApplicationResourceLimitsContent() {
-  const { me, data, setData, saving, patch } = useApplicationSection<Data>("resource-limits");
+/** <livewire:project.shared.resource-limits :resource>: an application's or a database's limits. */
+export function ResourceLimitsContent({ kind }: { kind: ResourceKind }) {
+  const { me, data, setData, saving, patch } = useResourceSection<Data>(kind, "resource-limits");
   const [form, setForm] = useState<Form | null>(null);
   useEffect(() => {
     if (data) setForm(formOf(data.settings));
   }, [data]);
   if (!data || !form) return null;
-  const { application, canUpdate } = data;
+  const { canUpdate } = data;
   const saved = formOf(data.settings);
   const dirty = (Object.keys(form) as Array<keyof Form>).some((k) => form[k] !== saved[k]);
   const field = (name: keyof Form) => ({ id: name, value: form[name], onChange: (v: string) => setForm({ ...form, [name]: v }), disabled: !canUpdate });
@@ -63,7 +66,7 @@ function ApplicationResourceLimitsContent() {
   };
 
   return (
-    <ApplicationWorkspace application={application} orgId={me.team?.id} active="Resource Limits" canUpdate={canUpdate} canDeploy={data.canDeploy}>
+    <ResourceWorkspace data={data} orgId={me.team?.id} active="Resource Limits">
       <form
         className="application-settings-form flex flex-col gap-6"
         onSubmit={(e: FormEvent<HTMLFormElement>) => {
@@ -110,14 +113,14 @@ function ApplicationResourceLimitsContent() {
           </p>
         </SettingsSection>
       </form>
-    </ApplicationWorkspace>
+    </ResourceWorkspace>
   );
 }
 
 export function ApplicationResourceLimitsPage() {
   return (
     <Layout title="Projects" href="/projects" navHref="/projects" documentTitle="Configuration">
-      <ApplicationResourceLimitsContent />
+      <ResourceLimitsContent kind="application" />
     </Layout>
   );
 }

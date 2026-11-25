@@ -8,19 +8,25 @@
 // was ever deployed of is removed at once; any other needs the SSH executor
 // to stop and remove what is on the server, and the API says so. Coolify also
 // asks for the account password, which deploy-core cannot check yet, so that
-// step is left out.
+// step is left out. The same component is a database's Danger Zone
+// (DangerContent with kind "database"): its label is "resource", Redis, KeyDB
+// and Dragonfly add "Flush all data" (which needs the SSH executor), and a
+// database that was never started is removed at once.
 import { Layout } from "../layout/Layout";
 import { Button, Callout, DangerCallout, DangerZone, ModalConfirmation, SettingsSection, type ConfirmationCheckbox } from "../components/Coolify";
-import { applicationsApi, ApplicationWorkspace } from "./ApplicationChrome";
 import { environmentPath } from "./ProjectChrome";
-import { useApplicationSection, type ApplicationSectionData } from "./ApplicationSection";
-import { sendJson, showError } from "./ApplicationResource";
+import { resourceApi, resourceFrame, useResourceSection, type ResourceKind, type ResourceSectionData } from "./ApplicationSection";
+import { ResourceWorkspace } from "./ResourceWorkspace";
+import { sendJson, showError, showSaved } from "./ApplicationResource";
 
-interface Data extends ApplicationSectionData {
+type Data = ResourceSectionData & {
   canDelete: boolean;
   serverIsFunctional: boolean;
   neverDeployed: boolean;
-}
+};
+
+/** danger.blade.php: the database types with "Flush all data". */
+const FLUSHABLE = ["standalone-redis", "standalone-keydb", "standalone-dragonfly"];
 
 /** Danger::render(): the checkboxes, with Danger's defaults ($delete_volumes … true, $delete_backups false). */
 const CHECKBOXES: ConfirmationCheckbox[] = [
@@ -36,24 +42,36 @@ const CHECKBOXES: ConfirmationCheckbox[] = [
   },
 ];
 
-function ApplicationDangerContent() {
-  const { me, data } = useApplicationSection<Data>("danger");
+/** <livewire:project.shared.danger :resource>: an application's or a database's Danger Zone. */
+export function DangerContent({ kind }: { kind: ResourceKind }) {
+  const { me, data } = useResourceSection<Data>(kind, "danger");
   if (!data) return null;
-  const { application, canUpdate, canDelete } = data;
-  const base = `${applicationsApi(me.team?.id)}/${encodeURIComponent(application.uuid)}`;
-  // $resource->type() is 'application'.
-  const resourceLabel = "application";
+  const { canDelete } = data;
+  const resource = resourceFrame(data);
+  const base = resourceApi(kind, me.team?.id, resource.uuid);
+  // $resourceLabel: 'application' for an application, 'resource' for every database type.
+  const resourceLabel = kind === "application" ? "application" : "resource";
+  const flushable = "database" in data && FLUSHABLE.includes(data.database.databaseType);
+  // @can('manage', $resource)
+  const canManage = "database" in data && data.canManage;
+
+  /** Danger::flush(): the API answers that it needs the server. */
+  async function flush() {
+    const r = await sendJson<{ message?: string }>("POST", `${base}/danger/flush`);
+    if (!r.ok) return showError(r.error);
+    showSaved(r.data);
+  }
 
   /** Danger::delete(): then redirectRoute('project.resource.index'). */
   async function remove(selectedActions: string[]) {
     const query = CHECKBOXES.map((c) => `${c.id}=${selectedActions.includes(c.id)}`).join("&");
     const r = await sendJson<{ deleted: boolean }>("DELETE", `${base}?${query}`);
     if (!r.ok) return showError(r.error);
-    window.location.assign(environmentPath(application.project.uuid, application.environment.uuid));
+    window.location.assign(environmentPath(resource.project.uuid, resource.environment.uuid));
   }
 
   return (
-    <ApplicationWorkspace application={application} orgId={me.team?.id} active="Danger Zone" canUpdate={canUpdate} canDeploy={data.canDeploy}>
+    <ResourceWorkspace data={data} orgId={me.team?.id} active="Danger Zone">
       <div>
         {/* Coolify's notice here is for a server that does not answer ("Deleting removes this application from
             Coolify only…"): it deletes the rows and leaves the server as it is. Freeploy does not do that, so the
@@ -64,6 +82,31 @@ function ApplicationDangerContent() {
           </Callout>
         )}
         <SettingsSection id="danger-zone-section" title="Danger zone" helper="Destructive resource actions cannot be undone.">
+          {flushable ? (
+            // <x-danger-zone class="mb-4">
+            <div className="mb-4">
+              <DangerZone
+                title="Flush all data"
+                action={
+                  <ModalConfirmation
+                    title="Flush all data?"
+                    buttonTitle="Flush all data"
+                    actions={["Permanently remove every key from every logical database."]}
+                    confirmationText={resource.name}
+                    confirmationLabel="Enter the database name to confirm flushing all data"
+                    shortConfirmationLabel="Database name"
+                    disabled={!canManage}
+                    disabledTooltip="You do not have permission to flush this database."
+                    onSubmit={flush}
+                  />
+                }
+              >
+                <p>
+                  Permanently remove every key from <strong className="font-semibold text-black dark:text-fg">{resource.name}</strong>. The database keeps running.
+                </p>
+              </DangerZone>
+            </div>
+          ) : null}
           <DangerZone
             title={`Delete ${resourceLabel}`}
             action={
@@ -73,7 +116,7 @@ function ApplicationDangerContent() {
                   buttonTitle={`Delete ${resourceLabel}`}
                   checkboxes={CHECKBOXES}
                   actions={["Permanently delete this resource and its selected Docker resources."]}
-                  confirmationText={application.name}
+                  confirmationText={resource.name}
                   confirmationLabel="Enter the resource name to confirm permanent deletion"
                   shortConfirmationLabel="Resource name"
                   onSubmit={remove}
@@ -86,7 +129,7 @@ function ApplicationDangerContent() {
             }
           >
             <p>
-              Permanently delete <strong className="font-semibold text-black dark:text-fg">{application.name}</strong>, stop its containers, and remove the selected Docker resources and configuration.
+              Permanently delete <strong className="font-semibold text-black dark:text-fg">{resource.name}</strong>, stop its containers, and remove the selected Docker resources and configuration.
             </p>
             <ul className="space-y-1 text-xs">
               <li>• Active deployments will be stopped.</li>
@@ -104,14 +147,14 @@ function ApplicationDangerContent() {
           )}
         </SettingsSection>
       </div>
-    </ApplicationWorkspace>
+    </ResourceWorkspace>
   );
 }
 
 export function ApplicationDangerPage() {
   return (
     <Layout title="Projects" href="/projects" navHref="/projects" documentTitle="Configuration">
-      <ApplicationDangerContent />
+      <DangerContent kind="application" />
     </Layout>
   );
 }
