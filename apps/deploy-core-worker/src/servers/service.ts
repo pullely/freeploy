@@ -1,7 +1,7 @@
 // Derived from coollabsio/coolify@91b7e3e:app/Livewire/Server/{Index,Show,Delete}.php,
 // app/Livewire/Server/New/ByIp.php, app/Livewire/Server/PrivateKey/Show.php and
 // app/Models/Server.php (isFunctional, isTransferredAway, isSentinelEnabled, the
-// created hook) (Apache-2.0), modified.
+// created hook, defaultStandaloneDockerAttributes) (Apache-2.0), modified.
 //
 // What the server Livewire components do without SSH, as plain operations on
 // one org's servers. Everything that needs a connection to the server
@@ -117,7 +117,7 @@ export interface ServerListItem {
   description: string | null;
   status: "Transferred away" | "Disabled" | "Ready" | "Validation required";
   statusType: "success" | "error";
-  /** definedResources()->count(): destinations and their resources are not ported yet. */
+  /** definedResources()->count(): nothing can be deployed to a destination yet, so 0. */
   resourceCount: number;
 }
 
@@ -165,6 +165,8 @@ export async function createServer(ctx: ServerContext, input: CreateServerInput)
     proxy: { redirect_enabled: true, status: "exited", type: "TRAEFIK" },
     serverRole: input.serverRole,
     imageScanEnabled: input.scanImages,
+    // The created hook's default destination (network "coolify"): a row only, as Coolify saves it quietly.
+    defaultDestinationUuid: newPublicId(),
   });
 }
 
@@ -338,8 +340,9 @@ export async function unavailableOnServer(ctx: ServerContext, uuid: string, acti
 }
 
 /**
- * Delete::delete(): the server and its settings. Resources cannot exist yet
- * (destinations are not ported), so nothing else is deleted or refused.
+ * Delete::delete(): the server, its destinations and its settings (rows only:
+ * Coolify does not remove the networks from a server it deletes either).
+ * Resources cannot exist yet, so nothing else is deleted or refused.
  */
 export async function deleteServer(ctx: ServerContext, uuid: string): Promise<boolean> {
   const server = await ctx.store.findByUuid(uuid);

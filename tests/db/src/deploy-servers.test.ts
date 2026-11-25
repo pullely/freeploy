@@ -58,7 +58,7 @@ afterAll(async () => db?.close());
 
 function add(org: string, uuid: string, name: string, ip: string, key: string, role: "deployment" | "build" | "both" = "both") {
   return withOrg(ex, org, (tx) =>
-    insertServer(tx, { orgId: org, uuid, name, description: null, ip, user: "root", port: 22, privateKeyId: keyIds[key]!, proxy: PROXY, serverRole: role, imageScanEnabled: false }),
+    insertServer(tx, { orgId: org, uuid, name, description: null, ip, user: "root", port: 22, privateKeyId: keyIds[key]!, proxy: PROXY, serverRole: role, imageScanEnabled: false, defaultDestinationUuid: `dst${uuid.slice(3)}` }),
   );
 }
 
@@ -98,7 +98,7 @@ describe("deploy.servers", () => {
     expect(await withOrg(ex, B, (tx) => setServerPrivateKey(tx, a.id, keyIds.keybbbbbbbbbbbbbbbbbbbbb!))).toBe(false);
     await expect(
       withOrg(ex, B, (tx) =>
-        insertServer(tx, { orgId: A, uuid: "srvxxxxxxxxxxxxxxxxxxxxx", name: "x", description: null, ip: "10.0.0.1", user: "root", port: 22, privateKeyId: 1, proxy: {}, serverRole: "both", imageScanEnabled: false }),
+        insertServer(tx, { orgId: A, uuid: "srvxxxxxxxxxxxxxxxxxxxxx", name: "x", description: null, ip: "10.0.0.1", user: "root", port: 22, privateKeyId: 1, proxy: {}, serverRole: "both", imageScanEnabled: false, defaultDestinationUuid: "dstxxxxxxxxxxxxxxxxxxxxx" }),
       ),
     ).rejects.toThrow(/row-level security/);
     expect((await withOrg(ex, B, listServerPrivateKeys)).map((k) => k.uuid)).toEqual(["keybbbbbbbbbbbbbbbbbbbbb"]);

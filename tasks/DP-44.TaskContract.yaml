@@ -1,0 +1,21 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-44
+  title: "DP4: destinations — list, show, danger, resources, and a server's destinations (API and pages)"
+spec:
+  goal: An org sees and manages the Docker destinations of its servers (deploy.standalone_dockers and deploy.swarm_dockers) as in Coolify — the list of the usable servers' destinations, a destination's General page (rename), its Resources and its Danger Zone, and a server's destinations with New Destination — with the components' rules and Laravel's messages word for word and every query confined to the org by row-level security; a new server gets Coolify's default destination on network "coolify"; /destinations, /destination/{uuid}, /destination/{uuid}/danger, /destination/{uuid}/resources and /server/{uuid}/destinations are ported from the Blade views. What runs on the server needs the SSH executor and says it is not available yet - a new destination's row is stored and its network is not created, scanning a server for networks answers 501, and deleting a standalone destination answers 501 and keeps the row (Coolify removes the network first); a Swarm destination, which has no command, is deleted.
+  affects:
+    - apps/deploy-core-worker/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - on stage a server created by a signed-in org owner has one standalone destination on network "coolify", read from GET /v1/organizations/{org}/deploy/servers/{uuid}/destinations
+    - on stage the owner renames that destination on /destination/{uuid} and sees the name after a reload; POST …/servers/{uuid}/destinations stores a second destination and says creating the network is not available yet; DELETE on it answers 501 and the destination is still there; POST …/destinations/scan answers 501
+    - on stage a member without deploy.resource.write reads a destination with canUpdate false and gets 404 on PATCH and DELETE
+    - /destinations, /destination/{uuid}, /destination/{uuid}/danger, /destination/{uuid}/resources and /server/{uuid}/destinations pass the stage DOM gate or each difference is listed with its cause
+  gates: []

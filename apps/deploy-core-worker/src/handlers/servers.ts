@@ -19,6 +19,7 @@
 //   DELETE /servers/{uuid}                   Delete::delete (no body: the edge does not forward one)
 //   …      /servers/{uuid}/{advanced,docker-cleanup,log-drains,swarm,sentinel}[/{action}]
 //                                            the settings pages (DP-42): see server-settings.ts
+//   …      /servers/{uuid}/destinations[/scan] the server's destinations (DP-44): see destinations.ts
 //
 // Coolify's policy: view = team member, create/update/delete = team admin.
 // Here: deploy.resource.read and deploy.resource.write, asked of policy-worker
@@ -47,6 +48,7 @@ import {
   type OrgDek,
 } from "@saas/db/deploy";
 import { runServerSettingsInOrg, serverSettingsRoute, SETTINGS_ACTIONS, SETTINGS_SECTIONS, settingsNeedsWrite, type ServerSettingsRunner, type SettingsSection } from "./server-settings.js";
+import { runDestinationsInOrg, SERVER_DESTINATION_ACTIONS, serverDestinationsRoute, type DestinationRunner } from "./destinations.js";
 import { fetchAuthorizationContext } from "../membership-client.js";
 import { authorizeViaPolicy, type AuthorizeResult } from "../policy-client.js";
 import { deniedResponse, errorResponse, methodNotAllowed, successResponse, validationError } from "../http.js";
@@ -142,6 +144,7 @@ export async function handleServers(
   request: Request,
   runner: ServerRunner = runServersInOrg,
   settingsRunner: ServerSettingsRunner = runServerSettingsInOrg,
+  destinationsRunner: DestinationRunner = runDestinationsInOrg,
 ): Promise<Response> {
   const method = request.method;
   const [first, second, third] = segments;
@@ -167,6 +170,11 @@ export async function handleServers(
     if (method === "POST") op = { write: true, run: async () => unavailable(first!, second) };
   } else if (segments.length === 2 && UUID_RE.test(first!) && second === "refresh-metadata") {
     if (method === "POST") op = { write: true, run: async () => refresh(first!) };
+  } else if (segments.length === 2 && UUID_RE.test(first!) && second === "destinations") {
+    if (method === "GET") op = { write: false, run: async () => destinations(first!, null) };
+    else if (method === "POST") op = { write: true, run: async () => destinations(first!, null) };
+  } else if (segments.length === 3 && UUID_RE.test(first!) && second === "destinations" && SERVER_DESTINATION_ACTIONS.includes(third!)) {
+    if (method === "POST") op = { write: true, run: async () => destinations(first!, third!) };
   } else if (segments.length === 2 && UUID_RE.test(first!) && section) {
     if (method === "GET" || method === "PATCH") op = { write: settingsNeedsWrite(section, method), run: async () => settings(first!, section, null) };
   } else if (segments.length === 3 && UUID_RE.test(first!) && section && SETTINGS_ACTIONS[section]?.includes(third!)) {
@@ -255,6 +263,11 @@ export async function handleServers(
   async function settings(uuid: string, s: SettingsSection, action: string | null): Promise<Response> {
     const body = method === "GET" ? {} : await readJson(request);
     return serverSettingsRoute({ env, orgId, requestId, uuid, section: s, action, body, method, canWrite, notFound }, settingsRunner);
+  }
+
+  async function destinations(uuid: string, action: string | null): Promise<Response> {
+    const body = method === "GET" ? {} : await readJson(request);
+    return serverDestinationsRoute({ env, orgId, requestId, uuid, action, body, method, canWrite, notFound }, destinationsRunner);
   }
 
   async function remove(uuid: string): Promise<Response> {

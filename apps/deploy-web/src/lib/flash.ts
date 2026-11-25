@@ -19,3 +19,25 @@ export function takeStatus(): string | null {
     return null;
   }
 }
+
+// A notice for the page a form redirects to: what a save could not do yet
+// (a step that needs the SSH executor). The next page takes it and shows it once.
+const NOTICE_KEY = "freeploy.flash.notice";
+
+export function flashNotice(message: string): void {
+  try {
+    sessionStorage.setItem(NOTICE_KEY, message);
+  } catch {
+    /* storage blocked: the message is skipped */
+  }
+}
+
+export function takeNotice(): string | null {
+  try {
+    const v = sessionStorage.getItem(NOTICE_KEY);
+    sessionStorage.removeItem(NOTICE_KEY);
+    return v;
+  } catch {
+    return null;
+  }
+}
