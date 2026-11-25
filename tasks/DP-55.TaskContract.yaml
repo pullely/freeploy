@@ -1,0 +1,22 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-55
+  title: "DP5: application persistent storage, tags, resource operations and danger zone (API and pages)"
+spec:
+  goal: An org opens the Persistent Storage, Tags, Resource Operations and Danger Zone pages of a Docker image application and does there what Coolify's components do, with Coolify's rules and Laravel's messages word for word and every query confined to the org by row-level security — volume mounts as rows that take effect at the next deployment (add under the application's uuid, edit with the rename confirmation, delete; a duplicate name refused), file, host file and directory mounts with Coolify's path rules and the file content encrypted with the org's key (a duplicate destination path refused), the org's tags added to and removed from the application (tag names unique per org, migration 610), moving the application to another environment, cloning it to any destination and environment (the application, its settings, tags, scheduled tasks, volume and file mounts and environment variables, values as stored), and deleting an application nothing was ever deployed of with every row that belongs to it, after which the environment, project and destination guards no longer count it. /project/{uuid}/environment/{env_uuid}/application/{app_uuid}/persistent-storage, /tags, /resource-operations and /danger are ported from the Blade views inside the application's configuration frame. What needs the SSH executor is reported, not faked, in Coolify's own order of row and command — where Coolify stores first (a managed file mount, a clone's volume data) the row is stored and the answer says what did not run; where it runs a command first (a file's content, converting or loading a mount, a source path or a directory inside the application's directory, deleting a mount or a Docker volume on the server, deleting an application that may have something on a server) the answer is 501 and nothing is stored. Volume and directory backups, the Compose-only parts of the storage page, the team's /tags pages, the dev-only "Migrate to another server", a clone's secret manager link and DNS records, and the account password step of the confirmations are not part of this task.
+  affects:
+    - apps/deploy-core-worker/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - on stage a signed-in org owner opens Persistent Storage of a Docker image application, adds the volume "data" at /data and sees it as "<uuid>-data", adds a host file mount and a directory mount outside the application's directory, adds a file mount with content and is told that writing the file is not available yet, and every mount is there after a reload
+    - on stage POST /v1/organizations/{org}/deploy/applications/{uuid}/storages with type volume and name "my data" answers 422 "The volume name must start with an alphanumeric character and contain only alphanumeric characters, dots, hyphens, and underscores.", the same volume name twice answers 422 "Duplicate entry found. Please use a different name.", PATCH …/storages/files/{id} with action save answers 501, and a member without deploy.resource.write gets 404 on every write and no file content on the read
+    - on stage the owner adds the tags "production api" on the Tags page, removes one and adds it back from the available tags, and another org can use the same tag names (migration 610 applied)
+    - on stage the owner clones the application to another environment and finds the clone there with its volumes under the clone's uuid and its tags, moves it to another environment, deletes it on the Danger Zone page, and the environment that held it can then be deleted
+    - the four pages pass the stage DOM gate or each difference is listed with its cause
+  gates: []

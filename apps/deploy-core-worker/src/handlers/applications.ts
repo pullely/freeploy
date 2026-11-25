@@ -27,7 +27,9 @@
 //   GET    /projects/{uuid}/environments/{env_uuid}/new         Select: servers, destinations, resource types
 //   GET    /projects/{uuid}/environments/{env_uuid}/resources   Resource\Index: the environment's applications
 //
-// There is no DELETE: Coolify's delete runs commands on the server.
+// The Persistent Storage, Tags, Resource Operations and Danger Zone pages
+// (/applications/{uuid}/{storages,tags,resource-operations,danger}…) and
+// DELETE /applications/{uuid} are application-resources.ts.
 //
 // Coolify's policy: view = who can open the application, create = who can
 // create in the environment (createAnyResource), update = write, deploy = the
@@ -65,6 +67,7 @@ import { assertLabelInput, instantSaveLabels, labelSqlContext, resetLabels, save
 import { createBuiltApplication, handleGitAction, isBuiltApplicationType, isGitAction, sqlBuildContext } from "./application-create.js";
 import { BUILD_MESSAGES, builtAnswer, prepareBuild, saveBuild, showBuild } from "../applications/build.js";
 import type { GithubDeps } from "../applications/github.js";
+import { handleApplicationResources, isApplicationResourceRoute } from "./application-resources.js";
 import {
   ApplicationError,
   createDockerImageApplication,
@@ -166,6 +169,8 @@ export async function handleApplications(
   const notFound = () => errorResponse("not_found", "Not found", 404, requestId);
   // The Domains, Advanced, Healthcheck and Resource Limits pages (application-settings.ts).
   if (segments.length === 2 && isApplicationSettingsSection(second)) return handleApplicationSettings(env, requestId, actor, orgId, first!, second, request);
+  // The Persistent Storage, Tags, Resource Operations and Danger Zone pages, and the application's DELETE (application-resources.ts).
+  if (isApplicationResourceRoute(segments, method)) return handleApplicationResources(env, requestId, actor, orgId, segments, request);
   let op: Op | null = null;
 
   if (segments.length === 0) {

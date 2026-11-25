@@ -273,5 +273,14 @@ export const manifest: MigrationManifest = {
       description:
         "Server-wide shared variables (freeploy-coolify-parity DP5) — shared_environment_variables.type accepts 'server', the raw statement of Coolify's migration that the schema fold does not read",
     },
+    {
+      id: "610_deploy_tags_org_name_unique",
+      context: "deploy",
+      path: "610_deploy_tags_org_name_unique/up.sql",
+      checksum:
+        "726b0537ffae2b348074afa815626d8d7fe3b164cee1623f285dda381e33adf0",
+      description:
+        "Tag names unique per org (freeploy-coolify-parity DP5) — drops the global tags_name_unique the schema fold kept and adds (org_id, name), as Coolify's two tag index migrations do per team",
+    },
   ],
 };

@@ -25,6 +25,10 @@ const ApplicationAdvancedPage = lazy(() => import("./pages/ApplicationAdvanced")
 const ApplicationHealthcheckPage = lazy(() => import("./pages/ApplicationHealthcheck").then((m) => ({ default: m.ApplicationHealthcheckPage })));
 const ApplicationResourceLimitsPage = lazy(() => import("./pages/ApplicationResourceLimits").then((m) => ({ default: m.ApplicationResourceLimitsPage })));
 const ApplicationEnvironmentVariablesPage = lazy(() => import("./pages/ApplicationEnvironmentVariables").then((m) => ({ default: m.ApplicationEnvironmentVariablesPage })));
+const ApplicationStoragesPage = lazy(() => import("./pages/ApplicationStorages").then((m) => ({ default: m.ApplicationStoragesPage })));
+const ApplicationTagsPage = lazy(() => import("./pages/ApplicationTags").then((m) => ({ default: m.ApplicationTagsPage })));
+const ApplicationResourceOperationsPage = lazy(() => import("./pages/ApplicationResourceOperations").then((m) => ({ default: m.ApplicationResourceOperationsPage })));
+const ApplicationDangerPage = lazy(() => import("./pages/ApplicationDanger").then((m) => ({ default: m.ApplicationDangerPage })));
 const EnvironmentEditPage = lazy(() => import("./pages/EnvironmentEdit").then((m) => ({ default: m.EnvironmentEditPage })));
 const PrivateKeysPage = lazy(() => import("./pages/PrivateKeys").then((m) => ({ default: m.PrivateKeysPage })));
 const CloudTokensPage = lazy(() => import("./pages/CloudTokens").then((m) => ({ default: m.CloudTokensPage })));
@@ -165,6 +169,30 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <ApplicationEnvironmentVariablesPage />
+        </Suspense>
+      );
+    case "project.application.persistent-storage":
+      return (
+        <Suspense fallback={null}>
+          <ApplicationStoragesPage />
+        </Suspense>
+      );
+    case "project.application.tags":
+      return (
+        <Suspense fallback={null}>
+          <ApplicationTagsPage />
+        </Suspense>
+      );
+    case "project.application.resource-operations":
+      return (
+        <Suspense fallback={null}>
+          <ApplicationResourceOperationsPage />
+        </Suspense>
+      );
+    case "project.application.danger":
+      return (
+        <Suspense fallback={null}>
+          <ApplicationDangerPage />
         </Suspense>
       );
     case "security.private-key.index":
