@@ -1,7 +1,18 @@
 // The URL structure is routes/web.php's, one to one (design §3.1). A route
 // whose page is not ported yet renders NotPorted, which the parity harness
 // reports as a failing (not missing) route once deploy-web is the target.
-export type PageKey = "login" | "register" | "forgot-password" | "reset-password" | "profile.appearance" | "profile" | "profile.passkeys.confirm" | "password.confirm" | "verify.email" | "two-factor.required" | "verify.verify" | "two-factor.login" | "security.private-key.index" | "security.private-key.show" | "security.cloud-tokens" | "security.cloud-tokens.show" | "security.cloud-init-scripts" | "security.cloud-init-scripts.show" | "server.index" | "server.create" | "server.create.manual" | "server.show" | "server.advanced" | "server.private-key" | "server.cloud-provider-token" | "server.ca-certificate" | "server.sentinel" | "server.swarm" | "server.docker-cleanup" | "server.log-drains" | "server.destinations" | "server.delete" | "server.registries" | "registries.index" | "project.index" | "project.show" | "project.edit" | "project.resource.index" | "project.environment.edit" | "project.resource.create" | "project.application.configuration" | "destination.index" | "destination.show" | "destination.danger" | "destination.resources" | "not-ported";
+export type PageKey = "login" | "register" | "forgot-password" | "reset-password" | "profile.appearance" | "profile" | "profile.passkeys.confirm" | "password.confirm" | "verify.email" | "two-factor.required" | "verify.verify" | "two-factor.login" | "security.private-key.index" | "security.private-key.show" | "security.cloud-tokens" | "security.cloud-tokens.show" | "security.cloud-init-scripts" | "security.cloud-init-scripts.show" | "server.index" | "server.create" | "server.create.manual" | "server.show" | "server.advanced" | "server.private-key" | "server.cloud-provider-token" | "server.ca-certificate" | "server.sentinel" | "server.swarm" | "server.docker-cleanup" | "server.log-drains" | "server.destinations" | "server.delete" | "server.registries" | "registries.index" | "project.index" | "project.show" | "project.edit" | "project.resource.index" | "project.environment.edit" | "project.resource.create" | "project.application.configuration" | "destination.index" | "destination.show" | "destination.danger" | "destination.resources" | "not-ported" | SharedVariablesPageKey;
+
+/** The shared-variables.* routes (their canvas routes are not ported). */
+export type SharedVariablesPageKey =
+  | "shared-variables.index"
+  | "shared-variables.team.index"
+  | "shared-variables.project.index"
+  | "shared-variables.project.show"
+  | "shared-variables.environment.index"
+  | "shared-variables.environment.show"
+  | "shared-variables.server.index"
+  | "shared-variables.server.show";
 
 const ROUTES: Array<[RegExp, PageKey]> = [
   [/^\/login\/?$/, "login"],
@@ -54,6 +65,15 @@ const ROUTES: Array<[RegExp, PageKey]> = [
   // destination.danger is the same component as destination.show (routeIs picks the section).
   [/^\/destination\/[^/]+\/danger\/?$/, "destination.danger"],
   [/^\/destination\/[^/]+\/resources\/?$/, "destination.resources"],
+  // Shared variables. Each scope's canvas (…/canvas) is not ported.
+  [/^\/shared-variables\/?$/, "shared-variables.index"],
+  [/^\/shared-variables\/team\/?$/, "shared-variables.team.index"],
+  [/^\/shared-variables\/projects\/?$/, "shared-variables.project.index"],
+  [/^\/shared-variables\/project\/[^/]+\/?$/, "shared-variables.project.show"],
+  [/^\/shared-variables\/environments\/?$/, "shared-variables.environment.index"],
+  [/^\/shared-variables\/environments\/project\/[^/]+\/environment\/[^/]+\/?$/, "shared-variables.environment.show"],
+  [/^\/shared-variables\/servers\/?$/, "shared-variables.server.index"],
+  [/^\/shared-variables\/server\/[^/]+\/?$/, "shared-variables.server.show"],
 ];
 
 export function pageFor(pathname: string): PageKey {

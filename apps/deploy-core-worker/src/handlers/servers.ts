@@ -43,6 +43,7 @@ import {
   listServers as listServerRows,
   findServerByUuid,
   insertServer,
+  insertSharedVariable,
   updateServer as updateServerRows,
   updateServerRole,
   setServerPrivateKey as setServerPrivateKeyRow,
@@ -59,7 +60,7 @@ import { fetchAuthorizationContext } from "../membership-client.js";
 import { authorizeViaPolicy, type AuthorizeResult } from "../policy-client.js";
 import { deniedResponse, errorResponse, methodNotAllowed, successResponse, validationError } from "../http.js";
 import type { KeyCipher } from "../private-keys/service.js";
-import { handleServerCloudToken } from "./cloud-tokens.js";
+import { columnCipher, handleServerCloudToken } from "./cloud-tokens.js";
 import { handleServerRegistries } from "./registries.js";
 import { handleServerCaCertificate } from "./ca-certificate.js";
 import { SERVER_MESSAGES, SERVER_ROLES, validateCreateServer, validateUpdateServer, type ServerRole } from "../servers/validation.js";
@@ -100,6 +101,9 @@ function sqlStore(tx: SqlExecutor, orgId: string): ServerStore {
     otherBuildServerExists: (exceptId) => otherBuildServerExists(tx, exceptId),
     privateKeys: () => listServerPrivateKeys(tx),
     findPrivateKey: (uuid) => findPrivateKeyByUuid(tx, uuid),
+    addSharedVariable: async (v) => {
+      await insertSharedVariable(tx, { orgId, owner: { type: "server", id: v.serverId }, key: v.key, value: v.value, isLiteral: v.isLiteral });
+    },
   };
 }
 
@@ -116,7 +120,13 @@ function sqlCipher(tx: SqlExecutor, orgId: string, secret: string | undefined): 
 export const runServersInOrg: ServerRunner = async (env, orgId, fn) => {
   const db = createSqlExecutor(env.PLATFORM_DB!);
   try {
-    return await withOrg(db, orgId, (tx) => fn({ store: sqlStore(tx, orgId), cipher: sqlCipher(tx, orgId, env.DEPLOY_ENCRYPTION_KEY) }));
+    return await withOrg(db, orgId, (tx) => 
+      fn({
+        store: sqlStore(tx, orgId),
+        cipher: sqlCipher(tx, orgId, env.DEPLOY_ENCRYPTION_KEY),
+        variables: columnCipher(tx, orgId, env.DEPLOY_ENCRYPTION_KEY, "shared_environment_variables.value"),
+      }),
+    );
   } finally {
     await db.dispose();
   }

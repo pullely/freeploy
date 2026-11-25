@@ -225,10 +225,12 @@ export async function setServerPrivateKey(tx: SqlExecutor, serverId: string | nu
 
 /**
  * Delete::delete() and the DeleteServer job's forceDelete: the server, its
- * destinations and its settings (the forceDeleting hook deletes each).
+ * destinations and its settings (the forceDeleting hook deletes each), and its
+ * shared variables (Coolify's foreign key cascades).
  */
 export async function deleteServer(tx: SqlExecutor, id: string | number): Promise<boolean> {
   await deleteServerDestinations(tx, id);
+  await tx.execute(`DELETE FROM deploy.shared_environment_variables WHERE type = 'server' AND server_id = $1`, [id]);
   await tx.execute(`DELETE FROM deploy.server_settings WHERE server_id = $1`, [id]);
   const r = await tx.execute(`DELETE FROM deploy.servers WHERE id = $1 RETURNING id`, [id]);
   return r.rows.length > 0;

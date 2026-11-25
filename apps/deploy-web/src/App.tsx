@@ -40,6 +40,7 @@ const ServerSentinelPage = lazy(() => import("./pages/ServerSentinel").then((m) 
 const ServerDestinationsPage = lazy(() => import("./pages/ServerDestinations").then((m) => ({ default: m.ServerDestinationsPage })));
 const ServerRegistriesPage = lazy(() => import("./pages/ServerRegistries").then((m) => ({ default: m.ServerRegistriesPage })));
 const RegistriesPage = lazy(() => import("./pages/Registries").then((m) => ({ default: m.RegistriesPage })));
+const SharedVariablesPage = lazy(() => import("./pages/SharedVariables").then((m) => ({ default: m.SharedVariablesPage })));
 const DestinationsPage = lazy(() => import("./pages/Destinations").then((m) => ({ default: m.DestinationsPage })));
 const DestinationShowPage = lazy(() => import("./pages/DestinationShow").then((m) => ({ default: m.DestinationShowPage })));
 const DestinationResourcesPage = lazy(() => import("./pages/DestinationResources").then((m) => ({ default: m.DestinationResourcesPage })));
@@ -246,6 +247,19 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <ServerRegistriesPage />
+        </Suspense>
+      );
+    case "shared-variables.index":
+    case "shared-variables.team.index":
+    case "shared-variables.project.index":
+    case "shared-variables.project.show":
+    case "shared-variables.environment.index":
+    case "shared-variables.environment.show":
+    case "shared-variables.server.index":
+    case "shared-variables.server.show":
+      return (
+        <Suspense fallback={null}>
+          <SharedVariablesPage page={pageFor(window.location.pathname)} />
         </Suspense>
       );
     case "registries.index":

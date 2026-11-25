@@ -91,7 +91,6 @@ test("the project and environment routes map to their pages; canvas and clone ar
   assert.equal(pageFor(`${environment}/new/more`), "not-ported");
   assert.equal(pageFor(`${environment}/clone`), "not-ported");
   assert.equal(pageFor(`${environment}/canvas`), "not-ported");
-  assert.equal(pageFor("/shared-variables/projects"), "not-ported");
 });
 
 test("an application's configuration route maps to General; its other pages are not ported", () => {
@@ -167,4 +166,43 @@ test("a new destination is named as Str::kebab names it", () => {
   assert.equal(kebab("prod-1-k3j2abc"), "prod-1-k3j2abc");
   assert.equal(kebab("My Server-k3j2abc"), "my-server-k3j2abc");
   assert.equal(kebab("buildBox-net"), "build-box-net");
+});
+
+test("the shared variable routes map to their pages; each scope's canvas is not ported", () => {
+  const project = "abc123def456ghi789jkl012";
+  const environment = "mno345pqr678stu901vwx234";
+  assert.equal(pageFor("/shared-variables"), "shared-variables.index");
+  assert.equal(pageFor("/shared-variables/"), "shared-variables.index");
+  assert.equal(pageFor("/shared-variables/team"), "shared-variables.team.index");
+  assert.equal(pageFor("/shared-variables/team/canvas"), "not-ported");
+  assert.equal(pageFor("/shared-variables/projects"), "shared-variables.project.index");
+  assert.equal(pageFor("/shared-variables/projects/"), "shared-variables.project.index");
+  assert.equal(pageFor("/shared-variables/project"), "not-ported");
+  assert.equal(pageFor(`/shared-variables/project/${project}`), "shared-variables.project.show");
+  assert.equal(pageFor(`/shared-variables/project/${project}/canvas`), "not-ported");
+  assert.equal(pageFor("/shared-variables/environments"), "shared-variables.environment.index");
+  assert.equal(pageFor(`/shared-variables/environments/project/${project}/environment/${environment}`), "shared-variables.environment.show");
+  assert.equal(pageFor(`/shared-variables/environments/project/${project}/environment/${environment}/`), "shared-variables.environment.show");
+  assert.equal(pageFor(`/shared-variables/environments/project/${project}/environment/${environment}/canvas`), "not-ported");
+  assert.equal(pageFor(`/shared-variables/environments/project/${project}`), "not-ported");
+  assert.equal(pageFor(`/shared-variables/environment/${environment}`), "not-ported");
+  assert.equal(pageFor("/shared-variables/servers"), "shared-variables.server.index");
+  assert.equal(pageFor(`/shared-variables/server/${project}`), "shared-variables.server.show");
+  assert.equal(pageFor(`/shared-variables/server/${project}/canvas`), "not-ported");
+  assert.equal(pageFor("/shared-variables/nope"), "not-ported");
+});
+
+import { agoShort } from "../src/lib/ago.ts";
+
+test("Carbon's short diffForHumans for past times", () => {
+  const now = Date.parse("2026-11-24T12:00:00Z");
+  assert.equal(agoShort("2026-11-24T11:59:30Z", now), "30s ago");
+  assert.equal(agoShort("2026-11-24T11:59:00Z", now), "1m ago");
+  assert.equal(agoShort("2026-11-24T09:00:00Z", now), "3h ago");
+  assert.equal(agoShort("2026-11-22T12:00:00Z", now), "2d ago");
+  assert.equal(agoShort("2026-11-17T12:00:00Z", now), "1w ago");
+  assert.equal(agoShort("2026-10-20T12:00:00Z", now), "1mo ago");
+  assert.equal(agoShort("2026-08-24T12:00:00Z", now), "3mos ago");
+  assert.equal(agoShort("2025-11-24T12:00:00Z", now), "1yr ago");
+  assert.equal(agoShort("2023-11-24T12:00:00Z", now), "3yrs ago");
 });

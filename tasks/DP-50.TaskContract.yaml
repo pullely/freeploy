@@ -1,0 +1,21 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-50
+  title: "DP5: shared variables — team, project, environment and server (API and pages)"
+spec:
+  goal: An org keeps shared variables for itself (Coolify's team), a project, an environment and a server as in Coolify — add, rename, change, lock and delete a variable, and save the whole scope from the developer view's KEY=value text, parsed as Coolify parses it — with Coolify's rules and Laravel's messages word for word, every value encrypted under the org's key, and every query confined to the org by row-level security. A reader sees keys, comments and flags; values and changes need write; a locked value is in no answer. A new server gets Coolify's predefined COOLIFY_SERVER_UUID and COOLIFY_SERVER_NAME variables, read-only on its page. /shared-variables, /shared-variables/team, /shared-variables/projects, /shared-variables/project/{uuid}, /shared-variables/environments, /shared-variables/environments/project/{uuid}/environment/{uuid}, /shared-variables/servers and /shared-variables/server/{uuid} are ported from the Blade views. Resolving a shared variable into a resource's environment at deploy time, counting which resources use a variable, the canvas views and Coolify's own JSON API are not part of this task; the canvas links lead to the not-ported notice.
+  affects:
+    - apps/deploy-core-worker/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - migration 590_deploy_shared_variables_server_scope is applied on stage and prod, and a server created on stage afterwards lists COOLIFY_SERVER_UUID and COOLIFY_SERVER_NAME as Built-in · Read-only on /shared-variables/server/{uuid}
+    - on stage a signed-in org owner adds a variable on /shared-variables/team, renames it, locks it, replaces the locked value and deletes it, and does the same from the developer view on a project's and an environment's page; each change is there after a reload and the overview's counts follow
+    - on stage POST /v1/organizations/{org}/deploy/shared-variables/team with a key the team already has answers 422 "Variable already exists.", POST …/server/{uuid} with COOLIFY_SERVER_UUID answers 422 "Cannot create predefined variable.", and a member without deploy.resource.write gets 404 on every write, canViewValues false and "(Hidden, only admins can view)" lines on the read
+    - the eight /shared-variables pages pass the stage DOM gate or each difference is listed with its cause
+  gates: []

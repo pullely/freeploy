@@ -8,6 +8,7 @@ import { handleProjects } from "./handlers/projects.js";
 import { handlePrivateKeys } from "./handlers/private-keys.js";
 import { handleRegistries } from "./handlers/registries.js";
 import { handleServers } from "./handlers/servers.js";
+import { handleSharedVariables } from "./handlers/shared-variables.js";
 import { errorResponse, notFound } from "./http.js";
 import { generateRequestId, parseOrgPublicId } from "./ids.js";
 
@@ -46,6 +47,8 @@ export const ORG_DEPLOY_DESTINATIONS_RE = /^\/v1\/organizations\/([^/]+)\/deploy
 
 /** Integrations → Registries: the overview (a server's registries are below /servers). */
 export const ORG_DEPLOY_REGISTRIES_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/registries\/?$/;
+/** Shared Variables: the overview and up to four segments below it (a scope's kind and uuid, a variable, its lock). */
+export const ORG_DEPLOY_SHARED_VARIABLES_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/shared-variables((?:\/[^/]+){0,4})\/?$/;
 
 export async function route(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url);
@@ -125,6 +128,16 @@ export async function route(request: Request, env: Env): Promise<Response> {
       const actor = resolveActor(request);
       if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
       return handleRegistries(env, requestId, actor, orgId, [], request);
+    }
+
+    const sharedVariables = url.pathname.match(ORG_DEPLOY_SHARED_VARIABLES_RE);
+    if (sharedVariables) {
+      const orgId = parseOrgPublicId(sharedVariables[1]!);
+      if (!orgId) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
+      const segments = (sharedVariables[2] ?? "").split("/").filter(Boolean);
+      return handleSharedVariables(env, requestId, actor, orgId, segments, request);
     }
     return notFound(requestId, url.pathname);
   } catch {

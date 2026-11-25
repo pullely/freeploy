@@ -79,3 +79,24 @@ test("Projects is the current main menu entry on every project and environment p
   for (const path of ["/", "/servers", "/shared-variables/projects", "/shared-variables/project/abc", "/project", "/projectsx"]) assert.equal(mainMenuActive(path, "/projects"), false, path);
   assert.equal(mainMenuActive("/projects", "/servers"), false);
 });
+
+test("every shared variables page opens the Shared Variables submenu on its own entry", () => {
+  const project = "abc123def456ghi789jkl012";
+  const current = (path: string) => SUBMENUS.find((s) => s.label === "Shared Variables")!.children.filter((c) => childActive(path, c.href)).map((c) => c.href);
+  for (const [path, href] of [
+    ["/shared-variables", "/shared-variables"],
+    ["/shared-variables/team", "/shared-variables/team"],
+    ["/shared-variables/team/canvas", "/shared-variables/team"],
+    ["/shared-variables/projects", "/shared-variables/projects"],
+    [`/shared-variables/project/${project}`, "/shared-variables/projects"],
+    ["/shared-variables/environments", "/shared-variables/environments"],
+    [`/shared-variables/environments/project/${project}/environment/mno345pqr678stu901vwx234`, "/shared-variables/environments"],
+    ["/shared-variables/servers", "/shared-variables/servers"],
+    [`/shared-variables/server/${project}`, "/shared-variables/servers"],
+  ] as const) {
+    assert.deepEqual(visible(path), ["Shared Variables"]);
+    assert.deepEqual(current(path), [href]);
+  }
+  // A project's own pages stay under Projects in the main menu.
+  assert.deepEqual(visible(`/project/${project}`), [""]);
+});
