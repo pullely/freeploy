@@ -567,3 +567,18 @@ export {
   type DatabaseBackupChanges,
   type DeployDatabaseBackupExecutionRow,
 } from "./database-backups.js";
+export {
+  NOTIFICATION_CHANNELS,
+  NOTIFICATION_EVENTS,
+  NOTIFICATION_SETTINGS_COLUMNS,
+  notificationSettingsTable,
+  findNotificationSettings,
+  ensureNotificationSettings,
+  updateNotificationSettings,
+  recordNotificationDeliveryFailure,
+  recordNotificationDeliverySuccess,
+  disableNotificationChannel,
+  type NotificationChannel,
+  type NotificationEvent,
+  type DeployNotificationSettingsRow,
+} from "./notification-settings.js";

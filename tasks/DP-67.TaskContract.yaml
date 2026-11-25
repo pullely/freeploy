@@ -1,0 +1,22 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-67
+  title: "DP9: notification channels — email, Discord, Telegram, Slack, Pushover and webhook settings, and the message payloads"
+spec:
+  goal: An org configures Coolify's six notification channels on /notifications/{email,discord,telegram,slack,pushover,webhook} — the settings rows (deploy.*_notification_settings, one per org, created on the first read with Coolify's defaults, secrets encrypted with the org's data key), every component action with Coolify's rules and messages word for word under /v1/organizations/{org}/deploy/notifications/{channel}, and "Send test" — delivered for Discord, Slack (and Mattermost), Telegram, Pushover and webhook through an injectable fetch with Coolify's exact requests, and for email over Resend as Coolify's Resend transport sends it; SMTP and the hosted email service answer that they are not available yet and why. Every notification class's message for every channel it supports is a pure TypeScript port held byte for byte to goldens emitted by Coolify's own PHP (payloads and the jobs' HTTP requests). notify(org, notification) sends through the org's enabled channels and event toggles with the jobs' retries and failure counting, and is wired to nothing that fires yet. The layout's "No notifications enabled" reminder shows only when no channel is on. Cut — the rendered email body of every class but the test email (subject and view only); not part of this task — the named SMTP servers, sending over SMTP, the notification throttles and rate limits, the transactional emails.
+  affects:
+    - apps/deploy-core-worker/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - every case of tests/deploy-core-worker/fixtures/notifications/cases.json (34 classes, 83 cases) comes out of the port byte-equal to goldens.json for the email subject and view, the five chat payloads and the jobs' requests, with no listed mismatch
+    - on stage, an org owner opens /notifications/discord, clicks Enable without a webhook URL and sees "Discord Webhook URL is required."; with a URL it saves ("Settings saved.") and after a reload the URL is there and the layout's "No notifications enabled" reminder is gone
+    - on stage, "Send test" on Discord, Slack, Telegram, Pushover and webhook posts Coolify's Test notification to the configured endpoint (Freeploy's name in the text); a Telegram token Telegram refuses shows "Telegram rejected the test notification." with its reason
+    - on stage, the email page with Resend settings sends the test email through api.resend.com (or shows Coolify's Resend error message); with SMTP it answers 501 that SMTP is not available yet and what it would need
+    - a member without deploy.resource.write sees the pages with the secrets hidden and gets 404 on every write and test
+  gates: []

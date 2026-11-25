@@ -12,6 +12,7 @@ import { handleServers } from "./handlers/servers.js";
 import { handleSharedVariables } from "./handlers/shared-variables.js";
 import { handleServices } from "./handlers/services.js";
 import { handleS3Storages, ORG_DEPLOY_STORAGES_RE } from "./handlers/s3-storages.js";
+import { handleNotifications } from "./handlers/notifications.js";
 import { errorResponse, notFound } from "./http.js";
 import { generateRequestId, parseOrgPublicId } from "./ids.js";
 
@@ -56,6 +57,9 @@ export const ORG_DEPLOY_DESTINATIONS_RE = /^\/v1\/organizations\/([^/]+)\/deploy
 export const ORG_DEPLOY_REGISTRIES_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/registries\/?$/;
 /** Shared Variables: the overview and up to four segments below it (a scope's kind and uuid, a variable, its lock). */
 export const ORG_DEPLOY_SHARED_VARIABLES_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/shared-variables((?:\/[^/]+){0,4})\/?$/;
+
+/** Notifications (DP-67): the summary, a channel's page, and its test send. */
+export const ORG_DEPLOY_NOTIFICATIONS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/notifications((?:\/[^/]+){0,2})\/?$/;
 
 export async function route(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url);
@@ -173,6 +177,16 @@ export async function route(request: Request, env: Env): Promise<Response> {
       if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
       const segments = (storages[2] ?? "").split("/").filter(Boolean);
       return handleS3Storages(env, requestId, actor, orgId, segments, request);
+    }
+
+    const notifications = url.pathname.match(ORG_DEPLOY_NOTIFICATIONS_RE);
+    if (notifications) {
+      const orgId = parseOrgPublicId(notifications[1]!);
+      if (!orgId) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
+      const segments = (notifications[2] ?? "").split("/").filter(Boolean);
+      return handleNotifications(env, requestId, actor, orgId, segments, request);
     }
     return notFound(requestId, url.pathname);
   } catch {

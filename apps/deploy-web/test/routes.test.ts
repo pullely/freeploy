@@ -263,3 +263,13 @@ test("a database's backup schedules (DP-65); a schedule's links redirect to the 
   assert.equal(pageFor(`${database}/backups/bkp123/other`), "not-ported");
   assert.equal(backupScheduleRedirect(`${database}/backups/bkp123/`), `${database}/backups?schedule=bkp123`);
 });
+
+test("the notifications.* routes: each channel's settings page (DP-67)", () => {
+  for (const channel of ["email", "discord", "telegram", "slack", "pushover", "webhook"]) {
+    assert.equal(pageFor(`/notifications/${channel}`), `notifications.${channel}`);
+    assert.equal(pageFor(`/notifications/${channel}/`), `notifications.${channel}`);
+  }
+  assert.equal(pageFor("/notifications"), "not-ported");
+  assert.equal(pageFor("/notifications/teams"), "not-ported");
+  assert.equal(pageFor("/notifications/discord/test"), "not-ported");
+});

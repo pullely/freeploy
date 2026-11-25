@@ -73,6 +73,7 @@ const StoragesPage = lazy(() => import("./pages/Storages").then((m) => ({ defaul
 const StorageShowPage = lazy(() => import("./pages/Storages").then((m) => ({ default: m.StorageShowPage })));
 const DatabaseBackupsPage = lazy(() => import("./pages/DatabaseBackups").then((m) => ({ default: m.DatabaseBackupsPage })));
 const ServerDeletePage = lazy(() => import("./pages/ServerDelete").then((m) => ({ default: m.ServerDeletePage })));
+const NotificationSettingsPage = lazy(() => import("./pages/NotificationSettings").then((m) => ({ default: m.NotificationSettingsPage })));
 
 /** routes/web.php: security.private-key.show is redirect()->route('security.private-key.index'). */
 function RedirectTo({ path }: { path: string }) {
@@ -487,6 +488,17 @@ export function App() {
       );
     case "project.database.backup.show":
       return <RedirectTo path={backupScheduleRedirect(window.location.pathname)} />;
+    case "notifications.email":
+    case "notifications.discord":
+    case "notifications.telegram":
+    case "notifications.slack":
+    case "notifications.pushover":
+    case "notifications.webhook":
+      return (
+        <Suspense fallback={null}>
+          <NotificationSettingsPage channel={pageFor(window.location.pathname).slice("notifications.".length) as "email"} />
+        </Suspense>
+      );
     default:
       return <NotPortedPage />;
   }
