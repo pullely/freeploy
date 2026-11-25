@@ -104,11 +104,17 @@ test("an application's configuration routes map to General, Domains, Advanced, H
   }
   // Every other entry of the configuration menu.
   for (const page of [
-    "swarm", "logs", "deployment", "terminal", "files", "metrics", "analytics",
+    "swarm", "logs", "terminal", "files", "metrics", "analytics",
     "vulnerabilities", "preview-deployments", "backups", "maintenance",
   ]) {
     assert.equal(pageFor(`${application}/${page}`), "not-ported", page);
   }
+  // The deployment history and one deployment's logs.
+  assert.equal(pageFor(`${application}/deployment`), "project.application.deployment.index");
+  assert.equal(pageFor(`${application}/deployment/`), "project.application.deployment.index");
+  assert.equal(pageFor(`${application}/deployment/klm789nop012qrs345tuv678`), "project.application.deployment.show");
+  assert.equal(pageFor(`${application}/deployment/klm789nop012qrs345tuv678/`), "project.application.deployment.show");
+  assert.equal(pageFor(`${application}/deployment/klm789nop012qrs345tuv678/more`), "not-ported");
   assert.equal(pageFor(`${application}/environment-variables`), "project.application.environment-variables");
   assert.equal(pageFor(`${application}/environment-variables/`), "project.application.environment-variables");
   assert.equal(pageFor(`${application}/environment-variables/more`), "not-ported");

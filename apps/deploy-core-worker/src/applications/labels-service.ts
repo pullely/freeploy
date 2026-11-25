@@ -88,7 +88,7 @@ function labelServer(row: DeployApplicationLabelRow): LabelServer {
 }
 
 /** The row as generateLabelsApplication() reads the model; `password` is the decrypted column. */
-function labelApplication(row: DeployApplicationLabelRow, password: string | null): LabelApplication {
+export function labelApplication(row: DeployApplicationLabelRow, password: string | null): LabelApplication {
   const overrides = json(row.domain_port_overrides);
   return {
     uuid: row.uuid,

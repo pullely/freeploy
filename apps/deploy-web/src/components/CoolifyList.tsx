@@ -276,7 +276,7 @@ export function SortHeader(props: { list: ListState<unknown>; label: string; asc
 }
 
 /** <x-page-size-select>: the rows per page, one of the options or a custom number up to 100 (the list remembers it). */
-function PageSizeSelect({ value, onChange, options }: { value: number; onChange: (size: number) => void; options: number[] }) {
+export function PageSizeSelect({ value, onChange, options }: { value: number; onChange: (size: number) => void; options: number[] }) {
   const [customizing, setCustomizing] = useState(false);
   const [custom, setCustom] = useState("");
   const input = useRef<HTMLInputElement>(null);
@@ -375,7 +375,7 @@ function PageSizeSelect({ value, onChange, options }: { value: number; onChange:
   );
 }
 
-const PAGER_BUTTON =
+export const PAGER_BUTTON =
   "flex size-7 items-center justify-center rounded-md border border-neutral-200 text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-black disabled:pointer-events-none disabled:opacity-35 dark:border-white/[0.08] dark:text-fg-dim dark:hover:bg-white/[0.06] dark:hover:text-fg";
 
 /** <x-client-pagination>: "1-12 of 30", the page size and the previous / next buttons; hidden while everything fits the smallest page. */

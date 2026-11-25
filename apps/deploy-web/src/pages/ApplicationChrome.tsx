@@ -9,7 +9,7 @@
 // executor: the API answers "not available yet" and the toast says so.
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { postJson, summarize } from "../lib/api";
-import { notify } from "../lib/toast";
+import { notify, toast } from "../lib/toast";
 import { Reicon } from "../components/Reicon";
 import { Helper, ModalConfirmation } from "../components/Coolify";
 import { environmentPath, ProjectBreadcrumb } from "./ProjectChrome";
@@ -213,8 +213,11 @@ export function ApplicationHeading({ application, orgId, canDeploy }: { applicat
 
   /** Heading::deploy(), restart() and stop(): the API's answer as a toast. */
   async function run(action: "deploy" | "restart" | "stop", body: Record<string, unknown> = {}) {
-    const r = await postJson<{ message?: string }>(`${base}/${action}`, body);
+    const r = await postJson<{ status?: string; title?: string; message?: string; redirect?: string }>(`${base}/${action}`, body);
     if (!r.ok) return notify.error(summarize(r.error.messages));
+    // A queued deployment opens its page; a skipped one says why ('Deployment skipped').
+    if (r.data.status === "skipped") return toast(r.data.title ?? "Deployment skipped", { type: "warning", description: r.data.message ?? "" });
+    if (r.data.redirect) return window.location.assign(r.data.redirect);
     if (r.data.message) notify.success(r.data.message);
   }
 
