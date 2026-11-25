@@ -36,6 +36,10 @@ export interface ApplicationBuildStore {
   clearFileStoragesBasedOnGit(id: string | number): Promise<void>;
   /** Server::buildServers($teamId)->exists() */
   hasBuildServers(): Promise<boolean>;
+  /** DP-72: one of the org's registered private GitHub Apps, by uuid (GithubPrivateRepository's source). */
+  findGithubApp?(uuid: string): Promise<{ id: string | number; uuid: string } | null>;
+  /** DP-72: one of the org's private keys, by uuid (GithubPrivateRepositoryDeployKey::setPrivateKey). */
+  findPrivateKey?(uuid: string): Promise<{ id: string | number } | null>;
 }
 
 export interface ApplicationBuildContext {
@@ -237,7 +241,7 @@ interface Created {
  * and its environment. Null when the project or the environment is not the
  * org's.
  */
-async function resolveTarget(ctx: ApplicationContext, target: CreationTarget) {
+export async function resolveTarget(ctx: ApplicationContext, target: CreationTarget) {
   const destination = target.destinationUuid ? await ctx.store.findDestination(target.destinationUuid) : null;
   const server = destination ? await ctx.store.findServer(destination.server_uuid) : null;
   if (!destination || !server || effectiveServerRole(server) === "build" || (target.serverUuid !== null && target.serverUuid !== server.uuid)) {
@@ -251,7 +255,7 @@ async function resolveTarget(ctx: ApplicationContext, target: CreationTarget) {
 }
 
 /** The creating hook: Str::random(40) for each manual webhook secret, encrypted for its column. */
-async function webhookSecrets(ctx: ApplicationContext): Promise<Record<ApplicationWebhookSecretColumn, string>> {
+export async function webhookSecrets(ctx: ApplicationContext): Promise<Record<ApplicationWebhookSecretColumn, string>> {
   const secrets = {} as Record<ApplicationWebhookSecretColumn, string>;
   for (const column of APPLICATION_WEBHOOK_SECRET_COLUMNS) secrets[column] = await ctx.encrypt(column, randomString(40));
   return secrets;
@@ -307,7 +311,7 @@ export async function createDockerfileApplication(ctx: BuildingContext, input: C
  * build-time variable — and, through EnvironmentVariable's own created hook,
  * its preview copy.
  */
-async function nixpacksVariables(ctx: BuildingContext): Promise<NewApplicationVariable[]> {
+export async function nixpacksVariables(ctx: BuildingContext): Promise<NewApplicationVariable[]> {
   const variable = async (isPreview: boolean): Promise<NewApplicationVariable> => ({
     uuid: newPublicId(),
     key: "NIXPACKS_NODE_VERSION",

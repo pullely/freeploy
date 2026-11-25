@@ -1,7 +1,10 @@
 // The URL structure is routes/web.php's, one to one (design §3.1). A route
 // whose page is not ported yet renders NotPorted, which the parity harness
 // reports as a failing (not missing) route once deploy-web is the target.
-export type PageKey = "login" | "register" | "forgot-password" | "reset-password" | "profile.appearance" | "profile" | "profile.passkeys.confirm" | "password.confirm" | "verify.email" | "two-factor.required" | "verify.verify" | "two-factor.login" | "security.private-key.index" | "security.private-key.show" | "security.cloud-tokens" | "security.cloud-tokens.show" | "security.cloud-init-scripts" | "security.cloud-init-scripts.show" | "server.index" | "server.create" | "server.create.manual" | "server.show" | "server.advanced" | "server.private-key" | "server.cloud-provider-token" | "server.ca-certificate" | "server.sentinel" | "server.swarm" | "server.docker-cleanup" | "server.log-drains" | "server.destinations" | "server.delete" | "server.registries" | "registries.index" | "project.index" | "project.show" | "project.edit" | "project.resource.index" | "project.environment.edit" | "project.resource.create" | "project.application.configuration" | "project.application.environment-variables" | "project.application.domains" | "project.application.advanced" | "project.application.healthcheck" | "project.application.resource-limits" | "project.application.persistent-storage" | "project.application.tags" | "project.application.resource-operations" | "project.application.danger" | "project.database.configuration" | "project.application.source" | "project.application.servers" | "project.application.webhooks" | "project.application.scheduled-tasks" | "project.application.rollback" | "project.service.configuration" | "project.application.deployment.index" | "project.application.deployment.show" | "destination.index" | "destination.show" | "destination.danger" | "destination.resources" | "not-ported" | SharedVariablesPageKey | DatabaseSharedPageKey | StoragePageKey | NotificationsPageKey | ServicePageKey | TeamPageKey | ApiTokensPageKey;
+export type PageKey = "login" | "register" | "forgot-password" | "reset-password" | "profile.appearance" | "profile" | "profile.passkeys.confirm" | "password.confirm" | "verify.email" | "two-factor.required" | "verify.verify" | "two-factor.login" | "security.private-key.index" | "security.private-key.show" | "security.cloud-tokens" | "security.cloud-tokens.show" | "security.cloud-init-scripts" | "security.cloud-init-scripts.show" | "server.index" | "server.create" | "server.create.manual" | "server.show" | "server.advanced" | "server.private-key" | "server.cloud-provider-token" | "server.ca-certificate" | "server.sentinel" | "server.swarm" | "server.docker-cleanup" | "server.log-drains" | "server.destinations" | "server.delete" | "server.registries" | "registries.index" | "project.index" | "project.show" | "project.edit" | "project.resource.index" | "project.environment.edit" | "project.resource.create" | "project.application.configuration" | "project.application.environment-variables" | "project.application.domains" | "project.application.advanced" | "project.application.healthcheck" | "project.application.resource-limits" | "project.application.persistent-storage" | "project.application.tags" | "project.application.resource-operations" | "project.application.danger" | "project.database.configuration" | "project.application.source" | "project.application.servers" | "project.application.webhooks" | "project.application.scheduled-tasks" | "project.application.rollback" | "project.service.configuration" | "project.application.deployment.index" | "project.application.deployment.show" | "destination.index" | "destination.show" | "destination.danger" | "destination.resources" | "not-ported" | SharedVariablesPageKey | DatabaseSharedPageKey | StoragePageKey | NotificationsPageKey | ServicePageKey | TeamPageKey | ApiTokensPageKey | SourcesPageKey;
+
+/** Integrations → Sources (DP-72): the list, a GitHub App's pages, and the pages GitHub sends the browser back to. */
+export type SourcesPageKey = "source.all" | "source.github.show" | "source.github.permissions" | "source.github.resources" | "source.github.danger" | "source.github.redirect" | "source.github.install";
 
 /** Keys & Tokens → API Tokens (DP-70). */
 export type ApiTokensPageKey = "security.api-tokens";
@@ -133,6 +136,15 @@ const ROUTES: Array<[RegExp, PageKey]> = [
   [/^\/storages\/[^/]+\/?$/, "storage.show"],
   [/^\/storages\/[^/]+\/resources\/?$/, "storage.resources"],
   [/^\/storages\/[^/]+\/danger\/?$/, "storage.danger"],
+  // Sources (DP-72). GitLab's and Gitea's pages are not ported. GitHub sends the browser to
+  // /webhooks/source/github/{redirect,install} (Coolify's routes/webhooks.php, GET): pages here that post the code on.
+  [/^\/sources\/?$/, "source.all"],
+  [/^\/source\/github\/[^/]+\/?$/, "source.github.show"],
+  [/^\/source\/github\/[^/]+\/permissions\/?$/, "source.github.permissions"],
+  [/^\/source\/github\/[^/]+\/resources\/?$/, "source.github.resources"],
+  [/^\/source\/github\/[^/]+\/danger\/?$/, "source.github.danger"],
+  [/^\/webhooks\/source\/github\/redirect\/?$/, "source.github.redirect"],
+  [/^\/webhooks\/source\/github\/install\/?$/, "source.github.install"],
   [/^\/destinations\/?$/, "destination.index"],
   [/^\/destination\/[^/]+\/?$/, "destination.show"],
   // destination.danger is the same component as destination.show (routeIs picks the section).

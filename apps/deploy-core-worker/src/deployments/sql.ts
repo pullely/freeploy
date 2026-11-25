@@ -34,7 +34,13 @@ import {
   updateApplicationDeploymentState,
   updateApplicationLabels,
   updateDeploymentStatus,
+  findGithubAppById,
+  findGithubAppPrivateKey,
+  setApplicationRepositoryProjectId,
+  GITHUB_APP_MORPH_CLASS,
+  PUBLIC_GITHUB_SOURCE,
   type DeployDeploymentApplicationRow,
+  type DeployDeploymentBuildRow,
   type SharedVariableRefScope,
 } from "@saas/db/deploy";
 import { labelApplication } from "../applications/labels-service.js";
@@ -117,6 +123,42 @@ export async function loadDeploymentContext(tx: SqlExecutor, orgId: string, secr
     build,
     // No deployment stores a configuration snapshot yet: Coolify's answer after such a deployment.
     configurationDiff: LEGACY_CONFIGURATION_DIFF,
+    ...(await loadPrivateGitSource(tx, orgId, secret, build)),
+  };
+}
+
+/**
+ * DP-72: what a private repository is cloned with — the application's GitHub App (its row and its private key,
+ * decrypted; the installation token is asked of GitHub at deploy time), and its deploy key (decrypted).
+ */
+async function loadPrivateGitSource(tx: SqlExecutor, orgId: string, secret: string | undefined, build: DeployDeploymentBuildRow): Promise<Pick<DeploymentContext, "githubApp" | "deployKey" | "repositoryProjectId">> {
+  const keyCipher = columnCipher(tx, orgId, secret, "private_keys.private_key");
+  let githubApp: DeploymentContext["githubApp"] = null;
+  if (build.source_type === GITHUB_APP_MORPH_CLASS && build.source_id !== null && String(build.source_id) !== String(PUBLIC_GITHUB_SOURCE.id)) {
+    const row = await findGithubAppById(tx, build.source_id);
+    if (row && !row.is_public) {
+      const key = await findGithubAppPrivateKey(tx, row.private_key_id);
+      githubApp = {
+        source: { kind: "github", id: String(row.id), name: row.name, htmlUrl: row.html_url, isPublic: false, account: row.installation_account ?? row.organization, customUser: row.custom_user, customPort: Number(row.custom_port) },
+        credentials: {
+          name: row.name,
+          organization: row.organization,
+          api_url: row.api_url,
+          html_url: row.html_url,
+          app_id: row.app_id,
+          installation_id: row.installation_id,
+          is_public: false,
+          privateKey: key ? await keyCipher.decrypt(key.private_key) : null,
+        },
+      };
+    }
+  }
+  const deployKeyRow = build.private_key_id === null ? null : await findGithubAppPrivateKey(tx, build.private_key_id);
+  const projectId = await tx.execute<{ repository_project_id: number | null }>("SELECT repository_project_id FROM deploy.applications WHERE id = $1", [build.application_id]);
+  return {
+    githubApp,
+    deployKey: deployKeyRow ? await keyCipher.decrypt(deployKeyRow.private_key) : null,
+    repositoryProjectId: projectId.rows[0]?.repository_project_id ?? null,
   };
 }
 
@@ -179,6 +221,9 @@ export function sqlDeploymentStore(db: TransactionalSqlExecutor, orgId: string, 
           });
         }
       });
+    },
+    setRepositoryProjectId: async (applicationId, repositoryProjectId) => {
+      await run((tx) => setApplicationRepositoryProjectId(tx, applicationId, repositoryProjectId));
     },
   };
 }

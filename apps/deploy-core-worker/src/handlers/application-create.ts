@@ -27,6 +27,8 @@ import {
   deleteApplicationServiceVariables,
   clearApplicationFileStoragesBasedOnGit,
   listResourceServers,
+  findGithubAppByUuid,
+  findPrivateKeyByUuid,
 } from "@saas/db/deploy";
 import { errorResponse, successResponse, validationError } from "../http.js";
 import { columnCipher } from "./cloud-tokens.js";
@@ -44,12 +46,13 @@ import {
 } from "../applications/create.js";
 import type { GithubDeps } from "../applications/github.js";
 import type { ApplicationContext } from "../applications/service.js";
+import { createDeployKeyApplication, createGithubAppApplication, PRIVATE_REPOSITORY_TYPES } from "../sources/private-repository.js";
 
 type Runner = <T>(env: Env, orgId: string, fn: (ctx: ApplicationContext) => Promise<T>) => Promise<T>;
 type Body = Record<string, unknown>;
 
 /** The `type` values of POST /applications this file answers ("dockerimage" stays with handleApplications). */
-const BUILT_TYPES: readonly string[] = ["dockerfile", "public", "dockercompose"];
+const BUILT_TYPES: readonly string[] = ["dockerfile", "public", "dockercompose", ...PRIVATE_REPOSITORY_TYPES];
 export const isBuiltApplicationType = (type: unknown): boolean => typeof type === "string" && BUILT_TYPES.includes(type);
 
 /** The actions under /applications/git. */
@@ -72,6 +75,12 @@ export function sqlBuildStore(tx: SqlExecutor, orgId: string): ApplicationBuildS
     clearFileStoragesBasedOnGit: (id) => clearApplicationFileStoragesBasedOnGit(tx, id),
     // Server::buildServers(): the usable servers whose role is build.
     hasBuildServers: async () => (await listResourceServers(tx, "build")).length > 0,
+    // DP-72: the private repositories' GitHub App (registered, not public) and deploy key.
+    findGithubApp: async (uuid) => {
+      const app = await findGithubAppByUuid(tx, uuid);
+      return app && !app.is_public && app.app_id !== null ? { id: app.id, uuid: app.uuid } : null;
+    },
+    findPrivateKey: async (uuid) => findPrivateKeyByUuid(tx, uuid),
   };
 }
 
@@ -89,6 +98,8 @@ export async function createBuiltApplication(env: Env, orgId: string, requestId:
   const created = await runner(env, orgId, async (c) => {
     if (!c.build) return "unavailable" as const;
     const ctx: BuildingContext = { ...c, build: c.build };
+    if (body.type === "private-gh-app") return createGithubAppApplication(ctx, body);
+    if (body.type === "private-deploy-key") return createDeployKeyApplication(ctx, body);
     if (body.type === "dockerfile") {
       const v = validateCreateDockerfile(body);
       return v.ok ? createDockerfileApplication(ctx, v.input) : { errors: v.errors };

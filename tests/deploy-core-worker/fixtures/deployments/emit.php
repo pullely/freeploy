@@ -47,6 +47,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Queue;
@@ -158,6 +159,32 @@ function run(array $case): array
     $server->settings->forceFill($case['serverSettings'])->save();
     $destination = StandaloneDocker::where('server_id', $server->id)->firstOrFail();
     $destination->forceFill(['uuid' => 'dst0000000000000000000001'] + $case['destination'])->save();
+    // DP-72: a private Git source — a GitHub App (with its private key and installation), or a deploy key.
+    // GitHub is Http::fake(): the case says what it answers, and every request is recorded.
+    $githubRequests = [];
+    if (isset($case['githubApp']) || isset($case['deployKey'])) {
+        Http::swap(new Illuminate\Http\Client\Factory(app('events')));
+        Http::fake(function (Illuminate\Http\Client\Request $request) use ($case, &$githubRequests) {
+            $githubRequests[] = ['method' => $request->method(), 'url' => $request->url()];
+            foreach ($case['github'] ?? [] as $answer) {
+                if (preg_match('#'.$answer['match'].'#', $request->method().' '.$request->url()) === 1) {
+                    return Http::response($answer['body'] ?? [], $answer['status'] ?? 200);
+                }
+            }
+
+            return Http::response(['message' => 'Not Found'], 404);
+        });
+    }
+    if (isset($case['githubApp'])) {
+        $appKey = make(PrivateKey::class, ['uuid' => 'key0000000000000000000002', 'name' => 'github-app', 'team_id' => $team->id, 'private_key' => $case['githubApp']['privateKey'], 'is_git_related' => true]);
+        $githubApp = make(App\Models\GithubApp::class, array_diff_key($case['githubApp'], ['privateKey' => 1]) + ['uuid' => 'gha0000000000000000000001', 'team_id' => $team->id, 'private_key_id' => $appKey->id]);
+        $case['application']['source_id'] = $githubApp->id;
+        $case['application']['source_type'] = App\Models\GithubApp::class;
+    }
+    if (isset($case['deployKey'])) {
+        $deployKey = make(PrivateKey::class, ['uuid' => 'key0000000000000000000003', 'name' => 'deploy-key', 'team_id' => $team->id, 'private_key' => $case['deployKey'], 'is_git_related' => true]);
+        $case['application']['private_key_id'] = $deployKey->id;
+    }
     $project = make(Project::class, ['uuid' => 'prj0000000000000000000001', 'team_id' => $team->id] + $case['project']);
     $environment = $project->environments()->first();
     $environment->forceFill(['uuid' => 'env0000000000000000000001'] + $case['environment'])->save();
@@ -305,7 +332,11 @@ function run(array $case): array
         'sleeps' => $sleeps,
         'notifications' => sentNotifications(),
         'jobs' => pushedJobs(),
-    ] + (empty($case['view']) ? [] : [
+    ] + (isset($case['githubApp']) || isset($case['deployKey']) ? [
+        // DP-72: what the job asked of GitHub, and the repository id it stored (update_repository_project_id).
+        'github' => $githubRequests,
+        'repository_project_id' => $applicationRow->repository_project_id,
+    ] : []) + (empty($case['view']) ? [] : [
         // The lines the deployment page shows (decode_remote_command_output): without the debug lines, and with them.
         'lines' => decode_remote_command_output(ApplicationDeploymentQueue::where('deployment_uuid', $case['deployment']['deployment_uuid'])->first())->values()->all(),
         'linesAll' => decode_remote_command_output(ApplicationDeploymentQueue::where('deployment_uuid', $case['deployment']['deployment_uuid'])->first(), includeAll: true)->values()->all(),

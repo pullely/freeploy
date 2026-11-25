@@ -26,6 +26,7 @@ import { applicationPath, applicationsApi } from "./ApplicationChrome";
 import { BetaBadge } from "./ServerChrome";
 import { splitPastedImageName, type ImageForm } from "../lib/docker-image";
 import { DockerfileForm, PublicGitRepositoryForm } from "./ResourceCreateBuilt";
+import { DeployKeyRepositoryForm, GithubPrivateRepositoryForm } from "./ResourceCreatePrivate";
 import { CreatingDatabase, DATABASE_IMAGE_STEPS, DatabaseImageStep, isDatabaseType } from "./ResourceCreateDatabase";
 import { CategoryFilter, OneClickServiceCreate, ServicesSection, useServiceTemplates } from "./ResourceCreateServices";
 import { filterServices, isOneClickType } from "../lib/service-templates";
@@ -621,7 +622,7 @@ function TypeNotPorted() {
         <div className="empty-state w-full">
           <div className="empty-state-well min-h-32">
             <h2 className="empty-state-title">This resource type is not available in Freeploy yet</h2>
-            <p className="empty-state-description text-[12px]">It is being ported. An application from a public Git repository, a Dockerfile or a Docker image, and a database, can be created today.</p>
+            <p className="empty-state-description text-[12px]">It is being ported. An application from a Git repository (public, through a GitHub App or with a deploy key), a Dockerfile or a Docker image, and a database, can be created today.</p>
           </div>
         </div>
       </div>
@@ -669,6 +670,8 @@ function ResourceCreateContent() {
     if (type === "docker-image") content = <DockerImage orgId={me.team?.id} data={data} destination={destination} serverUuid={query.get("server_id")} />;
     else if (type === "dockerfile") content = <DockerfileForm {...target} />;
     else if (type === "public") content = <PublicGitRepositoryForm {...target} />;
+    else if (type === "private-gh-app") content = <GithubPrivateRepositoryForm {...target} />;
+    else if (type === "private-deploy-key") content = <DeployKeyRepositoryForm {...target} />;
     else if (isOneClickType(type)) content = <OneClickServiceCreate {...target} type={type} back={`${here}/new`} />;
     else if (isDatabaseType(type)) {
       const databaseImage = query.get("database_image");

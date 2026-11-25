@@ -280,9 +280,9 @@ describe("Deploy and Restart", () => {
     ["a build server", { build_pack: "nixpacks" }, { is_build_server_enabled: true }, "Building on a build server is not available yet: turn off \"Use a Build Server\" to build on the application's server."],
     ["a server for deployments only", { build_pack: "dockerfile" }, { server_role: "deployment" }, "The application's server is set to deployments only, so the application is built on a build server, which is not available yet."],
     ["a preserved repository", { build_pack: "nixpacks" }, { is_preserve_repository_enabled: true }, "Deploying with \"Preserve Repository During Deployment\" is not available yet."],
-    ["a deploy key", { build_pack: "dockerfile" }, { private_key_id: 4 }, "Deploying from a private repository with a deploy key is not available yet: only public repositories can be deployed."],
-    ["a GitHub App", { build_pack: "static" }, { source_id: 7 }, "Deploying from a Git App source is not available yet: only public repositories can be deployed."],
-    ["a GitLab App", { build_pack: "static" }, { source_id: 0, source_type: "App\\Models\\GitlabApp" }, "Deploying from a Git App source is not available yet: only public repositories can be deployed."],
+    // DP-72: a deploy key and a GitHub App are queued (below); GitLab and Gitea Apps are not ported.
+    ["a GitLab App", { build_pack: "static" }, { source_id: 0, source_type: "App\\Models\\GitlabApp" }, "Deploying from a GitLab or Gitea source is not available yet: only public repositories, GitHub Apps and deploy keys can be deployed."],
+    ["a Gitea App", { build_pack: "nixpacks" }, { source_id: 2, source_type: "App\\Models\\GiteaApp" }, "Deploying from a GitLab or Gitea source is not available yet: only public repositories, GitHub Apps and deploy keys can be deployed."],
     ["HTTPS credentials", { build_pack: "nixpacks" }, { source_id: null, source_type: null, has_git_https_credentials: true }, "Deploying from a repository with HTTPS credentials is not available yet: only public repositories can be deployed."],
   ])("%s is refused with its reason, and nothing is queued", async (_what, application, build, message) => {
     const t = setup({ ssh: true });
@@ -292,6 +292,18 @@ describe("Deploy and Restart", () => {
     expect([r.status, r.body.error?.code, r.body.error?.message]).toEqual([501, "unsupported", message]);
     expect(t.store.rows).toEqual([]);
     expect(t.dispatched).toEqual([]);
+  });
+
+  it.each([
+    ["a deploy key", { build_pack: "dockerfile" }, { private_key_id: 4 }],
+    ["a GitHub App", { build_pack: "static" }, { source_id: 7 }],
+  ])("a build from a private repository through %s is queued (DP-72)", async (_what, application, build) => {
+    const t = setup({ ssh: true });
+    t.store.application = { ...t.store.application, ...application };
+    t.store.build = { ...t.store.build, ...build };
+    const r = await t.call("POST", `${APP}/deploy`, {});
+    expect(r.status).toBe(201);
+    expect(t.store.rows).toHaveLength(1);
   });
 
   it("needs deploy.resource.write, and answers 404 for another org's application", async () => {

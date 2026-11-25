@@ -1,0 +1,26 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-72
+  title: "DP6: Git sources — GitHub Apps, private repositories, and push and pull request webhooks"
+spec:
+  goal: An org connects GitHub through Coolify's GitHub App source and deploys from private repositories, as code that is verified but cannot deploy anything yet. Integrations → Sources lists the org's sources and creates a GitHub App source; the App's page registers it with GitHub through the manifest flow (Coolify's permissions and events, Freeploy's own URLs — the webhook on api-edge's public origin, the redirect and setup pages on deploy-web), exchanges the code, takes the installation callback, or takes the manual form (App id, installation id, client id and secret, webhook secret, private key); it checks the App's permissions, tests the connection, syncs the App's name and is deleted, with Coolify's messages word for word. Every GitHub call goes through an injectable fetch, and the App's JWT is RS256 signed with Web Crypto. New Resource creates an application from a private repository through a GitHub App (the repositories and branches of the installation) and with a deploy key; the deployment engine clones both as Coolify does — an installation token fetched at deploy time in the clone URL, or the key written in the helper container behind GIT_SSH_COMMAND — and Deploy keeps answering "not available yet" while SSH_SESSION is not bound. Coolify's webhook paths (/webhooks/source/github/events and …/events/manual) are received at api-edge and answered by deploy-core-worker — the signature verified with a constant-time comparison, push and pull_request deliveries matched to applications (branch, watch paths, skip-ci commits, branch deletions, forks), a preview row made for an opened pull request and removed for a closed one, skipped deployments recorded, with Coolify's answers; where Coolify queues a deployment Freeploy answers that deploying needs the SSH executor. The commit-status and GitHub-deployment requests (ApplicationPullRequestUpdateJob, SyncGithubDeploymentJob) are pure request builders held to Coolify's output and never sent. Every piece is held to what Coolify's own PHP did for the same input (tests/deploy-core-worker/fixtures/sources, and the ghapp.* and deploykey.* runs of fixtures/deployments). Cut, in the task's order — Bitbucket, Gitea and GitLab sources and webhooks (their webhook paths answer 501 "not available yet"); kept — the GitHub App, deploy keys and commit statuses. Not part of this task — the SSH executor and a test VM (WAITING.md W1, W3), so DP6's gate "opening a PR on a test repository creates a preview, updates the commit status, and closing it cleans the preview up" cannot be met here; the GitHub OAuth login; workflow_job runner configurations; the failed-signature throttle; Docker Compose preview domains; system-wide sources; and migrations (none was needed).
+  affects:
+    - apps/api-edge/**
+    - apps/deploy-core-worker/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/api-edge/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - tests/deploy-core-worker's sources-functions.test.ts passes — every function case of fixtures/sources (169) and the requests of every prUpdates (11) and deploymentSyncs (15) case equal Coolify's goldens, and the GitHub App JWT is byte-equal to Coolify's and verifies with the system openssl against the key's public half
+    - tests/deploy-core-worker's sources-webhooks.test.ts passes — every webhook case of fixtures/sources (56; push, pull_request, ping, installation, workflow_job, bad and missing signatures, malformed bodies) gives Coolify's status, content type and body, preview rows, skipped deployments and GitHub requests, with the one documented mapping (a queued deployment answers that deploying needs the SSH executor)
+    - tests/deploy-core-worker's deployments-engine.test.ts passes with at least 15 runs each of ghapp.* and deploykey.* (21 and 19) replayed — the clone commands, the token request and the stored repository_project_id equal Coolify's — and every earlier run unchanged
+    - tests/deploy-core-worker's sources-api.test.ts, deployments-api.test.ts, tests/api-edge's git-webhooks-facade.test.ts and tests/db's deploy-git-sources.test.ts pass — each source call within its org only, a denial answers 404, a webhook body over 25 MB answers 413, and a deploy without the SSH executor answers 501 and stores nothing
+    - apps/deploy-web's routes test maps /sources, /source/github/{uuid}[/permissions|/resources|/danger] and /webhooks/source/github/{redirect,install} to their pages, and the app type-checks, lints and builds
+    - on stage a signed-in org owner creates a GitHub App source on /sources, registers it with GitHub through the manifest, installs it on a test repository, and creates an application from that private repository through New Resource; Deploy answers "not available yet" and the deployment history stays "No deployments found"
+    - on stage a push to that repository delivered to https://<edge>/webhooks/source/github/events answers as Coolify answers for a server that is not functional, and a delivery with a wrong signature answers "Invalid signature."
+  gates: []

@@ -88,6 +88,8 @@ export interface NewBuiltApplication {
   webhookSecrets: Record<ApplicationWebhookSecretColumn, string>;
   /** The created hook's default variables (NIXPACKS_NODE_VERSION and its preview copy for Nixpacks). */
   variables: NewApplicationVariable[];
+  /** The deploy key of a private repository (DP-72); absent or null for every other application. */
+  privateKeyId?: string | number | null;
 }
 
 /**
@@ -144,6 +146,9 @@ export async function insertBuiltApplication(tx: SqlExecutor, application: NewBu
     ],
   );
   const id = inserted.rows[0]!.id;
+  if (application.privateKeyId !== undefined && application.privateKeyId !== null) {
+    await tx.execute("UPDATE deploy.applications SET private_key_id = $2 WHERE id = $1", [id, application.privateKeyId]);
+  }
   await tx.execute(`INSERT INTO deploy.application_settings (application_id, is_static, org_id, created_at, updated_at) VALUES ($1, $2, $3, ${NOW}, ${NOW})`, [
     id,
     application.isStatic,

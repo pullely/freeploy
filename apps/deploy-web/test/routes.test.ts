@@ -301,3 +301,19 @@ test("the team pages and the invitation page (DP-69); the team's other pages are
     assert.equal(pageFor(other), "not-ported", other);
   }
 });
+
+test("the Sources pages, a GitHub App's tabs and the pages GitHub sends the browser back to (DP-72); GitLab's and Gitea's are not ported", () => {
+  assert.equal(pageFor("/sources"), "source.all");
+  assert.equal(pageFor("/sources/"), "source.all");
+  const app = "/source/github/abc123def456ghi789jkl012";
+  assert.equal(pageFor(app), "source.github.show");
+  assert.equal(pageFor(`${app}/`), "source.github.show");
+  assert.equal(pageFor(`${app}/permissions`), "source.github.permissions");
+  assert.equal(pageFor(`${app}/resources/`), "source.github.resources");
+  assert.equal(pageFor(`${app}/danger`), "source.github.danger");
+  assert.equal(pageFor("/webhooks/source/github/redirect"), "source.github.redirect");
+  assert.equal(pageFor("/webhooks/source/github/install/"), "source.github.install");
+  for (const other of [`${app}/more`, "/source/gitlab/abc", "/source/gitea/abc", "/source/github", "/webhooks/source/github/events", "/sources/new"]) {
+    assert.equal(pageFor(other), "not-ported", other);
+  }
+});

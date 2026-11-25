@@ -81,6 +81,10 @@ import { SettingsError, SettingsFieldErrors } from "../applications/settings.js"
 import { rowId } from "../applications/resources.js";
 import { MORE_SECRET_COLUMNS, type ApplicationMoreContext, type ApplicationMoreStore, type MoreSecretColumn } from "../applications/more.js";
 import { changeSource, fetchHostKeys, removeHostKey, removeHttpsCredentials, saveSource, setPrivateKey, showSource } from "../applications/source.js";
+import { findGithubAppById, findGithubAppPrivateKey } from "@saas/db/deploy";
+import { credentialsOf, type SourceStore } from "../sources/service.js";
+import { githubApi, InstallationTokens } from "../sources/github.js";
+import { sourceFetch } from "./sources.js";
 import { addServer, promoteServer, redeployOnServer, removeServer, showServers, stopOnServer } from "../applications/additional-servers.js";
 import { generateWebhookSecret, saveWebhookSecrets, showWebhooks } from "../applications/webhooks.js";
 import {
@@ -145,7 +149,19 @@ export const runApplicationMoreInOrg: ApplicationMoreRunner = async (env, orgId,
     return await withOrg(db, orgId, (tx) => {
       // One cipher per encrypted column: the value is bound to "applications.<column>".
       const ciphers = Object.fromEntries(MORE_SECRET_COLUMNS.map((c) => [c, columnCipher(tx, orgId, env.DEPLOY_ENCRYPTION_KEY, `applications.${c}`)])) as Record<MoreSecretColumn, KeyCipher>;
-      return fn({ store: sqlStore(tx, orgId), secret: (column) => ciphers[column] });
+      return fn({
+        store: sqlStore(tx, orgId),
+        secret: (column) => ciphers[column],
+        // DP-72: Source's changeSource asks the GitHub App for the repository's id.
+        githubRepositoryId: async (sourceId, slug) => {
+          const app = await findGithubAppById(tx, sourceId);
+          if (!app) return null;
+          const credentials = await credentialsOf({ store: { privateKey: (id: string | number | null) => findGithubAppPrivateKey(tx, id) } as SourceStore, cipher: (column) => columnCipher(tx, orgId, env.DEPLOY_ENCRYPTION_KEY, column) }, app);
+          const answer = await githubApi(sourceFetch, new InstallationTokens(sourceFetch), credentials, `repos/${slug}`);
+          const id = (answer.data as { id?: unknown } | null)?.id;
+          return typeof id === "number" ? id : null;
+        },
+      });
     });
   } finally {
     await db.dispose();

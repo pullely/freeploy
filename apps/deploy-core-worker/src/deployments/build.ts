@@ -569,39 +569,65 @@ export interface GitImportInput {
  * repository into the helper container — the branch, then the commit when one is pinned, the submodules (their
  * SSH URLs rewritten to HTTPS) and the LFS objects.
  */
-export function gitImportCommand(input: GitImportInput): string {
+export function gitImportCommand(input: GitImportInput & GitImportAuth): string {
   const baseDir = escapeshellarg(`/artifacts/${input.deploymentUuid}`);
-  const ssh = `GIT_SSH_COMMAND="${gitSshCommand(input.deploymentUuid)}"`;
+  // setGitImportSettings(): the given GIT_SSH_COMMAND (a deploy key's), else the helper's.
+  const ssh = `GIT_SSH_COMMAND="${input.sshCommand ?? gitSshCommand(input.deploymentUuid)}"`;
+  const git = input.gitConfigOptions ? `git ${input.gitConfigOptions}` : "git";
+  const isPublic = input.isPublic ?? true;
   const depth = input.isShallowCloneEnabled ? " --depth=1" : "";
   const submodules = input.isSubmodulesEnabled ? ` --recurse-submodules${input.isShallowCloneEnabled ? " --shallow-submodules" : ""}` : "";
-  // `--` ends the options, so a repository value that starts with `-` is not read as a git option.
-  let command = `${input.isLfsEnabled ? "" : "export GIT_LFS_SKIP_SMUDGE=1 && "}git clone${depth}${submodules} -b ${escapeshellarg(input.branch)} -- ${escapeshellarg(input.fullRepoUrl)} ${baseDir}`;
+  // `--` ends the options, so a repository value that starts with `-` is not read as a git option. A deploy key's
+  // clone carries its GIT_SSH_COMMAND in front.
+  const clone = `${input.sshCommand ? `${ssh} ` : ""}${git} clone${depth}${submodules} -b ${escapeshellarg(input.branch)} -- ${escapeshellarg(input.fullRepoUrl)} ${baseDir}`;
+  let command = `${input.isLfsEnabled ? "" : "export GIT_LFS_SKIP_SMUDGE=1 && "}${clone}`;
   if (input.commit !== "HEAD") {
     const commit = escapeshellarg(input.commit);
     if (input.isShallowCloneEnabled) {
-      const checkout = `git -c advice.detachedHead=false checkout ${commit} >/dev/null 2>&1`;
+      const checkout = `${git} -c advice.detachedHead=false checkout ${commit} >/dev/null 2>&1`;
       if (/^[0-9a-fA-F]{7,39}$/.test(input.commit)) {
         // A remote cannot fetch a short SHA: fetch the tip of each branch, and the full history when the commit is no tip.
         const refspec = escapeshellarg("+refs/heads/*:refs/remotes/origin/*");
-        command += ` && cd ${baseDir} && echo 'Fetching the commit.' && ${ssh} git fetch --depth=1 origin ${refspec} && (${checkout} || (echo 'The commit is not a branch tip. Fetching the full history.' && ${ssh} git fetch --unshallow origin ${refspec} && ${checkout}))`;
+        command += ` && cd ${baseDir} && echo 'Fetching the commit.' && ${ssh} ${git} fetch --depth=1 origin ${refspec} && (${checkout} || (echo 'The commit is not a branch tip. Fetching the full history.' && ${ssh} ${git} fetch --unshallow origin ${refspec} && ${checkout}))`;
       } else {
-        command += ` && cd ${baseDir} && echo 'Fetching the commit.' && ${ssh} git fetch --depth=1 origin ${commit} && ${checkout}`;
+        command += ` && cd ${baseDir} && echo 'Fetching the commit.' && ${ssh} ${git} fetch --depth=1 origin ${commit} && ${checkout}`;
       }
     } else {
-      command += ` && cd ${baseDir} && ${ssh} git -c advice.detachedHead=false checkout ${commit} >/dev/null 2>&1`;
+      command += ` && cd ${baseDir} && ${ssh} ${git} -c advice.detachedHead=false checkout ${commit} >/dev/null 2>&1`;
     }
   }
   if (input.isSubmodulesEnabled) {
-    command += ` && cd ${baseDir} && if [ -f .gitmodules ]; then sed -i "s#[A-Za-z0-9._-]*@\\(.*\\):#https://\\1/#g" ${baseDir}/.gitmodules || true && echo 'Updating submodules.' && git submodule sync && ${ssh} git submodule update --init --recursive ${input.isShallowCloneEnabled ? "--depth=1" : ""}; fi`;
+    // Only a public repository's submodule URLs are rewritten from SSH to HTTPS.
+    const rewrite = isPublic ? ` sed -i "s#[A-Za-z0-9._-]*@\\(.*\\):#https://\\1/#g" ${baseDir}/.gitmodules || true &&` : "";
+    command += ` && cd ${baseDir} && if [ -f .gitmodules ]; then${rewrite} echo 'Updating submodules.' && ${git} submodule sync && ${ssh} ${git} submodule update --init --recursive ${input.isShallowCloneEnabled ? "--depth=1" : ""}; fi`;
   }
   // `git lfs pull` opens an SSH session even without LFS files; `git lfs ls-files` is offline.
-  if (input.isLfsEnabled) command += ` && cd ${baseDir} && if git lfs ls-files -n | grep -q .; then echo 'Downloading Git LFS objects.' && ${ssh} git lfs pull; fi`;
+  if (input.isLfsEnabled) command += ` && cd ${baseDir} && if ${git} lfs ls-files -n | grep -q .; then echo 'Downloading Git LFS objects.' && ${ssh} ${git} lfs pull; fi`;
   return `docker exec ${input.deploymentUuid} bash -c '${command.split("'").join("'\\''")}'`;
 }
 
-/** gitLsRemoteCommand(): the head of the branch, by its exact ref. */
-export function gitLsRemoteCommand(deploymentUuid: string, port: string | number, fullRepoUrl: string, ref: string): string {
-  return `GIT_SSH_COMMAND="${gitSshCommand(deploymentUuid, port)}" git ls-remote -- ${escapeshellarg(fullRepoUrl)} ${escapeshellarg(ref)}`;
+/** How a private repository is reached (DP-72): a GitHub App's token options, or a deploy key's ssh command. */
+export interface GitImportAuth {
+  /** setGitImportSettings(public: …): a public repository's submodule URLs are rewritten to HTTPS. */
+  isPublic?: boolean;
+  /** `-c url.<token URL>.insteadOf=…` options that send the GitHub App's token (gitTokenUrlRewriteOptions). */
+  gitConfigOptions?: string | null;
+  /** The deploy key's GIT_SSH_COMMAND, without the variable's name. */
+  sshCommand?: string;
+}
+
+/** gitLsRemoteCommand(): the head of the branch, by its exact ref; with a deploy key, through its identity file. */
+export function gitLsRemoteCommand(deploymentUuid: string, port: string | number, fullRepoUrl: string, ref: string, identityFile: string | null = null): string {
+  return `GIT_SSH_COMMAND="${gitSshCommand(deploymentUuid, port, identityFile)}" git ls-remote -- ${escapeshellarg(fullRepoUrl)} ${escapeshellarg(ref)}`;
+}
+
+/**
+ * gitTokenUrlRewriteOptions(): `-c` options that send the source's token with every git command, also to the
+ * submodules on the same host — their SSH forms rewritten to HTTPS too, as the token works only over HTTPS.
+ */
+export function gitTokenUrlRewriteOptions(tokenBaseUrl: string, httpsBaseUrl: string, sshHost: string, sshUser: string | null): string {
+  const user = sshUser !== null && sshUser.trim() !== "" ? sshUser : "git";
+  return [httpsBaseUrl, `${user}@${sshHost}:`, `ssh://${user}@${sshHost}/`].map((prefix) => `-c ${escapeshellarg(`url.${tokenBaseUrl}.insteadOf=${prefix}`)}`).join(" ");
 }
 
 /** The commit of `git ls-remote`'s answer: the 40 hex characters before the tab, whatever warnings stand around them. */
