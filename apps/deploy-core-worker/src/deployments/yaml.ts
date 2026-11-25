@@ -40,7 +40,7 @@ function phpValue(value: YamlValue): PhpValue {
   return value;
 }
 
-/** Yaml::dump($value, $inline): block style down to `inline` levels, 4 spaces a level. */
-export function yamlDump(value: YamlValue, inline = 10): string {
-  return dumpYaml(phpValue(value), inline, INDENTATION);
+/** Yaml::dump($value, $inline, $indent): block style down to `inline` levels, `indentation` (4) spaces a level. */
+export function yamlDump(value: YamlValue, inline = 10, indentation = INDENTATION): string {
+  return dumpYaml(phpValue(value), inline, indentation);
 }

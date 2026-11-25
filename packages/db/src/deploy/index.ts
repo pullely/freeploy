@@ -497,3 +497,19 @@ export {
   type DeployDeploymentBuildRow,
   type ApplicationHealthcheckChanges,
 } from "./deployment-builds.js";
+export {
+  findDatabaseForOperation,
+  listDatabaseStartVariables,
+  markDatabaseStarted,
+  setDatabaseStatus,
+  touchDatabaseLastOnline,
+  resetDatabaseRestartCounters,
+  findDatabaseCertificate,
+  deleteDatabaseCertificates,
+  deleteFileVolumesByMountPath,
+  insertCertificateFileVolume,
+  type DeployDatabaseOperationRow,
+  type DeployDatabaseStartVariableRow,
+  type DeployDatabaseCertificateRow,
+  type NewCertificateFileVolume,
+} from "./database-operations.js";

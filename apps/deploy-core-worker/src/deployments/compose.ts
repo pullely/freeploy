@@ -303,7 +303,7 @@ function gpuDeviceReservation(settings: ComposeSettings): Map<string, YamlValue>
 }
 
 /** generate_log_drain_configuration(): Fluent Bit's fluentd driver, or CloudWatch's awslogs. */
-function logDrainConfiguration(drain: ComposeLogDrain): Map<string, YamlValue> {
+export function logDrainConfiguration(drain: ComposeLogDrain): Map<string, YamlValue> {
   if (drain.is_logdrain_newrelic_enabled || drain.is_logdrain_axiom_enabled || drain.is_logdrain_custom_enabled) {
     return new Map<string, YamlValue>([
       ["driver", "fluentd"],

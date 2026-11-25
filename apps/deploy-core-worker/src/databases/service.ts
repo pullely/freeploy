@@ -11,11 +11,12 @@
 // operations on one org's databases, for the eight engines at once (what
 // differs between them is engines.ts). Nothing here talks to a server:
 // creating a database stores its rows and starts nothing, as
-// Create::createResource() does. Start, Restart and Stop, the public TCP
-// proxy, and the files of an init script need the SSH executor, which does
-// not exist yet: where Coolify stores first and then runs, the row is stored;
-// where it runs first — or puts the row back when the run fails — nothing is
-// stored and the answer is 501.
+// Create::createResource() does. Start, Restart and Stop (operations.ts), the
+// public TCP proxy, and the files of an init script need the SSH executor,
+// which is not deployed yet: where Coolify stores first and then runs, the row
+// is stored; where it runs first — or puts the row back when the run fails —
+// nothing is stored and the answer is 501. The proxy and a certificate's files
+// are done through ctx.server once it gives an executor.
 import type { DatabaseColumnValue, DatabaseEngine, DeployDatabaseRow, DeployDatabaseVariableRow, DeployDestinationRow, DeployEnvironmentListRow, DeployProjectRow, DeployServerRow, NewDatabase, NewDatabaseVariable } from "@saas/db/deploy";
 import { DATABASE_TABLES } from "@saas/db/deploy";
 import type { KeyCipher } from "../private-keys/service.js";
@@ -29,6 +30,8 @@ import { ENVIRONMENT_VARIABLE_VERSION } from "../environment-variables/service.j
 import { isSharedReference } from "../environment-variables/references.js";
 import { DATABASE_ENGINE_SPECS, SUPABASE_ADMIN, defaultVolumes, isSupabaseImage, type DatabaseEngineSpec, type DatabaseField, type SslMode } from "./engines.js";
 import { externalDbUrl, internalDbUrl, redisHasUsername, redisUsername, redisVersion, sanitizeString, type DatabaseUrlInput } from "./urls.js";
+import { OPERATION_MESSAGES, regenerateCertificate, startDatabaseProxy, stopDatabaseProxy, type DatabaseServerAccess } from "./operations.js";
+import { RemoteCommandError } from "./content-files.js";
 import { FilenameError, coerceBoolean, validateDatabaseGeneral, validateFilenameSafe, validateNewInitScript, type CreateDatabaseInput } from "./validation.js";
 
 type Id = string | number;
@@ -67,6 +70,11 @@ export interface DatabaseContext {
   /** The cipher of an `encrypted` column, by "<table>.<column>" (the value is bound to its org and that name). */
   cipher(column: string): KeyCipher;
   random?: DatabaseRandom;
+  /**
+   * One database's rows and server for what runs there: the TCP proxy, a certificate's rows and files. Its
+   * `executor` is null while the SSH executor is not available; absent, nothing of it can be done.
+   */
+  server?: (uuid: string) => Promise<DatabaseServerAccess | null>;
 }
 
 export const DATABASE_SERVICE_MESSAGES = {
@@ -85,6 +93,7 @@ export const DATABASE_SERVICE_MESSAGES = {
   /** HasDatabaseStatusInfo */
   sslUpdated: "SSL configuration updated.",
   noCertificate: "No existing SSL certificate found for this database.",
+  noCaCertificate: "No CA certificate found for this database. Please generate a CA certificate for this server in the server/advanced page.",
   /** The init script actions of Postgresql\General */
   scriptAdded: "Init script added.",
   scriptSaved: "Init script saved and updated.",
@@ -100,8 +109,9 @@ export const DATABASE_SERVICE_MESSAGES = {
   scriptDeleteUnavailable: needsExecutor("Removing the init script's file from the server"),
   dataVolumeUnavailable: needsExecutor("Reading the database container's data volume on the server"),
   deleteUnavailable: needsExecutor("Stopping the database and removing its container, volumes and configuration files from the server"),
-  /** Freeploy's: nothing makes a database certificate before the database is started, so there is none to renew yet. */
+  /** Freeploy's: a certificate's rows cannot be reached (no store for them was given). */
   certificateUnavailable: "Regenerating the database's SSL certificate is not available yet.",
+  certificateFilesUnavailable: needsExecutor("Writing the new certificate files to the server"),
   sslUnsupported: "This database has no SSL configuration.",
   notPostgresql: "Only a PostgreSQL database has initialization scripts.",
 } as const;
@@ -452,6 +462,8 @@ export interface DatabaseSaved {
   message: string;
   /** Every toast of the action, in order, when it raises more than one. */
   messages?: string[];
+  /** The Access listbox: why the TCP proxy could not take the public port — the database was made private again. */
+  proxyDisabled?: string;
 }
 
 /** $database->save(): the columns whose value changes. */
@@ -542,10 +554,20 @@ export async function updateGeneral(ctx: DatabaseContext, uuid: string, body: Bo
  * General::instantSave(): the "Access" listbox. Making a database public
  * needs a public port and a running database (Coolify's two refusals, in its
  * order) and then starts the TCP proxy container on the server; making it
- * private removes that container. In Coolify a failure of either puts
- * is_public back, so nothing is stored when the server cannot be reached —
- * except for a database that was never started: nothing of it is on a
- * server, and "Private" is stored with the ports the form holds.
+ * private removes that container.
+ *
+ * With the server in reach (ctx.server gives an executor) this is Coolify's
+ * order: the switch and the ports are stored, then the proxy is started or
+ * removed. When that fails Coolify puts is_public back and keeps the ports;
+ * here the request fails as a whole and stores nothing. A proxy whose port is
+ * taken is not a failure: StartDatabaseProxy makes the database private again
+ * itself, and the answer says so beside Coolify's success toast.
+ *
+ * Without an executor nothing can be started or removed, so nothing is stored
+ * and the answer is 501 — except for a database that was never started:
+ * nothing of it is on a server, and "Private" is stored with the ports the
+ * form holds. (Coolify removes the proxy container of such a database too;
+ * here there is none to remove, with or without an executor.)
  */
 export async function instantSavePublic(ctx: DatabaseContext, uuid: string, body: Body): Promise<DatabaseSaved | null> {
   const l = await load(ctx, uuid);
@@ -557,15 +579,36 @@ export async function instantSavePublic(ctx: DatabaseContext, uuid: string, body
   const publicPort = v.input.publicPort !== undefined ? v.input.publicPort : row.public_port === null ? null : Number(row.public_port);
   if (isPublic && !publicPort) throw new DatabaseError(DATABASE_SERVICE_MESSAGES.publicPortRequired);
   if (isPublic && !row.status.startsWith("running")) throw new DatabaseError(DATABASE_SERVICE_MESSAGES.mustBeStarted);
+  const access = ctx.server ? await ctx.server(uuid) : null;
+  const executor = access?.executor ?? null;
   // StartDatabaseProxy::run()
-  if (isPublic) throw new DatabaseError(DATABASE_SERVICE_MESSAGES.proxyStartUnavailable, 501);
+  if (isPublic && executor === null) throw new DatabaseError(DATABASE_SERVICE_MESSAGES.proxyStartUnavailable, 501);
   // StopDatabaseProxy::run(): "docker rm -f <uuid>-proxy" on the server.
-  if (!neverStarted(row) || row.is_public === true) throw new DatabaseError(DATABASE_SERVICE_MESSAGES.proxyStopUnavailable, 501);
+  const proxyMayExist = !neverStarted(row) || row.is_public === true;
+  if (!isPublic && proxyMayExist && executor === null) throw new DatabaseError(DATABASE_SERVICE_MESSAGES.proxyStopUnavailable, 501);
   const changes: Record<string, DatabaseColumnValue> = {};
+  // syncData(true): with the server in reach the switch is stored before the proxy is started or removed.
+  if (executor !== null && isPublic !== (row.is_public === true)) changes.is_public = isPublic;
   if (publicPort !== (row.public_port === null ? null : Number(row.public_port))) changes.public_port = publicPort;
   if (v.input.publicPortTimeout !== undefined && v.input.publicPortTimeout !== (row.public_port_timeout === null ? null : Number(row.public_port_timeout))) changes.public_port_timeout = v.input.publicPortTimeout;
   await saveRow(ctx, row, changes);
-  return { database: await reload(ctx, uuid), message: DATABASE_SERVICE_MESSAGES.noLongerPublic };
+  let proxyDisabled: string | null = null;
+  if (access && executor !== null && (isPublic || proxyMayExist)) {
+    try {
+      if (isPublic) proxyDisabled = (await startDatabaseProxy(access)).disabled;
+      else await stopDatabaseProxy(access);
+    } catch (e) {
+      // Coolify puts is_public back and shows the error; here the failed request stores nothing at all.
+      if (e instanceof RemoteCommandError) throw new DatabaseError(e.message);
+      throw e;
+    }
+  }
+  return {
+    database: await reload(ctx, uuid),
+    message: isPublic ? DATABASE_SERVICE_MESSAGES.nowPublic : DATABASE_SERVICE_MESSAGES.noLongerPublic,
+    // The port was taken: Coolify makes the database private again and notifies the team.
+    ...(proxyDisabled !== null ? { proxyDisabled } : {}),
+  };
 }
 
 /**
@@ -613,17 +656,35 @@ export async function instantSaveSsl(ctx: DatabaseContext, uuid: string, body: B
   return { database: await reload(ctx, uuid), message: DATABASE_SERVICE_MESSAGES.sslUpdated };
 }
 
+export interface CertificateRegenerated extends DatabaseSaved {
+  /** Freeploy's: what could not be done on the server, when there is no executor to do it with. */
+  unavailable?: string;
+  /** What Coolify queues beside this and nothing does yet. */
+  deferred?: string[];
+}
+
 /**
- * HasDatabaseStatusInfo::regenerateSslCertificate(): a certificate exists
- * only once a database has started with SSL, so until a database can be
- * started the answer is Coolify's "No existing SSL certificate found…".
+ * HasDatabaseStatusInfo::regenerateSslCertificate(): a new key and certificate for a database that has one —
+ * which is one that has started with SSL — signed by the server's CA, with the names and paths of the old; the
+ * certificate's rows and its file mounts are replaced. Coolify then queues the write of the new files to the
+ * server; here they are written at once when the server can be reached, and otherwise with the next start.
  */
-export async function regenerateSslCertificate(ctx: DatabaseContext, uuid: string): Promise<null> {
+export async function regenerateSslCertificate(ctx: DatabaseContext, uuid: string): Promise<CertificateRegenerated | null> {
   const l = await load(ctx, uuid);
   if (!l) return null;
   if (!l.spec.supportsSsl) throw new DatabaseError(DATABASE_SERVICE_MESSAGES.sslUnsupported);
   if ((await ctx.store.certificateValidUntil(l.row.engine, l.row.id)) === null) throw new DatabaseError(DATABASE_SERVICE_MESSAGES.noCertificate);
-  throw new DatabaseError(DATABASE_SERVICE_MESSAGES.certificateUnavailable, 501);
+  const access = ctx.server ? await ctx.server(uuid) : null;
+  if (!access) throw new DatabaseError(DATABASE_SERVICE_MESSAGES.certificateUnavailable, 501);
+  const done = await regenerateCertificate(access);
+  if (done.outcome === "no-certificate") throw new DatabaseError(DATABASE_SERVICE_MESSAGES.noCertificate);
+  if (done.outcome === "no-ca") throw new DatabaseError(DATABASE_SERVICE_MESSAGES.noCaCertificate);
+  return {
+    database: await reload(ctx, uuid),
+    message: OPERATION_MESSAGES.certificateRegenerated,
+    ...(done.filesWritten ? {} : { unavailable: DATABASE_SERVICE_MESSAGES.certificateFilesUnavailable }),
+    ...(done.deferred.length ? { deferred: done.deferred } : {}),
+  };
 }
 
 async function loadPostgresql(ctx: DatabaseContext, uuid: string): Promise<Loaded | null> {
