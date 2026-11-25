@@ -239,15 +239,15 @@ async function replay(c: Case, org?: MemoryOrg): Promise<{ status: number; body:
 
 /** The cases whose answer the controllers give (the others are the middleware's: tests/api-edge). */
 const MIDDLEWARE_ANSWERS = new Set(["servers: validate with a read token", "keys: list, member with read:sensitive"]);
-/** Operations not ported: Freeploy answers Coolify's fallback 404 (DP-70's note lists them). */
-const NOT_PORTED = new Set(["servers: show with resources", "servers: resources", "servers: domains"]);
 /** Departures: Freeploy's answer differs from Coolify's on purpose (DP-70's note). */
 const DEPARTURES: Record<string, { status: number; body: string }> = {
   // ValidateServer runs over SSH; Freeploy's convention until the executor exists.
   "servers: validate": { status: 501, body: '{"message":"Validating the server needs the SSH executor, which is not available yet."}' },
 };
 
-const OPERATION_CASES = CASES.cases.filter((c) => /^(projects|environments|keys|servers): /.test(c.name) && c.token && !MIDDLEWARE_ANSWERS.has(c.name));
+/** DP-78's server operations (creating, deleting, ?resources, a server's resources and domains) are replayed on Freeploy's database by api-v1-continued.test.ts. */
+const LATER = /^servers: (create|delete|show with resources|resources$|domains$)/;
+const OPERATION_CASES = CASES.cases.filter((c) => /^(projects|environments|keys|servers): /.test(c.name) && !LATER.test(c.name) && c.token && !MIDDLEWARE_ANSWERS.has(c.name));
 
 describe("the goldens", () => {
   it("cover every ported operation group", () => {
@@ -268,10 +268,6 @@ describe("Freeploy answers as Coolify does", () => {
   it.each(OPERATION_CASES.map((c) => [c.name, c] as const))("%s", async (name, c) => {
     const g = golden(name);
     const got = await replay(c);
-    if (NOT_PORTED.has(name)) {
-      expect({ status: got.status, body: got.body }).toEqual({ status: 404, body: '{"message":"Not found.","docs":"https:\\/\\/coolify.io\\/docs"}' });
-      return;
-    }
     if (DEPARTURES[name]) {
       expect({ status: got.status, body: got.body }).toEqual(DEPARTURES[name]);
       return;

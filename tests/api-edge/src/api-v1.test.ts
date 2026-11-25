@@ -131,15 +131,8 @@ describe("Coolify's /api/v1 at the edge, replayed against Coolify's answers", ()
   it.each(FORWARDED_CASES.map((c) => [c.name, c] as const))("forwards %s with Coolify's status and headers", async (name, c) => {
     const g = golden(name);
     const h = harness(c);
-    const notPorted = ["servers: show with resources", "servers: resources", "servers: domains"].includes(name);
-    // Not ported, deploy-core-worker answers the fallback too (tests/deploy-core-worker/src/api-v1.test.ts).
-    const res = await h.send(c, notPorted ? { status: 404, headers: {}, body: { json: '{"message":"Not found.","docs":"https:\\/\\/coolify.io\\/docs"}' } } : g);
-    if (notPorted) {
-      // Not ported: routes/api.php's fallback.
-      expect(res.status).toBe(404);
-      expect(await res.text()).toBe('{"message":"Not found.","docs":"https:\\/\\/coolify.io\\/docs"}');
-      return;
-    }
+    // A server's resources and domains and ?resources, DP-70's not-ported operations, are ported by DP-78.
+    const res = await h.send(c, g);
     expect(await observed(res)).toEqual(expected(g));
   });
 });
@@ -174,7 +167,7 @@ describe("what the edge sends a worker", () => {
 });
 
 describe("the routes", () => {
-  it("are the 73 ported operations of openapi.json (health, the deprecated team aliases and the GET answers of start, restart and stop aside)", () => {
+  it("are the 81 ported operations of openapi.json (health, the deprecated team aliases and the GET answers of start, restart and stop aside)", () => {
     const openapi = JSON.parse(readFileSync(resolve(FIXTURES, "../../../../specs/epics/freeploy-coolify-parity/parity/openapi.operations.json"), "utf8")) as { rows: Array<{ method: string; path: string }> };
     const ops = new Set(openapi.rows.map((r) => `${r.method} ${r.path}`));
     const routes = API_V1_ROUTES.map((r) => `${r.method} /api/v1${r.path}`);
@@ -196,7 +189,7 @@ describe("the routes", () => {
       "GET /api/v1/services/{uuid}/restart",
       "GET /api/v1/services/{uuid}/stop",
     ]);
-    expect(inOpenapi.length + 1 /* GET /api/v1/health */).toBe(73);
+    expect(inOpenapi.length + 1 /* GET /api/v1/health */).toBe(81);
   });
 
   it("take the first match in routes/api.php's order and ignore a trailing slash", () => {
@@ -214,7 +207,15 @@ describe("the routes", () => {
     expect(matchApiRoute("GET", "/services/s1/start")?.abilities).toEqual(["deploy"]);
     expect(matchApiRoute("GET", "/services/s1/storages")).toBeNull();
     expect(matchApiRoute("GET", "/deployments/applications/a1")?.path).toBe("/deployments/applications/{uuid}");
-    expect(matchApiRoute("GET", "/deployments/q1")).toBeNull();
+    // DP-78
+    expect(matchApiRoute("GET", "/deployments/q1")?.path).toBe("/deployments/{uuid}");
+    expect(matchApiRoute("GET", "/deployments")?.path).toBe("/deployments");
+    expect(matchApiRoute("GET", "/projects/p1/environments")?.path).toBe("/projects/{uuid}/environments");
+    expect(matchApiRoute("GET", "/projects/p1/production")?.path).toBe("/projects/{uuid}/{environment_name_or_uuid}");
+    expect(matchApiRoute("GET", "/projects/p1/envs")).toBeNull();
+    expect(matchApiRoute("GET", "/servers/s1/resources")?.path).toBe("/servers/{uuid}/resources");
+    expect(matchApiRoute("DELETE", "/servers/s1")?.abilities).toEqual(["delete"]);
+    expect(matchApiRoute("PATCH", "/servers/s1")).toBeNull();
   });
 });
 

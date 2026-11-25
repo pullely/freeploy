@@ -134,6 +134,9 @@ const statusOf = (parts: { applications: ApiRow[]; databases: ApiRow[] }): strin
     })),
   );
 
+/** The Service::status accessor of a service by its id (a server's resources, DP-78). */
+export const serviceStatusOf = async (rows: Rows, serviceId: unknown): Promise<string> => statusOf(await partsOf(rows, serviceId));
+
 /** The decrypted values of the service's locked variables (EnvironmentVariable::logRedactionSecretsFor()['locked']). */
 async function lockedValues(tx: SqlExecutor, c: ApiV1Context, serviceId: unknown): Promise<string[]> {
   const vars = await rowsOf(tx)("environment_variables", "t.resourceable_type = $1 AND t.resourceable_id = $2 AND t.is_shown_once", [SERVICE_MORPH_CLASS, serviceId]);
@@ -155,6 +158,20 @@ async function lockedValues(tx: SqlExecutor, c: ApiV1Context, serviceId: unknown
  * redacted from the generated Compose file.
  */
 async function serviceModel(tx: SqlExecutor, c: ApiV1Context, row: ApiRow, throughKey?: unknown): Promise<PhpObject> {
+  return serviceSerialization(tx, c, row, throughKey, false);
+}
+
+/**
+ * A service through serializeApiResource() (GET /resources and an environment's resources, DP-78): toArray() unsorted —
+ * the columns in Coolify's order (id included; the Compose files for a token that may read secrets, exposeSensitiveFields()),
+ * the through key, server_status and status, then the relations in the order they loaded them (the server, the
+ * applications, the databases) — and the locked values redacted from the generated Compose file.
+ */
+export function serviceResource(tx: SqlExecutor, c: ApiV1Context, row: ApiRow, throughKey?: unknown): Promise<PhpObject> {
+  return serviceSerialization(tx, c, row, throughKey, true);
+}
+
+async function serviceSerialization(tx: SqlExecutor, c: ApiV1Context, row: ApiRow, throughKey: unknown, resource: boolean): Promise<PhpObject> {
   const rows = rowsOf(tx);
   const sensitive = c.canReadSensitive;
   const id = rowValue(row, "id");
@@ -169,18 +186,20 @@ async function serviceModel(tx: SqlExecutor, c: ApiV1Context, row: ApiRow, throu
   if (throughKey !== undefined) extra.push(["laravel_through_key", throughKey as PhpValue]);
   extra.push(["server_status", functional(own.server, own.settings)]);
   extra.push(["status", statusOf(parts)]);
+  if (resource) extra.push(["server", own.server ? nestedServer({ ...c, canReadSensitive: false }, own.server, own.settings) : null]);
   extra.push(["applications", parts.applications.map((a) => toModel(inCoolifyOrder(a, "service_applications"), SERVICE_APPLICATION, { extra: [["url", partUrl({ fqdn: rowValue(a, "fqdn") as string | null, domain_port_overrides: rowValue(a, "domain_port_overrides") as never })]] }))]);
   extra.push(["databases", parts.databases.map((d) => toModel(inCoolifyOrder(d, "service_databases"), SERVICE_DATABASE))]);
   // The server server_status loaded: another instance than the destination's, whose secrets exposeNestedServerSecrets() made visible.
-  extra.push(["server", own.server ? nestedServer({ ...c, canReadSensitive: false }, own.server, own.settings) : null]);
-  if (sensitive) {
+  if (!resource) extra.push(["server", own.server ? nestedServer({ ...c, canReadSensitive: false }, own.server, own.settings) : null]);
+  if (sensitive && !resource) {
     // 'destination.server.settings', loaded for a token that may read the server's secrets (Swarm is not loaded: Freeploy makes none).
     const destination = rowValue(row, "destination_type") === SWARM_DOCKER ? null : ((await rows("standalone_dockers", "t.id = $1", [rowValue(row, "destination_id")]))[0] ?? null);
     const its = destination ? await serverOf(rowValue(destination, "server_id")) : { server: null, settings: undefined };
     extra.push(["destination", destination ? toModel(inCoolifyOrder(destination, "standalone_dockers"), DESTINATION, { extra: [["server", its.server ? nestedServer(c, its.server, its.settings) : null]] }) : null]);
   }
-  const base = inCoolifyOrder(row, "services").filter(([k]) => k !== "id");
-  const out = serializeApiResponse(toModel(base, SERVICE, { visible: sensitive ? ["docker_compose_raw", "docker_compose"] : [], extra }), sensitive);
+  const base = inCoolifyOrder(row, "services").filter(([k]) => resource || k !== "id");
+  const model = toModel(base, SERVICE, { visible: sensitive ? ["docker_compose_raw", "docker_compose"] : [], extra });
+  const out = resource ? model : serializeApiResponse(model, sensitive);
   // redactLockedApiResourceValues()
   const compose = out.entries.find(([k]) => k === "docker_compose")?.[1];
   if (typeof compose === "string" && compose.trim() !== "") put(out, "docker_compose", redactLockedValues(compose, await lockedValues(tx, c, id)));

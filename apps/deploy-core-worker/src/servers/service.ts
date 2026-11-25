@@ -174,7 +174,7 @@ export async function createServer(ctx: ServerContext, input: CreateServerInput)
     port: input.port,
     privateKeyId: key.id,
     // The created hook's redirect_enabled, then ByIp's proxy status and type.
-    proxy: { redirect_enabled: true, status: "exited", type: "TRAEFIK" },
+    proxy: { redirect_enabled: true, status: "exited", type: input.proxyType ?? "TRAEFIK" },
     serverRole: input.serverRole,
     imageScanEnabled: input.scanImages,
     // The created hook's default destination (network "coolify"): a row only, as Coolify saves it quietly.

@@ -1,5 +1,5 @@
 // Derived from coollabsio/coolify@91b7e3e:app/Http/Controllers/Api/DeployController.php (cancel_deployment, deploy,
-// by_uuids, by_tags, deploy_resource, get_application_deployments), app/Http/Controllers/Api/OtherController.php
+// by_uuids, by_tags, deploy_resource, get_application_deployments, deployments, deployment_by_uuid, removeSensitiveData), app/Http/Controllers/Api/OtherController.php
 // (post_required), app/Models/Application.php (deployments()), app/Models/ApplicationDeploymentQueue.php ($hidden,
 // $casts), app/Support/ValidationPatterns.php (isValidDockerImageTag) and bootstrap/helpers/shared.php
 // (getResourceByUuid, queryResourcesByUuid) (Apache-2.0), modified.
@@ -8,17 +8,20 @@
 // and the checks of cancelling a deployment and of deploying by uuid or tag answered as Coolify answers them. What would
 // run — cancelling a queued or running deployment (the container on the server, the next deployment's job), queueing a
 // deployment, starting a service or a database — answers 501 in Coolify's envelope before anything is stored, as the
-// console's Deploy and Cancel do without the SSH executor (DP-70's convention).
+// console's Deploy and Cancel do without the SSH executor (DP-70's convention). The deployments in progress and one
+// deployment (DP-78) carry the deployment's application as Eloquent loads it — and, for one deployment, its environment,
+// project and team (Application::team(): the team is the org as membership-worker shows it).
 import type { SqlExecutor } from "@saas/db/hyperdrive";
 import { APPLICATION_MORPH_CLASS, DATABASE_ENGINES, DATABASE_TABLES, SERVICE_MORPH_CLASS, findTagByName, type ApiRow, type ApiTable } from "@saas/db/deploy";
-import { COOLIFY_API, coolifyJson, obj, serializeApiResponse, type CoolifyAnswer, type PhpObject, type PhpValue } from "@saas/contracts/coolify-api";
+import { COOLIFY_API, coolifyJson, coolifyTeam, obj, put, serializeApiResponse, type CoolifyAnswer, type PhpObject, type PhpValue } from "@saas/contracts/coolify-api";
 import { APPLICATION_SERVICE_MESSAGES } from "../applications/service.js";
 import { DATABASE_SERVICE_MESSAGES } from "../databases/service.js";
 import { SERVICE_CONFIGURATION_MESSAGES } from "../services/configuration.js";
 import { DEPLOYMENT_HANDLER_MESSAGES } from "../handlers/deployments.js";
 import { inCoolifyOrder } from "./columns.js";
 import { message, rowsOf, unavailable, type ApiV1Context } from "./context.js";
-import { rowValue, toModel, type ModelShape } from "./models.js";
+import { ENVIRONMENT, PROJECT, rowValue, toModel, type ModelShape } from "./models.js";
+import { applicationRelation } from "./applications.js";
 import { readApiBody } from "./request.js";
 import { validateRules } from "./rules.js";
 
@@ -45,7 +48,9 @@ const phpString = (v: unknown): string => (v === null || v === undefined || v ==
 /** routes/api.php's /deployments routes. segments: what follows /deployments. */
 export async function deploymentsApi(c: ApiV1Context, segments: string[]): Promise<CoolifyAnswer | null> {
   const [first, second, third] = segments;
-  if (first === "applications" && second !== undefined && third === undefined) return c.method === "GET" ? applicationDeployments(c, second) : null;
+  if (first === undefined) return c.method === "GET" ? deploymentsInProgress(c) : null;
+  if (second === undefined) return c.method === "GET" ? deploymentByUuid(c, first) : null;
+  if (first === "applications" && third === undefined) return c.method === "GET" ? applicationDeployments(c, second) : null;
   if (first !== undefined && second === "cancel" && third === undefined && c.method === "POST") return cancelDeployment(c, first);
   return null;
 }
@@ -90,6 +95,65 @@ async function applicationDeployments(c: ApiV1Context, uuid: string): Promise<Co
       return ca !== cb ? (ca < cb ? 1 : -1) : Number(rowValue(b, "id")) - Number(rowValue(a, "id"));
     });
     return coolifyJson(obj({ count: all.length, deployments: all.slice(skip, skip + take).map((row) => deploymentModel(c, row)) }));
+  });
+}
+
+// ── the deployments in progress, one deployment (DP-78) ────────────────────
+
+/** An environment as a loaded relation, with its project and the project's team (Application::team(): environment.project.team). */
+export async function environmentWithTeam(c: ApiV1Context, rows: ReturnType<typeof rowsOf>, environmentId: unknown): Promise<{ environment: PhpObject; team: PhpObject } | null> {
+  const environment = (await rows("environments", "t.id = $1", [environmentId]))[0];
+  const project = environment ? (await rows("projects", "t.id = $1", [rowValue(environment, "project_id")]))[0] : undefined;
+  const org = project ? await c.org() : null;
+  if (!environment || !project || !org) return null;
+  const team = coolifyTeam(org);
+  const projectModel = toModel(inCoolifyOrder([...project, ["team_id", c.orgPublicId]], "projects"), PROJECT, { extra: [["team", team]] });
+  return { environment: toModel(inCoolifyOrder(environment, "environments"), ENVIRONMENT, { extra: [["project", projectModel]] }), team };
+}
+
+/** removeSensitiveData($deployment): logs only for a token that may read the application's secrets, the loaded application, then serializeApiResponse(). */
+function deploymentWithApplication(c: ApiV1Context, row: ApiRow, application: PhpObject | null): PhpObject {
+  const model = deploymentModel(c, row);
+  put(model, "application", application);
+  return serializeApiResponse(model, c.canReadSensitive);
+}
+
+/** The application a deployment belongs to (belongsTo: not a deleted one). */
+async function applicationOf(rows: ReturnType<typeof rowsOf>, deployment: ApiRow): Promise<ApiRow | null> {
+  const id = String(rowValue(deployment, "application_id") ?? "");
+  if (!/^\d+$/.test(id)) return null;
+  return (await rows("applications", "t.deleted_at IS NULL AND t.id = $1", [Number(id)]))[0] ?? null;
+}
+
+/**
+ * deployments(): the queued and running deployments of the org's applications (deleted ones included:
+ * applicationIdsOwnedByTeam()), by id, each with its application. A token is never limited to some resources in
+ * Freeploy (DP-70), so it covers the whole team.
+ */
+async function deploymentsInProgress(c: ApiV1Context): Promise<CoolifyAnswer> {
+  return c.sql(c.env, c.orgId, async (tx) => {
+    const rows = rowsOf(tx);
+    const applications = (await rows("applications")).map((a) => String(rowValue(a, "id")));
+    const list = applications.length ? await rows("application_deployment_queues", "t.status IN ('in_progress', 'queued') AND t.application_id = ANY($1)", [applications]) : [];
+    const out: PhpObject[] = [];
+    for (const row of list) {
+      const application = await applicationOf(rows, row);
+      out.push(deploymentWithApplication(c, row, application ? await applicationRelation(tx, c, application) : null));
+    }
+    return coolifyJson(out);
+  });
+}
+
+/** deployment_by_uuid(): the deployment, then its application's team (loading the environment, the project and the team). */
+async function deploymentByUuid(c: ApiV1Context, uuid: string): Promise<CoolifyAnswer> {
+  return c.sql(c.env, c.orgId, async (tx) => {
+    const rows = rowsOf(tx);
+    const deployment = (await rows("application_deployment_queues", "t.deployment_uuid = $1", [uuid]))[0];
+    if (!deployment) return message("Deployment not found.", 404);
+    const application = await applicationOf(rows, deployment);
+    const loaded = application ? await environmentWithTeam(c, rows, rowValue(application, "environment_id")) : null;
+    if (!application || !loaded) return message("Deployment not found.", 404);
+    return coolifyJson(deploymentWithApplication(c, deployment, await applicationRelation(tx, c, application, { environment: loaded.environment })));
   });
 }
 

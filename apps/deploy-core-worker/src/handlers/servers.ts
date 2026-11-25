@@ -117,16 +117,19 @@ function sqlCipher(tx: SqlExecutor, orgId: string, secret: string | undefined): 
   };
 }
 
+/** The server service's context over one org's transaction (also /api/v1's, DP-78). */
+export function serverContext(tx: SqlExecutor, orgId: string, env: Pick<Env, "DEPLOY_ENCRYPTION_KEY">): ServerContext {
+  return {
+    store: sqlStore(tx, orgId),
+    cipher: sqlCipher(tx, orgId, env.DEPLOY_ENCRYPTION_KEY),
+    variables: columnCipher(tx, orgId, env.DEPLOY_ENCRYPTION_KEY, "shared_environment_variables.value"),
+  };
+}
+
 export const runServersInOrg: ServerRunner = async (env, orgId, fn) => {
   const db = createSqlExecutor(env.PLATFORM_DB!);
   try {
-    return await withOrg(db, orgId, (tx) => 
-      fn({
-        store: sqlStore(tx, orgId),
-        cipher: sqlCipher(tx, orgId, env.DEPLOY_ENCRYPTION_KEY),
-        variables: columnCipher(tx, orgId, env.DEPLOY_ENCRYPTION_KEY, "shared_environment_variables.value"),
-      }),
-    );
+    return await withOrg(db, orgId, (tx) => fn(serverContext(tx, orgId, env)));
   } finally {
     await db.dispose();
   }
