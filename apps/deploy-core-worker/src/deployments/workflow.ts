@@ -17,7 +17,8 @@ import { createSqlExecutor } from "@saas/db/hyperdrive";
 import { appendDeploymentLog, failUnattendedDeployment, findDeploymentForJob, startNextQueuedDeployments, withOrg } from "@saas/db/deploy";
 import type { Env } from "../env.js";
 import { sessionFetcher } from "../ssh-session.js";
-import { initialState, runStep, type DeploymentEffect, type EngineDeps, type EngineState } from "./engine.js";
+import { buildSecretsHashKey } from "./build.js";
+import { DEFAULT_ENGINE_CONFIG, initialState, runStep, type DeploymentEffect, type EngineDeps, type EngineState } from "./engine.js";
 import { buildLogEntry } from "./logs.js";
 import { sessionExecutor } from "./session-executor.js";
 import { loadDeploymentContext, loadServerConnection, sqlDeploymentStore } from "./sql.js";
@@ -98,11 +99,12 @@ export class ApplicationDeploymentWorkflow extends WorkflowEntrypoint<WorkflowEn
         executor: connection
           ? sessionExecutor(sessionFetcher(env.SSH_SESSION, connection.serverUuid), connection.conn)
           : { run: async () => ({ exitCode: 255, stdout: "", stderr: "The server has no private key.\n" }) },
-        store: sqlDeploymentStore(db, orgId),
+        store: sqlDeploymentStore(db, orgId, env.DEPLOY_ENCRYPTION_KEY),
         now: () => new Date(),
         // The waits between steps are the Workflow's sleeps, not the engine's.
         sleep: async () => {},
         effect: (effect) => this.effect(orgId, effect),
+        config: { ...DEFAULT_ENGINE_CONFIG, secretsHashKey: await buildSecretsHashKey(env.DEPLOY_ENCRYPTION_KEY, orgId) },
       };
       return await runStep(deps, loaded.ctx, state ?? initialState(loaded.ctx, deps.now()));
     } finally {

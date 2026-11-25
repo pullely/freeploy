@@ -1,6 +1,7 @@
 <?php
 // Runs Coolify's own deployment code (coollabsio/coolify@91b7e3e, Apache-2.0) over cases.json and
-// prints goldens.json — nothing here is a port. Usage (see README.md):
+// prints goldens.json — nothing here is a port. Docker image deployments (DP-56) and the builds on the
+// server: a Dockerfile in a public repository, a pasted Dockerfile, Nixpacks, a static site (DP-61). Usage (see README.md):
 //
 //   php emit.php <coolify root with vendor/ and a .env> cases.json > goldens.json
 //
@@ -14,7 +15,7 @@
 //
 // Output:
 //   { "now":       the instant every run stands still at,
-//     "runs":      { "<case id>": { processes, deployment, application, sleeps, notifications, jobs, thrown, result
+//     "runs":      { "<case id>": { processes, deployment, application, build, sleeps, notifications, jobs, thrown, result
 //                                   [, lines, linesAll: for a case with "view": true] } },
 //     "functions": { "<case id>": { "ok": true, "value": … } | { "ok": false, "error": "<class>: <message>" } } }
 //
@@ -132,6 +133,8 @@ function migrateFresh(): void
 {
     Artisan::call('migrate:fresh', ['--force' => true]);
     InstanceSettings::unguarded(fn () => InstanceSettings::firstOrCreate(['id' => 0]));
+    // The source of a public repository, as Coolify's GithubAppSeeder creates it: id 0, for every team.
+    make(App\Models\GithubApp::class, ['id' => 0, 'uuid' => 'github-public', 'name' => 'Public GitHub', 'api_url' => 'https://api.github.com', 'html_url' => 'https://github.com', 'is_public' => true, 'team_id' => 0]);
 }
 
 /** @return array<string, mixed> */
@@ -189,8 +192,29 @@ function run(array $case): array
         DB::table('local_file_volumes')->insert(['uuid' => 'vol'.str_pad((string) (count($case['fileStorages'])), 21, '0', STR_PAD_LEFT), 'resource_type' => Application::class, 'resource_id' => $application->id, 'created_at' => NOW, 'updated_at' => NOW] + $storage);
     }
     foreach ($case['earlierDeployments'] ?? [] as $earlier) {
+        // "configuration_snapshot": "current" — the deployment stored the configuration the application has now.
+        if (($earlier['configuration_snapshot'] ?? null) === 'current') {
+            $earlier['configuration_snapshot'] = $application->fresh()->deploymentConfigurationSnapshot();
+        }
         make(ApplicationDeploymentQueue::class, $earlier + ['application_id' => $application->id, 'server_id' => $server->id, 'destination_id' => $destination->id]);
     }
+    // What the user changed since the last deployment.
+    if (isset($case['changedSince']['application'])) {
+        $application->forceFill($case['changedSince']['application'])->save();
+    }
+    if (isset($case['changedSince']['settings'])) {
+        $application->settings->forceFill($case['changedSince']['settings'])->save();
+    }
+    // What should_skip_build() asks when the image of the commit exists: computed here, before the job changes anything.
+    $pendingDiff = $application->fresh()->pendingDeploymentConfigurationDiff();
+    $variableKeysBefore = DB::table('environment_variables')->where('resourceable_id', $application->id)->orderBy('id')->pluck('key')->all();
+    // The rows a build reads, as they are stored (after the models' mutators and creating hooks), before the job runs.
+    $buildRow = (array) DB::table('applications')->where('id', $application->id)->first(['git_repository', 'git_commit_sha', 'base_directory', 'publish_directory', 'dockerfile', 'dockerfile_location', 'install_command', 'build_command', 'start_command', 'static_image', 'custom_nginx_configuration', 'source_id', 'source_type', 'private_key_id', 'custom_healthcheck_found', 'git_ssh_known_hosts']);
+    $buildSettings = (array) DB::table('application_settings')->where('application_id', $application->id)->first(['is_static', 'is_spa', 'is_git_submodules_enabled', 'is_git_lfs_enabled', 'is_git_shallow_clone_enabled', 'disable_build_cache', 'inject_build_args_to_dockerfile', 'include_source_commit_in_build', 'is_build_server_enabled', 'is_preserve_repository_enabled', 'include_network_hosts_in_build']);
+    // The application's variables in the order the job reads them (orderEnvironmentVariables), with the ids they were created with.
+    $variablesQuery = $application->fresh()->environment_variables();
+    $variablesBefore = ($application->settings->fresh()->is_env_sorting_enabled ? $variablesQuery->orderBy('key') : $variablesQuery->orderBy('order')->orderBy('id'))->get()
+        ->map(fn ($v) => ['id' => $v->id, 'key' => $v->key, 'value' => $v->value, 'is_literal' => (bool) $v->is_literal, 'is_multiline' => (bool) $v->is_multiline, 'is_runtime' => (bool) $v->is_runtime, 'is_buildtime' => (bool) $v->is_buildtime])->all();
 
     $processes = [];
     $matched = [];
@@ -249,6 +273,7 @@ function run(array $case): array
             'deployment_url' => $deployment->deployment_url,
             'application_name' => $deployment->application_name,
             'server_name' => $deployment->server_name,
+            'commit_message' => $deployment->commit_message,
             'force_rebuild' => (bool) $deployment->force_rebuild,
             'restart_only' => (bool) $deployment->restart_only,
             'rollback' => (bool) $deployment->rollback,
@@ -260,6 +285,21 @@ function run(array $case): array
             'last_restart_at' => $applicationRow->last_restart_at,
             'last_restart_type' => $applicationRow->last_restart_type,
             'restart_limit_reached' => (bool) $applicationRow->restart_limit_reached,
+        ],
+        // What a build reads and writes beside that (DP-61).
+        'build' => [
+            'configurationDiff' => ['legacyFallback' => $pendingDiff->isLegacyFallback(), 'requiresBuild' => $pendingDiff->requiresBuild()],
+            'row' => $buildRow + $buildSettings,
+            'variables' => $variablesBefore,
+            'health_check_enabled' => (bool) $applicationRow->health_check_enabled,
+            'health_check_interval' => $applicationRow->health_check_interval,
+            'health_check_timeout' => $applicationRow->health_check_timeout,
+            'health_check_retries' => $applicationRow->health_check_retries,
+            'health_check_start_period' => $applicationRow->health_check_start_period,
+            'custom_healthcheck_found' => (bool) $applicationRow->custom_healthcheck_found,
+            'git_ssh_known_hosts' => $applicationRow->git_ssh_known_hosts,
+            // The variables the job created (Laravel's two Nixpacks variables), with their values.
+            'createdVariables' => EnvironmentVariable::where('resourceable_id', $application->id)->orderBy('id')->get()->slice(count($variableKeysBefore))->map(fn ($v) => ['key' => $v->key, 'value' => $v->value, 'is_preview' => (bool) $v->is_preview])->values()->all(),
         ],
         'otherDeployments' => DB::table('application_deployment_queues')->where('deployment_uuid', '!=', $case['deployment']['deployment_uuid'])->orderBy('id')->get(['deployment_uuid', 'status'])->map(fn ($row) => (array) $row)->all(),
         'sleeps' => $sleeps,

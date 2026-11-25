@@ -12,6 +12,7 @@
 // whatever the limits say. Nothing here runs a deployment: the handler hands a started one to its Workflow.
 import type {
   DeployDeploymentApplicationRow,
+  DeployDeploymentBuildRow,
   DeployDeploymentListRow,
   DeployDeploymentRow,
   DeployDeploymentWithLogsRow,
@@ -24,7 +25,7 @@ import type {
 import { decodeDeploymentLogs, DEPLOYMENT_STATUS } from "@saas/db/deploy";
 import { utcIso } from "../cloud-tokens/service.js";
 import { newPublicId } from "../helpers/names.js";
-import { validateGitRef, type DeploymentExecutor } from "./engine.js";
+import { buildUnavailableReason, validateGitRef, type DeploymentExecutor } from "./engine.js";
 import { buildLogEntry, decodeDeploymentLogLines, exportAllDeploymentLogs, exportDeploymentLogs, type DeploymentLogLine } from "./logs.js";
 import { phpTrim } from "./php.js";
 import { logRedactionSecretsFor, type LogRedactionSecrets, type RuntimeVariable } from "./runtime-env.js";
@@ -36,6 +37,8 @@ export interface DeploymentServiceStore {
   findApplication(uuid: string): Promise<Application | null>;
   /** Application::find($deployment->application_id) */
   findApplicationById(id: Id): Promise<Application | null>;
+  /** The Git and build columns of an application, which only a build reads. */
+  findBuild(applicationId: Id): Promise<DeployDeploymentBuildRow | null>;
   enqueue(input: Omit<NewDeployment, "orgId">): Promise<EnqueueResult>;
   list(applicationId: Id, options: DeploymentListOptions): Promise<{ count: number; deployments: DeployDeploymentListRow[] }>;
   filterOptions(applicationId: Id): Promise<DeploymentFilterOptions>;
@@ -78,8 +81,6 @@ export const DEPLOYMENT_MESSAGES = {
   /** ApplicationDeploymentJob::validateDockerRegistryImageConfiguration() */
   imageName: "Docker registry image name contains invalid characters.",
   imageTag: "Docker registry image tag contains invalid characters.",
-  /** Freeploy's: what the engine cannot deploy yet is refused before anything is queued. */
-  buildPackUnavailable: (buildPack: string) => `Deploying a ${buildPack} application is not available yet: only Docker image applications can be deployed.`,
   noServer: "The application's server no longer exists.",
 } as const;
 
@@ -129,7 +130,11 @@ export type QueueOutcome =
 export async function queueDeployment(ctx: DeploymentServiceContext, applicationUuid: string, options: { forceRebuild?: boolean; restartOnly?: boolean }): Promise<QueueOutcome | null> {
   const application = await ctx.store.findApplication(applicationUuid);
   if (!application) return null;
-  if (application.build_pack !== "dockerimage") throw new DeploymentError(DEPLOYMENT_MESSAGES.buildPackUnavailable(application.build_pack), 501);
+  // Freeploy's: what the engine cannot deploy yet (engine.ts says what) is refused before anything is queued.
+  const build = await ctx.store.findBuild(application.id);
+  if (!build) return null;
+  const unavailable = buildUnavailableReason(application, build, options.restartOnly ?? false);
+  if (unavailable !== null) throw new DeploymentError(unavailable, 501);
   if (application.server_id === null || application.destination_id === null) throw new DeploymentError(DEPLOYMENT_MESSAGES.noServer, 422);
   if (!options.restartOnly && (application.server_is_swarm_manager || application.server_is_swarm_worker) && (application.docker_registry_image_name ?? "") === "") {
     throw new DeploymentError(DEPLOYMENT_MESSAGES.swarmImage, 422, "Failed to deploy.");
@@ -145,7 +150,7 @@ export async function queueDeployment(ctx: DeploymentServiceContext, application
     deploymentUuid,
     deploymentUrl: redirect,
     // $commit ?: ($application->git_commit_sha ?: 'HEAD'): a Docker image application has no commit of its own.
-    commit: "HEAD",
+    commit: application.build_pack === "dockerimage" || build.git_commit_sha === "" || build.git_commit_sha === "0" ? "HEAD" : build.git_commit_sha,
     forceRebuild: options.forceRebuild ?? false,
     restartOnly: options.restartOnly ?? false,
   });

@@ -1,4 +1,4 @@
-// The deployment goldens (DP-56): fixtures/deployments/cases.json and what Coolify's own PHP
+// The deployment goldens (DP-56, DP-61): fixtures/deployments/cases.json and what Coolify's own PHP
 // (coollabsio/coolify@91b7e3e, fixtures/deployments/emit.php) made of each case, read once for the
 // deployments*.test.ts files. See the README in that folder.
 import { readFileSync } from "node:fs";
@@ -36,6 +36,8 @@ export interface RunCase {
   responses: Response[];
   earlierDeployments?: Json[];
   cancelOn?: string;
+  /** What the user changed since the last deployment: applied after the earlier deployments were stored. */
+  changedSince?: { application?: Json; settings?: Json };
 }
 
 export interface FunctionCase {
@@ -71,6 +73,7 @@ export interface GoldenRun {
     deploy_started_at: string | null;
     build_server_id: number | null;
     commit: string;
+    commit_message: string | null;
     deployment_url: string;
     application_name: string;
     server_name: string;
@@ -79,6 +82,20 @@ export interface GoldenRun {
     rollback: boolean;
   } | null;
   application: { status: string; custom_labels: string | null; restart_count: number; last_restart_at: string | null; last_restart_type: string | null; restart_limit_reached: boolean };
+  /** What a build reads (the rows before the job ran) and what it leaves on the application. */
+  build: {
+    configurationDiff: { legacyFallback: boolean; requiresBuild: boolean };
+    row: Json;
+    variables: Array<{ id: number; key: string; value: string | null; is_literal: boolean; is_multiline: boolean; is_runtime: boolean; is_buildtime: boolean }>;
+    health_check_enabled: boolean;
+    health_check_interval: number;
+    health_check_timeout: number;
+    health_check_retries: number;
+    health_check_start_period: number;
+    custom_healthcheck_found: boolean;
+    git_ssh_known_hosts: string | null;
+    createdVariables: Array<{ key: string; value: string | null; is_preview: boolean }>;
+  };
   otherDeployments: Array<{ deployment_uuid: string; status: string }>;
   sleeps: number[];
   notifications: string[];
