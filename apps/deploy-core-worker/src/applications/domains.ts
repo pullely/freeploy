@@ -71,7 +71,7 @@ function isHostname(value: string): boolean {
 }
 
 /** FILTER_VALIDATE_URL for an http(s) URL: its host is a hostname or a bracketed IPv6 address. */
-function filterValidateUrl(url: string): boolean {
+export function filterValidateUrl(url: string): boolean {
   const parts = parseUrl(url);
   if (!parts?.scheme || !parts.host) return false;
   if (parts.host.startsWith("[") && parts.host.endsWith("]")) return isIpv6(parts.host.slice(1, -1));

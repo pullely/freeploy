@@ -32,6 +32,7 @@ import { storedDockerImage } from "./docker-image.js";
 import { domainConflicts, generateUrl, normalizeApplicationDomains, normalizeDomainPortOverrides, sslipDomainWarning, syncNoindexDomains, type DomainConflict } from "./domains.js";
 import type { CreateDockerImageInput, GeneralInput } from "./validation.js";
 import type { ApplicationLabelContext } from "./labels-service.js";
+import type { ApplicationBuildContext } from "./create.js";
 
 export interface ApplicationStore {
   findProject(uuid: string): Promise<DeployProjectRow | null>;
@@ -59,6 +60,8 @@ export interface ApplicationContext {
   encrypt(column: ApplicationWebhookSecretColumn, plaintext: string): Promise<string>;
   /** The container labels and HTTP Basic Authentication (labels-service.ts); a context without it serves the application without them. */
   labels?: ApplicationLabelContext;
+  /** The store of the applications that are built (create.ts, build.ts); a runner without it serves Docker image applications only. */
+  build?: ApplicationBuildContext;
 }
 
 export const APPLICATION_SERVICE_MESSAGES = {
