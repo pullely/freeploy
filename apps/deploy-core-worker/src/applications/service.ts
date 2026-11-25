@@ -16,6 +16,7 @@ import type {
   ApplicationWebhookSecretColumn,
   DeployApplicationDomainsRow,
   DeployApplicationRow,
+  DeployDatabaseRow,
   DeployDestinationRow,
   DeployEnvironmentListRow,
   DeployProjectRow,
@@ -33,6 +34,7 @@ import { domainConflicts, generateUrl, normalizeApplicationDomains, normalizeDom
 import type { CreateDockerImageInput, GeneralInput } from "./validation.js";
 import type { ApplicationLabelContext } from "./labels-service.js";
 import type { ApplicationBuildContext } from "./create.js";
+import { databaseResources, type DatabaseResource } from "../databases/service.js";
 
 export interface ApplicationStore {
   findProject(uuid: string): Promise<DeployProjectRow | null>;
@@ -52,6 +54,8 @@ export interface ApplicationStore {
   updateGeneral(id: string | number, changes: ApplicationGeneralChanges): Promise<DeployApplicationRow | null>;
   /** Every application of the org that has domains (checkDomainUsage). */
   domains(): Promise<DeployApplicationDomainsRow[]>;
+  /** $environment->databases(): the environment's standalone databases (databases/service.ts); a store without it lists applications only. */
+  listDatabasesForEnvironment?(environmentId: string | number): Promise<DeployDatabaseRow[]>;
 }
 
 export interface ApplicationContext {
@@ -438,22 +442,23 @@ export function environmentResource(row: DeployApplicationRow): EnvironmentResou
 export interface EnvironmentResources {
   project: { uuid: string; name: string };
   environment: { uuid: string; name: string };
-  /** $this->environment->applications()…->sortBy('name'). */
-  resources: EnvironmentResource[];
+  /** $this->environment->applications()…->sortBy('name'), then its databases, engine by engine, each sorted by name. */
+  resources: Array<EnvironmentResource | DatabaseResource>;
 }
 
-/** Resource\Index::mount() + render(): the environment's applications (databases and services are not ported yet). */
+/** Resource\Index::mount() + render(): the environment's applications and standalone databases (services are not ported yet). */
 export async function environmentResources(ctx: ApplicationContext, projectUuid: string, environmentUuid: string): Promise<EnvironmentResources | null> {
   const project = await ctx.store.findProject(projectUuid);
   if (!project) return null;
   const environment = await ctx.store.findEnvironment(project.id, environmentUuid);
   if (!environment) return null;
   const rows = await ctx.store.listForEnvironment(environment.id);
+  const databases = ctx.store.listDatabasesForEnvironment ? await ctx.store.listDatabasesForEnvironment(environment.id) : [];
   return {
     project: { uuid: project.uuid, name: project.name },
     environment: { uuid: environment.uuid, name: environment.name },
     // sortBy('name'): PHP's regular comparison, stable.
-    resources: rows.map(environmentResource).sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0)),
+    resources: [...rows.map(environmentResource).sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0)), ...databaseResources(databases)],
   };
 }
 

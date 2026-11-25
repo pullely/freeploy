@@ -53,6 +53,7 @@ import {
   findServerByUuid,
   findApplicationByUuid,
   listEnvironmentApplications,
+  listEnvironmentDatabases,
   insertDockerImageApplication,
   updateApplicationGeneral,
   listApplicationDomains,
@@ -108,6 +109,7 @@ function sqlStore(tx: SqlExecutor, orgId: string): ApplicationStore {
     listForEnvironment: (environmentId) => listEnvironmentApplications(tx, environmentId),
     updateGeneral: (id, changes) => updateApplicationGeneral(tx, id, changes),
     domains: () => listApplicationDomains(tx),
+    listDatabasesForEnvironment: (environmentId) => listEnvironmentDatabases(tx, environmentId),
   };
 }
 

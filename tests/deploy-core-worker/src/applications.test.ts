@@ -579,7 +579,8 @@ describe("the New Resource page (Select)", () => {
       ["sqlite", "SQLite"],
     ]);
     const all = [...GIT_BASED_APPLICATIONS, ...DOCKER_BASED_APPLICATIONS, ...DATABASES];
-    expect(all.filter((t) => t.creatable).map((t) => t.id)).toEqual(["public", "dockerfile", "docker-image"]);
+    // The eight standalone database engines are creatable since DP-57; SQLite is not.
+    expect(all.filter((t) => t.creatable).map((t) => t.id)).toEqual(["public", "dockerfile", "docker-image", "postgresql", "mysql", "mariadb", "redis", "keydb", "dragonfly", "mongodb", "clickhouse"]);
     expect(DOCKER_BASED_APPLICATIONS[2]).toEqual({
       id: "docker-image",
       name: "Docker Image",

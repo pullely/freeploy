@@ -133,8 +133,8 @@ const HIDDEN = { style: { display: "none" as const } };
 const HEALTH_HELPER =
   "No healthcheck is configured, so Freeploy can only report the container state. Traffic can still be routed to the container, but Freeploy cannot verify that the application inside it is ready to receive requests.";
 
-/** <x-status-summary>: the status as a badge that opens the container and healthcheck states. */
-function StatusSummary({ status, healthcheckUrl }: { status: string; healthcheckUrl: string }) {
+/** <x-status-summary>: the status as a badge that opens the container and healthcheck states; `title` heads the panel. */
+export function StatusSummary({ status, healthcheckUrl, title = "Application status" }: { status: string; healthcheckUrl: string; title?: string }) {
   const [open, setOpen] = useState(false);
   const root = useDismiss(open, () => setOpen(false));
   const s = statusSummary(status);
@@ -154,7 +154,7 @@ function StatusSummary({ status, healthcheckUrl }: { status: string; healthcheck
         </span>
       </button>
       <div className="listbox-panel top-8! z-[90]! w-[min(16rem,calc(100vw-1.5rem))]! min-w-0! sm:w-64! sm:min-w-64! right-auto! left-0!" role="menu" {...(open ? {} : HIDDEN)}>
-        <div className="px-3 py-2 text-[11px] font-medium text-neutral-400 dark:text-fg-faint">Application status</div>
+        <div className="px-3 py-2 text-[11px] font-medium text-neutral-400 dark:text-fg-faint">{title}</div>
         <div className="listbox-option cursor-default! gap-2.5!">
           <span className={`size-1.5 shrink-0 rounded-full ${DOT[s.containerType]}`} />
           <span className="flex-1">Container</span>
@@ -178,11 +178,11 @@ function StatusSummary({ status, healthcheckUrl }: { status: string; healthcheck
 }
 
 /** <x-split-action>: the main action and a caret that opens the others. */
-function SplitAction({ main, onMain, children }: { main: ReactNode; onMain: () => void; children: (close: () => void) => ReactNode }) {
+export function SplitAction({ main, onMain, children, id = "application-mobile-actions" }: { main: ReactNode; onMain: () => void; children: (close: () => void) => ReactNode; id?: string }) {
   const [open, setOpen] = useState(false);
   const root = useDismiss(open, () => setOpen(false));
   return (
-    <div className="split-action relative" id="application-mobile-actions" ref={root}>
+    <div className="split-action relative" id={id} ref={root}>
       <button type="button" className="split-action-main" onClick={onMain}>
         {main}
       </button>

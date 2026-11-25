@@ -28,6 +28,7 @@ const ApplicationEnvironmentVariablesPage = lazy(() => import("./pages/Applicati
 const ApplicationStoragesPage = lazy(() => import("./pages/ApplicationStorages").then((m) => ({ default: m.ApplicationStoragesPage })));
 const ApplicationTagsPage = lazy(() => import("./pages/ApplicationTags").then((m) => ({ default: m.ApplicationTagsPage })));
 const ApplicationResourceOperationsPage = lazy(() => import("./pages/ApplicationResourceOperations").then((m) => ({ default: m.ApplicationResourceOperationsPage })));
+const DatabaseGeneralPage = lazy(() => import("./pages/DatabaseGeneral").then((m) => ({ default: m.DatabaseGeneralPage })));
 const ApplicationDangerPage = lazy(() => import("./pages/ApplicationDanger").then((m) => ({ default: m.ApplicationDangerPage })));
 const ApplicationSourcePage = lazy(() => import("./pages/ApplicationSource").then((m) => ({ default: m.ApplicationSourcePage })));
 const ApplicationServersPage = lazy(() => import("./pages/ApplicationServers").then((m) => ({ default: m.ApplicationServersPage })));
@@ -228,6 +229,12 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <ApplicationRollbackPage />
+        </Suspense>
+      );
+    case "project.database.configuration":
+      return (
+        <Suspense fallback={null}>
+          <DatabaseGeneralPage />
         </Suspense>
       );
     case "security.private-key.index":

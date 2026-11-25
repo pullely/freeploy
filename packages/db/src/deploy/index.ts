@@ -394,3 +394,28 @@ export {
   type ScheduledTaskChanges,
 } from "./scheduled-tasks.js";
 export { findApplicationRollback, updateApplicationImagesToKeep, type DeployApplicationRollbackRow } from "./application-rollback.js";
+export {
+  DATABASE_ENGINES,
+  DATABASE_TABLES,
+  DATABASE_GENERAL_COLUMNS,
+  databaseOwner,
+  writableDatabaseColumns,
+  findDatabaseEngineByUuid,
+  findDatabaseByUuid,
+  listEnvironmentDatabases,
+  insertDatabase,
+  updateDatabase,
+  findDatabaseVariable,
+  insertDatabaseVariable,
+  updateDatabaseVariableValue,
+  findDatabaseCertificateValidUntil,
+  deleteDatabase,
+  type DatabaseEngine,
+  type DatabaseTable,
+  type DatabaseColumnValue,
+  type DeployDatabaseRow,
+  type NewDatabase,
+  type NewDatabaseVolume,
+  type DeployDatabaseVariableRow,
+  type NewDatabaseVariable,
+} from "./databases.js";
