@@ -5,10 +5,7 @@
 // one transaction, detach), scheduled tasks by owner with their executions,
 // the images-to-keep setting, what deleting an application removes of them —
 // and row-level security keeping each org's rows to itself.
-import { readFileSync } from "node:fs";
-import { resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { PGlite } from "@electric-sql/pglite";
+import type { PGlite } from "@electric-sql/pglite";
 import {
   withOrg,
   asPlatformAdmin,
@@ -50,26 +47,14 @@ import {
   type NewDockerImageApplication,
   type ScheduledTaskOwner,
 } from "@saas/db/deploy";
-import type { SqlExecutor, TransactionalSqlExecutor } from "@saas/db/hyperdrive";
+import type { TransactionalSqlExecutor } from "@saas/db/hyperdrive";
+import { deployDatabase, executor } from "./deploy-schema.js";
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
-const migration = (m: string) => readFileSync(resolve(root, `packages/db/src/migrations/${m}/up.sql`), "utf8");
-const SCHEMA = ["500_deploy_core", "510_deploy_org_keys", "520_deploy_schema_fold_fixes", "610_deploy_tags_org_name_unique"].map(migration).join("\n");
 const A = "00000000-0000-4000-8000-00000000000a";
 const B = "00000000-0000-4000-8000-00000000000b";
 const APP1 = "app1aaaaaaaaaaaaaaaaaaaa";
 const APP2 = "app2aaaaaaaaaaaaaaaaaaaa";
 const APPB = "app1bbbbbbbbbbbbbbbbbbbb";
-
-function executor(db: PGlite): TransactionalSqlExecutor {
-  const wrap = (q: { query: PGlite["query"] }): SqlExecutor => ({
-    async execute(text, params) {
-      const r = await q.query(text, params ?? []);
-      return { rows: r.rows as never[], rowCount: r.rows.length };
-    },
-  });
-  return { ...wrap(db), transaction: (fn) => db.transaction((tx) => fn(wrap(tx as never))) };
-}
 
 let db: PGlite;
 let ex: TransactionalSqlExecutor;
@@ -128,8 +113,7 @@ const count = async (table: string, where: string, params: unknown[]) => Number(
 const task = (key: string): ScheduledTaskOwner => ({ kind: "application", id: ids[key]! });
 
 beforeAll(async () => {
-  db = new PGlite();
-  await db.exec(SCHEMA);
+  db = await deployDatabase();
   ex = executor(db);
   fx.a = await fixture(A, "a");
   fx.b = await fixture(B, "b");
@@ -303,6 +287,36 @@ describe("scheduled tasks (deploy.scheduled_tasks, deploy.scheduled_task_executi
     expect(await withOrg(ex, B, (tx) => updateScheduledTask(tx, task("app1"), created.id, { name: "stolen" }))).toBe(false);
     expect(await withOrg(ex, B, (tx) => deleteScheduledTask(tx, task("app1"), created.id))).toBe(false);
     expect((await withOrg(ex, A, (tx) => findScheduledTask(tx, task("app1"), "task1")))!.name).toBe("Cleanup");
+  });
+
+  it("reads why the scheduler disabled a task, and enabling it again starts a new failure streak (ScheduledTask's saving hook)", async () => {
+    const id = (await withOrg(ex, A, (tx) => findScheduledTask(tx, task("app1"), "task1")))!.id;
+    const streak = async () => {
+      const row = (await raw("scheduled_tasks", "uuid = 'task1'", []))[0]!;
+      return [row.enabled, row.consecutive_failures, row.failing_since === null, row.disabled_reason];
+    };
+    // 660's columns start as Coolify's: no failures, no reason.
+    expect(await streak()).toEqual([false, 0, true, null]);
+    expect((await withOrg(ex, A, (tx) => findScheduledTask(tx, task("app1"), "task1")))!.disabled_reason).toBeNull();
+    // What ScheduledTask::recordFailure() leaves when it gives up on a task.
+    const REASON = "Disabled automatically after 5 failed runs in a row since 2026-11-01 10:00:00.";
+    const fail = () => asPlatformAdmin(ex, (tx) => tx.execute("UPDATE deploy.scheduled_tasks SET enabled = false, consecutive_failures = 5, failing_since = TIMESTAMP '2026-11-01 10:00:00', disabled_reason = $1 WHERE uuid = 'task1'", [REASON]));
+    await fail();
+    expect((await withOrg(ex, A, (tx) => findScheduledTask(tx, task("app1"), "task1")))!.disabled_reason).toBe(REASON);
+    expect((await withOrg(ex, A, (tx) => listScheduledTasks(tx, task("app1"))))[0]!.disabled_reason).toBe(REASON);
+    // Saving while it stays disabled keeps the streak and the reason.
+    await withOrg(ex, A, (tx) => updateScheduledTask(tx, task("app1"), id, { enabled: false, name: "Cleanup" }));
+    await withOrg(ex, A, (tx) => updateScheduledTask(tx, task("app1"), id, { timeout: 120 }));
+    expect(await streak()).toEqual([false, 5, false, REASON]);
+    // Enabling it clears all three.
+    await withOrg(ex, A, (tx) => updateScheduledTask(tx, task("app1"), id, { enabled: true }));
+    expect(await streak()).toEqual([true, 0, true, null]);
+    // A task that was already enabled keeps a streak in progress: only the change to enabled resets it.
+    await asPlatformAdmin(ex, (tx) => tx.execute("UPDATE deploy.scheduled_tasks SET consecutive_failures = 2, failing_since = TIMESTAMP '2026-11-02 10:00:00' WHERE uuid = 'task1'"));
+    await withOrg(ex, A, (tx) => updateScheduledTask(tx, task("app1"), id, { enabled: true, name: "Cleanup" }));
+    expect(await streak()).toEqual([true, 2, false, null]);
+    await withOrg(ex, A, (tx) => updateScheduledTask(tx, task("app1"), id, { enabled: false }));
+    expect(await streak()).toEqual([false, 2, false, null]);
   });
 
   it("a service's task uses service_id", async () => {

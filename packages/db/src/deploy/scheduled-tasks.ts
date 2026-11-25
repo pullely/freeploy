@@ -29,13 +29,15 @@ export interface DeployScheduledTaskRow extends SqlRow {
   container: string | null;
   timeout: number;
   use_shell: boolean;
+  /** Why Coolify's scheduler disabled the task (660_deploy_schema_catch_up); null for a task nobody disabled automatically. */
+  disabled_reason: string | null;
   created_at: string | Date | null;
   updated_at: string | Date | null;
   /** $task->latest_log->status: the newest execution's status, or null when it never ran. */
   latest_status: string | null;
 }
 
-const COLUMNS = "t.id, t.uuid, t.enabled, t.name, t.command, t.frequency, t.container, t.timeout, t.use_shell, t.created_at, t.updated_at";
+const COLUMNS = "t.id, t.uuid, t.enabled, t.name, t.command, t.frequency, t.container, t.timeout, t.use_shell, t.disabled_reason, t.created_at, t.updated_at";
 /** latest_log(): hasOne(ScheduledTaskExecution::class)->latest() — the newest by created_at. */
 const LATEST = "(SELECT e.status FROM deploy.scheduled_task_executions e WHERE e.scheduled_task_id = t.id ORDER BY e.created_at DESC NULLS LAST, e.id DESC LIMIT 1) AS latest_status";
 
@@ -79,13 +81,20 @@ export const SCHEDULED_TASK_COLUMNS = ["enabled", "name", "command", "frequency"
 export type ScheduledTaskColumn = (typeof SCHEDULED_TASK_COLUMNS)[number];
 export type ScheduledTaskChanges = Partial<Record<ScheduledTaskColumn, string | number | boolean | null>>;
 
+/**
+ * ScheduledTask's saving hook: a task that is enabled again (isDirty('enabled')
+ * && enabled) starts a new failure streak. SET reads the row as it was, so
+ * `enabled = false` is the value before this update.
+ */
+const REENABLED = ["consecutive_failures = CASE WHEN enabled = false THEN 0 ELSE consecutive_failures END", "failing_since = CASE WHEN enabled = false THEN NULL ELSE failing_since END", "disabled_reason = CASE WHEN enabled = false THEN NULL ELSE disabled_reason END"];
+
 /** $task->save(): only the given columns, and updated_at. False when the task is not the owner's. */
 export async function updateScheduledTask(tx: SqlExecutor, owner: ScheduledTaskOwner, id: string | number, changes: ScheduledTaskChanges): Promise<boolean> {
   const columns = SCHEDULED_TASK_COLUMNS.filter((c) => changes[c] !== undefined);
   if (!columns.length) return true;
   const sets = columns.map((c, i) => `"${c}" = $${i + 3}`);
   const r = await tx.execute(
-    `UPDATE deploy.scheduled_tasks SET ${[...sets, `updated_at = ${NOW}`].join(", ")} WHERE id = $1 AND ${OWNER_COLUMN[owner.kind]} = $2 RETURNING id`,
+    `UPDATE deploy.scheduled_tasks SET ${[...sets, ...(changes.enabled === true ? REENABLED : []), `updated_at = ${NOW}`].join(", ")} WHERE id = $1 AND ${OWNER_COLUMN[owner.kind]} = $2 RETURNING id`,
     [id, owner.id, ...columns.map((c) => changes[c] ?? null)],
   );
   return r.rows.length > 0;

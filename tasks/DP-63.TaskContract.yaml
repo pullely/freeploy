@@ -1,0 +1,26 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-63
+  title: "DP2 follow-up: the deploy code and its tests run on the caught-up schema"
+spec:
+  goal: The feature SQL of packages/db/src/deploy and the services of deploy-core-worker are tested against the schema stage and prod run, not against the migrations that existed when each feature was written. One helper in tests/db loads every deploy migration of the manifest, in manifest order, and every tests/db deploy suite runs on it; only a test whose subject is one migration step (590, 610, 630, and the parity suite's 660 on top of 630) names its own list, on a database of its own. What that surfaced is fixed where it was wrong — fixtures that left out a uuid 660 made NOT NULL, the default images a test and a fake store still expected, a promotion that would have hit the new unique index of additional_destinations, writes that two simultaneous requests could send into a unique index and get a 503 for, the scheduled task's disabled reason read as a constant, and the two columns Coolify encrypts with its own cast class missing from the generated list. Not part of this task — writers for the deployment queue's configuration snapshot, rewriting the look-ups before a write into ON CONFLICT beyond the one that needed it, an index for org-wide shared variables, and new migrations (none was needed).
+  affects:
+    - tests/db/**
+    - tests/deploy-core-worker/**
+    - packages/db/src/deploy/**
+    - packages/db/scripts/generate-deploy-schema.ts
+    - apps/deploy-core-worker/src/**
+    - apps/deploy-web/src/pages/ApplicationScheduledTasks.tsx
+    - specs/epics/freeploy-coolify-parity/IMPLEMENTATION-STATUS.md
+    - tasks/**
+  doneWhen:
+    - tests/db/src/deploy-schema.ts loads the deploy migrations from the manifest, and no tests/db deploy suite reads a fixed list of migration files except for a test about one migration step, which runs that step on its own database
+    - every tests/db deploy suite passes on the schema at head with no assertion removed, the isolation suite's table list included
+    - tests/db proves, for each of the ten unique indexes of 660 on tables the service layer writes, that the store function the service asks first finds the duplicate, that the write which did not ask is refused with SQLSTATE 23505 naming that index, and that the list of index names the worker reads is exactly those ten
+    - tests/deploy-core-worker proves that a write refused by one of those indexes answers what the look-up answers (409 or 422 with Coolify's message) and that any other failure still answers 503
+    - attaching an application's main network as an additional destination and then promoting another network answers "Duplicate entry found. Please use a different name." with nothing changed, as Coolify's rolled-back transaction does, in the memory store and on PGlite
+    - packages/db/src/deploy/encrypted-columns.ts is what the generator produces and lists application_deployment_queues.configuration_snapshot and configuration_diff; the test that counts encrypting casts says 90 casts, 5 excluded, 85 listed
+    - a scheduled task's disabledReason is the row's disabled_reason, and enabling a disabled task clears its failure streak as ScheduledTask's saving hook does
+    - packages/db, tests/db, apps/deploy-core-worker, tests/deploy-core-worker and apps/deploy-web pass typecheck, lint and their tests, apart from the lint error packages/db already had in src/runner/cli.ts
+  gates: []

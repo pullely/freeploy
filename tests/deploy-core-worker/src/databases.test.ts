@@ -104,16 +104,16 @@ interface Variable {
   version: string;
 }
 
-/** The schema's defaults of the columns the service reads (500_deploy_core, 520, 630). */
+/** The schema's defaults of the columns the service reads at head (500_deploy_core, 520, 630, and the images Coolify raised on 2026-11-06 with 660). */
 const SCHEMA_DEFAULTS: Record<DatabaseEngine, Record<string, unknown>> = {
-  postgresql: { image: "postgres:16-alpine", postgres_user: "postgres", postgres_db: "postgres", postgres_initdb_args: null, postgres_host_auth_method: null, postgres_conf: null, init_scripts: null, enable_ssl: false, ssl_mode: "require" },
+  postgresql: { image: "postgres:18-alpine", postgres_user: "postgres", postgres_db: "postgres", postgres_initdb_args: null, postgres_host_auth_method: null, postgres_conf: null, init_scripts: null, enable_ssl: false, ssl_mode: "require" },
   redis: { image: "valkey/valkey:9-alpine", redis_conf: null, enable_ssl: false, ssl_mode: null, legacy_password_quoting: false },
-  mongodb: { image: "mongo:7", mongo_conf: null, mongo_initdb_root_username: "root", mongo_initdb_database: "default", enable_ssl: false, ssl_mode: "require" },
-  mysql: { image: "mysql:8", mysql_user: "mysql", mysql_database: "default", mysql_conf: null, enable_ssl: false, ssl_mode: "REQUIRED" },
-  mariadb: { image: "mariadb:11", mariadb_user: "mariadb", mariadb_database: "default", mariadb_conf: null, enable_ssl: false, ssl_mode: null },
+  mongodb: { image: "mongo:9", mongo_conf: null, mongo_initdb_root_username: "root", mongo_initdb_database: "default", enable_ssl: false, ssl_mode: "require" },
+  mysql: { image: "mysql:9.7", mysql_user: "mysql", mysql_database: "default", mysql_conf: null, enable_ssl: false, ssl_mode: "REQUIRED" },
+  mariadb: { image: "mariadb:12.3", mariadb_user: "mariadb", mariadb_database: "default", mariadb_conf: null, enable_ssl: false, ssl_mode: null },
   keydb: { image: "eqalpha/keydb:latest", keydb_conf: null, enable_ssl: false, ssl_mode: null, legacy_password_quoting: false },
   dragonfly: { image: "docker.dragonflydb.io/dragonflydb/dragonfly", enable_ssl: false, ssl_mode: null, legacy_password_quoting: false },
-  clickhouse: { image: "clickhouse/clickhouse-server:25.11", clickhouse_admin_user: "default", clickhouse_db: "default", enable_ssl: null, ssl_mode: null },
+  clickhouse: { image: "clickhouse/clickhouse-server:26.8", clickhouse_admin_user: "default", clickhouse_db: "default", enable_ssl: null, ssl_mode: null },
 };
 
 class MemoryStore implements DatabaseStore {
@@ -476,7 +476,7 @@ describe("create_standalone_*() — the rows a database starts as", () => {
     }
     // The other engines take none: a given image is not read.
     const mysql = await t.create("mysql", { database_image: "mysql:5" });
-    expect(t.store.row(mysql).image).toBe("mysql:8");
+    expect(t.store.row(mysql).image).toBe("mysql:9.7");
     // find_resource_destination_for_current_team(): one of the org's, on a server that hosts resources.
     expect(t.refused(await t.call("POST", "", t.form("mysql", { destination: "nope" })))).toEqual([404, "Destination not found."]);
     expect(t.refused(await t.call("POST", "", t.form("mysql", { destination: undefined })))).toEqual([404, "Destination not found."]);

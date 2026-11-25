@@ -14,6 +14,8 @@ import {
 } from "@deploy-core-worker/projects/service";
 import { validateNameAndDescription } from "@deploy-core-worker/projects/validation";
 import type { DeployEnvironmentListRow, DeployEnvironmentRow, DeployProjectListRow, DeployProjectRow, EnvironmentChanges, ProjectChanges } from "@saas/db/deploy";
+import { DEPLOY_UNIQUE_INDEXES } from "@saas/db/deploy";
+import { DUPLICATE_ENTRY, refusedBy } from "./unique-violation.js";
 
 const ORG = "org_" + "0".repeat(31) + "a";
 const ORG_UUID = "00000000-0000-0000-0000-00000000000a";
@@ -486,5 +488,37 @@ describe("routing and authorization", () => {
     });
     expect(denied.status).toBe(404);
     expect(asked).toEqual(["deploy.resource.write"]);
+  });
+});
+
+describe("two requests at once: the unique index answers as the question before the write does (DP-63)", () => {
+  it("an environment name taken between the look-up and the write is 'Duplicate entry found…', not a 503", async () => {
+    const t = setup();
+    const p = await t.project("Race");
+    const staging = (await t.call("POST", `${p.uuid}/environments`, { name: "staging" })).body.data as { uuid: string };
+    const { insertEnvironment, updateEnvironment } = t.store;
+    // environmentNameExists() said no; the index says yes.
+    t.store.insertEnvironment = refusedBy(DEPLOY_UNIQUE_INDEXES.environmentName);
+    const created = await t.call("POST", `${p.uuid}/environments`, { name: "preview" });
+    expect([created.status, created.body.error?.message]).toEqual([409, DUPLICATE_ENTRY]);
+    t.store.updateEnvironment = refusedBy(DEPLOY_UNIQUE_INDEXES.environmentName);
+    const renamed = await t.call("PATCH", `${p.uuid}/environments/${staging.uuid}`, { name: "preview" });
+    expect([renamed.status, renamed.body.error?.message]).toEqual([409, DUPLICATE_ENTRY]);
+    // The same answer as when the look-up finds the name.
+    t.store.insertEnvironment = insertEnvironment.bind(t.store);
+    t.store.updateEnvironment = updateEnvironment.bind(t.store);
+    const found = await t.call("POST", `${p.uuid}/environments`, { name: "staging" });
+    expect([found.status, found.body.error?.message]).toEqual([created.status, created.body.error?.message]);
+  });
+
+  it("another index's violation, or another error, is not a duplicate name", async () => {
+    const t = setup();
+    const p = await t.project("Other");
+    t.store.insertEnvironment = refusedBy("environments_uuid_unique");
+    expect((await t.call("POST", `${p.uuid}/environments`, { name: "preview" })).status).toBe(503);
+    t.store.insertEnvironment = async () => {
+      throw new Error("connection lost");
+    };
+    expect((await t.call("POST", `${p.uuid}/environments`, { name: "preview" })).status).toBe(503);
   });
 });

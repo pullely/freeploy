@@ -110,8 +110,8 @@ export async function updateEnvironment(tx: SqlExecutor, id: string | number, ch
 
 /**
  * Coolify's unique(name, project_id) on environments: another environment of
- * the project has this name. The folded schema has no such index, so the
- * service asks before it writes.
+ * the project has this name. The service asks before it writes; the index
+ * (660_deploy_schema_catch_up) refuses what two requests at once both asked.
  */
 export async function environmentNameExists(tx: SqlExecutor, projectId: string | number, name: string, excludeId?: string | number | null): Promise<boolean> {
   const r =

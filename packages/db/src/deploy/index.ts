@@ -61,6 +61,7 @@ export {
 
 export { loadKek, orgDek, encryptField, decryptField, isEncrypted, CryptoError, type OrgDek } from "./crypto.js";
 export { ENCRYPTED_COLUMNS, isEncryptedColumn } from "./encrypted-columns.js";
+export { DEPLOY_UNIQUE_INDEXES, SHARED_VARIABLE_UNIQUE_INDEXES, violatedUniqueIndex, refusingDuplicates, type DeployUniqueIndex } from "./unique-indexes.js";
 export {
   listPrivateKeys,
   findPrivateKeyByUuid,

@@ -14,7 +14,7 @@
 // or directory mount at the same destination path of a resource (their unique
 // indexes), and handleError() answers "Duplicate entry found. Please use a
 // different name."; the checks are made here, before the row is written.
-import type { DeployFileVolumeRow, DeployPersistentVolumeRow } from "@saas/db/deploy";
+import { DEPLOY_UNIQUE_INDEXES, refusingDuplicates, type DeployFileVolumeRow, type DeployPersistentVolumeRow } from "@saas/db/deploy";
 import { add, blank, length, type FieldErrors } from "../private-keys/validation.js";
 import { newPublicId } from "../helpers/names.js";
 import type { ApplicationShow } from "./service.js";
@@ -264,6 +264,10 @@ async function assertMountPathFree(ctx: ApplicationResourcesContext, application
   if ((await ctx.store.files(applicationId)).some((f) => f.mount_path === mountPath)) throw new SettingsError(STORAGE_MESSAGES.duplicate, 422);
 }
 
+/** The two indexes themselves: what another request stored since assertVolumeNameFree() or assertMountPathFree() looked. */
+const refusingDuplicateStorage = <T>(write: () => Promise<T>): Promise<T> =>
+  refusingDuplicates([DEPLOY_UNIQUE_INDEXES.persistentVolumeName, DEPLOY_UNIQUE_INDEXES.fileVolumeMountPath], write, () => new SettingsError(STORAGE_MESSAGES.duplicate, 422));
+
 /** The mountPath mutator: trimmed, with one leading slash. */
 const storedMountPath = (value: string): string => `/${phpTrim(value).replace(/^\/+/, "")}`;
 
@@ -279,7 +283,7 @@ async function addVolume(ctx: ApplicationResourcesContext, l: LoadedApplication,
   const reason = volumeUnavailableReason(l.row);
   if (reason) throw new SettingsError(STORAGE_MESSAGES.failedToAddVolume, 422, { description: reason });
   await assertVolumeNameFree(ctx, l.row.id, `${l.row.uuid}-${name!}`);
-  await ctx.store.insertVolume({ applicationId: l.row.id, uuid: newPublicId(), name: `${l.row.uuid}-${name!}`, mountPath: storedMountPath(mountPath!) });
+  await refusingDuplicateStorage(() => ctx.store.insertVolume({ applicationId: l.row.id, uuid: newPublicId(), name: `${l.row.uuid}-${name!}`, mountPath: storedMountPath(mountPath!) }));
   return saved(ctx, l, STORAGE_MESSAGES.volumeAdded);
 }
 
@@ -306,15 +310,8 @@ async function addFile(ctx: ApplicationResourcesContext, l: LoadedApplication, b
   }
   const fsPath = pathRule(() => confineFileMountPath(workdir, mountPath, "file storage path"));
   await assertMountPathFree(ctx, l.row.id, mountPath);
-  await ctx.store.insertFile({
-    applicationId: l.row.id,
-    uuid: newPublicId(),
-    fsPath,
-    mountPath,
-    content: blank(content) ? null : await ctx.content.encrypt(content as string),
-    isDirectory: false,
-    isHostFile: false,
-  });
+  const stored = blank(content) ? null : await ctx.content.encrypt(content as string);
+  await refusingDuplicateStorage(() => ctx.store.insertFile({ applicationId: l.row.id, uuid: newPublicId(), fsPath, mountPath, content: stored, isDirectory: false, isHostFile: false }));
   return saved(ctx, l, STORAGE_MESSAGES.fileAdded, STORAGE_MESSAGES.writeFileUnavailable);
 }
 
@@ -327,7 +324,7 @@ async function addHostFile(ctx: ApplicationResourcesContext, l: LoadedApplicatio
   const fsPath = pathRule(() => validateHostFileMountPath(source!, "host file source path"));
   const mountPath = pathRule(() => validateFileMountPath(destination!, "host file destination path"));
   await assertMountPathFree(ctx, l.row.id, mountPath);
-  await ctx.store.insertFile({ applicationId: l.row.id, uuid: newPublicId(), fsPath, mountPath, content: null, isDirectory: false, isHostFile: true });
+  await refusingDuplicateStorage(() => ctx.store.insertFile({ applicationId: l.row.id, uuid: newPublicId(), fsPath, mountPath, content: null, isDirectory: false, isHostFile: true }));
   return saved(ctx, l, STORAGE_MESSAGES.hostFileAdded);
 }
 
@@ -347,7 +344,7 @@ async function addDirectory(ctx: ApplicationResourcesContext, l: LoadedApplicati
   const mountPath = pathRule(() => validateFileMountPath(destination!, "storage destination path"));
   if (isInsideResourceDirectory(fsPath, workdir)) throw new SettingsError(STORAGE_MESSAGES.checkPathUnavailable, 501);
   await assertMountPathFree(ctx, l.row.id, mountPath);
-  await ctx.store.insertFile({ applicationId: l.row.id, uuid: newPublicId(), fsPath, mountPath, content: null, isDirectory: true, isHostFile: false });
+  await refusingDuplicateStorage(() => ctx.store.insertFile({ applicationId: l.row.id, uuid: newPublicId(), fsPath, mountPath, content: null, isDirectory: true, isHostFile: false }));
   return saved(ctx, l, STORAGE_MESSAGES.directoryAdded);
 }
 
@@ -392,7 +389,7 @@ export async function updateVolume(ctx: ApplicationResourcesContext, uuid: strin
     throw new SettingsError("Change the volume name?", 409, { pendingRename: { storageId: String(volume.id), from: volume.name, to: name } });
   }
   if (rename) await assertVolumeNameFree(ctx, l.row.id, name!, volume.id);
-  await ctx.store.updateVolume(l.row.id, id, { ...(rename ? { name: name! } : {}), mount_path: storedMountPath(mountPath!), is_preview_suffix_enabled: suffix });
+  await refusingDuplicateStorage(() => ctx.store.updateVolume(l.row.id, id, { ...(rename ? { name: name! } : {}), mount_path: storedMountPath(mountPath!), is_preview_suffix_enabled: suffix }));
   return saved(ctx, l, STORAGE_MESSAGES.storageUpdated);
 }
 

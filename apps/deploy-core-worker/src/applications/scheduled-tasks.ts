@@ -64,8 +64,8 @@ export interface TaskDetail {
   useShell: boolean;
   isEnabled: boolean;
   /**
-   * Why the task was disabled automatically. Nothing disables a task before
-   * the scheduler exists (and the folded schema has no such column): null.
+   * $task->disabled_reason: why the task was disabled automatically. Nothing
+   * writes it before the scheduler exists; enabling the task again clears it.
    */
   disabledReason: string | null;
 }
@@ -101,7 +101,7 @@ const detail = (t: DeployScheduledTaskRow, canUpdate: boolean): TaskDetail => ({
   timeout: t.timeout ?? TASK_TIMEOUT.default,
   useShell: t.use_shell ?? true,
   isEnabled: Boolean(t.enabled),
-  disabledReason: null,
+  disabledReason: t.disabled_reason ?? null,
 });
 
 const stamp = (v: string | Date | null): string | null => (v === null || v === undefined ? null : v instanceof Date ? v.toISOString() : String(v));

@@ -27,6 +27,7 @@ import type {
   SharedVariableOwner,
   SharedVariableScope,
 } from "@saas/db/deploy";
+import { SHARED_VARIABLE_UNIQUE_INDEXES, refusingDuplicates } from "@saas/db/deploy";
 import { utcIso } from "../cloud-tokens/service.js";
 import type { KeyCipher } from "../private-keys/service.js";
 import { isFunctional, PREDEFINED_SERVER_VARIABLE_KEYS } from "../servers/service.js";
@@ -80,6 +81,11 @@ export class SharedVariableError extends Error {
     super(message);
   }
 }
+
+/** unique(key, <owner>, org_id): the answer of the question before the write, for the write the index refuses. */
+const refusingDuplicateKey = <T>(write: () => Promise<T>, refusal: () => SharedVariableError): Promise<T> => refusingDuplicates(SHARED_VARIABLE_UNIQUE_INDEXES, write, refusal);
+const keyExists = (): SharedVariableError => new SharedVariableError(SHARED_VARIABLE_MESSAGES.exists);
+const duplicateKey = (): SharedVariableError => new SharedVariableError(SHARED_VARIABLE_MESSAGES.duplicate, 409);
 
 /** Which scope a request names. */
 export type ScopeRef = { type: "team" } | { type: "project" | "environment" | "server"; uuid: string };
@@ -220,14 +226,8 @@ export async function addSharedVariable(ctx: SharedVariableContext, ref: ScopeRe
   if (readOnlyKeys(scope.info.type).includes(input.key)) throw new SharedVariableError(SHARED_VARIABLE_MESSAGES.predefined);
   if (await ctx.store.findByKey(scope.owner, input.key)) throw new SharedVariableError(SHARED_VARIABLE_MESSAGES.exists);
   rejectNulByte(input.value, null);
-  const row = await ctx.store.insert({
-    owner: scope.owner,
-    key: input.key,
-    value: await ctx.cipher.encrypt(input.value),
-    comment: input.comment,
-    isMultiline: input.isMultiline,
-    isLiteral: input.isLiteral,
-  });
+  const value = await ctx.cipher.encrypt(input.value);
+  const row = await refusingDuplicateKey(() => ctx.store.insert({ owner: scope.owner, key: input.key, value, comment: input.comment, isMultiline: input.isMultiline, isLiteral: input.isLiteral }), keyExists);
   return item(row, false, null);
 }
 
@@ -264,7 +264,7 @@ export async function updateSharedVariable(ctx: SharedVariableContext, ref: Scop
     rejectNulByte(input.newLockedValue, "value");
     changes.value = await ctx.cipher.encrypt(input.newLockedValue);
   }
-  const saved = await ctx.store.update(row.id, changes);
+  const saved = await refusingDuplicateKey(() => ctx.store.update(row.id, changes), duplicateKey);
   return saved ? item(saved, false, null) : null;
 }
 
@@ -345,14 +345,9 @@ export async function saveSharedVariablesDevView(ctx: SharedVariableContext, ref
       // The key as typed was not found, but its trimmed form may be a variable of the scope (Coolify's unique index).
       if (normalized !== key && (await ctx.store.findByKey(owner, normalized))) throw new SharedVariableError(SHARED_VARIABLE_MESSAGES.duplicate, 409);
       rejectNulByte(data.value, null);
-      await ctx.store.insert({
-        owner,
-        key: normalized,
-        value: await ctx.cipher.encrypt(data.value),
-        comment: isServer ? validatedComment(data.comment) : null,
-        isMultiline: false,
-        isLiteral: literal ?? false,
-      });
+      const value = await ctx.cipher.encrypt(data.value);
+      const comment = isServer ? validatedComment(data.comment) : null;
+      await refusingDuplicateKey(() => ctx.store.insert({ owner, key: normalized, value, comment, isMultiline: false, isLiteral: literal ?? false }), duplicateKey);
     }
     changed = true;
   }

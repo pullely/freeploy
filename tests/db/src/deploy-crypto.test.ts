@@ -1,37 +1,22 @@
 // Envelope encryption for the deploy context (DP2): per-org data keys wrapped
 // by the platform KEK, values bound to their org and column.
 import { readFileSync } from "node:fs";
-import { resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { webcrypto } from "node:crypto";
-import { PGlite } from "@electric-sql/pglite";
+import { resolve } from "node:path";
+import type { PGlite } from "@electric-sql/pglite";
 import { withOrg } from "@saas/db/deploy";
 import { loadKek, orgDek, encryptField, decryptField, isEncrypted, CryptoError } from "../../../packages/db/src/deploy/crypto.js";
 import { ENCRYPTED_COLUMNS } from "../../../packages/db/src/deploy/encrypted-columns.js";
-import type { SqlExecutor, TransactionalSqlExecutor } from "@saas/db/hyperdrive";
+import { deployDatabase, executor, REPO_ROOT } from "./deploy-schema.js";
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
-const SQL = ["500_deploy_core", "510_deploy_org_keys", "520_deploy_schema_fold_fixes"].map((m) => readFileSync(resolve(root, `packages/db/src/migrations/${m}/up.sql`), "utf8")).join("\n");
 const A = "00000000-0000-4000-8000-00000000000a";
 const B = "00000000-0000-4000-8000-00000000000b";
+/** Laravel's `encrypted` / `encrypted:*` casts and Coolify's Encrypted*Cast classes, as the generator reads them. */
+const ENCRYPTING_CAST = /^encrypted(:|$)|^(?:\\?App\\Casts\\)?Encrypted\w*Cast(::class)?$/;
 const kekB64 = (seed: number) => Buffer.from(new Uint8Array(32).fill(seed)).toString("base64");
-
-if (!globalThis.crypto) (globalThis as { crypto: unknown }).crypto = webcrypto;
-
-function executor(db: PGlite): TransactionalSqlExecutor {
-  const wrap = (q: { query: PGlite["query"] }): SqlExecutor => ({
-    async execute(text, params) {
-      const r = await q.query(text, params ?? []);
-      return { rows: r.rows as never[], rowCount: r.rows.length };
-    },
-  });
-  return { ...wrap(db), transaction: (fn) => db.transaction((tx) => fn(wrap(tx as never))) };
-}
 
 let db: PGlite;
 beforeAll(async () => {
-  db = new PGlite();
-  await db.exec(SQL);
+  db = await deployDatabase();
 }, 120_000);
 afterAll(async () => db?.close());
 
@@ -73,23 +58,30 @@ describe("envelope encryption", () => {
 });
 
 describe("encrypted column coverage", () => {
-  it("lists every Coolify `encrypted` cast on a deploy table, and each listed column exists", () => {
-    const models = JSON.parse(readFileSync(resolve(root, "specs/epics/freeploy-coolify-parity/parity/models.json"), "utf8"));
-    const casts = models.rows.flatMap((m: { casts: Record<string, string> }) => Object.entries(m.casts ?? {}).filter(([, c]) => /^encrypted/.test(c)));
+  it("lists every Coolify cast that encrypts a column of a deploy table, and each listed column exists", async () => {
+    const models = JSON.parse(readFileSync(resolve(REPO_ROOT, "specs/epics/freeploy-coolify-parity/parity/models.json"), "utf8"));
+    const casts = models.rows.flatMap((m: { casts: Record<string, string> }) => Object.entries(m.casts ?? {}).filter(([, c]) => ENCRYPTING_CAST.test(c)));
+    // 87 `encrypted`, one `encrypted:array` and the two `EncryptedArrayCast::class` of ApplicationDeploymentQueue (DP-63).
+    expect(casts).toHaveLength(90);
     const listed = Object.entries(ENCRYPTED_COLUMNS).flatMap(([t, cols]) => cols.map((c) => `${t}.${c}`));
     // The rest are excluded with a reason in the generated file: two live on tables Lumen owns
     // (audit_events.changes, team_invitations.link); three are Coolify casts on columns its own
     // migrations only ever create on server_settings (instance_settings.sentinel_token,
     // servers.logdrain_axiom_api_key, servers.logdrain_newrelic_license_key).
-    const src = readFileSync(resolve(root, "packages/db/src/deploy/encrypted-columns.ts"), "utf8");
+    const src = readFileSync(resolve(REPO_ROOT, "packages/db/src/deploy/encrypted-columns.ts"), "utf8");
     const excluded = (src.match(/ \(\w+: (table owned by Lumen|cast on a column Coolify's schema does not have)\)/g) ?? []).length;
     expect(excluded).toBe(5);
+    expect(listed).toHaveLength(85);
     expect(listed.length + excluded).toBe(casts.length);
+    // Coolify's own cast class (app/Casts/EncryptedArrayCast.php: Crypt::encryptString of the JSON) counts: the
+    // deployment queue's configuration snapshot and diff hold environment values and are ciphertexts at rest.
+    expect(listed).toEqual(expect.arrayContaining(["application_deployment_queues.configuration_snapshot", "application_deployment_queues.configuration_diff"]));
+    // In the schema at head, and of a type that can hold an `fp1` ciphertext.
+    const columns = await db.query<{ tc: string; data_type: string }>("SELECT table_name || '.' || column_name AS tc, data_type FROM information_schema.columns WHERE table_schema = 'deploy'");
+    const types = new Map(columns.rows.map((r) => [r.tc, r.data_type]));
     for (const tc of listed) {
-      const [t, c] = tc.split(".");
-      const inCreate = new RegExp(`CREATE TABLE IF NOT EXISTS deploy\\.${t} \\(\\n[^;]*?"${c}"`).test(SQL);
-      const added = SQL.includes(`ALTER TABLE deploy.${t} ADD COLUMN IF NOT EXISTS "${c}"`);
-      expect([tc, inCreate || added]).toEqual([tc, true]);
+      expect([tc, types.has(tc)]).toEqual([tc, true]);
+      expect([tc, ["text", "character varying"].includes(types.get(tc)!)]).toEqual([tc, true]);
     }
   });
 });

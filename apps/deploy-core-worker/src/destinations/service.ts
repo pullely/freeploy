@@ -18,6 +18,7 @@
 //           Swarm destination has no command and is deleted.
 //   scan    Only a command (docker network ls): 501, nothing stored.
 import type { DeployDestinationResourceRow, DeployDestinationRow, DeployServerRow, DeployUsableServerRow, DestinationType, NewDestination } from "@saas/db/deploy";
+import { DEPLOY_UNIQUE_INDEXES, refusingDuplicates } from "@saas/db/deploy";
 import { kebab, newPublicId } from "../helpers/names.js";
 import { ServerError, serverShow, type ServerShow } from "../servers/service.js";
 import type { NewDestinationInput, UpdateDestinationInput } from "./validation.js";
@@ -201,7 +202,12 @@ export async function addDestination(ctx: DestinationContext, serverUuid: string
   if (!server) return null;
   const type: DestinationType = Boolean(server.is_swarm_manager) || Boolean(server.is_swarm_worker) ? "swarm" : "standalone";
   if (await ctx.store.networkExists(type, server.id, input.network)) throw new ServerError(DESTINATION_MESSAGES.networkExists);
-  const row = await ctx.store.insert({ type, uuid: newPublicId(), name: input.name, network: input.network, serverId: server.id });
+  // unique(server_id, network): what two requests at once both found free.
+  const row = await refusingDuplicates(
+    [DEPLOY_UNIQUE_INDEXES.standaloneNetwork, DEPLOY_UNIQUE_INDEXES.swarmNetwork],
+    () => ctx.store.insert({ type, uuid: newPublicId(), name: input.name, network: input.network, serverId: server.id }),
+    () => new ServerError(DESTINATION_MESSAGES.networkExists),
+  );
   return { uuid: row.uuid, unavailable: type === "standalone" ? DESTINATION_MESSAGES.createNetworkUnavailable : null };
 }
 

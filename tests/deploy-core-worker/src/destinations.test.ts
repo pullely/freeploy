@@ -11,6 +11,8 @@ import type { ServerSettingsRunner } from "@deploy-core-worker/handlers/server-s
 import { destinationName, destinationResource, type DestinationStore } from "@deploy-core-worker/destinations/service";
 import { validateNewDestination, validateUpdateDestination } from "@deploy-core-worker/destinations/validation";
 import type { DeployDestinationResourceRow, DeployDestinationRow, DeployServerRow, DestinationType, NewDestination } from "@saas/db/deploy";
+import { DEPLOY_UNIQUE_INDEXES } from "@saas/db/deploy";
+import { DUPLICATE_ENTRY, refusedBy } from "./unique-violation.js";
 
 const ORG = "org_" + "0".repeat(31) + "a";
 const ORG_UUID = "00000000-0000-0000-0000-00000000000a";
@@ -368,5 +370,23 @@ describe("routing and authorization", () => {
     expect((await route(new Request(`${BASE}/destinations`, {}), env)).status).toBe(401);
     expect((await route(new Request(`https://x/v1/organizations/nope/deploy/destinations`, { headers }), env)).status).toBe(404);
     expect((await route(new Request(`${BASE}/destinations`, { method: "POST", headers }), env)).status).toBe(405);
+  });
+});
+
+describe("two requests at once: the unique index answers as the question before the write does (DP-63)", () => {
+  it("a network another request added to the server first is 'Network already added to this server.', not a 503", async () => {
+    for (const index of [DEPLOY_UNIQUE_INDEXES.standaloneNetwork, DEPLOY_UNIQUE_INDEXES.swarmNetwork]) {
+      const t = setup();
+      const before = t.store.rows.length;
+      t.store.insert = refusedBy(index);
+      const r = await t.server("POST", `${SERVER}/destinations`, { name: "fresh", network: "fresh-network" });
+      expect([index, r.status, r.body.error?.message]).toEqual([index, 422, "Network already added to this server."]);
+      expect(t.store.rows).toHaveLength(before);
+    }
+    // Not a duplicate network: the answer of any failed write.
+    const t = setup();
+    t.store.insert = refusedBy("standalone_dockers_uuid_unique");
+    expect((await t.server("POST", `${SERVER}/destinations`, { name: "fresh", network: "fresh-network" })).status).toBe(503);
+    expect(DUPLICATE_ENTRY).toBe("Duplicate entry found. Please use a different name.");
   });
 });
