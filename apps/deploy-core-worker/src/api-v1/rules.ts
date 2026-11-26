@@ -6,7 +6,11 @@
 // "This field is required.": rules are checked attribute by attribute in the order they are given, every rule of an
 // attribute (no bail) unless an implicit one (required) failed, and a non-implicit rule skips an absent attribute and a
 // null one marked nullable. `field.*` applies to each item of an array.
+//
+// DP-86: present, missing, url, in and required_if, and — with `laravelWildcards` — a `field.*` rule expanded in the
+// order Laravel's ValidationRuleParser::explodeWildcardRules() gives (ValidationData::initializeAndGatherData()).
 import { addError, type Errors } from "./request.js";
+import { isLaravelUrl } from "./laravel-url.js";
 
 export type Rule =
   | "required"
@@ -27,7 +31,15 @@ export type Rule =
   /** array:key1,key2 — an array whose keys are only these; `message` is the controller's own message for it (DP-74) */
   | { arrayKeys: readonly string[]; message: string }
   /** A closure rule (or a rule object): the messages it fails with (DP-74; DP-81: it may wait, as SafeWebhookUrl resolves a host) */
-  | { closure: (value: unknown) => string[] | Promise<string[]> };
+  | { closure: (value: unknown) => string[] | Promise<string[]> }
+  /** present, missing (both implicit) and url, DP-86 */
+  | "present"
+  | "missing"
+  | "url"
+  /** in:a,b,c / Rule::in([...]): "The selected x is invalid.", DP-86 */
+  | { in: readonly string[] }
+  /** required_if:other,value (implicit), DP-86 */
+  | { requiredIf: readonly [string, string] };
 
 export type Rules = Array<[string, readonly Rule[]]>;
 
@@ -83,13 +95,65 @@ const BETWEEN: Record<SizeType, (a: string, x: number, y: number) => string> = {
 /** The keys of an array or object of the request (none for anything else). */
 const keysOf = (v: unknown): string[] => (Array.isArray(v) ? v.map((_, i) => String(i)) : v !== null && typeof v === "object" ? Object.keys(v) : []);
 
+const isArrayLike = (v: unknown): v is Record<string, unknown> | unknown[] => v !== null && typeof v === "object";
+const entriesOf = (v: Record<string, unknown> | unknown[]): Array<[string, unknown]> => (Array.isArray(v) ? v.map((x, i): [string, unknown] => [String(i), x]) : Object.entries(v));
+const quote = (s: string): string => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+/** A wildcard attribute as a regular expression: each `*` one key ([^.]+ or, with `empty`, [^.]*). */
+const wildcardPattern = (attribute: string, anchored: boolean, empty: boolean): RegExp => new RegExp(`^${attribute.split("*").map(quote).join(empty ? "[^.]*" : "[^.]+")}${anchored ? "$" : ""}`);
+
+/** Arr::dot(): the leaves (a scalar, null or an empty array) by their dotted keys, in order. */
+function arrDot(v: unknown, prefix: string, out: Array<[string, unknown]>): Array<[string, unknown]> {
+  if (!isArrayLike(v)) return out;
+  for (const [k, x] of entriesOf(v)) {
+    if (isArrayLike(x) && entriesOf(x).length > 0) arrDot(x, `${prefix}${k}.`, out);
+    else out.push([`${prefix}${k}`, x]);
+  }
+  return out;
+}
+
+/** data_set($target, $segments, null, true): a `*` segment over every item, a scalar on the way made an array. */
+function dataSetNull(target: unknown, segments: readonly string[]): unknown {
+  const [segment, ...rest] = segments;
+  if (segment === "*") {
+    const t = isArrayLike(target) ? target : [];
+    const each = (x: unknown): unknown => (rest.length === 0 ? null : dataSetNull(x, rest));
+    return Array.isArray(t) ? t.map(each) : Object.fromEntries(Object.entries(t).map(([k, x]) => [k, each(x)]));
+  }
+  const t: Record<string, unknown> = isArrayLike(target) ? (Array.isArray(target) ? Object.fromEntries(entriesOf(target)) : { ...target }) : {};
+  t[segment!] = rest.length === 0 ? null : dataSetNull(t[segment!], rest);
+  return t;
+}
+
+/** The keys explodeWildcardRules() gives a `field.*…` attribute, in its order (DP-86). */
+function laravelWildcardKeys(all: Record<string, unknown>, attribute: string): string[] {
+  const lead = attribute.split("*")[0]!.replace(/\.+$/, "");
+  const { present, value } = valueOf(all, lead);
+  if (!present) return [];
+  let data: unknown = { [lead]: value };
+  if (!attribute.endsWith("*")) data = dataSetNull(data, attribute.split("."));
+  const dotted = arrDot(data, "", []).map(([k]) => k);
+  // array_merge($dotted, extractValuesForWildcards()): the wildcard prefixes not already a leaf come after the leaves.
+  const prefix = wildcardPattern(attribute, false, false);
+  const merged = [...dotted];
+  for (const k of dotted) {
+    const m = prefix.exec(k);
+    if (m && !merged.includes(m[0])) merged.push(m[0]);
+  }
+  const full = wildcardPattern(attribute, true, true);
+  return merged.filter((k) => k.startsWith(attribute) || full.test(k));
+}
+
 /** Expands `field.*` and `field.*.child` into the items of the array the request holds (none when it is not an array). */
-function expand(all: Record<string, unknown>, rules: Rules): Rules {
+function expand(all: Record<string, unknown>, rules: Rules, laravelWildcards = false): Rules {
   const out: Rules = [];
   for (const [attribute, list] of rules) {
     const star = attribute.indexOf(".*");
     if (star === -1) {
       out.push([attribute, list]);
+      continue;
+    }
+    if (laravelWildcards) {
+      for (const k of laravelWildcardKeys(all, attribute)) out.push([k, list]);
       continue;
     }
     const parent = attribute.slice(0, star);
@@ -116,11 +180,29 @@ const missingValue = (value: unknown): boolean =>
 export interface RuleOptions {
   /** Laravel's own `required` message ("The x field is required."): Validator::make() without customApiValidator()'s (DP-74). */
   laravelMessages?: boolean;
+  /** `field.*` expanded in Laravel's own order, and distinct over nested items (DP-86). */
+  laravelWildcards?: boolean;
+}
+
+/** validateDistinct(): the other items' values of the same wildcard attribute (getDistinctValues()), loosely compared. */
+function distinctFails(all: Record<string, unknown>, attribute: string, value: unknown): boolean {
+  const parts = attribute.split(".");
+  const index = parts.findIndex((p) => /^\d+$/.test(p));
+  if (index === -1) return false;
+  const lead = parts.slice(0, index).join(".");
+  const { present, value: parent } = valueOf(all, lead);
+  if (!present) return false;
+  const pattern = wildcardPattern([...parts.slice(0, index), "*", ...parts.slice(index + 1)].join("."), true, false);
+  const others = arrDot({ [lead]: parent }, "", [])
+    .filter(([k]) => k !== attribute && pattern.test(k))
+    .map(([, v]) => v);
+  // in_array() without strict: PHP's loose ==, for the scalars a request holds.
+  return others.some((o) => o === value || (o !== null && value !== null && typeof o !== "object" && typeof value !== "object" && String(o) === String(value)));
 }
 
 /** Validator::make($all, $rules, ['required' => 'This field is required.'])->errors(), appended to `errors`. */
 export async function validateRules(errors: Errors, all: Record<string, unknown>, rules: Rules, options: RuleOptions = {}): Promise<void> {
-  for (const [attribute, list] of expand(all, rules)) {
+  for (const [attribute, list] of expand(all, rules, options.laravelWildcards)) {
     const { present, value } = valueOf(all, attribute);
     const nullable = list.includes("nullable");
     const numeric = list.some((r) => typeof r === "string" && NUMERIC_RULES.includes(r));
@@ -142,6 +224,21 @@ export async function validateRules(errors: Errors, all: Record<string, unknown>
         }
         continue;
       }
+      if (typeof rule === "object" && "requiredIf" in rule) {
+        const other = valueOf(all, rule.requiredIf[0]).value;
+        if (other !== null && other !== undefined && typeof other !== "object" && String(other) === rule.requiredIf[1] && missingValue(value)) {
+          failed(`The ${name} field is required when ${display(rule.requiredIf[0])} is ${rule.requiredIf[1]}.`);
+          break;
+        }
+        continue;
+      }
+      if (rule === "present" || rule === "missing") {
+        if (present !== (rule === "present")) {
+          failed(rule === "present" ? `The ${name} field must be present.` : `The ${name} field must be missing.`);
+          break;
+        }
+        continue;
+      }
       if (rule === "nullable") continue;
       // isValidatable(): a non-implicit rule skips an absent attribute, and a null one marked nullable.
       if (!present || (nullable && value === null)) continue;
@@ -155,6 +252,12 @@ export async function validateRules(errors: Errors, all: Record<string, unknown>
         if (!BOOLEAN_VALUES.includes(value)) failed(`The ${name} field must be true or false.`);
       } else if (rule === "array") {
         if (!Array.isArray(value) && !(value !== null && typeof value === "object")) failed(`The ${name} field must be an array.`);
+      } else if (rule === "distinct" && options.laravelWildcards) {
+        if (distinctFails(all, attribute, value)) failed(`The ${name} field has a duplicate value.`);
+      } else if (rule === "url") {
+        if (!isLaravelUrl(value)) failed(`The ${name} field must be a valid URL.`);
+      } else if (typeof rule === "object" && "in" in rule) {
+        if (value === null || typeof value === "object" || !rule.in.includes(phpString(value))) failed(`The selected ${name} is invalid.`);
       } else if (rule === "distinct") {
         const dot = attribute.lastIndexOf(".");
         const siblings = Object.values(all[attribute.slice(0, dot)] as Record<string, unknown>);
@@ -173,7 +276,7 @@ export async function validateRules(errors: Errors, all: Record<string, unknown>
         if ((typeof value !== "string" && typeof value !== "number") || !rule.regex.test(String(value))) failed(`The ${name} field format is invalid.`);
       } else if (typeof rule === "object" && "arrayKeys" in rule) {
         const isArray = Array.isArray(value) || (value !== null && typeof value === "object");
-        if (!isArray || keysOf(value).some((k) => !rule.arrayKeys.includes(k))) failed(rule.message);
+        if (!isArray || keysOf(value).some((k) => !rule.arrayKeys.includes(k))) failed(rule.message.replace(":attribute", name));
       } else if (typeof rule === "object" && "closure" in rule) {
         for (const text of await rule.closure(value)) failed(text);
       } else if (typeof rule === "object" && "exists" in rule) {

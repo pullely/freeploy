@@ -1,0 +1,22 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-86
+  title: "DP9: /api/v1 for an application's previews and additional destinations, and moving, migrating and cloning resources"
+spec:
+  goal: Coolify's /api/v1 answers, on DP-70's pipeline (api-edge's middleware and routes, deploy-core-worker's internal mount), for an application's previews (ApplicationPreviewsController's index, show and store, ApplicationsController's update_preview_by_pull_request_id, delete_preview_by_pull_request_id and logs_by_uuid with a pull request, on DP-72's preview rows, with DP-52's domain rules, the org's domains and the other previews' domains), an application's additional destinations (ApplicationsController's destinations, add_destination and remove_destination on DP-58's deploy.additional_destinations), and moving, migrating and cloning (move_by_uuid of an application, a database and a service as moveResourceToEnvironment() moves it; migrate_by_uuid of the three, which Coolify answers with migrateResourceToDestination()'s abort(404) outside development; clone_by_uuid of an application and a standalone database on the console's Resource Operations clone, DP-55 and DP-64, with the request's name), with Coolify's validation, messages, status codes and key order, every body in Coolify's own JSON bytes. 17 more of openapi.json's 330 operations are ported (197 in all), each replayed byte for byte (masked ids, uuids, dates, the team) against goldens emitted by Coolify's real PHP, and each write's rows compared with the rows Coolify's left; the other 133 answer Coolify's 404 shape. Where Coolify runs or queues work on the server — deploying a preview, a preview's container logs, deleting a preview of a functional server, copying a clone's volume data or writing its managed file mounts — Freeploy answers 501 in Coolify's envelope ("… needs the SSH executor, which is not available yet.") after Coolify's own refusals and before anything is stored; opening a preview of a Docker Compose application also answers 501 (its domains need the application Compose parser). Not ported — cloning a service (clone_service() has no console port). Cut — the application create types and PATCH /applications/{uuid}, and GET /audit-events.
+  affects:
+    - apps/api-edge/**
+    - apps/deploy-core-worker/**
+    - packages/db/**
+    - tests/api-edge/**
+    - tests/deploy-core-worker/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - every case of tests/deploy-core-worker/fixtures/api/cases.json (1292 cases, 183 of them DP-86's) replays against Freeploy byte-equal to goldens.json after the documented masking, except the listed departures (the eight that answer 501) and the middleware answers, which tests/api-edge replays
+    - the rows each DP-86 write leaves in Freeploy's database (PGlite with the deploy schema at head) equal the golden's `after` rows — the previews, the additional destinations, the moved resources' environments and the clones' rows (the application or database, its settings, tags, scheduled tasks, variables, volumes, file mounts and backup schedules) — except the departures, which store nothing
+    - the earlier cases' goldens change only in random values (uuids, ciphertexts, generated passwords and names)
+    - specs/epics/freeploy-coolify-parity/parity/openapi.operations.json marks the 17 operations ported with taskKey DP-86 (197 ported of 330 in all), and node tools/parity/inventory.ts --check passes
+    - on stage, GET https://<edge>/api/v1/applications/{uuid}/previews and GET /api/v1/applications/{uuid}/destinations with a read token answer as Coolify does
+  gates: []

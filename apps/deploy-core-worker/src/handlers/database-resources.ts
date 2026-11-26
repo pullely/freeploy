@@ -165,26 +165,29 @@ function sqlStore(tx: SqlExecutor): DatabaseResourcesStore {
 export const runDatabaseResourcesInOrg: DatabaseResourcesRunner = async (env, orgId, uuid, fn) => {
   const db = createSqlExecutor(env.PLATFORM_DB!);
   try {
-    return await withOrg(db, orgId, async (tx) => {
-      const ciphers = new Map<string, KeyCipher>();
-      const cipher = (column: string): KeyCipher => {
-        let found = ciphers.get(column);
-        if (!found) ciphers.set(column, (found = columnCipher(tx, orgId, env.DEPLOY_ENCRYPTION_KEY, column)));
-        return found;
-      };
-      // The rows are bound to the engine's morph class; a database that is not the org's has none (the loader answers null).
-      const engine = await findDatabaseEngineByUuid(tx, uuid);
-      return fn({
-        database: { store: databaseSqlStore(tx, orgId), cipher },
-        rows: resourceRowsSqlStore(tx, orgId, engine ? DATABASE_TABLES[engine].morphClass : ""),
-        content: cipher("local_file_volumes.content"),
-        store: sqlStore(tx),
-      });
-    });
+    return await withOrg(db, orgId, async (tx) => fn(await databaseResourcesContext(tx, orgId, env.DEPLOY_ENCRYPTION_KEY, uuid)));
   } finally {
     await db.dispose();
   }
 };
+
+/** The context of one org's database inside the caller's org transaction (the API's clone, DP-86). */
+export async function databaseResourcesContext(tx: SqlExecutor, orgId: string, secret: string | undefined, uuid: string): Promise<DatabaseResourcesContext> {
+  const ciphers = new Map<string, KeyCipher>();
+  const cipher = (column: string): KeyCipher => {
+    let found = ciphers.get(column);
+    if (!found) ciphers.set(column, (found = columnCipher(tx, orgId, secret, column)));
+    return found;
+  };
+  // The rows are bound to the engine's morph class; a database that is not the org's has none (the loader answers null).
+  const engine = await findDatabaseEngineByUuid(tx, uuid);
+  return {
+    database: { store: databaseSqlStore(tx, orgId), cipher },
+    rows: resourceRowsSqlStore(tx, orgId, engine ? DATABASE_TABLES[engine].morphClass : ""),
+    content: cipher("local_file_volumes.content"),
+    store: sqlStore(tx),
+  };
+}
 
 function failure(e: unknown, requestId: string): Response {
   if (e instanceof SettingsFieldErrors) return validationError(requestId, e.fields);

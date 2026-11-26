@@ -1058,6 +1058,56 @@
     "finished_at": null
    }
   ],
+  "previews": [
+   {
+    "id": 1,
+    "uuid": "r1parityimagepreview0001",
+    "application": 1,
+    "pull_request_id": 3,
+    "pull_request_html_url": "",
+    "git_type": null,
+    "fqdn": "https://3.image.example.com",
+    "docker_registry_image_tag": "pr-3",
+    "status": "running:healthy",
+    "created_at": "2025-12-20 00:00:00"
+   },
+   {
+    "id": 2,
+    "uuid": "r2paritygitpreview000002",
+    "application": 2,
+    "pull_request_id": 17,
+    "pull_request_html_url": "https://github.com/coollabsio/coolify-examples/pull/17",
+    "git_type": "github",
+    "fqdn": null,
+    "docker_registry_image_tag": null,
+    "status": "exited",
+    "created_at": "2025-12-21 00:00:00"
+   },
+   {
+    "id": 3,
+    "uuid": "r3paritygitpreview000003",
+    "application": 2,
+    "pull_request_id": 12,
+    "pull_request_html_url": "https://github.com/coollabsio/coolify-examples/pull/12",
+    "git_type": "github",
+    "fqdn": "https://pr-12.example.com:8080",
+    "docker_registry_image_tag": null,
+    "status": "exited",
+    "created_at": "2025-12-22 00:00:00"
+   },
+   {
+    "id": 4,
+    "uuid": "r4otherpreview0000000004",
+    "application": 3,
+    "pull_request_id": 1,
+    "pull_request_html_url": "",
+    "git_type": null,
+    "fqdn": null,
+    "docker_registry_image_tag": "pr-1",
+    "status": "exited",
+    "created_at": "2025-12-23 00:00:00"
+   }
+  ],
   "tokens": [
    {
     "key": "root",
@@ -1185,6 +1235,18 @@
      "read:sensitive"
     ],
     "secret": "msenmsenmsenmsenmsenmsenmsenmsenmsenmsen9a1b2c3d"
+   },
+   {
+    "key": "deploy",
+    "id": 12,
+    "user": 1,
+    "team": 1,
+    "name": "Deploy token",
+    "abilities": [
+     "read",
+     "deploy"
+    ],
+    "secret": "deplodeplodeplodeplodeplodeplodeplodeplo0b1c2d3e"
    }
   ]
  },
@@ -12497,6 +12559,2106 @@
    "token": "read",
    "method": "GET",
    "path": "/api/v1/servers/s2otherteamserver0000002/docker-cleanup/executions"
+  },
+  {
+   "name": "previews: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews"
+  },
+  {
+   "name": "previews: list of an image application",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/previews"
+  },
+  {
+   "name": "previews: list, none",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews",
+   "setup": [
+    "update application_previews set deleted_at = now() where application_id = 2"
+   ]
+  },
+  {
+   "name": "previews: list of unknown application",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/nonexistentuuid/previews"
+  },
+  {
+   "name": "previews: list of another team's application",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a3otherteamapp0000000003/previews"
+  },
+  {
+   "name": "previews: list with compose domains",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews",
+   "setup": [
+    "update applications set build_pack = 'dockercompose', docker_compose_raw = 'services:\n  web:\n    image: nginx:alpine\n  api:\n    image: node:22\n  db:\n    image: postgres:16-alpine\n', docker_compose_domains = '{\"web\":{\"domain\":\"https://web.example.com\"},\"api\":{\"domain\":\"\",\"redirect\":\"www\"}}' where id = 2",
+    "update application_previews set docker_compose_domains = '{\"web\":{\"domain\":\"https://web-17.example.com\"},\"api\":{\"domain\":\"\",\"redirect\":\"both\"}}' where id = 2"
+   ]
+  },
+  {
+   "name": "previews: show",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17"
+  },
+  {
+   "name": "previews: show with a port",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/12"
+  },
+  {
+   "name": "previews: show of an image application",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/previews/3"
+  },
+  {
+   "name": "previews: show, not a number",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/abc"
+  },
+  {
+   "name": "previews: show, zero",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/0"
+  },
+  {
+   "name": "previews: show, too large",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/2147483648"
+  },
+  {
+   "name": "previews: show, a sign",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/+7"
+  },
+  {
+   "name": "previews: show unknown",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/99"
+  },
+  {
+   "name": "previews: show a deleted one",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17",
+   "setup": [
+    "update application_previews set deleted_at = now() where id = 2"
+   ]
+  },
+  {
+   "name": "previews: show of unknown application",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/nonexistentuuid/previews/17"
+  },
+  {
+   "name": "previews: show another team's",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a3otherteamapp0000000003/previews/1"
+  },
+  {
+   "name": "previews: show the other application's",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/previews/17"
+  },
+  {
+   "name": "previews: create, not deployed",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews",
+   "body": {
+    "pull_request_id": 20,
+    "pull_request_html_url": "https://github.com/coollabsio/coolify-examples/pull/20",
+    "git_type": "github",
+    "instant_deploy": false
+   },
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: create on an image application, not deployed",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/previews",
+   "body": {
+    "pull_request_id": 5,
+    "docker_tag": " pr-5 ",
+    "instant_deploy": false
+   },
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: create on an image application with a port, not deployed",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/previews",
+   "setup": [
+    "update applications set fqdn = 'https://image.example.com/app,https://www.image.example.com', domain_port_overrides = '{\"https://image.example.com/app\":8080}' where id = 1"
+   ],
+   "body": {
+    "pull_request_id": "6",
+    "docker_tag": "pr-6",
+    "instant_deploy": "0"
+   },
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: create with a template, not deployed",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/previews",
+   "setup": [
+    "update applications set preview_url_template = 'http://pr{{pr_id}}-{{domain}}' where id = 1"
+   ],
+   "body": {
+    "pull_request_id": 8,
+    "docker_tag": "pr-8",
+    "instant_deploy": false
+   },
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: create, the source missing",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews",
+   "setup": [
+    "update applications set source_id = 999 where id = 2"
+   ],
+   "body": {
+    "pull_request_id": 21,
+    "instant_deploy": false
+   },
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: create with an empty url, not deployed",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews",
+   "body": {
+    "pull_request_id": 22,
+    "git_type": "gitlab",
+    "pull_request_html_url": "",
+    "instant_deploy": false
+   },
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: create a bitbucket one with a commit, not deployed",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews",
+   "body": {
+    "pull_request_id": 23,
+    "git_type": "bitbucket",
+    "commit": "a1b2c3d",
+    "instant_deploy": false
+   },
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: create and deploy",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews",
+   "body": {
+    "pull_request_id": 24,
+    "git_type": "github"
+   },
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: create on a compose application",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews",
+   "setup": [
+    "update applications set build_pack = 'dockercompose', docker_compose_raw = 'services:\n  web:\n    image: nginx:alpine\n  api:\n    image: node:22\n  db:\n    image: postgres:16-alpine\n', docker_compose_domains = '{\"web\":{\"domain\":\"https://web.example.com\"},\"api\":{\"domain\":\"\",\"redirect\":\"www\"}}' where id = 2"
+   ],
+   "body": {
+    "pull_request_id": 25,
+    "git_type": "github",
+    "instant_deploy": false
+   },
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: update an existing one, not deployed",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews",
+   "body": {
+    "pull_request_id": 17,
+    "pull_request_html_url": "https://github.com/coollabsio/coolify-examples/pull/77",
+    "instant_deploy": false
+   },
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: a new docker tag, not deployed",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/previews",
+   "body": {
+    "pull_request_id": 3,
+    "docker_tag": "pr-3b",
+    "instant_deploy": false
+   },
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: unchanged with a deploy token, not deployed",
+   "token": "deploy",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews",
+   "body": {
+    "pull_request_id": 17,
+    "pull_request_html_url": "https://github.com/coollabsio/coolify-examples/pull/17",
+    "git_type": "github",
+    "instant_deploy": false
+   },
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: redeploy with a deploy token",
+   "token": "deploy",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews",
+   "body": {
+    "pull_request_id": 17
+   },
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: redeploy an image preview with a deploy token",
+   "token": "deploy",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/previews",
+   "body": {
+    "pull_request_id": 3,
+    "force": true
+   },
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: open one with a deploy token",
+   "token": "deploy",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews",
+   "body": {
+    "pull_request_id": 30,
+    "git_type": "github"
+   },
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: change the url with a deploy token",
+   "token": "deploy",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews",
+   "body": {
+    "pull_request_id": 17,
+    "pull_request_html_url": "https://github.com/coollabsio/coolify-examples/pull/70"
+   }
+  },
+  {
+   "name": "previews: choose a commit with a deploy token",
+   "token": "deploy",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews",
+   "body": {
+    "pull_request_id": 17,
+    "commit": "abcdef1"
+   }
+  },
+  {
+   "name": "previews: a new docker tag with a deploy token",
+   "token": "deploy",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/previews",
+   "body": {
+    "pull_request_id": 3,
+    "docker_tag": "pr-3c"
+   }
+  },
+  {
+   "name": "previews: create, validation",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews",
+   "body": {
+    "pull_request_id": "abc",
+    "pull_request_html_url": "not a url",
+    "force": "yes",
+    "instant_deploy": 2,
+    "git_type": "svn",
+    "commit": "xyz"
+   }
+  },
+  {
+   "name": "previews: create, no pull request id",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews",
+   "body": {
+    "git_type": "github"
+   }
+  },
+  {
+   "name": "previews: create without a body",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews"
+  },
+  {
+   "name": "previews: create, the id out of range",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews",
+   "body": {
+    "pull_request_id": 0,
+    "git_type": "github",
+    "pull_request_html_url": "https://github.com/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   }
+  },
+  {
+   "name": "previews: create, the id too large",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews",
+   "body": {
+    "pull_request_id": 2147483648,
+    "git_type": "github"
+   }
+  },
+  {
+   "name": "previews: create, a fraction",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews",
+   "body": {
+    "pull_request_id": 17.5,
+    "git_type": "github"
+   }
+  },
+  {
+   "name": "previews: create, bitbucket without a commit",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews",
+   "body": {
+    "pull_request_id": 9,
+    "git_type": "bitbucket"
+   }
+  },
+  {
+   "name": "previews: create, a docker tag on a git application",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews",
+   "body": {
+    "pull_request_id": 9,
+    "git_type": "github",
+    "docker_tag": "x"
+   }
+  },
+  {
+   "name": "previews: create, git fields on an image application",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/previews",
+   "body": {
+    "pull_request_id": 9,
+    "git_type": "github",
+    "commit": "abcdef1",
+    "docker_tag": "-bad"
+   }
+  },
+  {
+   "name": "previews: create, null git fields on an image application",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/previews",
+   "body": {
+    "pull_request_id": 9,
+    "git_type": null,
+    "docker_tag": "ok",
+    "instant_deploy": false
+   },
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: create, an image preview without a tag",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/previews",
+   "body": {
+    "pull_request_id": 9
+   }
+  },
+  {
+   "name": "previews: create, an image preview with a blank tag",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/previews",
+   "body": {
+    "pull_request_id": 9,
+    "docker_tag": "  "
+   }
+  },
+  {
+   "name": "previews: create, no git type and no source",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews",
+   "setup": [
+    "update applications set source_id = null, source_type = null where id = 2"
+   ],
+   "body": {
+    "pull_request_id": 9
+   }
+  },
+  {
+   "name": "previews: create, a dockerfile application",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews",
+   "setup": [
+    "update applications set build_pack = 'dockerfile', dockerfile = 'FROM nginx' where id = 2"
+   ],
+   "body": {
+    "pull_request_id": 9
+   }
+  },
+  {
+   "name": "previews: create on unknown application",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/nonexistentuuid/previews",
+   "body": {
+    "pull_request_id": 9
+   }
+  },
+  {
+   "name": "previews: create on another team's application",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a3otherteamapp0000000003/previews",
+   "body": {
+    "pull_request_id": 9
+   }
+  },
+  {
+   "name": "previews: create with a read token",
+   "token": "read",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews",
+   "body": {
+    "pull_request_id": 9
+   }
+  },
+  {
+   "name": "previews: update the domains",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17",
+   "body": {
+    "domains": "HTTPS://PR17.Example.com/Path, https://www.pr17.example.com"
+   },
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: update the domains with a port",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17",
+   "body": {
+    "domains": "https://pr17.example.com:3000"
+   },
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: update the domains to none",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/12",
+   "body": {
+    "domains": null
+   },
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: update the domains to blank",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/12",
+   "body": {
+    "domains": " , "
+   },
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: update the domains, missing",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17",
+   "body": {
+    "force_domain_override": true
+   }
+  },
+  {
+   "name": "previews: update the domains, no body",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17"
+  },
+  {
+   "name": "previews: update the domains, invalid",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17",
+   "body": {
+    "domains": "not a url,ftp://x.example.com",
+    "force_domain_override": "maybe"
+   }
+  },
+  {
+   "name": "previews: update the domains, not a string",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17",
+   "body": {
+    "domains": [
+     "https://pr17.example.com"
+    ]
+   }
+  },
+  {
+   "name": "previews: update the domains, compose domains on an image application",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17",
+   "body": {
+    "domains": "https://pr17.example.com",
+    "docker_compose_domains": []
+   }
+  },
+  {
+   "name": "previews: update the domains, twice",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17",
+   "body": {
+    "domains": "https://pr17.example.com,https://pr17.example.com:8080"
+   }
+  },
+  {
+   "name": "previews: update the domains, the application's",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17",
+   "body": {
+    "domains": "https://image.example.com"
+   },
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: update the domains, a service's, forced",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17",
+   "body": {
+    "domains": "https://web.example.com",
+    "force_domain_override": true
+   },
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: update the domains, forced in the query",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17?force_domain_override=true",
+   "body": {
+    "domains": "https://image.example.com"
+   },
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: update the domains, another preview's",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17",
+   "body": {
+    "domains": "https://3.image.example.com/"
+   },
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: update the domains, another preview's with a port",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17",
+   "body": {
+    "domains": "https://pr-12.example.com:9000"
+   },
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: update the domains, another preview's, forced",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17",
+   "body": {
+    "domains": "https://3.image.example.com",
+    "force_domain_override": true
+   }
+  },
+  {
+   "name": "previews: update the domains, a near host",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17",
+   "body": {
+    "domains": "https://3.image.example.co"
+   },
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: update the domains, its own",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/12",
+   "body": {
+    "domains": "https://pr-12.example.com"
+   },
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: update the domains, not a number",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/seven",
+   "body": {
+    "domains": "https://pr17.example.com"
+   }
+  },
+  {
+   "name": "previews: update the domains of unknown",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/99",
+   "body": {
+    "domains": "https://pr17.example.com"
+   }
+  },
+  {
+   "name": "previews: update the domains of unknown application",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/nonexistentuuid/previews/17",
+   "body": {
+    "domains": "https://pr17.example.com"
+   }
+  },
+  {
+   "name": "previews: update the domains of another team's",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a3otherteamapp0000000003/previews/1",
+   "body": {
+    "domains": "https://pr17.example.com"
+   }
+  },
+  {
+   "name": "previews: update the compose domains",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17",
+   "setup": [
+    "update applications set build_pack = 'dockercompose', docker_compose_raw = 'services:\n  web:\n    image: nginx:alpine\n  api:\n    image: node:22\n  db:\n    image: postgres:16-alpine\n', docker_compose_domains = '{\"web\":{\"domain\":\"https://web.example.com\"},\"api\":{\"domain\":\"\",\"redirect\":\"www\"}}' where id = 2",
+    "update application_previews set docker_compose_domains = '{\"web\":{\"domain\":\"https://web-17.example.com\",\"redirect\":\"non-www\"},\"api\":{\"domain\":\"\",\"redirect\":\"both\"}}' where id = 2"
+   ],
+   "body": {
+    "docker_compose_domains": [
+     {
+      "name": "web",
+      "domain": "https://WEB-17.example.com:8443,https://www.web-17.example.com"
+     },
+     {
+      "name": "api",
+      "domain": null,
+      "redirect": null
+     }
+    ]
+   },
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: update the compose domains, one service",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17",
+   "setup": [
+    "update applications set build_pack = 'dockercompose', docker_compose_raw = 'services:\n  web:\n    image: nginx:alpine\n  api:\n    image: node:22\n  db:\n    image: postgres:16-alpine\n', docker_compose_domains = '{\"web\":{\"domain\":\"https://web.example.com\"},\"api\":{\"domain\":\"\",\"redirect\":\"www\"}}' where id = 2"
+   ],
+   "body": {
+    "docker_compose_domains": [
+     {
+      "name": "api",
+      "domain": "https://api-17.example.com",
+      "redirect": "www"
+     }
+    ]
+   },
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: update the compose domains, none",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17",
+   "setup": [
+    "update applications set build_pack = 'dockercompose', docker_compose_raw = 'services:\n  web:\n    image: nginx:alpine\n  api:\n    image: node:22\n  db:\n    image: postgres:16-alpine\n', docker_compose_domains = '{\"web\":{\"domain\":\"https://web.example.com\"},\"api\":{\"domain\":\"\",\"redirect\":\"www\"}}' where id = 2"
+   ],
+   "body": {
+    "docker_compose_domains": []
+   },
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: update the compose domains, a database service",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17",
+   "setup": [
+    "update applications set build_pack = 'dockercompose', docker_compose_raw = 'services:\n  web:\n    image: nginx:alpine\n  api:\n    image: node:22\n  db:\n    image: postgres:16-alpine\n', docker_compose_domains = '{\"web\":{\"domain\":\"https://web.example.com\"},\"api\":{\"domain\":\"\",\"redirect\":\"www\"}}' where id = 2"
+   ],
+   "body": {
+    "docker_compose_domains": [
+     {
+      "name": "db",
+      "domain": "https://db-17.example.com"
+     }
+    ]
+   }
+  },
+  {
+   "name": "previews: update the compose domains, validation",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17",
+   "setup": [
+    "update applications set build_pack = 'dockercompose', docker_compose_raw = 'services:\n  web:\n    image: nginx:alpine\n  api:\n    image: node:22\n  db:\n    image: postgres:16-alpine\n', docker_compose_domains = '{\"web\":{\"domain\":\"https://web.example.com\"},\"api\":{\"domain\":\"\",\"redirect\":\"www\"}}' where id = 2"
+   ],
+   "body": {
+    "domains": "https://x.example.com",
+    "docker_compose_domains": [
+     {
+      "name": "web",
+      "domain": "bad",
+      "redirect": "nowhere",
+      "port": 1
+     },
+     {
+      "name": "web"
+     },
+     {
+      "domain": "https://y.example.com"
+     },
+     "web"
+    ]
+   }
+  },
+  {
+   "name": "previews: update the compose domains, missing",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17",
+   "setup": [
+    "update applications set build_pack = 'dockercompose', docker_compose_raw = 'services:\n  web:\n    image: nginx:alpine\n  api:\n    image: node:22\n  db:\n    image: postgres:16-alpine\n', docker_compose_domains = '{\"web\":{\"domain\":\"https://web.example.com\"},\"api\":{\"domain\":\"\",\"redirect\":\"www\"}}' where id = 2"
+   ],
+   "body": {
+    "force_domain_override": false
+   }
+  },
+  {
+   "name": "previews: update the compose domains, not an array",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17",
+   "setup": [
+    "update applications set build_pack = 'dockercompose', docker_compose_raw = 'services:\n  web:\n    image: nginx:alpine\n  api:\n    image: node:22\n  db:\n    image: postgres:16-alpine\n', docker_compose_domains = '{\"web\":{\"domain\":\"https://web.example.com\"},\"api\":{\"domain\":\"\",\"redirect\":\"www\"}}' where id = 2"
+   ],
+   "body": {
+    "docker_compose_domains": "web"
+   }
+  },
+  {
+   "name": "previews: update the compose domains, twice",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17",
+   "setup": [
+    "update applications set build_pack = 'dockercompose', docker_compose_raw = 'services:\n  web:\n    image: nginx:alpine\n  api:\n    image: node:22\n  db:\n    image: postgres:16-alpine\n', docker_compose_domains = '{\"web\":{\"domain\":\"https://web.example.com\"},\"api\":{\"domain\":\"\",\"redirect\":\"www\"}}' where id = 2"
+   ],
+   "body": {
+    "docker_compose_domains": [
+     {
+      "name": "web",
+      "domain": "https://same.example.com"
+     },
+     {
+      "name": "api",
+      "domain": "https://same.example.com:3000"
+     }
+    ]
+   }
+  },
+  {
+   "name": "previews: update the compose domains, the application's",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17",
+   "setup": [
+    "update applications set build_pack = 'dockercompose', docker_compose_raw = 'services:\n  web:\n    image: nginx:alpine\n  api:\n    image: node:22\n  db:\n    image: postgres:16-alpine\n', docker_compose_domains = '{\"web\":{\"domain\":\"https://web.example.com\"},\"api\":{\"domain\":\"\",\"redirect\":\"www\"}}' where id = 2"
+   ],
+   "body": {
+    "docker_compose_domains": [
+     {
+      "name": "web",
+      "domain": "https://image.example.com"
+     }
+    ]
+   }
+  },
+  {
+   "name": "previews: update the compose domains, an unparsable file",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17",
+   "setup": [
+    "update applications set build_pack = 'dockercompose', docker_compose_raw = 'services:\n  web:\n    image: nginx:alpine\n  api:\n    image: node:22\n  db:\n    image: postgres:16-alpine\n', docker_compose_domains = '{\"web\":{\"domain\":\"https://web.example.com\"},\"api\":{\"domain\":\"\",\"redirect\":\"www\"}}' where id = 2",
+    "update applications set docker_compose_raw = 'services: [' where id = 2"
+   ],
+   "body": {
+    "docker_compose_domains": []
+   }
+  },
+  {
+   "name": "previews: update the compose domains, no services",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17",
+   "setup": [
+    "update applications set build_pack = 'dockercompose', docker_compose_raw = 'services:\n  web:\n    image: nginx:alpine\n  api:\n    image: node:22\n  db:\n    image: postgres:16-alpine\n', docker_compose_domains = '{\"web\":{\"domain\":\"https://web.example.com\"},\"api\":{\"domain\":\"\",\"redirect\":\"www\"}}' where id = 2",
+    "update applications set docker_compose_raw = 'version: \"3\"' where id = 2"
+   ],
+   "body": {
+    "docker_compose_domains": []
+   }
+  },
+  {
+   "name": "previews: update with a read token",
+   "token": "read",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17",
+   "body": {
+    "domains": "https://pr17.example.com"
+   }
+  },
+  {
+   "name": "previews: delete",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17",
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: delete an image preview",
+   "token": "root",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/previews/3",
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: delete on a functional server",
+   "token": "root",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "after": {
+    "previews": "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id"
+   }
+  },
+  {
+   "name": "previews: delete, not a number",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/-7"
+  },
+  {
+   "name": "previews: delete unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/99"
+  },
+  {
+   "name": "previews: delete of unknown application",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/nonexistentuuid/previews/17"
+  },
+  {
+   "name": "previews: delete another team's",
+   "token": "root",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a3otherteamapp0000000003/previews/1"
+  },
+  {
+   "name": "previews: delete with a write token",
+   "token": "write",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17"
+  },
+  {
+   "name": "previews: logs",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17/logs"
+  },
+  {
+   "name": "previews: logs, not a number",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/x/logs"
+  },
+  {
+   "name": "previews: logs of unknown",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/99/logs"
+  },
+  {
+   "name": "previews: logs of unknown application",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/applications/nonexistentuuid/previews/17/logs"
+  },
+  {
+   "name": "previews: logs with a read token",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/previews/17/logs"
+  },
+  {
+   "name": "app destinations: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/destinations",
+   "setup": [
+    "update standalone_dockers set name = 'parity-destination' where id = 1"
+   ],
+   "setupCoolify": [
+    "insert into servers (id, uuid, name, ip, team_id, private_key_id, proxy, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, 1, '{\"redirect_enabled\":true}', now(), now())",
+    "insert into server_settings (server_id, created_at, updated_at) values (3, now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, now(), now())",
+    "insert into additional_destinations (application_id, server_id, standalone_docker_id, status) values (2, 3, 3, 'running:healthy')"
+   ],
+   "setupFreeploy": [
+    "insert into servers (id, uuid, name, ip, private_key_id, proxy, org_id, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, '{\"redirect_enabled\":true}', deploy.current_org(), now(), now())",
+    "insert into server_settings (server_id, server_role, org_id, created_at, updated_at) values (3, 'both', deploy.current_org(), now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, org_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, deploy.current_org(), now(), now())",
+    "insert into additional_destinations (application_id, server_id, standalone_docker_id, status, org_id) values (2, 3, 3, 'running:healthy', deploy.current_org())"
+   ]
+  },
+  {
+   "name": "app destinations: list, only the primary",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/destinations",
+   "setup": [
+    "update standalone_dockers set name = 'parity-destination' where id = 1"
+   ]
+  },
+  {
+   "name": "app destinations: list of unknown application",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/nonexistentuuid/destinations"
+  },
+  {
+   "name": "app destinations: list of another team's application",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a3otherteamapp0000000003/destinations"
+  },
+  {
+   "name": "app destinations: add",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/destinations",
+   "body": {
+    "destination_uuid": "d3seconddestination00003"
+   },
+   "setupCoolify": [
+    "insert into servers (id, uuid, name, ip, team_id, private_key_id, proxy, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, 1, '{\"redirect_enabled\":true}', now(), now())",
+    "insert into server_settings (server_id, created_at, updated_at) values (3, now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, now(), now())"
+   ],
+   "setupFreeploy": [
+    "insert into servers (id, uuid, name, ip, private_key_id, proxy, org_id, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, '{\"redirect_enabled\":true}', deploy.current_org(), now(), now())",
+    "insert into server_settings (server_id, server_role, org_id, created_at, updated_at) values (3, 'both', deploy.current_org(), now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, org_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, deploy.current_org(), now(), now())"
+   ],
+   "after": {
+    "additional": "select application_id, server_id, standalone_docker_id, status from additional_destinations where application_id in (1, 2) order by application_id, standalone_docker_id"
+   }
+  },
+  {
+   "name": "app destinations: add, then list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/destinations",
+   "setup": [
+    "update standalone_dockers set name = 'parity-destination' where id = 1"
+   ],
+   "setupCoolify": [
+    "insert into servers (id, uuid, name, ip, team_id, private_key_id, proxy, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, 1, '{\"redirect_enabled\":true}', now(), now())",
+    "insert into server_settings (server_id, created_at, updated_at) values (3, now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, now(), now())",
+    "insert into additional_destinations (application_id, server_id, standalone_docker_id, status) values (2, 3, 3, 'running:healthy')",
+    "insert into additional_destinations (application_id, server_id, standalone_docker_id) values (1, 3, 3)"
+   ],
+   "setupFreeploy": [
+    "insert into servers (id, uuid, name, ip, private_key_id, proxy, org_id, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, '{\"redirect_enabled\":true}', deploy.current_org(), now(), now())",
+    "insert into server_settings (server_id, server_role, org_id, created_at, updated_at) values (3, 'both', deploy.current_org(), now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, org_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, deploy.current_org(), now(), now())",
+    "insert into additional_destinations (application_id, server_id, standalone_docker_id, status, org_id) values (2, 3, 3, 'running:healthy', deploy.current_org())",
+    "insert into additional_destinations (application_id, server_id, standalone_docker_id, org_id) values (1, 3, 3, deploy.current_org())"
+   ]
+  },
+  {
+   "name": "app destinations: add, no body",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/destinations"
+  },
+  {
+   "name": "app destinations: add, not JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/destinations",
+   "raw": "destination_uuid=x",
+   "contentType": "application/x-www-form-urlencoded"
+  },
+  {
+   "name": "app destinations: add, empty JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/destinations",
+   "raw": "{}"
+  },
+  {
+   "name": "app destinations: add, validation",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/destinations",
+   "body": {
+    "destination_uuid": 5,
+    "server_uuid": "s1parityserveruuid000001"
+   }
+  },
+  {
+   "name": "app destinations: add, missing",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/destinations",
+   "body": {
+    "destination_uuid": null
+   }
+  },
+  {
+   "name": "app destinations: add to unknown application",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/nonexistentuuid/destinations",
+   "body": {
+    "destination_uuid": "d3seconddestination00003"
+   }
+  },
+  {
+   "name": "app destinations: add unknown destination",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/destinations",
+   "body": {
+    "destination_uuid": "nonexistentuuid"
+   }
+  },
+  {
+   "name": "app destinations: add another team's destination",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/destinations",
+   "body": {
+    "destination_uuid": "d2otherdestination000002"
+   }
+  },
+  {
+   "name": "app destinations: add the primary",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/destinations",
+   "body": {
+    "destination_uuid": "d1paritydestination00001"
+   }
+  },
+  {
+   "name": "app destinations: add one already attached",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/destinations",
+   "body": {
+    "destination_uuid": "d3seconddestination00003"
+   },
+   "setupCoolify": [
+    "insert into servers (id, uuid, name, ip, team_id, private_key_id, proxy, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, 1, '{\"redirect_enabled\":true}', now(), now())",
+    "insert into server_settings (server_id, created_at, updated_at) values (3, now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, now(), now())",
+    "insert into additional_destinations (application_id, server_id, standalone_docker_id, status) values (2, 3, 3, 'running:healthy')"
+   ],
+   "setupFreeploy": [
+    "insert into servers (id, uuid, name, ip, private_key_id, proxy, org_id, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, '{\"redirect_enabled\":true}', deploy.current_org(), now(), now())",
+    "insert into server_settings (server_id, server_role, org_id, created_at, updated_at) values (3, 'both', deploy.current_org(), now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, org_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, deploy.current_org(), now(), now())",
+    "insert into additional_destinations (application_id, server_id, standalone_docker_id, status, org_id) values (2, 3, 3, 'running:healthy', deploy.current_org())"
+   ],
+   "after": {
+    "additional": "select application_id, server_id, standalone_docker_id, status from additional_destinations where application_id in (1, 2) order by application_id, standalone_docker_id"
+   }
+  },
+  {
+   "name": "app destinations: add one on the primary's server",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/destinations",
+   "body": {
+    "destination_uuid": "d4maindestinationb000004"
+   },
+   "setupCoolify": [
+    "insert into servers (id, uuid, name, ip, team_id, private_key_id, proxy, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, 1, '{\"redirect_enabled\":true}', now(), now())",
+    "insert into server_settings (server_id, created_at, updated_at) values (3, now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, created_at, updated_at) values (4, 'd4maindestinationb000004', 'main-b', 'main-b', 1, now(), now())"
+   ],
+   "setupFreeploy": [
+    "insert into servers (id, uuid, name, ip, private_key_id, proxy, org_id, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, '{\"redirect_enabled\":true}', deploy.current_org(), now(), now())",
+    "insert into server_settings (server_id, server_role, org_id, created_at, updated_at) values (3, 'both', deploy.current_org(), now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, org_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, deploy.current_org(), now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, org_id, created_at, updated_at) values (4, 'd4maindestinationb000004', 'main-b', 'main-b', 1, deploy.current_org(), now(), now())"
+   ]
+  },
+  {
+   "name": "app destinations: add a second on a server",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/destinations",
+   "body": {
+    "destination_uuid": "d5seconddestinationb0005"
+   },
+   "setupCoolify": [
+    "insert into servers (id, uuid, name, ip, team_id, private_key_id, proxy, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, 1, '{\"redirect_enabled\":true}', now(), now())",
+    "insert into server_settings (server_id, created_at, updated_at) values (3, now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, now(), now())",
+    "insert into additional_destinations (application_id, server_id, standalone_docker_id, status) values (2, 3, 3, 'running:healthy')",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, created_at, updated_at) values (5, 'd5seconddestinationb0005', 'second-b', 'second-b', 3, now(), now())"
+   ],
+   "setupFreeploy": [
+    "insert into servers (id, uuid, name, ip, private_key_id, proxy, org_id, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, '{\"redirect_enabled\":true}', deploy.current_org(), now(), now())",
+    "insert into server_settings (server_id, server_role, org_id, created_at, updated_at) values (3, 'both', deploy.current_org(), now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, org_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, deploy.current_org(), now(), now())",
+    "insert into additional_destinations (application_id, server_id, standalone_docker_id, status, org_id) values (2, 3, 3, 'running:healthy', deploy.current_org())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, org_id, created_at, updated_at) values (5, 'd5seconddestinationb0005', 'second-b', 'second-b', 3, deploy.current_org(), now(), now())"
+   ],
+   "after": {
+    "additional": "select application_id, server_id, standalone_docker_id, status from additional_destinations where application_id in (1, 2) order by application_id, standalone_docker_id"
+   }
+  },
+  {
+   "name": "app destinations: add to an application with storage",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/destinations",
+   "body": {
+    "destination_uuid": "d3seconddestination00003"
+   },
+   "setupCoolify": [
+    "insert into servers (id, uuid, name, ip, team_id, private_key_id, proxy, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, 1, '{\"redirect_enabled\":true}', now(), now())",
+    "insert into server_settings (server_id, created_at, updated_at) values (3, now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, now(), now())"
+   ],
+   "setupFreeploy": [
+    "insert into servers (id, uuid, name, ip, private_key_id, proxy, org_id, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, '{\"redirect_enabled\":true}', deploy.current_org(), now(), now())",
+    "insert into server_settings (server_id, server_role, org_id, created_at, updated_at) values (3, 'both', deploy.current_org(), now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, org_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, deploy.current_org(), now(), now())"
+   ],
+   "after": {
+    "additional": "select application_id, server_id, standalone_docker_id, status from additional_destinations where application_id in (1, 2) order by application_id, standalone_docker_id"
+   }
+  },
+  {
+   "name": "app destinations: add to a compose application",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/destinations",
+   "setup": [
+    "update applications set build_pack = 'dockercompose' where id = 2"
+   ],
+   "body": {
+    "destination_uuid": "d3seconddestination00003"
+   },
+   "setupCoolify": [
+    "insert into servers (id, uuid, name, ip, team_id, private_key_id, proxy, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, 1, '{\"redirect_enabled\":true}', now(), now())",
+    "insert into server_settings (server_id, created_at, updated_at) values (3, now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, now(), now())"
+   ],
+   "setupFreeploy": [
+    "insert into servers (id, uuid, name, ip, private_key_id, proxy, org_id, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, '{\"redirect_enabled\":true}', deploy.current_org(), now(), now())",
+    "insert into server_settings (server_id, server_role, org_id, created_at, updated_at) values (3, 'both', deploy.current_org(), now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, org_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, deploy.current_org(), now(), now())"
+   ]
+  },
+  {
+   "name": "app destinations: add on a build server",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/destinations",
+   "body": {
+    "destination_uuid": "d3seconddestination00003"
+   },
+   "setupCoolify": [
+    "insert into servers (id, uuid, name, ip, team_id, private_key_id, proxy, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, 1, '{\"redirect_enabled\":true}', now(), now())",
+    "insert into server_settings (server_id, created_at, updated_at) values (3, now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, now(), now())",
+    "update server_settings set server_role = 'build' where server_id = 3"
+   ],
+   "setupFreeploy": [
+    "insert into servers (id, uuid, name, ip, private_key_id, proxy, org_id, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, '{\"redirect_enabled\":true}', deploy.current_org(), now(), now())",
+    "insert into server_settings (server_id, server_role, org_id, created_at, updated_at) values (3, 'both', deploy.current_org(), now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, org_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, deploy.current_org(), now(), now())",
+    "update server_settings set server_role = 'build' where server_id = 3"
+   ]
+  },
+  {
+   "name": "app destinations: add, the proxies differ",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/destinations",
+   "setup": [
+    "update servers set proxy = '{\"type\":\"TRAEFIK\"}' where id = 1"
+   ],
+   "body": {
+    "destination_uuid": "d3seconddestination00003"
+   },
+   "setupCoolify": [
+    "insert into servers (id, uuid, name, ip, team_id, private_key_id, proxy, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, 1, '{\"redirect_enabled\":true}', now(), now())",
+    "insert into server_settings (server_id, created_at, updated_at) values (3, now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, now(), now())",
+    "update servers set proxy = '{\"type\":\"CADDY\"}' where id = 3"
+   ],
+   "setupFreeploy": [
+    "insert into servers (id, uuid, name, ip, private_key_id, proxy, org_id, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, '{\"redirect_enabled\":true}', deploy.current_org(), now(), now())",
+    "insert into server_settings (server_id, server_role, org_id, created_at, updated_at) values (3, 'both', deploy.current_org(), now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, org_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, deploy.current_org(), now(), now())",
+    "update servers set proxy = '{\"type\":\"CADDY\"}' where id = 3"
+   ]
+  },
+  {
+   "name": "app destinations: add, the same proxy",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/destinations",
+   "setup": [
+    "update servers set proxy = '{\"type\":\"TRAEFIK\"}' where id = 1"
+   ],
+   "body": {
+    "destination_uuid": "d3seconddestination00003"
+   },
+   "setupCoolify": [
+    "insert into servers (id, uuid, name, ip, team_id, private_key_id, proxy, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, 1, '{\"redirect_enabled\":true}', now(), now())",
+    "insert into server_settings (server_id, created_at, updated_at) values (3, now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, now(), now())",
+    "update servers set proxy = '{\"type\":\"TRAEFIK\"}' where id = 3"
+   ],
+   "setupFreeploy": [
+    "insert into servers (id, uuid, name, ip, private_key_id, proxy, org_id, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, '{\"redirect_enabled\":true}', deploy.current_org(), now(), now())",
+    "insert into server_settings (server_id, server_role, org_id, created_at, updated_at) values (3, 'both', deploy.current_org(), now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, org_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, deploy.current_org(), now(), now())",
+    "update servers set proxy = '{\"type\":\"TRAEFIK\"}' where id = 3"
+   ],
+   "after": {
+    "additional": "select application_id, server_id, standalone_docker_id, status from additional_destinations where application_id in (1, 2) order by application_id, standalone_docker_id"
+   }
+  },
+  {
+   "name": "app destinations: add, a server without a proxy",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/destinations",
+   "setup": [
+    "update servers set proxy = '{\"type\":\"CADDY\"}' where id = 1"
+   ],
+   "body": {
+    "destination_uuid": "d3seconddestination00003"
+   },
+   "setupCoolify": [
+    "insert into servers (id, uuid, name, ip, team_id, private_key_id, proxy, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, 1, '{\"redirect_enabled\":true}', now(), now())",
+    "insert into server_settings (server_id, created_at, updated_at) values (3, now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, now(), now())",
+    "update servers set proxy = '{\"type\":\"NONE\"}' where id = 3"
+   ],
+   "setupFreeploy": [
+    "insert into servers (id, uuid, name, ip, private_key_id, proxy, org_id, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, '{\"redirect_enabled\":true}', deploy.current_org(), now(), now())",
+    "insert into server_settings (server_id, server_role, org_id, created_at, updated_at) values (3, 'both', deploy.current_org(), now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, org_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, deploy.current_org(), now(), now())",
+    "update servers set proxy = '{\"type\":\"NONE\"}' where id = 3"
+   ],
+   "after": {
+    "additional": "select application_id, server_id, standalone_docker_id, status from additional_destinations where application_id in (1, 2) order by application_id, standalone_docker_id"
+   }
+  },
+  {
+   "name": "app destinations: add with a read token",
+   "token": "read",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/destinations",
+   "body": {
+    "destination_uuid": "d3seconddestination00003"
+   }
+  },
+  {
+   "name": "app destinations: remove",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/destinations/d3seconddestination00003",
+   "setupCoolify": [
+    "insert into servers (id, uuid, name, ip, team_id, private_key_id, proxy, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, 1, '{\"redirect_enabled\":true}', now(), now())",
+    "insert into server_settings (server_id, created_at, updated_at) values (3, now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, now(), now())",
+    "insert into additional_destinations (application_id, server_id, standalone_docker_id, status) values (2, 3, 3, 'running:healthy')"
+   ],
+   "setupFreeploy": [
+    "insert into servers (id, uuid, name, ip, private_key_id, proxy, org_id, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, '{\"redirect_enabled\":true}', deploy.current_org(), now(), now())",
+    "insert into server_settings (server_id, server_role, org_id, created_at, updated_at) values (3, 'both', deploy.current_org(), now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, org_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, deploy.current_org(), now(), now())",
+    "insert into additional_destinations (application_id, server_id, standalone_docker_id, status, org_id) values (2, 3, 3, 'running:healthy', deploy.current_org())"
+   ],
+   "after": {
+    "additional": "select application_id, server_id, standalone_docker_id, status from additional_destinations where application_id in (1, 2) order by application_id, standalone_docker_id"
+   }
+  },
+  {
+   "name": "app destinations: remove the primary",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/destinations/d1paritydestination00001",
+   "setupCoolify": [
+    "insert into servers (id, uuid, name, ip, team_id, private_key_id, proxy, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, 1, '{\"redirect_enabled\":true}', now(), now())",
+    "insert into server_settings (server_id, created_at, updated_at) values (3, now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, now(), now())",
+    "insert into additional_destinations (application_id, server_id, standalone_docker_id, status) values (2, 3, 3, 'running:healthy')"
+   ],
+   "setupFreeploy": [
+    "insert into servers (id, uuid, name, ip, private_key_id, proxy, org_id, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, '{\"redirect_enabled\":true}', deploy.current_org(), now(), now())",
+    "insert into server_settings (server_id, server_role, org_id, created_at, updated_at) values (3, 'both', deploy.current_org(), now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, org_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, deploy.current_org(), now(), now())",
+    "insert into additional_destinations (application_id, server_id, standalone_docker_id, status, org_id) values (2, 3, 3, 'running:healthy', deploy.current_org())"
+   ]
+  },
+  {
+   "name": "app destinations: remove one not attached",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/destinations/d3seconddestination00003",
+   "setupCoolify": [
+    "insert into servers (id, uuid, name, ip, team_id, private_key_id, proxy, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, 1, '{\"redirect_enabled\":true}', now(), now())",
+    "insert into server_settings (server_id, created_at, updated_at) values (3, now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, now(), now())"
+   ],
+   "setupFreeploy": [
+    "insert into servers (id, uuid, name, ip, private_key_id, proxy, org_id, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, '{\"redirect_enabled\":true}', deploy.current_org(), now(), now())",
+    "insert into server_settings (server_id, server_role, org_id, created_at, updated_at) values (3, 'both', deploy.current_org(), now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, org_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, deploy.current_org(), now(), now())"
+   ]
+  },
+  {
+   "name": "app destinations: remove unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/destinations/nonexistentuuid"
+  },
+  {
+   "name": "app destinations: remove another team's",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/destinations/d2otherdestination000002"
+  },
+  {
+   "name": "app destinations: remove from unknown application",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/nonexistentuuid/destinations/d3seconddestination00003"
+  },
+  {
+   "name": "app destinations: remove with a write token",
+   "token": "write",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/destinations/d3seconddestination00003"
+  },
+  {
+   "name": "operations: move an application",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/move",
+   "body": {
+    "environment_uuid": "e2alphastaging0000000002"
+   },
+   "after": {
+    "moved": "select 'application' as kind, uuid, environment_id from applications where id in (1, 2) union all select 'postgresql', uuid, environment_id from standalone_postgresqls where id = 1 union all select 'service', uuid, environment_id from services where id = 1 order by kind, uuid"
+   }
+  },
+  {
+   "name": "operations: move an application to another project",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/move",
+   "body": {
+    "environment_uuid": "e3betaproduction00000003"
+   },
+   "after": {
+    "moved": "select 'application' as kind, uuid, environment_id from applications where id in (1, 2) union all select 'postgresql', uuid, environment_id from standalone_postgresqls where id = 1 union all select 'service', uuid, environment_id from services where id = 1 order by kind, uuid"
+   }
+  },
+  {
+   "name": "operations: move an application, the same environment",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/move",
+   "body": {
+    "environment_uuid": "e1alphaproduction0000001"
+   },
+   "after": {
+    "moved": "select 'application' as kind, uuid, environment_id from applications where id in (1, 2) union all select 'postgresql', uuid, environment_id from standalone_postgresqls where id = 1 union all select 'service', uuid, environment_id from services where id = 1 order by kind, uuid"
+   }
+  },
+  {
+   "name": "operations: move an application, unknown environment",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/move",
+   "body": {
+    "environment_uuid": "nonexistentuuid"
+   }
+  },
+  {
+   "name": "operations: move an application to another team's environment",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/move",
+   "body": {
+    "environment_uuid": "e4otherproduction0000004"
+   }
+  },
+  {
+   "name": "operations: move an application, no body",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/move"
+  },
+  {
+   "name": "operations: move an application, validation",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/move",
+   "body": {
+    "environment_uuid": 5,
+    "project_uuid": "p1alphaprojectuuid000001"
+   }
+  },
+  {
+   "name": "operations: move an application, fields not allowed",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/move",
+   "body": {
+    "environment_uuid": "e2alphastaging0000000002",
+    "project_uuid": "p1alphaprojectuuid000001",
+    "name": "x"
+   },
+   "after": {
+    "moved": "select 'application' as kind, uuid, environment_id from applications where id in (1, 2) union all select 'postgresql', uuid, environment_id from standalone_postgresqls where id = 1 union all select 'service', uuid, environment_id from services where id = 1 order by kind, uuid"
+   }
+  },
+  {
+   "name": "operations: move an application, the query string",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/move?environment_uuid=e2alphastaging0000000002",
+   "after": {
+    "moved": "select 'application' as kind, uuid, environment_id from applications where id in (1, 2) union all select 'postgresql', uuid, environment_id from standalone_postgresqls where id = 1 union all select 'service', uuid, environment_id from services where id = 1 order by kind, uuid"
+   }
+  },
+  {
+   "name": "operations: move unknown application",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/nonexistentuuid/move",
+   "body": {
+    "environment_uuid": "e2alphastaging0000000002"
+   }
+  },
+  {
+   "name": "operations: move another team's application",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a3otherteamapp0000000003/move",
+   "body": {
+    "environment_uuid": "e2alphastaging0000000002"
+   }
+  },
+  {
+   "name": "operations: move an application with a read token",
+   "token": "read",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/move",
+   "body": {
+    "environment_uuid": "e2alphastaging0000000002"
+   }
+  },
+  {
+   "name": "operations: move a database",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/move",
+   "body": {
+    "environment_uuid": "e2alphastaging0000000002"
+   },
+   "after": {
+    "moved": "select 'application' as kind, uuid, environment_id from applications where id in (1, 2) union all select 'postgresql', uuid, environment_id from standalone_postgresqls where id = 1 union all select 'service', uuid, environment_id from services where id = 1 order by kind, uuid"
+   }
+  },
+  {
+   "name": "operations: move a database, the same environment",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b2parityredis00000000002/move",
+   "body": {
+    "environment_uuid": "e1alphaproduction0000001"
+   }
+  },
+  {
+   "name": "operations: move a database, unknown environment",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/move",
+   "body": {
+    "environment_uuid": "nonexistentuuid"
+   }
+  },
+  {
+   "name": "operations: move unknown database",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/nonexistentuuid/move",
+   "body": {
+    "environment_uuid": "e2alphastaging0000000002"
+   }
+  },
+  {
+   "name": "operations: move another team's database",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b9otherpostgres000000009/move",
+   "body": {
+    "environment_uuid": "e2alphastaging0000000002"
+   }
+  },
+  {
+   "name": "operations: move a service",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/move",
+   "body": {
+    "environment_uuid": "e3betaproduction00000003"
+   },
+   "after": {
+    "moved": "select 'application' as kind, uuid, environment_id from applications where id in (1, 2) union all select 'postgresql', uuid, environment_id from standalone_postgresqls where id = 1 union all select 'service', uuid, environment_id from services where id = 1 order by kind, uuid"
+   }
+  },
+  {
+   "name": "operations: move a service, the same environment",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/move",
+   "body": {
+    "environment_uuid": "e1alphaproduction0000001"
+   }
+  },
+  {
+   "name": "operations: move a service, validation",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/move",
+   "body": {
+    "environment_uuid": null
+   }
+  },
+  {
+   "name": "operations: move unknown service",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/nonexistentuuid/move",
+   "body": {
+    "environment_uuid": "e2alphastaging0000000002"
+   }
+  },
+  {
+   "name": "operations: move another team's service",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f2otherservice0000000002/move",
+   "body": {
+    "environment_uuid": "e2alphastaging0000000002"
+   }
+  },
+  {
+   "name": "operations: migrate an application",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/migrate",
+   "body": {
+    "destination_uuid": "d1paritydestination00001"
+   }
+  },
+  {
+   "name": "operations: migrate an application, no body",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/migrate"
+  },
+  {
+   "name": "operations: migrate unknown application",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/nonexistentuuid/migrate",
+   "body": {
+    "destination_uuid": "d1paritydestination00001"
+   }
+  },
+  {
+   "name": "operations: migrate a database",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/migrate",
+   "body": {
+    "destination_uuid": "d1paritydestination00001"
+   }
+  },
+  {
+   "name": "operations: migrate unknown database",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/nonexistentuuid/migrate",
+   "body": {
+    "destination_uuid": "d1paritydestination00001"
+   }
+  },
+  {
+   "name": "operations: migrate a service",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/migrate",
+   "body": {
+    "destination_uuid": "d1paritydestination00001"
+   }
+  },
+  {
+   "name": "operations: migrate another team's service",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f2otherservice0000000002/migrate",
+   "body": {
+    "destination_uuid": "d1paritydestination00001"
+   }
+  },
+  {
+   "name": "operations: clone an application",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/clone",
+   "body": {
+    "destination_uuid": "d1paritydestination00001"
+   },
+   "after": {
+    "application": "select replace(name, uuid, '<uuid>') as name, replace(fqdn, uuid, '<uuid>') as fqdn, status, environment_id, destination_id, destination_type, git_repository, git_branch, build_pack, ports_exposes, docker_registry_image_name, docker_registry_image_tag, source_id, source_type, health_check_enabled from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')",
+    "settings": "select is_static, is_auto_deploy_enabled, is_force_https_enabled, is_preview_deployments_enabled from application_settings where application_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003'))",
+    "tags": "select tg.tag_id from taggables tg where tg.taggable_type = 'App\\Models\\Application' and tg.taggable_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by tg.tag_id",
+    "tasks": "select name, command, frequency, container, enabled, uuid in ('n1paritybackuptask000001', 'n2paritycleanuptask00002') as fixture_uuid from scheduled_tasks where application_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by name",
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime from environment_variables where resourceable_type = 'App\\Models\\Application' and resourceable_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by key, is_preview",
+    "volumes": "select replace(name, (select uuid from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')), '<uuid>') as name, mount_path, uuid = 'l1parityappvolume0000001' as fixture_uuid from local_persistent_volumes where resource_type = 'App\\Models\\Application' and resource_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by name",
+    "files": "select fs_path, mount_path, is_directory, is_host_file from local_file_volumes where resource_type = 'App\\Models\\Application' and resource_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by mount_path"
+   }
+  },
+  {
+   "name": "operations: clone an application with its parts",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/clone",
+   "body": {
+    "destination_uuid": "d1paritydestination00001",
+    "name": "image-copy"
+   },
+   "after": {
+    "application": "select replace(name, uuid, '<uuid>') as name, replace(fqdn, uuid, '<uuid>') as fqdn, status, environment_id, destination_id, destination_type, git_repository, git_branch, build_pack, ports_exposes, docker_registry_image_name, docker_registry_image_tag, source_id, source_type, health_check_enabled from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')",
+    "settings": "select is_static, is_auto_deploy_enabled, is_force_https_enabled, is_preview_deployments_enabled from application_settings where application_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003'))",
+    "tags": "select tg.tag_id from taggables tg where tg.taggable_type = 'App\\Models\\Application' and tg.taggable_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by tg.tag_id",
+    "tasks": "select name, command, frequency, container, enabled, uuid in ('n1paritybackuptask000001', 'n2paritycleanuptask00002') as fixture_uuid from scheduled_tasks where application_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by name",
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime from environment_variables where resourceable_type = 'App\\Models\\Application' and resourceable_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by key, is_preview",
+    "volumes": "select replace(name, (select uuid from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')), '<uuid>') as name, mount_path, uuid = 'l1parityappvolume0000001' as fixture_uuid from local_persistent_volumes where resource_type = 'App\\Models\\Application' and resource_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by name",
+    "files": "select fs_path, mount_path, is_directory, is_host_file from local_file_volumes where resource_type = 'App\\Models\\Application' and resource_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by mount_path"
+   }
+  },
+  {
+   "name": "operations: clone an application, a long name",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/clone",
+   "setup": [
+    "update applications set name = 'a-very-long-application-name' where id = 2"
+   ],
+   "body": {
+    "destination_uuid": "d1paritydestination00001",
+    "clone_volumes": false
+   },
+   "after": {
+    "application": "select replace(name, uuid, '<uuid>') as name, replace(fqdn, uuid, '<uuid>') as fqdn, status, environment_id, destination_id, destination_type, git_repository, git_branch, build_pack, ports_exposes, docker_registry_image_name, docker_registry_image_tag, source_id, source_type, health_check_enabled from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')",
+    "settings": "select is_static, is_auto_deploy_enabled, is_force_https_enabled, is_preview_deployments_enabled from application_settings where application_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003'))",
+    "tags": "select tg.tag_id from taggables tg where tg.taggable_type = 'App\\Models\\Application' and tg.taggable_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by tg.tag_id",
+    "tasks": "select name, command, frequency, container, enabled, uuid in ('n1paritybackuptask000001', 'n2paritycleanuptask00002') as fixture_uuid from scheduled_tasks where application_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by name",
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime from environment_variables where resourceable_type = 'App\\Models\\Application' and resourceable_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by key, is_preview",
+    "volumes": "select replace(name, (select uuid from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')), '<uuid>') as name, mount_path, uuid = 'l1parityappvolume0000001' as fixture_uuid from local_persistent_volumes where resource_type = 'App\\Models\\Application' and resource_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by name",
+    "files": "select fs_path, mount_path, is_directory, is_host_file from local_file_volumes where resource_type = 'App\\Models\\Application' and resource_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by mount_path"
+   }
+  },
+  {
+   "name": "operations: clone an application, the volumes without deploy",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/clone",
+   "body": {
+    "destination_uuid": "d1paritydestination00001",
+    "clone_volumes": true
+   }
+  },
+  {
+   "name": "operations: clone an application, no volumes to copy",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/clone",
+   "body": {
+    "destination_uuid": "d1paritydestination00001",
+    "clone_volumes": "1"
+   },
+   "after": {
+    "application": "select replace(name, uuid, '<uuid>') as name, replace(fqdn, uuid, '<uuid>') as fqdn, status, environment_id, destination_id, destination_type, git_repository, git_branch, build_pack, ports_exposes, docker_registry_image_name, docker_registry_image_tag, source_id, source_type, health_check_enabled from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')",
+    "settings": "select is_static, is_auto_deploy_enabled, is_force_https_enabled, is_preview_deployments_enabled from application_settings where application_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003'))",
+    "tags": "select tg.tag_id from taggables tg where tg.taggable_type = 'App\\Models\\Application' and tg.taggable_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by tg.tag_id",
+    "tasks": "select name, command, frequency, container, enabled, uuid in ('n1paritybackuptask000001', 'n2paritycleanuptask00002') as fixture_uuid from scheduled_tasks where application_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by name",
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime from environment_variables where resourceable_type = 'App\\Models\\Application' and resourceable_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by key, is_preview",
+    "volumes": "select replace(name, (select uuid from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')), '<uuid>') as name, mount_path, uuid = 'l1parityappvolume0000001' as fixture_uuid from local_persistent_volumes where resource_type = 'App\\Models\\Application' and resource_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by name",
+    "files": "select fs_path, mount_path, is_directory, is_host_file from local_file_volumes where resource_type = 'App\\Models\\Application' and resource_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by mount_path"
+   }
+  },
+  {
+   "name": "operations: clone an application, the volumes",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/clone",
+   "body": {
+    "destination_uuid": "d1paritydestination00001",
+    "clone_volumes": true
+   },
+   "after": {
+    "application": "select replace(name, uuid, '<uuid>') as name, replace(fqdn, uuid, '<uuid>') as fqdn, status, environment_id, destination_id, destination_type, git_repository, git_branch, build_pack, ports_exposes, docker_registry_image_name, docker_registry_image_tag, source_id, source_type, health_check_enabled from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')",
+    "settings": "select is_static, is_auto_deploy_enabled, is_force_https_enabled, is_preview_deployments_enabled from application_settings where application_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003'))",
+    "tags": "select tg.tag_id from taggables tg where tg.taggable_type = 'App\\Models\\Application' and tg.taggable_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by tg.tag_id",
+    "tasks": "select name, command, frequency, container, enabled, uuid in ('n1paritybackuptask000001', 'n2paritycleanuptask00002') as fixture_uuid from scheduled_tasks where application_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by name",
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime from environment_variables where resourceable_type = 'App\\Models\\Application' and resourceable_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by key, is_preview",
+    "volumes": "select replace(name, (select uuid from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')), '<uuid>') as name, mount_path, uuid = 'l1parityappvolume0000001' as fixture_uuid from local_persistent_volumes where resource_type = 'App\\Models\\Application' and resource_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by name",
+    "files": "select fs_path, mount_path, is_directory, is_host_file from local_file_volumes where resource_type = 'App\\Models\\Application' and resource_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by mount_path"
+   }
+  },
+  {
+   "name": "operations: clone an application, no body",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/clone"
+  },
+  {
+   "name": "operations: clone an application, validation",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/clone",
+   "body": {
+    "destination_uuid": 1,
+    "name": "x!",
+    "clone_volumes": "maybe",
+    "environment_uuid": "e2alphastaging0000000002"
+   }
+  },
+  {
+   "name": "operations: clone an application, unknown destination",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/clone",
+   "body": {
+    "destination_uuid": "nonexistentuuid"
+   }
+  },
+  {
+   "name": "operations: clone an application, another team's destination",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/clone",
+   "body": {
+    "destination_uuid": "d2otherdestination000002"
+   }
+  },
+  {
+   "name": "operations: clone an application, a build server",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/clone",
+   "setup": [
+    "update server_settings set server_role = 'build' where server_id = 1"
+   ],
+   "body": {
+    "destination_uuid": "d1paritydestination00001"
+   }
+  },
+  {
+   "name": "operations: clone unknown application",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/nonexistentuuid/clone",
+   "body": {
+    "destination_uuid": "d1paritydestination00001"
+   }
+  },
+  {
+   "name": "operations: clone an application with a read token",
+   "token": "read",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/clone",
+   "body": {
+    "destination_uuid": "d1paritydestination00001"
+   }
+  },
+  {
+   "name": "operations: clone a database",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/clone",
+   "body": {
+    "destination_uuid": "d1paritydestination00001"
+   },
+   "after": {
+    "database": "select replace(name, uuid, '<uuid>') as name, description, status, started_at, image, postgres_db, is_public, public_port, environment_id, destination_id, destination_type from standalone_postgresqls where uuid not in ('b1paritypostgres00000001', 'b9otherpostgres000000009')",
+    "tags": "select tg.tag_id from taggables tg where tg.taggable_type = 'App\\Models\\StandalonePostgresql' and tg.taggable_id = (select id from standalone_postgresqls where uuid not in ('b1paritypostgres00000001', 'b9otherpostgres000000009')) order by tg.tag_id",
+    "volumes": "select replace(name, (select uuid from standalone_postgresqls where uuid not in ('b1paritypostgres00000001', 'b9otherpostgres000000009')), '<uuid>') as name, mount_path from local_persistent_volumes where resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = (select id from standalone_postgresqls where uuid not in ('b1paritypostgres00000001', 'b9otherpostgres000000009')) order by name",
+    "files": "select fs_path, mount_path, is_directory from local_file_volumes where resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = (select id from standalone_postgresqls where uuid not in ('b1paritypostgres00000001', 'b9otherpostgres000000009')) order by mount_path",
+    "backups": "select frequency, save_s3, enabled, databases_to_backup, (select count(*) from scheduled_database_backup_s3_storage p where p.scheduled_database_backup_id = b.id) as s3 from scheduled_database_backups b where database_type = 'App\\Models\\StandalonePostgresql' and database_id = (select id from standalone_postgresqls where uuid not in ('b1paritypostgres00000001', 'b9otherpostgres000000009')) order by frequency",
+    "variables": "select key, is_shown_once from environment_variables where resourceable_type = 'App\\Models\\StandalonePostgresql' and resourceable_id = (select id from standalone_postgresqls where uuid not in ('b1paritypostgres00000001', 'b9otherpostgres000000009')) order by key"
+   }
+  },
+  {
+   "name": "operations: clone a database with a name",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/clone",
+   "body": {
+    "destination_uuid": "d1paritydestination00001",
+    "name": "pg-copy"
+   },
+   "after": {
+    "database": "select replace(name, uuid, '<uuid>') as name, description, status, started_at, image, postgres_db, is_public, public_port, environment_id, destination_id, destination_type from standalone_postgresqls where uuid not in ('b1paritypostgres00000001', 'b9otherpostgres000000009')",
+    "tags": "select tg.tag_id from taggables tg where tg.taggable_type = 'App\\Models\\StandalonePostgresql' and tg.taggable_id = (select id from standalone_postgresqls where uuid not in ('b1paritypostgres00000001', 'b9otherpostgres000000009')) order by tg.tag_id",
+    "volumes": "select replace(name, (select uuid from standalone_postgresqls where uuid not in ('b1paritypostgres00000001', 'b9otherpostgres000000009')), '<uuid>') as name, mount_path from local_persistent_volumes where resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = (select id from standalone_postgresqls where uuid not in ('b1paritypostgres00000001', 'b9otherpostgres000000009')) order by name",
+    "files": "select fs_path, mount_path, is_directory from local_file_volumes where resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = (select id from standalone_postgresqls where uuid not in ('b1paritypostgres00000001', 'b9otherpostgres000000009')) order by mount_path",
+    "backups": "select frequency, save_s3, enabled, databases_to_backup, (select count(*) from scheduled_database_backup_s3_storage p where p.scheduled_database_backup_id = b.id) as s3 from scheduled_database_backups b where database_type = 'App\\Models\\StandalonePostgresql' and database_id = (select id from standalone_postgresqls where uuid not in ('b1paritypostgres00000001', 'b9otherpostgres000000009')) order by frequency",
+    "variables": "select key, is_shown_once from environment_variables where resourceable_type = 'App\\Models\\StandalonePostgresql' and resourceable_id = (select id from standalone_postgresqls where uuid not in ('b1paritypostgres00000001', 'b9otherpostgres000000009')) order by key"
+   }
+  },
+  {
+   "name": "operations: clone a database, the volumes",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/clone",
+   "body": {
+    "destination_uuid": "d1paritydestination00001",
+    "clone_volumes": true
+   },
+   "after": {
+    "database": "select replace(name, uuid, '<uuid>') as name, description, status, started_at, image, postgres_db, is_public, public_port, environment_id, destination_id, destination_type from standalone_postgresqls where uuid not in ('b1paritypostgres00000001', 'b9otherpostgres000000009')",
+    "tags": "select tg.tag_id from taggables tg where tg.taggable_type = 'App\\Models\\StandalonePostgresql' and tg.taggable_id = (select id from standalone_postgresqls where uuid not in ('b1paritypostgres00000001', 'b9otherpostgres000000009')) order by tg.tag_id",
+    "volumes": "select replace(name, (select uuid from standalone_postgresqls where uuid not in ('b1paritypostgres00000001', 'b9otherpostgres000000009')), '<uuid>') as name, mount_path from local_persistent_volumes where resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = (select id from standalone_postgresqls where uuid not in ('b1paritypostgres00000001', 'b9otherpostgres000000009')) order by name",
+    "files": "select fs_path, mount_path, is_directory from local_file_volumes where resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = (select id from standalone_postgresqls where uuid not in ('b1paritypostgres00000001', 'b9otherpostgres000000009')) order by mount_path",
+    "backups": "select frequency, save_s3, enabled, databases_to_backup, (select count(*) from scheduled_database_backup_s3_storage p where p.scheduled_database_backup_id = b.id) as s3 from scheduled_database_backups b where database_type = 'App\\Models\\StandalonePostgresql' and database_id = (select id from standalone_postgresqls where uuid not in ('b1paritypostgres00000001', 'b9otherpostgres000000009')) order by frequency",
+    "variables": "select key, is_shown_once from environment_variables where resourceable_type = 'App\\Models\\StandalonePostgresql' and resourceable_id = (select id from standalone_postgresqls where uuid not in ('b1paritypostgres00000001', 'b9otherpostgres000000009')) order by key"
+   }
+  },
+  {
+   "name": "operations: clone a database, the volumes without deploy",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/clone",
+   "body": {
+    "destination_uuid": "d1paritydestination00001",
+    "clone_volumes": 1
+   }
+  },
+  {
+   "name": "operations: clone a Redis",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b2parityredis00000000002/clone",
+   "body": {
+    "destination_uuid": "d1paritydestination00001"
+   },
+   "after": {
+    "database": "select replace(name, uuid, '<uuid>') as name, status, image, environment_id from standalone_redis where uuid not in ('b2parityredis00000000002')",
+    "tags": "select tg.tag_id from taggables tg where tg.taggable_type = 'App\\Models\\StandaloneRedis' and tg.taggable_id = (select id from standalone_redis where uuid not in ('b2parityredis00000000002')) order by tg.tag_id",
+    "variables": "select key, is_shown_once from environment_variables where resourceable_type = 'App\\Models\\StandaloneRedis' and resourceable_id = (select id from standalone_redis where uuid not in ('b2parityredis00000000002')) order by key"
+   }
+  },
+  {
+   "name": "operations: clone a database, unknown destination",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/clone",
+   "body": {
+    "destination_uuid": "nonexistentuuid"
+   }
+  },
+  {
+   "name": "operations: clone unknown database",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/nonexistentuuid/clone",
+   "body": {
+    "destination_uuid": "d1paritydestination00001"
+   }
+  },
+  {
+   "name": "operations: clone another team's database",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b9otherpostgres000000009/clone",
+   "body": {
+    "destination_uuid": "d1paritydestination00001"
+   }
+  },
+  {
+   "name": "operations: clone a database, validation",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/clone",
+   "body": {
+    "name": "ab"
+   }
   }
  ]
 }

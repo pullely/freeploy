@@ -117,6 +117,8 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("PATCH", "/applications/{uuid}/envs", "write", "deploy"),
   r("DELETE", "/applications/{uuid}/envs/{env_uuid}", "delete", "deploy"),
   r("GET", "/applications/{uuid}/logs", "read:sensitive", "deploy"),
+  // DP-86: a preview's container logs (logs_by_uuid with a pull request)
+  r("GET", "/applications/{uuid}/previews/{pull_request_id}/logs", "read:sensitive", "deploy"),
   // DP-84: an application's storages (PUT and DELETE …/storages/{storage_uuid}/backups and POST …/backups/run are not
   // ported: a volume backup runs on the server)
   r("GET", "/applications/{uuid}/storages", "read", "deploy"),
@@ -130,10 +132,24 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("POST", "/applications/{uuid}/start", "deploy", "deploy"),
   r("POST", "/applications/{uuid}/restart", "deploy", "deploy"),
   r("POST", "/applications/{uuid}/stop", "deploy", "deploy"),
+  // DP-86: an application's previews (ApplicationPreviewsController; update and delete are ApplicationsController's)
+  r("GET", "/applications/{uuid}/previews", "read", "deploy"),
+  r("POST", "/applications/{uuid}/previews", "deploy", "deploy"),
+  r("GET", "/applications/{uuid}/previews/{pull_request_id}", "read", "deploy"),
+  r("PATCH", "/applications/{uuid}/previews/{pull_request_id}", "write", "deploy"),
+  r("DELETE", "/applications/{uuid}/previews/{pull_request_id}", "delete", "deploy"),
   // DP-81: HandlesTagsApi
   r("GET", "/applications/{uuid}/tags", "read", "deploy"),
   r("POST", "/applications/{uuid}/tags", "write", "deploy"),
   r("DELETE", "/applications/{uuid}/tags/{tag_uuid}", "delete", "deploy"),
+  // DP-86: move, migrate and clone; the additional destinations (rollback-images and rollback are not ported: they read
+  // the server's images)
+  r("POST", "/applications/{uuid}/move", "write", "deploy"),
+  r("POST", "/applications/{uuid}/migrate", "write", "deploy"),
+  r("POST", "/applications/{uuid}/clone", "write", "deploy"),
+  r("GET", "/applications/{uuid}/destinations", "read", "deploy"),
+  r("POST", "/applications/{uuid}/destinations", "write", "deploy"),
+  r("DELETE", "/applications/{uuid}/destinations/{destination_uuid}", "delete", "deploy"),
 
   // DP-73: the standalone databases (the eight engines Freeploy has; POST /databases/sqlite is not ported) and their
   // backup schedules
@@ -176,6 +192,10 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("GET", "/databases/{uuid}/tags", "read", "deploy"),
   r("POST", "/databases/{uuid}/tags", "write", "deploy"),
   r("DELETE", "/databases/{uuid}/tags/{tag_uuid}", "delete", "deploy"),
+  // DP-86: move, migrate and clone
+  r("POST", "/databases/{uuid}/move", "write", "deploy"),
+  r("POST", "/databases/{uuid}/migrate", "write", "deploy"),
+  r("POST", "/databases/{uuid}/clone", "write", "deploy"),
 
   // DP-74: deploying and deployments (GET /deployments and GET /deployments/{uuid}: DP-78), then services and
   // their environment variables. routes/api.php's /deploy and /deployments come before /servers; no route here
@@ -234,6 +254,9 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("GET", "/services/{uuid}/tags", "read", "deploy"),
   r("POST", "/services/{uuid}/tags", "write", "deploy"),
   r("DELETE", "/services/{uuid}/tags/{tag_uuid}", "delete", "deploy"),
+  // DP-86: move and migrate (clone is not ported: clone_service() has no port yet)
+  r("POST", "/services/{uuid}/move", "write", "deploy"),
+  r("POST", "/services/{uuid}/migrate", "write", "deploy"),
 
   // DP-84: the scheduled tasks of an application and of a service (POST …/{task_uuid}/execute is not ported: it runs the
   // command on the server)

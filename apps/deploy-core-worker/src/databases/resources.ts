@@ -199,7 +199,7 @@ export async function moveDatabaseTo(ctx: DatabaseResourcesContext, uuid: string
  * and a managed mount inside the clone's own directory is written there —
  * neither is available yet. Null when the database is not the org's.
  */
-export async function cloneDatabaseTo(ctx: DatabaseResourcesContext, uuid: string, body: Body): Promise<DatabaseOperationResult | null> {
+export async function cloneDatabaseTo(ctx: DatabaseResourcesContext, uuid: string, body: Body, opts: { uuid?: string; name?: string } = {}): Promise<DatabaseOperationResult | null> {
   const source = await ctx.database.store.findByUuid(uuid);
   if (!source) return null;
   let environment = { id: source.environment_id!, uuid: source.environment_uuid, project_uuid: source.project_uuid };
@@ -209,7 +209,8 @@ export async function cloneDatabaseTo(ctx: DatabaseResourcesContext, uuid: strin
   const server = destination ? await ctx.store.findServer(destination.server_uuid) : null;
   if (!destination || !server || effectiveServerRole(server) === "build") throw new SettingsFieldErrors({ destination_id: [RESOURCE_OPERATION_MESSAGES.destinationNotFound] });
 
-  const clone = newPublicId();
+  // The API's clone_by_uuid() may give the uuid and the name (DP-86).
+  const clone = opts.uuid ?? newPublicId();
   const volumes = await ctx.rows.volumes(source.id);
   const volumeNames = volumes.map((volume) => clonedDatabaseVolumeName(volume.name, source.uuid, clone));
   // Coolify fails on the table's unique index in the middle of the clone and keeps what it had copied; here nothing is copied.
@@ -217,7 +218,7 @@ export async function cloneDatabaseTo(ctx: DatabaseResourcesContext, uuid: strin
 
   const id = await ctx.store.replicate(source.engine, source.id, {
     uuid: clone,
-    name: cloneResourceName(source.name, clone),
+    name: opts.name ?? cloneResourceName(source.name, clone),
     environmentId: environment.id,
     destinationId: destination.id,
     destinationType: destination.type,

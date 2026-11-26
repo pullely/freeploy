@@ -1,4 +1,4 @@
-# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85)
+# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85, DP-86)
 
 What Coolify's real API answers, so that Freeploy's `/api/v1` (api-edge's middleware and limiters,
 identity-worker's teams and tokens, deploy-core-worker's projects, environments, private keys and servers —
@@ -10,7 +10,8 @@ tags and those of an application, a database and a service, the shared variables
 S3 storages — DP-81 — and the storages of an application, a database and a service, the scheduled tasks of an
 application and of a service, a database's environment variables and the team's shared variables — DP-84 — and the
 team's notification channels, a service's applications and databases, destinations, a server's shared variables and
-its Docker cleanup — DP-85) can be replayed against it byte for byte.
+its Docker cleanup — DP-85 — and an application's previews and additional destinations, and moving, migrating and cloning
+applications, databases and services — DP-86) can be replayed against it byte for byte.
 
 | File | What it is |
 |---|---|
@@ -73,6 +74,15 @@ queries read a channel's encrypted columns as whether they are set (`has_<column
 columns of a service application as `::jsonb::text` (Coolify's text columns hold `\/`), and the fixture's default
 destination's name as `<default-destination-name>` (Coolify's `coolify`, Freeploy's `freeploy`); the cases that answer it
 name it first (`setup`). No masking is added.
+DP-86's replay (`src/api-v1-previews-destinations-operations.test.ts`: an application's previews, its additional
+destinations, move, migrate and clone) adds four previews at the end of both fixtures (two of the Git application, pull
+requests 17 and 12 — not 7, which DP-74's deploy case names as a pull request without a preview — one of the image
+application, one of the other team's; `last_online_at` is the clock's now, as the saving hook sets it with the status)
+and a token with `read` and `deploy` (id 12: a preview's redeploy). A case may now carry `setupCoolify` and
+`setupFreeploy`, SQL of one side's tables only, run after `setup`: a second server of team 1 with its destination (and
+an attached additional destination) is a row with Coolify's `team_id` on one side and Freeploy's `org_id`
+(`deploy.current_org()`) on the other. The `after` queries of a clone read the copy's random uuid as `<uuid>` inside its
+name, domain and volume names. No masking is added.
 
 ## How the goldens are made
 

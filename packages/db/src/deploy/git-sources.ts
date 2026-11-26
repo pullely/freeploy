@@ -441,26 +441,36 @@ export interface NewApplicationPreview {
   applicationId: string | number;
   pullRequestId: number;
   pullRequestHtmlUrl: string;
-  gitType: string;
+  /** Null for a Docker Image application's preview (DP-86). */
+  gitType: string | null;
   dockerComposeDomains: string | null;
+  /** The preview's image tag (a Docker Image application's, DP-86). */
+  dockerRegistryImageTag?: string | null;
 }
 
-/** ApplicationPreview::create([...]) of ProcessGithubPullRequestWebhook. */
+/** ApplicationPreview::create([...]) of ProcessGithubPullRequestWebhook and ApplicationPreviewsController::store() (DP-86). */
 export async function insertApplicationPreview(tx: SqlExecutor, preview: NewApplicationPreview): Promise<DeployApplicationPreviewRow> {
   const r = await tx.execute<DeployApplicationPreviewRow>(
-    `INSERT INTO deploy.application_previews (uuid, application_id, pull_request_id, pull_request_html_url, git_type, docker_compose_domains, org_id, last_online_at, created_at, updated_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, ${NOW}, ${NOW}, ${NOW}) RETURNING ${PREVIEW_COLUMNS}`,
-    [preview.uuid, String(preview.applicationId), preview.pullRequestId, preview.pullRequestHtmlUrl, preview.gitType, preview.dockerComposeDomains, preview.orgId],
+    `INSERT INTO deploy.application_previews (uuid, application_id, pull_request_id, pull_request_html_url, git_type, docker_compose_domains, docker_registry_image_tag, org_id, last_online_at, created_at, updated_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, ${NOW}, ${NOW}, ${NOW}) RETURNING ${PREVIEW_COLUMNS}`,
+    [preview.uuid, String(preview.applicationId), preview.pullRequestId, preview.pullRequestHtmlUrl, preview.gitType, preview.dockerComposeDomains, preview.dockerRegistryImageTag ?? null, preview.orgId],
   );
   return r.rows[0]!;
 }
 
-/** $preview->save() of generate_preview_fqdn() and recordSameRepository(). */
-export async function updateApplicationPreview(
-  tx: SqlExecutor,
-  id: string | number,
-  changes: { fqdn?: string | null; domain_port_overrides?: Record<string, number> | null; is_same_repository?: boolean },
-): Promise<void> {
+export interface ApplicationPreviewChanges {
+  fqdn?: string | null;
+  domain_port_overrides?: Record<string, number> | null;
+  is_same_repository?: boolean;
+  /** DP-86: what the API's store() fills and update_preview_by_pull_request_id() saves. */
+  pull_request_html_url?: string;
+  git_type?: string | null;
+  docker_registry_image_tag?: string | null;
+  docker_compose_domains?: string | null;
+}
+
+/** $preview->save() of generate_preview_fqdn(), recordSameRepository() and the API's store() and update (DP-86). */
+export async function updateApplicationPreview(tx: SqlExecutor, id: string | number, changes: ApplicationPreviewChanges): Promise<void> {
   const columns = Object.keys(changes) as Array<keyof typeof changes>;
   if (columns.length === 0) return;
   const sets = columns.map((c, i) => (c === "domain_port_overrides" ? `${c} = $${i + 2}::json` : `${c} = $${i + 2}`));
@@ -484,6 +494,11 @@ export async function deleteApplicationPreview(tx: SqlExecutor, id: string | num
   await tx.execute(`DELETE FROM deploy.local_persistent_volumes WHERE resource_type = 'App\\Models\\ApplicationPreview' AND resource_id = $1`, [String(id)]);
   const r = await tx.execute("DELETE FROM deploy.application_previews WHERE id = $1 RETURNING id", [id]);
   return r.rows.length > 0;
+}
+
+/** $preview->delete(): SoftDeletes sets deleted_at (and updated_at), DP-86. */
+export async function softDeleteApplicationPreview(tx: SqlExecutor, id: string | number): Promise<void> {
+  await tx.execute(`UPDATE deploy.application_previews SET deleted_at = ${NOW}, updated_at = ${NOW} WHERE id = $1`, [id]);
 }
 
 /** The FQDNs the org's applications and previews hold: a generated preview domain must not take one (the unique index). */

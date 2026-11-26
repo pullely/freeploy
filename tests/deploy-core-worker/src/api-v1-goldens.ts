@@ -26,6 +26,9 @@ export interface Case extends Step {
   sequence?: Step[];
   /** SQL emit.php runs before the request (DP-74: a part made to run). */
   setup?: string[];
+  /** DP-86: SQL of one side's tables only (a row with Coolify's team_id or Freeploy's org_id), after `setup`. */
+  setupCoolify?: string[];
+  setupFreeploy?: string[];
   /** SQL whose rows emit.php reports after a write (`after` of the golden). */
   after?: Record<string, string>;
 }
@@ -88,6 +91,8 @@ export interface Fixture {
   scheduledTaskExecutions: Array<{ id: number; uuid: string; task: number; status: string; message: string | null; started_at: string | null; finished_at: string | null; duration: number | null; retry_count: number; created_at: string }>;
   /** DP-85: a server's Docker cleanup runs. */
   dockerCleanupExecutions: Array<{ id: number; uuid: string; server_id: number; status: string; message: string | null; created_at: string; finished_at: string | null }>;
+  /** DP-86: the applications' previews. */
+  previews: Array<{ id: number; uuid: string; application: number; pull_request_id: number; pull_request_html_url: string; git_type: string | null; fqdn: string | null; docker_registry_image_tag: string | null; status: string; created_at: string }>;
 }
 
 export type StorageResource = "application" | "postgresql" | "serviceApplication";
@@ -125,6 +130,7 @@ const FIXTURE_UUIDS = new Set<string>([
   ...CASES.fixture.scheduledTasks.map((t) => t.uuid),
   ...CASES.fixture.scheduledTaskExecutions.map((x) => x.uuid),
   ...CASES.fixture.dockerCleanupExecutions.map((x) => x.uuid),
+  ...CASES.fixture.previews.map((p) => p.uuid),
 ]);
 
 const LARAVEL_DATE = /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{6}Z$/;

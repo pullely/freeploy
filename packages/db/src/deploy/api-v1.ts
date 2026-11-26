@@ -55,6 +55,8 @@ const TABLES = [
   "telegram_notification_settings",
   "pushover_notification_settings",
   "webhook_notification_settings",
+  // DP-86: an application's previews
+  "application_previews",
 ] as const;
 export type ApiTable = (typeof TABLES)[number];
 

@@ -165,7 +165,7 @@ describe("a database's Resource Operations", () => {
     const replica = (await raw(t.table, "id = $1", [cloneId]))[0]!;
     const differs = ["id", "uuid", "name", "status", "started_at", "environment_id", "created_at", "updated_at", "last_online_at"];
     for (const [column, value] of Object.entries(source)) if (!differs.includes(column)) expect([column, replica[column]]).toEqual([column, value]);
-    expect(replica).toMatchObject({ uuid: clone, name: `name-clone-${clone}`, status: "exited", started_at: null, is_public: true, public_port: 54321, limits_memory: "256m", org_id: A });
+    expect(replica).toMatchObject({ uuid: clone, name: `name-clone-${clone}`, status: "exited:unhealthy", started_at: null, is_public: true, public_port: 54321, limits_memory: "256m", org_id: A });
     expect(String(replica.environment_id)).toBe(String(fx.a!.environmentId));
     expect(replica.last_online_at).not.toBeNull();
     expect(replica.created_at).not.toBeNull();

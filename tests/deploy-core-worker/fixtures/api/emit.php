@@ -214,6 +214,11 @@ foreach ($fixture['scheduledTaskExecutions'] ?? [] as $x) {
 foreach ($fixture['dockerCleanupExecutions'] ?? [] as $x) {
     \App\Models\DockerCleanupExecution::unguarded(fn () => \App\Models\DockerCleanupExecution::query()->forceCreate(['id' => $x['id'], 'uuid' => $x['uuid'], 'server_id' => $x['server_id'], 'status' => $x['status'], 'message' => $x['message'], 'finished_at' => $x['finished_at'], 'created_at' => $x['created_at'], 'updated_at' => $x['created_at']]));
 }
+// DP-86: the applications' previews (forceCreate(): the saving hook normalizes the domain; the timestamps and last_online_at fixed).
+foreach ($fixture['previews'] ?? [] as $p) {
+    \App\Models\ApplicationPreview::unguarded(fn () => \App\Models\ApplicationPreview::query()->forceCreate(['id' => $p['id'], 'uuid' => $p['uuid'], 'application_id' => $p['application'], 'pull_request_id' => $p['pull_request_id'], 'pull_request_html_url' => $p['pull_request_html_url'], 'git_type' => $p['git_type'], 'fqdn' => $p['fqdn'], 'docker_registry_image_tag' => $p['docker_registry_image_tag'], 'status' => $p['status'], 'last_online_at' => $p['created_at'], 'created_at' => $p['created_at'], 'updated_at' => $p['created_at']]));
+}
+DB::statement("SELECT setval(pg_get_serial_sequence('application_previews', 'id'), GREATEST((SELECT COALESCE(MAX(id), 0) FROM application_previews), 1))");
 // Not in $advanceSequences: the servers' created hook took the first ids from the sequence, which must not be moved before.
 DB::statement("SELECT setval(pg_get_serial_sequence('shared_environment_variables', 'id'), (SELECT MAX(id) FROM shared_environment_variables))");
 // Tokens: the fixture's plain text, hashed as Sanctum stores it; the client sends "<id>|<plain text>".
@@ -290,6 +295,10 @@ foreach ($cases['cases'] as $case) {
     // DP-85: a case may run as Coolify Cloud (isCloud(): SafeSmtpHost blocks private networks there, as Freeploy does).
     config(['constants.coolify.self_hosted' => $case['config']['self_hosted'] ?? true]);
     foreach ($case['setup'] ?? [] as $sql) {
+        DB::statement($sql);
+    }
+    // DP-86: SQL of Coolify's tables only (a row with team_id, where Freeploy's has org_id: the test runs setupFreeploy).
+    foreach ($case['setupCoolify'] ?? [] as $sql) {
         DB::statement($sql);
     }
     $steps = $case['sequence'] ?? [$case];

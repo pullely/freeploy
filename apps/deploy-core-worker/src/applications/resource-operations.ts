@@ -156,7 +156,14 @@ const proxyType = (row: DeployApplicationConfigurationRow | { proxy: unknown }):
  * After the rows: `cloneVolumeData` queues the volume copy and every managed
  * file mount queues its write to the server — neither is available yet.
  */
-export async function cloneApplicationTo(ctx: ApplicationResourcesContext, uuid: string, body: Body): Promise<OperationResult | null> {
+export interface CloneOptions {
+  /** The clone's uuid, when the caller made it (the API's clone_by_uuid(), DP-86). */
+  uuid?: string;
+  /** The clone's name, when the request gave one (the API's clone_by_uuid(), DP-86). */
+  name?: string;
+}
+
+export async function cloneApplicationTo(ctx: ApplicationResourcesContext, uuid: string, body: Body, opts: CloneOptions = {}): Promise<OperationResult | null> {
   const l = await loadApplication(ctx, uuid, true);
   const source = l ? await ctx.store.findByUuid(uuid) : null;
   if (!l || !source) return null;
@@ -172,7 +179,7 @@ export async function cloneApplicationTo(ctx: ApplicationResourcesContext, uuid:
   const server = destination ? await ctx.store.findServer(destination.server_uuid) : null;
   if (!destination || !server || effectiveServerRole(server) === "build") throw new SettingsFieldErrors({ destination_id: [RESOURCE_OPERATION_MESSAGES.destinationNotFound] });
 
-  const clone = newPublicId();
+  const clone = opts.uuid ?? newPublicId();
   // Coolify fails on the table's unique index in the middle of the clone and keeps what it had copied; here nothing is copied.
   const volumes = await ctx.store.volumes(l.row.id);
   const volumeNames = volumes.map((volume) => clonedVolumeName(volume, l.row.uuid, clone));
@@ -186,7 +193,7 @@ export async function cloneApplicationTo(ctx: ApplicationResourcesContext, uuid:
 
   const id = await ctx.store.replicateApplication(l.row.id, {
     uuid: clone,
-    name: `clone-of-${strLimit(l.row.name, 20)}-${clone}`,
+    name: opts.name ?? `clone-of-${strLimit(l.row.name, 20)}-${clone}`,
     fqdn: domain.fqdn,
     domainPortOverrides: domain.overrides === null ? null : JSON.stringify(domain.overrides),
     ...(noindex === undefined ? {} : { noindexDomains: JSON.stringify(noindex) }),

@@ -28,6 +28,9 @@
 //   /v1/internal/api-v1/{org}/servers/{uuid}/envs[/{env_id}]                                                 shared-variables.ts (DP-85)
 //   /v1/internal/api-v1/{org}/servers/{uuid}/docker-cleanup[/run|/executions]                                docker-cleanup.ts (DP-85)
 //   /v1/internal/api-v1/{org}/services/{uuid}/{applications,databases}[/{part_uuid}[/logs|/start|/restart|/stop]]  service-parts.ts (DP-85)
+//   /v1/internal/api-v1/{org}/applications/{uuid}/previews[/{pull_request_id}[/logs]]                           previews.ts (DP-86)
+//   /v1/internal/api-v1/{org}/applications/{uuid}/destinations[/{destination_uuid}]                            app-destinations.ts (DP-86)
+//   /v1/internal/api-v1/{org}/{applications,databases,services}/{uuid}/{move,migrate,clone}                    operations.ts (DP-86)
 //
 // $this->authorize(…) is policy-worker's deploy.resource.read (view) or deploy.resource.write (create,
 // update, delete) for the token's user; a denial is Laravel's 403 "This action is unauthorized.".
@@ -85,6 +88,9 @@ import { notificationsApi } from "./notifications.js";
 import { servicePartsApi } from "./service-parts.js";
 import { destinationsApi, serverDestinationsApi } from "./destinations.js";
 import { dockerCleanupApi } from "./docker-cleanup.js";
+import { previewsApi } from "./previews.js";
+import { appDestinationsApi } from "./app-destinations.js";
+import { operationsApi } from "./operations.js";
 import { s3Fetch } from "../s3-storages/connection.js";
 import { dohResolver } from "../s3-storages/safe-url.js";
 import type { S3StorageNetwork } from "../s3-storages/service.js";
@@ -204,6 +210,13 @@ export async function handleApiV1(request: Request, env: Env, requestId: string,
       return send((await servicePartsApi(context, third === "applications" ? "application" : "database", second, segments.slice(3))) ?? COOLIFY_API.notFound());
     }
     if (first === "notifications") return send((await notificationsApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
+    // DP-86: moving, migrating and cloning a resource; an application's previews and additional destinations.
+    const operationOwner = ({ applications: "application", databases: "database", services: "service" } as const)[first as "applications"];
+    if (operationOwner && second !== undefined && (third === "move" || third === "migrate" || third === "clone") && fourth === undefined) {
+      return send((await operationsApi(context, operationOwner, second, third)) ?? COOLIFY_API.notFound());
+    }
+    if (first === "applications" && second !== undefined && third === "destinations") return send((await appDestinationsApi(context, second, segments.slice(3))) ?? COOLIFY_API.notFound());
+    if (first === "applications" && second !== undefined && third === "previews") return send((await previewsApi(context, second, segments.slice(3))) ?? COOLIFY_API.notFound());
     if (first === "applications") return send((await applicationsApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
     if (first === "databases") return send((await databasesApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
     if (first === "services") return send((await servicesApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
