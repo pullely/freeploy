@@ -415,6 +415,7 @@ export {
   DATABASE_ENGINES,
   DATABASE_TABLES,
   DATABASE_GENERAL_COLUMNS,
+  DATABASE_API_COLUMNS,
   databaseOwner,
   writableDatabaseColumns,
   findDatabaseEngineByUuid,
@@ -560,6 +561,9 @@ export {
   listDatabaseBackupExecutions,
   databaseBackupFiles,
   deleteDatabaseBackup,
+  deleteDatabaseBackupExecution,
+  databaseBackupExecutionLiveS3Copies,
+  setDatabaseBackupPrimaryStorage,
   serverTimezone,
   type DeployDatabaseBackupRow,
   type DeployDatabaseBackupListRow,
@@ -610,4 +614,4 @@ export {
   type ServiceWritable,
   type ServiceRowChanges,
 } from "./service-configuration.js";
-export { apiRows, apiValue, type ApiRow, type ApiTable } from "./api-v1.js";
+export { apiRows, apiValue, databasePublicPortTaken, type ApiRow, type ApiTable } from "./api-v1.js";

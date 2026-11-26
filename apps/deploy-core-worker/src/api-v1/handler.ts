@@ -10,6 +10,8 @@
 //   /v1/internal/api-v1/{org}/security/keys[/{uuid}]
 //   /v1/internal/api-v1/{org}/servers[/{uuid}[/validate]]
 //   /v1/internal/api-v1/{org}/applications[/{uuid}[/envs[/bulk|/{env_uuid}]|/logs|/start|/restart|/stop]]   applications.ts (DP-71)
+//   /v1/internal/api-v1/{org}/databases[/{engine}|/{uuid}[/backups[/{backup}[/executions[/{execution}]]]|/start|/restart|/stop]]
+//                                                                                    databases.ts (DP-73)
 //
 // $this->authorize(…) is policy-worker's deploy.resource.read (view) or deploy.resource.write (create,
 // update, delete) for the token's user; a denial is Laravel's 403 "This action is unauthorized.".
@@ -51,6 +53,7 @@ import {
   type Errors,
 } from "./request.js";
 import { applicationsApi } from "./applications.js";
+import { databasesApi } from "./databases.js";
 import type { ApiV1Context, SqlRunner } from "./context.js";
 import { ENVIRONMENT, PRIVATE_KEY, PROJECT, SERVER, SERVER_SETTING, onlyColumns, rowValue, toModel, withoutColumns } from "./models.js";
 
@@ -120,8 +123,9 @@ export async function handleApiV1(request: Request, env: Env, requestId: string,
     if (first === "projects") return send(await projects(second, third, fourth, fifth));
     if (first === "security" && second === "keys") return send(await keys(third, fourth));
     if (first === "servers") return send(await servers(second, third, fourth));
-    const context: ApiV1Context = { env, orgId, orgPublicId, request, method, url, canReadSensitive, allows: (write) => allows(write ? "deploy.resource.write" : "deploy.resource.read"), sql: r.sql ?? runSql };
+    const context: ApiV1Context = { env, orgId, orgPublicId, request, method, url, canReadSensitive, abilities, allows: (write) => allows(write ? "deploy.resource.write" : "deploy.resource.read"), sql: r.sql ?? runSql };
     if (first === "applications") return send((await applicationsApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
+    if (first === "databases") return send((await databasesApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
     return send(COOLIFY_API.notFound());
   } catch (e) {
     if (e instanceof PrivateKeyError && e.field) return send(message(e.message, 422, { errors: obj({ [e.field]: [e.message] }) }));

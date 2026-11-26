@@ -168,6 +168,16 @@ const cipherFor = (ctx: DatabaseContext, engine: DatabaseEngine, column: string)
 const VARIABLE_COLUMN = "environment_variables.value";
 
 /**
+ * What Coolify's /api/v1 gives create_standalone_*() beside the destination (DP-73): $otherData, which the helper
+ * fill()s after its own values — an encrypted column in plain text (encrypted here, as the cast does) — and
+ * create_standalone_redis()'s redis_password, which replaces the generated REDIS_PASSWORD.
+ */
+export interface DatabaseFill {
+  values: Readonly<Record<string, DatabaseColumnValue>>;
+  redisPassword?: string | null;
+}
+
+/**
  * Create::createResource() for a database: the destination is
  * find_resource_destination_for_current_team() — one of the org's, on a
  * server whose role can host resources — then create_standalone_<type>(): a
@@ -178,7 +188,7 @@ const VARIABLE_COLUMN = "environment_variables.value";
  * its REDIS_PASSWORD and REDIS_USERNAME variables. Nothing is started. Null
  * when the project or the environment is not the org's.
  */
-export async function createDatabase(ctx: DatabaseContext, input: CreateDatabaseInput): Promise<{ uuid: string; projectUuid: string; environmentUuid: string } | null> {
+export async function createDatabase(ctx: DatabaseContext, input: CreateDatabaseInput, fill: DatabaseFill | null = null): Promise<{ uuid: string; projectUuid: string; environmentUuid: string } | null> {
   const spec = DATABASE_ENGINE_SPECS[input.engine];
   const random = ctx.random ?? DEFAULT_RANDOM;
   const destination = input.destinationUuid ? await ctx.store.findDestination(input.destinationUuid) : null;
@@ -195,25 +205,35 @@ export async function createDatabase(ctx: DatabaseContext, input: CreateDatabase
   const values: Record<string, DatabaseColumnValue> = {};
   if (spec.imageStep && input.databaseImage !== null) values.image = input.databaseImage;
   // Redis's password is a variable, drawn before the row is saved.
-  const redisPassword = input.engine === "redis" ? random.password() : null;
+  const generatedRedisPassword = input.engine === "redis" ? random.password() : null;
   for (const column of spec.generatedPasswords) values[column] = await cipherFor(ctx, input.engine, column).encrypt(random.password());
+  // $database->fill($otherData)
+  const encrypted: readonly string[] = DATABASE_TABLES[input.engine].encrypted;
+  for (const [column, value] of Object.entries(fill?.values ?? {})) {
+    values[column] = encrypted.includes(column) && typeof value === "string" ? await cipherFor(ctx, input.engine, column).encrypt(value) : value;
+  }
+  const redisPassword = fill?.redisPassword ?? generatedRedisPassword;
+  const image = typeof values.image === "string" ? values.image : input.databaseImage;
   // "if (blank($otherData['postgres_user'] ?? null) && PostgresUser::isSupabaseImage(...))"
-  if (input.engine === "postgresql" && isSupabaseImage(input.databaseImage)) values.postgres_user = SUPABASE_ADMIN;
+  const userGiven = typeof fill?.values.postgres_user === "string" && fill.values.postgres_user.trim() !== "";
+  if (input.engine === "postgresql" && !userGiven && isSupabaseImage(image)) values.postgres_user = SUPABASE_ADMIN;
 
-  const volumes = defaultVolumes(input.engine, uuid, input.databaseImage).map((v) => ({ uuid: random.publicId(), name: v.name, mountPath: v.mountPath }));
+  const volumes = defaultVolumes(input.engine, uuid, image).map((v) => ({ uuid: random.publicId(), name: v.name, mountPath: v.mountPath }));
+  // The helper names the database before fill() may name it again.
+  const { name: filledName, ...columns } = values;
   const row = await ctx.store.insert(input.engine, {
     uuid,
-    name: `${spec.namePrefix}${uuid}`,
+    name: typeof filledName === "string" ? filledName : `${spec.namePrefix}${uuid}`,
     environmentId: environment.id,
     destinationId: destination.id,
     destinationType: destination.type,
-    values,
+    values: columns,
     volumes,
   });
   if (redisPassword !== null) {
     const cipher = ctx.cipher(VARIABLE_COLUMN);
     for (const [key, value] of [["REDIS_PASSWORD", redisPassword], ["REDIS_USERNAME", "default"]] as const) {
-      await ctx.store.insertVariable(input.engine, row.id, { uuid: random.publicId(), key, value: await cipher.encrypt(value), isShared: false, version: ENVIRONMENT_VARIABLE_VERSION });
+      await ctx.store.insertVariable(input.engine, row.id, { uuid: random.publicId(), key, value: await cipher.encrypt(value), isShared: isSharedReference(value), version: ENVIRONMENT_VARIABLE_VERSION });
     }
   }
   return { uuid: row.uuid, projectUuid: project.uuid, environmentUuid: environment.uuid };
@@ -486,6 +506,17 @@ async function saveVariable(ctx: DatabaseContext, l: Loaded, key: "REDIS_USERNAM
     return;
   }
   await ctx.store.insertVariable(l.row.engine, l.row.id, { uuid: (ctx.random ?? DEFAULT_RANDOM).publicId(), key, value: stored, isShared: shared, version: ENVIRONMENT_VARIABLE_VERSION });
+}
+
+/**
+ * runtime_environment_variables()->updateOrCreate(['key' => 'REDIS_PASSWORD'], ['value' => …]) as Coolify's /api/v1
+ * update calls it (DP-73): the variable is written whatever its lock. False when the database is not the org's.
+ */
+export async function saveRedisPasswordVariable(ctx: DatabaseContext, uuid: string, value: string): Promise<boolean> {
+  const l = await load(ctx, uuid);
+  if (!l) return false;
+  await saveVariable(ctx, l, "REDIS_PASSWORD", value);
+  return true;
 }
 
 /** The stored value of every credential, by property: what rules() compares the input with (enforcePattern). */

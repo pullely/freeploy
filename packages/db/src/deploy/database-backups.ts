@@ -233,6 +233,24 @@ export async function deleteDatabaseBackup(tx: SqlExecutor, id: string | number)
   return r.rows.length > 0;
 }
 
+/** HasS3Replicas::hasLiveS3Copies() of one execution (DP-73): its copies uploaded to S3 and not deleted there. */
+export async function databaseBackupExecutionLiveS3Copies(tx: SqlExecutor, executionId: string | number): Promise<number> {
+  const r = await tx.execute<{ n: string | number }>("SELECT count(*) AS n FROM deploy.database_backup_s3_replicas WHERE execution_id = $1 AND s3_uploaded AND NOT s3_storage_deleted", [executionId]);
+  return Number(r.rows[0]?.n ?? 0);
+}
+
+/** $backup->update(['s3_storage_id' => …]) before syncS3Storages() (the API's primary destination, DP-73). */
+export async function setDatabaseBackupPrimaryStorage(tx: SqlExecutor, id: string | number, storageId: string | number | null): Promise<void> {
+  await tx.execute(`UPDATE deploy.scheduled_database_backups SET s3_storage_id = $2, updated_at = ${NOW} WHERE id = $1`, [id, storageId]);
+}
+
+/** $execution->delete() (the API's delete_execution_by_uuid, DP-73): the execution with its S3 replicas. */
+export async function deleteDatabaseBackupExecution(tx: SqlExecutor, id: string | number): Promise<boolean> {
+  await tx.execute("DELETE FROM deploy.database_backup_s3_replicas WHERE execution_id = $1", [id]);
+  const r = await tx.execute("DELETE FROM deploy.scheduled_database_backup_executions WHERE id = $1 RETURNING id", [id]);
+  return r.rows.length > 0;
+}
+
 /** data_get($backup->server(), 'settings.server_timezone'): the timezone the schedule runs in. */
 export async function serverTimezone(tx: SqlExecutor, serverId: string | number | null): Promise<string | null> {
   if (serverId === null) return null;

@@ -99,6 +99,18 @@ export const COOLIFY_COLUMNS = {
     "parent_deployment_uuid", "scan_gate_result", "scan_gate_bypassed_by", "deploy_started_at", "is_mcp",
     "github_deployment_id", "github_deployment_state",
   ],
+  // DP-73: a database's backup schedules (backup_configs) and their executions (latest_log, executions).
+  scheduled_database_backups: [
+    "id", "description", "uuid", "enabled", "save_s3", "frequency", "database_backup_retention_amount_locally",
+    "database_type", "database_id", "s3_storage_id", "team_id", "created_at", "updated_at", "databases_to_backup",
+    "dump_all", "database_backup_retention_days_locally", "database_backup_retention_max_storage_locally",
+    "database_backup_retention_amount_s3", "database_backup_retention_days_s3", "database_backup_retention_max_storage_s3",
+    "timeout", "disable_local_backup", "missing_backup_notification_days", "last_execution_at",
+  ],
+  scheduled_database_backup_executions: [
+    "id", "uuid", "status", "message", "size", "filename", "scheduled_database_backup_id", "created_at", "updated_at",
+    "database_name", "finished_at", "local_storage_deleted", "s3_storage_deleted", "s3_uploaded", "worker_host",
+  ],
 } as const satisfies Record<string, readonly string[]>;
 
 export type CoolifyTable = keyof typeof COOLIFY_COLUMNS;

@@ -23,6 +23,9 @@ use App\Models\EnvironmentVariable;
 use App\Models\InstanceSettings;
 use App\Models\PersonalAccessToken;
 use App\Models\PrivateKey;
+use App\Models\S3Storage;
+use App\Models\ScheduledDatabaseBackup;
+use App\Models\ScheduledDatabaseBackupExecution;
 use App\Models\Project;
 use App\Models\Server;
 use App\Models\StandaloneDocker;
@@ -57,7 +60,7 @@ Artisan::call('migrate:fresh', ['--force' => true]);
 ob_end_clean();
 /** The fixture's ids are given; what is created after them (a user's personal team, a case's rows) continues after them. */
 $advanceSequences = function (): void {
-    foreach (['teams', 'users', 'team_user', 'projects', 'environments', 'private_keys', 'servers', 'server_settings', 'standalone_dockers', 'personal_access_tokens', 'applications', 'application_settings', 'environment_variables', 'application_deployment_queues'] as $table) {
+    foreach (['teams', 'users', 'team_user', 'projects', 'environments', 'private_keys', 'servers', 'server_settings', 'standalone_dockers', 'personal_access_tokens', 'applications', 'application_settings', 'environment_variables', 'application_deployment_queues', 's3_storages', 'standalone_postgresqls', 'standalone_redis', 'standalone_mongodbs', 'standalone_mysqls', 'standalone_mariadbs', 'standalone_keydbs', 'standalone_dragonflies', 'standalone_clickhouses', 'local_persistent_volumes', 'scheduled_database_backups', 'scheduled_database_backup_executions', 'scheduled_database_backup_s3_storage'] as $table) {
         DB::statement("SELECT setval(pg_get_serial_sequence('{$table}', 'id'), GREATEST((SELECT COALESCE(MAX(id), 0) FROM {$table}), 1))");
     }
 };
@@ -110,6 +113,33 @@ foreach ($fixture['applications'] ?? [] as $a) {
 $advanceSequences();
 foreach ($fixture['variables'] ?? [] as $v) {
     EnvironmentVariable::unguarded(fn () => EnvironmentVariable::query()->create(['uuid' => $v['uuid'], 'key' => $v['key'], 'value' => $v['value'], 'comment' => $v['comment'], 'is_literal' => $v['is_literal'], 'is_multiline' => $v['is_multiline'], 'is_shown_once' => $v['is_shown_once'], 'is_runtime' => $v['is_runtime'], 'is_buildtime' => $v['is_buildtime'], 'is_preview' => false, 'resourceable_type' => Application::class, 'resourceable_id' => $v['application']]));
+}
+// DP-73: an S3 storage per team, the standalone databases through Coolify's create_standalone_<engine>() helpers (the
+// created hook's volumes, Redis's two variables), their backup schedules and two executions (the created hook writes the
+// schedule's last_execution_at).
+$advanceSequences();
+foreach ($fixture['s3Storages'] ?? [] as $s) {
+    S3Storage::unguarded(fn () => S3Storage::query()->forceCreate(['id' => $s['id'], 'uuid' => $s['uuid'], 'name' => $s['name'], 'description' => $s['description'], 'region' => $s['region'], 'key' => $s['key'], 'secret' => $s['secret'], 'bucket' => $s['bucket'], 'endpoint' => $s['endpoint'], 'is_usable' => $s['is_usable'], 'team_id' => $s['team']]));
+}
+$advanceSequences();
+foreach ($fixture['databases'] ?? [] as $d) {
+    $create = 'create_standalone_'.$d['engine'];
+    // The helper saves through the model: the table's sequence gives the fixture's id.
+    $table = (new ('App\\Models\\Standalone'.['postgresql' => 'Postgresql', 'redis' => 'Redis', 'mongodb' => 'Mongodb', 'mysql' => 'Mysql', 'mariadb' => 'Mariadb', 'keydb' => 'Keydb', 'dragonfly' => 'Dragonfly', 'clickhouse' => 'Clickhouse'][$d['engine']]))->getTable();
+    DB::statement("SELECT setval(pg_get_serial_sequence('{$table}', 'id'), {$d['id']}, false)");
+    $create($d['environment_id'], StandaloneDocker::query()->find($d['destination_id']), ['uuid' => $d['uuid'], 'name' => $d['name']] + $d['columns']);
+}
+$advanceSequences();
+$morph = ['postgresql' => \App\Models\StandalonePostgresql::class, 'mysql' => \App\Models\StandaloneMysql::class];
+foreach ($fixture['backups'] ?? [] as $b) {
+    $backup = ScheduledDatabaseBackup::unguarded(fn () => ScheduledDatabaseBackup::query()->forceCreate(['id' => $b['id'], 'uuid' => $b['uuid'], 'team_id' => $b['team'], 'database_type' => $morph[$b['engine']], 'database_id' => $b['database_id'], 'frequency' => $b['frequency'], 'save_s3' => $b['save_s3'], 'databases_to_backup' => $b['databases_to_backup'], 'enabled' => true, 'created_at' => $b['created_at'], 'updated_at' => $b['created_at']]));
+    if ($b['s3']) {
+        $backup->syncS3Storages($b['s3']);
+    }
+}
+$advanceSequences();
+foreach ($fixture['executions'] ?? [] as $x) {
+    ScheduledDatabaseBackupExecution::unguarded(fn () => ScheduledDatabaseBackupExecution::query()->forceCreate(['id' => $x['id'], 'uuid' => $x['uuid'], 'scheduled_database_backup_id' => $x['backup'], 'status' => $x['status'], 'message' => $x['message'], 'size' => $x['size'], 'filename' => $x['filename'], 'database_name' => $x['database_name'], 'created_at' => $x['created_at'], 'updated_at' => $x['created_at'], 'finished_at' => $x['finished_at']]));
 }
 // Tokens: the fixture's plain text, hashed as Sanctum stores it; the client sends "<id>|<plain text>".
 $advanceSequences();
