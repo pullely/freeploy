@@ -352,6 +352,17 @@ export async function fixtureDatabase(): Promise<FixtureDatabase> {
     );
   }
   await db.execute("SELECT setval(pg_get_serial_sequence('deploy.application_previews', 'id'), $1)", [Math.max(...f.previews.map((p) => p.id))]);
+  // DP-90: the cloud provider tokens, encrypted with the org's key as the console stores them.
+  for (const t of f.cloudTokens) {
+    await withOrg(db, org(t.team), async (tx) =>
+      tx.execute(
+        `INSERT INTO deploy.cloud_provider_tokens (id, uuid, provider, token, name, description, org_id, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, '2026-01-01 00:00:00', '2026-01-01 00:00:00')`,
+        [t.id, t.uuid, t.provider, await encrypt(tx, t.team, "cloud_provider_tokens.token", t.token), t.name, t.description, org(t.team)],
+      ),
+    );
+  }
+  await db.execute("SELECT setval(pg_get_serial_sequence('deploy.cloud_provider_tokens', 'id'), $1)", [Math.max(...f.cloudTokens.map((t) => t.id))]);
   return {
     pg,
     async inCase(fn) {

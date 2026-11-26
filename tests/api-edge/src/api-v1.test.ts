@@ -55,7 +55,9 @@ function harness(c: Case) {
   const workerAnswer = (req: Request) => {
     forwarded.push(req);
     if (!downstream) return new Response("no answer", { status: 599 });
-    return new Response(downstream.body.json ?? downstream.body.text ?? "", { status: downstream.status, headers: { "content-type": downstream.headers["content-type"] ?? "application/json" } });
+    // A worker's own Retry-After (DP-90: a cloud provider's rate limit, as Hostinger's controller answers it) passes through the edge.
+    const retryAfter = downstream.status === 429 && downstream.headers["retry-after"] !== undefined ? { "retry-after": downstream.headers["retry-after"] } : {};
+    return new Response(downstream.body.json ?? downstream.body.text ?? "", { status: downstream.status, headers: { "content-type": downstream.headers["content-type"] ?? "application/json", ...retryAfter } });
   };
   const env = {
     ENVIRONMENT: "test",
@@ -167,7 +169,7 @@ describe("what the edge sends a worker", () => {
 });
 
 describe("the routes", () => {
-  it("are the 248 ported operations of openapi.json (health, the deprecated team aliases and the GET answers of start, restart and stop aside)", () => {
+  it("are the 274 ported operations of openapi.json (health, the deprecated team aliases and the GET answers of start, restart and stop aside)", () => {
     const openapi = JSON.parse(readFileSync(resolve(FIXTURES, "../../../../specs/epics/freeploy-coolify-parity/parity/openapi.operations.json"), "utf8")) as { rows: Array<{ method: string; path: string }> };
     const ops = new Set(openapi.rows.map((r) => `${r.method} ${r.path}`));
     const routes = API_V1_ROUTES.map((r) => `${r.method} /api/v1${r.path}`);
@@ -193,7 +195,7 @@ describe("the routes", () => {
       "GET /api/v1/services/{uuid}/restart",
       "GET /api/v1/services/{uuid}/stop",
     ]);
-    expect(inOpenapi.length + 1 /* GET /api/v1/health */).toBe(248);
+    expect(inOpenapi.length + 1 /* GET /api/v1/health */).toBe(274);
   });
 
   it("take the first match in routes/api.php's order and ignore a trailing slash", () => {
@@ -222,7 +224,11 @@ describe("the routes", () => {
     expect(matchApiRoute("GET", "/databases/b1/imports/abc")).toBeNull();
     expect(matchApiRoute("GET", "/servers/s1/transfer")?.abilities).toEqual(["read", "write"]);
     expect(matchApiRoute("GET", "/servers/import/check")?.path).toBe("/servers/import/check");
-    expect(matchApiRoute("PUT", "/servers/s1/proxy/configuration")).toBeNull();
+    // DP-90: a server's proxy configuration; the cloud provider tokens and the providers' catalogs.
+    expect(matchApiRoute("PUT", "/servers/s1/proxy/configuration")?.abilities).toEqual(["write"]);
+    expect(matchApiRoute("POST", "/cloud-tokens/c1/validate")?.path).toBe("/cloud-tokens/{uuid}/validate");
+    expect(matchApiRoute("GET", "/hetzner/server-types")?.target).toBe("deploy");
+    expect(matchApiRoute("GET", "/hetzner/volumes")).toBeNull();
     expect(matchApiRoute("POST", "/servers/s1/transfer/complete")).toBeNull();
     expect(matchApiRoute("PATCH", "/team/envs/10")?.target).toBe("deploy");
     expect(matchApiRoute("PATCH", "/team")).toBeNull();

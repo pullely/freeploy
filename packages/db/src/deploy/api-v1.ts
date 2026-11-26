@@ -59,6 +59,8 @@ const TABLES = [
   "application_previews",
   // DP-88: GitHub Apps
   "github_apps",
+  // DP-90: cloud provider tokens
+  "cloud_provider_tokens",
 ] as const;
 export type ApiTable = (typeof TABLES)[number];
 

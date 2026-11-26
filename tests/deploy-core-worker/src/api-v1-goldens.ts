@@ -31,6 +31,8 @@ export interface Case extends Step {
   setupFreeploy?: string[];
   /** SQL whose rows emit.php reports after a write (`after` of the golden). */
   after?: Record<string, string>;
+  /** DP-90: the outside API's answers (Http::fake()). */
+  http?: HttpAnswer[];
 }
 export interface Answer {
   status: number;
@@ -42,6 +44,8 @@ export interface Golden extends Answer {
   steps?: Answer[];
   /** For a write: the rows its `after` queries found (emit.php). */
   after?: Record<string, unknown[]>;
+  /** DP-90: the requests Coolify sent to the faked outside API. */
+  requests?: HttpRequestRecord[];
 }
 export interface FixtureToken {
   key: string;
@@ -93,6 +97,25 @@ export interface Fixture {
   dockerCleanupExecutions: Array<{ id: number; uuid: string; server_id: number; status: string; message: string | null; created_at: string; finished_at: string | null }>;
   /** DP-86: the applications' previews. */
   previews: Array<{ id: number; uuid: string; application: number; pull_request_id: number; pull_request_html_url: string; git_type: string | null; fqdn: string | null; docker_registry_image_tag: string | null; status: string; created_at: string }>;
+  /** DP-90: the teams' cloud provider tokens (the token in plain text; each side stores it encrypted). */
+  cloudTokens: Array<{ id: number; uuid: string; team: number; provider: string; token: string; name: string; description: string | null }>;
+}
+
+/** DP-90: one answer of an outside HTTP API (emit.php's Http::fake()): the first whose `match` fits "METHOD URL". */
+export interface HttpAnswer {
+  match: string;
+  status?: number;
+  /** A JSON body (what Http::response() encodes), or `raw` text. */
+  body?: unknown;
+  raw?: string;
+  headers?: Record<string, string>;
+}
+/** DP-90: a request the API sent to the outside API, as emit.php records it. */
+export interface HttpRequestRecord {
+  method: string;
+  url: string;
+  authorization?: string;
+  body?: unknown;
 }
 
 export type StorageResource = "application" | "postgresql" | "serviceApplication";
@@ -131,6 +154,7 @@ const FIXTURE_UUIDS = new Set<string>([
   ...CASES.fixture.scheduledTaskExecutions.map((x) => x.uuid),
   ...CASES.fixture.dockerCleanupExecutions.map((x) => x.uuid),
   ...CASES.fixture.previews.map((p) => p.uuid),
+  ...CASES.fixture.cloudTokens.map((t) => t.uuid),
 ]);
 
 const LARAVEL_DATE = /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{6}Z$/;

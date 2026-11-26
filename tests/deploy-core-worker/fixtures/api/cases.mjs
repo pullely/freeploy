@@ -99,6 +99,13 @@ const R_GIT_17 = "r2paritygitpreview000002";
 const R_GIT_12 = "r3paritygitpreview000003";
 const R_OTHER = "r4otherpreview0000000004";
 
+// DP-90: the cloud provider tokens
+const CT_HETZNER = "c1paritycloudhetzner0001";
+const CT_DO = "c2paritycloudocean000002";
+const CT_VULTR = "c3paritycloudvultr000003";
+const CT_HOSTINGER = "c4paritycloudhostinger04";
+const CT_OTHER = "c5paritycloudother000005";
+
 const fixture = {
   teams: [
     { id: T1, name: "Parity Team", description: null, personal_team: false },
@@ -275,6 +282,14 @@ const fixture = {
     { id: 2, uuid: R_GIT_17, application: 2, pull_request_id: 17, pull_request_html_url: "https://github.com/coollabsio/coolify-examples/pull/17", git_type: "github", fqdn: null, docker_registry_image_tag: null, status: "exited", created_at: "2025-12-21 00:00:00" },
     { id: 3, uuid: R_GIT_12, application: 2, pull_request_id: 12, pull_request_html_url: "https://github.com/coollabsio/coolify-examples/pull/12", git_type: "github", fqdn: "https://pr-12.example.com:8080", docker_registry_image_tag: null, status: "exited", created_at: "2025-12-22 00:00:00" },
     { id: 4, uuid: R_OTHER, application: 3, pull_request_id: 1, pull_request_html_url: "", git_type: null, fqdn: null, docker_registry_image_tag: "pr-1", status: "exited", created_at: "2025-12-23 00:00:00" },
+  ],
+  // DP-90: cloud provider tokens, one per provider for team 1 and a Hetzner token of team 2 (the token encrypted on each side).
+  cloudTokens: [
+    { id: 1, uuid: CT_HETZNER, team: T1, provider: "hetzner", token: "hz-team1-token", name: "Parity Hetzner", description: "The main Hetzner project" },
+    { id: 2, uuid: CT_DO, team: T1, provider: "digitalocean", token: "do-team1-token", name: "Parity DigitalOcean", description: null },
+    { id: 3, uuid: CT_VULTR, team: T1, provider: "vultr", token: "vu-team1-token", name: "Parity Vultr", description: null },
+    { id: 4, uuid: CT_HOSTINGER, team: T1, provider: "hostinger", token: "ho-team1-token", name: "Parity Hostinger", description: null },
+    { id: 5, uuid: CT_OTHER, team: T2, provider: "hetzner", token: "hz-team2-token", name: "Other Hetzner", description: null },
   ],
   // secret: what follows "<id>|" in the bearer token (Sanctum's 40 random characters and crc32b).
   tokens: [
@@ -2368,6 +2383,248 @@ add({ name: "github apps: delete", token: "delete", method: "DELETE", path: GH_A
 add({ name: "github apps: delete, in use", token: "delete", method: "DELETE", path: GH_APP(1), config: CLOUD, ...GH_SETUP, setup: ["update applications set source_id = 1 where id = 2"], after: GH_AFTER });
 add({ name: "github apps: delete unknown", token: "delete", method: "DELETE", path: GH_APP(99), config: CLOUD, ...GH_SETUP });
 add({ name: "github apps: delete with a write token", token: "write", method: "DELETE", path: GH_APP(2), config: CLOUD, ...GH_SETUP });
+
+// ── DP-90: cloud provider tokens ────────────────────────────────────────────
+// A provider's API is Http::fake() (emit.php): `http` lists its answers, the first whose `match` fits "METHOD URL".
+const CT = "/api/v1/cloud-tokens";
+const CT_AFTER = { tokens: `select case when id <= 5 then id end as fixture_id, provider, name, description, token is not null as has_token from cloud_provider_tokens where uuid <> '${CT_OTHER}' order by id` };
+const TOKEN_IN_USE = "update servers set cloud_provider_token_id = 1 where id = 1";
+const answer = (match, body, status = 200, headers = undefined) => ({ match, body, status, ...(headers && { headers }) });
+const VALIDATE_URL = {
+  hetzner: "^GET https://api\\.hetzner\\.cloud/v1/servers$",
+  digitalocean: "^GET https://api\\.digitalocean\\.com/v2/account$",
+  vultr: "^GET https://api\\.vultr\\.com/v2/account$",
+  hostinger: "^GET https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$",
+};
+add({ name: "cloud tokens: list", token: "read", method: "GET", path: CT });
+add({ name: "cloud tokens: list, read:sensitive", token: "sensitive", method: "GET", path: CT });
+add({ name: "cloud tokens: list, one used by a server", token: "read", method: "GET", path: CT, setup: [TOKEN_IN_USE] });
+add({ name: "cloud tokens: list by a member", token: "memberRead", method: "GET", path: CT });
+add({ name: "cloud tokens: show", token: "read", method: "GET", path: `${CT}/${CT_HETZNER}` });
+add({ name: "cloud tokens: show, read:sensitive", token: "sensitive", method: "GET", path: `${CT}/${CT_VULTR}` });
+add({ name: "cloud tokens: show unknown", token: "read", method: "GET", path: `${CT}/nonexistentuuid` });
+add({ name: "cloud tokens: show another team's", token: "read", method: "GET", path: `${CT}/${CT_OTHER}` });
+add({ name: "cloud tokens: show by a member", token: "memberRead", method: "GET", path: `${CT}/${CT_HETZNER}` });
+// `$request->uuid`: the input before the route parameter (show, delete, validate; update reads the route's).
+add({ name: "cloud tokens: show, a uuid in the query", token: "read", method: "GET", path: `${CT}/${CT_HETZNER}?uuid=${CT_VULTR}` });
+add({ name: "cloud tokens: show, an empty uuid in the query", token: "read", method: "GET", path: `${CT}/${CT_HETZNER}?uuid=` });
+add({ name: "cloud tokens: delete, an empty uuid in the query", token: "delete", method: "DELETE", path: `${CT}/${CT_VULTR}?uuid=`, after: CT_AFTER });
+add({ name: "cloud tokens: delete, a uuid in the query", token: "delete", method: "DELETE", path: `${CT}/${CT_VULTR}?uuid=${CT_HOSTINGER}`, after: CT_AFTER });
+add({ name: "cloud tokens: validate, a uuid in the body", token: "write", method: "POST", path: `${CT}/${CT_HETZNER}/validate`, body: { uuid: CT_VULTR }, http: [answer(VALIDATE_URL.vultr, { ok: true })] });
+add({ name: "cloud tokens: update, a uuid in the query", token: "write", method: "PATCH", path: `${CT}/${CT_DO}?uuid=${CT_VULTR}`, body: { name: "Renamed by route" }, after: CT_AFTER });
+for (const provider of ["hetzner", "digitalocean", "vultr", "hostinger"]) {
+  add({ name: `cloud tokens: create a ${provider} token`, token: "write", method: "POST", path: CT, body: { provider, token: `${provider}-new-token`, name: `New ${provider}` }, http: [answer(VALIDATE_URL[provider], { ok: true })], after: CT_AFTER });
+}
+add({ name: "cloud tokens: create, the provider refuses the token", token: "write", method: "POST", path: CT, body: { provider: "hetzner", token: "bad-token", name: "Refused" }, http: [answer(VALIDATE_URL.hetzner, { error: { code: "unauthorized", message: "unable to authenticate" } }, 401)], after: CT_AFTER });
+add({ name: "cloud tokens: create, the provider answers 404", token: "write", method: "POST", path: CT, body: { provider: "vultr", token: "vu-x", name: "Nowhere" }, http: [], after: CT_AFTER });
+add({ name: "cloud tokens: create, invalid", token: "write", method: "POST", path: CT, body: { provider: "aws", token: 5, name: "x".repeat(256), description: "not allowed" }, http: [] });
+add({ name: "cloud tokens: create, nothing required", token: "write", method: "POST", path: CT, body: { other: 1 }, http: [] });
+add({ name: "cloud tokens: create, a provider that is not a string", token: "write", method: "POST", path: CT, body: { provider: ["hetzner"], token: "t", name: "n" }, http: [] });
+add({ name: "cloud tokens: create, not JSON", token: "write", method: "POST", path: CT, raw: "provider=hetzner", contentType: "application/x-www-form-urlencoded", http: [] });
+add({ name: "cloud tokens: create, empty JSON", token: "write", method: "POST", path: CT, raw: "{}", http: [] });
+add({ name: "cloud tokens: create with a read token", token: "read", method: "POST", path: CT, body: { provider: "hetzner", token: "t", name: "n" }, http: [] });
+add({ name: "cloud tokens: update", token: "write", method: "PATCH", path: `${CT}/${CT_DO}`, body: { name: "Renamed DigitalOcean" }, after: CT_AFTER });
+add({ name: "cloud tokens: update to the same name", token: "write", method: "PATCH", path: `${CT}/${CT_DO}`, body: { name: "Parity DigitalOcean" }, after: { ...CT_AFTER, touched: `select updated_at = created_at as untouched from cloud_provider_tokens where id = 2` } });
+add({ name: "cloud tokens: update, invalid", token: "write", method: "PATCH", path: `${CT}/${CT_DO}`, body: { name: 7, description: "x", provider: "vultr" } });
+add({ name: "cloud tokens: update, no name", token: "write", method: "PATCH", path: `${CT}/${CT_DO}`, body: { description: "x" } });
+add({ name: "cloud tokens: update, not JSON", token: "write", method: "PATCH", path: `${CT}/${CT_DO}`, raw: "name=x", contentType: "application/x-www-form-urlencoded" });
+add({ name: "cloud tokens: update unknown", token: "write", method: "PATCH", path: `${CT}/nonexistentuuid`, body: { name: "x" } });
+add({ name: "cloud tokens: update another team's", token: "write", method: "PATCH", path: `${CT}/${CT_OTHER}`, body: { name: "x" } });
+add({ name: "cloud tokens: delete", token: "delete", method: "DELETE", path: `${CT}/${CT_VULTR}`, after: CT_AFTER });
+add({ name: "cloud tokens: delete, used by a server", token: "delete", method: "DELETE", path: `${CT}/${CT_HETZNER}`, setup: [TOKEN_IN_USE], after: CT_AFTER });
+add({ name: "cloud tokens: delete, used by a deleted server", token: "delete", method: "DELETE", path: `${CT}/${CT_HETZNER}`, setup: [`${TOKEN_IN_USE}`, "update servers set deleted_at = '2025-12-31 00:00:00' where id = 1"], after: CT_AFTER });
+add({ name: "cloud tokens: delete unknown", token: "delete", method: "DELETE", path: `${CT}/nonexistentuuid` });
+add({ name: "cloud tokens: delete another team's", token: "delete", method: "DELETE", path: `${CT}/${CT_OTHER}` });
+add({ name: "cloud tokens: delete with a write token", token: "write", method: "DELETE", path: `${CT}/${CT_VULTR}` });
+for (const [provider, uuid] of [["hetzner", CT_HETZNER], ["digitalocean", CT_DO], ["vultr", CT_VULTR], ["hostinger", CT_HOSTINGER]]) {
+  add({ name: `cloud tokens: validate a ${provider} token`, token: "write", method: "POST", path: `${CT}/${uuid}/validate`, http: [answer(VALIDATE_URL[provider], { ok: true })] });
+}
+add({ name: "cloud tokens: validate, the provider refuses it", token: "write", method: "POST", path: `${CT}/${CT_HETZNER}/validate`, http: [answer(VALIDATE_URL.hetzner, { error: { code: "forbidden" } }, 403)] });
+add({ name: "cloud tokens: validate, the provider fails", token: "write", method: "POST", path: `${CT}/${CT_DO}/validate`, http: [answer(VALIDATE_URL.digitalocean, { id: "server_error" }, 500)] });
+add({ name: "cloud tokens: validate unknown", token: "write", method: "POST", path: `${CT}/nonexistentuuid/validate`, http: [] });
+add({ name: "cloud tokens: validate another team's", token: "write", method: "POST", path: `${CT}/${CT_OTHER}/validate`, http: [] });
+add({ name: "cloud tokens: validate with a read token", token: "read", method: "POST", path: `${CT}/${CT_HETZNER}/validate`, http: [] });
+
+// ── DP-90: what each cloud provider offers, through a cloud provider token ──
+const HZ = (what, uuid = CT_HETZNER) => `/api/v1/hetzner/${what}?cloud_provider_token_uuid=${uuid}`;
+const HZ_API = (path) => `^GET https://api\\.hetzner\\.cloud/v1/${path}`;
+const page = (next) => ({ pagination: { page: next === null ? 2 : 1, per_page: 50, previous_page: null, next_page: next, last_page: 2, total_entries: 2 } });
+const LOCATIONS = [
+  answer(`${HZ_API("locations")}\\?page=1&per_page=50$`, { locations: [{ id: 1, name: "fsn1", description: "Falkenstein DC Park 1", country: "DE", city: "Falkenstein", latitude: 50.47612, longitude: 12.370071, network_zone: "eu-central" }], meta: page(2) }),
+  answer(`${HZ_API("locations")}\\?page=2&per_page=50$`, { locations: [{ id: 2, name: "nbg1", description: "Nuremberg 1 DC 3", country: "DE", city: "Nürnberg", latitude: 49.452102, longitude: 11.076665, network_zone: "eu-central" }], meta: page(null) }),
+];
+const hzError = (status, error, headers) => [answer(`${HZ_API("locations")}`, { error }, status, headers)];
+add({ name: "hetzner locations", token: "read", method: "GET", path: HZ("locations"), http: LOCATIONS });
+add({ name: "hetzner locations: the deprecated token id", token: "read", method: "GET", path: `/api/v1/hetzner/locations?cloud_provider_token_id=${CT_HETZNER}`, http: LOCATIONS });
+add({ name: "hetzner locations: no token", token: "read", method: "GET", path: "/api/v1/hetzner/locations", http: LOCATIONS });
+add({ name: "hetzner locations: an empty token", token: "read", method: "GET", path: "/api/v1/hetzner/locations?cloud_provider_token_uuid=", http: LOCATIONS });
+add({ name: "hetzner locations: unknown token", token: "read", method: "GET", path: HZ("locations", "nonexistentuuid"), http: LOCATIONS });
+add({ name: "hetzner locations: another provider's token", token: "read", method: "GET", path: HZ("locations", CT_DO), http: LOCATIONS });
+add({ name: "hetzner locations: another team's token", token: "read", method: "GET", path: HZ("locations", CT_OTHER), http: LOCATIONS });
+add({ name: "hetzner locations: by a member", token: "memberRead", method: "GET", path: HZ("locations"), http: LOCATIONS });
+add({ name: "hetzner locations: the token is refused", token: "read", method: "GET", path: HZ("locations"), http: hzError(401, { code: "unauthorized", message: "unable to authenticate", details: null }) });
+add({ name: "hetzner locations: no permission", token: "read", method: "GET", path: HZ("locations"), http: hzError(403, { code: "forbidden", message: "insufficient permissions" }) });
+add({ name: "hetzner locations: not found", token: "read", method: "GET", path: HZ("locations"), http: hzError(404, { code: "not_found", message: "not found" }) });
+add({ name: "hetzner locations: a conflict", token: "read", method: "GET", path: HZ("locations"), http: hzError(409, { code: "Conflict-Weird", message: "conflict" }) });
+add({ name: "hetzner locations: invalid input", token: "read", method: "GET", path: HZ("locations"), http: hzError(422, { code: "invalid_input", message: "invalid", details: { fields: [{ name: "per_page", messages: ["too big"] }, { name: "bad field!" }, { messages: [] }, { name: "page" }] } }) });
+add({ name: "hetzner locations: locked", token: "read", method: "GET", path: HZ("locations"), http: hzError(423, { code: "locked", message: "locked" }) });
+add({ name: "hetzner locations: a resource limit", token: "read", method: "GET", path: HZ("locations"), http: hzError(403, { code: "RESOURCE_LIMIT_EXCEEDED", message: "limit" }) });
+add({ name: "hetzner locations: unavailable", token: "read", method: "GET", path: HZ("locations"), http: hzError(412, { code: "resource_unavailable" }) });
+add({ name: "hetzner locations: not unique", token: "read", method: "GET", path: HZ("locations"), http: hzError(409, { code: "uniqueness_error" }) });
+add({ name: "hetzner locations: a server error, sent three times", token: "read", method: "GET", path: HZ("locations"), http: hzError(500, { code: "server_error", message: "boom" }) });
+add({ name: "hetzner locations: in maintenance", token: "read", method: "GET", path: HZ("locations"), http: hzError(400, { code: "maintenance" }) });
+add({ name: "hetzner locations: another status", token: "read", method: "GET", path: HZ("locations"), http: hzError(418, { code: "teapot" }) });
+add({ name: "hetzner locations: another status without a code", token: "read", method: "GET", path: HZ("locations"), http: [{ match: HZ_API("locations"), raw: "nope", status: 418 }] });
+add({ name: "hetzner locations: rate limited", token: "read", method: "GET", path: HZ("locations"), http: hzError(429, { code: "rate_limit_exceeded" }, { "Retry-After": "7" }) });
+add({ name: "hetzner locations: not JSON", token: "read", method: "GET", path: HZ("locations"), http: [{ match: HZ_API("locations"), raw: "<html>ok</html>" }] });
+const SERVER_TYPES = [
+  answer(`${HZ_API("server_types")}\\?page=1&per_page=50$`, {
+    server_types: [
+      { id: 1, name: "cx22", description: "CX22", cores: 2, memory: 4, disk: 40, deprecated: false, prices: [{ location: "fsn1", price_hourly: { net: "0.0060", gross: "0.0071" } }], locations: [{ id: 1, name: "fsn1", deprecation: null, available: true }, { id: 2, name: "nbg1", deprecation: { announced: "2025-01-01T00:00:00+00:00", unavailable_after: "2025-04-01T00:00:00+00:00" } }, { id: 3, name: "hel1", available: false }], architecture: "x86" },
+      { id: 2, name: "cx11", description: "CX11", cores: 1, memory: 2, deprecated: true, locations: [{ id: 1, name: "fsn1" }] },
+      { id: 3, name: "cax11", description: "CAX11", cores: 2, memory: 4, deprecated: null, architecture: "arm", locations: [{ id: 2, name: "nbg1", deprecation: null }] },
+      { id: 4, name: "ccx13", description: "CCX13", cores: 2, memory: 8, locations: [{ id: 3, name: "hel1", available: false }] },
+      { id: 5, name: "cpx11", description: "CPX11", cores: 2, memory: 2 },
+    ],
+    meta: page(null),
+  }),
+];
+add({ name: "hetzner server types", token: "read", method: "GET", path: HZ("server-types"), http: SERVER_TYPES });
+add({ name: "hetzner server types: in a location", token: "read", method: "GET", path: `${HZ("server-types")}&location=nbg1`, http: SERVER_TYPES });
+add({ name: "hetzner server types: in a location without any", token: "read", method: "GET", path: `${HZ("server-types")}&location=ash`, http: SERVER_TYPES });
+add({ name: "hetzner server types: an empty location", token: "read", method: "GET", path: `${HZ("server-types")}&location=`, http: SERVER_TYPES });
+add({ name: "hetzner server types: not a list of types", token: "read", method: "GET", path: HZ("server-types"), http: [answer(HZ_API("server_types"), { server_types: ["cx22"], meta: page(null) })] });
+add({ name: "hetzner images", token: "read", method: "GET", path: HZ("images"), http: [
+  answer(`${HZ_API("images")}\\?type=system&page=1&per_page=50$`, { images: [
+    { id: 114690387, type: "system", status: "available", name: "debian-12", description: "Debian 12", os_flavor: "debian", os_version: "12", deprecated: null, architecture: "x86" },
+    { id: 2, type: "snapshot", name: "my-snap", deprecated: null },
+    { id: 3, type: "system", name: "ubuntu-18.04", deprecated: true },
+    { id: 4, name: "untyped", deprecated: "2024-01-01T00:00:00+00:00" },
+    { id: 5, type: null, name: "null type" },
+  ], meta: page(null) }),
+] });
+add({ name: "hetzner ssh keys", token: "read", method: "GET", path: HZ("ssh-keys"), http: [answer(`${HZ_API("ssh_keys")}\\?page=1&per_page=50$`, { ssh_keys: [{ id: 2323, name: "My ssh key", fingerprint: "b7:2f:30:a0:2f:6c:58:6c:21:04:58:61:ba:06:3b:2f", public_key: "ssh-rsa AAAjjk76kgf== my@host", labels: {}, created: "2016-01-30T23:50:00+00:00" }], meta: page(null) })] });
+add({ name: "hetzner firewalls", token: "read", method: "GET", path: HZ("firewalls"), http: [answer(`${HZ_API("firewalls")}\\?page=1&per_page=50$`, { firewalls: [{ id: 38, name: "Corporate Intranet Protection", labels: { env: "prod" }, rules: [{ direction: "in", protocol: "tcp", port: "80", source_ips: ["28.239.13.1/32", "2001:db8::/32"] }], applied_to: [] }], meta: page(null) })] });
+add({ name: "hetzner networks", token: "read", method: "GET", path: HZ("networks"), http: [answer(`${HZ_API("networks")}\\?page=1&per_page=50$`, { networks: [{ id: 4711, name: "mynet", ip_range: "10.0.0.0/16", subnets: [{ type: "cloud", ip_range: "10.0.1.0/24", network_zone: "eu-central", gateway: "10.0.0.1" }], servers: [42] }], meta: { pagination: { next_page: null } } })] });
+add({ name: "hetzner networks: no resources key", token: "read", method: "GET", path: HZ("networks"), http: [answer(HZ_API("networks"), { meta: { pagination: { next_page: null } } })] });
+add({ name: "hetzner: an unknown catalog", token: "read", method: "GET", path: HZ("volumes"), http: [] });
+add({ name: "hetzner locations: POST", token: "write", method: "POST", path: HZ("locations"), body: { x: 1 }, http: [] });
+
+const DO = (what, uuid = CT_DO) => `/api/v1/digitalocean/${what}?cloud_provider_token_uuid=${uuid}`;
+const DO_API = (path) => `^GET https://api\\.digitalocean\\.com/v2/${path}`;
+add({ name: "digitalocean regions", token: "read", method: "GET", path: DO("regions"), http: [
+  answer(`${DO_API("regions")}\\?page=1&per_page=50$`, { regions: [{ name: "New York 3", slug: "nyc3", features: ["backups", "ipv6"], available: true, sizes: ["s-1vcpu-1gb"] }, { name: "Old", slug: "old1", available: false }], links: { pages: { next: "https://api.digitalocean.com/v2/regions?page=2&per_page=50" } }, meta: { total: 3 } }),
+  answer(`${DO_API("regions")}\\?page=2&per_page=50$`, { regions: [{ name: "Amsterdam 3", slug: "ams3", available: null }], links: {}, meta: { total: 3 } }),
+] });
+add({ name: "digitalocean regions: the deprecated token id", token: "read", method: "GET", path: `/api/v1/digitalocean/regions?cloud_provider_token_id=${CT_DO}`, http: [answer(DO_API("regions"), { regions: [], links: { pages: { next: "" } } })] });
+add({ name: "digitalocean regions: no token", token: "read", method: "GET", path: "/api/v1/digitalocean/regions", http: [] });
+add({ name: "digitalocean regions: a Hetzner token", token: "read", method: "GET", path: DO("regions", CT_HETZNER), http: [] });
+add({ name: "digitalocean regions: by a member", token: "memberRead", method: "GET", path: DO("regions"), http: [] });
+add({ name: "digitalocean regions: the token is refused, sent three times", token: "read", method: "GET", path: DO("regions"), http: [answer(DO_API("regions"), { id: "Unauthorized", message: "Unable to authenticate you" }, 401)] });
+add({ name: "digitalocean regions: rate limited", token: "read", method: "GET", path: DO("regions"), http: [answer(DO_API("regions"), { id: "too_many_requests" }, 429, { "Retry-After": "3" })] });
+add({ name: "digitalocean regions: not a list of regions", token: "read", method: "GET", path: DO("regions"), http: [answer(DO_API("regions"), { regions: ["nyc3"] })] });
+add({ name: "digitalocean sizes", token: "read", method: "GET", path: DO("sizes"), http: [answer(`${DO_API("sizes")}\\?page=1&per_page=50$`, { sizes: [{ slug: "s-1vcpu-1gb", memory: 1024, vcpus: 1, disk: 25, price_monthly: 6, price_hourly: 0.00893, regions: ["nyc3"], available: true, description: "Basic" }, { slug: "gone", available: false }] })] });
+add({ name: "digitalocean images", token: "read", method: "GET", path: DO("images"), http: [answer(`${DO_API("images")}\\?type=distribution&page=1&per_page=50$`, { images: [{ id: 129211873, name: "24.04 (LTS) x64", distribution: "Ubuntu", slug: "ubuntu-24-04-x64", public: true, regions: ["nyc3"] }, { id: 2, name: "private", public: false }, { id: 3, name: "no flag" }] })] });
+add({ name: "digitalocean ssh keys", token: "read", method: "GET", path: DO("ssh-keys"), http: [answer(`${DO_API("account/keys")}\\?page=1&per_page=50$`, { ssh_keys: [{ id: 512189, fingerprint: "3b:16:bf:e4:8b:00:8b:b8:59:8c:a9:d3:f0:19:45:fa", public_key: "ssh-rsa AEXAMPLEaWEE= example", name: "My SSH Public Key" }], links: {}, meta: { total: 1 } })] });
+
+const VU = (what, uuid = CT_VULTR) => `/api/v1/vultr/${what}?cloud_provider_token_uuid=${uuid}`;
+const VU_API = (path) => `^GET https://api\\.vultr\\.com/v2/${path}`;
+add({ name: "vultr regions", token: "read", method: "GET", path: VU("regions"), http: [
+  answer(`${VU_API("regions")}\\?per_page=100$`, { regions: [{ id: "ams", city: "Amsterdam", country: "NL", continent: "Europe", options: ["ddos_protection"] }], meta: { total: 2, links: { next: "https://api.vultr.com/v2/regions?per_page=100&cursor=bmV4dF9fQU1T", prev: "" } } }),
+  answer(`${VU_API("regions")}\\?per_page=100&cursor=bmV4dF9fQU1T$`, { regions: [{ id: "atl", city: "Atlanta", country: "US", continent: "North America", options: [] }], meta: { total: 2, links: { next: "", prev: "" } } }),
+] });
+add({ name: "vultr regions: a bare cursor", token: "read", method: "GET", path: VU("regions"), http: [answer(VU_API("regions"), { regions: [{ id: "ams" }], meta: { links: { next: "bmV4dF9fQU1T" } } })] });
+add({ name: "vultr regions: no token", token: "read", method: "GET", path: "/api/v1/vultr/regions", http: [] });
+add({ name: "vultr regions: a Hostinger token", token: "read", method: "GET", path: VU("regions", CT_HOSTINGER), http: [] });
+add({ name: "vultr regions: the provider fails, sent three times", token: "read", method: "GET", path: VU("regions"), http: [answer(VU_API("regions"), { error: "boom", status: 500 }, 500)] });
+add({ name: "vultr plans", token: "read", method: "GET", path: VU("plans"), http: [answer(`${VU_API("plans")}\\?per_page=100$`, { plans: [{ id: "vc2-1c-1gb", vcpu_count: 1, ram: 1024, disk: 25, monthly_cost: 5, type: "vc2", locations: ["ams"] }], meta: { links: { next: "" } } })] });
+add({ name: "vultr operating systems", token: "read", method: "GET", path: VU("os"), http: [answer(`${VU_API("os")}\\?per_page=100$`, { os: [{ id: 2284, name: "Ubuntu 24.04 LTS x64", arch: "x64", family: "ubuntu" }], meta: { links: { next: null } } })] });
+add({ name: "vultr ssh keys", token: "read", method: "GET", path: VU("ssh-keys"), http: [answer(`${VU_API("ssh-keys")}\\?per_page=100$`, { ssh_keys: [{ id: "cb676a46-66fd-4dfb-b839-443f2e6c0b60", date_created: "2020-10-10T01:56:20+00:00", name: "Example SSH Key", ssh_key: "ssh-rsa AA... user@example.com" }], meta: {} })] });
+
+const HO = (what, uuid = CT_HOSTINGER) => `/api/v1/hostinger/${what}?cloud_provider_token_uuid=${uuid}`;
+const HO_API = (path) => `^GET https://developers\\.hostinger\\.com/api/${path}`;
+add({ name: "hostinger data centers", token: "read", method: "GET", path: HO("data-centers"), http: [answer(`${HO_API("vps/v1/data-centers")}$`, [{ id: 9, name: "phx", location: "us", city: "Phoenix", continent: "North America" }, { id: 11, name: "bnk", location: "lt", city: "Vilnius", continent: "Europe" }])] });
+add({ name: "hostinger data centers: no token", token: "read", method: "GET", path: "/api/v1/hostinger/data-centers", http: [] });
+add({ name: "hostinger data centers: a Vultr token", token: "read", method: "GET", path: HO("data-centers", CT_VULTR), http: [] });
+add({ name: "hostinger data centers: by a member", token: "memberRead", method: "GET", path: HO("data-centers"), http: [] });
+add({ name: "hostinger data centers: the token is refused", token: "read", method: "GET", path: HO("data-centers"), http: [answer(HO_API("vps/v1/data-centers"), { message: "Unauthenticated.", correlation_id: "abc" }, 401)] });
+add({ name: "hostinger data centers: refused without a message", token: "read", method: "GET", path: HO("data-centers"), http: [{ match: HO_API("vps/v1/data-centers"), raw: "", status: 401 }] });
+add({ name: "hostinger ssh keys: forbidden", token: "read", method: "GET", path: HO("ssh-keys"), http: [answer(HO_API("vps/v1/public-keys"), { error: "Forbidden" }, 403)] });
+add({ name: "hostinger catalog: rate limited", token: "read", method: "GET", path: HO("catalog"), http: [answer(HO_API("billing/v1/catalog"), { message: "Too Many Attempts." }, 429, { "Retry-After": "30" })] });
+add({ name: "hostinger catalog: rate limited without Retry-After", token: "read", method: "GET", path: HO("catalog"), http: [answer(HO_API("billing/v1/catalog"), { message: "Too Many Attempts." }, 429)] });
+add({ name: "hostinger catalog: a server error, sent three times", token: "read", method: "GET", path: HO("catalog"), http: [answer(HO_API("billing/v1/catalog"), { message: "Server Error" }, 500)] });
+add({ name: "hostinger catalog: not found", token: "read", method: "GET", path: HO("catalog"), http: [answer(HO_API("billing/v1/catalog"), { message: "Not found" }, 404)] });
+add({ name: "hostinger catalog", token: "read", method: "GET", path: HO("catalog"), http: [answer(`${HO_API("billing/v1/catalog")}\\?category=VPS$`, [
+  { id: "hostingercom-vps-kvm2", name: "KVM 2", category: "VPS", metadata: { cpus: "2", memory: "8192" }, prices: [{ id: "hostingercom-vps-kvm2-usd-1m", name: "KVM 2 (billed every month)", currency: "USD", price: 1399, first_period_price: 899, period: 1, period_unit: "month" }] },
+  { id: "hostingercom-vps-game-panel-kvm2x", name: "Game Panel", category: "VPS" },
+  { id: "hostingercom-vps-kvm8", name: "KVM 8", category: "VPS", metadata: null },
+  "not an item",
+  { name: "no id" },
+])] });
+add({ name: "hostinger templates", token: "read", method: "GET", path: HO("templates"), http: [answer(`${HO_API("vps/v1/templates")}$`, [{ id: 1002, name: "Ubuntu 24.04 LTS", description: "Ubuntu 24.04 LTS", documentation: null }])] });
+add({ name: "hostinger ssh keys", token: "read", method: "GET", path: HO("ssh-keys"), http: [answer(`${HO_API("vps/v1/public-keys")}$`, { data: [{ id: 325, name: "My public key", key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQ..." }], meta: { current_page: 1, per_page: 15, total: 1 } })] });
+add({ name: "hostinger post-install scripts", token: "read", method: "GET", path: HO("post-install-scripts"), http: [answer(`${HO_API("vps/v1/post-install-scripts")}$`, { data: [{ id: 325, name: "My setup script", content: "#!/bin/bash\napt-get update", created_at: "2025-02-27T11:54:22Z", updated_at: "2025-02-27T11:54:22Z" }], meta: { current_page: 1 } })] });
+add({ name: "hostinger post-install scripts: no data", token: "read", method: "GET", path: HO("post-install-scripts"), http: [answer(HO_API("vps/v1/post-install-scripts"), { meta: {} })] });
+
+// ── DP-90: a server's proxy configuration ───────────────────────────────────
+// Coolify writes the file on the server over SSH after saving the configuration into the proxy: the emitter has no SSH.
+const CFG = SRV("proxy/configuration");
+const CFG_AFTER = { server: PROXY_AFTER.server };
+const TRAEFIK_COMPOSE = "name: coolify-proxy\nnetworks:\n  coolify:\n    external: true\nservices:\n  traefik:\n    container_name: coolify-proxy\n    image: 'traefik:v3.6'\n    restart: unless-stopped\n    networks:\n      - coolify\n    ports:\n      - '80:80'\n      - '443:443'\n      - '443:443/udp'\n      - '8080:8080'\n    labels:\n      - coolify.managed=true\n";
+const withPorts = (ports, service = "traefik", name = "coolify-proxy") => `services:\n  ${service}:\n    container_name: ${name}\n    image: traefik:v3.6\n    ports:\n${ports.map((p) => `      - ${p}`).join("\n")}\n`;
+const cfg = (name, configuration, extra = {}) => add({ name: `proxy configuration: ${name}`, token: "root", method: "PUT", path: CFG, setup: FUNCTIONAL, body: { configuration }, after: CFG_AFTER, ...extra });
+cfg("save", TRAEFIK_COMPOSE);
+cfg("save over a saved one", TRAEFIK_COMPOSE.replace("v3.6", "v3.5"), { setup: [...FUNCTIONAL, ...TRAEFIK_PROXY] });
+cfg("save, base64", Buffer.from(TRAEFIK_COMPOSE).toString("base64"));
+cfg("save, base64 that is not UTF-8", Buffer.from([0xff, 0xfe, 0x41, 0x42]).toString("base64"));
+cfg("save, base64 of blanks", Buffer.from("   \n  ").toString("base64"));
+cfg("save, Caddy", "services:\n  caddy:\n    container_name: coolify-proxy\n    image: lucaslorentz/caddy-docker-proxy:2.8-alpine\n    ports:\n      - 80:80\n      - 443:443\n");
+cfg("save, no proxy service", "services:\n  other:\n    image: nginx\n    ports:\n      - 99999:80\n");
+cfg("save, not a map", "just text");
+cfg("save, invalid YAML", "services:\n  traefik:\n    image: [unclosed\n");
+cfg("save, a tab", "services:\n\ttraefik: {}\n");
+cfg("save, a duplicate key", "services:\n  traefik:\n    image: a\n    image: b\n");
+cfg("save, the traefik service unnamed", "services:\n  traefik:\n    image: traefik:v3.6\n    ports:\n      - 80:80\n");
+cfg("save, the caddy service renamed", withPorts(["80:80"], "caddy", "my-caddy"));
+cfg("save, a renamed proxy on a Swarm server", withPorts(["80:80"], "traefik", "my-proxy"), { setup: [...FUNCTIONAL, "update server_settings set is_swarm_manager = true where server_id = 1"] });
+cfg("save, a tagged container name", "services:\n  traefik:\n    container_name: !override coolify-proxy\n    ports: !reset\n      - 80:80\n");
+cfg("save, a tagged services map", "services: !foo\n  traefik:\n    container_name: other\n    ports:\n      - 80:80\n");
+cfg("save, a tagged port", withPorts(["!tag 80:80", "!tag 99999"]));
+cfg("ports: an integer port", withPorts(["80", "443"]));
+cfg("ports: out of range", withPorts(["70000:80"]));
+cfg("ports: zero", withPorts(["0"]));
+cfg("ports: a float", withPorts(["80.5"]));
+cfg("ports: a boolean", withPorts(["true"]));
+cfg("ports: a range", withPorts(["'8000-8010:8000-8010'"]));
+cfg("ports: a reversed range", withPorts(["'8010-8000:80'"]));
+cfg("ports: a host IP", withPorts(["'127.0.0.1:8080:80'", "'[::1]:8443:443'", "'0.0.0.0::80'"]));
+cfg("ports: a bad host IP", withPorts(["'300.0.0.1:8080:80'"]));
+cfg("ports: a bad bracketed IP", withPorts(["'[nope]:80:80'"]));
+cfg("ports: too many parts", withPorts(["'1:2:3:4'"]));
+cfg("ports: an empty host", withPorts(["':80'"]));
+cfg("ports: a protocol", withPorts(["'53:53/UDP'", "'54:54/sctp'"]));
+cfg("ports: a bad protocol", withPorts(["'80:80/http'"]));
+cfg("ports: variables with defaults", withPorts(["'${HTTP_PORT:-80}:80'", "'${HTTPS_PORT-443}:443'"]));
+cfg("ports: an unresolved variable", withPorts(["'${HTTP_PORT}:80'"]));
+cfg("ports: a variable with a bad default", withPorts(["'${HTTP_PORT:-99999}:80'"]));
+cfg("ports: a variable with unsafe text", withPorts(["'${HTTP_PORT:-80}:80 ;rm'"]));
+cfg("ports: long syntax", "services:\n  traefik:\n    container_name: coolify-proxy\n    ports:\n      - target: 80\n        published: '8080'\n        protocol: tcp\n        host_ip: 127.0.0.1\n      - target: '443'\n");
+cfg("ports: long syntax without a target", "services:\n  traefik:\n    container_name: coolify-proxy\n    ports:\n      - published: 8080\n");
+cfg("ports: long syntax with variables", "services:\n  traefik:\n    container_name: coolify-proxy\n    ports:\n      - target: 80\n        published: ${PORT:-8080}\n        host_ip: ${HOST_IP}\n        protocol: ${PROTO:-tcp}\n      - target: ${TARGET}\n        published: ${OTHER:-99999}\n");
+cfg("ports: long syntax with a bad protocol", "services:\n  traefik:\n    container_name: coolify-proxy\n    ports:\n      - target: 80\n        protocol: icmp\n");
+cfg("ports: not a list", "services:\n  traefik:\n    container_name: coolify-proxy\n    ports:\n      http: 80\n");
+cfg("ports: a list of lists", withPorts(["[80, 80]"]));
+add({ name: "proxy configuration: not functional", token: "root", method: "PUT", path: CFG, body: { configuration: TRAEFIK_COMPOSE }, after: CFG_AFTER });
+add({ name: "proxy configuration: not functional, invalid ports", token: "root", method: "PUT", path: CFG, body: { configuration: withPorts(["99999"]) } });
+add({ name: "proxy configuration: blank", token: "root", method: "PUT", path: CFG, setup: FUNCTIONAL, body: { configuration: "   " } });
+add({ name: "proxy configuration: not a string", token: "root", method: "PUT", path: CFG, setup: FUNCTIONAL, body: { configuration: ["services"], extra: true } });
+add({ name: "proxy configuration: nothing", token: "root", method: "PUT", path: CFG, raw: "{}" });
+add({ name: "proxy configuration: not JSON", token: "root", method: "PUT", path: CFG, raw: "configuration=x", contentType: "application/x-www-form-urlencoded" });
+add({ name: "proxy configuration: without the deploy permission", token: "write", method: "PUT", path: CFG, setup: FUNCTIONAL, body: { configuration: TRAEFIK_COMPOSE } });
+add({ name: "proxy configuration: with a read token", token: "read", method: "PUT", path: CFG, body: { configuration: TRAEFIK_COMPOSE } });
+add({ name: "proxy configuration: unknown server", token: "root", method: "PUT", path: SRV("proxy/configuration", "nonexistentuuid"), body: { configuration: TRAEFIK_COMPOSE } });
+add({ name: "proxy configuration: another team's server", token: "root", method: "PUT", path: SRV("proxy/configuration", S_OTHER), body: { configuration: TRAEFIK_COMPOSE } });
+add({ name: "proxy configuration: GET", token: "root", method: "GET", path: CFG });
 
 /** The tables whose column order emit.php writes into the goldens (`columns`): what a nested relation serializes in. */
 const columnsOf = ["servers", "server_settings", "standalone_dockers", "application_settings", "applications", "environment_variables", "application_deployment_queues", "scheduled_database_backups", "scheduled_database_backup_executions", "services", "service_applications", "service_databases", "projects", "environments", "standalone_postgresqls", "standalone_redis", "standalone_mongodbs", "standalone_mysqls", "standalone_mariadbs", "standalone_keydbs", "standalone_dragonflies", "standalone_clickhouses", "local_persistent_volumes", "local_file_volumes", "github_apps"];

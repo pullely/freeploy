@@ -1108,6 +1108,53 @@
     "created_at": "2025-12-23 00:00:00"
    }
   ],
+  "cloudTokens": [
+   {
+    "id": 1,
+    "uuid": "c1paritycloudhetzner0001",
+    "team": 1,
+    "provider": "hetzner",
+    "token": "hz-team1-token",
+    "name": "Parity Hetzner",
+    "description": "The main Hetzner project"
+   },
+   {
+    "id": 2,
+    "uuid": "c2paritycloudocean000002",
+    "team": 1,
+    "provider": "digitalocean",
+    "token": "do-team1-token",
+    "name": "Parity DigitalOcean",
+    "description": null
+   },
+   {
+    "id": 3,
+    "uuid": "c3paritycloudvultr000003",
+    "team": 1,
+    "provider": "vultr",
+    "token": "vu-team1-token",
+    "name": "Parity Vultr",
+    "description": null
+   },
+   {
+    "id": 4,
+    "uuid": "c4paritycloudhostinger04",
+    "team": 1,
+    "provider": "hostinger",
+    "token": "ho-team1-token",
+    "name": "Parity Hostinger",
+    "description": null
+   },
+   {
+    "id": 5,
+    "uuid": "c5paritycloudother000005",
+    "team": 2,
+    "provider": "hetzner",
+    "token": "hz-team2-token",
+    "name": "Other Hetzner",
+    "description": null
+   }
+  ],
   "tokens": [
    {
     "key": "root",
@@ -20746,6 +20793,3504 @@
     "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (1, 'j1paritygithubapp0000001', 'Parity App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1001, 2001, 'Iv1.parity1', false, false, 1, deploy.current_org(), '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
     "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (2, 'j2paritysecondapp0000002', 'Second App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1002, 2002, 'Iv1.parity2', false, false, 2, deploy.current_org(), '2025-12-02 00:00:00', '2025-12-02 00:00:00')"
    ]
+  },
+  {
+   "name": "cloud tokens: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/cloud-tokens"
+  },
+  {
+   "name": "cloud tokens: list, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/cloud-tokens"
+  },
+  {
+   "name": "cloud tokens: list, one used by a server",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/cloud-tokens",
+   "setup": [
+    "update servers set cloud_provider_token_id = 1 where id = 1"
+   ]
+  },
+  {
+   "name": "cloud tokens: list by a member",
+   "token": "memberRead",
+   "method": "GET",
+   "path": "/api/v1/cloud-tokens"
+  },
+  {
+   "name": "cloud tokens: show",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/cloud-tokens/c1paritycloudhetzner0001"
+  },
+  {
+   "name": "cloud tokens: show, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/cloud-tokens/c3paritycloudvultr000003"
+  },
+  {
+   "name": "cloud tokens: show unknown",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/cloud-tokens/nonexistentuuid"
+  },
+  {
+   "name": "cloud tokens: show another team's",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/cloud-tokens/c5paritycloudother000005"
+  },
+  {
+   "name": "cloud tokens: show by a member",
+   "token": "memberRead",
+   "method": "GET",
+   "path": "/api/v1/cloud-tokens/c1paritycloudhetzner0001"
+  },
+  {
+   "name": "cloud tokens: show, a uuid in the query",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/cloud-tokens/c1paritycloudhetzner0001?uuid=c3paritycloudvultr000003"
+  },
+  {
+   "name": "cloud tokens: show, an empty uuid in the query",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/cloud-tokens/c1paritycloudhetzner0001?uuid="
+  },
+  {
+   "name": "cloud tokens: delete, an empty uuid in the query",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/cloud-tokens/c3paritycloudvultr000003?uuid=",
+   "after": {
+    "tokens": "select case when id <= 5 then id end as fixture_id, provider, name, description, token is not null as has_token from cloud_provider_tokens where uuid <> 'c5paritycloudother000005' order by id"
+   }
+  },
+  {
+   "name": "cloud tokens: delete, a uuid in the query",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/cloud-tokens/c3paritycloudvultr000003?uuid=c4paritycloudhostinger04",
+   "after": {
+    "tokens": "select case when id <= 5 then id end as fixture_id, provider, name, description, token is not null as has_token from cloud_provider_tokens where uuid <> 'c5paritycloudother000005' order by id"
+   }
+  },
+  {
+   "name": "cloud tokens: validate, a uuid in the body",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-tokens/c1paritycloudhetzner0001/validate",
+   "body": {
+    "uuid": "c3paritycloudvultr000003"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.vultr\\.com/v2/account$",
+     "body": {
+      "ok": true
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "cloud tokens: update, a uuid in the query",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/cloud-tokens/c2paritycloudocean000002?uuid=c3paritycloudvultr000003",
+   "body": {
+    "name": "Renamed by route"
+   },
+   "after": {
+    "tokens": "select case when id <= 5 then id end as fixture_id, provider, name, description, token is not null as has_token from cloud_provider_tokens where uuid <> 'c5paritycloudother000005' order by id"
+   }
+  },
+  {
+   "name": "cloud tokens: create a hetzner token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-tokens",
+   "body": {
+    "provider": "hetzner",
+    "token": "hetzner-new-token",
+    "name": "New hetzner"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/servers$",
+     "body": {
+      "ok": true
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 5 then id end as fixture_id, provider, name, description, token is not null as has_token from cloud_provider_tokens where uuid <> 'c5paritycloudother000005' order by id"
+   }
+  },
+  {
+   "name": "cloud tokens: create a digitalocean token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-tokens",
+   "body": {
+    "provider": "digitalocean",
+    "token": "digitalocean-new-token",
+    "name": "New digitalocean"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.digitalocean\\.com/v2/account$",
+     "body": {
+      "ok": true
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 5 then id end as fixture_id, provider, name, description, token is not null as has_token from cloud_provider_tokens where uuid <> 'c5paritycloudother000005' order by id"
+   }
+  },
+  {
+   "name": "cloud tokens: create a vultr token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-tokens",
+   "body": {
+    "provider": "vultr",
+    "token": "vultr-new-token",
+    "name": "New vultr"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.vultr\\.com/v2/account$",
+     "body": {
+      "ok": true
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 5 then id end as fixture_id, provider, name, description, token is not null as has_token from cloud_provider_tokens where uuid <> 'c5paritycloudother000005' order by id"
+   }
+  },
+  {
+   "name": "cloud tokens: create a hostinger token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-tokens",
+   "body": {
+    "provider": "hostinger",
+    "token": "hostinger-new-token",
+    "name": "New hostinger"
+   },
+   "http": [
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$",
+     "body": {
+      "ok": true
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 5 then id end as fixture_id, provider, name, description, token is not null as has_token from cloud_provider_tokens where uuid <> 'c5paritycloudother000005' order by id"
+   }
+  },
+  {
+   "name": "cloud tokens: create, the provider refuses the token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-tokens",
+   "body": {
+    "provider": "hetzner",
+    "token": "bad-token",
+    "name": "Refused"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/servers$",
+     "body": {
+      "error": {
+       "code": "unauthorized",
+       "message": "unable to authenticate"
+      }
+     },
+     "status": 401
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 5 then id end as fixture_id, provider, name, description, token is not null as has_token from cloud_provider_tokens where uuid <> 'c5paritycloudother000005' order by id"
+   }
+  },
+  {
+   "name": "cloud tokens: create, the provider answers 404",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-tokens",
+   "body": {
+    "provider": "vultr",
+    "token": "vu-x",
+    "name": "Nowhere"
+   },
+   "http": [],
+   "after": {
+    "tokens": "select case when id <= 5 then id end as fixture_id, provider, name, description, token is not null as has_token from cloud_provider_tokens where uuid <> 'c5paritycloudother000005' order by id"
+   }
+  },
+  {
+   "name": "cloud tokens: create, invalid",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-tokens",
+   "body": {
+    "provider": "aws",
+    "token": 5,
+    "name": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "description": "not allowed"
+   },
+   "http": []
+  },
+  {
+   "name": "cloud tokens: create, nothing required",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-tokens",
+   "body": {
+    "other": 1
+   },
+   "http": []
+  },
+  {
+   "name": "cloud tokens: create, a provider that is not a string",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-tokens",
+   "body": {
+    "provider": [
+     "hetzner"
+    ],
+    "token": "t",
+    "name": "n"
+   },
+   "http": []
+  },
+  {
+   "name": "cloud tokens: create, not JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-tokens",
+   "raw": "provider=hetzner",
+   "contentType": "application/x-www-form-urlencoded",
+   "http": []
+  },
+  {
+   "name": "cloud tokens: create, empty JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-tokens",
+   "raw": "{}",
+   "http": []
+  },
+  {
+   "name": "cloud tokens: create with a read token",
+   "token": "read",
+   "method": "POST",
+   "path": "/api/v1/cloud-tokens",
+   "body": {
+    "provider": "hetzner",
+    "token": "t",
+    "name": "n"
+   },
+   "http": []
+  },
+  {
+   "name": "cloud tokens: update",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/cloud-tokens/c2paritycloudocean000002",
+   "body": {
+    "name": "Renamed DigitalOcean"
+   },
+   "after": {
+    "tokens": "select case when id <= 5 then id end as fixture_id, provider, name, description, token is not null as has_token from cloud_provider_tokens where uuid <> 'c5paritycloudother000005' order by id"
+   }
+  },
+  {
+   "name": "cloud tokens: update to the same name",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/cloud-tokens/c2paritycloudocean000002",
+   "body": {
+    "name": "Parity DigitalOcean"
+   },
+   "after": {
+    "tokens": "select case when id <= 5 then id end as fixture_id, provider, name, description, token is not null as has_token from cloud_provider_tokens where uuid <> 'c5paritycloudother000005' order by id",
+    "touched": "select updated_at = created_at as untouched from cloud_provider_tokens where id = 2"
+   }
+  },
+  {
+   "name": "cloud tokens: update, invalid",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/cloud-tokens/c2paritycloudocean000002",
+   "body": {
+    "name": 7,
+    "description": "x",
+    "provider": "vultr"
+   }
+  },
+  {
+   "name": "cloud tokens: update, no name",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/cloud-tokens/c2paritycloudocean000002",
+   "body": {
+    "description": "x"
+   }
+  },
+  {
+   "name": "cloud tokens: update, not JSON",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/cloud-tokens/c2paritycloudocean000002",
+   "raw": "name=x",
+   "contentType": "application/x-www-form-urlencoded"
+  },
+  {
+   "name": "cloud tokens: update unknown",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/cloud-tokens/nonexistentuuid",
+   "body": {
+    "name": "x"
+   }
+  },
+  {
+   "name": "cloud tokens: update another team's",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/cloud-tokens/c5paritycloudother000005",
+   "body": {
+    "name": "x"
+   }
+  },
+  {
+   "name": "cloud tokens: delete",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/cloud-tokens/c3paritycloudvultr000003",
+   "after": {
+    "tokens": "select case when id <= 5 then id end as fixture_id, provider, name, description, token is not null as has_token from cloud_provider_tokens where uuid <> 'c5paritycloudother000005' order by id"
+   }
+  },
+  {
+   "name": "cloud tokens: delete, used by a server",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/cloud-tokens/c1paritycloudhetzner0001",
+   "setup": [
+    "update servers set cloud_provider_token_id = 1 where id = 1"
+   ],
+   "after": {
+    "tokens": "select case when id <= 5 then id end as fixture_id, provider, name, description, token is not null as has_token from cloud_provider_tokens where uuid <> 'c5paritycloudother000005' order by id"
+   }
+  },
+  {
+   "name": "cloud tokens: delete, used by a deleted server",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/cloud-tokens/c1paritycloudhetzner0001",
+   "setup": [
+    "update servers set cloud_provider_token_id = 1 where id = 1",
+    "update servers set deleted_at = '2025-12-31 00:00:00' where id = 1"
+   ],
+   "after": {
+    "tokens": "select case when id <= 5 then id end as fixture_id, provider, name, description, token is not null as has_token from cloud_provider_tokens where uuid <> 'c5paritycloudother000005' order by id"
+   }
+  },
+  {
+   "name": "cloud tokens: delete unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/cloud-tokens/nonexistentuuid"
+  },
+  {
+   "name": "cloud tokens: delete another team's",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/cloud-tokens/c5paritycloudother000005"
+  },
+  {
+   "name": "cloud tokens: delete with a write token",
+   "token": "write",
+   "method": "DELETE",
+   "path": "/api/v1/cloud-tokens/c3paritycloudvultr000003"
+  },
+  {
+   "name": "cloud tokens: validate a hetzner token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-tokens/c1paritycloudhetzner0001/validate",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/servers$",
+     "body": {
+      "ok": true
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "cloud tokens: validate a digitalocean token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-tokens/c2paritycloudocean000002/validate",
+   "http": [
+    {
+     "match": "^GET https://api\\.digitalocean\\.com/v2/account$",
+     "body": {
+      "ok": true
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "cloud tokens: validate a vultr token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-tokens/c3paritycloudvultr000003/validate",
+   "http": [
+    {
+     "match": "^GET https://api\\.vultr\\.com/v2/account$",
+     "body": {
+      "ok": true
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "cloud tokens: validate a hostinger token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-tokens/c4paritycloudhostinger04/validate",
+   "http": [
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$",
+     "body": {
+      "ok": true
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "cloud tokens: validate, the provider refuses it",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-tokens/c1paritycloudhetzner0001/validate",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/servers$",
+     "body": {
+      "error": {
+       "code": "forbidden"
+      }
+     },
+     "status": 403
+    }
+   ]
+  },
+  {
+   "name": "cloud tokens: validate, the provider fails",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-tokens/c2paritycloudocean000002/validate",
+   "http": [
+    {
+     "match": "^GET https://api\\.digitalocean\\.com/v2/account$",
+     "body": {
+      "id": "server_error"
+     },
+     "status": 500
+    }
+   ]
+  },
+  {
+   "name": "cloud tokens: validate unknown",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-tokens/nonexistentuuid/validate",
+   "http": []
+  },
+  {
+   "name": "cloud tokens: validate another team's",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-tokens/c5paritycloudother000005/validate",
+   "http": []
+  },
+  {
+   "name": "cloud tokens: validate with a read token",
+   "token": "read",
+   "method": "POST",
+   "path": "/api/v1/cloud-tokens/c1paritycloudhetzner0001/validate",
+   "http": []
+  },
+  {
+   "name": "hetzner locations",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/locations?cloud_provider_token_uuid=c1paritycloudhetzner0001",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations\\?page=1&per_page=50$",
+     "body": {
+      "locations": [
+       {
+        "id": 1,
+        "name": "fsn1",
+        "description": "Falkenstein DC Park 1",
+        "country": "DE",
+        "city": "Falkenstein",
+        "latitude": 50.47612,
+        "longitude": 12.370071,
+        "network_zone": "eu-central"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 1,
+        "per_page": 50,
+        "previous_page": null,
+        "next_page": 2,
+        "last_page": 2,
+        "total_entries": 2
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations\\?page=2&per_page=50$",
+     "body": {
+      "locations": [
+       {
+        "id": 2,
+        "name": "nbg1",
+        "description": "Nuremberg 1 DC 3",
+        "country": "DE",
+        "city": "Nürnberg",
+        "latitude": 49.452102,
+        "longitude": 11.076665,
+        "network_zone": "eu-central"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 2,
+        "per_page": 50,
+        "previous_page": null,
+        "next_page": null,
+        "last_page": 2,
+        "total_entries": 2
+       }
+      }
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "hetzner locations: the deprecated token id",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/locations?cloud_provider_token_id=c1paritycloudhetzner0001",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations\\?page=1&per_page=50$",
+     "body": {
+      "locations": [
+       {
+        "id": 1,
+        "name": "fsn1",
+        "description": "Falkenstein DC Park 1",
+        "country": "DE",
+        "city": "Falkenstein",
+        "latitude": 50.47612,
+        "longitude": 12.370071,
+        "network_zone": "eu-central"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 1,
+        "per_page": 50,
+        "previous_page": null,
+        "next_page": 2,
+        "last_page": 2,
+        "total_entries": 2
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations\\?page=2&per_page=50$",
+     "body": {
+      "locations": [
+       {
+        "id": 2,
+        "name": "nbg1",
+        "description": "Nuremberg 1 DC 3",
+        "country": "DE",
+        "city": "Nürnberg",
+        "latitude": 49.452102,
+        "longitude": 11.076665,
+        "network_zone": "eu-central"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 2,
+        "per_page": 50,
+        "previous_page": null,
+        "next_page": null,
+        "last_page": 2,
+        "total_entries": 2
+       }
+      }
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "hetzner locations: no token",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/locations",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations\\?page=1&per_page=50$",
+     "body": {
+      "locations": [
+       {
+        "id": 1,
+        "name": "fsn1",
+        "description": "Falkenstein DC Park 1",
+        "country": "DE",
+        "city": "Falkenstein",
+        "latitude": 50.47612,
+        "longitude": 12.370071,
+        "network_zone": "eu-central"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 1,
+        "per_page": 50,
+        "previous_page": null,
+        "next_page": 2,
+        "last_page": 2,
+        "total_entries": 2
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations\\?page=2&per_page=50$",
+     "body": {
+      "locations": [
+       {
+        "id": 2,
+        "name": "nbg1",
+        "description": "Nuremberg 1 DC 3",
+        "country": "DE",
+        "city": "Nürnberg",
+        "latitude": 49.452102,
+        "longitude": 11.076665,
+        "network_zone": "eu-central"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 2,
+        "per_page": 50,
+        "previous_page": null,
+        "next_page": null,
+        "last_page": 2,
+        "total_entries": 2
+       }
+      }
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "hetzner locations: an empty token",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/locations?cloud_provider_token_uuid=",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations\\?page=1&per_page=50$",
+     "body": {
+      "locations": [
+       {
+        "id": 1,
+        "name": "fsn1",
+        "description": "Falkenstein DC Park 1",
+        "country": "DE",
+        "city": "Falkenstein",
+        "latitude": 50.47612,
+        "longitude": 12.370071,
+        "network_zone": "eu-central"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 1,
+        "per_page": 50,
+        "previous_page": null,
+        "next_page": 2,
+        "last_page": 2,
+        "total_entries": 2
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations\\?page=2&per_page=50$",
+     "body": {
+      "locations": [
+       {
+        "id": 2,
+        "name": "nbg1",
+        "description": "Nuremberg 1 DC 3",
+        "country": "DE",
+        "city": "Nürnberg",
+        "latitude": 49.452102,
+        "longitude": 11.076665,
+        "network_zone": "eu-central"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 2,
+        "per_page": 50,
+        "previous_page": null,
+        "next_page": null,
+        "last_page": 2,
+        "total_entries": 2
+       }
+      }
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "hetzner locations: unknown token",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/locations?cloud_provider_token_uuid=nonexistentuuid",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations\\?page=1&per_page=50$",
+     "body": {
+      "locations": [
+       {
+        "id": 1,
+        "name": "fsn1",
+        "description": "Falkenstein DC Park 1",
+        "country": "DE",
+        "city": "Falkenstein",
+        "latitude": 50.47612,
+        "longitude": 12.370071,
+        "network_zone": "eu-central"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 1,
+        "per_page": 50,
+        "previous_page": null,
+        "next_page": 2,
+        "last_page": 2,
+        "total_entries": 2
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations\\?page=2&per_page=50$",
+     "body": {
+      "locations": [
+       {
+        "id": 2,
+        "name": "nbg1",
+        "description": "Nuremberg 1 DC 3",
+        "country": "DE",
+        "city": "Nürnberg",
+        "latitude": 49.452102,
+        "longitude": 11.076665,
+        "network_zone": "eu-central"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 2,
+        "per_page": 50,
+        "previous_page": null,
+        "next_page": null,
+        "last_page": 2,
+        "total_entries": 2
+       }
+      }
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "hetzner locations: another provider's token",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/locations?cloud_provider_token_uuid=c2paritycloudocean000002",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations\\?page=1&per_page=50$",
+     "body": {
+      "locations": [
+       {
+        "id": 1,
+        "name": "fsn1",
+        "description": "Falkenstein DC Park 1",
+        "country": "DE",
+        "city": "Falkenstein",
+        "latitude": 50.47612,
+        "longitude": 12.370071,
+        "network_zone": "eu-central"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 1,
+        "per_page": 50,
+        "previous_page": null,
+        "next_page": 2,
+        "last_page": 2,
+        "total_entries": 2
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations\\?page=2&per_page=50$",
+     "body": {
+      "locations": [
+       {
+        "id": 2,
+        "name": "nbg1",
+        "description": "Nuremberg 1 DC 3",
+        "country": "DE",
+        "city": "Nürnberg",
+        "latitude": 49.452102,
+        "longitude": 11.076665,
+        "network_zone": "eu-central"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 2,
+        "per_page": 50,
+        "previous_page": null,
+        "next_page": null,
+        "last_page": 2,
+        "total_entries": 2
+       }
+      }
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "hetzner locations: another team's token",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/locations?cloud_provider_token_uuid=c5paritycloudother000005",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations\\?page=1&per_page=50$",
+     "body": {
+      "locations": [
+       {
+        "id": 1,
+        "name": "fsn1",
+        "description": "Falkenstein DC Park 1",
+        "country": "DE",
+        "city": "Falkenstein",
+        "latitude": 50.47612,
+        "longitude": 12.370071,
+        "network_zone": "eu-central"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 1,
+        "per_page": 50,
+        "previous_page": null,
+        "next_page": 2,
+        "last_page": 2,
+        "total_entries": 2
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations\\?page=2&per_page=50$",
+     "body": {
+      "locations": [
+       {
+        "id": 2,
+        "name": "nbg1",
+        "description": "Nuremberg 1 DC 3",
+        "country": "DE",
+        "city": "Nürnberg",
+        "latitude": 49.452102,
+        "longitude": 11.076665,
+        "network_zone": "eu-central"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 2,
+        "per_page": 50,
+        "previous_page": null,
+        "next_page": null,
+        "last_page": 2,
+        "total_entries": 2
+       }
+      }
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "hetzner locations: by a member",
+   "token": "memberRead",
+   "method": "GET",
+   "path": "/api/v1/hetzner/locations?cloud_provider_token_uuid=c1paritycloudhetzner0001",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations\\?page=1&per_page=50$",
+     "body": {
+      "locations": [
+       {
+        "id": 1,
+        "name": "fsn1",
+        "description": "Falkenstein DC Park 1",
+        "country": "DE",
+        "city": "Falkenstein",
+        "latitude": 50.47612,
+        "longitude": 12.370071,
+        "network_zone": "eu-central"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 1,
+        "per_page": 50,
+        "previous_page": null,
+        "next_page": 2,
+        "last_page": 2,
+        "total_entries": 2
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations\\?page=2&per_page=50$",
+     "body": {
+      "locations": [
+       {
+        "id": 2,
+        "name": "nbg1",
+        "description": "Nuremberg 1 DC 3",
+        "country": "DE",
+        "city": "Nürnberg",
+        "latitude": 49.452102,
+        "longitude": 11.076665,
+        "network_zone": "eu-central"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 2,
+        "per_page": 50,
+        "previous_page": null,
+        "next_page": null,
+        "last_page": 2,
+        "total_entries": 2
+       }
+      }
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "hetzner locations: the token is refused",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/locations?cloud_provider_token_uuid=c1paritycloudhetzner0001",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations",
+     "body": {
+      "error": {
+       "code": "unauthorized",
+       "message": "unable to authenticate",
+       "details": null
+      }
+     },
+     "status": 401
+    }
+   ]
+  },
+  {
+   "name": "hetzner locations: no permission",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/locations?cloud_provider_token_uuid=c1paritycloudhetzner0001",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations",
+     "body": {
+      "error": {
+       "code": "forbidden",
+       "message": "insufficient permissions"
+      }
+     },
+     "status": 403
+    }
+   ]
+  },
+  {
+   "name": "hetzner locations: not found",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/locations?cloud_provider_token_uuid=c1paritycloudhetzner0001",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations",
+     "body": {
+      "error": {
+       "code": "not_found",
+       "message": "not found"
+      }
+     },
+     "status": 404
+    }
+   ]
+  },
+  {
+   "name": "hetzner locations: a conflict",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/locations?cloud_provider_token_uuid=c1paritycloudhetzner0001",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations",
+     "body": {
+      "error": {
+       "code": "Conflict-Weird",
+       "message": "conflict"
+      }
+     },
+     "status": 409
+    }
+   ]
+  },
+  {
+   "name": "hetzner locations: invalid input",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/locations?cloud_provider_token_uuid=c1paritycloudhetzner0001",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations",
+     "body": {
+      "error": {
+       "code": "invalid_input",
+       "message": "invalid",
+       "details": {
+        "fields": [
+         {
+          "name": "per_page",
+          "messages": [
+           "too big"
+          ]
+         },
+         {
+          "name": "bad field!"
+         },
+         {
+          "messages": []
+         },
+         {
+          "name": "page"
+         }
+        ]
+       }
+      }
+     },
+     "status": 422
+    }
+   ]
+  },
+  {
+   "name": "hetzner locations: locked",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/locations?cloud_provider_token_uuid=c1paritycloudhetzner0001",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations",
+     "body": {
+      "error": {
+       "code": "locked",
+       "message": "locked"
+      }
+     },
+     "status": 423
+    }
+   ]
+  },
+  {
+   "name": "hetzner locations: a resource limit",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/locations?cloud_provider_token_uuid=c1paritycloudhetzner0001",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations",
+     "body": {
+      "error": {
+       "code": "RESOURCE_LIMIT_EXCEEDED",
+       "message": "limit"
+      }
+     },
+     "status": 403
+    }
+   ]
+  },
+  {
+   "name": "hetzner locations: unavailable",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/locations?cloud_provider_token_uuid=c1paritycloudhetzner0001",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations",
+     "body": {
+      "error": {
+       "code": "resource_unavailable"
+      }
+     },
+     "status": 412
+    }
+   ]
+  },
+  {
+   "name": "hetzner locations: not unique",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/locations?cloud_provider_token_uuid=c1paritycloudhetzner0001",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations",
+     "body": {
+      "error": {
+       "code": "uniqueness_error"
+      }
+     },
+     "status": 409
+    }
+   ]
+  },
+  {
+   "name": "hetzner locations: a server error, sent three times",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/locations?cloud_provider_token_uuid=c1paritycloudhetzner0001",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations",
+     "body": {
+      "error": {
+       "code": "server_error",
+       "message": "boom"
+      }
+     },
+     "status": 500
+    }
+   ]
+  },
+  {
+   "name": "hetzner locations: in maintenance",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/locations?cloud_provider_token_uuid=c1paritycloudhetzner0001",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations",
+     "body": {
+      "error": {
+       "code": "maintenance"
+      }
+     },
+     "status": 400
+    }
+   ]
+  },
+  {
+   "name": "hetzner locations: another status",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/locations?cloud_provider_token_uuid=c1paritycloudhetzner0001",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations",
+     "body": {
+      "error": {
+       "code": "teapot"
+      }
+     },
+     "status": 418
+    }
+   ]
+  },
+  {
+   "name": "hetzner locations: another status without a code",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/locations?cloud_provider_token_uuid=c1paritycloudhetzner0001",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations",
+     "raw": "nope",
+     "status": 418
+    }
+   ]
+  },
+  {
+   "name": "hetzner locations: rate limited",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/locations?cloud_provider_token_uuid=c1paritycloudhetzner0001",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations",
+     "body": {
+      "error": {
+       "code": "rate_limit_exceeded"
+      }
+     },
+     "status": 429,
+     "headers": {
+      "Retry-After": "7"
+     }
+    }
+   ]
+  },
+  {
+   "name": "hetzner locations: not JSON",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/locations?cloud_provider_token_uuid=c1paritycloudhetzner0001",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/locations",
+     "raw": "<html>ok</html>"
+    }
+   ]
+  },
+  {
+   "name": "hetzner server types",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/server-types?cloud_provider_token_uuid=c1paritycloudhetzner0001",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/server_types\\?page=1&per_page=50$",
+     "body": {
+      "server_types": [
+       {
+        "id": 1,
+        "name": "cx22",
+        "description": "CX22",
+        "cores": 2,
+        "memory": 4,
+        "disk": 40,
+        "deprecated": false,
+        "prices": [
+         {
+          "location": "fsn1",
+          "price_hourly": {
+           "net": "0.0060",
+           "gross": "0.0071"
+          }
+         }
+        ],
+        "locations": [
+         {
+          "id": 1,
+          "name": "fsn1",
+          "deprecation": null,
+          "available": true
+         },
+         {
+          "id": 2,
+          "name": "nbg1",
+          "deprecation": {
+           "announced": "2025-01-01T00:00:00+00:00",
+           "unavailable_after": "2025-04-01T00:00:00+00:00"
+          }
+         },
+         {
+          "id": 3,
+          "name": "hel1",
+          "available": false
+         }
+        ],
+        "architecture": "x86"
+       },
+       {
+        "id": 2,
+        "name": "cx11",
+        "description": "CX11",
+        "cores": 1,
+        "memory": 2,
+        "deprecated": true,
+        "locations": [
+         {
+          "id": 1,
+          "name": "fsn1"
+         }
+        ]
+       },
+       {
+        "id": 3,
+        "name": "cax11",
+        "description": "CAX11",
+        "cores": 2,
+        "memory": 4,
+        "deprecated": null,
+        "architecture": "arm",
+        "locations": [
+         {
+          "id": 2,
+          "name": "nbg1",
+          "deprecation": null
+         }
+        ]
+       },
+       {
+        "id": 4,
+        "name": "ccx13",
+        "description": "CCX13",
+        "cores": 2,
+        "memory": 8,
+        "locations": [
+         {
+          "id": 3,
+          "name": "hel1",
+          "available": false
+         }
+        ]
+       },
+       {
+        "id": 5,
+        "name": "cpx11",
+        "description": "CPX11",
+        "cores": 2,
+        "memory": 2
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 2,
+        "per_page": 50,
+        "previous_page": null,
+        "next_page": null,
+        "last_page": 2,
+        "total_entries": 2
+       }
+      }
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "hetzner server types: in a location",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/server-types?cloud_provider_token_uuid=c1paritycloudhetzner0001&location=nbg1",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/server_types\\?page=1&per_page=50$",
+     "body": {
+      "server_types": [
+       {
+        "id": 1,
+        "name": "cx22",
+        "description": "CX22",
+        "cores": 2,
+        "memory": 4,
+        "disk": 40,
+        "deprecated": false,
+        "prices": [
+         {
+          "location": "fsn1",
+          "price_hourly": {
+           "net": "0.0060",
+           "gross": "0.0071"
+          }
+         }
+        ],
+        "locations": [
+         {
+          "id": 1,
+          "name": "fsn1",
+          "deprecation": null,
+          "available": true
+         },
+         {
+          "id": 2,
+          "name": "nbg1",
+          "deprecation": {
+           "announced": "2025-01-01T00:00:00+00:00",
+           "unavailable_after": "2025-04-01T00:00:00+00:00"
+          }
+         },
+         {
+          "id": 3,
+          "name": "hel1",
+          "available": false
+         }
+        ],
+        "architecture": "x86"
+       },
+       {
+        "id": 2,
+        "name": "cx11",
+        "description": "CX11",
+        "cores": 1,
+        "memory": 2,
+        "deprecated": true,
+        "locations": [
+         {
+          "id": 1,
+          "name": "fsn1"
+         }
+        ]
+       },
+       {
+        "id": 3,
+        "name": "cax11",
+        "description": "CAX11",
+        "cores": 2,
+        "memory": 4,
+        "deprecated": null,
+        "architecture": "arm",
+        "locations": [
+         {
+          "id": 2,
+          "name": "nbg1",
+          "deprecation": null
+         }
+        ]
+       },
+       {
+        "id": 4,
+        "name": "ccx13",
+        "description": "CCX13",
+        "cores": 2,
+        "memory": 8,
+        "locations": [
+         {
+          "id": 3,
+          "name": "hel1",
+          "available": false
+         }
+        ]
+       },
+       {
+        "id": 5,
+        "name": "cpx11",
+        "description": "CPX11",
+        "cores": 2,
+        "memory": 2
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 2,
+        "per_page": 50,
+        "previous_page": null,
+        "next_page": null,
+        "last_page": 2,
+        "total_entries": 2
+       }
+      }
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "hetzner server types: in a location without any",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/server-types?cloud_provider_token_uuid=c1paritycloudhetzner0001&location=ash",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/server_types\\?page=1&per_page=50$",
+     "body": {
+      "server_types": [
+       {
+        "id": 1,
+        "name": "cx22",
+        "description": "CX22",
+        "cores": 2,
+        "memory": 4,
+        "disk": 40,
+        "deprecated": false,
+        "prices": [
+         {
+          "location": "fsn1",
+          "price_hourly": {
+           "net": "0.0060",
+           "gross": "0.0071"
+          }
+         }
+        ],
+        "locations": [
+         {
+          "id": 1,
+          "name": "fsn1",
+          "deprecation": null,
+          "available": true
+         },
+         {
+          "id": 2,
+          "name": "nbg1",
+          "deprecation": {
+           "announced": "2025-01-01T00:00:00+00:00",
+           "unavailable_after": "2025-04-01T00:00:00+00:00"
+          }
+         },
+         {
+          "id": 3,
+          "name": "hel1",
+          "available": false
+         }
+        ],
+        "architecture": "x86"
+       },
+       {
+        "id": 2,
+        "name": "cx11",
+        "description": "CX11",
+        "cores": 1,
+        "memory": 2,
+        "deprecated": true,
+        "locations": [
+         {
+          "id": 1,
+          "name": "fsn1"
+         }
+        ]
+       },
+       {
+        "id": 3,
+        "name": "cax11",
+        "description": "CAX11",
+        "cores": 2,
+        "memory": 4,
+        "deprecated": null,
+        "architecture": "arm",
+        "locations": [
+         {
+          "id": 2,
+          "name": "nbg1",
+          "deprecation": null
+         }
+        ]
+       },
+       {
+        "id": 4,
+        "name": "ccx13",
+        "description": "CCX13",
+        "cores": 2,
+        "memory": 8,
+        "locations": [
+         {
+          "id": 3,
+          "name": "hel1",
+          "available": false
+         }
+        ]
+       },
+       {
+        "id": 5,
+        "name": "cpx11",
+        "description": "CPX11",
+        "cores": 2,
+        "memory": 2
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 2,
+        "per_page": 50,
+        "previous_page": null,
+        "next_page": null,
+        "last_page": 2,
+        "total_entries": 2
+       }
+      }
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "hetzner server types: an empty location",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/server-types?cloud_provider_token_uuid=c1paritycloudhetzner0001&location=",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/server_types\\?page=1&per_page=50$",
+     "body": {
+      "server_types": [
+       {
+        "id": 1,
+        "name": "cx22",
+        "description": "CX22",
+        "cores": 2,
+        "memory": 4,
+        "disk": 40,
+        "deprecated": false,
+        "prices": [
+         {
+          "location": "fsn1",
+          "price_hourly": {
+           "net": "0.0060",
+           "gross": "0.0071"
+          }
+         }
+        ],
+        "locations": [
+         {
+          "id": 1,
+          "name": "fsn1",
+          "deprecation": null,
+          "available": true
+         },
+         {
+          "id": 2,
+          "name": "nbg1",
+          "deprecation": {
+           "announced": "2025-01-01T00:00:00+00:00",
+           "unavailable_after": "2025-04-01T00:00:00+00:00"
+          }
+         },
+         {
+          "id": 3,
+          "name": "hel1",
+          "available": false
+         }
+        ],
+        "architecture": "x86"
+       },
+       {
+        "id": 2,
+        "name": "cx11",
+        "description": "CX11",
+        "cores": 1,
+        "memory": 2,
+        "deprecated": true,
+        "locations": [
+         {
+          "id": 1,
+          "name": "fsn1"
+         }
+        ]
+       },
+       {
+        "id": 3,
+        "name": "cax11",
+        "description": "CAX11",
+        "cores": 2,
+        "memory": 4,
+        "deprecated": null,
+        "architecture": "arm",
+        "locations": [
+         {
+          "id": 2,
+          "name": "nbg1",
+          "deprecation": null
+         }
+        ]
+       },
+       {
+        "id": 4,
+        "name": "ccx13",
+        "description": "CCX13",
+        "cores": 2,
+        "memory": 8,
+        "locations": [
+         {
+          "id": 3,
+          "name": "hel1",
+          "available": false
+         }
+        ]
+       },
+       {
+        "id": 5,
+        "name": "cpx11",
+        "description": "CPX11",
+        "cores": 2,
+        "memory": 2
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 2,
+        "per_page": 50,
+        "previous_page": null,
+        "next_page": null,
+        "last_page": 2,
+        "total_entries": 2
+       }
+      }
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "hetzner server types: not a list of types",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/server-types?cloud_provider_token_uuid=c1paritycloudhetzner0001",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/server_types",
+     "body": {
+      "server_types": [
+       "cx22"
+      ],
+      "meta": {
+       "pagination": {
+        "page": 2,
+        "per_page": 50,
+        "previous_page": null,
+        "next_page": null,
+        "last_page": 2,
+        "total_entries": 2
+       }
+      }
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "hetzner images",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/images?cloud_provider_token_uuid=c1paritycloudhetzner0001",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/images\\?type=system&page=1&per_page=50$",
+     "body": {
+      "images": [
+       {
+        "id": 114690387,
+        "type": "system",
+        "status": "available",
+        "name": "debian-12",
+        "description": "Debian 12",
+        "os_flavor": "debian",
+        "os_version": "12",
+        "deprecated": null,
+        "architecture": "x86"
+       },
+       {
+        "id": 2,
+        "type": "snapshot",
+        "name": "my-snap",
+        "deprecated": null
+       },
+       {
+        "id": 3,
+        "type": "system",
+        "name": "ubuntu-18.04",
+        "deprecated": true
+       },
+       {
+        "id": 4,
+        "name": "untyped",
+        "deprecated": "2024-01-01T00:00:00+00:00"
+       },
+       {
+        "id": 5,
+        "type": null,
+        "name": "null type"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 2,
+        "per_page": 50,
+        "previous_page": null,
+        "next_page": null,
+        "last_page": 2,
+        "total_entries": 2
+       }
+      }
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "hetzner ssh keys",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/ssh-keys?cloud_provider_token_uuid=c1paritycloudhetzner0001",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/ssh_keys\\?page=1&per_page=50$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": 2323,
+        "name": "My ssh key",
+        "fingerprint": "b7:2f:30:a0:2f:6c:58:6c:21:04:58:61:ba:06:3b:2f",
+        "public_key": "ssh-rsa AAAjjk76kgf== my@host",
+        "labels": {},
+        "created": "2016-01-30T23:50:00+00:00"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 2,
+        "per_page": 50,
+        "previous_page": null,
+        "next_page": null,
+        "last_page": 2,
+        "total_entries": 2
+       }
+      }
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "hetzner firewalls",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/firewalls?cloud_provider_token_uuid=c1paritycloudhetzner0001",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/firewalls\\?page=1&per_page=50$",
+     "body": {
+      "firewalls": [
+       {
+        "id": 38,
+        "name": "Corporate Intranet Protection",
+        "labels": {
+         "env": "prod"
+        },
+        "rules": [
+         {
+          "direction": "in",
+          "protocol": "tcp",
+          "port": "80",
+          "source_ips": [
+           "28.239.13.1/32",
+           "2001:db8::/32"
+          ]
+         }
+        ],
+        "applied_to": []
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 2,
+        "per_page": 50,
+        "previous_page": null,
+        "next_page": null,
+        "last_page": 2,
+        "total_entries": 2
+       }
+      }
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "hetzner networks",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/networks?cloud_provider_token_uuid=c1paritycloudhetzner0001",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/networks\\?page=1&per_page=50$",
+     "body": {
+      "networks": [
+       {
+        "id": 4711,
+        "name": "mynet",
+        "ip_range": "10.0.0.0/16",
+        "subnets": [
+         {
+          "type": "cloud",
+          "ip_range": "10.0.1.0/24",
+          "network_zone": "eu-central",
+          "gateway": "10.0.0.1"
+         }
+        ],
+        "servers": [
+         42
+        ]
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "next_page": null
+       }
+      }
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "hetzner networks: no resources key",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/networks?cloud_provider_token_uuid=c1paritycloudhetzner0001",
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/networks",
+     "body": {
+      "meta": {
+       "pagination": {
+        "next_page": null
+       }
+      }
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "hetzner: an unknown catalog",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hetzner/volumes?cloud_provider_token_uuid=c1paritycloudhetzner0001",
+   "http": []
+  },
+  {
+   "name": "hetzner locations: POST",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/hetzner/locations?cloud_provider_token_uuid=c1paritycloudhetzner0001",
+   "body": {
+    "x": 1
+   },
+   "http": []
+  },
+  {
+   "name": "digitalocean regions",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/digitalocean/regions?cloud_provider_token_uuid=c2paritycloudocean000002",
+   "http": [
+    {
+     "match": "^GET https://api\\.digitalocean\\.com/v2/regions\\?page=1&per_page=50$",
+     "body": {
+      "regions": [
+       {
+        "name": "New York 3",
+        "slug": "nyc3",
+        "features": [
+         "backups",
+         "ipv6"
+        ],
+        "available": true,
+        "sizes": [
+         "s-1vcpu-1gb"
+        ]
+       },
+       {
+        "name": "Old",
+        "slug": "old1",
+        "available": false
+       }
+      ],
+      "links": {
+       "pages": {
+        "next": "https://api.digitalocean.com/v2/regions?page=2&per_page=50"
+       }
+      },
+      "meta": {
+       "total": 3
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.digitalocean\\.com/v2/regions\\?page=2&per_page=50$",
+     "body": {
+      "regions": [
+       {
+        "name": "Amsterdam 3",
+        "slug": "ams3",
+        "available": null
+       }
+      ],
+      "links": {},
+      "meta": {
+       "total": 3
+      }
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "digitalocean regions: the deprecated token id",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/digitalocean/regions?cloud_provider_token_id=c2paritycloudocean000002",
+   "http": [
+    {
+     "match": "^GET https://api\\.digitalocean\\.com/v2/regions",
+     "body": {
+      "regions": [],
+      "links": {
+       "pages": {
+        "next": ""
+       }
+      }
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "digitalocean regions: no token",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/digitalocean/regions",
+   "http": []
+  },
+  {
+   "name": "digitalocean regions: a Hetzner token",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/digitalocean/regions?cloud_provider_token_uuid=c1paritycloudhetzner0001",
+   "http": []
+  },
+  {
+   "name": "digitalocean regions: by a member",
+   "token": "memberRead",
+   "method": "GET",
+   "path": "/api/v1/digitalocean/regions?cloud_provider_token_uuid=c2paritycloudocean000002",
+   "http": []
+  },
+  {
+   "name": "digitalocean regions: the token is refused, sent three times",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/digitalocean/regions?cloud_provider_token_uuid=c2paritycloudocean000002",
+   "http": [
+    {
+     "match": "^GET https://api\\.digitalocean\\.com/v2/regions",
+     "body": {
+      "id": "Unauthorized",
+      "message": "Unable to authenticate you"
+     },
+     "status": 401
+    }
+   ]
+  },
+  {
+   "name": "digitalocean regions: rate limited",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/digitalocean/regions?cloud_provider_token_uuid=c2paritycloudocean000002",
+   "http": [
+    {
+     "match": "^GET https://api\\.digitalocean\\.com/v2/regions",
+     "body": {
+      "id": "too_many_requests"
+     },
+     "status": 429,
+     "headers": {
+      "Retry-After": "3"
+     }
+    }
+   ]
+  },
+  {
+   "name": "digitalocean regions: not a list of regions",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/digitalocean/regions?cloud_provider_token_uuid=c2paritycloudocean000002",
+   "http": [
+    {
+     "match": "^GET https://api\\.digitalocean\\.com/v2/regions",
+     "body": {
+      "regions": [
+       "nyc3"
+      ]
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "digitalocean sizes",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/digitalocean/sizes?cloud_provider_token_uuid=c2paritycloudocean000002",
+   "http": [
+    {
+     "match": "^GET https://api\\.digitalocean\\.com/v2/sizes\\?page=1&per_page=50$",
+     "body": {
+      "sizes": [
+       {
+        "slug": "s-1vcpu-1gb",
+        "memory": 1024,
+        "vcpus": 1,
+        "disk": 25,
+        "price_monthly": 6,
+        "price_hourly": 0.00893,
+        "regions": [
+         "nyc3"
+        ],
+        "available": true,
+        "description": "Basic"
+       },
+       {
+        "slug": "gone",
+        "available": false
+       }
+      ]
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "digitalocean images",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/digitalocean/images?cloud_provider_token_uuid=c2paritycloudocean000002",
+   "http": [
+    {
+     "match": "^GET https://api\\.digitalocean\\.com/v2/images\\?type=distribution&page=1&per_page=50$",
+     "body": {
+      "images": [
+       {
+        "id": 129211873,
+        "name": "24.04 (LTS) x64",
+        "distribution": "Ubuntu",
+        "slug": "ubuntu-24-04-x64",
+        "public": true,
+        "regions": [
+         "nyc3"
+        ]
+       },
+       {
+        "id": 2,
+        "name": "private",
+        "public": false
+       },
+       {
+        "id": 3,
+        "name": "no flag"
+       }
+      ]
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "digitalocean ssh keys",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/digitalocean/ssh-keys?cloud_provider_token_uuid=c2paritycloudocean000002",
+   "http": [
+    {
+     "match": "^GET https://api\\.digitalocean\\.com/v2/account/keys\\?page=1&per_page=50$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": 512189,
+        "fingerprint": "3b:16:bf:e4:8b:00:8b:b8:59:8c:a9:d3:f0:19:45:fa",
+        "public_key": "ssh-rsa AEXAMPLEaWEE= example",
+        "name": "My SSH Public Key"
+       }
+      ],
+      "links": {},
+      "meta": {
+       "total": 1
+      }
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "vultr regions",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/vultr/regions?cloud_provider_token_uuid=c3paritycloudvultr000003",
+   "http": [
+    {
+     "match": "^GET https://api\\.vultr\\.com/v2/regions\\?per_page=100$",
+     "body": {
+      "regions": [
+       {
+        "id": "ams",
+        "city": "Amsterdam",
+        "country": "NL",
+        "continent": "Europe",
+        "options": [
+         "ddos_protection"
+        ]
+       }
+      ],
+      "meta": {
+       "total": 2,
+       "links": {
+        "next": "https://api.vultr.com/v2/regions?per_page=100&cursor=bmV4dF9fQU1T",
+        "prev": ""
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.vultr\\.com/v2/regions\\?per_page=100&cursor=bmV4dF9fQU1T$",
+     "body": {
+      "regions": [
+       {
+        "id": "atl",
+        "city": "Atlanta",
+        "country": "US",
+        "continent": "North America",
+        "options": []
+       }
+      ],
+      "meta": {
+       "total": 2,
+       "links": {
+        "next": "",
+        "prev": ""
+       }
+      }
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "vultr regions: a bare cursor",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/vultr/regions?cloud_provider_token_uuid=c3paritycloudvultr000003",
+   "http": [
+    {
+     "match": "^GET https://api\\.vultr\\.com/v2/regions",
+     "body": {
+      "regions": [
+       {
+        "id": "ams"
+       }
+      ],
+      "meta": {
+       "links": {
+        "next": "bmV4dF9fQU1T"
+       }
+      }
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "vultr regions: no token",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/vultr/regions",
+   "http": []
+  },
+  {
+   "name": "vultr regions: a Hostinger token",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/vultr/regions?cloud_provider_token_uuid=c4paritycloudhostinger04",
+   "http": []
+  },
+  {
+   "name": "vultr regions: the provider fails, sent three times",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/vultr/regions?cloud_provider_token_uuid=c3paritycloudvultr000003",
+   "http": [
+    {
+     "match": "^GET https://api\\.vultr\\.com/v2/regions",
+     "body": {
+      "error": "boom",
+      "status": 500
+     },
+     "status": 500
+    }
+   ]
+  },
+  {
+   "name": "vultr plans",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/vultr/plans?cloud_provider_token_uuid=c3paritycloudvultr000003",
+   "http": [
+    {
+     "match": "^GET https://api\\.vultr\\.com/v2/plans\\?per_page=100$",
+     "body": {
+      "plans": [
+       {
+        "id": "vc2-1c-1gb",
+        "vcpu_count": 1,
+        "ram": 1024,
+        "disk": 25,
+        "monthly_cost": 5,
+        "type": "vc2",
+        "locations": [
+         "ams"
+        ]
+       }
+      ],
+      "meta": {
+       "links": {
+        "next": ""
+       }
+      }
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "vultr operating systems",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/vultr/os?cloud_provider_token_uuid=c3paritycloudvultr000003",
+   "http": [
+    {
+     "match": "^GET https://api\\.vultr\\.com/v2/os\\?per_page=100$",
+     "body": {
+      "os": [
+       {
+        "id": 2284,
+        "name": "Ubuntu 24.04 LTS x64",
+        "arch": "x64",
+        "family": "ubuntu"
+       }
+      ],
+      "meta": {
+       "links": {
+        "next": null
+       }
+      }
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "vultr ssh keys",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/vultr/ssh-keys?cloud_provider_token_uuid=c3paritycloudvultr000003",
+   "http": [
+    {
+     "match": "^GET https://api\\.vultr\\.com/v2/ssh-keys\\?per_page=100$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": "cb676a46-66fd-4dfb-b839-443f2e6c0b60",
+        "date_created": "2020-10-10T01:56:20+00:00",
+        "name": "Example SSH Key",
+        "ssh_key": "ssh-rsa AA... user@example.com"
+       }
+      ],
+      "meta": {}
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "hostinger data centers",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hostinger/data-centers?cloud_provider_token_uuid=c4paritycloudhostinger04",
+   "http": [
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/vps/v1/data-centers$",
+     "body": [
+      {
+       "id": 9,
+       "name": "phx",
+       "location": "us",
+       "city": "Phoenix",
+       "continent": "North America"
+      },
+      {
+       "id": 11,
+       "name": "bnk",
+       "location": "lt",
+       "city": "Vilnius",
+       "continent": "Europe"
+      }
+     ],
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "hostinger data centers: no token",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hostinger/data-centers",
+   "http": []
+  },
+  {
+   "name": "hostinger data centers: a Vultr token",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hostinger/data-centers?cloud_provider_token_uuid=c3paritycloudvultr000003",
+   "http": []
+  },
+  {
+   "name": "hostinger data centers: by a member",
+   "token": "memberRead",
+   "method": "GET",
+   "path": "/api/v1/hostinger/data-centers?cloud_provider_token_uuid=c4paritycloudhostinger04",
+   "http": []
+  },
+  {
+   "name": "hostinger data centers: the token is refused",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hostinger/data-centers?cloud_provider_token_uuid=c4paritycloudhostinger04",
+   "http": [
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/vps/v1/data-centers",
+     "body": {
+      "message": "Unauthenticated.",
+      "correlation_id": "abc"
+     },
+     "status": 401
+    }
+   ]
+  },
+  {
+   "name": "hostinger data centers: refused without a message",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hostinger/data-centers?cloud_provider_token_uuid=c4paritycloudhostinger04",
+   "http": [
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/vps/v1/data-centers",
+     "raw": "",
+     "status": 401
+    }
+   ]
+  },
+  {
+   "name": "hostinger ssh keys: forbidden",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hostinger/ssh-keys?cloud_provider_token_uuid=c4paritycloudhostinger04",
+   "http": [
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/vps/v1/public-keys",
+     "body": {
+      "error": "Forbidden"
+     },
+     "status": 403
+    }
+   ]
+  },
+  {
+   "name": "hostinger catalog: rate limited",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hostinger/catalog?cloud_provider_token_uuid=c4paritycloudhostinger04",
+   "http": [
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/billing/v1/catalog",
+     "body": {
+      "message": "Too Many Attempts."
+     },
+     "status": 429,
+     "headers": {
+      "Retry-After": "30"
+     }
+    }
+   ]
+  },
+  {
+   "name": "hostinger catalog: rate limited without Retry-After",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hostinger/catalog?cloud_provider_token_uuid=c4paritycloudhostinger04",
+   "http": [
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/billing/v1/catalog",
+     "body": {
+      "message": "Too Many Attempts."
+     },
+     "status": 429
+    }
+   ]
+  },
+  {
+   "name": "hostinger catalog: a server error, sent three times",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hostinger/catalog?cloud_provider_token_uuid=c4paritycloudhostinger04",
+   "http": [
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/billing/v1/catalog",
+     "body": {
+      "message": "Server Error"
+     },
+     "status": 500
+    }
+   ]
+  },
+  {
+   "name": "hostinger catalog: not found",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hostinger/catalog?cloud_provider_token_uuid=c4paritycloudhostinger04",
+   "http": [
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/billing/v1/catalog",
+     "body": {
+      "message": "Not found"
+     },
+     "status": 404
+    }
+   ]
+  },
+  {
+   "name": "hostinger catalog",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hostinger/catalog?cloud_provider_token_uuid=c4paritycloudhostinger04",
+   "http": [
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/billing/v1/catalog\\?category=VPS$",
+     "body": [
+      {
+       "id": "hostingercom-vps-kvm2",
+       "name": "KVM 2",
+       "category": "VPS",
+       "metadata": {
+        "cpus": "2",
+        "memory": "8192"
+       },
+       "prices": [
+        {
+         "id": "hostingercom-vps-kvm2-usd-1m",
+         "name": "KVM 2 (billed every month)",
+         "currency": "USD",
+         "price": 1399,
+         "first_period_price": 899,
+         "period": 1,
+         "period_unit": "month"
+        }
+       ]
+      },
+      {
+       "id": "hostingercom-vps-game-panel-kvm2x",
+       "name": "Game Panel",
+       "category": "VPS"
+      },
+      {
+       "id": "hostingercom-vps-kvm8",
+       "name": "KVM 8",
+       "category": "VPS",
+       "metadata": null
+      },
+      "not an item",
+      {
+       "name": "no id"
+      }
+     ],
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "hostinger templates",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hostinger/templates?cloud_provider_token_uuid=c4paritycloudhostinger04",
+   "http": [
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/vps/v1/templates$",
+     "body": [
+      {
+       "id": 1002,
+       "name": "Ubuntu 24.04 LTS",
+       "description": "Ubuntu 24.04 LTS",
+       "documentation": null
+      }
+     ],
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "hostinger ssh keys",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hostinger/ssh-keys?cloud_provider_token_uuid=c4paritycloudhostinger04",
+   "http": [
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/vps/v1/public-keys$",
+     "body": {
+      "data": [
+       {
+        "id": 325,
+        "name": "My public key",
+        "key": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQ..."
+       }
+      ],
+      "meta": {
+       "current_page": 1,
+       "per_page": 15,
+       "total": 1
+      }
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "hostinger post-install scripts",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hostinger/post-install-scripts?cloud_provider_token_uuid=c4paritycloudhostinger04",
+   "http": [
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/vps/v1/post-install-scripts$",
+     "body": {
+      "data": [
+       {
+        "id": 325,
+        "name": "My setup script",
+        "content": "#!/bin/bash\napt-get update",
+        "created_at": "2025-02-27T11:54:22Z",
+        "updated_at": "2025-02-27T11:54:22Z"
+       }
+      ],
+      "meta": {
+       "current_page": 1
+      }
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "hostinger post-install scripts: no data",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/hostinger/post-install-scripts?cloud_provider_token_uuid=c4paritycloudhostinger04",
+   "http": [
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/vps/v1/post-install-scripts",
+     "body": {
+      "meta": {}
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "proxy configuration: save",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "name: coolify-proxy\nnetworks:\n  coolify:\n    external: true\nservices:\n  traefik:\n    container_name: coolify-proxy\n    image: 'traefik:v3.6'\n    restart: unless-stopped\n    networks:\n      - coolify\n    ports:\n      - '80:80'\n      - '443:443'\n      - '443:443/udp'\n      - '8080:8080'\n    labels:\n      - coolify.managed=true\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: save over a saved one",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1",
+    "update servers set proxy = '{\"type\":\"TRAEFIK\",\"status\":\"running\",\"redirect_enabled\":false,\"redirect_url\":\"https://fallback.example.com\",\"last_saved_proxy_configuration\":\"services:\\n  traefik:\\n    image: traefik:v3.1\\n\"}', proxy_error_page = '<h1>Oops</h1>' where id = 1"
+   ],
+   "body": {
+    "configuration": "name: coolify-proxy\nnetworks:\n  coolify:\n    external: true\nservices:\n  traefik:\n    container_name: coolify-proxy\n    image: 'traefik:v3.5'\n    restart: unless-stopped\n    networks:\n      - coolify\n    ports:\n      - '80:80'\n      - '443:443'\n      - '443:443/udp'\n      - '8080:8080'\n    labels:\n      - coolify.managed=true\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: save, base64",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "bmFtZTogY29vbGlmeS1wcm94eQpuZXR3b3JrczoKICBjb29saWZ5OgogICAgZXh0ZXJuYWw6IHRydWUKc2VydmljZXM6CiAgdHJhZWZpazoKICAgIGNvbnRhaW5lcl9uYW1lOiBjb29saWZ5LXByb3h5CiAgICBpbWFnZTogJ3RyYWVmaWs6djMuNicKICAgIHJlc3RhcnQ6IHVubGVzcy1zdG9wcGVkCiAgICBuZXR3b3JrczoKICAgICAgLSBjb29saWZ5CiAgICBwb3J0czoKICAgICAgLSAnODA6ODAnCiAgICAgIC0gJzQ0Mzo0NDMnCiAgICAgIC0gJzQ0Mzo0NDMvdWRwJwogICAgICAtICc4MDgwOjgwODAnCiAgICBsYWJlbHM6CiAgICAgIC0gY29vbGlmeS5tYW5hZ2VkPXRydWUK"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: save, base64 that is not UTF-8",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "//5BQg=="
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: save, base64 of blanks",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "ICAgCiAg"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: save, Caddy",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  caddy:\n    container_name: coolify-proxy\n    image: lucaslorentz/caddy-docker-proxy:2.8-alpine\n    ports:\n      - 80:80\n      - 443:443\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: save, no proxy service",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  other:\n    image: nginx\n    ports:\n      - 99999:80\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: save, not a map",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "just text"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: save, invalid YAML",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  traefik:\n    image: [unclosed\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: save, a tab",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n\ttraefik: {}\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: save, a duplicate key",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  traefik:\n    image: a\n    image: b\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: save, the traefik service unnamed",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  traefik:\n    image: traefik:v3.6\n    ports:\n      - 80:80\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: save, the caddy service renamed",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  caddy:\n    container_name: my-caddy\n    image: traefik:v3.6\n    ports:\n      - 80:80\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: save, a renamed proxy on a Swarm server",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1",
+    "update server_settings set is_swarm_manager = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  traefik:\n    container_name: my-proxy\n    image: traefik:v3.6\n    ports:\n      - 80:80\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: save, a tagged container name",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  traefik:\n    container_name: !override coolify-proxy\n    ports: !reset\n      - 80:80\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: save, a tagged services map",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services: !foo\n  traefik:\n    container_name: other\n    ports:\n      - 80:80\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: save, a tagged port",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  traefik:\n    container_name: coolify-proxy\n    image: traefik:v3.6\n    ports:\n      - !tag 80:80\n      - !tag 99999\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: ports: an integer port",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  traefik:\n    container_name: coolify-proxy\n    image: traefik:v3.6\n    ports:\n      - 80\n      - 443\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: ports: out of range",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  traefik:\n    container_name: coolify-proxy\n    image: traefik:v3.6\n    ports:\n      - 70000:80\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: ports: zero",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  traefik:\n    container_name: coolify-proxy\n    image: traefik:v3.6\n    ports:\n      - 0\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: ports: a float",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  traefik:\n    container_name: coolify-proxy\n    image: traefik:v3.6\n    ports:\n      - 80.5\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: ports: a boolean",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  traefik:\n    container_name: coolify-proxy\n    image: traefik:v3.6\n    ports:\n      - true\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: ports: a range",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  traefik:\n    container_name: coolify-proxy\n    image: traefik:v3.6\n    ports:\n      - '8000-8010:8000-8010'\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: ports: a reversed range",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  traefik:\n    container_name: coolify-proxy\n    image: traefik:v3.6\n    ports:\n      - '8010-8000:80'\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: ports: a host IP",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  traefik:\n    container_name: coolify-proxy\n    image: traefik:v3.6\n    ports:\n      - '127.0.0.1:8080:80'\n      - '[::1]:8443:443'\n      - '0.0.0.0::80'\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: ports: a bad host IP",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  traefik:\n    container_name: coolify-proxy\n    image: traefik:v3.6\n    ports:\n      - '300.0.0.1:8080:80'\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: ports: a bad bracketed IP",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  traefik:\n    container_name: coolify-proxy\n    image: traefik:v3.6\n    ports:\n      - '[nope]:80:80'\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: ports: too many parts",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  traefik:\n    container_name: coolify-proxy\n    image: traefik:v3.6\n    ports:\n      - '1:2:3:4'\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: ports: an empty host",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  traefik:\n    container_name: coolify-proxy\n    image: traefik:v3.6\n    ports:\n      - ':80'\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: ports: a protocol",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  traefik:\n    container_name: coolify-proxy\n    image: traefik:v3.6\n    ports:\n      - '53:53/UDP'\n      - '54:54/sctp'\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: ports: a bad protocol",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  traefik:\n    container_name: coolify-proxy\n    image: traefik:v3.6\n    ports:\n      - '80:80/http'\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: ports: variables with defaults",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  traefik:\n    container_name: coolify-proxy\n    image: traefik:v3.6\n    ports:\n      - '${HTTP_PORT:-80}:80'\n      - '${HTTPS_PORT-443}:443'\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: ports: an unresolved variable",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  traefik:\n    container_name: coolify-proxy\n    image: traefik:v3.6\n    ports:\n      - '${HTTP_PORT}:80'\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: ports: a variable with a bad default",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  traefik:\n    container_name: coolify-proxy\n    image: traefik:v3.6\n    ports:\n      - '${HTTP_PORT:-99999}:80'\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: ports: a variable with unsafe text",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  traefik:\n    container_name: coolify-proxy\n    image: traefik:v3.6\n    ports:\n      - '${HTTP_PORT:-80}:80 ;rm'\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: ports: long syntax",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  traefik:\n    container_name: coolify-proxy\n    ports:\n      - target: 80\n        published: '8080'\n        protocol: tcp\n        host_ip: 127.0.0.1\n      - target: '443'\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: ports: long syntax without a target",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  traefik:\n    container_name: coolify-proxy\n    ports:\n      - published: 8080\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: ports: long syntax with variables",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  traefik:\n    container_name: coolify-proxy\n    ports:\n      - target: 80\n        published: ${PORT:-8080}\n        host_ip: ${HOST_IP}\n        protocol: ${PROTO:-tcp}\n      - target: ${TARGET}\n        published: ${OTHER:-99999}\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: ports: long syntax with a bad protocol",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  traefik:\n    container_name: coolify-proxy\n    ports:\n      - target: 80\n        protocol: icmp\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: ports: not a list",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  traefik:\n    container_name: coolify-proxy\n    ports:\n      http: 80\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: ports: a list of lists",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "services:\n  traefik:\n    container_name: coolify-proxy\n    image: traefik:v3.6\n    ports:\n      - [80, 80]\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: not functional",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "body": {
+    "configuration": "name: coolify-proxy\nnetworks:\n  coolify:\n    external: true\nservices:\n  traefik:\n    container_name: coolify-proxy\n    image: 'traefik:v3.6'\n    restart: unless-stopped\n    networks:\n      - coolify\n    ports:\n      - '80:80'\n      - '443:443'\n      - '443:443/udp'\n      - '8080:8080'\n    labels:\n      - coolify.managed=true\n"
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1"
+   }
+  },
+  {
+   "name": "proxy configuration: not functional, invalid ports",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "body": {
+    "configuration": "services:\n  traefik:\n    container_name: coolify-proxy\n    image: traefik:v3.6\n    ports:\n      - 99999\n"
+   }
+  },
+  {
+   "name": "proxy configuration: blank",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "   "
+   }
+  },
+  {
+   "name": "proxy configuration: not a string",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": [
+     "services"
+    ],
+    "extra": true
+   }
+  },
+  {
+   "name": "proxy configuration: nothing",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "raw": "{}"
+  },
+  {
+   "name": "proxy configuration: not JSON",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "raw": "configuration=x",
+   "contentType": "application/x-www-form-urlencoded"
+  },
+  {
+   "name": "proxy configuration: without the deploy permission",
+   "token": "write",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "configuration": "name: coolify-proxy\nnetworks:\n  coolify:\n    external: true\nservices:\n  traefik:\n    container_name: coolify-proxy\n    image: 'traefik:v3.6'\n    restart: unless-stopped\n    networks:\n      - coolify\n    ports:\n      - '80:80'\n      - '443:443'\n      - '443:443/udp'\n      - '8080:8080'\n    labels:\n      - coolify.managed=true\n"
+   }
+  },
+  {
+   "name": "proxy configuration: with a read token",
+   "token": "read",
+   "method": "PUT",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration",
+   "body": {
+    "configuration": "name: coolify-proxy\nnetworks:\n  coolify:\n    external: true\nservices:\n  traefik:\n    container_name: coolify-proxy\n    image: 'traefik:v3.6'\n    restart: unless-stopped\n    networks:\n      - coolify\n    ports:\n      - '80:80'\n      - '443:443'\n      - '443:443/udp'\n      - '8080:8080'\n    labels:\n      - coolify.managed=true\n"
+   }
+  },
+  {
+   "name": "proxy configuration: unknown server",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/nonexistentuuid/proxy/configuration",
+   "body": {
+    "configuration": "name: coolify-proxy\nnetworks:\n  coolify:\n    external: true\nservices:\n  traefik:\n    container_name: coolify-proxy\n    image: 'traefik:v3.6'\n    restart: unless-stopped\n    networks:\n      - coolify\n    ports:\n      - '80:80'\n      - '443:443'\n      - '443:443/udp'\n      - '8080:8080'\n    labels:\n      - coolify.managed=true\n"
+   }
+  },
+  {
+   "name": "proxy configuration: another team's server",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/servers/s2otherteamserver0000002/proxy/configuration",
+   "body": {
+    "configuration": "name: coolify-proxy\nnetworks:\n  coolify:\n    external: true\nservices:\n  traefik:\n    container_name: coolify-proxy\n    image: 'traefik:v3.6'\n    restart: unless-stopped\n    networks:\n      - coolify\n    ports:\n      - '80:80'\n      - '443:443'\n      - '443:443/udp'\n      - '8080:8080'\n    labels:\n      - coolify.managed=true\n"
+   }
+  },
+  {
+   "name": "proxy configuration: GET",
+   "token": "root",
+   "method": "GET",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration"
   }
  ]
 }

@@ -7,6 +7,7 @@ import { apiRows, type ApiRow, type ApiTable } from "@saas/db/deploy";
 import { coolifyJson, obj, type CoolifyAnswer, type CoolifyTeamFacts, type PhpValue } from "@saas/contracts/coolify-api";
 import { columnCipher } from "../handlers/cloud-tokens.js";
 import type { S3StorageNetwork } from "../s3-storages/service.js";
+import type { ProviderNetwork } from "./cloud-providers.js";
 
 /** Runs fn in one transaction confined to the org (withOrg); replaceable for tests. */
 export type SqlRunner = <T>(env: Env, orgId: string, fn: (tx: SqlExecutor) => Promise<T>) => Promise<T>;
@@ -30,6 +31,8 @@ export interface ApiV1Context {
   org(): Promise<CoolifyTeamFacts | null>;
   /** What an S3 storage's connection test reaches out with: the resolver and the HTTP exchange (DP-81); replaceable for tests. */
   s3: S3StorageNetwork;
+  /** What a cloud provider's API is asked through: the fetch and the retries' sleep (DP-90); replaceable for tests. */
+  providers: ProviderNetwork;
 }
 
 export type Rows = (table: ApiTable, where?: string, params?: unknown[], order?: "id" | "name") => Promise<ApiRow[]>;
