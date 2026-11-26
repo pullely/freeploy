@@ -5,8 +5,8 @@
 // /project/{uuid}/environment/{env_uuid}/canvas (project.environment.canvas, DP-91): the
 // full-bleed page that holds the environment canvas (components/canvas/environment), with the
 // page's views moved into its toolbar: "List view" back to the resources, Shared variables,
-// Settings (@can('update')) and New resource (@can('createAnyResource')). Coolify's New resource
-// opens the deploy canvas (/canvas), which is not ported yet, so it opens the New Resource page.
+// Settings (@can('update')) and New resource (@can('createAnyResource')), which opens the deploy
+// canvas (/canvas?project=…&environment=…, DP-94) as Coolify's does.
 // The view is not remembered in a cookie (RemembersCanvasView): the list page stays the default.
 import { useEffect, useState } from "react";
 import { Layout, useSignedIn } from "../layout/Layout";
@@ -39,6 +39,8 @@ function EnvironmentCanvasContent() {
   if (!data) return null;
   const { project, environment, canUpdate } = data;
   const here = environmentPath(project.uuid, environment.uuid);
+  // route('deploy-canvas', ['project' => …, 'environment' => …])
+  const deployCanvas = `/canvas?${new URLSearchParams({ project: project.uuid, environment: environment.uuid }).toString()}`;
   // The canvas moves this group into its toolbar; the page actions come last, at the right end.
   const views = (
     <div data-ec-views="" className="flex items-center gap-2 max-lg:flex-wrap">
@@ -60,7 +62,7 @@ function EnvironmentCanvasContent() {
         </a>
       ) : null}
       {canUpdate ? (
-        <a href={`${here}/new`} className="button button-highlighted whitespace-nowrap">
+        <a href={deployCanvas} className="button button-highlighted whitespace-nowrap">
           <Reicon name="plus" className="size-3.5" />
           New resource
         </a>
@@ -70,7 +72,7 @@ function EnvironmentCanvasContent() {
   return (
     <div className="h-full">
       <div data-environment-canvas="" data-project={project.uuid} data-environment={environment.uuid} data-team={me.team?.id ?? ""} className="relative h-full">
-        <EnvironmentCanvas endpoint={`${base}/canvas`} team={me.team?.id ?? ""} views={views} viewOnlyTitle={ENVIRONMENT_CANVAS_VIEW_ONLY} newHref={canUpdate ? `${here}/new` : null} />
+        <EnvironmentCanvas endpoint={`${base}/canvas`} team={me.team?.id ?? ""} views={views} viewOnlyTitle={ENVIRONMENT_CANVAS_VIEW_ONLY} newHref={canUpdate ? deployCanvas : null} />
       </div>
     </div>
   );

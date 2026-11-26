@@ -63,7 +63,8 @@ const UUID_RE = /^[A-Za-z0-9-]{1,255}$/;
 /** Runs fn with one org's key store and cipher, in one transaction confined to that org. */
 export type OrgRunner = <T>(env: Env, orgId: string, fn: (ctx: OrgContext) => Promise<T>) => Promise<T>;
 
-function sqlStore(tx: SqlExecutor, orgId: string): PrivateKeyStore {
+/** The key store over one org's transaction (exported for DP-94's tests). */
+export function sqlStore(tx: SqlExecutor, orgId: string): PrivateKeyStore {
   return {
     list: () => listPrivateKeys(tx),
     findByUuid: (uuid) => findPrivateKeyByUuid(tx, uuid),
@@ -77,7 +78,7 @@ function sqlStore(tx: SqlExecutor, orgId: string): PrivateKeyStore {
 }
 
 /** The org's data key is looked up (or created) on first use only: listing keys needs none. */
-function sqlCipher(tx: SqlExecutor, orgId: string, secret: string | undefined): KeyCipher {
+export function sqlCipher(tx: SqlExecutor, orgId: string, secret: string | undefined): KeyCipher {
   let dek: Promise<OrgDek> | null = null;
   const key = () => (dek ??= loadKek(secret).then((kek) => orgDek(tx, orgId, kek)));
   return {

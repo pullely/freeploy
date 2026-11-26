@@ -19,6 +19,7 @@ import { API_V1_INTERNAL_RE, handleApiV1 } from "./api-v1/handler.js";
 import { handleSources } from "./handlers/sources.js";
 import { GIT_WEBHOOK_INTERNAL_RE, handleGitWebhook } from "./handlers/git-webhooks.js";
 import { PLATFORM_RE, handlePlatform } from "./handlers/platform.js";
+import { ORG_DEPLOY_CANVAS_RE, handleDeployCanvas } from "./handlers/deploy-canvas.js";
 
 const REQUEST_ID_RE = /^[\w-]{1,128}$/;
 
@@ -98,6 +99,16 @@ export async function route(request: Request, env: Env): Promise<Response> {
       const actor = resolveActor(request);
       if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
       return await handleSources(env, requestId, actor, orgId, sources[1]!, (sources[2] ?? "").split("/").filter(Boolean), request);
+    }
+
+    // The deploy canvas (DP-94): /canvas's page data, its option lists, its "New project" rows and its run.
+    const deployCanvas = url.pathname.match(ORG_DEPLOY_CANVAS_RE);
+    if (deployCanvas) {
+      const orgId = parseOrgPublicId(deployCanvas[1]!);
+      if (!orgId) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
+      return await handleDeployCanvas(env, requestId, actor, orgId, deployCanvas[1]!, (deployCanvas[2] ?? "").split("/").filter(Boolean), request);
     }
 
     const projects = url.pathname.match(ORG_DEPLOY_PROJECTS_RE);

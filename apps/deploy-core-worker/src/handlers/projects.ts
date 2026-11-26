@@ -65,7 +65,8 @@ const UUID_RE = /^[A-Za-z0-9-]{1,255}$/;
 /** Runs fn with one org's project store, in one transaction confined to that org. */
 export type ProjectsRunner = <T>(env: Env, orgId: string, fn: (store: ProjectStore) => Promise<T>) => Promise<T>;
 
-function sqlStore(tx: SqlExecutor, orgId: string): ProjectStore {
+/** The project store over one org's transaction (exported for DP-94's tests, which run /api/v1 over PGlite). */
+export function sqlStore(tx: SqlExecutor, orgId: string): ProjectStore {
   return {
     list: () => listProjectsWithCounts(tx),
     findByUuid: (uuid) => findProjectByUuid(tx, uuid),

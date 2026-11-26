@@ -96,6 +96,16 @@ test("the project and environment routes map to their pages; the environment can
   assert.equal(pageFor(`${environment}/canvas/more`), "not-ported");
 });
 
+test("/canvas is the deploy canvas (DP-94), with or without its ?project=…&environment=…; the tags canvas is not ported", () => {
+  assert.equal(pageFor("/canvas"), "deploy-canvas");
+  assert.equal(pageFor("/canvas/"), "deploy-canvas");
+  // The query string is not part of the path the router sees.
+  assert.equal(pageFor(new URL("https://x/canvas?project=abc&environment=def").pathname), "deploy-canvas");
+  assert.equal(pageFor("/canvas/tags"), "not-ported");
+  assert.equal(pageFor("/canvas/api/projects"), "not-ported");
+  assert.equal(pageFor("/canvasx"), "not-ported");
+});
+
 test("an application's configuration routes map to General, Domains, Advanced, Healthcheck, Resource Limits, Persistent Storage, Tags, Resource Operations, the Danger Zone, Git Source, Servers, Webhooks, Scheduled Tasks and Rollback; its other pages are not ported", () => {
   const application = "/project/abc123def456ghi789jkl012/environment/mno345pqr678stu901vwx234/application/yza567bcd890efg123hij456";
   assert.equal(pageFor(application), "project.application.configuration");

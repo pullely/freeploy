@@ -30,8 +30,8 @@
    "milestone": "DP11",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
    "parityTest": "parity/svelte/canvas-deploy-deploy-canvas",
-   "taskKey": null,
-   "status": "planned",
+   "taskKey": "DP-94",
+   "status": "ported",
    "lines": 169
   },
   {
@@ -40,8 +40,8 @@
    "milestone": "DP11",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
    "parityTest": "parity/svelte/canvas-deploy-dropdown",
-   "taskKey": null,
-   "status": "planned",
+   "taskKey": "DP-94",
+   "status": "ported",
    "lines": 138
   },
   {
@@ -50,8 +50,8 @@
    "milestone": "DP11",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
    "parityTest": "parity/svelte/canvas-deploy-edges",
-   "taskKey": null,
-   "status": "planned",
+   "taskKey": "DP-94",
+   "status": "ported",
    "lines": 49
   },
   {
@@ -60,8 +60,8 @@
    "milestone": "DP11",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
    "parityTest": "parity/svelte/canvas-deploy-field",
-   "taskKey": null,
-   "status": "planned",
+   "taskKey": "DP-94",
+   "status": "ported",
    "lines": 106
   },
   {
@@ -70,8 +70,8 @@
    "milestone": "DP11",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
    "parityTest": "parity/svelte/canvas-deploy-icon",
-   "taskKey": null,
-   "status": "planned",
+   "taskKey": "DP-94",
+   "status": "ported",
    "lines": 26
   },
   {
@@ -80,8 +80,8 @@
    "milestone": "DP11",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
    "parityTest": "parity/svelte/canvas-deploy-node",
-   "taskKey": null,
-   "status": "planned",
+   "taskKey": "DP-94",
+   "status": "ported",
    "lines": 105
   },
   {
@@ -90,8 +90,8 @@
    "milestone": "DP11",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
    "parityTest": "parity/svelte/canvas-deploy-palette-item",
-   "taskKey": null,
-   "status": "planned",
+   "taskKey": "DP-94",
+   "status": "ported",
    "lines": 22
   },
   {
@@ -100,8 +100,8 @@
    "milestone": "DP11",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
    "parityTest": "parity/svelte/canvas-deploy-run-panel",
-   "taskKey": null,
-   "status": "planned",
+   "taskKey": "DP-94",
+   "status": "ported",
    "lines": 49
   },
   {

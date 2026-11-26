@@ -19,6 +19,7 @@ const ProjectShowPage = lazy(() => import("./pages/ProjectShow").then((m) => ({ 
 const ProjectEditPage = lazy(() => import("./pages/ProjectEdit").then((m) => ({ default: m.ProjectEditPage })));
 const EnvironmentResourcesPage = lazy(() => import("./pages/EnvironmentResources").then((m) => ({ default: m.EnvironmentResourcesPage })));
 const EnvironmentCanvasPage = lazy(() => import("./pages/EnvironmentCanvas").then((m) => ({ default: m.EnvironmentCanvasPage })));
+const DeployCanvasPage = lazy(() => import("./pages/DeployCanvas").then((m) => ({ default: m.DeployCanvasPage })));
 const ResourceCreatePage = lazy(() => import("./pages/ResourceCreate").then((m) => ({ default: m.ResourceCreatePage })));
 const ServiceShowPage = lazy(() => import("./pages/ServiceShow").then((m) => ({ default: m.ServiceShowPage })));
 const ServicePartPage = lazy(() => import("./pages/ServicePart").then((m) => ({ default: m.ServicePartPage })));
@@ -171,6 +172,12 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <EnvironmentCanvasPage />
+        </Suspense>
+      );
+    case "deploy-canvas":
+      return (
+        <Suspense fallback={null}>
+          <DeployCanvasPage />
         </Suspense>
       );
     case "project.environment.edit":
