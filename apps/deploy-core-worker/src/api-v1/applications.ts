@@ -100,7 +100,7 @@ async function applicationRow(rows: Rows, uuid: string): Promise<ApiRow | null> 
   return (await rows("applications", "t.deleted_at IS NULL AND t.uuid = $1", [uuid]))[0] ?? null;
 }
 
-const denied = async (c: ApiV1Context, write: boolean): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized());
+const denied = async (c: ApiV1Context, write: boolean, policyMessage?: string): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized(policyMessage));
 
 /** A server row as Eloquent's toArray() writes a loaded relation: Coolify's column order, team_id, is_coolify_host, then its loaded settings. */
 export function nestedServer(c: ApiV1Context, server: ApiRow, settings: ApiRow | undefined): PhpObject {

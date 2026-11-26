@@ -96,7 +96,7 @@ function serialize(kind: ServicePartKind, row: ApiRow): PhpObject {
 }
 
 const notFoundOf = (kind: ServicePartKind) => message(kind === "application" ? SERVICE_PARTS_API_MESSAGES.applicationNotFound : SERVICE_PARTS_API_MESSAGES.databaseNotFound, 404);
-const denied = async (c: ApiV1Context, write: boolean): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized());
+const denied = async (c: ApiV1Context, write: boolean, policyMessage?: string): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized(policyMessage));
 
 async function listParts(c: ApiV1Context, kind: ServicePartKind, serviceUuid: string): Promise<CoolifyAnswer> {
   return c.sql(c.env, c.orgId, async (tx) => {

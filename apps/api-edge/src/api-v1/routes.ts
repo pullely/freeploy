@@ -76,11 +76,14 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("PATCH", "/security/keys/{uuid}", "write", "deploy"),
   r("DELETE", "/security/keys/{uuid}", "delete", "deploy"),
 
-  // DP-88: GitHub Apps (their repositories and branches are not ported: they ask GitHub)
+  // DP-88: GitHub Apps
   r("GET", "/github-apps", "read", "deploy"),
   r("POST", "/github-apps", "write", "deploy"),
   r("PATCH", "/github-apps/{github_app_id}", "write", "deploy"),
   r("DELETE", "/github-apps/{github_app_id}", "delete", "deploy"),
+  // DP-93: through a GitHub App, which asks GitHub
+  r("GET", "/github-apps/{github_app_id}/repositories", "read", "deploy"),
+  r("GET", "/github-apps/{github_app_id}/repositories/{owner}/{repo}/branches", "read", "deploy"),
 
   // DP-90: cloud provider tokens
   r("GET", "/cloud-tokens", "read", "deploy"),
@@ -153,13 +156,16 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("PATCH", "/servers/{uuid}/envs/{env_id}", "write", "deploy"),
   r("DELETE", "/servers/{uuid}/envs/{env_id}", "delete", "deploy"),
   r("POST", "/servers", "write", "deploy"),
+  // DP-93: a Hostinger VPS bought and stored as a server
+  r("POST", "/servers/hostinger", "write", "deploy"),
   r("DELETE", "/servers/{uuid}", "delete", "deploy"),
 
   // DP-71
   r("GET", "/applications", "read", "deploy"),
-  // DP-87: the create types (private-github-app and private-gitea-app are not ported)
+  // DP-87: the create types (DP-93: private-github-app; private-gitea-app is not ported)
   r("POST", "/applications/public", "write", "deploy"),
   r("POST", "/applications/private-deploy-key", "write", "deploy"),
+  r("POST", "/applications/private-github-app", "write", "deploy"),
   r("POST", "/applications/dockerfile", "write", "deploy"),
   r("POST", "/applications/dockerimage", "write", "deploy"),
   r("GET", "/applications/{uuid}", "read", "deploy"),

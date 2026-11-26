@@ -12,11 +12,11 @@
 // checks, and nothing is stored.
 import type { SqlExecutor } from "@saas/db/hyperdrive";
 import { FILE_VOLUME_MORPH_CLASS, PERSISTENT_VOLUME_MORPH_CLASS, type ApiRow } from "@saas/db/deploy";
-import { COOLIFY_API, coolifyJson, obj, type CoolifyAnswer, type PhpValue } from "@saas/contracts/coolify-api";
+import { COOLIFY_API, POLICY_DENIALS, coolifyJson, obj, type CoolifyAnswer, type PhpValue } from "@saas/contracts/coolify-api";
 import { needsExecutor } from "../applications/resources.js";
 import { validateCronExpression } from "../servers/settings-validation.js";
 import { newPublicId } from "../helpers/names.js";
-import { hasDeployAbility, message, rowsOf, unavailable, type ApiV1Context, type Rows } from "./context.js";
+import { hasDeployAbility, message, rowsOf, unavailable, UPDATE_DENIED, type ApiV1Context, type Rows } from "./context.js";
 import { rowValue } from "./models.js";
 import { addError, extraFields, readApiBody, validationFailed, type Errors } from "./request.js";
 import { validateRules, type Rules } from "./rules.js";
@@ -53,7 +53,7 @@ const RULES: Rules = [
   ["missing_backup_notification_days", ["integer", "min:0", "max:365"]],
 ];
 
-const denied = async (c: ApiV1Context, write: boolean): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized());
+const denied = async (c: ApiV1Context, write: boolean, policyMessage?: string): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized(policyMessage));
 
 /** FILTER_VALIDATE_BOOLEAN of $request->boolean($key, $default): the default only when the key is absent. */
 function requestBool(all: Record<string, unknown>, key: string, fallback = false): boolean {
@@ -143,11 +143,11 @@ async function scheduleOf(tx: SqlExecutor, storage: FoundStorage): Promise<Sched
 }
 
 /** findResource() and findStorage() with the controller's 404s and the policy in between. */
-async function resolve(c: ApiV1Context, tx: SqlExecutor, kind: StorageKind, uuid: string, storageUuid: string, notFound: string, write: boolean, beforeStorage?: () => CoolifyAnswer | null): Promise<{ target: Target; storage: FoundStorage } | CoolifyAnswer> {
+async function resolve(c: ApiV1Context, tx: SqlExecutor, kind: StorageKind, uuid: string, storageUuid: string, notFound: string, write: boolean, beforeStorage?: () => CoolifyAnswer | null, policyMessage?: string): Promise<{ target: Target; storage: FoundStorage } | CoolifyAnswer> {
   const rows = rowsOf(tx);
   const target = await findTarget(tx, rows, kind, uuid);
   if (!target) return message(notFound, 404);
-  const no = await denied(c, write);
+  const no = await denied(c, write, policyMessage);
   if (no) return no;
   const early = beforeStorage?.();
   if (early) return early;
@@ -178,7 +178,7 @@ async function upsert(c: ApiV1Context, kind: StorageKind, uuid: string, storageU
   if (body.incomingError) return body.incomingError;
   const all = body.all;
   return c.sql(c.env, c.orgId, async (tx) => {
-    const found = await resolve(c, tx, kind, uuid, storageUuid, NOT_FOUND[kind], true, () => (requestBool(all, "stop_during_backup") && !hasDeployAbility(c) ? message(VOLUME_BACKUPS_API_MESSAGES.stopNeedsDeploy, 403) : null));
+    const found = await resolve(c, tx, kind, uuid, storageUuid, NOT_FOUND[kind], true, () => (requestBool(all, "stop_during_backup") && !hasDeployAbility(c) ? message(VOLUME_BACKUPS_API_MESSAGES.stopNeedsDeploy, 403) : null), UPDATE_DENIED[kind]);
     if (isAnswer(found)) return found;
     const { storage } = found;
 
@@ -213,7 +213,7 @@ async function upsert(c: ApiV1Context, kind: StorageKind, uuid: string, storageU
     }
     // $this->authorize('useTeamCredentials', $resource) for an S3 storage the schedule does not use yet.
     if (ids.some((id) => !currentIds.includes(id))) {
-      const no = await denied(c, true);
+      const no = await denied(c, true, POLICY_DENIALS.useTeamCredentials);
       if (no) return no;
     }
     const attributes = {
@@ -325,7 +325,7 @@ async function destroy(c: ApiV1Context, kind: StorageKind, uuid: string, storage
 
 async function run(c: ApiV1Context, kind: StorageKind, uuid: string, storageUuid: string): Promise<CoolifyAnswer> {
   return c.sql(c.env, c.orgId, async (tx) => {
-    const found = await resolve(c, tx, kind, uuid, storageUuid, NOT_FOUND[kind], true);
+    const found = await resolve(c, tx, kind, uuid, storageUuid, NOT_FOUND[kind], true, undefined, UPDATE_DENIED[kind]);
     if (isAnswer(found)) return found;
     if (!(await scheduleOf(tx, found.storage))) return message("Storage backup schedule not found.", 404);
     return unavailable(VOLUME_BACKUPS_API_MESSAGES.runUnavailable);

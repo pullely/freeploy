@@ -178,14 +178,14 @@ describe("an S3 storage's connection test (DP-81)", () => {
 });
 
 describe("authorization and the other team (DP-81)", () => {
-  it("answers Laravel's 403 when policy-worker denies the token's user, after the 404 of an unknown resource", async () => {
+  it("answers the exception handler's 403 (DP-93) when policy-worker denies the token's user, after the 404 of an unknown resource", async () => {
     const out = await fixture.inCase(async (db) => {
       const created = await send(caseNamed("tags: create"), db, false);
       const listed = await send(caseNamed("application tags: list"), db, false);
       const unknown = await send(caseNamed("application tags: list of unknown"), db, false);
       return [created.status, await created.text(), listed.status, unknown.status];
     });
-    expect(out).toEqual([403, '{"message":"This action is unauthorized."}', 403, 404]);
+    expect(out).toEqual([403, '{"message":"You are not authorized to perform this action.","error":"Unauthorized"}', 403, 404]);
   });
 
   it("never lists, renames or deletes another team's tag", async () => {

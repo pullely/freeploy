@@ -39,7 +39,7 @@ function queryInput(url: URL): Record<string, unknown> {
   return out;
 }
 
-const denied = async (c: ApiV1Context, write: boolean): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized());
+const denied = async (c: ApiV1Context, write: boolean, policyMessage?: string): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized(policyMessage));
 const phpTruthy = (v: unknown): boolean => !(v === undefined || v === null || v === false || v === 0 || v === "" || v === "0" || (Array.isArray(v) && v.length === 0));
 /** PHP's (int) of a request value: the leading digits of a string. */
 const phpInt = (v: unknown): number => (typeof v === "number" ? Math.trunc(v) : typeof v === "boolean" ? Number(v) : Number(/^\s*[+-]?\d+/.exec(String(v ?? ""))?.[0] ?? 0));

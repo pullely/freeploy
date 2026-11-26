@@ -1,0 +1,22 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-93
+  title: "DP9: /api/v1 answers a denied policy as Coolify's exception handler does, the API fixture's private keys are real keys, and POST /applications/private-github-app, a GitHub App's repositories and branches and POST /servers/hostinger"
+spec:
+  goal: Two fixes found while porting /api/v1, then the routes the second one blocked. A request whose $this->authorize() Coolify denies under api/* is answered as app/Exceptions/Handler.php answers an AuthorizationException — 403, application/json, {"message":<the policy's Response::deny() message, or "You are not authorized to perform this action.">,"error":"Unauthorized"} — on every ported route (COOLIFY_API.unauthorized(), POLICY_DENIALS for the policies with their own message), where the DP-70…DP-88 groups answered Laravel's "This action is unauthorized."; CloudProviderTokensController::index's own refusal keeps those words. Golden cases from Coolify's PHP cover a denial on a route of every group where one is reachable — a default member's read token where the policy asks for more, and a member whose levels Coolify stores on its membership (team_user.access) with a deploy, delete or write token — and the differences between Coolify's policies and Freeploy's role mapping are listed, not changed. Freeploy's PGlite API fixture stores every private key as the committed test key's text with its real fingerprint (it stored the file's path), and gains DP-72's RSA GitHub App key (read from fixtures/sources/cases.json, never inlined) for team 1. Then, on DP-70's pipeline, GET /github-apps/{id}/repositories and …/repositories/{owner}/{repo}/branches and POST /applications/private-github-app (the App's RS256 JWT with DP-72's jwt.ts, its installation token, GitHub faked with Http::fake()), and POST /servers/hostinger (the purchase through DP-90's Hostinger client with the key's real public key, the server stored as Server::create() stores it, 501 in Coolify's envelope after the store where Coolify queues ValidateNewCloudServerJob). 4 more of openapi.json's 330 operations are ported (278 in all).
+  affects:
+    - apps/api-edge/**
+    - apps/deploy-core-worker/**
+    - packages/contracts/**
+    - tests/api-edge/**
+    - tests/deploy-core-worker/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - every ported /api/v1 route answers a denied policy with the exception handler's 403 (body, status, content type), the policy's own message where Coolify's policy has one
+    - "every `denied: …` case of tests/deploy-core-worker/fixtures/api/cases.json (31) replays against Freeploy's handler byte-equal to goldens.json, and tests/api-edge shows the edge refusing the token of a member that has no stored grants in Freeploy"
+    - the API fixture's private keys are the committed test keys on both sides (fingerprints and public keys real), and the earlier goldens change only where the added key is listed (keys list, keys list with read:sensitive, a key delete's after) and in random values
+    - every DP-93 GitHub App and Hostinger case replays byte-equal (status, body, Retry-After, the requests sent to GitHub and Hostinger — the JWT included — and the rows of the writes), except the listed departures (the instant deploy and Docker Compose create, the Hostinger create that validates)
+    - specs/epics/freeploy-coolify-parity/parity/openapi.operations.json marks the 4 operations ported with taskKey DP-93 (278 ported of 330 in all), and node tools/parity/inventory.ts --check passes
+  gates: []

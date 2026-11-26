@@ -44,7 +44,7 @@ const SERVER_ROLES = ["deployment", "build", "both"];
 const STANDALONE_DOCKER = "App\\Models\\StandaloneDocker";
 const DATE_SHAPE = { hidden: [], dates: ["created_at", "updated_at"] };
 
-const denied = async (c: ApiV1Context, write: boolean): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized());
+const denied = async (c: ApiV1Context, write: boolean, policyMessage?: string): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized(policyMessage));
 const filled = (v: unknown): boolean => !(v === undefined || v === null || (typeof v === "string" && v.trim() === "") || (Array.isArray(v) && v.length === 0));
 const phpTruthy = (v: unknown): boolean => !(v === undefined || v === null || v === false || v === 0 || v === "" || v === "0" || (Array.isArray(v) && v.length === 0));
 /** $request->boolean(): filter_var(FILTER_VALIDATE_BOOLEAN). */

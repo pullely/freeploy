@@ -113,7 +113,15 @@ foreach ($fixture['projects'] as $p) {
 }
 $advanceSequences();
 foreach ($fixture['privateKeys'] as $k) {
-    PrivateKey::unguarded(fn () => PrivateKey::query()->forceCreate(['id' => $k['id'], 'uuid' => $k['uuid'], 'name' => $k['name'], 'description' => $k['description'], 'private_key' => file_get_contents(__DIR__.'/'.$k['file']), 'team_id' => $k['team'], 'is_git_related' => false]));
+    // A committed test key: the file, or the string at `json` (a path of keys) inside that JSON file (DP-93).
+    $text = file_get_contents(__DIR__.'/'.$k['file']);
+    if (isset($k['json'])) {
+        $text = json_decode($text, true);
+        foreach ($k['json'] as $step) {
+            $text = $text[$step];
+        }
+    }
+    PrivateKey::unguarded(fn () => PrivateKey::query()->forceCreate(['id' => $k['id'], 'uuid' => $k['uuid'], 'name' => $k['name'], 'description' => $k['description'], 'private_key' => $text, 'team_id' => $k['team'], 'is_git_related' => false]));
 }
 $advanceSequences();
 foreach ($fixture['servers'] ?? [] as $s) {

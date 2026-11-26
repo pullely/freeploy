@@ -30,7 +30,7 @@ export const ROLLBACK_API_MESSAGES = {
 /** GetRollbackImages::REGISTRY_DEPLOYMENTS_LIMIT */
 const REGISTRY_DEPLOYMENTS_LIMIT = 10;
 
-const denied = async (c: ApiV1Context, write: boolean): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized());
+const denied = async (c: ApiV1Context, write: boolean, policyMessage?: string): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized(policyMessage));
 const blank = (v: unknown): boolean => v === null || v === undefined || (typeof v === "string" && v.trim() === "");
 
 /** Application::ownedByCurrentTeamAPI()->where('uuid', $request->route('uuid')) */

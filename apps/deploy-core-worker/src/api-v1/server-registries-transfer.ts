@@ -45,7 +45,7 @@ export const REGISTRIES_TRANSFER_API_MESSAGES = {
 /** ServerTransferMigrator::STALE_MIGRATION_SECONDS */
 const STALE_MIGRATION_SECONDS = 1800;
 
-const denied = async (c: ApiV1Context, write: boolean): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized());
+const denied = async (c: ApiV1Context, write: boolean, policyMessage?: string): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized(policyMessage));
 const notFound = () => message("Server not found.", 404);
 const consoleUrl = (c: ApiV1Context): string => (c.env.DEPLOY_CONSOLE_URL || DEFAULT_CONSOLE_URL).replace(/\/+$/, "");
 

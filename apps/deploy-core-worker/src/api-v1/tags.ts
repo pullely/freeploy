@@ -30,7 +30,7 @@ import { COOLIFY_API, coolifyJson, laravelDate, obj, type CoolifyAnswer, type Ph
 import { stripTags, tagName } from "../applications/tags.js";
 import { phpTrim } from "../applications/storage-paths.js";
 import { newPublicId } from "../helpers/names.js";
-import { message, rowsOf, type ApiV1Context } from "./context.js";
+import { message, rowsOf, UPDATE_DENIED, type ApiV1Context } from "./context.js";
 import { rowValue } from "./models.js";
 import { addError, readApiBody, validationFailed, type Errors } from "./request.js";
 import { validateRules, type Rules } from "./rules.js";
@@ -47,7 +47,7 @@ const normalizeTagName = (name: string): string => phpTrim(stripTags(name)).repl
 const phpString = (v: unknown): string => (v === true ? "1" : v === false || v === null || v === undefined ? "" : typeof v === "number" ? String(v) : typeof v === "string" ? v : "Array");
 const mbLength = (s: string): number => [...s].length;
 
-const denied = async (c: ApiV1Context, write: boolean): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized());
+const denied = async (c: ApiV1Context, write: boolean, policyMessage?: string): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized(policyMessage));
 const inOrg = <T>(c: ApiV1Context, fn: (tx: SqlExecutor) => Promise<T>): Promise<T> => c.sql(c.env, c.orgId, fn);
 const tagExists = () => message("Tag with this name already exists.", 409);
 
@@ -178,7 +178,7 @@ async function addTo(c: ApiV1Context, kind: TaggableKind, uuid: string): Promise
   return inOrg(c, async (tx) => {
     const resource = await taggable(tx, kind, uuid);
     if (!resource) return message(NOT_FOUND[kind], 404);
-    const no = await denied(c, true);
+    const no = await denied(c, true, UPDATE_DENIED[kind]);
     if (no) return no;
     if ("tag_name" in all && "tag_names" in all) return validationFailed([["tag_name", ["Provide either tag_name or tag_names, not both."]]]);
     const errors: Errors = [];
@@ -202,7 +202,7 @@ async function removeFrom(c: ApiV1Context, kind: TaggableKind, uuid: string, tag
   return inOrg(c, async (tx) => {
     const resource = await taggable(tx, kind, uuid);
     if (!resource) return message(NOT_FOUND[kind], 404);
-    const no = await denied(c, true);
+    const no = await denied(c, true, UPDATE_DENIED[kind]);
     if (no) return no;
     const tag = await findTagByUuid(tx, tagUuid);
     if (!tag) return message("Tag not found.", 404);

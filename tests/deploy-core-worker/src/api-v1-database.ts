@@ -46,7 +46,8 @@ import { columnCipher } from "@deploy-core-worker/handlers/cloud-tokens";
 import { ENVIRONMENT_VARIABLE_VERSION } from "@deploy-core-worker/environment-variables/service";
 import { defaultVolumes } from "@deploy-core-worker/databases/engines";
 import { normalizeDomainPortOverrides } from "@deploy-core-worker/applications/domains";
-import { CASES } from "./api-v1-goldens.js";
+import { fingerprintSha256, formatPrivateKey } from "@deploy-core-worker/keys/ssh-keys";
+import { CASES, fixtureKeyText } from "./api-v1-goldens.js";
 
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
@@ -118,7 +119,9 @@ export async function fixtureDatabase(): Promise<FixtureDatabase> {
   }
   for (const k of f.privateKeys) {
     await withOrg(db, org(k.team), async (tx) => {
-      await insertPrivateKey(tx, { orgId: org(k.team), uuid: k.uuid, name: k.name, description: k.description, privateKey: await encrypt(tx, k.team, "private_keys.private_key", k.file), fingerprint: `fp-${k.uuid}` });
+      // The committed test key itself (DP-93: until then its file's path), so that its public key and fingerprint are real.
+      const text = formatPrivateKey(fixtureKeyText(k));
+      await insertPrivateKey(tx, { orgId: org(k.team), uuid: k.uuid, name: k.name, description: k.description, privateKey: await encrypt(tx, k.team, "private_keys.private_key", text), fingerprint: (await fingerprintSha256(text))! });
     });
   }
   for (const s of f.servers) {

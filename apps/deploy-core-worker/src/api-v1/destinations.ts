@@ -48,7 +48,7 @@ const modelNotFound = (model: "Server" | "SwarmDocker"): CoolifyAnswer => ({
   headers: { "content-type": "application/json" },
 });
 
-const denied = async (c: ApiV1Context, write: boolean): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized());
+const denied = async (c: ApiV1Context, write: boolean, policyMessage?: string): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized(policyMessage));
 
 /** transform() */
 function transform(d: DeployDestinationRow): PhpObject {

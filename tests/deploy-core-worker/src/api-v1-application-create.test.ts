@@ -168,7 +168,7 @@ describe("what a create or an update leaves behind (DP-87)", () => {
 });
 
 describe("authorization and the secrets (DP-87)", () => {
-  it("answers Laravel's 403 when policy-worker denies the token's user, after the 404s of the project and environment, and creates nothing", async () => {
+  it("answers the exception handler's 403 (DP-93) when policy-worker denies the token's user, after the 404s of the project and environment, and creates nothing", async () => {
     const out = await fixture.inCase(async (db) => {
       const created = await send(caseNamed("app create: a Docker image"), db, false);
       const project = await send(caseNamed("app create: unknown project"), db, false);
@@ -178,7 +178,7 @@ describe("authorization and the secrets (DP-87)", () => {
       const unknown = await send(caseNamed("app update: unknown application"), db, false);
       return [created.status, await created.text(), project.status, environment.status, key.status, updated.status, unknown.status, await afterRows(db, caseNamed("app create: instant deploy")), await afterRows(db, caseNamed("app update: name and description"))];
     });
-    expect(out.slice(0, 7)).toEqual([403, '{"message":"This action is unauthorized."}', 404, 404, 403, 403, 404]);
+    expect(out.slice(0, 7)).toEqual([403, '{"message":"You are not authorized to perform this action.","error":"Unauthorized"}', 404, 404, 403, 403, 404]);
     expect(out[7]).toEqual({ applications: [{ created: 0 }] });
     expect(out[8]).toEqual(await fixture.inCase((db) => afterRows(db, caseNamed("app update: name and description"))));
   });

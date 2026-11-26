@@ -11,7 +11,7 @@
 // SSH: Freeploy answers 501 in Coolify's envelope after Coolify's checks (executeTask()), and stores nothing.
 import type { SqlExecutor } from "@saas/db/hyperdrive";
 import { deleteScheduledTask, insertScheduledTask, updateScheduledTask, type ApiRow, type ScheduledTaskChanges, type ScheduledTaskOwner } from "@saas/db/deploy";
-import { COOLIFY_API, coolifyJson, laravelDate, obj, serializeApiResponse, type CoolifyAnswer, type PhpObject, type PhpValue } from "@saas/contracts/coolify-api";
+import { COOLIFY_API, POLICY_DENIALS, coolifyJson, laravelDate, obj, serializeApiResponse, type CoolifyAnswer, type PhpObject, type PhpValue } from "@saas/contracts/coolify-api";
 import { stripTags } from "../applications/tags.js";
 import { validateCronExpression } from "../servers/settings-validation.js";
 import { newPublicId } from "../helpers/names.js";
@@ -24,6 +24,8 @@ import { extraFields, readApiBody, requestBoolean, validationFailed, type Errors
 import { validateRules, type Rules } from "./rules.js";
 
 export type TaskOwnerKind = "application" | "service";
+/** authorize('update', $resource): ApplicationPolicy's own message (ServicePolicy answers false), DP-93. */
+const UPDATE_DENIED: Record<TaskOwnerKind, string | undefined> = { application: POLICY_DENIALS.applicationUpdate, service: undefined };
 
 /** removeSensitiveData(): id and the owners hidden (the team is Freeploy's org_id, which a row never carries); command for a token that may read secrets. */
 const TASK: ModelShape = { hidden: ["id", "team_id", "application_id", "service_id", "command"], dates: ["created_at", "updated_at", "failing_since"] };
@@ -33,7 +35,7 @@ const ALLOWED = ["name", "command", "frequency", "container", "timeout", "use_sh
 const NOT_FOUND: Record<TaskOwnerKind, string> = { application: "Application not found.", service: "Service not found." };
 const ENABLED_REASON = "An enabled scheduled task runs commands in the resource containers, so it needs a token with the deploy permission.";
 
-const denied = async (c: ApiV1Context, write: boolean): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized());
+const denied = async (c: ApiV1Context, write: boolean, policyMessage?: string): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized(policyMessage));
 /** enabledTaskForbiddenResponse() */
 const enabledForbidden = (c: ApiV1Context, enabled: boolean): CoolifyAnswer | null => (!enabled || hasDeployAbility(c) ? null : message(`Missing required permissions: deploy. ${ENABLED_REASON}`, 403));
 const badFrequency = (): CoolifyAnswer => validationFailed([["frequency", ["Invalid cron expression or frequency format."]]]);
@@ -103,7 +105,7 @@ async function execute(c: ApiV1Context, kind: TaskOwnerKind, uuid: string, taskU
     const rows = rowsOf(tx);
     const r = await resolve(rows, kind, param(c, {}, uuid));
     if (!r) return message(NOT_FOUND[kind], 404);
-    const no = await denied(c, true);
+    const no = await denied(c, true, UPDATE_DENIED[kind]);
     if (no) return no;
     // $request->task_uuid: the input before the route parameter.
     const wanted = c.url.searchParams.get("task_uuid") ?? taskUuid;
@@ -158,7 +160,7 @@ async function createTask(c: ApiV1Context, kind: TaskOwnerKind, uuid: string): P
     const rows = rowsOf(tx);
     const r = await resolve(rows, kind, param(c, all, uuid));
     if (!r) return message(NOT_FOUND[kind], 404);
-    const no = await denied(c, true);
+    const no = await denied(c, true, UPDATE_DENIED[kind]);
     if (no) return no;
     if (body.incomingError) return body.incomingError;
     const invalid = await validate(all, createRules);
@@ -190,7 +192,7 @@ async function updateTask(c: ApiV1Context, kind: TaskOwnerKind, uuid: string, ta
     const rows = rowsOf(tx);
     const r = await resolve(rows, kind, param(c, all, uuid));
     if (!r) return message(NOT_FOUND[kind], 404);
-    const no = await denied(c, true);
+    const no = await denied(c, true, UPDATE_DENIED[kind]);
     if (no) return no;
     if (body.incomingError) return body.incomingError;
     if (Object.keys(all).length === 0) return message("At least one field must be provided.", 422);

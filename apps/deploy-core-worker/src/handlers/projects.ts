@@ -22,7 +22,7 @@
 // facts; a denial answers 404 (never leaks).
 import type { Env } from "../env.js";
 import type { ActorContext } from "../router.js";
-import { createSqlExecutor } from "@saas/db/hyperdrive";
+import { createSqlExecutor, type SqlExecutor, type TransactionalSqlExecutor } from "@saas/db/hyperdrive";
 import {
   withOrg,
   listProjectsWithCounts,
@@ -39,7 +39,6 @@ import {
   environmentNameExists,
   environmentHasResources,
 } from "@saas/db/deploy";
-import type { SqlExecutor } from "@saas/db/hyperdrive";
 import { fetchAuthorizationContext } from "../membership-client.js";
 import { authorizeViaPolicy, type AuthorizeResult } from "../policy-client.js";
 import { deniedResponse, errorResponse, methodNotAllowed, successResponse, validationError } from "../http.js";
@@ -83,6 +82,12 @@ export function sqlStore(tx: SqlExecutor, orgId: string): ProjectStore {
     environmentHasResources: (id) => environmentHasResources(tx, id),
   };
 }
+
+/** runInOrg() on a given database (DP-93: the /api/v1 replays run on PGlite): withOrg(), the same stores. */
+export const runInOrgOn =
+  (db: TransactionalSqlExecutor): ProjectsRunner =>
+  (_env, orgId, fn) =>
+    withOrg(db, orgId, (tx) => fn(sqlStore(tx, orgId)));
 
 export const runInOrg: ProjectsRunner = async (env, orgId, fn) => {
   const db = createSqlExecutor(env.PLATFORM_DB!);

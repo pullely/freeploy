@@ -24,7 +24,7 @@ import {
   type ApiRow,
   type DeployApplicationLabelRow,
 } from "@saas/db/deploy";
-import { COOLIFY_API, coolifyJson, fromJs, obj, phpJsonEncode, type CoolifyAnswer } from "@saas/contracts/coolify-api";
+import { COOLIFY_API, POLICY_DENIALS, coolifyJson, fromJs, obj, phpJsonEncode, type CoolifyAnswer } from "@saas/contracts/coolify-api";
 import { columnCipher } from "../handlers/cloud-tokens.js";
 import { applicationDomainList, domainWithoutPort, isValidDomainUrl, normalizeApplicationDomains, normalizeApplicationDomainUrl, normalizeDomainPortOverrides, parseUrl, validateApplicationDomains } from "../applications/domains.js";
 import { phpTrim } from "../applications/git.js";
@@ -156,7 +156,7 @@ export async function updateApplicationApi(c: ApiV1Context, uuid: string, labelD
     const original = Object.fromEntries(app) as Record<string, unknown>;
     const id = original.id as string | number;
     // $this->authorize('update', $application)
-    if (!(await c.allows(true))) return COOLIFY_API.unauthorized();
+    if (!(await c.allows(true))) return COOLIFY_API.unauthorized(POLICY_DENIALS.applicationUpdate);
     const settingsRow = Object.fromEntries((await rows("application_settings", "t.application_id = $1", [id]))[0] ?? []) as Record<string, unknown>;
     // manageEnvironment and deploy: write access, as update.
     if ((has(all, "redact_all_env_values_in_logs") || has(all, "include_coolify_default_variables")) && !(await c.allows(true))) return COOLIFY_API.unauthorized();
@@ -238,7 +238,7 @@ export async function updateApplicationApi(c: ApiV1Context, uuid: string, labelD
       newSource = { id: found.id };
       // $this->authorize('useTeamCredentials', $application) for a source the application does not have yet.
       const same = original.source_type === GITHUB_APP && String(original.source_id) === String(found.id);
-      if (!same && !(await c.allows(true))) return message(APPLICATION_CREATE_MESSAGES.teamCredentials, 403);
+      if (!same && !(await c.allows(true))) return COOLIFY_API.unauthorized(POLICY_DENIALS.useTeamCredentials);
     }
     if (has(all, "git_https_username") || has(all, "git_https_password")) {
       if ((await deploymentType(tx, app)) !== "other") return stringError("git_https_password", "HTTPS credentials can only be used by applications that clone a repository without a Git source or deploy key.");

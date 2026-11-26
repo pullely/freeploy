@@ -162,6 +162,8 @@ export function phpCastString(v: PhpValue | undefined): string | null {
 export interface ProviderNetwork {
   fetch: typeof fetch;
   sleep: (ms: number) => Promise<void>;
+  /** The instant a GitHub App's JWT is issued at (DP-93); the clock when absent. */
+  now?: () => Date;
 }
 
 export interface ProviderResponse {

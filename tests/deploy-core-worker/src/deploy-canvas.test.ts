@@ -324,6 +324,8 @@ describe("the page's data, the option lists and the New project rows", () => {
       expect((await t.send("GET", ["options", "security", "keys"])).body.data).toEqual([
         ["k1parityprivatekey000001", "Parity Key"],
         ["k2unusedprivatekey000002", "Unused Key"],
+        // DP-93's fixture: team 1's GitHub App key (DP-72's RSA test key).
+        ["k4paritygithubappkey0004", "GitHub App Key"],
       ]);
       // A project of another org is the API's 404.
       const other = await t.send("GET", ["options", "projects", "p3otherprojectuuid000003", "environments"]);

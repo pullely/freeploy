@@ -73,7 +73,7 @@ async function inTransaction(c: ApiV1Context, fn: (tx: SqlExecutor) => Promise<C
 const phpTruthy = (v: unknown): boolean => !(v === undefined || v === null || v === false || v === 0 || v === "" || v === "0" || (Array.isArray(v) && v.length === 0));
 /** filled() */
 const filled = (v: unknown): boolean => !(v === undefined || v === null || (typeof v === "string" && v.trim() === "") || (Array.isArray(v) && v.length === 0));
-const denied = async (c: ApiV1Context, write: boolean): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized());
+const denied = async (c: ApiV1Context, write: boolean, policyMessage?: string): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized(policyMessage));
 
 /** `$request->uuid`: Laravel reads the input (the body, then the query string) before the route parameter. */
 function param(c: ApiV1Context, all: Record<string, unknown>, route: string): unknown {

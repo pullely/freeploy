@@ -46,7 +46,7 @@ function inScope(scope: Scope, params: unknown[], forKey = false): string {
   return `t.${scope.type === "project" ? "project_id" : "environment_id"} = $${params.length}`;
 }
 
-const denied = async (c: ApiV1Context, write: boolean): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized());
+const denied = async (c: ApiV1Context, write: boolean, policyMessage?: string): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized(policyMessage));
 /** PHP's (string) cast of a request value. */
 const phpString = (v: unknown): string => (v === true ? "1" : v === false || v === null || v === undefined ? "" : typeof v === "number" ? String(v) : typeof v === "string" ? v : "Array");
 

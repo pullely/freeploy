@@ -23,7 +23,7 @@ const ENV_FLAGS = ["is_literal", "is_multiline", "is_shown_once"];
 /** What EnvironmentVariable::create() has just set besides the request's fields: the creating hook's version, the defaults, the uuid and the timestamps. */
 const CREATED_DEFAULTS = ["version", "is_runtime", "is_buildtime", "uuid", "created_at", "updated_at"];
 
-const denied = async (c: ApiV1Context, write: boolean): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized());
+const denied = async (c: ApiV1Context, write: boolean, policyMessage?: string): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized(policyMessage));
 /** PHP's truthiness of a request value. */
 const phpTruthy = (v: unknown): boolean => !(v === undefined || v === null || v === false || v === 0 || v === "" || v === "0" || (Array.isArray(v) && v.length === 0));
 

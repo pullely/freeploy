@@ -1,5 +1,5 @@
 // Derived from coollabsio/coolify@91b7e3e:app/Http/Controllers/Api/ApplicationsController.php (create_public_application,
-// create_private_deploy_key_application, create_dockerfile_application, create_dockerimage_application, create_application,
+// create_private_deploy_key_application, create_private_gh_app_application, create_dockerfile_application, create_dockerimage_application, create_application,
 // applicationSettingsFromRequest, containerNamePrefixValidationResponse, customInternalNameValidationResponse,
 // sharedImageNameValidationResponse, applyApplicationSettings, extraApplicationFieldMessage, validateDataApplications,
 // normalizeDockerComposeDomainPorts), app/Http/Controllers/Api/Concerns/HandlesTagsApi.php (validateTagsParameter,
@@ -9,19 +9,21 @@
 // app/Support/ValidationPatterns.php and app/Models/{Application,ApplicationSetting}.php ($fillable, the mutators, the
 // creating, created and saving hooks, isStatic, otherApplicationBuildingSameImage) (Apache-2.0), modified.
 //
-// Coolify's /api/v1 application create (DP-87), for four of its types:
+// Coolify's /api/v1 application create (DP-87), for five of its types:
 //
 //   POST /applications/dockerimage           create_application('dockerimage')
 //   POST /applications/dockerfile            create_application('dockerfile')
 //   POST /applications/public                create_application('public')
 //   POST /applications/private-deploy-key    create_application('private-deploy-key')
+//   POST /applications/private-github-app    create_application('private-gh-app')  (DP-93)
 //
 // The checks, their order and their messages are the controller's; the application is stored as `fill()` and the model's
 // hooks store it (the mutators, the webhook secrets, the settings row, Nixpacks' NIXPACKS_NODE_VERSION, the domain's port
 // overrides), its settings as the controller sets them, then its labels as generateLabelsApplication() makes them.
 // Where Coolify then queues work on the server — an instant deploy, LoadComposeFile for a Docker Compose application —
 // Freeploy answers 501 in Coolify's envelope after the checks and before anything is stored (DP-73's convention).
-// Not ported: private-github-app (it asks GitHub for an installation token and the repository) and private-gitea-app.
+// A GitHub App's repository is checked with GitHub first (github-repositories.ts: the App's installation token, then
+// GET /repos/{slug}, DP-93). Not ported: private-gitea-app.
 import type { SqlExecutor } from "@saas/db/hyperdrive";
 import {
   APPLICATION_MORPH_CLASS,
@@ -39,11 +41,13 @@ import {
   type ApiRow,
   type NewApplicationVariable,
 } from "@saas/db/deploy";
-import { COOLIFY_API, coolifyJson, fromJs, obj, phpJsonEncode, serializeApiResponse, type CoolifyAnswer, type PhpValue } from "@saas/contracts/coolify-api";
+import { COOLIFY_API, POLICY_DENIALS, coolifyJson, fromJs, obj, phpJsonEncode, serializeApiResponse, type CoolifyAnswer, type PhpValue } from "@saas/contracts/coolify-api";
 import { columnCipher } from "../handlers/cloud-tokens.js";
 import { ENVIRONMENT_VARIABLE_VERSION } from "../environment-variables/service.js";
 import { applicationDomainList, domainWithoutPort, generateUrl, isValidDomainUrl, normalizeApplicationDomains, normalizeDomainPortOverrides, parseUrl, syncNoindexDomains, validateApplicationDomains } from "../applications/domains.js";
 import { generateApplicationName, gitBranchError, gitRepositoryUrlError, phpTrim, sshGitUrlToHttps } from "../applications/git.js";
+import { gitRepositorySlug } from "../sources/pr-updates.js";
+import { githubAppRepository } from "./github-repositories.js";
 import { fullImageNameWithoutTag, parseDockerImage } from "../applications/docker-image.js";
 import { CONTAINER_NAME_PATTERN, DOCKER_IMAGE_NAME_PATTERN, DOCKER_IMAGE_TAG_PATTERN, PORT_MAPPINGS_PATTERN, PORTS_EXPOSES_PATTERN, SHELL_SAFE_COMMAND_PATTERN } from "../applications/validation.js";
 import { DIRECTORY_PATH_PATTERN, FILE_PATH_PATTERN } from "../applications/create.js";
@@ -79,9 +83,9 @@ import { rowValue } from "./models.js";
 import { addError, descriptionRules, nameRules, readApiBody, validationFailed, type Errors } from "./request.js";
 import { validateRules, type Rule, type Rules } from "./rules.js";
 
-export type CreateType = "public" | "private-deploy-key" | "dockerfile" | "dockerimage";
+export type CreateType = "public" | "private-deploy-key" | "private-gh-app" | "dockerfile" | "dockerimage";
 /** The path segment after /applications of each type this file answers. */
-export const CREATE_TYPES: Record<string, CreateType> = { public: "public", "private-deploy-key": "private-deploy-key", dockerfile: "dockerfile", dockerimage: "dockerimage" };
+export const CREATE_TYPES: Record<string, CreateType> = { public: "public", "private-deploy-key": "private-deploy-key", "private-github-app": "private-gh-app", dockerfile: "dockerfile", dockerimage: "dockerimage" };
 
 export const APPLICATION_CREATE_MESSAGES = {
   /** Freeploy's: queue_application_deployment() runs the deployment on the server. */
@@ -89,7 +93,6 @@ export const APPLICATION_CREATE_MESSAGES = {
   /** Freeploy's: LoadComposeFile reads the Docker Compose file from the repository on the server. */
   composeUnavailable: needsExecutor("Loading the Docker Compose file of the application"),
   /** ResourceCreatePolicy::useTeamCredentials()'s denial. */
-  teamCredentials: "You need write access on the whole team to use team credentials, such as private keys, git sources, and S3 storages.",
   /** Application::sharedImageNameMessage(), Coolify's words. */
   sharedImageName: (other: string, image: string): string =>
     `The application ${other} also builds the Docker image ${image}. ` +
@@ -693,7 +696,7 @@ export async function createApplicationApi(c: ApiV1Context, type: CreateType, la
   const isPreserveRepositoryEnabled = requestBool(all, "is_preserve_repository_enabled", false);
   const applicationSettings = applicationSettingsFromRequest(all);
 
-  const requestedBuildPack = type === "public" || type === "private-deploy-key" ? all.build_pack : type;
+  const requestedBuildPack = type === "public" || type === "private-deploy-key" || type === "private-gh-app" ? all.build_pack : type;
   if (applicationSettings.is_raw_compose_deployment_enabled === true && requestedBuildPack !== "dockercompose") {
     return stringError("is_raw_compose_deployment_enabled", "Raw compose deployment can only be enabled for Docker Compose applications.");
   }
@@ -715,7 +718,7 @@ export async function createApplicationApi(c: ApiV1Context, type: CreateType, la
     const serverRow = typeof all.server_uuid === "string" ? (await rows("servers", "t.deleted_at IS NULL AND t.uuid = $1", [all.server_uuid]))[0] : undefined;
     if (!serverRow) return message("Server not found.", 404);
     // $this->authorize('placeResource', $server)
-    if (!(await c.allows(true))) return COOLIFY_API.unauthorized();
+    if (!(await c.allows(true))) return COOLIFY_API.unauthorized(POLICY_DENIALS.placeResource);
     const server = serverOf(serverRow, (await rows("server_settings", "t.server_id = $1", [rowValue(serverRow, "id")]))[0]);
     if (server.role === "build") {
       return coolifyJson(obj({ message: "Validation failed.", errors: obj({ server_uuid: ["The specified server is configured as a build server and cannot host resources."] }) }), 422);
@@ -746,10 +749,11 @@ export async function createApplicationApi(c: ApiV1Context, type: CreateType, la
     }
 
     // The type's own rules and defaults.
-    const git = type === "public" || type === "private-deploy-key";
+    const git = type === "public" || type === "private-deploy-key" || type === "private-gh-app";
     if (git) {
       const own: Rules = [
-        ["git_repository", ["string", "required", validGitRepositoryUrl("git_repository")]],
+        // A GitHub App's repository is checked with GitHub instead (githubAppRepository()).
+        ["git_repository", type === "private-gh-app" ? ["string", "required"] : ["string", "required", validGitRepositoryUrl("git_repository")]],
         ["git_branch", ["string", "required", validGitBranch("git_branch")]],
         ["build_pack", ["required", enumRule(BUILD_PACKS)]],
         ["ports_exposes", ["string", { regex: PORTS_EXPOSES_PATTERN }, "nullable"]],
@@ -758,7 +762,12 @@ export async function createApplicationApi(c: ApiV1Context, type: CreateType, la
               ["private_key_uuid", ["string", "required"]],
               ["watch_paths", ["string", "nullable"]],
             ] as Rules)
-          : []),
+          : type === "private-gh-app"
+            ? ([
+                ["github_app_uuid", ["string", "required"]],
+                ["watch_paths", ["string", "nullable"]],
+              ] as Rules)
+            : []),
         ...COMPOSE_DOMAIN_RULES,
       ];
       if (all.build_pack === "dockercompose") {
@@ -796,8 +805,17 @@ export async function createApplicationApi(c: ApiV1Context, type: CreateType, la
       const key = typeof all.private_key_uuid === "string" ? (await rows("private_keys", "t.uuid = $1", [all.private_key_uuid]))[0] : undefined;
       if (!key) return message("Private Key not found.", 404);
       // $this->authorize('useTeamCredentials')
-      if (!(await c.allows(true))) return message(APPLICATION_CREATE_MESSAGES.teamCredentials, 403);
+      if (!(await c.allows(true))) return COOLIFY_API.unauthorized(POLICY_DENIALS.useTeamCredentials);
       privateKeyId = rowValue(key, "id") as string | number;
+    }
+    let githubSource: { id: PhpValue; repositoryProjectId: PhpValue; slug: string } | null = null;
+    if (type === "private-gh-app") {
+      // $this->authorize('useTeamCredentials'), then githubAppRepository(): the App, its token and the repository (DP-93).
+      if (!(await c.allows(true))) return COOLIFY_API.unauthorized(POLICY_DENIALS.useTeamCredentials);
+      const slug = gitRepositorySlug(String(all.git_repository));
+      const found = await githubAppRepository(tx, c, String(all.github_app_uuid), slug);
+      if ("status" in found) return found;
+      githubSource = { id: rowValue(found.app, "id") as PhpValue, repositoryProjectId: found.repositoryProjectId, slug };
     }
     if (type === "dockerfile") {
       dockerfile = base64Value(all.dockerfile) ? decodeBase64Utf8(all.dockerfile as string) : null;
@@ -858,6 +876,12 @@ export async function createApplicationApi(c: ApiV1Context, type: CreateType, la
       attrs.git_repository = "coollabsio/coolify";
       attrs.git_branch = "main";
     }
+    if (githubSource) {
+      attrs.git_repository = phpTrim(githubSource.slug);
+      attrs.source_type = "App\\Models\\GithubApp";
+      attrs.source_id = githubSource.id;
+      attrs.repository_project_id = githubSource.repositoryProjectId;
+    }
     attrs.fqdn = fqdn ?? null;
     if (privateKeyId !== null) attrs.private_key_id = privateKeyId;
     attrs.destination_id = destination.id;
@@ -895,7 +919,7 @@ export async function createApplicationApi(c: ApiV1Context, type: CreateType, la
     // applyApplicationSettings(), then the settings the controller sets one by one (only those its type sets).
     const settings: Partial<Record<ApiApplicationSettingColumn, ApiColumnValue>> = {};
     for (const [k, v] of Object.entries(applicationSettings)) settings[k as ApiApplicationSettingColumn] = columnValue(k, v);
-    const sets: Array<keyof typeof isset_> = type === "public" ? ["is_static", "is_spa", "is_auto_deploy_enabled", "is_force_https_enabled", "is_preview_deployments_enabled", "connect_to_docker_network", "is_build_server_enabled", "use_build_secrets"] : type === "private-deploy-key" ? ["is_static", "is_spa", "is_auto_deploy_enabled", "is_force_https_enabled", "is_preview_deployments_enabled", "connect_to_docker_network", "is_build_server_enabled", "use_build_secrets"] : ["is_auto_deploy_enabled", "is_force_https_enabled", "is_preview_deployments_enabled", "connect_to_docker_network", "is_build_server_enabled", "use_build_secrets"];
+    const sets: Array<keyof typeof isset_> = type === "public" ? ["is_static", "is_spa", "is_auto_deploy_enabled", "is_force_https_enabled", "is_preview_deployments_enabled", "connect_to_docker_network", "is_build_server_enabled", "use_build_secrets"] : type === "private-deploy-key" || type === "private-gh-app" ? ["is_static", "is_spa", "is_auto_deploy_enabled", "is_force_https_enabled", "is_preview_deployments_enabled", "connect_to_docker_network", "is_build_server_enabled", "use_build_secrets"] : ["is_auto_deploy_enabled", "is_force_https_enabled", "is_preview_deployments_enabled", "connect_to_docker_network", "is_build_server_enabled", "use_build_secrets"];
     for (const k of sets) if (isset(isset_[k])) settings[k] = columnValue(k, isset_[k]);
     settings.is_container_label_escape_enabled = isContainerLabelEscapeEnabled;
     if (git) settings.is_preserve_repository_enabled = isPreserveRepositoryEnabled;

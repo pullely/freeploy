@@ -27,7 +27,7 @@ export const DOCKER_CLEANUP_API_MESSAGES = {
 const ALLOWED_FIELDS = ["docker_cleanup_frequency", "docker_cleanup_threshold", "force_docker_cleanup", "delete_unused_volumes", "delete_unused_networks", "disable_application_image_retention"] as const;
 const BOOLEAN_FIELDS = ["force_docker_cleanup", "delete_unused_volumes", "delete_unused_networks", "disable_application_image_retention"] as const;
 
-const denied = async (c: ApiV1Context, write: boolean): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized());
+const denied = async (c: ApiV1Context, write: boolean, policyMessage?: string): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized(policyMessage));
 
 /** routes/api.php's /servers/{uuid}/docker-cleanup routes. segments: what follows /docker-cleanup. */
 export async function dockerCleanupApi(c: ApiV1Context, uuid: string, segments: string[]): Promise<CoolifyAnswer | null> {

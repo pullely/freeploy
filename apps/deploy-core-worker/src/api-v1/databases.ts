@@ -43,7 +43,7 @@ import {
   type DatabaseEngine,
   type DeployDatabaseRow,
 } from "@saas/db/deploy";
-import { coolifyJson, obj, serializeApiResponse, COOLIFY_API, type CoolifyAnswer, type PhpObject, type PhpValue } from "@saas/contracts/coolify-api";
+import { coolifyJson, obj, serializeApiResponse, COOLIFY_API, POLICY_DENIALS, type CoolifyAnswer, type PhpObject, type PhpValue } from "@saas/contracts/coolify-api";
 import { columnCipher } from "../handlers/cloud-tokens.js";
 import { sqlStore } from "../handlers/databases.js";
 import type { KeyCipher } from "../private-keys/service.js";
@@ -153,7 +153,7 @@ export function decodeBase64Text(value: unknown): string | null {
 }
 
 const notBase64 = (field: string): CoolifyAnswer => coolifyJson(obj({ message: "Validation failed.", errors: obj({ [field]: `The ${field} should be base64 encoded.` }) }), 422);
-const denied = async (c: ApiV1Context, write: boolean): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized());
+const denied = async (c: ApiV1Context, write: boolean, policyMessage?: string): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized(policyMessage));
 
 /** The console's database context over the request's transaction (its store and the `encrypted` casts' ciphers). */
 function databaseContext(tx: SqlExecutor, c: ApiV1Context): DatabaseContext {
@@ -519,7 +519,7 @@ async function updateDatabase(c: ApiV1Context, routeUuid: string): Promise<Cooli
     const found = await findDatabase(tx, uuid);
     if (!found) return message("Database not found.", 404);
     const { engine, db } = found;
-    if (await denied(c, true)) return COOLIFY_API.unauthorized();
+    if (await denied(c, true)) return COOLIFY_API.unauthorized(POLICY_DENIALS.databaseUpdate);
     if (instantDeploy && !hasDeployAbility(c)) return ABORT_DEPLOY;
     if (logDrain && !serverLogDrainEnabled(db)) {
       return validationFailed([["is_log_drain_enabled", ["Log drain is not enabled on the server. Enable it on the server first."]]]);
@@ -892,7 +892,7 @@ async function updateBackup(c: ApiV1Context, routeUuid: string, routeBackup: str
     const data = removeUnnecessary(all);
     const f = await findDatabase(tx, uuid);
     if (!f) return message("Database not found.", 404);
-    const no = await denied(c, true);
+    const no = await denied(c, true, POLICY_DENIALS.databaseUpdate);
     if (no) return no;
     if (phpTruthy(data.backup_now) && !hasDeployAbility(c)) return backupNowForbidden();
     if (filled(data.frequency) && !validateCronExpressionStrict(data.frequency)) return validationError("frequency", "Invalid cron expression or frequency format.");

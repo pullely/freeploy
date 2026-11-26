@@ -59,7 +59,7 @@ const TIMEOUT_OPTIONS_SECONDS = [300, 600, 1200, 1800, 3600];
 const CPU_OPTIONS = [0.5, 1, 2, 4];
 const SENTINEL_TOKEN = /^[a-zA-Z0-9._\-+=/]+$/;
 
-const denied = async (c: ApiV1Context, write: boolean): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized());
+const denied = async (c: ApiV1Context, write: boolean, policyMessage?: string): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized(policyMessage));
 const filled = (v: unknown): boolean => !(v === undefined || v === null || (typeof v === "string" && v.trim() === "") || (Array.isArray(v) && v.length === 0));
 const blank = (v: unknown): boolean => !filled(v);
 const NOW = "date_trunc('second', timezone('UTC', now()))";

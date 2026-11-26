@@ -16,7 +16,7 @@
 // activity exists: an import's status is Coolify's 404.
 import type { SqlExecutor } from "@saas/db/hyperdrive";
 import type { ApiRow } from "@saas/db/deploy";
-import { COOLIFY_API, coolifyJson, obj, type CoolifyAnswer, type PhpValue } from "@saas/contracts/coolify-api";
+import { COOLIFY_API, POLICY_DENIALS, coolifyJson, obj, type CoolifyAnswer, type PhpValue } from "@saas/contracts/coolify-api";
 import { needsExecutor } from "../applications/resources.js";
 import { validS3BucketName } from "../s3-storages/validation.js";
 import { findApiDatabase } from "./databases.js";
@@ -42,7 +42,7 @@ const SWARM_DOCKER = "App\\Models\\SwarmDocker";
 /** backup_dir() */
 const BACKUP_DIR = "/data/coolify/backups";
 
-const denied = async (c: ApiV1Context, write: boolean): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized());
+const denied = async (c: ApiV1Context, write: boolean, policyMessage?: string): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized(policyMessage));
 const filled = (v: unknown): boolean => !(v === undefined || v === null || (typeof v === "string" && v.trim() === "") || (Array.isArray(v) && v.length === 0));
 const quote = (s: string): string => s.replace(/[.*+?^${}()|[\]\\#]/g, "\\$&");
 
@@ -153,7 +153,8 @@ async function upload(c: ApiV1Context, kind: "standalone" | "service", uuid: str
   return c.sql(c.env, c.orgId, async (tx) => {
     const target = await findTarget(tx, kind, uuid, databaseUuid);
     if (!target) return notFoundOf(kind);
-    const no = await denied(c, true);
+    // uploadBackup: DatabasePolicy's own message (ServiceDatabasePolicy answers false).
+    const no = await denied(c, true, kind === "standalone" ? POLICY_DENIALS.databaseUploadBackup : undefined);
     if (no) return no;
     const errors: Errors = [];
     const id = all.upload_id;
@@ -219,7 +220,8 @@ async function startImport(c: ApiV1Context, kind: "standalone" | "service", uuid
   return c.sql(c.env, c.orgId, async (tx) => {
     const target = await findTarget(tx, kind, uuid, databaseUuid);
     if (!target) return notFoundOf(kind);
-    const no = await denied(c, true);
+    // update: DatabasePolicy's own message (ServiceDatabasePolicy answers false).
+    const no = await denied(c, true, kind === "standalone" ? POLICY_DENIALS.databaseUpdate : undefined);
     if (no) return no;
     const errors = validateImport(payload);
     if (errors.length) return laravelFailed(errors);
