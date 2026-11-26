@@ -47,6 +47,7 @@
 //   /v1/internal/api-v1/{org}/{hetzner,digitalocean,vultr,hostinger}/{catalog}                                 cloud-catalogs.ts (DP-90)
 //   PUT /v1/internal/api-v1/{org}/servers/{uuid}/proxy/configuration                                           proxy-configuration.ts (DP-90)
 //   GET /v1/internal/api-v1/{org}/github-apps/{id}/repositories[/{owner}/{repo}/branches]                        github-repositories.ts (DP-93)
+//   /v1/internal/api-v1/{org}/gitlab-apps[/{gitlab_app_id}], GET /v1/internal/api-v1/{org}/gitea-apps              oauth-source-apps.ts (DP-103)
 //   POST /v1/internal/api-v1/{org}/servers/hostinger                                                            hostinger-servers.ts (DP-93)
 //
 // $this->authorize(…) is policy-worker's deploy.resource.read (view) or deploy.resource.write (create,
@@ -115,6 +116,7 @@ import { serverSettingsApi } from "./server-settings.js";
 import { importCheck, serverRegistriesApi, serverTransferApi } from "./server-registries-transfer.js";
 import { databaseImportsApi } from "./database-imports.js";
 import { githubAppsApi } from "./github-apps.js";
+import { giteaAppsApi, gitlabAppsApi } from "./oauth-source-apps.js";
 import { createHostingerServer } from "./hostinger-servers.js";
 import { cloudProviderTokensApi } from "./cloud-provider-tokens.js";
 import { integrationTokensApi } from "./integration-tokens.js";
@@ -266,6 +268,9 @@ export async function handleApiV1(request: Request, env: Env, requestId: string,
     if (first === "applications" && second !== undefined && fourth === undefined && third === "rollback-images") return send(method === "GET" ? await rollbackImages(context, second) : COOLIFY_API.notFound());
     if (first === "applications" && second !== undefined && fourth === undefined && third === "rollback") return send(method === "POST" ? await rollback(context, second) : COOLIFY_API.notFound());
     if (first === "github-apps") return send((await githubAppsApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
+    // DP-103: GitLab Apps and Gitea Apps.
+    if (first === "gitlab-apps") return send((await gitlabAppsApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
+    if (first === "gitea-apps") return send((await giteaAppsApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
     // DP-85: a service's applications and databases, the team's notification channels.
     if (first === "services" && second !== undefined && (third === "applications" || third === "databases")) {
       return send((await servicePartsApi(context, third === "applications" ? "application" : "database", second, segments.slice(3))) ?? COOLIFY_API.notFound());

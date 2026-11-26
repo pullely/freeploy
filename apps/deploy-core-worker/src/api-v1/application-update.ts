@@ -7,8 +7,8 @@
 // PATCH /applications/{uuid} of Coolify's /api/v1 (DP-87): the checks in the controller's order (several run before the
 // validator's errors are reported), then the settings, the columns through fill() and the model's hooks, and the labels
 // wherever the controller makes them again. An instant deploy answers 501 in Coolify's envelope after the checks and
-// before anything is stored (queue_application_deployment() runs on the server). A Gitea App is never found (Freeploy
-// has no Gitea sources); a GitHub App is the org's own.
+// before anything is stored (queue_application_deployment() runs on the server). A GitHub App is the org's own; a Gitea
+// App too, connected, and its repository checked with its instance (giteaAppRepository(), DP-103).
 import type { SqlExecutor } from "@saas/db/hyperdrive";
 import {
   deleteApplicationServiceVariables,
@@ -38,6 +38,8 @@ import { validateRules, type Rule, type Rules } from "./rules.js";
 import { domainConflicts } from "./services.js";
 import { decryptColumn, hasDeployAbility, message, rowsOf, unavailable, type ApiV1Context } from "./context.js";
 import { rowValue } from "./models.js";
+import { giteaAppRepository } from "./oauth-source-apps.js";
+import { isOauthConnected } from "../sources/oauth-git.js";
 import {
   ABORT_DEPLOY,
   APPLICATION_CREATE_MESSAGES,
@@ -91,6 +93,7 @@ const UPDATE_ALLOWED_FIELDS: readonly string[] = [
 /** The columns the label generator reads from the model (the rest come from its settings and server). */
 const LABEL_COLUMNS = ["fqdn", "ports_exposes", "redirect", "is_http_basic_auth_enabled", "http_basic_auth_username", "http_basic_auth_hash_algorithm", "http_basic_auth_bcrypt_cost", "http_basic_auth_argon2id_memory_cost", "http_basic_auth_argon2id_time_cost", "noindex_domains", "domain_port_overrides"] as const;
 const GITHUB_APP = "App\\Models\\GithubApp";
+const GITEA_APP = "App\\Models\\GiteaApp";
 const JSON_COLUMNS = ["noindex_domains", "domain_port_overrides"];
 
 const isNumericString = (v: unknown): boolean => (typeof v === "number" && Number.isFinite(v)) || (typeof v === "string" && /^\s*[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?\s*$/.test(v));
@@ -225,20 +228,34 @@ export async function updateApplicationApi(c: ApiV1Context, uuid: string, labelD
 
     // A new Git source.
     if (has(all, "github_app_uuid") && has(all, "gitea_app_uuid")) return stringError("gitea_app_uuid", "Send only one of github_app_uuid or gitea_app_uuid.");
-    let newSource: { id: string | number } | null = null;
+    let newSource: { id: string | number; morphClass: string; uuid: string } | null = null;
     for (const field of ["github_app_uuid", "gitea_app_uuid"] as const) {
       if (!has(all, field)) continue;
       if (original.build_pack === "dockerimage" || !blank(original.dockerfile) || (await deploymentType(tx, app)) === "deploy_key") {
         return stringError(field, `The ${field} can only be changed for applications deployed from a Git source or public repository.`);
       }
-      // GithubApp: the org's (Freeploy has no system-wide App), connected; no Gitea App exists in Freeploy.
-      const found = field === "github_app_uuid" && typeof all[field] === "string" ? await findGithubAppByUuid(tx, all[field] as string) : null;
-      const connected = found !== null && (found.is_public === true || (!blank(found.app_id) && !blank(found.installation_id)));
-      if (!found || !connected) return message(field === "github_app_uuid" ? "Github App not found." : "Gitea App not found.", 404);
-      newSource = { id: found.id };
+      // teamSourceByUuid(): the org's source (Freeploy has no system-wide one), connected.
+      let found: { id: string | number; morphClass: string; uuid: string } | null = null;
+      if (typeof all[field] === "string" && field === "github_app_uuid") {
+        const github = await findGithubAppByUuid(tx, all[field] as string);
+        if (github && (github.is_public === true || (!blank(github.app_id) && !blank(github.installation_id)))) found = { id: github.id, morphClass: GITHUB_APP, uuid: github.uuid };
+      } else if (typeof all[field] === "string") {
+        const gitea = (await rowsOf(tx)("gitea_apps", "t.uuid = $1", [all[field]]))[0];
+        if (gitea && isOauthConnected({ access_token: rowValue(gitea, "access_token") as string | null, refresh_token: rowValue(gitea, "refresh_token") as string | null })) found = { id: rowValue(gitea, "id") as string | number, morphClass: GITEA_APP, uuid: String(rowValue(gitea, "uuid")) };
+      }
+      if (!found) return message(field === "github_app_uuid" ? "Github App not found." : "Gitea App not found.", 404);
+      newSource = found;
       // $this->authorize('useTeamCredentials', $application) for a source the application does not have yet.
-      const same = original.source_type === GITHUB_APP && String(original.source_id) === String(found.id);
+      const same = original.source_type === found.morphClass && String(original.source_id) === String(found.id);
       if (!same && !(await c.allows(true))) return COOLIFY_API.unauthorized(POLICY_DENIALS.useTeamCredentials);
+    }
+    // Gitea clones and webhooks need owner/name and the repository ID of the new source (DP-103).
+    let giteaRepository: { repository: string; repositoryProjectId: unknown } | null = null;
+    if (newSource?.morphClass === GITEA_APP) {
+      const repository = has(all, "git_repository") ? all.git_repository : original.git_repository;
+      const found = await giteaAppRepository(tx, c, newSource.uuid, repository === null || repository === undefined ? "" : String(repository));
+      if ("status" in found) return found;
+      giteaRepository = { repository: found.repository, repositoryProjectId: found.repositoryProjectId };
     }
     if (has(all, "git_https_username") || has(all, "git_https_password")) {
       if ((await deploymentType(tx, app)) !== "other") return stringError("git_https_password", "HTTPS credentials can only be used by applications that clone a repository without a Git source or deploy key.");
@@ -357,10 +374,14 @@ export async function updateApplicationApi(c: ApiV1Context, uuid: string, labelD
       attrs.git_https_password = blank(all.git_https_password) ? null : all.git_https_password;
       if (blank(attrs.git_https_password)) attrs.git_https_username = null;
     }
-    if (newSource && (String(original.source_id) !== String(newSource.id) || original.source_type !== GITHUB_APP)) {
+    if (newSource && (String(original.source_id) !== String(newSource.id) || original.source_type !== newSource.morphClass)) {
       attrs.source_id = newSource.id;
-      attrs.source_type = GITHUB_APP;
+      attrs.source_type = newSource.morphClass;
       attrs.repository_project_id = null;
+    }
+    if (giteaRepository) {
+      attrs.git_repository = giteaRepository.repository;
+      attrs.repository_project_id = giteaRepository.repositoryProjectId;
     }
     const model = (): Record<string, unknown> => ({ ...original, ...attrs });
     if (requestHasNoindexDomains) attrs.noindex_domains = noindexDomains(noindexInput ?? [], model());

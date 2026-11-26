@@ -1305,6 +1305,124 @@
     "created_at": "2025-12-25 00:00:00"
    }
   ],
+  "gitlabApps": [
+   {
+    "id": 1,
+    "uuid": "y1paritygitlabapp0000001",
+    "team": 1,
+    "name": "Parity GitLab",
+    "html_url": "https://gitlab.com",
+    "api_url": "https://gitlab.com/api/v4",
+    "custom_user": "git",
+    "custom_port": 22,
+    "group_name": "parity-group",
+    "client_id": "gl-client-1",
+    "client_secret": "gl-secret-1",
+    "webhook_token": "gl-webhook-token-1",
+    "access_token": "gl-access-1",
+    "refresh_token": "gl-refresh-1",
+    "expires_at": 2145916800,
+    "redirect_uri": "http://localhost/webhooks/source/gitlab/redirect",
+    "created_at": "2025-12-05 00:00:00"
+   },
+   {
+    "id": 2,
+    "uuid": "y2paritygitlabapp0000002",
+    "team": 1,
+    "name": "Self-hosted GitLab",
+    "html_url": "https://gitlab.acme.test",
+    "api_url": "https://gitlab.acme.test/api/v4",
+    "custom_user": "git",
+    "custom_port": 2222,
+    "group_name": null,
+    "client_id": null,
+    "client_secret": null,
+    "webhook_token": "gl-webhook-token-2",
+    "access_token": null,
+    "refresh_token": null,
+    "expires_at": null,
+    "redirect_uri": null,
+    "created_at": "2025-12-06 00:00:00"
+   },
+   {
+    "id": 3,
+    "uuid": "y3othergitlabapp00000003",
+    "team": 2,
+    "name": "Other GitLab",
+    "html_url": "https://gitlab.com",
+    "api_url": "https://gitlab.com/api/v4",
+    "custom_user": "git",
+    "custom_port": 22,
+    "group_name": null,
+    "client_id": "gl-client-3",
+    "client_secret": "gl-secret-3",
+    "webhook_token": "gl-webhook-token-3",
+    "access_token": "gl-access-3",
+    "refresh_token": "gl-refresh-3",
+    "expires_at": 2145916800,
+    "redirect_uri": null,
+    "created_at": "2025-12-07 00:00:00"
+   }
+  ],
+  "giteaApps": [
+   {
+    "id": 1,
+    "uuid": "z1paritygiteaapp00000001",
+    "team": 1,
+    "name": "Parity Gitea",
+    "html_url": "https://gitea.com",
+    "api_url": "https://gitea.com/api/v1",
+    "custom_user": "git",
+    "custom_port": 22,
+    "organization": "acme, Parity",
+    "client_id": "gt-client-1",
+    "client_secret": "gt-secret-1",
+    "webhook_secret": "gt-webhook-secret-1",
+    "access_token": "gt-access-1",
+    "refresh_token": "gt-refresh-1",
+    "expires_at": 2145916800,
+    "redirect_uri": "http://localhost/webhooks/source/gitea/redirect",
+    "created_at": "2025-12-05 00:00:00"
+   },
+   {
+    "id": 2,
+    "uuid": "z2paritygiteaapp00000002",
+    "team": 1,
+    "name": "Codeberg",
+    "html_url": "https://codeberg.org",
+    "api_url": "https://codeberg.org/api/v1",
+    "custom_user": "git",
+    "custom_port": 22,
+    "organization": null,
+    "client_id": "gt-client-2",
+    "client_secret": null,
+    "webhook_secret": "gt-webhook-secret-2",
+    "access_token": null,
+    "refresh_token": null,
+    "expires_at": null,
+    "redirect_uri": null,
+    "created_at": "2025-12-06 00:00:00"
+   },
+   {
+    "id": 3,
+    "uuid": "z3othergiteaapp000000003",
+    "team": 2,
+    "name": "Other Gitea",
+    "html_url": "https://gitea.com",
+    "api_url": "https://gitea.com/api/v1",
+    "custom_user": "git",
+    "custom_port": 22,
+    "organization": null,
+    "client_id": "gt-client-3",
+    "client_secret": "gt-secret-3",
+    "webhook_secret": "gt-webhook-secret-3",
+    "access_token": "gt-access-3",
+    "refresh_token": "gt-refresh-3",
+    "expires_at": 2145916800,
+    "redirect_uri": null,
+    "created_at": "2025-12-07 00:00:00"
+   }
+  ],
   "tokens": [
    {
     "key": "root",
@@ -30022,6 +30140,1504 @@
    "token": "memberWrite",
    "method": "GET",
    "path": "/api/v1/security/integration-tokens",
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "gitlab apps: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/gitlab-apps",
+   "config": {
+    "self_hosted": false
+   }
+  },
+  {
+   "name": "gitlab apps: list, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/gitlab-apps",
+   "config": {
+    "self_hosted": false
+   }
+  },
+  {
+   "name": "gitlab apps: list by a member",
+   "token": "memberRead",
+   "method": "GET",
+   "path": "/api/v1/gitlab-apps",
+   "config": {
+    "self_hosted": false
+   }
+  },
+  {
+   "name": "gitlab apps: list, a member with read:sensitive",
+   "token": "memberSensitive",
+   "method": "GET",
+   "path": "/api/v1/gitlab-apps",
+   "config": {
+    "self_hosted": false
+   }
+  },
+  {
+   "name": "gitlab apps: list, none",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/gitlab-apps",
+   "config": {
+    "self_hosted": false
+   },
+   "setup": [
+    "delete from gitlab_apps where id in (1, 2)"
+   ]
+  },
+  {
+   "name": "gitlab apps: create",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/gitlab-apps",
+   "config": {
+    "self_hosted": false
+   },
+   "body": {
+    "name": "New GitLab",
+    "html_url": "https://gitlab.acme.test/",
+    "group_name": "acme,acme/platform",
+    "client_id": "gl-new-client",
+    "client_secret": "gl-new-secret",
+    "redirect_uri": "https://app.example.test/webhooks/source/gitlab/redirect"
+   },
+   "after": {
+    "apps": "select case when uuid like 'y%' then id end as fixture_id, name, organization, api_url, html_url, custom_user, custom_port, group_name, client_id, client_secret is not null as has_client_secret, webhook_token is not null as has_webhook_token, access_token is not null as has_access_token, refresh_token is not null as has_refresh_token, expires_at, redirect_uri, private_key_id, is_system_wide, is_public from gitlab_apps where uuid <> 'y3othergitlabapp00000003' order by fixture_id nulls last, name"
+   }
+  },
+  {
+   "name": "gitlab apps: create, the defaults",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/gitlab-apps",
+   "config": {
+    "self_hosted": false
+   },
+   "body": {
+    "name": "Plain GitLab",
+    "html_url": "https://gitlab.com"
+   },
+   "after": {
+    "apps": "select case when uuid like 'y%' then id end as fixture_id, name, organization, api_url, html_url, custom_user, custom_port, group_name, client_id, client_secret is not null as has_client_secret, webhook_token is not null as has_webhook_token, access_token is not null as has_access_token, refresh_token is not null as has_refresh_token, expires_at, redirect_uri, private_key_id, is_system_wide, is_public from gitlab_apps where uuid <> 'y3othergitlabapp00000003' order by fixture_id nulls last, name"
+   }
+  },
+  {
+   "name": "gitlab apps: create, every field, read:sensitive",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/gitlab-apps",
+   "config": {
+    "self_hosted": false
+   },
+   "body": {
+    "name": "New GitLab",
+    "html_url": "https://gitlab.acme.test/",
+    "group_name": "acme,acme/platform",
+    "client_id": "gl-new-client",
+    "client_secret": "gl-new-secret",
+    "redirect_uri": "https://app.example.test/webhooks/source/gitlab/redirect",
+    "api_url": "https://gitlab.acme.test/api/v4/",
+    "custom_user": "deploy",
+    "custom_port": "2222",
+    "webhook_token": "gl-given-webhook-token",
+    "is_system_wide": true
+   },
+   "after": {
+    "apps": "select case when uuid like 'y%' then id end as fixture_id, name, organization, api_url, html_url, custom_user, custom_port, group_name, client_id, client_secret is not null as has_client_secret, webhook_token is not null as has_webhook_token, access_token is not null as has_access_token, refresh_token is not null as has_refresh_token, expires_at, redirect_uri, private_key_id, is_system_wide, is_public from gitlab_apps where uuid <> 'y3othergitlabapp00000003' order by fixture_id nulls last, name"
+   }
+  },
+  {
+   "name": "gitlab apps: create, invalid",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/gitlab-apps",
+   "config": {
+    "self_hosted": false
+   },
+   "body": {
+    "name": "",
+    "html_url": "ftp://x",
+    "api_url": "nope",
+    "custom_user": 5,
+    "custom_port": 70000,
+    "group_name": [
+     "x"
+    ],
+    "client_id": 5,
+    "client_secret": 5,
+    "webhook_token": 5,
+    "redirect_uri": "nope",
+    "is_system_wide": "maybe",
+    "extra": 1
+   }
+  },
+  {
+   "name": "gitlab apps: create, a private host",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/gitlab-apps",
+   "config": {
+    "self_hosted": false
+   },
+   "body": {
+    "name": "New GitLab",
+    "html_url": "https://private.example",
+    "group_name": "acme,acme/platform",
+    "client_id": "gl-new-client",
+    "client_secret": "gl-new-secret",
+    "redirect_uri": "https://app.example.test/webhooks/source/gitlab/redirect"
+   }
+  },
+  {
+   "name": "gitlab apps: create, a private API URL and a private redirect",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/gitlab-apps",
+   "config": {
+    "self_hosted": false
+   },
+   "body": {
+    "name": "New GitLab",
+    "html_url": "https://gitlab.acme.test/",
+    "group_name": "acme,acme/platform",
+    "client_id": "gl-new-client",
+    "client_secret": "gl-new-secret",
+    "redirect_uri": "http://10.0.0.9/webhooks/source/gitlab/redirect",
+    "api_url": "http://10.0.0.8/api/v4"
+   },
+   "after": {
+    "apps": "select case when uuid like 'y%' then id end as fixture_id, name, organization, api_url, html_url, custom_user, custom_port, group_name, client_id, client_secret is not null as has_client_secret, webhook_token is not null as has_webhook_token, access_token is not null as has_access_token, refresh_token is not null as has_refresh_token, expires_at, redirect_uri, private_key_id, is_system_wide, is_public from gitlab_apps where uuid <> 'y3othergitlabapp00000003' order by fixture_id nulls last, name"
+   }
+  },
+  {
+   "name": "gitlab apps: create, not JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/gitlab-apps",
+   "config": {
+    "self_hosted": false
+   },
+   "raw": "name=x",
+   "contentType": "application/x-www-form-urlencoded"
+  },
+  {
+   "name": "gitlab apps: create, empty JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/gitlab-apps",
+   "config": {
+    "self_hosted": false
+   },
+   "raw": "{}"
+  },
+  {
+   "name": "gitlab apps: create with a read token",
+   "token": "read",
+   "method": "POST",
+   "path": "/api/v1/gitlab-apps",
+   "config": {
+    "self_hosted": false
+   },
+   "body": {
+    "name": "New GitLab",
+    "html_url": "https://gitlab.acme.test/",
+    "group_name": "acme,acme/platform",
+    "client_id": "gl-new-client",
+    "client_secret": "gl-new-secret",
+    "redirect_uri": "https://app.example.test/webhooks/source/gitlab/redirect"
+   }
+  },
+  {
+   "name": "gitlab apps: update",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/gitlab-apps/1",
+   "config": {
+    "self_hosted": false
+   },
+   "body": {
+    "name": "Renamed GitLab",
+    "group_name": null,
+    "custom_port": "2200",
+    "client_secret": "gl-secret-2",
+    "webhook_token": "gl-webhook-token-new",
+    "redirect_uri": "https://app.example.test/webhooks/source/gitlab/redirect"
+   },
+   "after": {
+    "apps": "select case when uuid like 'y%' then id end as fixture_id, name, organization, api_url, html_url, custom_user, custom_port, group_name, client_id, client_secret is not null as has_client_secret, webhook_token is not null as has_webhook_token, access_token is not null as has_access_token, refresh_token is not null as has_refresh_token, expires_at, redirect_uri, private_key_id, is_system_wide, is_public from gitlab_apps where uuid <> 'y3othergitlabapp00000003' order by fixture_id nulls last, name"
+   }
+  },
+  {
+   "name": "gitlab apps: update the HTML URL",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/gitlab-apps/2",
+   "config": {
+    "self_hosted": false
+   },
+   "body": {
+    "html_url": "https://git.acme.test/"
+   },
+   "after": {
+    "apps": "select case when uuid like 'y%' then id end as fixture_id, name, organization, api_url, html_url, custom_user, custom_port, group_name, client_id, client_secret is not null as has_client_secret, webhook_token is not null as has_webhook_token, access_token is not null as has_access_token, refresh_token is not null as has_refresh_token, expires_at, redirect_uri, private_key_id, is_system_wide, is_public from gitlab_apps where uuid <> 'y3othergitlabapp00000003' order by fixture_id nulls last, name"
+   }
+  },
+  {
+   "name": "gitlab apps: update the HTML and API URLs",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/gitlab-apps/2",
+   "config": {
+    "self_hosted": false
+   },
+   "body": {
+    "html_url": "https://git.acme.test",
+    "api_url": "https://git.acme.test/api/v4/"
+   },
+   "after": {
+    "apps": "select case when uuid like 'y%' then id end as fixture_id, name, organization, api_url, html_url, custom_user, custom_port, group_name, client_id, client_secret is not null as has_client_secret, webhook_token is not null as has_webhook_token, access_token is not null as has_access_token, refresh_token is not null as has_refresh_token, expires_at, redirect_uri, private_key_id, is_system_wide, is_public from gitlab_apps where uuid <> 'y3othergitlabapp00000003' order by fixture_id nulls last, name"
+   }
+  },
+  {
+   "name": "gitlab apps: update, nothing",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/gitlab-apps/1",
+   "config": {
+    "self_hosted": false
+   },
+   "body": {
+    "is_system_wide": true,
+    "other": 1
+   },
+   "after": {
+    "apps": "select case when uuid like 'y%' then id end as fixture_id, name, organization, api_url, html_url, custom_user, custom_port, group_name, client_id, client_secret is not null as has_client_secret, webhook_token is not null as has_webhook_token, access_token is not null as has_access_token, refresh_token is not null as has_refresh_token, expires_at, redirect_uri, private_key_id, is_system_wide, is_public from gitlab_apps where uuid <> 'y3othergitlabapp00000003' order by fixture_id nulls last, name"
+   }
+  },
+  {
+   "name": "gitlab apps: update, clearing the secrets, read:sensitive",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/gitlab-apps/1",
+   "config": {
+    "self_hosted": false
+   },
+   "body": {
+    "client_id": null,
+    "client_secret": null,
+    "webhook_token": null
+   },
+   "after": {
+    "apps": "select case when uuid like 'y%' then id end as fixture_id, name, organization, api_url, html_url, custom_user, custom_port, group_name, client_id, client_secret is not null as has_client_secret, webhook_token is not null as has_webhook_token, access_token is not null as has_access_token, refresh_token is not null as has_refresh_token, expires_at, redirect_uri, private_key_id, is_system_wide, is_public from gitlab_apps where uuid <> 'y3othergitlabapp00000003' order by fixture_id nulls last, name"
+   }
+  },
+  {
+   "name": "gitlab apps: update, invalid",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/gitlab-apps/1",
+   "config": {
+    "self_hosted": false
+   },
+   "body": {
+    "name": 5,
+    "html_url": "nope",
+    "api_url": "ftp://x",
+    "custom_user": [],
+    "custom_port": 0,
+    "group_name": 7,
+    "client_id": [
+     "x"
+    ],
+    "client_secret": 5,
+    "redirect_uri": "x"
+   }
+  },
+  {
+   "name": "gitlab apps: update, a private host",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/gitlab-apps/1",
+   "config": {
+    "self_hosted": false
+   },
+   "body": {
+    "api_url": "http://10.0.0.8/api/v4"
+   }
+  },
+  {
+   "name": "gitlab apps: update unknown",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/gitlab-apps/99",
+   "config": {
+    "self_hosted": false
+   },
+   "body": {
+    "name": "x"
+   }
+  },
+  {
+   "name": "gitlab apps: update another team's",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/gitlab-apps/3",
+   "config": {
+    "self_hosted": false
+   },
+   "body": {
+    "name": "x"
+   }
+  },
+  {
+   "name": "gitlab apps: update with a read token",
+   "token": "read",
+   "method": "PATCH",
+   "path": "/api/v1/gitlab-apps/1",
+   "config": {
+    "self_hosted": false
+   },
+   "body": {
+    "name": "x"
+   }
+  },
+  {
+   "name": "gitlab apps: delete",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/gitlab-apps/2",
+   "config": {
+    "self_hosted": false
+   },
+   "after": {
+    "apps": "select case when uuid like 'y%' then id end as fixture_id, name, organization, api_url, html_url, custom_user, custom_port, group_name, client_id, client_secret is not null as has_client_secret, webhook_token is not null as has_webhook_token, access_token is not null as has_access_token, refresh_token is not null as has_refresh_token, expires_at, redirect_uri, private_key_id, is_system_wide, is_public from gitlab_apps where uuid <> 'y3othergitlabapp00000003' order by fixture_id nulls last, name"
+   }
+  },
+  {
+   "name": "gitlab apps: delete, in use",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/gitlab-apps/2",
+   "config": {
+    "self_hosted": false
+   },
+   "setup": [
+    "update applications set source_type = 'App\\Models\\GitlabApp', source_id = 2 where id = 2"
+   ],
+   "after": {
+    "apps": "select case when uuid like 'y%' then id end as fixture_id, name, organization, api_url, html_url, custom_user, custom_port, group_name, client_id, client_secret is not null as has_client_secret, webhook_token is not null as has_webhook_token, access_token is not null as has_access_token, refresh_token is not null as has_refresh_token, expires_at, redirect_uri, private_key_id, is_system_wide, is_public from gitlab_apps where uuid <> 'y3othergitlabapp00000003' order by fixture_id nulls last, name"
+   }
+  },
+  {
+   "name": "gitlab apps: delete unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/gitlab-apps/99",
+   "config": {
+    "self_hosted": false
+   }
+  },
+  {
+   "name": "gitlab apps: delete another team's",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/gitlab-apps/3",
+   "config": {
+    "self_hosted": false
+   }
+  },
+  {
+   "name": "gitlab apps: delete with a write token",
+   "token": "write",
+   "method": "DELETE",
+   "path": "/api/v1/gitlab-apps/2",
+   "config": {
+    "self_hosted": false
+   }
+  },
+  {
+   "name": "gitea apps: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/gitea-apps",
+   "config": {
+    "self_hosted": false
+   }
+  },
+  {
+   "name": "gitea apps: list, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/gitea-apps",
+   "config": {
+    "self_hosted": false
+   }
+  },
+  {
+   "name": "gitea apps: list by a member",
+   "token": "memberRead",
+   "method": "GET",
+   "path": "/api/v1/gitea-apps",
+   "config": {
+    "self_hosted": false
+   }
+  },
+  {
+   "name": "gitea apps: list, none",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/gitea-apps",
+   "config": {
+    "self_hosted": false
+   },
+   "setup": [
+    "delete from gitea_apps where id in (1, 2)"
+   ]
+  },
+  {
+   "name": "gitea apps: list with a write-only token",
+   "token": "writeOnly",
+   "method": "GET",
+   "path": "/api/v1/gitea-apps",
+   "config": {
+    "self_hosted": false
+   }
+  },
+  {
+   "name": "gitea app create: a Gitea App",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-gitea-app",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "gitea_app_uuid": "z1paritygiteaapp00000001",
+    "git_repository": "acme/private",
+    "git_branch": "main",
+    "build_pack": "nixpacks",
+    "ports_exposes": "3000"
+   },
+   "http": [
+    {
+     "match": "^GET https://gitea\\.com/api/v1/repos/acme/private$",
+     "body": {
+      "id": 5151,
+      "owner": {
+       "id": 9,
+       "login": "acme",
+       "full_name": ""
+      },
+      "name": "private",
+      "full_name": "acme/private",
+      "private": true,
+      "html_url": "https://gitea.com/acme/private",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "application": "select regexp_replace(replace(name, uuid, '<uuid>'), '[a-z0-9]{24}$', '<random>') as name, description, replace(fqdn, uuid, '<uuid>') as fqdn, domain_port_overrides::jsonb::text as domain_port_overrides, noindex_domains::jsonb::text as noindex_domains, git_repository, git_branch, git_commit_sha, build_pack, static_image, install_command, build_command, start_command, ports_exposes, ports_mappings, base_directory, publish_directory, docker_registry_image_name, docker_registry_image_tag, dockerfile, dockerfile_location, dockerfile_target_build, docker_compose_location, docker_compose_raw, docker_compose_domains::jsonb::text as docker_compose_domains, health_check_enabled, health_check_path, health_check_port, health_check_type, health_check_interval, health_check_retries, limits_memory, limits_cpus, status, environment_id, destination_id, destination_type, source_id, source_type, repository_project_id, private_key_id, redirect, replace(custom_labels, uuid, '<uuid>') as custom_labels, custom_docker_run_options, custom_nginx_configuration, custom_network_aliases, watch_paths, preview_url_template, max_restart_count, compose_parsing_version, is_http_basic_auth_enabled, http_basic_auth_username, http_basic_auth_password is not null as has_basic_auth_password, http_basic_auth_hash_algorithm, http_basic_auth_bcrypt_cost, git_https_username, git_https_password is not null as has_git_https_password, manual_webhook_secret_github is not null and manual_webhook_secret_gitea is not null as has_webhook_secrets, custom_healthcheck_found, post_deployment_command, pre_deployment_command_container from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')",
+    "settings": "select is_static, is_spa, is_git_submodules_enabled, is_git_lfs_enabled, is_git_shallow_clone_enabled, is_auto_deploy_enabled, is_force_https_enabled, is_preview_deployments_enabled, is_pr_deployments_public_enabled, is_build_server_enabled, use_build_secrets, connect_to_docker_network, is_container_label_escape_enabled, is_container_label_readonly_enabled, is_preserve_repository_enabled, is_consistent_container_name_enabled, custom_internal_name, custom_container_name_prefix, is_gzip_enabled, is_stripprefix_enabled, is_permanent_redirect_enabled, traefik_certificate_resolver, is_raw_compose_deployment_enabled, is_log_drain_enabled, is_gpu_enabled, gpu_driver, gpu_count, gpu_device_ids, gpu_options, is_env_sorting_enabled, redact_all_env_values_in_logs, include_coolify_default_variables, disable_build_cache, inject_build_args_to_dockerfile, include_source_commit_in_build, include_network_hosts_in_build, stop_grace_period, rolling_update_drain_seconds, docker_images_to_keep, is_image_scan_enabled, is_auto_cancel_queued_deployments_enabled, is_auto_cancel_building_deployments_enabled from application_settings where application_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003'))",
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime from environment_variables where resourceable_type = 'App\\Models\\Application' and resourceable_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by key, is_preview",
+    "tags": "select t.name, t.id <= 4 as fixture_tag from taggables tg join tags t on t.id = tg.tag_id where tg.taggable_type = 'App\\Models\\Application' and tg.taggable_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by t.name"
+   }
+  },
+  {
+   "name": "gitea app create: a Gitea App, a repository URL",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-gitea-app",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "gitea_app_uuid": "z1paritygiteaapp00000001",
+    "git_repository": "https://gitea.com/acme/private.git",
+    "git_branch": "main",
+    "build_pack": "dockerfile",
+    "ports_exposes": "3000",
+    "name": "from-gitea",
+    "domains": "https://gt.acme.test"
+   },
+   "http": [
+    {
+     "match": "^GET https://gitea\\.com/api/v1/repos/acme/private$",
+     "body": {
+      "id": 5151,
+      "owner": {
+       "id": 9,
+       "login": "acme",
+       "full_name": ""
+      },
+      "name": "private",
+      "full_name": "acme/private",
+      "private": true,
+      "html_url": "https://gitea.com/acme/private",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "application": "select regexp_replace(replace(name, uuid, '<uuid>'), '[a-z0-9]{24}$', '<random>') as name, description, replace(fqdn, uuid, '<uuid>') as fqdn, domain_port_overrides::jsonb::text as domain_port_overrides, noindex_domains::jsonb::text as noindex_domains, git_repository, git_branch, git_commit_sha, build_pack, static_image, install_command, build_command, start_command, ports_exposes, ports_mappings, base_directory, publish_directory, docker_registry_image_name, docker_registry_image_tag, dockerfile, dockerfile_location, dockerfile_target_build, docker_compose_location, docker_compose_raw, docker_compose_domains::jsonb::text as docker_compose_domains, health_check_enabled, health_check_path, health_check_port, health_check_type, health_check_interval, health_check_retries, limits_memory, limits_cpus, status, environment_id, destination_id, destination_type, source_id, source_type, repository_project_id, private_key_id, redirect, replace(custom_labels, uuid, '<uuid>') as custom_labels, custom_docker_run_options, custom_nginx_configuration, custom_network_aliases, watch_paths, preview_url_template, max_restart_count, compose_parsing_version, is_http_basic_auth_enabled, http_basic_auth_username, http_basic_auth_password is not null as has_basic_auth_password, http_basic_auth_hash_algorithm, http_basic_auth_bcrypt_cost, git_https_username, git_https_password is not null as has_git_https_password, manual_webhook_secret_github is not null and manual_webhook_secret_gitea is not null as has_webhook_secrets, custom_healthcheck_found, post_deployment_command, pre_deployment_command_container from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')",
+    "settings": "select is_static, is_spa, is_git_submodules_enabled, is_git_lfs_enabled, is_git_shallow_clone_enabled, is_auto_deploy_enabled, is_force_https_enabled, is_preview_deployments_enabled, is_pr_deployments_public_enabled, is_build_server_enabled, use_build_secrets, connect_to_docker_network, is_container_label_escape_enabled, is_container_label_readonly_enabled, is_preserve_repository_enabled, is_consistent_container_name_enabled, custom_internal_name, custom_container_name_prefix, is_gzip_enabled, is_stripprefix_enabled, is_permanent_redirect_enabled, traefik_certificate_resolver, is_raw_compose_deployment_enabled, is_log_drain_enabled, is_gpu_enabled, gpu_driver, gpu_count, gpu_device_ids, gpu_options, is_env_sorting_enabled, redact_all_env_values_in_logs, include_coolify_default_variables, disable_build_cache, inject_build_args_to_dockerfile, include_source_commit_in_build, include_network_hosts_in_build, stop_grace_period, rolling_update_drain_seconds, docker_images_to_keep, is_image_scan_enabled, is_auto_cancel_queued_deployments_enabled, is_auto_cancel_building_deployments_enabled from application_settings where application_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003'))",
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime from environment_variables where resourceable_type = 'App\\Models\\Application' and resourceable_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by key, is_preview",
+    "tags": "select t.name, t.id <= 4 as fixture_tag from taggables tg join tags t on t.id = tg.tag_id where tg.taggable_type = 'App\\Models\\Application' and tg.taggable_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by t.name"
+   }
+  },
+  {
+   "name": "gitea app create: a Gitea App, an SSH URL",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-gitea-app",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "gitea_app_uuid": "z1paritygiteaapp00000001",
+    "git_repository": "git@gitea.com:acme/private.git",
+    "git_branch": "main",
+    "build_pack": "static",
+    "ports_exposes": "3000",
+    "is_static": true
+   },
+   "http": [
+    {
+     "match": "^GET https://gitea\\.com/api/v1/repos/acme/private$",
+     "body": {
+      "id": 5151,
+      "owner": {
+       "id": 9,
+       "login": "acme",
+       "full_name": ""
+      },
+      "name": "private",
+      "full_name": "acme/private",
+      "private": true,
+      "html_url": "https://gitea.com/acme/private",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "application": "select regexp_replace(replace(name, uuid, '<uuid>'), '[a-z0-9]{24}$', '<random>') as name, description, replace(fqdn, uuid, '<uuid>') as fqdn, domain_port_overrides::jsonb::text as domain_port_overrides, noindex_domains::jsonb::text as noindex_domains, git_repository, git_branch, git_commit_sha, build_pack, static_image, install_command, build_command, start_command, ports_exposes, ports_mappings, base_directory, publish_directory, docker_registry_image_name, docker_registry_image_tag, dockerfile, dockerfile_location, dockerfile_target_build, docker_compose_location, docker_compose_raw, docker_compose_domains::jsonb::text as docker_compose_domains, health_check_enabled, health_check_path, health_check_port, health_check_type, health_check_interval, health_check_retries, limits_memory, limits_cpus, status, environment_id, destination_id, destination_type, source_id, source_type, repository_project_id, private_key_id, redirect, replace(custom_labels, uuid, '<uuid>') as custom_labels, custom_docker_run_options, custom_nginx_configuration, custom_network_aliases, watch_paths, preview_url_template, max_restart_count, compose_parsing_version, is_http_basic_auth_enabled, http_basic_auth_username, http_basic_auth_password is not null as has_basic_auth_password, http_basic_auth_hash_algorithm, http_basic_auth_bcrypt_cost, git_https_username, git_https_password is not null as has_git_https_password, manual_webhook_secret_github is not null and manual_webhook_secret_gitea is not null as has_webhook_secrets, custom_healthcheck_found, post_deployment_command, pre_deployment_command_container from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')",
+    "settings": "select is_static, is_spa, is_git_submodules_enabled, is_git_lfs_enabled, is_git_shallow_clone_enabled, is_auto_deploy_enabled, is_force_https_enabled, is_preview_deployments_enabled, is_pr_deployments_public_enabled, is_build_server_enabled, use_build_secrets, connect_to_docker_network, is_container_label_escape_enabled, is_container_label_readonly_enabled, is_preserve_repository_enabled, is_consistent_container_name_enabled, custom_internal_name, custom_container_name_prefix, is_gzip_enabled, is_stripprefix_enabled, is_permanent_redirect_enabled, traefik_certificate_resolver, is_raw_compose_deployment_enabled, is_log_drain_enabled, is_gpu_enabled, gpu_driver, gpu_count, gpu_device_ids, gpu_options, is_env_sorting_enabled, redact_all_env_values_in_logs, include_coolify_default_variables, disable_build_cache, inject_build_args_to_dockerfile, include_source_commit_in_build, include_network_hosts_in_build, stop_grace_period, rolling_update_drain_seconds, docker_images_to_keep, is_image_scan_enabled, is_auto_cancel_queued_deployments_enabled, is_auto_cancel_building_deployments_enabled from application_settings where application_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003'))",
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime from environment_variables where resourceable_type = 'App\\Models\\Application' and resourceable_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by key, is_preview",
+    "tags": "select t.name, t.id <= 4 as fixture_tag from taggables tg join tags t on t.id = tg.tag_id where tg.taggable_type = 'App\\Models\\Application' and tg.taggable_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by t.name"
+   }
+  },
+  {
+   "name": "gitea app create: a Gitea App, an owner of the organization field",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-gitea-app",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "gitea_app_uuid": "z1paritygiteaapp00000001",
+    "git_repository": "PARITY/tools",
+    "git_branch": "main",
+    "build_pack": "nixpacks",
+    "ports_exposes": "3000"
+   },
+   "http": [
+    {
+     "match": "^GET https://gitea\\.com/api/v1/repos/PARITY/tools$",
+     "body": {
+      "id": 5151,
+      "owner": {
+       "id": 9,
+       "login": "parity",
+       "full_name": ""
+      },
+      "name": "tools",
+      "full_name": "parity/tools",
+      "private": true,
+      "html_url": "https://gitea.com/parity/tools",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "application": "select regexp_replace(replace(name, uuid, '<uuid>'), '[a-z0-9]{24}$', '<random>') as name, description, replace(fqdn, uuid, '<uuid>') as fqdn, domain_port_overrides::jsonb::text as domain_port_overrides, noindex_domains::jsonb::text as noindex_domains, git_repository, git_branch, git_commit_sha, build_pack, static_image, install_command, build_command, start_command, ports_exposes, ports_mappings, base_directory, publish_directory, docker_registry_image_name, docker_registry_image_tag, dockerfile, dockerfile_location, dockerfile_target_build, docker_compose_location, docker_compose_raw, docker_compose_domains::jsonb::text as docker_compose_domains, health_check_enabled, health_check_path, health_check_port, health_check_type, health_check_interval, health_check_retries, limits_memory, limits_cpus, status, environment_id, destination_id, destination_type, source_id, source_type, repository_project_id, private_key_id, redirect, replace(custom_labels, uuid, '<uuid>') as custom_labels, custom_docker_run_options, custom_nginx_configuration, custom_network_aliases, watch_paths, preview_url_template, max_restart_count, compose_parsing_version, is_http_basic_auth_enabled, http_basic_auth_username, http_basic_auth_password is not null as has_basic_auth_password, http_basic_auth_hash_algorithm, http_basic_auth_bcrypt_cost, git_https_username, git_https_password is not null as has_git_https_password, manual_webhook_secret_github is not null and manual_webhook_secret_gitea is not null as has_webhook_secrets, custom_healthcheck_found, post_deployment_command, pre_deployment_command_container from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')",
+    "settings": "select is_static, is_spa, is_git_submodules_enabled, is_git_lfs_enabled, is_git_shallow_clone_enabled, is_auto_deploy_enabled, is_force_https_enabled, is_preview_deployments_enabled, is_pr_deployments_public_enabled, is_build_server_enabled, use_build_secrets, connect_to_docker_network, is_container_label_escape_enabled, is_container_label_readonly_enabled, is_preserve_repository_enabled, is_consistent_container_name_enabled, custom_internal_name, custom_container_name_prefix, is_gzip_enabled, is_stripprefix_enabled, is_permanent_redirect_enabled, traefik_certificate_resolver, is_raw_compose_deployment_enabled, is_log_drain_enabled, is_gpu_enabled, gpu_driver, gpu_count, gpu_device_ids, gpu_options, is_env_sorting_enabled, redact_all_env_values_in_logs, include_coolify_default_variables, disable_build_cache, inject_build_args_to_dockerfile, include_source_commit_in_build, include_network_hosts_in_build, stop_grace_period, rolling_update_drain_seconds, docker_images_to_keep, is_image_scan_enabled, is_auto_cancel_queued_deployments_enabled, is_auto_cancel_building_deployments_enabled from application_settings where application_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003'))",
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime from environment_variables where resourceable_type = 'App\\Models\\Application' and resourceable_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by key, is_preview",
+    "tags": "select t.name, t.id <= 4 as fixture_tag from taggables tg join tags t on t.id = tg.tag_id where tg.taggable_type = 'App\\Models\\Application' and tg.taggable_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by t.name"
+   }
+  },
+  {
+   "name": "gitea app create: a Gitea App, another owner",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-gitea-app",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "gitea_app_uuid": "z1paritygiteaapp00000001",
+    "git_repository": "someone/private",
+    "git_branch": "main",
+    "build_pack": "nixpacks",
+    "ports_exposes": "3000"
+   },
+   "http": [
+    {
+     "match": "^GET https://gitea\\.com/api/v1/repos/someone/private$",
+     "body": {
+      "id": 5151,
+      "owner": {
+       "id": 9,
+       "login": "someone",
+       "full_name": ""
+      },
+      "name": "private",
+      "full_name": "someone/private",
+      "private": true,
+      "html_url": "https://gitea.com/someone/private",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "applications": "select count(*) as created from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')"
+   }
+  },
+  {
+   "name": "gitea app create: a Gitea App, another host's URL",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-gitea-app",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "gitea_app_uuid": "z1paritygiteaapp00000001",
+    "git_repository": "https://github.com/acme/private",
+    "git_branch": "main",
+    "build_pack": "nixpacks",
+    "ports_exposes": "3000"
+   },
+   "http": [
+    {
+     "match": "^GET https://gitea\\.com/api/v1/repos/acme/private$",
+     "body": {
+      "id": 5151,
+      "owner": {
+       "id": 9,
+       "login": "acme",
+       "full_name": ""
+      },
+      "name": "private",
+      "full_name": "acme/private",
+      "private": true,
+      "html_url": "https://gitea.com/acme/private",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "applications": "select count(*) as created from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')"
+   }
+  },
+  {
+   "name": "gitea app create: a Gitea App, not a repository path",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-gitea-app",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "gitea_app_uuid": "z1paritygiteaapp00000001",
+    "git_repository": "acme/..",
+    "git_branch": "main",
+    "build_pack": "nixpacks",
+    "ports_exposes": "3000"
+   },
+   "http": [
+    {
+     "match": "^GET https://gitea\\.com/api/v1/repos/acme/private$",
+     "body": {
+      "id": 5151,
+      "owner": {
+       "id": 9,
+       "login": "acme",
+       "full_name": ""
+      },
+      "name": "private",
+      "full_name": "acme/private",
+      "private": true,
+      "html_url": "https://gitea.com/acme/private",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "applications": "select count(*) as created from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')"
+   }
+  },
+  {
+   "name": "gitea app create: a Gitea App, the repository not accessible",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-gitea-app",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "gitea_app_uuid": "z1paritygiteaapp00000001",
+    "git_repository": "acme/private",
+    "git_branch": "main",
+    "build_pack": "nixpacks",
+    "ports_exposes": "3000"
+   },
+   "http": [
+    {
+     "match": "^GET https://gitea\\.com/api/v1/repos/acme/private$",
+     "body": {
+      "message": "Not Found"
+     },
+     "status": 404
+    }
+   ],
+   "after": {
+    "applications": "select count(*) as created from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')"
+   }
+  },
+  {
+   "name": "gitea app create: a Gitea App, the instance fails",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-gitea-app",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "gitea_app_uuid": "z1paritygiteaapp00000001",
+    "git_repository": "acme/private",
+    "git_branch": "main",
+    "build_pack": "nixpacks",
+    "ports_exposes": "3000"
+   },
+   "http": [
+    {
+     "match": "^GET https://gitea\\.com/api/v1/repos/acme/private$",
+     "body": {
+      "message": "Unavailable"
+     },
+     "status": 503
+    }
+   ],
+   "after": {
+    "applications": "select count(*) as created from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')"
+   }
+  },
+  {
+   "name": "gitea app create: a Gitea App, a failure without a message",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-gitea-app",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "gitea_app_uuid": "z1paritygiteaapp00000001",
+    "git_repository": "acme/private",
+    "git_branch": "main",
+    "build_pack": "nixpacks",
+    "ports_exposes": "3000"
+   },
+   "http": [
+    {
+     "match": "^GET https://gitea\\.com/api/v1/repos/acme/private$",
+     "body": {
+      "error": "nope"
+     },
+     "status": 500
+    }
+   ],
+   "after": {
+    "applications": "select count(*) as created from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')"
+   }
+  },
+  {
+   "name": "gitea app create: a Gitea App, the token refreshed",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-gitea-app",
+   "setup": [
+    "update gitea_apps set expires_at = 1767225000 where id = 1"
+   ],
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "gitea_app_uuid": "z1paritygiteaapp00000001",
+    "git_repository": "acme/private",
+    "git_branch": "main",
+    "build_pack": "nixpacks",
+    "ports_exposes": "3000"
+   },
+   "http": [
+    {
+     "match": "^POST https://gitea\\.com/login/oauth/access_token$",
+     "body": {
+      "access_token": "gt-access-new",
+      "token_type": "bearer",
+      "expires_in": 3600,
+      "refresh_token": "gt-refresh-new"
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://gitea\\.com/api/v1/repos/acme/private$",
+     "body": {
+      "id": 5151,
+      "owner": {
+       "id": 9,
+       "login": "acme",
+       "full_name": ""
+      },
+      "name": "private",
+      "full_name": "acme/private",
+      "private": true,
+      "html_url": "https://gitea.com/acme/private",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "application": "select regexp_replace(replace(name, uuid, '<uuid>'), '[a-z0-9]{24}$', '<random>') as name, description, replace(fqdn, uuid, '<uuid>') as fqdn, domain_port_overrides::jsonb::text as domain_port_overrides, noindex_domains::jsonb::text as noindex_domains, git_repository, git_branch, git_commit_sha, build_pack, static_image, install_command, build_command, start_command, ports_exposes, ports_mappings, base_directory, publish_directory, docker_registry_image_name, docker_registry_image_tag, dockerfile, dockerfile_location, dockerfile_target_build, docker_compose_location, docker_compose_raw, docker_compose_domains::jsonb::text as docker_compose_domains, health_check_enabled, health_check_path, health_check_port, health_check_type, health_check_interval, health_check_retries, limits_memory, limits_cpus, status, environment_id, destination_id, destination_type, source_id, source_type, repository_project_id, private_key_id, redirect, replace(custom_labels, uuid, '<uuid>') as custom_labels, custom_docker_run_options, custom_nginx_configuration, custom_network_aliases, watch_paths, preview_url_template, max_restart_count, compose_parsing_version, is_http_basic_auth_enabled, http_basic_auth_username, http_basic_auth_password is not null as has_basic_auth_password, http_basic_auth_hash_algorithm, http_basic_auth_bcrypt_cost, git_https_username, git_https_password is not null as has_git_https_password, manual_webhook_secret_github is not null and manual_webhook_secret_gitea is not null as has_webhook_secrets, custom_healthcheck_found, post_deployment_command, pre_deployment_command_container from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')",
+    "settings": "select is_static, is_spa, is_git_submodules_enabled, is_git_lfs_enabled, is_git_shallow_clone_enabled, is_auto_deploy_enabled, is_force_https_enabled, is_preview_deployments_enabled, is_pr_deployments_public_enabled, is_build_server_enabled, use_build_secrets, connect_to_docker_network, is_container_label_escape_enabled, is_container_label_readonly_enabled, is_preserve_repository_enabled, is_consistent_container_name_enabled, custom_internal_name, custom_container_name_prefix, is_gzip_enabled, is_stripprefix_enabled, is_permanent_redirect_enabled, traefik_certificate_resolver, is_raw_compose_deployment_enabled, is_log_drain_enabled, is_gpu_enabled, gpu_driver, gpu_count, gpu_device_ids, gpu_options, is_env_sorting_enabled, redact_all_env_values_in_logs, include_coolify_default_variables, disable_build_cache, inject_build_args_to_dockerfile, include_source_commit_in_build, include_network_hosts_in_build, stop_grace_period, rolling_update_drain_seconds, docker_images_to_keep, is_image_scan_enabled, is_auto_cancel_queued_deployments_enabled, is_auto_cancel_building_deployments_enabled from application_settings where application_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003'))",
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime from environment_variables where resourceable_type = 'App\\Models\\Application' and resourceable_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by key, is_preview",
+    "tags": "select t.name, t.id <= 4 as fixture_tag from taggables tg join tags t on t.id = tg.tag_id where tg.taggable_type = 'App\\Models\\Application' and tg.taggable_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by t.name",
+    "source": "select access_token is not null as has_access_token, refresh_token is not null as has_refresh_token, expires_at > 1767225000 as expires_later from gitea_apps where id = 1"
+   }
+  },
+  {
+   "name": "gitea app create: a Gitea App, the refresh refused",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-gitea-app",
+   "setup": [
+    "update gitea_apps set expires_at = 1767225000 where id = 1"
+   ],
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "gitea_app_uuid": "z1paritygiteaapp00000001",
+    "git_repository": "acme/private",
+    "git_branch": "main",
+    "build_pack": "nixpacks",
+    "ports_exposes": "3000"
+   },
+   "http": [
+    {
+     "match": "^POST https://gitea\\.com/login/oauth/access_token$",
+     "body": {
+      "error": "invalid_grant",
+      "error_description": "The refresh token is invalid."
+     },
+     "status": 400
+    },
+    {
+     "match": "^GET https://gitea\\.com/api/v1/repos/acme/private$",
+     "body": {
+      "id": 5151,
+      "owner": {
+       "id": 9,
+       "login": "acme",
+       "full_name": ""
+      },
+      "name": "private",
+      "full_name": "acme/private",
+      "private": true,
+      "html_url": "https://gitea.com/acme/private",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "applications": "select count(*) as created from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')",
+    "source": "select access_token is not null as has_access_token, refresh_token is not null as has_refresh_token, expires_at > 1767225000 as expires_later from gitea_apps where id = 1"
+   }
+  },
+  {
+   "name": "gitea app create: a Gitea App, a source not connected",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-gitea-app",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "gitea_app_uuid": "z2paritygiteaapp00000002",
+    "git_repository": "acme/private",
+    "git_branch": "main",
+    "build_pack": "nixpacks",
+    "ports_exposes": "3000"
+   },
+   "http": [
+    {
+     "match": "^GET https://gitea\\.com/api/v1/repos/acme/private$",
+     "body": {
+      "id": 5151,
+      "owner": {
+       "id": 9,
+       "login": "acme",
+       "full_name": ""
+      },
+      "name": "private",
+      "full_name": "acme/private",
+      "private": true,
+      "html_url": "https://gitea.com/acme/private",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "gitea app create: a Gitea App, another team's source",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-gitea-app",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "gitea_app_uuid": "z3othergiteaapp000000003",
+    "git_repository": "acme/private",
+    "git_branch": "main",
+    "build_pack": "nixpacks",
+    "ports_exposes": "3000"
+   },
+   "http": [
+    {
+     "match": "^GET https://gitea\\.com/api/v1/repos/acme/private$",
+     "body": {
+      "id": 5151,
+      "owner": {
+       "id": 9,
+       "login": "acme",
+       "full_name": ""
+      },
+      "name": "private",
+      "full_name": "acme/private",
+      "private": true,
+      "html_url": "https://gitea.com/acme/private",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "gitea app create: a Gitea App, unknown source",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-gitea-app",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "gitea_app_uuid": "nonexistentuuid",
+    "git_repository": "acme/private",
+    "git_branch": "main",
+    "build_pack": "nixpacks",
+    "ports_exposes": "3000"
+   },
+   "http": [
+    {
+     "match": "^GET https://gitea\\.com/api/v1/repos/acme/private$",
+     "body": {
+      "id": 5151,
+      "owner": {
+       "id": 9,
+       "login": "acme",
+       "full_name": ""
+      },
+      "name": "private",
+      "full_name": "acme/private",
+      "private": true,
+      "html_url": "https://gitea.com/acme/private",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "gitea app create: a Gitea App, invalid",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-gitea-app",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "git_repository": 5,
+    "git_branch": "a..b",
+    "build_pack": "heroku",
+    "ports_exposes": "80,x",
+    "watch_paths": [],
+    "docker_compose_domains": "x"
+   },
+   "http": [
+    {
+     "match": "^GET https://gitea\\.com/api/v1/repos/acme/private$",
+     "body": {
+      "id": 5151,
+      "owner": {
+       "id": 9,
+       "login": "acme",
+       "full_name": ""
+      },
+      "name": "private",
+      "full_name": "acme/private",
+      "private": true,
+      "html_url": "https://gitea.com/acme/private",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "gitea app create: a Gitea App, a domain in use",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-gitea-app",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "gitea_app_uuid": "z1paritygiteaapp00000001",
+    "git_repository": "acme/private",
+    "git_branch": "main",
+    "build_pack": "nixpacks",
+    "ports_exposes": "3000",
+    "domains": "https://image.example.com"
+   },
+   "http": [
+    {
+     "match": "^GET https://gitea\\.com/api/v1/repos/acme/private$",
+     "body": {
+      "id": 5151,
+      "owner": {
+       "id": 9,
+       "login": "acme",
+       "full_name": ""
+      },
+      "name": "private",
+      "full_name": "acme/private",
+      "private": true,
+      "html_url": "https://gitea.com/acme/private",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "gitea app create: a Gitea App, Docker Compose",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-gitea-app",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "gitea_app_uuid": "z1paritygiteaapp00000001",
+    "git_repository": "acme/private",
+    "git_branch": "main",
+    "build_pack": "dockercompose",
+    "ports_exposes": "3000",
+    "docker_compose_location": "/compose.yaml"
+   },
+   "http": [
+    {
+     "match": "^GET https://gitea\\.com/api/v1/repos/acme/private$",
+     "body": {
+      "id": 5151,
+      "owner": {
+       "id": 9,
+       "login": "acme",
+       "full_name": ""
+      },
+      "name": "private",
+      "full_name": "acme/private",
+      "private": true,
+      "html_url": "https://gitea.com/acme/private",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "applications": "select count(*) as created from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')"
+   }
+  },
+  {
+   "name": "gitea app create: a Gitea App, instant deploy",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/private-gitea-app",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "gitea_app_uuid": "z1paritygiteaapp00000001",
+    "git_repository": "acme/private",
+    "git_branch": "main",
+    "build_pack": "nixpacks",
+    "ports_exposes": "3000",
+    "instant_deploy": true
+   },
+   "http": [
+    {
+     "match": "^GET https://gitea\\.com/api/v1/repos/acme/private$",
+     "body": {
+      "id": 5151,
+      "owner": {
+       "id": 9,
+       "login": "acme",
+       "full_name": ""
+      },
+      "name": "private",
+      "full_name": "acme/private",
+      "private": true,
+      "html_url": "https://gitea.com/acme/private",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "applications": "select count(*) as created from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')"
+   }
+  },
+  {
+   "name": "gitea app create: a Gitea App, with a read token",
+   "token": "read",
+   "method": "POST",
+   "path": "/api/v1/applications/private-gitea-app",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "gitea_app_uuid": "z1paritygiteaapp00000001",
+    "git_repository": "acme/private",
+    "git_branch": "main",
+    "build_pack": "nixpacks",
+    "ports_exposes": "3000"
+   },
+   "http": [
+    {
+     "match": "^GET https://gitea\\.com/api/v1/repos/acme/private$",
+     "body": {
+      "id": 5151,
+      "owner": {
+       "id": 9,
+       "login": "acme",
+       "full_name": ""
+      },
+      "name": "private",
+      "full_name": "acme/private",
+      "private": true,
+      "html_url": "https://gitea.com/acme/private",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "gitea app create: a Gitea App, a member",
+   "token": "memberWrite",
+   "method": "POST",
+   "path": "/api/v1/applications/private-gitea-app",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "gitea_app_uuid": "z1paritygiteaapp00000001",
+    "git_repository": "acme/private",
+    "git_branch": "main",
+    "build_pack": "nixpacks",
+    "ports_exposes": "3000"
+   },
+   "http": [
+    {
+     "match": "^GET https://gitea\\.com/api/v1/repos/acme/private$",
+     "body": {
+      "id": 5151,
+      "owner": {
+       "id": 9,
+       "login": "acme",
+       "full_name": ""
+      },
+      "name": "private",
+      "full_name": "acme/private",
+      "private": true,
+      "html_url": "https://gitea.com/acme/private",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "gitea app update: a Gitea App as the source",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002",
+   "body": {
+    "gitea_app_uuid": "z1paritygiteaapp00000001",
+    "git_repository": "https://gitea.com/acme/private.git"
+   },
+   "http": [
+    {
+     "match": "^GET https://gitea\\.com/api/v1/repos/acme/private$",
+     "body": {
+      "id": 5151,
+      "owner": {
+       "id": 9,
+       "login": "acme",
+       "full_name": ""
+      },
+      "name": "private",
+      "full_name": "acme/private",
+      "private": true,
+      "html_url": "https://gitea.com/acme/private",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "application": "select git_repository, source_type, source_id, repository_project_id from applications where id = 2"
+   }
+  },
+  {
+   "name": "gitea app update: a Gitea App, the application's repository",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002",
+   "setup": [
+    "update applications set git_repository = 'acme/private' where id = 2"
+   ],
+   "body": {
+    "gitea_app_uuid": "z1paritygiteaapp00000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://gitea\\.com/api/v1/repos/acme/private$",
+     "body": {
+      "id": 5151,
+      "owner": {
+       "id": 9,
+       "login": "acme",
+       "full_name": ""
+      },
+      "name": "private",
+      "full_name": "acme/private",
+      "private": true,
+      "html_url": "https://gitea.com/acme/private",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "application": "select git_repository, source_type, source_id, repository_project_id from applications where id = 2"
+   }
+  },
+  {
+   "name": "gitea app update: a Gitea App, the repository not accessible",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002",
+   "body": {
+    "gitea_app_uuid": "z1paritygiteaapp00000001",
+    "git_repository": "acme/private"
+   },
+   "http": [
+    {
+     "match": "^GET https://gitea\\.com/api/v1/repos/acme/private$",
+     "body": {
+      "message": "Not Found"
+     },
+     "status": 404
+    }
+   ],
+   "after": {
+    "application": "select git_repository, source_type, source_id, repository_project_id from applications where id = 2"
+   }
+  },
+  {
+   "name": "gitea app update: a Gitea App, not on its instance",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002",
+   "body": {
+    "gitea_app_uuid": "z1paritygiteaapp00000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://gitea\\.com/api/v1/repos/acme/private$",
+     "body": {
+      "id": 5151,
+      "owner": {
+       "id": 9,
+       "login": "acme",
+       "full_name": ""
+      },
+      "name": "private",
+      "full_name": "acme/private",
+      "private": true,
+      "html_url": "https://gitea.com/acme/private",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "application": "select git_repository, source_type, source_id, repository_project_id from applications where id = 2"
+   }
+  },
+  {
+   "name": "gitea app update: a Gitea App not connected",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002",
+   "body": {
+    "gitea_app_uuid": "z2paritygiteaapp00000002",
+    "git_repository": "acme/private"
+   },
+   "http": [
+    {
+     "match": "^GET https://gitea\\.com/api/v1/repos/acme/private$",
+     "body": {
+      "id": 5151,
+      "owner": {
+       "id": 9,
+       "login": "acme",
+       "full_name": ""
+      },
+      "name": "private",
+      "full_name": "acme/private",
+      "private": true,
+      "html_url": "https://gitea.com/acme/private",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "gitea app update: a Gitea App for an image application",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001",
+   "body": {
+    "gitea_app_uuid": "z1paritygiteaapp00000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://gitea\\.com/api/v1/repos/acme/private$",
+     "body": {
+      "id": 5151,
+      "owner": {
+       "id": 9,
+       "login": "acme",
+       "full_name": ""
+      },
+      "name": "private",
+      "full_name": "acme/private",
+      "private": true,
+      "html_url": "https://gitea.com/acme/private",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "denied: gitlab apps: create, a member with write and delete",
+   "token": "memberWrite",
+   "method": "POST",
+   "path": "/api/v1/gitlab-apps",
+   "config": {
+    "self_hosted": false
+   },
+   "body": {
+    "name": "New GitLab",
+    "html_url": "https://gitlab.acme.test/",
+    "group_name": "acme,acme/platform",
+    "client_id": "gl-new-client",
+    "client_secret": "gl-new-secret",
+    "redirect_uri": "https://app.example.test/webhooks/source/gitlab/redirect"
+   },
+   "after": {
+    "apps": "select case when uuid like 'y%' then id end as fixture_id, name, organization, api_url, html_url, custom_user, custom_port, group_name, client_id, client_secret is not null as has_client_secret, webhook_token is not null as has_webhook_token, access_token is not null as has_access_token, refresh_token is not null as has_refresh_token, expires_at, redirect_uri, private_key_id, is_system_wide, is_public from gitlab_apps where uuid <> 'y3othergitlabapp00000003' order by fixture_id nulls last, name"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: gitlab apps: update, a member with write and delete",
+   "token": "memberWrite",
+   "method": "PATCH",
+   "path": "/api/v1/gitlab-apps/1",
+   "config": {
+    "self_hosted": false
+   },
+   "body": {
+    "name": "Renamed GitLab",
+    "group_name": null,
+    "custom_port": "2200",
+    "client_secret": "gl-secret-2",
+    "webhook_token": "gl-webhook-token-new",
+    "redirect_uri": "https://app.example.test/webhooks/source/gitlab/redirect"
+   },
+   "after": {
+    "apps": "select case when uuid like 'y%' then id end as fixture_id, name, organization, api_url, html_url, custom_user, custom_port, group_name, client_id, client_secret is not null as has_client_secret, webhook_token is not null as has_webhook_token, access_token is not null as has_access_token, refresh_token is not null as has_refresh_token, expires_at, redirect_uri, private_key_id, is_system_wide, is_public from gitlab_apps where uuid <> 'y3othergitlabapp00000003' order by fixture_id nulls last, name"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: gitlab apps: delete, a member with write and delete",
+   "token": "memberDelete",
+   "method": "DELETE",
+   "path": "/api/v1/gitlab-apps/2",
+   "config": {
+    "self_hosted": false
+   },
+   "after": {
+    "apps": "select case when uuid like 'y%' then id end as fixture_id, name, organization, api_url, html_url, custom_user, custom_port, group_name, client_id, client_secret is not null as has_client_secret, webhook_token is not null as has_webhook_token, access_token is not null as has_access_token, refresh_token is not null as has_refresh_token, expires_at, redirect_uri, private_key_id, is_system_wide, is_public from gitlab_apps where uuid <> 'y3othergitlabapp00000003' order by fixture_id nulls last, name"
+   },
    "setupCoolify": [
     "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
    ]

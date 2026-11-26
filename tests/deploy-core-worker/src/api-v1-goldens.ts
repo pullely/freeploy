@@ -103,6 +103,32 @@ export interface Fixture {
   /** DP-104: the teams' integration tokens (the token in plain text; each side stores it encrypted) and the Cloudflare tokens' zones. */
   integrationTokens: Array<{ id: number; uuid: string; team: number; provider: string; name: string; token: string; capabilities: string[]; metadata: Record<string, unknown> | null; created_at: string }>;
   dnsZones: Array<{ id: number; uuid: string; token: number; provider_zone_id: string; name: string; account_id: string | null; account_name: string | null; created_at: string }>;
+  /** DP-103: the teams' GitLab and Gitea Apps (the secrets in plain text; each side stores them encrypted). */
+  gitlabApps: OauthSourceFixture[];
+  giteaApps: OauthSourceFixture[];
+}
+
+/** DP-103: a GitLab App (group_name, webhook_token) or a Gitea App (organization, webhook_secret) of the fixture. */
+export interface OauthSourceFixture {
+  id: number;
+  uuid: string;
+  team: number;
+  name: string;
+  html_url: string;
+  api_url: string;
+  custom_user: string;
+  custom_port: number;
+  group_name?: string | null;
+  organization?: string | null;
+  client_id: string | null;
+  client_secret: string | null;
+  webhook_token?: string | null;
+  webhook_secret?: string | null;
+  access_token: string | null;
+  refresh_token: string | null;
+  expires_at: number | null;
+  redirect_uri: string | null;
+  created_at: string;
 }
 
 /** DP-90: one answer of an outside HTTP API (emit.php's Http::fake()): the first whose `match` fits "METHOD URL". */
@@ -176,6 +202,8 @@ const FIXTURE_UUIDS = new Set<string>([
   ...CASES.fixture.cloudTokens.map((t) => t.uuid),
   ...CASES.fixture.integrationTokens.map((t) => t.uuid),
   ...CASES.fixture.dnsZones.map((z) => z.uuid),
+  ...CASES.fixture.gitlabApps.map((g) => g.uuid),
+  ...CASES.fixture.giteaApps.map((g) => g.uuid),
 ]);
 
 const LARAVEL_DATE = /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{6}Z$/;

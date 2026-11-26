@@ -263,7 +263,7 @@ describe("a GitHub App's page", () => {
     const uuid = await created(t);
     t.store.keys.push({ id: 100, uuid: "k1", name: "github-app-x", private_key: "enc", fingerprint: null });
     t.store.apps[0]!.private_key_id = 100;
-    t.store.using = [{ id: 1, uuid: "app1", name: "web", project_uuid: "p", project_name: "P", environment_uuid: "e", environment_name: "E", fqdn: null, status: "exited" }];
+    t.store.using = [{ id: 1, uuid: "app1", name: "web", project_uuid: "p", project_name: "P", environment_uuid: "e", environment_name: "E", fqdn: null, status: "exited", git_repository: "acme/web", git_branch: "main" }];
     expect((await t.call("DELETE", `github/${uuid}`)).body.error!.message).toBe("This source is being used by an application. Please delete all applications first.");
     expect(t.store.apps).toHaveLength(1);
     t.store.using = [];

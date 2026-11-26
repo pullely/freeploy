@@ -36,7 +36,7 @@ import {
   type SourceHttp,
 } from "./github.js";
 import { GithubKeyError } from "./jwt.js";
-import { createSetupState, readSetupState } from "./setup-state.js";
+import { createSetupState, readSetupState, type SetupAction } from "./setup-state.js";
 
 export const SOURCE_MESSAGES = {
   updated: "Github App updated.",
@@ -673,7 +673,7 @@ export function githubAppOwner(requestedOrganization: string | null, owner: { lo
 }
 
 /** The org and App a setup state names, or null (Coolify redirects to the Sources page). */
-export async function setupStateTarget(stateSecret: string, state: unknown, action: "manifest" | "install"): Promise<{ org: string; app: string } | null> {
+export async function setupStateTarget(stateSecret: string, state: unknown, action: SetupAction): Promise<{ org: string; app: string } | null> {
   const payload = await readSetupState(stateSecret, state, action);
   return payload ? { org: payload.org, app: payload.app } : null;
 }

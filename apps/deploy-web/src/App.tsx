@@ -143,6 +143,9 @@ const ApplicationSwarmPage = lazy(() => import("./pages/ConfigSubpages").then((m
 const ServiceMaintenancePage = lazy(() => import("./pages/ConfigSubpages").then((m) => ({ default: m.ServiceMaintenancePage })));
 const ServiceDomainsPage = lazy(() => import("./pages/ServiceDomains").then((m) => ({ default: m.ServiceDomainsPage })));
 const SelectTeamPage = lazy(() => import("./pages/ConfigSubpages").then((m) => ({ default: m.SelectTeamPage })));
+// DP-103: a GitLab App's and a Gitea / Forgejo App's pages, and their OAuth redirects.
+const OauthSourcePage = lazy(() => import("./pages/SourceOauth").then((m) => ({ default: m.OauthSourcePage })));
+const OauthCallbackPage = lazy(() => import("./pages/SourceOauth").then((m) => ({ default: m.OauthCallbackPage })));
 
 /** routes/web.php: security.private-key.show is redirect()->route('security.private-key.index'). */
 function RedirectTo({ path }: { path: string }) {
@@ -986,6 +989,31 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <SelectTeamPage />
+        </Suspense>
+      );
+    // DP-103: the GitLab and Gitea sources.
+    case "source.gitlab.show":
+      return (
+        <Suspense fallback={null}>
+          <OauthSourcePage kind="gitlab" />
+        </Suspense>
+      );
+    case "source.gitea.show":
+      return (
+        <Suspense fallback={null}>
+          <OauthSourcePage kind="gitea" />
+        </Suspense>
+      );
+    case "source.gitlab.redirect":
+      return (
+        <Suspense fallback={null}>
+          <OauthCallbackPage kind="gitlab" />
+        </Suspense>
+      );
+    case "source.gitea.redirect":
+      return (
+        <Suspense fallback={null}>
+          <OauthCallbackPage kind="gitea" />
         </Suspense>
       );
     default:

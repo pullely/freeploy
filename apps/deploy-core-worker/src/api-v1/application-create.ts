@@ -16,6 +16,7 @@
 //   POST /applications/public                create_application('public')
 //   POST /applications/private-deploy-key    create_application('private-deploy-key')
 //   POST /applications/private-github-app    create_application('private-gh-app')  (DP-93)
+//   POST /applications/private-gitea-app     create_application('private-gitea-app')  (DP-103)
 //
 // The checks, their order and their messages are the controller's; the application is stored as `fill()` and the model's
 // hooks store it (the mutators, the webhook secrets, the settings row, Nixpacks' NIXPACKS_NODE_VERSION, the domain's port
@@ -23,7 +24,8 @@
 // Where Coolify then queues work on the server — an instant deploy, LoadComposeFile for a Docker Compose application —
 // Freeploy answers 501 in Coolify's envelope after the checks and before anything is stored (DP-73's convention).
 // A GitHub App's repository is checked with GitHub first (github-repositories.ts: the App's installation token, then
-// GET /repos/{slug}, DP-93). Not ported: private-gitea-app.
+// GET /repos/{slug}, DP-93), a Gitea App's with its instance (oauth-source-apps.ts: the source connected, its token
+// refreshed when it is about to expire, then GET /repos/{owner}/{name}, DP-103).
 import type { SqlExecutor } from "@saas/db/hyperdrive";
 import {
   APPLICATION_MORPH_CLASS,
@@ -48,6 +50,7 @@ import { applicationDomainList, domainWithoutPort, generateUrl, isValidDomainUrl
 import { generateApplicationName, gitBranchError, gitRepositoryUrlError, phpTrim, sshGitUrlToHttps } from "../applications/git.js";
 import { gitRepositorySlug } from "../sources/pr-updates.js";
 import { githubAppRepository } from "./github-repositories.js";
+import { giteaAppRepository } from "./oauth-source-apps.js";
 import { fullImageNameWithoutTag, parseDockerImage } from "../applications/docker-image.js";
 import { CONTAINER_NAME_PATTERN, DOCKER_IMAGE_NAME_PATTERN, DOCKER_IMAGE_TAG_PATTERN, PORT_MAPPINGS_PATTERN, PORTS_EXPOSES_PATTERN, SHELL_SAFE_COMMAND_PATTERN } from "../applications/validation.js";
 import { DIRECTORY_PATH_PATTERN, FILE_PATH_PATTERN } from "../applications/create.js";
@@ -83,9 +86,9 @@ import { rowValue } from "./models.js";
 import { addError, descriptionRules, nameRules, readApiBody, validationFailed, type Errors } from "./request.js";
 import { validateRules, type Rule, type Rules } from "./rules.js";
 
-export type CreateType = "public" | "private-deploy-key" | "private-gh-app" | "dockerfile" | "dockerimage";
+export type CreateType = "public" | "private-deploy-key" | "private-gh-app" | "private-gitea-app" | "dockerfile" | "dockerimage";
 /** The path segment after /applications of each type this file answers. */
-export const CREATE_TYPES: Record<string, CreateType> = { public: "public", "private-deploy-key": "private-deploy-key", "private-github-app": "private-gh-app", dockerfile: "dockerfile", dockerimage: "dockerimage" };
+export const CREATE_TYPES: Record<string, CreateType> = { public: "public", "private-deploy-key": "private-deploy-key", "private-github-app": "private-gh-app", "private-gitea-app": "private-gitea-app", dockerfile: "dockerfile", dockerimage: "dockerimage" };
 
 export const APPLICATION_CREATE_MESSAGES = {
   /** Freeploy's: queue_application_deployment() runs the deployment on the server. */
@@ -696,7 +699,7 @@ export async function createApplicationApi(c: ApiV1Context, type: CreateType, la
   const isPreserveRepositoryEnabled = requestBool(all, "is_preserve_repository_enabled", false);
   const applicationSettings = applicationSettingsFromRequest(all);
 
-  const requestedBuildPack = type === "public" || type === "private-deploy-key" || type === "private-gh-app" ? all.build_pack : type;
+  const requestedBuildPack = type === "public" || type === "private-deploy-key" || type === "private-gh-app" || type === "private-gitea-app" ? all.build_pack : type;
   if (applicationSettings.is_raw_compose_deployment_enabled === true && requestedBuildPack !== "dockercompose") {
     return stringError("is_raw_compose_deployment_enabled", "Raw compose deployment can only be enabled for Docker Compose applications.");
   }
@@ -749,11 +752,11 @@ export async function createApplicationApi(c: ApiV1Context, type: CreateType, la
     }
 
     // The type's own rules and defaults.
-    const git = type === "public" || type === "private-deploy-key" || type === "private-gh-app";
+    const git = type === "public" || type === "private-deploy-key" || type === "private-gh-app" || type === "private-gitea-app";
     if (git) {
       const own: Rules = [
-        // A GitHub App's repository is checked with GitHub instead (githubAppRepository()).
-        ["git_repository", type === "private-gh-app" ? ["string", "required"] : ["string", "required", validGitRepositoryUrl("git_repository")]],
+        // A GitHub App's repository is checked with GitHub instead (githubAppRepository()), a Gitea App's with its instance.
+        ["git_repository", type === "private-gh-app" || type === "private-gitea-app" ? ["string", "required"] : ["string", "required", validGitRepositoryUrl("git_repository")]],
         ["git_branch", ["string", "required", validGitBranch("git_branch")]],
         ["build_pack", ["required", enumRule(BUILD_PACKS)]],
         ["ports_exposes", ["string", { regex: PORTS_EXPOSES_PATTERN }, "nullable"]],
@@ -762,9 +765,9 @@ export async function createApplicationApi(c: ApiV1Context, type: CreateType, la
               ["private_key_uuid", ["string", "required"]],
               ["watch_paths", ["string", "nullable"]],
             ] as Rules)
-          : type === "private-gh-app"
+          : type === "private-gh-app" || type === "private-gitea-app"
             ? ([
-                ["github_app_uuid", ["string", "required"]],
+                [type === "private-gh-app" ? "github_app_uuid" : "gitea_app_uuid", ["string", "required"]],
                 ["watch_paths", ["string", "nullable"]],
               ] as Rules)
             : []),
@@ -808,14 +811,21 @@ export async function createApplicationApi(c: ApiV1Context, type: CreateType, la
       if (!(await c.allows(true))) return COOLIFY_API.unauthorized(POLICY_DENIALS.useTeamCredentials);
       privateKeyId = rowValue(key, "id") as string | number;
     }
-    let githubSource: { id: PhpValue; repositoryProjectId: PhpValue; slug: string } | null = null;
+    let githubSource: { id: PhpValue; repositoryProjectId: PhpValue; slug: string; morphClass: string } | null = null;
     if (type === "private-gh-app") {
       // $this->authorize('useTeamCredentials'), then githubAppRepository(): the App, its token and the repository (DP-93).
       if (!(await c.allows(true))) return COOLIFY_API.unauthorized(POLICY_DENIALS.useTeamCredentials);
       const slug = gitRepositorySlug(String(all.git_repository));
       const found = await githubAppRepository(tx, c, String(all.github_app_uuid), slug);
       if ("status" in found) return found;
-      githubSource = { id: rowValue(found.app, "id") as PhpValue, repositoryProjectId: found.repositoryProjectId, slug };
+      githubSource = { id: rowValue(found.app, "id") as PhpValue, repositoryProjectId: found.repositoryProjectId, slug, morphClass: "App\\Models\\GithubApp" };
+    }
+    if (type === "private-gitea-app") {
+      // $this->authorize('useTeamCredentials'), then giteaAppRepository(teamSourceByUuid(GiteaApp, …)) (DP-103).
+      if (!(await c.allows(true))) return COOLIFY_API.unauthorized(POLICY_DENIALS.useTeamCredentials);
+      const found = await giteaAppRepository(tx, c, String(all.gitea_app_uuid), String(all.git_repository));
+      if ("status" in found) return found;
+      githubSource = { id: rowValue(found.app, "id") as PhpValue, repositoryProjectId: found.repositoryProjectId, slug: found.repository, morphClass: "App\\Models\\GiteaApp" };
     }
     if (type === "dockerfile") {
       dockerfile = base64Value(all.dockerfile) ? decodeBase64Utf8(all.dockerfile as string) : null;
@@ -878,7 +888,7 @@ export async function createApplicationApi(c: ApiV1Context, type: CreateType, la
     }
     if (githubSource) {
       attrs.git_repository = phpTrim(githubSource.slug);
-      attrs.source_type = "App\\Models\\GithubApp";
+      attrs.source_type = githubSource.morphClass;
       attrs.source_id = githubSource.id;
       attrs.repository_project_id = githubSource.repositoryProjectId;
     }
@@ -919,7 +929,7 @@ export async function createApplicationApi(c: ApiV1Context, type: CreateType, la
     // applyApplicationSettings(), then the settings the controller sets one by one (only those its type sets).
     const settings: Partial<Record<ApiApplicationSettingColumn, ApiColumnValue>> = {};
     for (const [k, v] of Object.entries(applicationSettings)) settings[k as ApiApplicationSettingColumn] = columnValue(k, v);
-    const sets: Array<keyof typeof isset_> = type === "public" ? ["is_static", "is_spa", "is_auto_deploy_enabled", "is_force_https_enabled", "is_preview_deployments_enabled", "connect_to_docker_network", "is_build_server_enabled", "use_build_secrets"] : type === "private-deploy-key" || type === "private-gh-app" ? ["is_static", "is_spa", "is_auto_deploy_enabled", "is_force_https_enabled", "is_preview_deployments_enabled", "connect_to_docker_network", "is_build_server_enabled", "use_build_secrets"] : ["is_auto_deploy_enabled", "is_force_https_enabled", "is_preview_deployments_enabled", "connect_to_docker_network", "is_build_server_enabled", "use_build_secrets"];
+    const sets: Array<keyof typeof isset_> = type === "public" ? ["is_static", "is_spa", "is_auto_deploy_enabled", "is_force_https_enabled", "is_preview_deployments_enabled", "connect_to_docker_network", "is_build_server_enabled", "use_build_secrets"] : type === "private-deploy-key" || type === "private-gh-app" || type === "private-gitea-app" ? ["is_static", "is_spa", "is_auto_deploy_enabled", "is_force_https_enabled", "is_preview_deployments_enabled", "connect_to_docker_network", "is_build_server_enabled", "use_build_secrets"] : ["is_auto_deploy_enabled", "is_force_https_enabled", "is_preview_deployments_enabled", "connect_to_docker_network", "is_build_server_enabled", "use_build_secrets"];
     for (const k of sets) if (isset(isset_[k])) settings[k] = columnValue(k, isset_[k]);
     settings.is_container_label_escape_enabled = isContainerLabelEscapeEnabled;
     if (git) settings.is_preserve_repository_enabled = isPreserveRepositoryEnabled;

@@ -4,8 +4,8 @@
 //
 // Integrations → Sources (DP-72): /sources lists the org's Git sources and creates a GitHub App in Coolify's
 // "New GitHub App" dialog, which goes on to the App's page (/source/github/{uuid}) to register it with GitHub.
-// GitLab and Gitea Apps are listed when an org has one, but are not ported: the New source menu offers GitHub.
-// Freeploy is a hosted service, so the dialog has no "System wide" option and no GitHub Actions runners.
+// DP-103: the New source menu also offers a GitLab App and a Gitea / Forgejo App (SourceOauth.tsx's dialogs), which go
+// on to their pages. Freeploy is a hosted service, so the dialogs have no "System wide" option and no GitHub Actions runners.
 import { useEffect, useState, type FormEvent } from "react";
 import { Layout, useSignedIn } from "../layout/Layout";
 import { getJson, postJson, summarize } from "../lib/api";
@@ -13,6 +13,7 @@ import { notify } from "../lib/toast";
 import { showSourceFlash } from "../lib/source-flash";
 import { Reicon } from "../components/Reicon";
 import { Checkbox, Collapsible, DangerCallout, Empty, FormInput, ListSearchControls, ListSearchEmpty, ModalInput, StatusBadge, type ListViewMode } from "../components/Coolify";
+import { OauthCreateForm } from "./SourceOauth";
 
 export interface SourceItem {
   kind: "github" | "gitlab" | "gitea";
@@ -29,7 +30,7 @@ export const sourcesApi = (orgId: string | undefined) => `/v1/organizations/${or
 const VIEW_KEY = "coolify-sources-view";
 const COLUMNS = "grid-cols-[minmax(0,1fr)_minmax(10rem,.7fr)_9rem]";
 
-/** The page of a source: GitHub's is ported; GitLab's and Gitea's are not. */
+/** The page of a source (GitLab's and Gitea's since DP-103). */
 const sourceHref = (s: SourceItem): string => `/source/${s.kind}/${s.uuid}`;
 const statusLabel = (s: SourceItem): string => (s.connected ? "Connected" : s.kind === "github" ? "Setup incomplete" : "Setup required");
 
@@ -135,6 +136,8 @@ function SourcesContent() {
   const [viewMode, setViewMode] = useState<ListViewMode>(storedView);
   const [menu, setMenu] = useState(false);
   const [open, setOpen] = useState(false);
+  const [openGitlab, setOpenGitlab] = useState(false);
+  const [openGitea, setOpenGitea] = useState(false);
 
   useEffect(() => {
     showSourceFlash();
@@ -193,6 +196,34 @@ function SourcesContent() {
                   }
                 >
                   <GithubCreateForm defaultName={data.defaultName} canCreate={data.canCreate} />
+                </ModalInput>
+                <ModalInput
+                  title="New GitLab App"
+                  open={openGitlab}
+                  onOpenChange={setOpenGitlab}
+                  closeOutside={false}
+                  trigger={
+                    <button type="button" className="listbox-option justify-start! gap-2.5!" role="menuitem" onClick={() => setMenu(false)}>
+                      <Reicon name="sources" className="size-3.5 shrink-0 opacity-70" />
+                      GitLab App
+                    </button>
+                  }
+                >
+                  <OauthCreateForm kind="gitlab" defaultName={data.defaultName} canCreate={data.canCreate} />
+                </ModalInput>
+                <ModalInput
+                  title="New Gitea / Forgejo App"
+                  open={openGitea}
+                  onOpenChange={setOpenGitea}
+                  closeOutside={false}
+                  trigger={
+                    <button type="button" className="listbox-option justify-start! gap-2.5!" role="menuitem" onClick={() => setMenu(false)}>
+                      <Reicon name="sources" className="size-3.5 shrink-0 opacity-70" />
+                      Gitea / Forgejo App
+                    </button>
+                  }
+                >
+                  <OauthCreateForm kind="gitea" defaultName={data.defaultName} canCreate={data.canCreate} />
                 </ModalInput>
               </div>
             ) : null}

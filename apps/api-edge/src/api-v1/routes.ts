@@ -92,6 +92,13 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("GET", "/github-apps/{github_app_id}/repositories", "read", "deploy"),
   r("GET", "/github-apps/{github_app_id}/repositories/{owner}/{repo}/branches", "read", "deploy"),
 
+  // DP-103: GitLab Apps and Gitea Apps
+  r("GET", "/gitlab-apps", "read", "deploy"),
+  r("POST", "/gitlab-apps", "write", "deploy"),
+  r("PATCH", "/gitlab-apps/{gitlab_app_id}", "write", "deploy"),
+  r("DELETE", "/gitlab-apps/{gitlab_app_id}", "delete", "deploy"),
+  r("GET", "/gitea-apps", "read", "deploy"),
+
   // DP-90: cloud provider tokens
   r("GET", "/cloud-tokens", "read", "deploy"),
   r("POST", "/cloud-tokens", "write", "deploy"),
@@ -169,10 +176,11 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
 
   // DP-71
   r("GET", "/applications", "read", "deploy"),
-  // DP-87: the create types (DP-93: private-github-app; private-gitea-app is not ported)
+  // DP-87: the create types (DP-93: private-github-app; DP-103: private-gitea-app)
   r("POST", "/applications/public", "write", "deploy"),
   r("POST", "/applications/private-deploy-key", "write", "deploy"),
   r("POST", "/applications/private-github-app", "write", "deploy"),
+  r("POST", "/applications/private-gitea-app", "write", "deploy"),
   r("POST", "/applications/dockerfile", "write", "deploy"),
   r("POST", "/applications/dockerimage", "write", "deploy"),
   r("GET", "/applications/{uuid}", "read", "deploy"),

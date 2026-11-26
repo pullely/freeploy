@@ -1,0 +1,37 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-103
+  title: "DP6: GitLab and Gitea / Forgejo sources — their New source dialogs, their pages with the OAuth connection, Test connection and their repositories, and /api/v1 for GitLab Apps, Gitea Apps and POST /applications/private-gitea-app"
+spec:
+  goal: >-
+    Coolify's GitLab App and Gitea / Forgejo App sources are ported end to end the way DP-72 ported the GitHub App: the
+    Sources page's New source menu offers "GitLab App" and "Gitea / Forgejo App" (Create's dialogs, rules and defaults),
+    /source/gitlab/{uuid} and /source/gitea/{uuid} are Change's page — before the source is connected Coolify's three steps
+    (create an OAuth application on the instance with the console's redirect URI, enter its credentials, authorize with a
+    signed state), once connected its form, Test connection (with the token's refresh) and the applications that use it —
+    and /webhooks/source/{gitlab,gitea}/redirect hands the instance's code to deploy-core-worker, which exchanges it and
+    stores the tokens encrypted. deploy-core-worker answers a connected source's repositories and branches
+    (loadRepositories / loadBranches of GitlabPrivateRepository and GiteaPrivateRepository; New Resource's two flows that
+    would use them are not ported in the console), and /api/v1 gains the six operations of openapi.json for these sources (GET/POST /gitlab-apps,
+    PATCH/DELETE /gitlab-apps/{id}, GET /gitea-apps, POST /applications/private-gitea-app) — and PATCH /applications/{uuid}
+    with gitea_app_uuid, which DP-87 answered "Gitea App not found." — replayed against goldens emitted
+    by Coolify's PHP with the Gitea instance faked. Deploying stays blocked as for GitHub, and the GitLab and Gitea webhooks
+    still answer 501. The tables are 500_deploy_core's: no migration is needed.
+  affects:
+    - apps/deploy-web/**
+    - apps/deploy-core-worker/**
+    - apps/api-edge/src/api-v1/routes.ts
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - tests/api-edge/src/api-v1.test.ts
+    - specs/epics/freeploy-coolify-parity/**
+  doneWhen:
+    - apps/deploy-web/test/routes.test.ts maps /source/gitlab/{uuid}, /source/gitea/{uuid} and /webhooks/source/{gitlab,gitea}/redirect, and apps/deploy-web/test/oauth-source.test.ts holds the API URL derivation, Gitea's providers and getOAuthUrl() against PHP's http_build_query()
+    - tests/deploy-core-worker/src/sources-oauth.test.ts holds Create's and Change's rules, messages and toasts, Test connection with the refresh, the OAuth redirect's state checks and code exchange, the repositories and branches, and the 404 of a denied read or write that runs nothing
+    - tests/deploy-core-worker/src/api-v1-gitlab-gitea.test.ts replays the 54 goldens of the six /api/v1 operations and of PATCH /applications/{uuid} with gitea_app_uuid (fixtures/api, emitted again whole), and api-v1-denials.test.ts the three new policy denials
+    - tests/db/src/deploy-git-oauth-sources.test.ts runs the new queries on the schema at head, the tables' FORCE ROW LEVEL SECURITY and each org's rows kept to itself included
+    - node tools/parity/inventory.ts --check passes with the six operations ported (290 of openapi.json's 330, with DP-104's)
+    - on stage, a GitLab App is created, connected to gitlab.com through its OAuth application, tested and deleted, and a Gitea App's repositories are listed
+  gates: []

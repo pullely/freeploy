@@ -389,6 +389,25 @@ export async function fixtureDatabase(): Promise<FixtureDatabase> {
     );
   }
   await db.execute("SELECT setval(pg_get_serial_sequence('deploy.dns_provider_zones', 'id'), $1)", [Math.max(...f.dnsZones.map((z) => z.id))]);
+  // DP-103: the GitLab and Gitea Apps, their secrets encrypted with the org's key as the console stores them.
+  for (const [table, sources] of [["gitlab_apps", f.gitlabApps], ["gitea_apps", f.giteaApps]] as const) {
+    for (const g of sources) {
+      await withOrg(db, org(g.team), async (tx) => {
+        const secret = async (column: string, value: string | null | undefined) => (value === null || value === undefined ? null : encrypt(tx, g.team, `${table}.${column}`, value));
+        const [filter, webhook] = table === "gitlab_apps" ? ["group_name", "webhook_token"] : ["organization", "webhook_secret"];
+        await tx.execute(
+          `INSERT INTO deploy.${table} (id, uuid, name, html_url, api_url, custom_user, custom_port, ${filter}, client_id, client_secret, ${webhook}, access_token, refresh_token, expires_at, redirect_uri, is_system_wide, is_public, org_id, created_at, updated_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, false, false, $16, $17, $17)`,
+          [
+            g.id, g.uuid, g.name, g.html_url, g.api_url, g.custom_user, g.custom_port, table === "gitlab_apps" ? (g.group_name ?? null) : (g.organization ?? null), g.client_id,
+            await secret("client_secret", g.client_secret), await secret(webhook, table === "gitlab_apps" ? g.webhook_token : g.webhook_secret),
+            await secret("access_token", g.access_token), await secret("refresh_token", g.refresh_token), g.expires_at, g.redirect_uri, org(g.team), g.created_at,
+          ],
+        );
+      });
+    }
+    await db.execute(`SELECT setval(pg_get_serial_sequence('deploy.${table}', 'id'), $1)`, [Math.max(...sources.map((g) => g.id))]);
+  }
   return {
     pg,
     async inCase(fn) {

@@ -1,4 +1,4 @@
-# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85, DP-86, DP-87, DP-88, DP-90, DP-93, DP-104)
+# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85, DP-86, DP-87, DP-88, DP-90, DP-93, DP-103, DP-104)
 
 What Coolify's real API answers, so that Freeploy's `/api/v1` (api-edge's middleware and limiters,
 identity-worker's teams and tokens, deploy-core-worker's projects, environments, private keys and servers —
@@ -18,7 +18,8 @@ Sentinel, log drains, image scanning, Cloudflare Tunnel, host key, registries an
 Apps — DP-88 — and the cloud provider tokens, the Hetzner, DigitalOcean, Vultr and Hostinger catalogs and a server's proxy
 configuration — DP-90 — and a policy's denial on a route of each group, a GitHub App's repositories and branches, an
 application from a private repository through a GitHub App and a Hostinger server — DP-93 — and the integration tokens
-and a Cloudflare token's zones — DP-104) can be replayed against it byte for byte.
+and a Cloudflare token's zones — DP-104 — and the GitLab Apps, the Gitea Apps, an application from a private repository
+through a Gitea App and an application's source changed to one — DP-103) can be replayed against it byte for byte.
 
 | File | What it is |
 |---|---|
@@ -145,6 +146,18 @@ DNS record of a case is a row of `setupCoolify` (Coolify's secret_manager_links 
 The `after` queries read the JSON columns as `::jsonb::text`, `zones_synced_at` as whether it is set (Freeploy's clock is the
 test's), a created row's id as null and a zone's token as whether it is the fixture's. The goldens of the earlier cases
 are those already committed: emitted again, they differ only in random values. No masking is added.
+
+DP-103's replay (`src/api-v1-gitlab-gitea.test.ts`: GET/POST /gitlab-apps, PATCH/DELETE /gitlab-apps/{id}, GET /gitea-apps,
+POST /applications/private-gitea-app and PATCH /applications/{uuid} with `gitea_app_uuid`) adds three GitLab Apps and three
+Gitea Apps at the end of both fixtures (`gitlabApps`, `giteaApps`: two of team 1 — the first of each connected — and one of
+team 2), made through Coolify's models (the `encrypted` casts and GitlabApp's webhookToken() mutator) and stored encrypted with
+the org's key on Freeploy's side; no source uses a private key, so the earlier goldens change only in their random values: the whole file was emitted, and only the new cases' entries were inserted after DP-104's, the committed ones kept byte for byte. The connected sources' tokens
+expire in 2038: refreshGiteaToken() compares `expires_at` with PHP's `time()`, the real clock, which `Carbon::setTestNow()`
+does not fix, so a case that lets a token expire (`setup`) reads the refreshed expiry as later than the clock (`expires_later`).
+The Gitea instance is faked through `http` (DP-90's); the token refresh is a form, which emit.php records without a body
+(`json_decode()` of it is null) and the replay's fetch the same. The cases run as Coolify Cloud (`config.self_hosted` false),
+and three `denied:` cases are added (39 in all). The `after` queries read a source's secrets as whether they are set (`has_…`)
+and a created source's id as null. No masking is added.
 
 ## How the goldens are made
 
