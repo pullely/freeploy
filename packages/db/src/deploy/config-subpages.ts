@@ -93,7 +93,9 @@ export async function listApplicationMaintenanceServers(tx: SqlExecutor, applica
   );
   const seen = new Set<string>();
   const servers: DeployMaintenanceServerRow[] = [];
-  for (const { position: _position, added: _added, ...row } of r.rows) {
+  for (const { position, added, ...row } of r.rows) {
+    void position;
+    void added;
     if (seen.has(String(row.id))) continue;
     seen.add(String(row.id));
     servers.push(row);

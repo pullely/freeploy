@@ -68,7 +68,7 @@ function parseArgs(argv: string[]): ParsedArgs {
 
 async function resolveAdapter(
   mode: RunMode,
-  env: string,
+  _env: string,
 ): Promise<MigrationAdapter | null> {
   if (mode === "plan") {
     return null;
