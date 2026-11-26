@@ -1,0 +1,22 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-87
+  title: "DP9: /api/v1 for creating an application from a Docker image, a Dockerfile, a public repository or a deploy key, and updating one"
+spec:
+  goal: Coolify's /api/v1 answers, on DP-70's pipeline (api-edge's middleware and routes, deploy-core-worker's internal mount), for create_application() of four of its types — POST /applications/dockerimage, /applications/dockerfile, /applications/public and /applications/private-deploy-key — and for update_by_uuid() (PATCH /applications/{uuid}), with Coolify's checks in the controller's order (validateIncomingRequest(), customApiValidator() and the fields not allowed, sharedDataApplications() and each type's rules with Laravel's messages and the rule objects' — ValidGitBranch, ValidGitRepositoryUrl, DockerImageFormat, ManualWebhookSecret —, validateTagsParameter(), validateDataApplications(), the container name prefix and internal name, the shared image name, the HTTPS credentials, the domains with DP-52's rules and DP-74/DP-86's conflict check, the Docker Compose domains), every body in Coolify's own JSON bytes, and the rows the model's mutators and hooks store (the webhook secrets, the settings row, Nixpacks' NIXPACKS_NODE_VERSION, the domain's port overrides, the noindex flags, the build pack cleanup, the Dockerfile's HEALTHCHECK), the settings as the controller sets them and the labels wherever it makes them again. 5 more of openapi.json's 330 operations are ported (202 in all), each replayed byte for byte (masked ids, uuids, dates, the team) against goldens emitted by Coolify's real PHP, and each write's rows compared with the rows Coolify's left; the other 128 answer Coolify's 404 shape. Where Coolify queues work on the server — an instant deploy, LoadComposeFile of a Docker Compose application — Freeploy answers 501 in Coolify's envelope ("… needs the SSH executor, which is not available yet.") after Coolify's own checks and before anything is stored. Cut — POST /applications/private-github-app (it asks GitHub for an installation token and the repository, which no golden can reach) and /applications/private-gitea-app (Gitea is out of scope). There is no POST /applications/dockercompose at 91b7e3e.
+  affects:
+    - apps/api-edge/**
+    - apps/deploy-core-worker/**
+    - packages/db/**
+    - tests/api-edge/**
+    - tests/deploy-core-worker/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - every case of tests/deploy-core-worker/fixtures/api/cases.json (1450 cases, 158 of them DP-87's) replays against Freeploy byte-equal to goldens.json after the documented masking, except the listed departures (the four that answer 501) and the middleware answers, which tests/api-edge replays
+    - the rows each DP-87 write leaves in Freeploy's database (PGlite with the deploy schema at head) equal the golden's `after` rows — the created or updated application, its settings row, its variables and its tags — except the departures, which store nothing
+    - the earlier cases' goldens change only in random values (uuids, ciphertexts, generated passwords and names)
+    - specs/epics/freeploy-coolify-parity/parity/openapi.operations.json marks the 5 operations ported with taskKey DP-87 (202 ported of 330 in all), and node tools/parity/inventory.ts --check passes
+    - on stage, POST https://<edge>/api/v1/applications/dockerimage with a write token creates an application that GET /api/v1/applications/{uuid} answers, and PATCH /api/v1/applications/{uuid} changes its name
+  gates: []

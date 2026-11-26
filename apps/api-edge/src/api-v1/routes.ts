@@ -109,7 +109,14 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
 
   // DP-71
   r("GET", "/applications", "read", "deploy"),
+  // DP-87: the create types (private-github-app and private-gitea-app are not ported)
+  r("POST", "/applications/public", "write", "deploy"),
+  r("POST", "/applications/private-deploy-key", "write", "deploy"),
+  r("POST", "/applications/dockerfile", "write", "deploy"),
+  r("POST", "/applications/dockerimage", "write", "deploy"),
   r("GET", "/applications/{uuid}", "read", "deploy"),
+  // DP-87
+  r("PATCH", "/applications/{uuid}", "write", "deploy"),
   r("DELETE", "/applications/{uuid}", "delete", "deploy"),
   r("GET", "/applications/{uuid}/envs", "read", "deploy"),
   r("POST", "/applications/{uuid}/envs", "write", "deploy"),

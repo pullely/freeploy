@@ -1,4 +1,4 @@
-# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85, DP-86)
+# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85, DP-86, DP-87)
 
 What Coolify's real API answers, so that Freeploy's `/api/v1` (api-edge's middleware and limiters,
 identity-worker's teams and tokens, deploy-core-worker's projects, environments, private keys and servers —
@@ -11,7 +11,8 @@ S3 storages — DP-81 — and the storages of an application, a database and a s
 application and of a service, a database's environment variables and the team's shared variables — DP-84 — and the
 team's notification channels, a service's applications and databases, destinations, a server's shared variables and
 its Docker cleanup — DP-85 — and an application's previews and additional destinations, and moving, migrating and cloning
-applications, databases and services — DP-86) can be replayed against it byte for byte.
+applications, databases and services — DP-86 — and creating an application from a Docker image, a Dockerfile, a public
+repository and a repository with a deploy key, and updating one — DP-87) can be replayed against it byte for byte.
 
 | File | What it is |
 |---|---|
@@ -83,6 +84,14 @@ and a token with `read` and `deploy` (id 12: a preview's redeploy). A case may n
 an attached additional destination) is a row with Coolify's `team_id` on one side and Freeploy's `org_id`
 (`deploy.current_org()`) on the other. The `after` queries of a clone read the copy's random uuid as `<uuid>` inside its
 name, domain and volume names. No masking is added.
+DP-87's replay (`src/api-v1-application-create.test.ts`: the create types dockerimage, dockerfile, public and
+private-deploy-key, and PATCH /applications/{uuid}) adds no fixture rows. A created application is the one whose uuid
+is not the fixture's: the `after` queries read its random uuid as `<uuid>` inside its name, domain and labels, and the
+random part of a generated name (`new_public_id()`) as `<random>`; an update's `after` reads the fixture's two
+applications of team 1. A public github.com repository needs Coolify's public GitHub source (GithubApp id 0, which its
+seeder makes and emit.php's fixture leaves out): those cases make it with `setupCoolify` (Freeploy's is the
+`PUBLIC_GITHUB_SOURCE` constant). One masking is added: a uuid the request made where `generateUrl()` names a created
+application after it (`http://<uuid>.<host>` of the answer's `domains`) as `://<new-uuid>.`.
 
 ## How the goldens are made
 
@@ -131,7 +140,9 @@ Both sides go through the same masking before they are compared (`src/api-v1-gol
 - the answer of a created shared variable, `{"id":N}` (a body that is only an integer `id`), as `{"id":"<new-id>"}`: the
   sequence's next id, which earlier cases moved (DP-81);
 - the integer `id` of an object whose `uuid` the request made (a created storage, DP-84) as `<new-id>`, for the same
-  reason.
+  reason;
+- a uuid the request made where a generated domain starts with it (`http://<uuid>.<host>` of a created application's
+  `domains`) as `://<new-uuid>.` (DP-87).
 
 Everything else — every other key, its position, its type, every message — is compared byte for byte, the
 JSON written again by `phpJsonEncode` (PHP's `json_encode`, `\/` included); a test checks that it writes
