@@ -1,0 +1,18 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-77
+  title: "DP3 fix: account deletion counts the team's resources under row-level security"
+spec:
+  goal: Account deletion refuses while the user's team still holds projects, servers or Git sources. The count behind that check ran as a plain query on the deploy tables, which force row-level security, so it only saw rows when the connection's role bypassed RLS. It now runs inside withOrg(), so it counts the org's rows whatever role the worker connects as.
+  affects:
+    - packages/db/src/identity/account.ts
+    - apps/identity-worker/src/handlers/account.ts
+    - tests/db/src/identity-account-resource-count.test.ts
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - tests/db counts an org's projects and servers from a session subject to row-level security and gets 2 (the old query gets 0)
+    - on stage, a signed-in user whose team holds a server sees "Delete all projects, servers, and Git sources of the team" on /profile and cannot delete the account
+    - tests/db and tests/identity-worker pass
+  gates: []
