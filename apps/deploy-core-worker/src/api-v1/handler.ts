@@ -8,7 +8,7 @@
 //
 //   /v1/internal/api-v1/{org}/projects[/{uuid}[/environments[/{environment_name_or_uuid}]]]
 //   /v1/internal/api-v1/{org}/security/keys[/{uuid}]
-//   /v1/internal/api-v1/{org}/servers[/{uuid}[/validate]]
+//   /v1/internal/api-v1/{org}/servers[/{uuid}[/validate]] (DP-107: PATCH /servers/{uuid}, servers-update.ts)
 //   /v1/internal/api-v1/{org}/applications[/{uuid}[/envs[/bulk|/{env_uuid}]|/logs|/start|/restart|/stop]]   applications.ts (DP-71)
 //   /v1/internal/api-v1/{org}/databases[/{engine}|/{uuid}[/backups[/{backup}[/executions[/{execution}]]]|/start|/restart|/stop]]
 //                                                                                    databases.ts (DP-73)
@@ -52,6 +52,7 @@
 //   POST /v1/internal/api-v1/{org}/servers/hostinger                                                            hostinger-servers.ts (DP-93)
 //   /v1/internal/api-v1/{org}/{applications,services,databases}/{uuid}/secret-manager[/keys|/references|/import] secret-manager.ts (DP-106)
 //   GET|PATCH /v1/internal/api-v1/{org}/settings/email: the platform operator's (DP-101's row 0)                 instance-email.ts (DP-106)
+//   GET|POST /v1/internal/api-v1/{org}/disable, POST …/mcp/{enable,disable}: the platform operator's             instance-switches.ts (DP-107)
 //
 // $this->authorize(…) is policy-worker's deploy.resource.read (view) or deploy.resource.write (create,
 // update, delete) for the token's user; a denial is the exception handler's 403 (COOLIFY_API.unauthorized(), DP-93).
@@ -125,6 +126,8 @@ import { cloudProviderTokensApi } from "./cloud-provider-tokens.js";
 import { integrationTokensApi } from "./integration-tokens.js";
 import { SECRET_MANAGER_RESOURCE_TYPES, secretManagerApi, type SecretManagerResourceType } from "./secret-manager.js";
 import { instanceEmailApi } from "./instance-email.js";
+import { instanceSwitchesApi } from "./instance-switches.js";
+import { updateServerApi } from "./servers-update.js";
 import { runPlatformMoreAsAdmin, type PlatformMoreRunner } from "../handlers/platform-settings-more.js";
 import { dnsZones, resourceDnsApi } from "./dns.js";
 import { cloudCatalogsApi } from "./cloud-catalogs.js";
@@ -229,14 +232,15 @@ export async function handleApiV1(request: Request, env: Env, requestId: string,
       return send(await environmentDetails(context, second, third, () => authorize(false)));
     }
     if (first === "projects") return send(await projects(second, third, fourth, fifth));
-    // DP-106: the instance's email settings, the platform operator's.
+    // DP-106: the instance's email settings, the platform operator's (DP-107: and the instance's API and MCP switches).
+    const operator =
+      r.operator ??
+      (async (action: "platform.settings.read" | "platform.settings.update") =>
+        (await authorizeViaPolicy(env.POLICY_WORKER!, actor.subjectId, actor.subjectType, action, { kind: "platform", orgId: "platform" as never }, [], requestId)).allow);
     if (first === "settings" && second === "email" && third === undefined) {
-      const operator =
-        r.operator ??
-        (async (action: "platform.settings.read" | "platform.settings.update") =>
-          (await authorizeViaPolicy(env.POLICY_WORKER!, actor.subjectId, actor.subjectType, action, { kind: "platform", orgId: "platform" as never }, [], requestId)).allow);
       return send((await instanceEmailApi(context, { operator, platform: r.platform ?? runPlatformMoreAsAdmin })) ?? COOLIFY_API.notFound());
     }
+    if (first === "disable" || first === "mcp") return send((await instanceSwitchesApi(context, segments, { operator, platform: r.platform ?? runPlatformMoreAsAdmin })) ?? COOLIFY_API.notFound());
     // DP-106: a resource's secret manager source (routes/api.php's whereIn('resource_type', …) group).
     if (SECRET_MANAGER_RESOURCE_TYPES.includes(first ?? "") && second !== undefined && third === "secret-manager") {
       return send((await secretManagerApi(context, first as SecretManagerResourceType, second, segments.slice(3))) ?? COOLIFY_API.notFound());
@@ -265,6 +269,8 @@ export async function handleApiV1(request: Request, env: Env, requestId: string,
     if (first === "servers" && second !== undefined && (third === "transfer" || third === "migrate")) return send((await serverTransferApi(context, second, third, segments.slice(3))) ?? COOLIFY_API.notFound());
     // DP-93: a Hostinger VPS bought and stored as a server (routes/api.php puts it before /servers/{uuid}).
     if (first === "servers" && second === "hostinger" && third === undefined && method === "POST") return send(await createHostingerServer(context));
+    // DP-107: a server's update.
+    if (first === "servers" && second !== undefined && third === undefined && method === "PATCH") return send(await updateServerApi(context, second));
     if (first === "servers" && fourth === undefined) {
       const answer = await serversApi(context, second, third);
       if (answer) return send(answer);

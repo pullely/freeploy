@@ -38,9 +38,9 @@ export const SERVERS_API_MESSAGES = {
   validateUnavailable: "Validating the server needs the SSH executor, which is not available yet.",
 } as const;
 
-const SERVER_NAME_CONTROL_CHARACTERS = /[\x00-\x1F\x7F]/;
-const PROXY_TYPES = ["NONE", "TRAEFIK", "NGINX", "CADDY"];
-const SERVER_ROLES = ["deployment", "build", "both"];
+export const SERVER_NAME_CONTROL_CHARACTERS = /[\x00-\x1F\x7F]/;
+export const PROXY_TYPES = ["NONE", "TRAEFIK", "NGINX", "CADDY"];
+export const SERVER_ROLES = ["deployment", "build", "both"];
 const STANDALONE_DOCKER = "App\\Models\\StandaloneDocker";
 const DATE_SHAPE = { hidden: [], dates: ["created_at", "updated_at"] };
 
@@ -93,7 +93,7 @@ const serverServices = async (rows: Rows, server: ApiRow): Promise<Resource[]> =
   (await rows("services", "t.deleted_at IS NULL AND t.server_id = $1", [rowValue(server, "id")])).map((row) => ({ kind: "service" as const, type: "service", row }));
 
 /** primaryResources(): the primary applications, the databases, the services. */
-async function primaryResources(rows: Rows, server: ApiRow): Promise<Resource[]> {
+export async function primaryResources(rows: Rows, server: ApiRow): Promise<Resource[]> {
   const ids = await destinationIds(rows, server);
   return [...(await primaryApplications(rows, ids)).map((row) => ({ kind: "application" as const, type: "application", row })), ...(await serverDatabases(rows, ids)), ...(await serverServices(rows, server))];
 }
@@ -282,7 +282,7 @@ export function normalizeSshHostKeys(input: string | null): string | null {
 }
 
 /** Laravel's not_regex: a value that is neither a string nor a number fails it. */
-function notRegex(value: unknown, pattern: RegExp): boolean {
+export function notRegex(value: unknown, pattern: RegExp): boolean {
   if (typeof value !== "string" && typeof value !== "number") return false;
   return !pattern.test(String(value));
 }
@@ -330,7 +330,7 @@ async function validateCreate(all: Record<string, unknown>): Promise<Errors> {
 }
 
 /** legacyBuildServerRoleConflict(): is_build_server and server_role saying different things. */
-function legacyRoleConflict(all: Record<string, unknown>): CoolifyAnswer | null {
+export function legacyRoleConflict(all: Record<string, unknown>): CoolifyAnswer | null {
   if (!filled(all.is_build_server) || !filled(all.server_role)) return null;
   if (requestBool(all.is_build_server) === (String(all.server_role) === "build")) return null;
   return validationFailed([["is_build_server", ["is_build_server is deprecated and conflicts with server_role. Send only server_role."]]]);

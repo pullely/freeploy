@@ -12,6 +12,8 @@
 //
 //   GET    /v1/organizations/{org}/team                     Team\Index::mount: { team, canUpdate }
 //   PATCH  /v1/organizations/{org}/team                     Team\Index::submit { name, description }
+//   PATCH  /v1/organizations/{org}/team/settings            TeamController::update_current_team (DP-107): the two
+//                                                           settings of PATCH /api/v1/team, validated by identity-worker
 //   DELETE /v1/organizations/{org}/team                     Team\DangerZone::delete (DP-75, see team-danger.ts)
 //   GET    /v1/organizations/{org}/team/danger              Team\DangerZone: the state of danger-zone.blade.php
 //   GET    /v1/organizations/{org}/team/members             Member\Index: the members, the actor's role and abilities
@@ -38,6 +40,7 @@ import {
   createMembershipRepository,
   findTeam,
   updateTeam,
+  updateTeamSettings,
   listTeamMembers,
   findTeamMember,
   findTeamMemberBySubject,
@@ -55,6 +58,8 @@ import {
   deleteTeam,
   type TeamDeployResources,
   type TeamRecord,
+  type TeamSettingsChanges,
+  type TeamSettingsRecord,
   type TeamMemberRecord,
   type TeamInvitationRecord,
   type NewTeamInvitation,
@@ -152,6 +157,8 @@ export interface TeamStore {
   roleAssignments(orgId: string, subjectId: string): Promise<RoleAssignment[] | null>;
   team(orgId: string): Promise<TeamRecord | null>;
   updateTeam(orgId: string, name: string, description: string | null, now: Date): Promise<TeamRecord | null>;
+  /** DP-107: PATCH /api/v1/team's two settings. */
+  updateTeamSettings(orgId: string, changes: TeamSettingsChanges, now: Date): Promise<TeamSettingsRecord | null>;
   members(orgId: string): Promise<TeamMemberRecord[]>;
   member(orgId: string, memberId: string): Promise<TeamMemberRecord | null>;
   memberBySubject(orgId: string, subjectId: string): Promise<TeamMemberRecord | null>;
@@ -200,6 +207,7 @@ function sqlStore(tx: SqlExecutor, actor: ActorContext, requestId: string): Team
     },
     team: (orgId) => findTeam(tx, orgId),
     updateTeam: (orgId, name, description, now) => updateTeam(tx, orgId, name, description, now),
+    updateTeamSettings: (orgId, changes, now) => updateTeamSettings(tx, orgId, changes, now),
     members: (orgId) => listTeamMembers(tx, orgId),
     member: (orgId, memberId) => findTeamMember(tx, orgId, memberId),
     memberBySubject: (orgId, subjectId) => findTeamMemberBySubject(tx, orgId, subjectId),
@@ -391,6 +399,44 @@ export async function handleTeam(
           description: `Team ${orgPublicId(orgId)} updated`,
         });
         return successResponse({ team: publicTeam(updated), canUpdate: true, message: TEAM_TEXT.updated }, requestId);
+      }
+
+      // ── PATCH /api/v1/team (DP-107): TeamPolicy::update, then the two settings ──
+      if (section === "settings") {
+        if (id !== undefined) throw new Answer(notFound());
+        if (method !== "PATCH") return methodNotAllowed(requestId);
+        await need("organization.settings.update");
+        const changes: TeamSettingsChanges = {};
+        const errors: Record<string, string[]> = {};
+        for (const key of ["isBuildServerFallbackEnabled", "scanImagesOnNewServers"] as const) {
+          if (!(key in body)) continue;
+          if (typeof body[key] !== "boolean") errors[key] = ["Must be a boolean"];
+          else changes[key] = body[key] as boolean;
+        }
+        if (Object.keys(errors).length) return validationError(requestId, errors);
+        if (!Object.keys(changes).length) return validationError(requestId, { body: ["Nothing to update"] });
+        const updated = await store.updateTeamSettings(orgId, changes, now);
+        if (!updated) throw new Answer(notFound());
+        await store.event(orgId, {
+          type: "organization.updated",
+          subjectKind: "organization",
+          subjectId: orgId,
+          payload: { name: updated.name, isBuildServerFallbackEnabled: updated.isBuildServerFallbackEnabled, scanImagesOnNewServers: updated.scanImagesOnNewServers },
+          description: `Team ${orgPublicId(orgId)} updated`,
+        });
+        return successResponse(
+          {
+            organization: {
+              id: orgPublicId(orgId),
+              name: updated.name,
+              createdAt: updated.createdAt.toISOString(),
+              updatedAt: updated.updatedAt.toISOString(),
+              isBuildServerFallbackEnabled: updated.isBuildServerFallbackEnabled,
+              scanImagesOnNewServers: updated.scanImagesOnNewServers,
+            },
+          },
+          requestId,
+        );
       }
 
       // ── Team\DangerZone (DP-75) ───────────────────────────────────────

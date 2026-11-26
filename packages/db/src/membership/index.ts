@@ -20,10 +20,11 @@ export type {
 export { createMembershipRepository } from "./repository.js";
 export { effectiveBillingOrgId } from "./billing-scope.js";
 
-export type { TeamRecord, TeamMemberRecord, TeamInvitationRecord, NewTeamInvitation } from "./team.js";
+export type { TeamRecord, TeamMemberRecord, TeamInvitationRecord, NewTeamInvitation, TeamSettingsRecord, TeamSettingsChanges } from "./team.js";
 export {
   findTeam,
   updateTeam,
+  updateTeamSettings,
   listTeamMembers,
   findTeamMember,
   findTeamMemberBySubject,

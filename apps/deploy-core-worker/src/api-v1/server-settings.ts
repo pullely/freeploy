@@ -121,7 +121,7 @@ export const transferredAway = (f: Found): boolean => isTransferredAway({ server
 /** Server::isSentinelEnabled() */
 export const sentinelEnabled = (f: Found): boolean => !isBuildServer(f) && !isSwarm(f) && setting(f, "force_disabled") !== true && !transferredAway(f);
 /** Server::isLocalhost() */
-const isLocalhost = (f: Found): boolean => rowValue(f.server, "ip") === "host.docker.internal" || Number(rowValue(f.server, "id")) === 0;
+export const isLocalhost = (f: Found): boolean => rowValue(f.server, "ip") === "host.docker.internal" || Number(rowValue(f.server, "id")) === 0;
 
 /** $server->proxy as the model reads it: the retrieved hook gives redirect_enabled true when it is missing. */
 export function proxyOf(f: Found): Record<string, unknown> {
@@ -156,7 +156,7 @@ export async function saveSettings(tx: SqlExecutor, f: Found, changes: Record<st
 }
 
 /** ServerSetting::forgetSshHostKey(): a query update of the four host key columns, when one is set. */
-async function forgetSshHostKey(tx: SqlExecutor, f: Found): Promise<void> {
+export async function forgetSshHostKey(tx: SqlExecutor, f: Found): Promise<void> {
   if (blank(setting(f, "ssh_host_key")) && blank(setting(f, "ssh_host_key_pending"))) return;
   await tx.execute("UPDATE deploy.server_settings SET ssh_host_key = NULL, ssh_host_key_source = NULL, ssh_host_key_trusted_at = NULL, ssh_host_key_pending = NULL WHERE id = $1", [rowValue(f.settings, "id")]);
 }

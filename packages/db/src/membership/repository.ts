@@ -27,6 +27,8 @@ function mapOrganization(row: Record<string, unknown>): Organization {
     parentOrgId: (row.parent_org_id as string | null) ?? null,
     createdAt: new Date(row.created_at as string),
     updatedAt: new Date(row.updated_at as string),
+    ...(typeof row.is_build_server_fallback_enabled === "boolean" && { isBuildServerFallbackEnabled: row.is_build_server_fallback_enabled }),
+    ...(typeof row.scan_images_on_new_servers === "boolean" && { scanImagesOnNewServers: row.scan_images_on_new_servers }),
   };
 }
 

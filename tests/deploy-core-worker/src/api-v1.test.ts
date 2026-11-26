@@ -243,8 +243,11 @@ const DEPARTURES: Record<string, { status: number; body: string }> = {
   "servers: validate": { status: 501, body: '{"message":"Validating the server needs the SSH executor, which is not available yet."}' },
 };
 
-/** DP-78's server operations (creating, deleting, ?resources, a server's resources and domains) are replayed on Freeploy's database by api-v1-continued.test.ts. */
-const LATER = /^servers: (create|delete|show with resources|resources$|domains$)/;
+/**
+ * DP-78's server operations (creating, deleting, ?resources, a server's resources and domains) are replayed on Freeploy's
+ * database by api-v1-continued.test.ts, DP-107's update by api-v1-instance-servers.test.ts.
+ */
+const LATER = /^servers: (create|delete|update|show with resources|resources$|domains$)/;
 const OPERATION_CASES = CASES.cases.filter((c) => /^(projects|environments|keys|servers): /.test(c.name) && !LATER.test(c.name) && c.token && !MIDDLEWARE_ANSWERS.has(c.name));
 
 describe("the goldens", () => {

@@ -39,6 +39,8 @@ const uuid = () => `00000000-0000-4000-8000-${(++seq).toString(16).padStart(12, 
 
 class World {
   team: TeamRecord = { id: ORG, name: "Acme", slug: "acme", description: null };
+  /** DP-107: the team's two settings (migration 730's defaults) and when they last changed. */
+  settings = { isBuildServerFallbackEnabled: true, scanImagesOnNewServers: false, updatedAt: NOW };
   members: Array<TeamMemberRecord & { status: string }> = [];
   invitations: Array<TeamInvitationRecord> = [];
   events: TeamEvent[] = [];
@@ -77,6 +79,13 @@ class World {
       updateTeam: async (_o, name, description) => {
         w.team = { ...w.team, name, description };
         return { ...w.team };
+      },
+      updateTeamSettings: async (orgId, changes, now) => {
+        if (orgId !== ORG) return null;
+        const next = { ...w.settings, ...changes };
+        if (next.isBuildServerFallbackEnabled !== w.settings.isBuildServerFallbackEnabled || next.scanImagesOnNewServers !== w.settings.scanImagesOnNewServers) next.updatedAt = now;
+        w.settings = next;
+        return { id: ORG, name: w.team.name, createdAt: NOW, ...w.settings };
       },
       members: async () => w.active().map((m) => ({ ...m })),
       member: async (_o, id) => w.active().find((m) => m.memberId === id) ?? null,
@@ -236,6 +245,32 @@ describe("GET and PATCH /team (Team\\Index)", () => {
     const r = await call(w, OWNER, "PATCH", "", { name: "Parity User's Team" });
     expect(r.status).toBe(422);
     expect(r.json.error!.details!.fields!.name).toEqual(goldens.teamValidation.valid!.errors.name);
+  });
+});
+
+describe("PATCH /team/settings (PATCH /api/v1/team, DP-107)", () => {
+  test("owners and admins change the two settings; members, viewers and billing admins do not", async () => {
+    const { w } = world(OWNER, ADMIN, MEMBER, VIEWER, BILLING);
+    for (const p of [MEMBER, VIEWER, BILLING]) expect((await call(w, p, "PATCH", "/settings", { scanImagesOnNewServers: true })).status).toBe(404);
+    expect(w.settings.scanImagesOnNewServers).toBe(false);
+    const later = new Date(NOW.getTime() + 60_000);
+    const r = await call(w, ADMIN, "PATCH", "/settings", { isBuildServerFallbackEnabled: false, scanImagesOnNewServers: true }, w.deps({ now: later }));
+    expect(r.status).toBe(200);
+    expect(r.json.data).toEqual({
+      organization: { id: orgPublicId(ORG), name: "Acme", createdAt: NOW.toISOString(), updatedAt: later.toISOString(), isBuildServerFallbackEnabled: false, scanImagesOnNewServers: true },
+    });
+    expect(w.events.map((e) => e.type)).toEqual(["organization.updated"]);
+    // The same values again: nothing changes, not even the date.
+    const again = await call(w, OWNER, "PATCH", "/settings", { scanImagesOnNewServers: true }, w.deps({ now: new Date(later.getTime() + 60_000) }));
+    expect((again.json.data!.organization as { updatedAt: string }).updatedAt).toBe(later.toISOString());
+  });
+
+  test("takes booleans only, and something to change", async () => {
+    const { w } = world(OWNER);
+    expect((await call(w, OWNER, "PATCH", "/settings", { scanImagesOnNewServers: "1" })).status).toBe(422);
+    expect((await call(w, OWNER, "PATCH", "/settings", {})).status).toBe(422);
+    expect((await call(w, OWNER, "GET", "/settings")).status).toBe(405);
+    expect(w.settings.scanImagesOnNewServers).toBe(false);
   });
 });
 

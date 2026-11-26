@@ -36455,6 +36455,1484 @@
    "body": {
     "destination_uuid": "d1paritydestination00001"
    }
+  },
+  {
+   "name": "instance: disable the API, a team token",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/disable",
+   "after": {
+    "settings": "select is_api_enabled, is_mcp_server_enabled from instance_settings where id = 0"
+   }
+  },
+  {
+   "name": "instance: disable the API, a root-team token",
+   "method": "POST",
+   "path": "/api/v1/disable",
+   "authorization": "Bearer 51|rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f",
+   "rootTeamToken": {
+    "key": "root",
+    "user": 1,
+    "id": 51,
+    "abilities": [
+     "root"
+    ],
+    "secret": "rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f"
+   },
+   "setupCoolify": [
+    "insert into teams (id, name, description, personal_team, created_at, updated_at) values (0, 'Root Team', null, false, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into team_user (team_id, user_id, role, created_at, updated_at) values (0, 1, 'owner', '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (51, 'App\\Models\\User', 1, 'Root team root', encode(sha256('rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f'::bytea), 'hex'), '[\"root\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (52, 'App\\Models\\User', 1, 'Root team read', encode(sha256('rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f'::bytea), 'hex'), '[\"read\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (53, 'App\\Models\\User', 1, 'Root team sensitive', encode(sha256('rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f'::bytea), 'hex'), '[\"read\",\"read:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (54, 'App\\Models\\User', 1, 'Root team write', encode(sha256('rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f'::bytea), 'hex'), '[\"read\",\"write\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (55, 'App\\Models\\User', 1, 'Root team writeSensitive', encode(sha256('rtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtws4c1d2e3f'::bytea), 'hex'), '[\"read\",\"write:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')"
+   ],
+   "after": {
+    "settings": "select is_api_enabled, is_mcp_server_enabled from instance_settings where id = 0"
+   }
+  },
+  {
+   "name": "instance: disable the API, a root-team write token",
+   "method": "POST",
+   "path": "/api/v1/disable",
+   "authorization": "Bearer 54|rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f",
+   "rootTeamToken": {
+    "key": "write",
+    "user": 1,
+    "id": 54,
+    "abilities": [
+     "read",
+     "write"
+    ],
+    "secret": "rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f"
+   },
+   "setupCoolify": [
+    "insert into teams (id, name, description, personal_team, created_at, updated_at) values (0, 'Root Team', null, false, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into team_user (team_id, user_id, role, created_at, updated_at) values (0, 1, 'owner', '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (51, 'App\\Models\\User', 1, 'Root team root', encode(sha256('rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f'::bytea), 'hex'), '[\"root\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (52, 'App\\Models\\User', 1, 'Root team read', encode(sha256('rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f'::bytea), 'hex'), '[\"read\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (53, 'App\\Models\\User', 1, 'Root team sensitive', encode(sha256('rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f'::bytea), 'hex'), '[\"read\",\"read:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (54, 'App\\Models\\User', 1, 'Root team write', encode(sha256('rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f'::bytea), 'hex'), '[\"read\",\"write\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (55, 'App\\Models\\User', 1, 'Root team writeSensitive', encode(sha256('rtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtws4c1d2e3f'::bytea), 'hex'), '[\"read\",\"write:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')"
+   ],
+   "after": {
+    "settings": "select is_api_enabled, is_mcp_server_enabled from instance_settings where id = 0"
+   }
+  },
+  {
+   "name": "instance: disable the API, a root-team read token",
+   "method": "POST",
+   "path": "/api/v1/disable",
+   "authorization": "Bearer 52|rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f",
+   "rootTeamToken": {
+    "key": "read",
+    "user": 1,
+    "id": 52,
+    "abilities": [
+     "read"
+    ],
+    "secret": "rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f"
+   },
+   "setupCoolify": [
+    "insert into teams (id, name, description, personal_team, created_at, updated_at) values (0, 'Root Team', null, false, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into team_user (team_id, user_id, role, created_at, updated_at) values (0, 1, 'owner', '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (51, 'App\\Models\\User', 1, 'Root team root', encode(sha256('rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f'::bytea), 'hex'), '[\"root\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (52, 'App\\Models\\User', 1, 'Root team read', encode(sha256('rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f'::bytea), 'hex'), '[\"read\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (53, 'App\\Models\\User', 1, 'Root team sensitive', encode(sha256('rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f'::bytea), 'hex'), '[\"read\",\"read:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (54, 'App\\Models\\User', 1, 'Root team write', encode(sha256('rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f'::bytea), 'hex'), '[\"read\",\"write\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (55, 'App\\Models\\User', 1, 'Root team writeSensitive', encode(sha256('rtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtws4c1d2e3f'::bytea), 'hex'), '[\"read\",\"write:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')"
+   ],
+   "after": {
+    "settings": "select is_api_enabled, is_mcp_server_enabled from instance_settings where id = 0"
+   }
+  },
+  {
+   "name": "instance: disable the API, a team write token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/disable",
+   "after": {
+    "settings": "select is_api_enabled, is_mcp_server_enabled from instance_settings where id = 0"
+   }
+  },
+  {
+   "name": "instance: disable the API while it is disabled",
+   "token": "root",
+   "instance": {
+    "is_api_enabled": false
+   },
+   "method": "POST",
+   "path": "/api/v1/disable"
+  },
+  {
+   "name": "instance: disable the API with GET",
+   "token": "root",
+   "method": "GET",
+   "path": "/api/v1/disable"
+  },
+  {
+   "name": "instance: disable the API with GET, a read token",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/disable"
+  },
+  {
+   "name": "instance: disable the API, no token",
+   "method": "POST",
+   "path": "/api/v1/disable"
+  },
+  {
+   "name": "allowed: the instance routes refuse an address not allowed",
+   "token": "root",
+   "instance": {
+    "allowed_ips": "198.51.100.1"
+   },
+   "method": "POST",
+   "path": "/api/v1/mcp/enable"
+  },
+  {
+   "name": "allowed: the instance routes refuse an address not allowed, no token",
+   "instance": {
+    "allowed_ips": "198.51.100.1"
+   },
+   "method": "POST",
+   "path": "/api/v1/mcp/enable"
+  },
+  {
+   "name": "allowed: the instance routes refuse an address not allowed, a read token",
+   "token": "read",
+   "instance": {
+    "allowed_ips": "198.51.100.1"
+   },
+   "method": "POST",
+   "path": "/api/v1/mcp/enable"
+  },
+  {
+   "name": "allowed: the instance routes take an allowed address",
+   "token": "root",
+   "ip": "198.51.100.1",
+   "instance": {
+    "allowed_ips": "198.51.100.1"
+   },
+   "method": "POST",
+   "path": "/api/v1/mcp/enable"
+  },
+  {
+   "name": "instance: enable the MCP server, a root-team token",
+   "method": "POST",
+   "path": "/api/v1/mcp/enable",
+   "authorization": "Bearer 51|rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f",
+   "rootTeamToken": {
+    "key": "root",
+    "user": 1,
+    "id": 51,
+    "abilities": [
+     "root"
+    ],
+    "secret": "rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f"
+   },
+   "setupCoolify": [
+    "insert into teams (id, name, description, personal_team, created_at, updated_at) values (0, 'Root Team', null, false, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into team_user (team_id, user_id, role, created_at, updated_at) values (0, 1, 'owner', '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (51, 'App\\Models\\User', 1, 'Root team root', encode(sha256('rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f'::bytea), 'hex'), '[\"root\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (52, 'App\\Models\\User', 1, 'Root team read', encode(sha256('rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f'::bytea), 'hex'), '[\"read\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (53, 'App\\Models\\User', 1, 'Root team sensitive', encode(sha256('rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f'::bytea), 'hex'), '[\"read\",\"read:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (54, 'App\\Models\\User', 1, 'Root team write', encode(sha256('rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f'::bytea), 'hex'), '[\"read\",\"write\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (55, 'App\\Models\\User', 1, 'Root team writeSensitive', encode(sha256('rtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtws4c1d2e3f'::bytea), 'hex'), '[\"read\",\"write:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')"
+   ],
+   "after": {
+    "settings": "select is_api_enabled, is_mcp_server_enabled from instance_settings where id = 0"
+   }
+  },
+  {
+   "name": "instance: enable the MCP server, a root-team write token",
+   "method": "POST",
+   "path": "/api/v1/mcp/enable",
+   "authorization": "Bearer 54|rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f",
+   "rootTeamToken": {
+    "key": "write",
+    "user": 1,
+    "id": 54,
+    "abilities": [
+     "read",
+     "write"
+    ],
+    "secret": "rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f"
+   },
+   "setupCoolify": [
+    "insert into teams (id, name, description, personal_team, created_at, updated_at) values (0, 'Root Team', null, false, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into team_user (team_id, user_id, role, created_at, updated_at) values (0, 1, 'owner', '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (51, 'App\\Models\\User', 1, 'Root team root', encode(sha256('rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f'::bytea), 'hex'), '[\"root\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (52, 'App\\Models\\User', 1, 'Root team read', encode(sha256('rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f'::bytea), 'hex'), '[\"read\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (53, 'App\\Models\\User', 1, 'Root team sensitive', encode(sha256('rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f'::bytea), 'hex'), '[\"read\",\"read:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (54, 'App\\Models\\User', 1, 'Root team write', encode(sha256('rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f'::bytea), 'hex'), '[\"read\",\"write\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (55, 'App\\Models\\User', 1, 'Root team writeSensitive', encode(sha256('rtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtws4c1d2e3f'::bytea), 'hex'), '[\"read\",\"write:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')"
+   ],
+   "after": {
+    "settings": "select is_api_enabled, is_mcp_server_enabled from instance_settings where id = 0"
+   }
+  },
+  {
+   "name": "instance: enable the MCP server, a root-team read token",
+   "method": "POST",
+   "path": "/api/v1/mcp/enable",
+   "authorization": "Bearer 52|rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f",
+   "rootTeamToken": {
+    "key": "read",
+    "user": 1,
+    "id": 52,
+    "abilities": [
+     "read"
+    ],
+    "secret": "rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f"
+   },
+   "setupCoolify": [
+    "insert into teams (id, name, description, personal_team, created_at, updated_at) values (0, 'Root Team', null, false, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into team_user (team_id, user_id, role, created_at, updated_at) values (0, 1, 'owner', '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (51, 'App\\Models\\User', 1, 'Root team root', encode(sha256('rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f'::bytea), 'hex'), '[\"root\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (52, 'App\\Models\\User', 1, 'Root team read', encode(sha256('rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f'::bytea), 'hex'), '[\"read\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (53, 'App\\Models\\User', 1, 'Root team sensitive', encode(sha256('rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f'::bytea), 'hex'), '[\"read\",\"read:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (54, 'App\\Models\\User', 1, 'Root team write', encode(sha256('rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f'::bytea), 'hex'), '[\"read\",\"write\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (55, 'App\\Models\\User', 1, 'Root team writeSensitive', encode(sha256('rtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtws4c1d2e3f'::bytea), 'hex'), '[\"read\",\"write:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')"
+   ],
+   "after": {
+    "settings": "select is_api_enabled, is_mcp_server_enabled from instance_settings where id = 0"
+   }
+  },
+  {
+   "name": "instance: enable the MCP server, a team token",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/mcp/enable",
+   "after": {
+    "settings": "select is_api_enabled, is_mcp_server_enabled from instance_settings where id = 0"
+   }
+  },
+  {
+   "name": "instance: enable the MCP server while the API is disabled",
+   "instance": {
+    "is_api_enabled": false
+   },
+   "method": "POST",
+   "path": "/api/v1/mcp/enable",
+   "authorization": "Bearer 51|rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f",
+   "rootTeamToken": {
+    "key": "root",
+    "user": 1,
+    "id": 51,
+    "abilities": [
+     "root"
+    ],
+    "secret": "rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f"
+   },
+   "setupCoolify": [
+    "insert into teams (id, name, description, personal_team, created_at, updated_at) values (0, 'Root Team', null, false, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into team_user (team_id, user_id, role, created_at, updated_at) values (0, 1, 'owner', '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (51, 'App\\Models\\User', 1, 'Root team root', encode(sha256('rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f'::bytea), 'hex'), '[\"root\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (52, 'App\\Models\\User', 1, 'Root team read', encode(sha256('rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f'::bytea), 'hex'), '[\"read\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (53, 'App\\Models\\User', 1, 'Root team sensitive', encode(sha256('rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f'::bytea), 'hex'), '[\"read\",\"read:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (54, 'App\\Models\\User', 1, 'Root team write', encode(sha256('rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f'::bytea), 'hex'), '[\"read\",\"write\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (55, 'App\\Models\\User', 1, 'Root team writeSensitive', encode(sha256('rtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtws4c1d2e3f'::bytea), 'hex'), '[\"read\",\"write:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')"
+   ],
+   "after": {
+    "settings": "select is_api_enabled, is_mcp_server_enabled from instance_settings where id = 0"
+   }
+  },
+  {
+   "name": "instance: enable the MCP server, already enabled",
+   "method": "POST",
+   "path": "/api/v1/mcp/enable",
+   "authorization": "Bearer 51|rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f",
+   "rootTeamToken": {
+    "key": "root",
+    "user": 1,
+    "id": 51,
+    "abilities": [
+     "root"
+    ],
+    "secret": "rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f"
+   },
+   "setupCoolify": [
+    "insert into teams (id, name, description, personal_team, created_at, updated_at) values (0, 'Root Team', null, false, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into team_user (team_id, user_id, role, created_at, updated_at) values (0, 1, 'owner', '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (51, 'App\\Models\\User', 1, 'Root team root', encode(sha256('rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f'::bytea), 'hex'), '[\"root\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (52, 'App\\Models\\User', 1, 'Root team read', encode(sha256('rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f'::bytea), 'hex'), '[\"read\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (53, 'App\\Models\\User', 1, 'Root team sensitive', encode(sha256('rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f'::bytea), 'hex'), '[\"read\",\"read:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (54, 'App\\Models\\User', 1, 'Root team write', encode(sha256('rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f'::bytea), 'hex'), '[\"read\",\"write\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (55, 'App\\Models\\User', 1, 'Root team writeSensitive', encode(sha256('rtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtws4c1d2e3f'::bytea), 'hex'), '[\"read\",\"write:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "update instance_settings set is_mcp_server_enabled = true where id = 0"
+   ],
+   "after": {
+    "settings": "select is_api_enabled, is_mcp_server_enabled from instance_settings where id = 0"
+   }
+  },
+  {
+   "name": "instance: disable the MCP server, a root-team token",
+   "method": "POST",
+   "path": "/api/v1/mcp/disable",
+   "authorization": "Bearer 51|rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f",
+   "rootTeamToken": {
+    "key": "root",
+    "user": 1,
+    "id": 51,
+    "abilities": [
+     "root"
+    ],
+    "secret": "rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f"
+   },
+   "setupCoolify": [
+    "insert into teams (id, name, description, personal_team, created_at, updated_at) values (0, 'Root Team', null, false, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into team_user (team_id, user_id, role, created_at, updated_at) values (0, 1, 'owner', '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (51, 'App\\Models\\User', 1, 'Root team root', encode(sha256('rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f'::bytea), 'hex'), '[\"root\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (52, 'App\\Models\\User', 1, 'Root team read', encode(sha256('rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f'::bytea), 'hex'), '[\"read\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (53, 'App\\Models\\User', 1, 'Root team sensitive', encode(sha256('rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f'::bytea), 'hex'), '[\"read\",\"read:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (54, 'App\\Models\\User', 1, 'Root team write', encode(sha256('rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f'::bytea), 'hex'), '[\"read\",\"write\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (55, 'App\\Models\\User', 1, 'Root team writeSensitive', encode(sha256('rtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtws4c1d2e3f'::bytea), 'hex'), '[\"read\",\"write:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "update instance_settings set is_mcp_server_enabled = true where id = 0"
+   ],
+   "after": {
+    "settings": "select is_api_enabled, is_mcp_server_enabled from instance_settings where id = 0"
+   }
+  },
+  {
+   "name": "instance: disable the MCP server, already disabled",
+   "method": "POST",
+   "path": "/api/v1/mcp/disable",
+   "authorization": "Bearer 54|rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f",
+   "rootTeamToken": {
+    "key": "write",
+    "user": 1,
+    "id": 54,
+    "abilities": [
+     "read",
+     "write"
+    ],
+    "secret": "rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f"
+   },
+   "setupCoolify": [
+    "insert into teams (id, name, description, personal_team, created_at, updated_at) values (0, 'Root Team', null, false, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into team_user (team_id, user_id, role, created_at, updated_at) values (0, 1, 'owner', '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (51, 'App\\Models\\User', 1, 'Root team root', encode(sha256('rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f'::bytea), 'hex'), '[\"root\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (52, 'App\\Models\\User', 1, 'Root team read', encode(sha256('rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f'::bytea), 'hex'), '[\"read\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (53, 'App\\Models\\User', 1, 'Root team sensitive', encode(sha256('rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f'::bytea), 'hex'), '[\"read\",\"read:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (54, 'App\\Models\\User', 1, 'Root team write', encode(sha256('rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f'::bytea), 'hex'), '[\"read\",\"write\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (55, 'App\\Models\\User', 1, 'Root team writeSensitive', encode(sha256('rtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtws4c1d2e3f'::bytea), 'hex'), '[\"read\",\"write:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')"
+   ],
+   "after": {
+    "settings": "select is_api_enabled, is_mcp_server_enabled from instance_settings where id = 0"
+   }
+  },
+  {
+   "name": "instance: disable the MCP server, a team token",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/mcp/disable",
+   "setupCoolify": [
+    "update instance_settings set is_mcp_server_enabled = true where id = 0"
+   ],
+   "after": {
+    "settings": "select is_api_enabled, is_mcp_server_enabled from instance_settings where id = 0"
+   }
+  },
+  {
+   "name": "instance: disable the MCP server, a member",
+   "token": "memberRead",
+   "method": "POST",
+   "path": "/api/v1/mcp/disable"
+  },
+  {
+   "name": "instance: enable the MCP server with GET",
+   "token": "root",
+   "method": "GET",
+   "path": "/api/v1/mcp/enable"
+  },
+  {
+   "name": "instance: enable the MCP server with a body",
+   "method": "POST",
+   "path": "/api/v1/mcp/enable",
+   "authorization": "Bearer 51|rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f",
+   "rootTeamToken": {
+    "key": "root",
+    "user": 1,
+    "id": 51,
+    "abilities": [
+     "root"
+    ],
+    "secret": "rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f"
+   },
+   "setupCoolify": [
+    "insert into teams (id, name, description, personal_team, created_at, updated_at) values (0, 'Root Team', null, false, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into team_user (team_id, user_id, role, created_at, updated_at) values (0, 1, 'owner', '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (51, 'App\\Models\\User', 1, 'Root team root', encode(sha256('rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f'::bytea), 'hex'), '[\"root\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (52, 'App\\Models\\User', 1, 'Root team read', encode(sha256('rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f'::bytea), 'hex'), '[\"read\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (53, 'App\\Models\\User', 1, 'Root team sensitive', encode(sha256('rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f'::bytea), 'hex'), '[\"read\",\"read:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (54, 'App\\Models\\User', 1, 'Root team write', encode(sha256('rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f'::bytea), 'hex'), '[\"read\",\"write\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (55, 'App\\Models\\User', 1, 'Root team writeSensitive', encode(sha256('rtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtws4c1d2e3f'::bytea), 'hex'), '[\"read\",\"write:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')"
+   ],
+   "body": {
+    "enabled": false
+   },
+   "after": {
+    "settings": "select is_api_enabled, is_mcp_server_enabled from instance_settings where id = 0"
+   }
+  },
+  {
+   "name": "team: update both settings",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/team",
+   "body": {
+    "is_build_server_fallback_enabled": false,
+    "scan_images_on_new_servers": true
+   },
+   "after": {
+    "team": "select name, description, is_build_server_fallback_enabled, scan_images_on_new_servers from teams where id = 1"
+   }
+  },
+  {
+   "name": "team: update the build server fallback",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/team",
+   "body": {
+    "is_build_server_fallback_enabled": "0"
+   },
+   "after": {
+    "team": "select name, description, is_build_server_fallback_enabled, scan_images_on_new_servers from teams where id = 1"
+   }
+  },
+  {
+   "name": "team: update image scanning of new servers",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/team",
+   "body": {
+    "scan_images_on_new_servers": 1
+   },
+   "after": {
+    "team": "select name, description, is_build_server_fallback_enabled, scan_images_on_new_servers from teams where id = 1"
+   }
+  },
+  {
+   "name": "team: update, the same values",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/team",
+   "body": {
+    "is_build_server_fallback_enabled": true,
+    "scan_images_on_new_servers": false
+   },
+   "after": {
+    "team": "select name, description, is_build_server_fallback_enabled, scan_images_on_new_servers from teams where id = 1"
+   }
+  },
+  {
+   "name": "team: update, nothing",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/team",
+   "raw": "{}",
+   "after": {
+    "team": "select name, description, is_build_server_fallback_enabled, scan_images_on_new_servers from teams where id = 1"
+   }
+  },
+  {
+   "name": "team: update, no body",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/team",
+   "after": {
+    "team": "select name, description, is_build_server_fallback_enabled, scan_images_on_new_servers from teams where id = 1"
+   }
+  },
+  {
+   "name": "team: update, values that are not booleans",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/team",
+   "body": {
+    "is_build_server_fallback_enabled": "yes",
+    "scan_images_on_new_servers": 2
+   },
+   "after": {
+    "team": "select name, description, is_build_server_fallback_enabled, scan_images_on_new_servers from teams where id = 1"
+   }
+  },
+  {
+   "name": "team: update, null values",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/team",
+   "body": {
+    "is_build_server_fallback_enabled": null,
+    "scan_images_on_new_servers": null
+   },
+   "after": {
+    "team": "select name, description, is_build_server_fallback_enabled, scan_images_on_new_servers from teams where id = 1"
+   }
+  },
+  {
+   "name": "team: update, one null value",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/team",
+   "body": {
+    "is_build_server_fallback_enabled": null,
+    "scan_images_on_new_servers": true
+   },
+   "after": {
+    "team": "select name, description, is_build_server_fallback_enabled, scan_images_on_new_servers from teams where id = 1"
+   }
+  },
+  {
+   "name": "team: update, the name and description",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/team",
+   "body": {
+    "name": "Renamed",
+    "description": "New",
+    "scan_images_on_new_servers": true
+   },
+   "after": {
+    "team": "select name, description, is_build_server_fallback_enabled, scan_images_on_new_servers from teams where id = 1"
+   }
+  },
+  {
+   "name": "team: update, only fields that are not allowed",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/team",
+   "body": {
+    "name": "Renamed"
+   },
+   "after": {
+    "team": "select name, description, is_build_server_fallback_enabled, scan_images_on_new_servers from teams where id = 1"
+   }
+  },
+  {
+   "name": "team: update, a field in the query",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/team?scan_images_on_new_servers=1",
+   "body": {
+    "is_build_server_fallback_enabled": false
+   },
+   "after": {
+    "team": "select name, description, is_build_server_fallback_enabled, scan_images_on_new_servers from teams where id = 1"
+   }
+  },
+  {
+   "name": "team: update with a read token",
+   "token": "read",
+   "method": "PATCH",
+   "path": "/api/v1/team",
+   "body": {
+    "scan_images_on_new_servers": true
+   }
+  },
+  {
+   "name": "team: update, then show",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/team",
+   "sequence": [
+    {
+     "token": "write",
+     "method": "PATCH",
+     "path": "/api/v1/team",
+     "body": {
+      "is_build_server_fallback_enabled": false,
+      "scan_images_on_new_servers": true
+     }
+    },
+    {
+     "token": "read",
+     "method": "GET",
+     "path": "/api/v1/team"
+    }
+   ]
+  },
+  {
+   "name": "servers: update, the name and description",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "body": {
+    "name": "renamed-server",
+    "description": "Renamed"
+   },
+   "after": {
+    "server": "select name, description, ip, ip_previous, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status from servers where id = 1",
+    "settings": "select server_role, is_build_server, is_terminal_enabled, concurrent_builds, dynamic_timeout, deployment_queue_limit, server_disk_usage_notification_threshold, server_disk_usage_check_frequency, server_disk_usage_notification_interval_hours, connection_timeout, server_timezone, backup_compression_cpu_percentage, wildcard_domain, public_ipv4, public_ipv6, ssh_host_key, ssh_host_key_source, ssh_host_key_trusted_at is not null as host_key_trusted from server_settings where server_id = 1"
+   }
+  },
+  {
+   "name": "servers: update, the connection",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "setup": [
+    "update server_settings set ssh_host_key = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl', ssh_host_key_source = 'api', ssh_host_key_trusted_at = '2025-12-31 00:00:00' where server_id = 1"
+   ],
+   "body": {
+    "ip": "203.0.113.40",
+    "port": 2222,
+    "user": "deploy",
+    "private_key_uuid": "k2unusedprivatekey000002"
+   },
+   "after": {
+    "server": "select name, description, ip, ip_previous, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status from servers where id = 1",
+    "settings": "select server_role, is_build_server, is_terminal_enabled, concurrent_builds, dynamic_timeout, deployment_queue_limit, server_disk_usage_notification_threshold, server_disk_usage_check_frequency, server_disk_usage_notification_interval_hours, connection_timeout, server_timezone, backup_compression_cpu_percentage, wildcard_domain, public_ipv4, public_ipv6, ssh_host_key, ssh_host_key_source, ssh_host_key_trusted_at is not null as host_key_trusted from server_settings where server_id = 1"
+   }
+  },
+  {
+   "name": "servers: update, the same connection",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "setup": [
+    "update server_settings set ssh_host_key = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl', ssh_host_key_source = 'api', ssh_host_key_trusted_at = '2025-12-31 00:00:00' where server_id = 1"
+   ],
+   "body": {
+    "ip": "203.0.113.10",
+    "port": "22",
+    "user": "root",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "after": {
+    "server": "select name, description, ip, ip_previous, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status from servers where id = 1",
+    "settings": "select server_role, is_build_server, is_terminal_enabled, concurrent_builds, dynamic_timeout, deployment_queue_limit, server_disk_usage_notification_threshold, server_disk_usage_check_frequency, server_disk_usage_notification_interval_hours, connection_timeout, server_timezone, backup_compression_cpu_percentage, wildcard_domain, public_ipv4, public_ipv6, ssh_host_key, ssh_host_key_source, ssh_host_key_trusted_at is not null as host_key_trusted from server_settings where server_id = 1"
+   }
+  },
+  {
+   "name": "servers: update, the user only",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "setup": [
+    "update server_settings set ssh_host_key = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl', ssh_host_key_source = 'api', ssh_host_key_trusted_at = '2025-12-31 00:00:00' where server_id = 1"
+   ],
+   "body": {
+    "user": " admin "
+   },
+   "after": {
+    "server": "select name, description, ip, ip_previous, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status from servers where id = 1",
+    "settings": "select server_role, is_build_server, is_terminal_enabled, concurrent_builds, dynamic_timeout, deployment_queue_limit, server_disk_usage_notification_threshold, server_disk_usage_check_frequency, server_disk_usage_notification_interval_hours, connection_timeout, server_timezone, backup_compression_cpu_percentage, wildcard_domain, public_ipv4, public_ipv6, ssh_host_key, ssh_host_key_source, ssh_host_key_trusted_at is not null as host_key_trusted from server_settings where server_id = 1"
+   }
+  },
+  {
+   "name": "servers: update, every setting",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "body": {
+    "concurrent_builds": 4,
+    "dynamic_timeout": "7200",
+    "deployment_queue_limit": 10,
+    "server_disk_usage_notification_threshold": 90,
+    "server_disk_usage_check_frequency": "0 * * * *",
+    "server_disk_usage_notification_interval_hours": 24,
+    "connection_timeout": 30,
+    "server_timezone": "Europe/Berlin",
+    "backup_compression_cpu_percentage": 50,
+    "is_terminal_enabled": false,
+    "wildcard_domain": "https://apps.example.com",
+    "public_ipv4": "203.0.113.11",
+    "public_ipv6": "2001:db8::11"
+   },
+   "after": {
+    "server": "select name, description, ip, ip_previous, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status from servers where id = 1",
+    "settings": "select server_role, is_build_server, is_terminal_enabled, concurrent_builds, dynamic_timeout, deployment_queue_limit, server_disk_usage_notification_threshold, server_disk_usage_check_frequency, server_disk_usage_notification_interval_hours, connection_timeout, server_timezone, backup_compression_cpu_percentage, wildcard_domain, public_ipv4, public_ipv6, ssh_host_key, ssh_host_key_source, ssh_host_key_trusted_at is not null as host_key_trusted from server_settings where server_id = 1"
+   }
+  },
+  {
+   "name": "servers: update, a human frequency",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "body": {
+    "server_disk_usage_check_frequency": "daily",
+    "is_terminal_enabled": "1"
+   },
+   "after": {
+    "server": "select name, description, ip, ip_previous, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status from servers where id = 1",
+    "settings": "select server_role, is_build_server, is_terminal_enabled, concurrent_builds, dynamic_timeout, deployment_queue_limit, server_disk_usage_notification_threshold, server_disk_usage_check_frequency, server_disk_usage_notification_interval_hours, connection_timeout, server_timezone, backup_compression_cpu_percentage, wildcard_domain, public_ipv4, public_ipv6, ssh_host_key, ssh_host_key_source, ssh_host_key_trusted_at is not null as host_key_trusted from server_settings where server_id = 1"
+   }
+  },
+  {
+   "name": "servers: update, settings cleared",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "setup": [
+    "update server_settings set wildcard_domain = 'https://old.example.com', public_ipv4 = '203.0.113.11' where server_id = 1"
+   ],
+   "body": {
+    "wildcard_domain": null,
+    "public_ipv4": null,
+    "public_ipv6": null,
+    "is_terminal_enabled": null,
+    "concurrent_builds": null,
+    "description": null
+   },
+   "after": {
+    "server": "select name, description, ip, ip_previous, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status from servers where id = 1",
+    "settings": "select server_role, is_build_server, is_terminal_enabled, concurrent_builds, dynamic_timeout, deployment_queue_limit, server_disk_usage_notification_threshold, server_disk_usage_check_frequency, server_disk_usage_notification_interval_hours, connection_timeout, server_timezone, backup_compression_cpu_percentage, wildcard_domain, public_ipv4, public_ipv6, ssh_host_key, ssh_host_key_source, ssh_host_key_trusted_at is not null as host_key_trusted from server_settings where server_id = 1"
+   }
+  },
+  {
+   "name": "servers: update, invalid fields",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "body": {
+    "name": "a\nb",
+    "description": "<bad>",
+    "ip": "not an ip!",
+    "port": 70000,
+    "user": "-root",
+    "private_key_uuid": 5,
+    "server_role": "worker",
+    "is_build_server": "yes",
+    "instant_validate": "no",
+    "proxy_type": 3,
+    "concurrent_builds": 0,
+    "dynamic_timeout": "x",
+    "deployment_queue_limit": 0,
+    "server_disk_usage_notification_threshold": 101,
+    "server_disk_usage_check_frequency": 5,
+    "server_disk_usage_notification_interval_hours": 721,
+    "connection_timeout": 301,
+    "is_terminal_enabled": "maybe",
+    "wildcard_domain": "not a url",
+    "public_ipv4": "1.2.3",
+    "public_ipv6": "zz::1",
+    "server_timezone": "Mars/Base",
+    "backup_compression_cpu_percentage": 30,
+    "ssh_host_key": "x",
+    "extra": 1
+   },
+   "after": {
+    "server": "select name, description, ip, ip_previous, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status from servers where id = 1",
+    "settings": "select server_role, is_build_server, is_terminal_enabled, concurrent_builds, dynamic_timeout, deployment_queue_limit, server_disk_usage_notification_threshold, server_disk_usage_check_frequency, server_disk_usage_notification_interval_hours, connection_timeout, server_timezone, backup_compression_cpu_percentage, wildcard_domain, public_ipv4, public_ipv6, ssh_host_key, ssh_host_key_source, ssh_host_key_trusted_at is not null as host_key_trusted from server_settings where server_id = 1"
+   }
+  },
+  {
+   "name": "servers: update, a short name and a port that is not a number",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "body": {
+    "name": "ab",
+    "port": "ssh",
+    "public_ipv4": "2001:db8::1",
+    "public_ipv6": "203.0.113.11",
+    "backup_compression_cpu_percentage": "abc"
+   }
+  },
+  {
+   "name": "servers: update, an empty timezone",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "body": {
+    "server_timezone": ""
+   }
+  },
+  {
+   "name": "servers: update, a timezone that is not a string",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "body": {
+    "server_timezone": 5
+   }
+  },
+  {
+   "name": "servers: update, a null timezone",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "body": {
+    "server_timezone": null
+   }
+  },
+  {
+   "name": "servers: update, an empty name",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "body": {
+    "name": "",
+    "user": ""
+   },
+   "after": {
+    "server": "select name, description, ip, ip_previous, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status from servers where id = 1",
+    "settings": "select server_role, is_build_server, is_terminal_enabled, concurrent_builds, dynamic_timeout, deployment_queue_limit, server_disk_usage_notification_threshold, server_disk_usage_check_frequency, server_disk_usage_notification_interval_hours, connection_timeout, server_timezone, backup_compression_cpu_percentage, wildcard_domain, public_ipv4, public_ipv6, ssh_host_key, ssh_host_key_source, ssh_host_key_trusted_at is not null as host_key_trusted from server_settings where server_id = 1"
+   }
+  },
+  {
+   "name": "servers: update, an invalid frequency",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "body": {
+    "server_disk_usage_check_frequency": "every now and then",
+    "name": "kept-out"
+   },
+   "after": {
+    "server": "select name, description, ip, ip_previous, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status from servers where id = 1",
+    "settings": "select server_role, is_build_server, is_terminal_enabled, concurrent_builds, dynamic_timeout, deployment_queue_limit, server_disk_usage_notification_threshold, server_disk_usage_check_frequency, server_disk_usage_notification_interval_hours, connection_timeout, server_timezone, backup_compression_cpu_percentage, wildcard_domain, public_ipv4, public_ipv6, ssh_host_key, ssh_host_key_source, ssh_host_key_trusted_at is not null as host_key_trusted from server_settings where server_id = 1"
+   }
+  },
+  {
+   "name": "servers: update, unknown",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/nonexistentuuid",
+   "body": {
+    "name": "renamed-server"
+   }
+  },
+  {
+   "name": "servers: update, unknown and invalid",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/nonexistentuuid",
+   "body": {
+    "port": 0
+   }
+  },
+  {
+   "name": "servers: update another team's",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s2otherteamserver0000002",
+   "body": {
+    "name": "mine-now"
+   }
+  },
+  {
+   "name": "servers: update, an endpoint in use",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "setupCoolify": [
+    "insert into servers (id, uuid, name, ip, team_id, private_key_id, proxy, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, 1, '{\"redirect_enabled\":true}', now(), now())",
+    "insert into server_settings (server_id, created_at, updated_at) values (3, now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, now(), now())"
+   ],
+   "setupFreeploy": [
+    "insert into servers (id, uuid, name, ip, private_key_id, proxy, org_id, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, '{\"redirect_enabled\":true}', deploy.current_org(), now(), now())",
+    "insert into server_settings (server_id, server_role, org_id, created_at, updated_at) values (3, 'both', deploy.current_org(), now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, org_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, deploy.current_org(), now(), now())"
+   ],
+   "body": {
+    "ip": "203.0.113.30"
+   },
+   "after": {
+    "server": "select name, description, ip, ip_previous, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status from servers where id = 1",
+    "settings": "select server_role, is_build_server, is_terminal_enabled, concurrent_builds, dynamic_timeout, deployment_queue_limit, server_disk_usage_notification_threshold, server_disk_usage_check_frequency, server_disk_usage_notification_interval_hours, connection_timeout, server_timezone, backup_compression_cpu_percentage, wildcard_domain, public_ipv4, public_ipv6, ssh_host_key, ssh_host_key_source, ssh_host_key_trusted_at is not null as host_key_trusted from server_settings where server_id = 1"
+   }
+  },
+  {
+   "name": "servers: update, the endpoint in use on another port",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "setupCoolify": [
+    "insert into servers (id, uuid, name, ip, team_id, private_key_id, proxy, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, 1, '{\"redirect_enabled\":true}', now(), now())",
+    "insert into server_settings (server_id, created_at, updated_at) values (3, now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, now(), now())"
+   ],
+   "setupFreeploy": [
+    "insert into servers (id, uuid, name, ip, private_key_id, proxy, org_id, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, '{\"redirect_enabled\":true}', deploy.current_org(), now(), now())",
+    "insert into server_settings (server_id, server_role, org_id, created_at, updated_at) values (3, 'both', deploy.current_org(), now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, org_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, deploy.current_org(), now(), now())"
+   ],
+   "body": {
+    "ip": "203.0.113.30",
+    "port": 2200
+   },
+   "after": {
+    "server": "select name, description, ip, ip_previous, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status from servers where id = 1",
+    "settings": "select server_role, is_build_server, is_terminal_enabled, concurrent_builds, dynamic_timeout, deployment_queue_limit, server_disk_usage_notification_threshold, server_disk_usage_check_frequency, server_disk_usage_notification_interval_hours, connection_timeout, server_timezone, backup_compression_cpu_percentage, wildcard_domain, public_ipv4, public_ipv6, ssh_host_key, ssh_host_key_source, ssh_host_key_trusted_at is not null as host_key_trusted from server_settings where server_id = 1"
+   }
+  },
+  {
+   "name": "servers: update, an invalid proxy type",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "body": {
+    "proxy_type": "apache",
+    "name": "kept-out"
+   },
+   "after": {
+    "server": "select name, description, ip, ip_previous, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status from servers where id = 1",
+    "settings": "select server_role, is_build_server, is_terminal_enabled, concurrent_builds, dynamic_timeout, deployment_queue_limit, server_disk_usage_notification_threshold, server_disk_usage_check_frequency, server_disk_usage_notification_interval_hours, connection_timeout, server_timezone, backup_compression_cpu_percentage, wildcard_domain, public_ipv4, public_ipv6, ssh_host_key, ssh_host_key_source, ssh_host_key_trusted_at is not null as host_key_trusted from server_settings where server_id = 1"
+   }
+  },
+  {
+   "name": "servers: update, an unknown private key",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "body": {
+    "private_key_uuid": "nonexistentuuid"
+   }
+  },
+  {
+   "name": "servers: update, another team's private key",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "body": {
+    "private_key_uuid": "k3otherteamkey0000000003"
+   }
+  },
+  {
+   "name": "servers: update, the legacy flag against the role",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "body": {
+    "is_build_server": true,
+    "server_role": "both"
+   }
+  },
+  {
+   "name": "servers: update, build only with resources",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "body": {
+    "server_role": "build"
+   },
+   "after": {
+    "server": "select name, description, ip, ip_previous, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status from servers where id = 1",
+    "settings": "select server_role, is_build_server, is_terminal_enabled, concurrent_builds, dynamic_timeout, deployment_queue_limit, server_disk_usage_notification_threshold, server_disk_usage_check_frequency, server_disk_usage_notification_interval_hours, connection_timeout, server_timezone, backup_compression_cpu_percentage, wildcard_domain, public_ipv4, public_ipv6, ssh_host_key, ssh_host_key_source, ssh_host_key_trusted_at is not null as host_key_trusted from server_settings where server_id = 1"
+   }
+  },
+  {
+   "name": "servers: update, build only with the legacy flag and resources",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "body": {
+    "is_build_server": true
+   }
+  },
+  {
+   "name": "servers: update, build only",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "setup": [
+    "update applications set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update services set deleted_at = '2025-12-31 00:00:00' where server_id = 1",
+    "update standalone_postgresqls set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_redis set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_mongodbs set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_mysqls set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_mariadbs set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_keydbs set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_dragonflies set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_clickhouses set deleted_at = '2025-12-31 00:00:00' where destination_id = 1"
+   ],
+   "body": {
+    "server_role": "build"
+   },
+   "after": {
+    "server": "select name, description, ip, ip_previous, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status from servers where id = 1",
+    "settings": "select server_role, is_build_server, is_terminal_enabled, concurrent_builds, dynamic_timeout, deployment_queue_limit, server_disk_usage_notification_threshold, server_disk_usage_check_frequency, server_disk_usage_notification_interval_hours, connection_timeout, server_timezone, backup_compression_cpu_percentage, wildcard_domain, public_ipv4, public_ipv6, ssh_host_key, ssh_host_key_source, ssh_host_key_trusted_at is not null as host_key_trusted from server_settings where server_id = 1"
+   }
+  },
+  {
+   "name": "servers: update, a build server back with the legacy flag",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "setup": [
+    "update applications set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update services set deleted_at = '2025-12-31 00:00:00' where server_id = 1",
+    "update standalone_postgresqls set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_redis set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_mongodbs set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_mysqls set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_mariadbs set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_keydbs set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_dragonflies set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_clickhouses set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update server_settings set server_role = 'build', is_build_server = true where server_id = 1"
+   ],
+   "body": {
+    "is_build_server": false
+   },
+   "after": {
+    "server": "select name, description, ip, ip_previous, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status from servers where id = 1",
+    "settings": "select server_role, is_build_server, is_terminal_enabled, concurrent_builds, dynamic_timeout, deployment_queue_limit, server_disk_usage_notification_threshold, server_disk_usage_check_frequency, server_disk_usage_notification_interval_hours, connection_timeout, server_timezone, backup_compression_cpu_percentage, wildcard_domain, public_ipv4, public_ipv6, ssh_host_key, ssh_host_key_source, ssh_host_key_trusted_at is not null as host_key_trusted from server_settings where server_id = 1"
+   }
+  },
+  {
+   "name": "servers: update, the legacy flag off on a regular server",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "body": {
+    "is_build_server": false
+   },
+   "after": {
+    "server": "select name, description, ip, ip_previous, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status from servers where id = 1",
+    "settings": "select server_role, is_build_server, is_terminal_enabled, concurrent_builds, dynamic_timeout, deployment_queue_limit, server_disk_usage_notification_threshold, server_disk_usage_check_frequency, server_disk_usage_notification_interval_hours, connection_timeout, server_timezone, backup_compression_cpu_percentage, wildcard_domain, public_ipv4, public_ipv6, ssh_host_key, ssh_host_key_source, ssh_host_key_trusted_at is not null as host_key_trusted from server_settings where server_id = 1"
+   }
+  },
+  {
+   "name": "servers: update, deployments only without a build server",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "body": {
+    "server_role": "deployment"
+   },
+   "after": {
+    "server": "select name, description, ip, ip_previous, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status from servers where id = 1",
+    "settings": "select server_role, is_build_server, is_terminal_enabled, concurrent_builds, dynamic_timeout, deployment_queue_limit, server_disk_usage_notification_threshold, server_disk_usage_check_frequency, server_disk_usage_notification_interval_hours, connection_timeout, server_timezone, backup_compression_cpu_percentage, wildcard_domain, public_ipv4, public_ipv6, ssh_host_key, ssh_host_key_source, ssh_host_key_trusted_at is not null as host_key_trusted from server_settings where server_id = 1"
+   }
+  },
+  {
+   "name": "servers: update, the same role",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "body": {
+    "server_role": "both"
+   },
+   "after": {
+    "server": "select name, description, ip, ip_previous, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status from servers where id = 1",
+    "settings": "select server_role, is_build_server, is_terminal_enabled, concurrent_builds, dynamic_timeout, deployment_queue_limit, server_disk_usage_notification_threshold, server_disk_usage_check_frequency, server_disk_usage_notification_interval_hours, connection_timeout, server_timezone, backup_compression_cpu_percentage, wildcard_domain, public_ipv4, public_ipv6, ssh_host_key, ssh_host_key_source, ssh_host_key_trusted_at is not null as host_key_trusted from server_settings where server_id = 1"
+   }
+  },
+  {
+   "name": "servers: update, the proxy type without deploy",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "body": {
+    "proxy_type": "caddy",
+    "name": "kept-out"
+   },
+   "after": {
+    "server": "select name, description, ip, ip_previous, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status from servers where id = 1",
+    "settings": "select server_role, is_build_server, is_terminal_enabled, concurrent_builds, dynamic_timeout, deployment_queue_limit, server_disk_usage_notification_threshold, server_disk_usage_check_frequency, server_disk_usage_notification_interval_hours, connection_timeout, server_timezone, backup_compression_cpu_percentage, wildcard_domain, public_ipv4, public_ipv6, ssh_host_key, ssh_host_key_source, ssh_host_key_trusted_at is not null as host_key_trusted from server_settings where server_id = 1"
+   }
+  },
+  {
+   "name": "servers: update, the proxy type",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "body": {
+    "proxy_type": "caddy"
+   },
+   "after": {
+    "server": "select name, description, ip, ip_previous, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status from servers where id = 1",
+    "settings": "select server_role, is_build_server, is_terminal_enabled, concurrent_builds, dynamic_timeout, deployment_queue_limit, server_disk_usage_notification_threshold, server_disk_usage_check_frequency, server_disk_usage_notification_interval_hours, connection_timeout, server_timezone, backup_compression_cpu_percentage, wildcard_domain, public_ipv4, public_ipv6, ssh_host_key, ssh_host_key_source, ssh_host_key_trusted_at is not null as host_key_trusted from server_settings where server_id = 1"
+   }
+  },
+  {
+   "name": "servers: update, the same proxy type",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "body": {
+    "proxy_type": "Traefik"
+   },
+   "after": {
+    "server": "select name, description, ip, ip_previous, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status from servers where id = 1",
+    "settings": "select server_role, is_build_server, is_terminal_enabled, concurrent_builds, dynamic_timeout, deployment_queue_limit, server_disk_usage_notification_threshold, server_disk_usage_check_frequency, server_disk_usage_notification_interval_hours, connection_timeout, server_timezone, backup_compression_cpu_percentage, wildcard_domain, public_ipv4, public_ipv6, ssh_host_key, ssh_host_key_source, ssh_host_key_trusted_at is not null as host_key_trusted from server_settings where server_id = 1"
+   }
+  },
+  {
+   "name": "servers: update, validating at once",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "body": {
+    "instant_validate": true,
+    "name": "kept-out"
+   },
+   "after": {
+    "server": "select name, description, ip, ip_previous, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status from servers where id = 1",
+    "settings": "select server_role, is_build_server, is_terminal_enabled, concurrent_builds, dynamic_timeout, deployment_queue_limit, server_disk_usage_notification_threshold, server_disk_usage_check_frequency, server_disk_usage_notification_interval_hours, connection_timeout, server_timezone, backup_compression_cpu_percentage, wildcard_domain, public_ipv4, public_ipv6, ssh_host_key, ssh_host_key_source, ssh_host_key_trusted_at is not null as host_key_trusted from server_settings where server_id = 1"
+   }
+  },
+  {
+   "name": "servers: update, not validating",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "body": {
+    "instant_validate": false,
+    "name": "validated-later"
+   },
+   "after": {
+    "server": "select name, description, ip, ip_previous, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status from servers where id = 1",
+    "settings": "select server_role, is_build_server, is_terminal_enabled, concurrent_builds, dynamic_timeout, deployment_queue_limit, server_disk_usage_notification_threshold, server_disk_usage_check_frequency, server_disk_usage_notification_interval_hours, connection_timeout, server_timezone, backup_compression_cpu_percentage, wildcard_domain, public_ipv4, public_ipv6, ssh_host_key, ssh_host_key_source, ssh_host_key_trusted_at is not null as host_key_trusted from server_settings where server_id = 1"
+   }
+  },
+  {
+   "name": "servers: update, a transferred server's connection",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "setup": [
+    "update servers set server_metadata = '{\"transfer\":{\"status\":\"transferred\"}}' where id = 1"
+   ],
+   "body": {
+    "ip": "203.0.113.40",
+    "user": "root",
+    "port": 2222,
+    "private_key_uuid": "k2unusedprivatekey000002"
+   },
+   "after": {
+    "server": "select name, description, ip, ip_previous, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status from servers where id = 1",
+    "settings": "select server_role, is_build_server, is_terminal_enabled, concurrent_builds, dynamic_timeout, deployment_queue_limit, server_disk_usage_notification_threshold, server_disk_usage_check_frequency, server_disk_usage_notification_interval_hours, connection_timeout, server_timezone, backup_compression_cpu_percentage, wildcard_domain, public_ipv4, public_ipv6, ssh_host_key, ssh_host_key_source, ssh_host_key_trusted_at is not null as host_key_trusted from server_settings where server_id = 1"
+   }
+  },
+  {
+   "name": "servers: update, a transferred server's name",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "setup": [
+    "update servers set server_metadata = '{\"transfer\":{\"status\":\"transferred\"}}' where id = 1"
+   ],
+   "body": {
+    "name": "renamed-server",
+    "ip": "203.0.113.10"
+   },
+   "after": {
+    "server": "select name, description, ip, ip_previous, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status from servers where id = 1",
+    "settings": "select server_role, is_build_server, is_terminal_enabled, concurrent_builds, dynamic_timeout, deployment_queue_limit, server_disk_usage_notification_threshold, server_disk_usage_check_frequency, server_disk_usage_notification_interval_hours, connection_timeout, server_timezone, backup_compression_cpu_percentage, wildcard_domain, public_ipv4, public_ipv6, ssh_host_key, ssh_host_key_source, ssh_host_key_trusted_at is not null as host_key_trusted from server_settings where server_id = 1"
+   }
+  },
+  {
+   "name": "servers: update, nothing",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "raw": "{}",
+   "after": {
+    "server": "select name, description, ip, ip_previous, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status from servers where id = 1",
+    "settings": "select server_role, is_build_server, is_terminal_enabled, concurrent_builds, dynamic_timeout, deployment_queue_limit, server_disk_usage_notification_threshold, server_disk_usage_check_frequency, server_disk_usage_notification_interval_hours, connection_timeout, server_timezone, backup_compression_cpu_percentage, wildcard_domain, public_ipv4, public_ipv6, ssh_host_key, ssh_host_key_source, ssh_host_key_trusted_at is not null as host_key_trusted from server_settings where server_id = 1"
+   }
+  },
+  {
+   "name": "servers: update, not JSON",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "raw": "name=renamed",
+   "contentType": "application/x-www-form-urlencoded"
+  },
+  {
+   "name": "servers: update with a read token",
+   "token": "read",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "body": {
+    "name": "renamed-server"
+   }
+  },
+  {
+   "name": "denied: servers: update, the name and description, a member with write and delete",
+   "token": "memberWrite",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "body": {
+    "name": "renamed-server",
+    "description": "Renamed"
+   },
+   "after": {
+    "server": "select name, description, ip, ip_previous, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status from servers where id = 1",
+    "settings": "select server_role, is_build_server, is_terminal_enabled, concurrent_builds, dynamic_timeout, deployment_queue_limit, server_disk_usage_notification_threshold, server_disk_usage_check_frequency, server_disk_usage_notification_interval_hours, connection_timeout, server_timezone, backup_compression_cpu_percentage, wildcard_domain, public_ipv4, public_ipv6, ssh_host_key, ssh_host_key_source, ssh_host_key_trusted_at is not null as host_key_trusted from server_settings where server_id = 1"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "audit events: list",
+   "token": "root",
+   "method": "GET",
+   "path": "/api/v1/audit-events",
+   "setupCoolify": [
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (1, 1, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team', null, 'Parity Team', 'Parity Team Updated', '2025-12-20 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (2, 1, 'ui.team_invitation.created', 'ui', 'created', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team_invitation', null, null, 'Team Invitation Created', '2025-12-21 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (3, 1, 'ui.team_member.role_updated', 'ui', 'role_updated', 'info', 'user', 4, 'Parity Admin', 'admin@example.com', 'team_member', null, 'Parity Member', 'Parity Member Role Updated', '2025-12-22 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (4, 2, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 3, 'Other Owner', 'other@example.com', 'team', null, 'Other Team', 'Other Team Updated', '2025-12-23 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (5, null, 'system.instance.updated', 'system', 'updated', 'info', 'system', null, null, null, 'instance', null, null, 'Instance Updated', '2025-12-24 10:00:00')"
+   ]
+  },
+  {
+   "name": "audit events: list with a read token",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/audit-events",
+   "setupCoolify": [
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (1, 1, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team', null, 'Parity Team', 'Parity Team Updated', '2025-12-20 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (2, 1, 'ui.team_invitation.created', 'ui', 'created', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team_invitation', null, null, 'Team Invitation Created', '2025-12-21 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (3, 1, 'ui.team_member.role_updated', 'ui', 'role_updated', 'info', 'user', 4, 'Parity Admin', 'admin@example.com', 'team_member', null, 'Parity Member', 'Parity Member Role Updated', '2025-12-22 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (4, 2, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 3, 'Other Owner', 'other@example.com', 'team', null, 'Other Team', 'Other Team Updated', '2025-12-23 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (5, null, 'system.instance.updated', 'system', 'updated', 'info', 'system', null, null, null, 'instance', null, null, 'Instance Updated', '2025-12-24 10:00:00')"
+   ]
+  },
+  {
+   "name": "audit events: list with read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/audit-events",
+   "setupCoolify": [
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (1, 1, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team', null, 'Parity Team', 'Parity Team Updated', '2025-12-20 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (2, 1, 'ui.team_invitation.created', 'ui', 'created', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team_invitation', null, null, 'Team Invitation Created', '2025-12-21 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (3, 1, 'ui.team_member.role_updated', 'ui', 'role_updated', 'info', 'user', 4, 'Parity Admin', 'admin@example.com', 'team_member', null, 'Parity Member', 'Parity Member Role Updated', '2025-12-22 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (4, 2, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 3, 'Other Owner', 'other@example.com', 'team', null, 'Other Team', 'Other Team Updated', '2025-12-23 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (5, null, 'system.instance.updated', 'system', 'updated', 'info', 'system', null, null, null, 'instance', null, null, 'Instance Updated', '2025-12-24 10:00:00')"
+   ]
+  },
+  {
+   "name": "audit events: none",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/audit-events"
+  },
+  {
+   "name": "audit events: a page",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/audit-events?per_page=1&page=2",
+   "setupCoolify": [
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (1, 1, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team', null, 'Parity Team', 'Parity Team Updated', '2025-12-20 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (2, 1, 'ui.team_invitation.created', 'ui', 'created', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team_invitation', null, null, 'Team Invitation Created', '2025-12-21 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (3, 1, 'ui.team_member.role_updated', 'ui', 'role_updated', 'info', 'user', 4, 'Parity Admin', 'admin@example.com', 'team_member', null, 'Parity Member', 'Parity Member Role Updated', '2025-12-22 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (4, 2, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 3, 'Other Owner', 'other@example.com', 'team', null, 'Other Team', 'Other Team Updated', '2025-12-23 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (5, null, 'system.instance.updated', 'system', 'updated', 'info', 'system', null, null, null, 'instance', null, null, 'Instance Updated', '2025-12-24 10:00:00')"
+   ]
+  },
+  {
+   "name": "audit events: the last page",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/audit-events?per_page=2&page=2",
+   "setupCoolify": [
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (1, 1, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team', null, 'Parity Team', 'Parity Team Updated', '2025-12-20 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (2, 1, 'ui.team_invitation.created', 'ui', 'created', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team_invitation', null, null, 'Team Invitation Created', '2025-12-21 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (3, 1, 'ui.team_member.role_updated', 'ui', 'role_updated', 'info', 'user', 4, 'Parity Admin', 'admin@example.com', 'team_member', null, 'Parity Member', 'Parity Member Role Updated', '2025-12-22 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (4, 2, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 3, 'Other Owner', 'other@example.com', 'team', null, 'Other Team', 'Other Team Updated', '2025-12-23 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (5, null, 'system.instance.updated', 'system', 'updated', 'info', 'system', null, null, null, 'instance', null, null, 'Instance Updated', '2025-12-24 10:00:00')"
+   ]
+  },
+  {
+   "name": "audit events: past the last page",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/audit-events?page=9",
+   "setupCoolify": [
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (1, 1, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team', null, 'Parity Team', 'Parity Team Updated', '2025-12-20 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (2, 1, 'ui.team_invitation.created', 'ui', 'created', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team_invitation', null, null, 'Team Invitation Created', '2025-12-21 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (3, 1, 'ui.team_member.role_updated', 'ui', 'role_updated', 'info', 'user', 4, 'Parity Admin', 'admin@example.com', 'team_member', null, 'Parity Member', 'Parity Member Role Updated', '2025-12-22 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (4, 2, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 3, 'Other Owner', 'other@example.com', 'team', null, 'Other Team', 'Other Team Updated', '2025-12-23 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (5, null, 'system.instance.updated', 'system', 'updated', 'info', 'system', null, null, null, 'instance', null, null, 'Instance Updated', '2025-12-24 10:00:00')"
+   ]
+  },
+  {
+   "name": "audit events: searched",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/audit-events?search=Member",
+   "setupCoolify": [
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (1, 1, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team', null, 'Parity Team', 'Parity Team Updated', '2025-12-20 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (2, 1, 'ui.team_invitation.created', 'ui', 'created', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team_invitation', null, null, 'Team Invitation Created', '2025-12-21 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (3, 1, 'ui.team_member.role_updated', 'ui', 'role_updated', 'info', 'user', 4, 'Parity Admin', 'admin@example.com', 'team_member', null, 'Parity Member', 'Parity Member Role Updated', '2025-12-22 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (4, 2, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 3, 'Other Owner', 'other@example.com', 'team', null, 'Other Team', 'Other Team Updated', '2025-12-23 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (5, null, 'system.instance.updated', 'system', 'updated', 'info', 'system', null, null, null, 'instance', null, null, 'Instance Updated', '2025-12-24 10:00:00')"
+   ]
+  },
+  {
+   "name": "audit events: searched by email, without read:sensitive",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/audit-events?search=admin%40example.com",
+   "setupCoolify": [
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (1, 1, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team', null, 'Parity Team', 'Parity Team Updated', '2025-12-20 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (2, 1, 'ui.team_invitation.created', 'ui', 'created', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team_invitation', null, null, 'Team Invitation Created', '2025-12-21 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (3, 1, 'ui.team_member.role_updated', 'ui', 'role_updated', 'info', 'user', 4, 'Parity Admin', 'admin@example.com', 'team_member', null, 'Parity Member', 'Parity Member Role Updated', '2025-12-22 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (4, 2, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 3, 'Other Owner', 'other@example.com', 'team', null, 'Other Team', 'Other Team Updated', '2025-12-23 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (5, null, 'system.instance.updated', 'system', 'updated', 'info', 'system', null, null, null, 'instance', null, null, 'Instance Updated', '2025-12-24 10:00:00')"
+   ]
+  },
+  {
+   "name": "audit events: searched by email",
+   "token": "root",
+   "method": "GET",
+   "path": "/api/v1/audit-events?search=admin%40example.com",
+   "setupCoolify": [
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (1, 1, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team', null, 'Parity Team', 'Parity Team Updated', '2025-12-20 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (2, 1, 'ui.team_invitation.created', 'ui', 'created', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team_invitation', null, null, 'Team Invitation Created', '2025-12-21 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (3, 1, 'ui.team_member.role_updated', 'ui', 'role_updated', 'info', 'user', 4, 'Parity Admin', 'admin@example.com', 'team_member', null, 'Parity Member', 'Parity Member Role Updated', '2025-12-22 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (4, 2, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 3, 'Other Owner', 'other@example.com', 'team', null, 'Other Team', 'Other Team Updated', '2025-12-23 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (5, null, 'system.instance.updated', 'system', 'updated', 'info', 'system', null, null, null, 'instance', null, null, 'Instance Updated', '2025-12-24 10:00:00')"
+   ]
+  },
+  {
+   "name": "audit events: searched, case-sensitive",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/audit-events?search=member",
+   "setupCoolify": [
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (1, 1, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team', null, 'Parity Team', 'Parity Team Updated', '2025-12-20 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (2, 1, 'ui.team_invitation.created', 'ui', 'created', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team_invitation', null, null, 'Team Invitation Created', '2025-12-21 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (3, 1, 'ui.team_member.role_updated', 'ui', 'role_updated', 'info', 'user', 4, 'Parity Admin', 'admin@example.com', 'team_member', null, 'Parity Member', 'Parity Member Role Updated', '2025-12-22 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (4, 2, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 3, 'Other Owner', 'other@example.com', 'team', null, 'Other Team', 'Other Team Updated', '2025-12-23 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (5, null, 'system.instance.updated', 'system', 'updated', 'info', 'system', null, null, null, 'instance', null, null, 'Instance Updated', '2025-12-24 10:00:00')"
+   ]
+  },
+  {
+   "name": "audit events: an empty search",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/audit-events?search=&action=&source=",
+   "setupCoolify": [
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (1, 1, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team', null, 'Parity Team', 'Parity Team Updated', '2025-12-20 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (2, 1, 'ui.team_invitation.created', 'ui', 'created', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team_invitation', null, null, 'Team Invitation Created', '2025-12-21 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (3, 1, 'ui.team_member.role_updated', 'ui', 'role_updated', 'info', 'user', 4, 'Parity Admin', 'admin@example.com', 'team_member', null, 'Parity Member', 'Parity Member Role Updated', '2025-12-22 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (4, 2, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 3, 'Other Owner', 'other@example.com', 'team', null, 'Other Team', 'Other Team Updated', '2025-12-23 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (5, null, 'system.instance.updated', 'system', 'updated', 'info', 'system', null, null, null, 'instance', null, null, 'Instance Updated', '2025-12-24 10:00:00')"
+   ]
+  },
+  {
+   "name": "audit events: by action",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/audit-events?action=created",
+   "setupCoolify": [
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (1, 1, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team', null, 'Parity Team', 'Parity Team Updated', '2025-12-20 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (2, 1, 'ui.team_invitation.created', 'ui', 'created', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team_invitation', null, null, 'Team Invitation Created', '2025-12-21 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (3, 1, 'ui.team_member.role_updated', 'ui', 'role_updated', 'info', 'user', 4, 'Parity Admin', 'admin@example.com', 'team_member', null, 'Parity Member', 'Parity Member Role Updated', '2025-12-22 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (4, 2, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 3, 'Other Owner', 'other@example.com', 'team', null, 'Other Team', 'Other Team Updated', '2025-12-23 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (5, null, 'system.instance.updated', 'system', 'updated', 'info', 'system', null, null, null, 'instance', null, null, 'Instance Updated', '2025-12-24 10:00:00')"
+   ]
+  },
+  {
+   "name": "audit events: by source",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/audit-events?source=api",
+   "setupCoolify": [
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (1, 1, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team', null, 'Parity Team', 'Parity Team Updated', '2025-12-20 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (2, 1, 'ui.team_invitation.created', 'ui', 'created', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team_invitation', null, null, 'Team Invitation Created', '2025-12-21 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (3, 1, 'ui.team_member.role_updated', 'ui', 'role_updated', 'info', 'user', 4, 'Parity Admin', 'admin@example.com', 'team_member', null, 'Parity Member', 'Parity Member Role Updated', '2025-12-22 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (4, 2, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 3, 'Other Owner', 'other@example.com', 'team', null, 'Other Team', 'Other Team Updated', '2025-12-23 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (5, null, 'system.instance.updated', 'system', 'updated', 'info', 'system', null, null, null, 'instance', null, null, 'Instance Updated', '2025-12-24 10:00:00')"
+   ]
+  },
+  {
+   "name": "audit events: by every source",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/audit-events?source=all&action=all",
+   "setupCoolify": [
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (1, 1, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team', null, 'Parity Team', 'Parity Team Updated', '2025-12-20 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (2, 1, 'ui.team_invitation.created', 'ui', 'created', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team_invitation', null, null, 'Team Invitation Created', '2025-12-21 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (3, 1, 'ui.team_member.role_updated', 'ui', 'role_updated', 'info', 'user', 4, 'Parity Admin', 'admin@example.com', 'team_member', null, 'Parity Member', 'Parity Member Role Updated', '2025-12-22 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (4, 2, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 3, 'Other Owner', 'other@example.com', 'team', null, 'Other Team', 'Other Team Updated', '2025-12-23 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (5, null, 'system.instance.updated', 'system', 'updated', 'info', 'system', null, null, null, 'instance', null, null, 'Instance Updated', '2025-12-24 10:00:00')"
+   ]
+  },
+  {
+   "name": "audit events: invalid parameters",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/audit-events?per_page=0&page=abc&source=cli&search=ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss&action=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  {
+   "name": "audit events: too many a page",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/audit-events?per_page=101&page=0"
+  },
+  {
+   "name": "audit events: a page that is not a number",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/audit-events?per_page=ten"
+  },
+  {
+   "name": "audit events: a member",
+   "token": "memberRead",
+   "method": "GET",
+   "path": "/api/v1/audit-events",
+   "setupCoolify": [
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (1, 1, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team', null, 'Parity Team', 'Parity Team Updated', '2025-12-20 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (2, 1, 'ui.team_invitation.created', 'ui', 'created', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team_invitation', null, null, 'Team Invitation Created', '2025-12-21 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (3, 1, 'ui.team_member.role_updated', 'ui', 'role_updated', 'info', 'user', 4, 'Parity Admin', 'admin@example.com', 'team_member', null, 'Parity Member', 'Parity Member Role Updated', '2025-12-22 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (4, 2, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 3, 'Other Owner', 'other@example.com', 'team', null, 'Other Team', 'Other Team Updated', '2025-12-23 10:00:00')",
+    "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (5, null, 'system.instance.updated', 'system', 'updated', 'info', 'system', null, null, null, 'instance', null, null, 'Instance Updated', '2025-12-24 10:00:00')"
+   ]
+  },
+  {
+   "name": "audit events with a write-only token",
+   "token": "writeOnly",
+   "method": "GET",
+   "path": "/api/v1/audit-events"
+  },
+  {
+   "name": "audit events: POST",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/audit-events",
+   "body": {
+    "x": 1
+   }
+  },
+  {
+   "name": "audit events: many pages, page 1",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/audit-events?per_page=2&page=1",
+   "setupCoolify": [
+    "insert into audit_events (team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) select 1, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team', null, 'Parity Team', 'Parity Team Updated', timestamp '2025-12-01 00:00:00' + make_interval(mins => g) from generate_series(0, 39) g"
+   ]
+  },
+  {
+   "name": "audit events: many pages, page 10",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/audit-events?per_page=2&page=10",
+   "setupCoolify": [
+    "insert into audit_events (team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) select 1, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team', null, 'Parity Team', 'Parity Team Updated', timestamp '2025-12-01 00:00:00' + make_interval(mins => g) from generate_series(0, 39) g"
+   ]
+  },
+  {
+   "name": "audit events: many pages, page 18",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/audit-events?per_page=2&page=18",
+   "setupCoolify": [
+    "insert into audit_events (team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) select 1, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team', null, 'Parity Team', 'Parity Team Updated', timestamp '2025-12-01 00:00:00' + make_interval(mins => g) from generate_series(0, 39) g"
+   ]
+  },
+  {
+   "name": "audit events: many pages, page 25",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/audit-events?per_page=2&page=25",
+   "setupCoolify": [
+    "insert into audit_events (team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) select 1, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team', null, 'Parity Team', 'Parity Team Updated', timestamp '2025-12-01 00:00:00' + make_interval(mins => g) from generate_series(0, 39) g"
+   ]
   }
  ]
 }

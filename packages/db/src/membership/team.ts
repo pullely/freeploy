@@ -114,6 +114,54 @@ export async function updateTeam(ex: SqlExecutor, orgId: string, name: string, d
   return row ? { id: String(row.id), name: String(row.name), slug: String(row.slug), description: (row.description as string | null) ?? null } : null;
 }
 
+/** DP-107: the team's two settings PATCH /api/v1/team writes, with the org's name and dates (migration 730). */
+export interface TeamSettingsRecord {
+  id: string;
+  name: string;
+  createdAt: Date;
+  updatedAt: Date;
+  isBuildServerFallbackEnabled: boolean;
+  scanImagesOnNewServers: boolean;
+}
+
+export interface TeamSettingsChanges {
+  isBuildServerFallbackEnabled?: boolean;
+  scanImagesOnNewServers?: boolean;
+}
+
+const TEAM_SETTINGS_COLUMNS = "id, name, created_at, updated_at, is_build_server_fallback_enabled, scan_images_on_new_servers";
+
+function mapTeamSettings(row: Record<string, unknown>): TeamSettingsRecord {
+  return {
+    id: String(row.id),
+    name: String(row.name),
+    createdAt: new Date(row.created_at as string),
+    updatedAt: new Date(row.updated_at as string),
+    isBuildServerFallbackEnabled: row.is_build_server_fallback_enabled === true,
+    scanImagesOnNewServers: row.scan_images_on_new_servers === true,
+  };
+}
+
+/**
+ * TeamController::update_current_team(): `$team->update($validator->validated())` of the two settings; updated_at moves
+ * only when a value changes (Eloquent saves a dirty model only).
+ */
+export async function updateTeamSettings(ex: SqlExecutor, orgId: string, changes: TeamSettingsChanges, now: Date): Promise<TeamSettingsRecord | null> {
+  const fallback = changes.isBuildServerFallbackEnabled ?? null;
+  const scan = changes.scanImagesOnNewServers ?? null;
+  const r = await ex.execute<Record<string, unknown>>(
+    `UPDATE membership.organizations SET
+       is_build_server_fallback_enabled = COALESCE($2, is_build_server_fallback_enabled),
+       scan_images_on_new_servers = COALESCE($3, scan_images_on_new_servers),
+       updated_at = CASE WHEN COALESCE($2, is_build_server_fallback_enabled) IS DISTINCT FROM is_build_server_fallback_enabled
+                           OR COALESCE($3, scan_images_on_new_servers) IS DISTINCT FROM scan_images_on_new_servers THEN $4 ELSE updated_at END
+     WHERE id = $1 AND status = 'active' RETURNING ${TEAM_SETTINGS_COLUMNS}`,
+    [orgId, fallback, scan, now.toISOString()],
+  );
+  const row = r.rows[0];
+  return row ? mapTeamSettings(row) : null;
+}
+
 /** Team::members: the active members, oldest first. */
 export async function listTeamMembers(ex: SqlExecutor, orgId: string): Promise<TeamMemberRecord[]> {
   const r = await ex.execute<Record<string, unknown>>(

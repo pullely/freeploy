@@ -4,7 +4,7 @@
 // that answers it. Every other path under /api answers routes/api.php's fallback, Coolify's 404
 // ({"message":"Not found.","docs":…}) — also for the operations of openapi.json not ported yet.
 
-export type Target = "edge" | "identity" | "deploy";
+export type Target = "edge" | "identity" | "deploy" | "events";
 
 export interface ApiRoute {
   method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
@@ -20,15 +20,29 @@ export interface ApiRoute {
   except?: RegExp;
   /** The abilities of the route's further api.ability middlewares, each needed in turn (DP-85). */
   alsoAbilities?: readonly string[];
+  /**
+   * DP-107: routes/api.php's first group (/disable, /mcp/enable, /mcp/disable): api.ip.allowed, auth:sanctum, api.token.team
+   * and api.ability:write — without ApiAllowed (they answer while the API is off) and with ApiIpAllowed's own refusal.
+   */
+  instance?: true;
 }
 
 const r = (method: ApiRoute["method"], path: string, ability: string, target: Target): ApiRoute => ({ method, path, abilities: [ability], target });
 
 /** In routes/api.php's order: Laravel takes the first route that matches. */
 export const API_V1_ROUTES: readonly ApiRoute[] = [
+  // DP-107: the instance's API and MCP switches (OtherController; deploy-core-worker asks policy-worker for the operator)
+  { ...r("GET", "/disable", "write", "deploy"), instance: true },
+  { ...r("POST", "/disable", "write", "deploy"), instance: true },
+  { ...r("POST", "/mcp/enable", "write", "deploy"), instance: true },
+  { ...r("POST", "/mcp/disable", "write", "deploy"), instance: true },
   r("GET", "/version", "read", "edge"),
+  // DP-107: the team's audit events (events-worker, as the team audit log page)
+  r("GET", "/audit-events", "read", "events"),
   r("GET", "/teams", "read", "identity"),
   r("GET", "/team", "read", "identity"),
+  // DP-107: the team's two settings (identity-worker asks membership-worker)
+  r("PATCH", "/team", "write", "identity"),
   r("GET", "/team/members", "read", "identity"),
   r("GET", "/teams/current", "read", "identity"),
   r("GET", "/teams/current/members", "read", "identity"),
@@ -177,6 +191,8 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("POST", "/servers", "write", "deploy"),
   // DP-93: a Hostinger VPS bought and stored as a server
   r("POST", "/servers/hostinger", "write", "deploy"),
+  // DP-107: a server's update
+  r("PATCH", "/servers/{uuid}", "write", "deploy"),
   r("DELETE", "/servers/{uuid}", "delete", "deploy"),
 
   // DP-71
