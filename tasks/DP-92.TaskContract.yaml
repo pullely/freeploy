@@ -1,0 +1,22 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-92
+  title: "DP11: editing on the environment canvas — moving cards and zones, drawing, labelling and removing links, saved through four new canvas endpoints"
+spec:
+  goal: Coolify's environment canvas becomes editable for those who may write (deploy.resource.write, Coolify's $user->can('update', $environment)). deploy-core-worker ports EnvironmentCanvasController's four save actions with their rules and messages — PATCH …/projects/{uuid}/environments/{env_uuid}/canvas/positions (updatePositions — present|array|max:1000, each card's x and y required|integer|between:-100000,100000 for the environment's own cards only, merged with the saved positions under a row lock, filterPositions), POST …/canvas/links (storeLink — source and target required|string|max:255, different:source, label nullable|string|max:64, "This field is not allowed.", "The source/target must be a resource of this environment.", "These resources are already linked."), PATCH …/canvas/links/{link_uuid} (updateLink, label present|nullable|string|max:64, "Link not found.") and DELETE …/canvas/links/{link_uuid} (destroyLink, "Link deleted.") — with validateIncomingRequest()'s 400s, inside withOrg, a denial 404. GET …/canvas now carries the saved positions (deploy.environments.canvas_positions) and the links (deploy.resource_links, both ends among the cards), and can_edit. packages/db gains deploy/canvas.ts (resourceIndex, the positions read, locked and saved, the links listed, found, inserted with ON CONFLICT on resource_links_unique_direction, relabelled and deleted), and an environment's or project's delete removes its links (Coolify's cascadeOnDelete). deploy-web wires the React canvas to them — card and zone drags that stop before covering another card or zone (freeSpot, dragRules), saves 400 ms after a move and with keepalive on leaving, moves held until a later load returns them, the card's drag dot that draws a link onto another card, the link's label field and "Remove link", Coolify's toasts — and Card is ported whole. No migration (the column and table have Coolify's shape), no binding, no dependency, no api-edge change. Cut, rows left planned — the deploy canvas (canvas/deploy/*, the /canvas flow builder and its run panel), and AddSection, Select, EmptyCard and Deployments, which belong to the connect, server, project and dashboard canvases rather than to the environment canvas; EnvironmentCanvas, Panel and Toolbar stay in_progress because those canvases' branches are theirs.
+  affects:
+    - apps/deploy-web/**
+    - apps/deploy-core-worker/**
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - tests/deploy-core-worker/src/environment-canvas-edit.test.ts holds the four save actions' rules and messages, the saved layout in GET's payload and can_edit, that every save asks deploy.resource.write and answers a denial 404 touching nothing, that another org's project is "Project not found.", and the routing
+    - tests/db/src/deploy-canvas.test.ts holds resourceIndex's order and its soft deletes, canvas_positions read, locked and saved, the links inserted, refused twice in one direction without aborting the transaction, relabelled and deleted, the links going with their environment and project, and row-level security on all of it
+    - apps/deploy-web/test/environment-canvas-edit.test.ts holds freeSpot, a dragged card and a dragged zone stopping before they cover another card or zone, saved positions placing the cards, canConnect and canLink, and ApiError's message from the edge's error envelope
+    - specs/epics/freeploy-coolify-parity/parity/svelte.json marks Card ported and EnvironmentCanvas, Panel and Toolbar in_progress, with taskKey DP-92
+    - on stage, an admin drags a card and a zone on /project/{uuid}/environment/{env_uuid}/canvas and finds them where they were left after a reload, draws a link from a card's drag dot onto another card, labels it and removes it; a builder (Coolify's member, no deploy.resource.write) sees "View only — Only team admins can move cards and edit links." and cannot move cards
+  gates: []

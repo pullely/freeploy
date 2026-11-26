@@ -1,8 +1,9 @@
 // Derived from coollabsio/coolify@91b7e3e:resources/js/canvas/environment/Panel.svelte (Apache-2.0), modified.
-// Side panel of the selected card or link. Ported: a card and a diagram link, read only (Freeploy
-// saves no links yet, so the label field and "Remove link" are the view-only branch). Not ported:
-// the connect view's source, resource and source → resource panels (and AddSection.svelte).
-import type { ReactNode } from "react";
+// Side panel of the selected card or link. Ported: a card and a diagram link, with the link's
+// label field (saved on blur and Enter, Escape restores it) and "Remove link" for those who may
+// edit (DP-92). Not ported: the connect view's source, resource and source → resource panels (and
+// AddSection.svelte), which only the shared variable and tag canvases show.
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { NO_SERVER, statusLabel, TYPE_LABELS, type CanvasGraph, type CanvasLink, type CanvasNode } from "../../../lib/environment-canvas";
 import { CanvasIcon } from "./Icon";
 import { NodeIcon } from "./NodeIcon";
@@ -65,8 +66,45 @@ export function Panel(props: {
   zoneNames: (node: CanvasNode) => string[];
   onSelect: (selection: Selection) => void;
   onClose: () => void;
+  /** Saves a link's label; false when it was not saved. */
+  onLabel?: (link: CanvasLink, value: string) => Promise<boolean>;
+  onDelete?: (link: CanvasLink) => Promise<void>;
 }) {
   const { graph, node, link, nodeById, onSelect } = props;
+  // Requests in flight, per link id: their buttons stay disabled until the request ends.
+  const [busy, setBusy] = useState<Record<string, boolean>>({});
+  async function run(id: string, request: () => Promise<unknown>) {
+    setBusy((b) => ({ ...b, [id]: true }));
+    try {
+      await request();
+    } finally {
+      setBusy((b) => ({ ...b, [id]: false }));
+    }
+  }
+  // Diagram link label: saved on blur and Enter, Escape restores it. Follows the link while not focused.
+  const labelInput = useRef<HTMLInputElement>(null);
+  const [label, setLabel] = useState(link?.label || "");
+  const saved = useRef(link?.label || "");
+  // What the field holds now: blur can follow Escape in the same tick, before React renders it.
+  const typed = useRef(link?.label || "");
+  const type = (value: string) => {
+    typed.current = value;
+    setLabel(value);
+  };
+  const current = link?.label || "";
+  useEffect(() => {
+    if (document.activeElement !== labelInput.current) {
+      type(current);
+      saved.current = current;
+    }
+  }, [current]);
+  async function saveLabel() {
+    if (!link || !props.onLabel) return;
+    const value = typed.current.trim();
+    if (value === saved.current) return;
+    saved.current = value;
+    if (!(await props.onLabel(link, value))) saved.current = link.label || "";
+  }
   if (node) {
     const servers = props.zoneNames(node);
     const nodeLinks = graph.links.filter((l) => l.source === node.id || l.target === node.id);
@@ -145,7 +183,19 @@ export function Panel(props: {
   }
   if (link) {
     return (
-      <Shell title={link.label || "Link"} icon="link" top={props.top} onClose={props.onClose}>
+      <Shell
+        title={link.label || "Link"}
+        icon="link"
+        top={props.top}
+        onClose={props.onClose}
+        footer={
+          props.canEdit ? (
+            <button type="button" className="button button-error w-full" disabled={!!busy[link.id]} onClick={() => void run(link.id, () => props.onDelete?.(link) ?? Promise.resolve())}>
+              Remove link
+            </button>
+          ) : undefined
+        }
+      >
         <Section title="Resources">
           <div className="flex flex-col gap-1">
             {(
@@ -166,7 +216,32 @@ export function Panel(props: {
           </div>
         </Section>
         <Section title="Label">
-          <p className="text-[12px]">{link.label || "No label"}</p>
+          {props.canEdit ? (
+            <input
+              ref={labelInput}
+              value={label}
+              onChange={(e) => type(e.target.value)}
+              className="input h-8 w-full text-[12px]"
+              type="text"
+              maxLength={255}
+              placeholder="For example: reads from"
+              aria-label="Link label"
+              data-ec-label-input=""
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  labelInput.current?.blur();
+                } else if (e.key === "Escape") {
+                  e.stopPropagation();
+                  type(saved.current);
+                  labelInput.current?.blur();
+                }
+              }}
+              onBlur={() => void saveLabel()}
+            />
+          ) : (
+            <p className="text-[12px]">{link.label || "No label"}</p>
+          )}
         </Section>
         <Note>Links are for the diagram only. They do not change your resources.</Note>
       </Shell>

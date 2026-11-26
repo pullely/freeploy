@@ -1,34 +1,48 @@
 // Derived from coollabsio/coolify@91b7e3e:resources/js/canvas/environment/EnvironmentCanvas.svelte (Apache-2.0), modified.
 //
-// Environment canvas (Beta): a read-only diagram of one environment. Server zones hold
-// resource cards; a click opens the card's side panel, a double-click its page.
+// Environment canvas (Beta): a read-mostly diagram of one environment. Server zones hold
+// resource cards; those who may edit the environment move cards and zones and draw
+// visual-only links. Positions and links are stored through deploy-core-worker's canvas
+// endpoints (…/environments/{env_uuid}/canvas/{positions,links}, DP-92).
 //
 // Ported: the layout (zones, cards, link curves and their labels and end dots), pan and zoom
 // (wheel, pinch, drag, middle button, Cmd/Ctrl +/-/0), fit, the saved view per team and page,
 // the toolbar with the beta badge and "View only", the side panel, the empty and error states,
-// Refresh and the refresh when the tab comes back, the toast and the small-screen notice.
-// Not ported: moving cards and zones and drawing, labelling and removing links (Freeploy saves
-// neither positions nor links yet, so the canvas is view only), the live status over Echo
-// (Freeploy has no realtime channel yet: Refresh and the tab's return load the latest status), and
-// the server, project, dashboard, shared variable and tag canvases that reuse this view.
+// Refresh and the refresh when the tab comes back, the toast and the small-screen notice; and
+// (DP-92) dragging a card (it stops before it covers another card or zone) and a zone (its
+// cards move with it), the saves 400 ms after a move (and on leaving the page, with keepalive),
+// moves kept on the canvas until a load that started after their save returns them, drawing a
+// link from a card's drag dot onto another card, the link's label and "Remove link".
+// Not ported: the live status over Echo (Freeploy has no realtime channel yet: Refresh and the
+// tab's return load the latest status), and the server, project, dashboard, shared variable and
+// tag canvases that reuse this view (their filters, group frames and drags, zone saves, unmanaged
+// containers, usage, polling, recent deployments and placeholder cards).
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
-import { getJson } from "../../../lib/api";
+import { canvasApi } from "../../../lib/canvas-api";
 import { panZoom, type PanZoom } from "../../../lib/canvas-pan-zoom";
 import {
+  BOX_GAP,
+  canConnect,
+  canLink,
   cardRect,
   DOUBLE_CLICK_MS,
+  dragRules,
   fitView,
+  freeSpot,
   layoutGraph,
   linkPath,
   MOBILE_NOTICE_KEY,
   normalizeGraph,
   readView,
+  toBox,
   unreachableZones,
   zoneBoxes,
   type CanvasGraph,
+  type CanvasLink,
   type Point,
   type Size,
   type View,
+  type ZoneBox,
 } from "../../../lib/environment-canvas";
 import { CanvasControls } from "../CanvasControls";
 import { Card } from "./Card";
@@ -47,9 +61,33 @@ function noticeOpen(): boolean {
 }
 
 const desktopQuery = () => window.matchMedia("(min-width: 1024px)");
+const errorText = (e: unknown) => (e instanceof Error ? e.message : String(e));
+
+/** Follows a captured pointer on `el` until it is released. */
+function track(el: Element, move: (e: PointerEvent) => void, up: () => void) {
+  const onMove = (e: Event) => move(e as PointerEvent);
+  const release = () => {
+    el.removeEventListener("pointermove", onMove);
+    el.removeEventListener("pointerup", release);
+    el.removeEventListener("pointercancel", release);
+    up();
+  };
+  el.addEventListener("pointermove", onMove);
+  el.addEventListener("pointerup", release);
+  el.addEventListener("pointercancel", release);
+}
+function capture(el: Element, pointerId: number) {
+  try {
+    el.setPointerCapture(pointerId);
+  } catch {
+    // Synthetic or already released pointer; window-level fallbacks are not needed for real pointers.
+  }
+}
+
+type Settling = Record<string, { at: Point; after: number }>;
 
 export function EnvironmentCanvas(props: {
-  /** The canvas endpoint (GET …/projects/{uuid}/environments/{env_uuid}/canvas). */
+  /** The canvas endpoint (GET …/projects/{uuid}/environments/{env_uuid}/canvas); the save actions are below it. */
   endpoint: string;
   /** The team of the page, so the saved view is kept per team and page. */
   team: string;
@@ -59,11 +97,15 @@ export function EnvironmentCanvas(props: {
   /** "Add resource" in the empty state, for users who may create resources. */
   newHref: string | null;
 }) {
-  const [graph, setGraph] = useState<CanvasGraph | null>(null);
-  const [positions, setPositions] = useState<Record<string, Point>>({});
+  const base = props.endpoint;
+  const [graph, setGraphState] = useState<CanvasGraph | null>(null);
+  const [positions, setPositionsState] = useState<Record<string, Point>>({});
   const [sizes, setSizes] = useState<Record<string, Size>>({});
   const [selected, setSelected] = useState<Selection>(null);
   const [hover, setHover] = useState<string | null>(null);
+  const [pending, setPending] = useState<Array<{ source: string; target: string }>>([]); // links being saved, drawn as moving dashes
+  const [temp, setTemp] = useState<{ from: Point; to: Point } | null>(null); // the link being drawn
+  const [dropTarget, setDropTargetState] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<{ text: string; bad: boolean } | null>(null);
@@ -71,6 +113,7 @@ export function EnvironmentCanvas(props: {
   const [panelTop, setPanelTop] = useState("");
   const [showNotice, setShowNotice] = useState(noticeOpen);
   const [desktop, setDesktop] = useState(() => desktopQuery().matches);
+  const [focusLabel, setFocusLabel] = useState(0);
 
   // Zoom and pan are kept per team and page, so a reload opens the canvas where it was.
   const viewKey = `coolify-canvas-view:${props.team}:${window.location.pathname}`;
@@ -83,12 +126,52 @@ export function EnvironmentCanvas(props: {
   const fitted = useRef(false);
   const loadingRef = useRef(false);
   const reloadQueued = useRef(false);
+  const destroyed = useRef(false);
+  const timers = useRef({ toast: 0, view: 0, refresh: 0, save: 0 });
+  // What the pointer handlers read between renders.
   const graphRef = useRef<CanvasGraph | null>(null);
-  const timers = useRef({ toast: 0, view: 0, refresh: 0 });
+  const positionsRef = useRef<Record<string, Point>>({});
+  const sizesRef = useRef<Record<string, Size>>({});
+  const dropTargetRef = useRef<string | null>(null);
+  const selectedRef = useRef<Selection>(null);
+  // Plain bookkeeping (not rendered).
+  const interactions = useRef(new Set<string>()); // active drags; loads wait until they end
+  const deferred = useRef<CanvasGraph | null>(null);
+  const unsaved = useRef<Record<string, Point>>({});
+  // Saved moves stay on the canvas until a load that started after the save returns them, so an older
+  // response (a refresh during the drag or the request) cannot put the cards back for a moment.
+  const settling = useRef<Settling>({}); // id -> { at, after: load number the save finished at }
+  const loads = useRef(0);
+
+  const setGraph = (next: CanvasGraph | null) => {
+    graphRef.current = next;
+    setGraphState(next);
+  };
+  const setPositions = (next: Record<string, Point>) => {
+    positionsRef.current = next;
+    setPositionsState(next);
+  };
+  const setDropTarget = (id: string | null) => {
+    dropTargetRef.current = id;
+    setDropTargetState(id);
+  };
+  const select = (selection: Selection) => {
+    selectedRef.current = selection;
+    setSelected(selection);
+  };
+  useEffect(() => {
+    sizesRef.current = sizes;
+  }, [sizes]);
 
   const canEdit = !!graph?.can_edit;
+  // Only the environment canvas has its own card positions (the server and project views save on it).
+  const canMove = canEdit;
   const nodeById = useCallback((id: string) => graph?.nodes.find((n) => n.id === id), [graph]);
   const linkById = (id: string) => graph?.links.find((l) => l.id === id);
+  const rectOf = (id: string) => {
+    const node = graphRef.current?.nodes.find((n) => n.id === id);
+    return node ? cardRect(node, positionsRef.current, sizesRef.current) : null;
+  };
   const zoneNames = useCallback(
     (node: { zone?: string | null; extra_zones?: string[] }) => {
       const names = new Map((graph?.zones ?? []).map((z) => [z.id, z.name]));
@@ -154,7 +237,7 @@ export function EnvironmentCanvas(props: {
       },
       canPan: (e) => !(e.target as Element).closest("[data-ec-card],[data-ec-zone-header],[data-ec-zone-drag],[data-ec-group-header],[data-ec-label],[data-ec-link],a,button,input"),
       onPanEnd: (moved) => {
-        if (!moved) setSelected(null);
+        if (!moved && selectedRef.current) select(null);
       },
     });
     pz.current.apply();
@@ -186,41 +269,65 @@ export function EnvironmentCanvas(props: {
     [positions, sizes, coveredInsets],
   );
 
+  /** Changes the shown graph (links, saved positions) without laying the cards out again. */
+  const patchGraph = (changes: Partial<CanvasGraph>) => {
+    const current = graphRef.current;
+    if (current) setGraph({ ...current, ...changes });
+  };
+
   // ── Data ──
+  /** Shows a loaded graph: local moves that are not saved yet (or not loaded back yet) stay where the user put them. */
+  const applyGraph = useCallback((loaded: CanvasGraph) => {
+    if (destroyed.current) return;
+    if (interactions.current.size) {
+      deferred.current = loaded;
+      return;
+    }
+    const next = normalizeGraph(loaded);
+    const kept = Object.fromEntries(Object.entries(settling.current).map(([id, s]) => [id, s.at]));
+    next.positions = { ...next.positions, ...kept, ...Object.fromEntries(Object.entries(unsaved.current).map(([id, p]) => [id, { x: p.x, y: p.y }])) };
+    setGraph(next);
+    setPositions(layoutGraph(next));
+    setError(null);
+    setHover((h) => (h && next.nodes.some((n) => n.id === h) ? h : null));
+    const s = selectedRef.current;
+    if (s && !(s.kind === "node" ? next.nodes.some((n) => n.id === s.id) : next.links.some((l) => l.id === s.id))) select(null);
+  }, []);
+
+  /** A load that started after the save returned the saved moves. */
+  const dropSettled = (started: number) => {
+    for (const [id, entry] of Object.entries(settling.current)) if (entry.after < started) delete settling.current[id];
+  };
+
   const load = useCallback(
     async ({ quiet = false } = {}) => {
+      if (destroyed.current) return;
       if (loadingRef.current) {
         reloadQueued.current = true;
         return;
       }
       loadingRef.current = true;
       setLoading(true);
+      const started = ++loads.current;
       try {
-        const r = await getJson<CanvasGraph>(props.endpoint);
-        if (!r.data) {
-          const message = `Request failed (HTTP ${r.status}).`;
-          if (graphRef.current) toast(message, true);
-          else setError(message);
-          return;
-        }
-        const next = normalizeGraph(r.data);
-        graphRef.current = next;
-        setGraph(next);
-        setPositions(layoutGraph(next));
-        setError(null);
-        setHover((h) => (h && next.nodes.some((n) => n.id === h) ? h : null));
-        setSelected((s) => (s && (s.kind === "node" ? next.nodes.some((n) => n.id === s.id) : next.links.some((l) => l.id === s.id)) ? s : null));
-        if (!quiet && fitted.current) toast("Canvas refreshed.");
+        const next = await canvasApi<CanvasGraph>("GET", base);
+        dropSettled(started);
+        applyGraph(next);
+        if (!quiet && fitted.current && next) toast("Canvas refreshed.");
+      } catch (e) {
+        if (destroyed.current) return;
+        if (graphRef.current) toast(errorText(e), true);
+        else setError(errorText(e));
       } finally {
         loadingRef.current = false;
         setLoading(false);
-        if (reloadQueued.current) {
+        if (!destroyed.current && reloadQueued.current) {
           reloadQueued.current = false;
           void load({ quiet: true });
         }
       }
     },
-    [props.endpoint, toast],
+    [base, toast, applyGraph],
   );
 
   // Render the cards, then measure them, so frames, links and fit use their real sizes.
@@ -233,6 +340,7 @@ export function EnvironmentCanvas(props: {
     }
     const same = Object.keys(next).length === Object.keys(sizes).length && Object.entries(next).every(([id, s]) => sizes[id]?.width === s.width && sizes[id]?.height === s.height);
     if (!same) {
+      sizesRef.current = next;
       setSizes(next);
       return;
     }
@@ -246,7 +354,53 @@ export function EnvironmentCanvas(props: {
     }
   }, [graph, positions, sizes, fit]);
 
+  // A new link: its panel opens with the label field focused.
   useEffect(() => {
+    if (focusLabel) rootEl.current?.querySelector<HTMLInputElement>("[data-ec-label-input]")?.focus();
+  }, [focusLabel]);
+
+  // ── Persistence ──
+  /** Keeps moves that are being saved on the canvas (see settling). */
+  const hold = (moves: Record<string, Point>) => {
+    for (const [id, at] of Object.entries(moves)) settling.current[id] = { at, after: Infinity };
+  };
+  /** The save is done: loads that start from now on return the moves, so they can replace them. */
+  const settle = (moves: Record<string, Point>) => {
+    for (const id of Object.keys(moves)) if (settling.current[id]?.at === moves[id]) settling.current[id]!.after = loads.current;
+  };
+  const release = (moves: Record<string, Point>) => {
+    for (const id of Object.keys(moves)) if (settling.current[id]?.at === moves[id]) delete settling.current[id];
+  };
+
+  async function flushSave(options: { keepalive?: boolean } = {}) {
+    window.clearTimeout(timers.current.save);
+    const batch = { ...unsaved.current };
+    const ids = Object.keys(batch);
+    if (!ids.length || !graphRef.current) return;
+    const rounded = Object.fromEntries(ids.map((id) => [id, { x: Math.round(batch[id]!.x), y: Math.round(batch[id]!.y) }]));
+    hold(rounded);
+    for (const id of ids) if (unsaved.current[id] === batch[id]) delete unsaved.current[id];
+    try {
+      await canvasApi("PATCH", `${base}/positions`, { positions: rounded }, options);
+      settle(rounded);
+      if (graphRef.current && !destroyed.current) patchGraph({ positions: { ...(graphRef.current.positions || {}), ...rounded } });
+    } catch (e) {
+      release(rounded);
+      if (destroyed.current) return;
+      toast(errorText(e), true);
+      void load({ quiet: true });
+    }
+  }
+  const flushRef = useRef(flushSave);
+  flushRef.current = flushSave;
+  function queueSave(moves: Record<string, Point>) {
+    Object.assign(unsaved.current, moves);
+    window.clearTimeout(timers.current.save);
+    timers.current.save = window.setTimeout(() => void flushRef.current(), 400);
+  }
+
+  useEffect(() => {
+    destroyed.current = false;
     void load({ quiet: true });
     const onVisibility = () => {
       if (document.visibilityState !== "visible") return;
@@ -254,20 +408,27 @@ export function EnvironmentCanvas(props: {
       timers.current.refresh = window.setTimeout(() => void load({ quiet: true }), 300);
     };
     const onKeydown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !e.defaultPrevented) setSelected(null);
+      if (e.key === "Escape" && selectedRef.current && !e.defaultPrevented) select(null);
+    };
+    const onPageHide = () => {
+      saveView();
+      if (Object.keys(unsaved.current).length) void flushRef.current({ keepalive: true });
     };
     document.addEventListener("visibilitychange", onVisibility);
     document.addEventListener("keydown", onKeydown);
-    window.addEventListener("pagehide", saveView);
+    window.addEventListener("pagehide", onPageHide);
     const t = timers.current;
     return () => {
       saveView();
+      if (Object.keys(unsaved.current).length) void flushRef.current({ keepalive: true });
+      destroyed.current = true;
       document.removeEventListener("visibilitychange", onVisibility);
       document.removeEventListener("keydown", onKeydown);
-      window.removeEventListener("pagehide", saveView);
+      window.removeEventListener("pagehide", onPageHide);
       window.clearTimeout(t.toast);
       window.clearTimeout(t.view);
       window.clearTimeout(t.refresh);
+      window.clearTimeout(t.save);
     };
     // saveView reads refs only.
   }, [load]);
@@ -281,30 +442,179 @@ export function EnvironmentCanvas(props: {
     setShowNotice(false);
   }
 
-  // ── Interactions ──
-  // A press on a card that does not move selects it (cards cannot be moved here: view only).
-  function pressCard(id: string, e: ReactPointerEvent<HTMLDivElement>) {
-    if (e.button !== 0 || (e.target as Element).closest("a,button,input,[data-ec-port]")) return;
-    e.stopPropagation();
-    const start = { x: e.clientX, y: e.clientY };
-    const card = e.currentTarget;
+  // ── Links ──
+  function replaceLink(link: CanvasLink) {
+    const g = graphRef.current;
+    if (g) patchGraph({ links: g.links.map((l) => (l.id === link.id ? link : l)) });
+  }
+
+  async function saveLabel(link: CanvasLink, value: string): Promise<boolean> {
     try {
-      card.setPointerCapture(e.pointerId);
-    } catch {
-      // Synthetic or already released pointer.
+      const updated = await canvasApi<CanvasLink>("PATCH", `${base}/links/${encodeURIComponent(link.id)}`, { label: value || null });
+      replaceLink({ ...link, ...(updated?.id ? updated : { label: value || null }) });
+      toast("Label saved.");
+      return true;
+    } catch (e) {
+      toast(errorText(e), true);
+      return false;
     }
-    const up = (ev: PointerEvent) => {
-      card.removeEventListener("pointerup", up);
-      card.removeEventListener("pointercancel", up);
-      if (Math.hypot(ev.clientX - start.x, ev.clientY - start.y) < 4) setSelected({ kind: "node", id });
-    };
-    card.addEventListener("pointerup", up);
-    card.addEventListener("pointercancel", up);
+  }
+
+  async function deleteLink(link: CanvasLink) {
+    try {
+      await canvasApi("DELETE", `${base}/links/${encodeURIComponent(link.id)}`);
+      const g = graphRef.current;
+      if (g) patchGraph({ links: g.links.filter((l) => l.id !== link.id) });
+      select(null);
+      toast("Link removed.");
+    } catch (e) {
+      toast(errorText(e), true);
+    }
+  }
+
+  async function createLink(source: string, target: string) {
+    const g = graphRef.current;
+    if (!g) return;
+    if (!canLink(g.links, source, target)) {
+      toast("These resources are already linked.", true);
+      return;
+    }
+    const entry = { source, target };
+    setPending((p) => [...p, entry]);
+    try {
+      const created = await canvasApi<CanvasLink>("POST", `${base}/links`, { source, target });
+      if (destroyed.current) return;
+      const current = graphRef.current;
+      if (created?.id && current) {
+        patchGraph({ links: [...current.links.filter((l) => l.id !== created.id), created] });
+        select({ kind: "link", id: created.id });
+        setFocusLabel((n) => n + 1);
+      } else {
+        void load({ quiet: true });
+      }
+    } catch (e) {
+      toast(errorText(e), true);
+    } finally {
+      setPending((p) => p.filter((x) => x !== entry));
+    }
+  }
+
+  // ── Interactions ──
+  function begin(key: string) {
+    interactions.current.add(key);
+  }
+  function end(key: string) {
+    interactions.current.delete(key);
+    if (!interactions.current.size && deferred.current) {
+      const next = deferred.current;
+      deferred.current = null;
+      applyGraph(next);
+    }
   }
   function hoverCard(id: string, on: boolean) {
-    if (on) setHover(id);
-    else setHover((h) => (h === id ? null : h));
+    if (on && !interactions.current.size) setHover(id);
+    else if (!on) setHover((h) => (h === id ? null : h));
   }
+
+  function startCardDrag(id: string, card: HTMLElement, e: ReactPointerEvent<HTMLDivElement>) {
+    const g = graphRef.current;
+    if (!g || e.button !== 0 || (e.target as Element).closest("a,button,input,[data-ec-port]")) return;
+    e.stopPropagation();
+    const from = positionsRef.current[id];
+    const start = { cx: e.clientX, cy: e.clientY, x: from?.x ?? 0, y: from?.y ?? 0 };
+    const movable = canMove;
+    // The other cards and frames stay put during the drag, so measure them once.
+    const rules = dragRules(g, positionsRef.current, sizesRef.current, id);
+    let moved = false;
+    capture(card, e.pointerId);
+    begin(`card:${id}`);
+    track(
+      card,
+      (ev) => {
+        if (!moved && Math.hypot(ev.clientX - start.cx, ev.clientY - start.cy) < 4) return;
+        if (!movable) return;
+        const rect = rectOf(id);
+        if (!rect) return;
+        const z = view.current.z;
+        const wanted = { x: start.x + (ev.clientX - start.cx) / z, y: start.y + (ev.clientY - start.cy) / z, w: rect.width, h: rect.height };
+        // Cards cannot cover each other or another zone: stop at the edge of what is in the way.
+        const spot = freeSpot(wanted, rules.others, BOX_GAP, rules.fits);
+        if (!spot) return;
+        moved = true;
+        setPositions({ ...positionsRef.current, [id]: { x: spot.x, y: spot.y } });
+      },
+      () => {
+        if (moved) queueSave({ [id]: { ...positionsRef.current[id]! } });
+        else select({ kind: "node", id });
+        end(`card:${id}`);
+      },
+    );
+  }
+
+  function startZoneDrag(box: ZoneBox, header: HTMLElement, e: ReactPointerEvent<HTMLDivElement>) {
+    const g = graphRef.current;
+    if (!g || e.button !== 0 || !canMove || (e.target as Element).closest("a,button")) return;
+    e.stopPropagation();
+    const ids = box.nodes.filter((id) => positionsRef.current[id]);
+    const starts = Object.fromEntries(ids.map((id) => [id, { ...positionsRef.current[id]! }]));
+    const origin = { cx: e.clientX, cy: e.clientY };
+    // Zones cannot cover each other: the frame stops at the edge of another zone.
+    const zone = toBox(box);
+    const others = zoneBoxes(g, positionsRef.current, sizesRef.current)
+      .filter((z) => z.id !== box.id)
+      .map(toBox);
+    let moved: Point | null = null; // how far the zone moved
+    capture(header, e.pointerId);
+    begin("zone");
+    track(
+      header,
+      (ev) => {
+        if (!moved && Math.hypot(ev.clientX - origin.cx, ev.clientY - origin.cy) < 4) return;
+        const z = view.current.z;
+        const spot = freeSpot({ ...zone, x: zone.x + (ev.clientX - origin.cx) / z, y: zone.y + (ev.clientY - origin.cy) / z }, others);
+        if (!spot) return;
+        const delta = { x: spot.x - zone.x, y: spot.y - zone.y };
+        moved = delta;
+        const next = { ...positionsRef.current };
+        for (const id of ids) next[id] = { x: starts[id]!.x + delta.x, y: starts[id]!.y + delta.y };
+        setPositions(next);
+      },
+      () => {
+        if (moved) queueSave(Object.fromEntries(ids.map((id) => [id, { ...positionsRef.current[id]! }])));
+        end("zone");
+      },
+    );
+  }
+
+  function startConnect(id: string, port: HTMLElement, e: ReactPointerEvent<HTMLSpanElement>) {
+    if (e.button !== 0 || !graphRef.current?.can_edit) return;
+    e.stopPropagation();
+    e.preventDefault();
+    const a = rectOf(id);
+    if (!a) return;
+    const from = { x: a.x + a.width, y: a.y + a.height / 2 };
+    capture(port, e.pointerId);
+    begin("connect");
+    setHover(null);
+    track(
+      port,
+      (ev) => {
+        const to = pz.current?.toWorld(ev.clientX, ev.clientY);
+        if (to) setTemp({ from, to });
+        const tid = document.elementFromPoint(ev.clientX, ev.clientY)?.closest<HTMLElement>("[data-ec-card]")?.dataset.id;
+        setDropTarget(tid && canConnect(graphRef.current, id, tid) ? tid : null);
+      },
+      () => {
+        const chosen = dropTargetRef.current;
+        setDropTarget(null);
+        setTemp(null);
+        const done = () => end("connect");
+        if (chosen) void createLink(id, chosen).finally(done);
+        else done();
+      },
+    );
+  }
+
   // Double-click on a card opens its page. Tracked on pointerdown (capture phase): the first click
   // re-renders the card and can open the side panel over it, so two presses at the same point open
   // the page of the first one.
@@ -356,6 +666,23 @@ export function EnvironmentCanvas(props: {
     }
     return out;
   }, [graph, positions, sizes, selected, hover]);
+  const pendingPaths = useMemo(() => {
+    const rect = (id: string) => {
+      const node = graph?.nodes.find((n) => n.id === id);
+      return node ? cardRect(node, positions, sizes) : null;
+    };
+    return pending.flatMap((p) => {
+      const a = rect(p.source);
+      const b = rect(p.target);
+      return a && b ? [linkPath(a, b).d] : [];
+    });
+  }, [pending, graph, positions, sizes]);
+  const tempPath = useMemo(() => {
+    if (!temp) return null;
+    const { from, to } = temp;
+    const dx = Math.max(40, Math.abs(to.x - from.x) / 2);
+    return `M ${from.x} ${from.y} C ${from.x + dx} ${from.y}, ${to.x - dx} ${to.y}, ${to.x} ${to.y}`;
+  }, [temp]);
   const panelNode = selected?.kind === "node" ? (nodeById(selected.id) ?? null) : null;
   const panelLink = selected?.kind === "link" ? (linkById(selected.id) ?? null) : null;
   const empty = !!graph && !graph.nodes.length;
@@ -386,7 +713,7 @@ export function EnvironmentCanvas(props: {
           <div ref={world} className="absolute top-0 left-0 origin-top-left">
             <div className="absolute top-0 left-0">
               {boxes.map((box) => (
-                <Zone key={box.id ?? "__none"} box={box} movable={false} nodes={box.nodes.map((id) => nodeById(id)).filter((n) => !!n)} onPress={() => undefined} />
+                <Zone key={box.id ?? "__none"} box={box} movable={canMove} nodes={box.nodes.map((id) => nodeById(id)).filter((n) => !!n)} onPress={(e) => startZoneDrag(box, e.currentTarget, e)} />
               ))}
             </div>
             <svg className="pointer-events-none absolute top-0 left-0 overflow-visible" width="1" height="1">
@@ -403,13 +730,17 @@ export function EnvironmentCanvas(props: {
                     data-ec-link={shape.link.id}
                     onClick={(e) => {
                       e.stopPropagation();
-                      setSelected({ kind: "link", id: shape.link.id });
+                      select({ kind: "link", id: shape.link.id });
                     }}
                   >
                     <title>{shape.title}</title>
                   </path>
                 </g>
               ))}
+              {pendingPaths.map((d, i) => (
+                <path key={`pending:${i}`} d={d} strokeWidth="2" strokeLinecap="round" className="ec-temp fill-none stroke-coollabs dark:stroke-warning" />
+              ))}
+              {tempPath ? <path d={tempPath} strokeWidth="2" strokeLinecap="round" className="ec-temp fill-none stroke-coollabs dark:stroke-warning" /> : null}
             </svg>
             <div className="absolute top-0 left-0">
               {shapes
@@ -425,7 +756,7 @@ export function EnvironmentCanvas(props: {
                     data-ec-label=""
                     onClick={(e) => {
                       e.stopPropagation();
-                      setSelected({ kind: "link", id: shape.link.id });
+                      select({ kind: "link", id: shape.link.id });
                     }}
                   >
                     {shape.link.label}
@@ -439,11 +770,14 @@ export function EnvironmentCanvas(props: {
                   node={node}
                   position={positions[node.id]}
                   selected={selected?.kind === "node" && selected.id === node.id}
-                  movable={false}
+                  dropTarget={dropTarget === node.id}
+                  movable={canMove}
+                  port={canEdit ? "Drag to another card to draw a link" : null}
                   zoneNames={zoneNames(node)}
                   serverDown={!!node.zone && downZones.has(node.zone)}
-                  onPress={(e) => pressCard(node.id, e)}
-                  onSelect={() => setSelected({ kind: "node", id: node.id })}
+                  onPress={(e, card) => startCardDrag(node.id, card, e)}
+                  onConnect={(e, port) => startConnect(node.id, port, e)}
+                  onSelect={() => select({ kind: "node", id: node.id })}
                   onHover={(on) => hoverCard(node.id, on)}
                 />
               ))}
@@ -510,8 +844,10 @@ export function EnvironmentCanvas(props: {
             top={panelTop}
             nodeById={nodeById}
             zoneNames={zoneNames}
-            onSelect={setSelected}
-            onClose={() => setSelected(null)}
+            onSelect={select}
+            onClose={() => select(null)}
+            onLabel={saveLabel}
+            onDelete={deleteLink}
           />
         ) : null}
 

@@ -1,7 +1,7 @@
 // Derived from coollabsio/coolify@91b7e3e:resources/js/canvas/environment/Card.svelte (Apache-2.0), modified.
-// A resource card. Not ported: the connect view's shared variable and tag cards, the dashboard's
-// deployment pill and the drag dot that draws a link (Freeploy saves no links yet).
-import type { PointerEvent as ReactPointerEvent } from "react";
+// A resource card (or, connect view, a shared variable / tag card), with its drag dot that draws a
+// link (DP-92), the drop target ring, the dashboard's deployment pill and the server view's status text.
+import { useRef, type PointerEvent as ReactPointerEvent } from "react";
 import { isSource, MAX_CHILDREN, statusLabel, statusTone, statusWord, TYPE_LABELS, type CanvasNode, type Point, type Tone } from "../../../lib/environment-canvas";
 import { CanvasIcon } from "./Icon";
 import { NodeIcon } from "./NodeIcon";
@@ -28,18 +28,26 @@ export function Card(props: {
   selected: boolean;
   dropTarget?: boolean;
   movable: boolean;
+  /** The drag dot's title, or null when this card cannot start a link. */
+  port?: string | null;
+  /** Connect view: how many resources use this source. */
+  linkCount?: number;
   zoneNames: string[];
   serverDown?: boolean;
   statusText?: boolean;
-  onPress: (e: ReactPointerEvent<HTMLDivElement>) => void;
+  onPress: (e: ReactPointerEvent<HTMLDivElement>, card: HTMLDivElement) => void;
+  onConnect?: (e: ReactPointerEvent<HTMLSpanElement>, port: HTMLSpanElement) => void;
   onSelect: () => void;
   onHover: (on: boolean) => void;
 }) {
-  const { node, position, serverDown = false } = props;
+  const { node, position, serverDown = false, linkCount = 0 } = props;
+  const card = useRef<HTMLDivElement>(null);
+  const portDot = useRef<HTMLSpanElement>(null);
   const extra = node.extra_zones?.length || 0;
   const security = node.security?.text ? node.security : null;
   const children = node.children ?? [];
   const status = serverDown ? "unknown" : node.status;
+  const typeLabel = TYPE_LABELS[node.type];
   const border = props.selected
     ? "border-coollabs ring-2 ring-coollabs/25 dark:border-warning dark:ring-warning/25"
     : node.missing
@@ -48,6 +56,7 @@ export function Card(props: {
   return (
     // data-ec-open: its page opens on double-click (see the root's pointerdown capture listener).
     <div
+      ref={card}
       className={`group absolute flex w-[260px] flex-col rounded-xl border bg-white p-3 shadow-sm transition-shadow hover:shadow-md dark:bg-raised ${border} ${props.movable ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"} ${props.dropTarget ? DROP_TARGET : ""}`}
       style={position ? { left: `${position.x}px`, top: `${position.y}px` } : undefined}
       data-ec-card=""
@@ -56,8 +65,10 @@ export function Card(props: {
       title={node.link ? "Double-click to open" : undefined}
       role="button"
       tabIndex={0}
-      aria-label={`${node.name} (${TYPE_LABELS[node.type] || node.type}), ${serverDown ? DOWN : statusLabel(node.status)}`}
-      onPointerDown={props.onPress}
+      aria-label={
+        isSource(node) ? `${node.name} (${node.missing ? "deleted " : ""}${(typeLabel ?? node.type).toLowerCase()})` : `${node.name} (${typeLabel || node.type}), ${serverDown ? DOWN : statusLabel(node.status)}`
+      }
+      onPointerDown={(e) => props.onPress(e, card.current!)}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
@@ -79,18 +90,46 @@ export function Card(props: {
         </div>
         <div className="min-w-0 flex-1">
           <div className={`truncate text-[13px] leading-4 font-semibold text-black dark:text-fg ${node.type === "variable" ? "font-mono" : ""} ${node.link ? "underline-offset-2 group-hover:underline" : ""}`}>{node.name}</div>
-          <div className="mt-0.5 truncate text-[11px] leading-4 text-neutral-500 dark:text-fg-faint">{node.subtitle || TYPE_LABELS[node.type] || ""}</div>
+          <div className="mt-0.5 truncate text-[11px] leading-4 text-neutral-500 dark:text-fg-faint">{node.subtitle || typeLabel || ""}</div>
         </div>
-        {isSource(node) ? null : props.statusText ? (
-          // Server view: the status in words, so a stopped resource reads as stopped at a glance.
-          <span className={`mt-0.5 inline-flex shrink-0 items-center gap-1.5 text-[11px] leading-4 font-medium ${TONE_TEXT[statusTone(status)]}`} title={serverDown ? DOWN : statusLabel(status)}>
-            {statusWord(status)}
-            <StatusDot status={status} size="size-1.5" title={serverDown ? DOWN : null} />
+        {isSource(node) ? (
+          <span
+            className={`mt-0.5 shrink-0 rounded-full border px-1.5 text-[10px] leading-4 font-medium ${
+              node.missing
+                ? "border-red-200 bg-red-50 text-red-600 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400"
+                : "border-neutral-200 bg-neutral-50 text-neutral-500 dark:border-white/[0.1] dark:bg-white/[0.05] dark:text-fg-dim"
+            }`}
+            title={node.missing ? "This shared variable was deleted, but resources still reference it" : `Used by ${linkCount} ${linkCount === 1 ? "resource" : "resources"}`}
+          >
+            {node.missing ? "Deleted" : String(linkCount)}
           </span>
         ) : (
-          <div className="pt-1">
-            <StatusDot status={status} title={serverDown ? DOWN : null} />
-          </div>
+          <>
+            {node.deployment ? (
+              // Dashboard canvas: the running or queued deployment of the application.
+              <a
+                className="relative mt-0.5 inline-flex shrink-0 items-center gap-1 rounded-full border border-neutral-200 bg-neutral-50 px-1.5 text-[10px] leading-4 font-medium text-neutral-600 hover:border-neutral-300 hover:text-black dark:border-white/[0.1] dark:bg-white/[0.05] dark:text-fg-dim dark:hover:border-white/[0.2] dark:hover:text-fg"
+                href={node.deployment.link}
+                title={node.deployment.pull_request_id ? `Pull request #${node.deployment.pull_request_id}` : "Open the deployment"}
+                onPointerDown={stop}
+                onClick={stop}
+              >
+                <StatusDot status={node.deployment.status} size="size-1.5" />
+                {node.deployment.status === "queued" ? "Queued" : "Deploying"}
+              </a>
+            ) : null}
+            {props.statusText ? (
+              // Server view: the status in words, so a stopped resource reads as stopped at a glance.
+              <span className={`mt-0.5 inline-flex shrink-0 items-center gap-1.5 text-[11px] leading-4 font-medium ${TONE_TEXT[statusTone(status)]}`} title={serverDown ? DOWN : statusLabel(status)}>
+                {statusWord(status)}
+                <StatusDot status={status} size="size-1.5" title={serverDown ? DOWN : null} />
+              </span>
+            ) : (
+              <div className="pt-1">
+                <StatusDot status={status} title={serverDown ? DOWN : null} />
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -137,6 +176,18 @@ export function Card(props: {
           ))}
           {children.length > MAX_CHILDREN ? <li className="h-5 text-[11px] leading-5 text-neutral-400 dark:text-fg-faint">{`+${children.length - MAX_CHILDREN} more`}</li> : null}
         </ul>
+      ) : null}
+
+      {/* Drag dot: shown on hover only. Connected ends always show (link end dots in the root). */}
+      {props.port ? (
+        <span
+          ref={portDot}
+          className="absolute top-1/2 -right-1.5 size-3 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-white bg-neutral-400 opacity-0 shadow transition-[opacity,scale,background-color] group-hover:opacity-100 hover:scale-120 hover:bg-coollabs dark:border-raised dark:bg-neutral-500 dark:hover:bg-warning"
+          data-ec-port=""
+          role="presentation"
+          title={props.port}
+          onPointerDown={(e) => props.onConnect?.(e, portDot.current!)}
+        ></span>
       ) : null}
     </div>
   );

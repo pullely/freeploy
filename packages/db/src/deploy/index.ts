@@ -633,3 +633,5 @@ export * from "./git-sources.js";
 export * from "./platform-settings.js";
 // DP-87: the /api/v1 application create's writes, column by column.
 export * from "./api-applications.js";
+// DP-92: the environment canvas's stored layout (card positions, visual-only resource links).
+export * from "./canvas.js";
