@@ -1,0 +1,347 @@
+{
+  "cases": [
+    {
+      "id": "image-umami",
+      "template": "umami",
+      "replacements": [
+        {
+          "search": "    image: 'ghcr.io/umami-software/umami:3.5.0'\n",
+          "replace": "    image: 'nginx:1.27-alpine'\n"
+        }
+      ]
+    },
+    {
+      "id": "image-uptime-kuma",
+      "template": "uptime-kuma",
+      "replacements": [
+        {
+          "search": "    image: 'louislam/uptime-kuma:2'\n",
+          "replace": "    image: 'nginx:1.27-alpine'\n"
+        }
+      ]
+    },
+    {
+      "id": "image-gitea",
+      "template": "gitea",
+      "replacements": [
+        {
+          "search": "    image: 'gitea/gitea:28.4.0'\n",
+          "replace": "    image: 'nginx:1.27-alpine'\n"
+        }
+      ]
+    },
+    {
+      "id": "image-ghost",
+      "template": "ghost",
+      "replacements": [
+        {
+          "search": "    image: 'ghost:6'\n",
+          "replace": "    image: 'nginx:1.27-alpine'\n"
+        }
+      ]
+    },
+    {
+      "id": "image-vaultwarden",
+      "template": "vaultwarden",
+      "replacements": [
+        {
+          "search": "    image: 'vaultwarden/server:1.37.5'\n",
+          "replace": "    image: 'nginx:1.27-alpine'\n"
+        }
+      ]
+    },
+    {
+      "id": "image-to-database-mosquitto",
+      "template": "mosquitto",
+      "replacements": [
+        {
+          "search": "    image: 'eclipse-mosquitto:2.1.2-alpine'\n",
+          "replace": "    image: 'postgres:16-alpine'\n"
+        }
+      ]
+    },
+    {
+      "id": "image-to-database-9router",
+      "template": "9router",
+      "replacements": [
+        {
+          "search": "    image: 'decolua/9router:0.5.116'\n",
+          "replace": "    image: 'postgres:16-alpine'\n"
+        }
+      ]
+    },
+    {
+      "id": "add-service-n8n",
+      "template": "n8n",
+      "replacements": [
+        {
+          "search": "  task-runners:\n    image: 'n8nio/runners:2.47.7'\n    environment:\n      - 'N8N_RUNNERS_TASK_BROKER_URI=${N8N_RUNNERS_TASK_BROKER_URI:-http://n8n:5679}'\n      - 'N8N_RUNNERS_AUTH_TOKEN=${SERVICE_PASSWORD_N8N}'\n      - 'N8N_RUNNERS_AUTO_SHUTDOWN_TIMEOUT=${N8N_RUNNERS_AUTO_SHUTDOWN_TIMEOUT:-15}'\n      - 'N8N_RUNNERS_MAX_CONCURRENCY=${N8N_RUNNERS_MAX_CONCURRENCY:-5}'\n    depends_on:\n      - n8n\n    healthcheck:\n      test:\n        - CMD-SHELL\n        - 'wget -qO- http://127.0.0.1:5680/healthz'\n      interval: 5s\n      timeout: 20s\n      retries: 10\n",
+          "replace": "  task-runners:\n    image: 'n8nio/runners:2.47.7'\n    environment:\n      - 'N8N_RUNNERS_TASK_BROKER_URI=${N8N_RUNNERS_TASK_BROKER_URI:-http://n8n:5679}'\n      - 'N8N_RUNNERS_AUTH_TOKEN=${SERVICE_PASSWORD_N8N}'\n      - 'N8N_RUNNERS_AUTO_SHUTDOWN_TIMEOUT=${N8N_RUNNERS_AUTO_SHUTDOWN_TIMEOUT:-15}'\n      - 'N8N_RUNNERS_MAX_CONCURRENCY=${N8N_RUNNERS_MAX_CONCURRENCY:-5}'\n    depends_on:\n      - n8n\n    healthcheck:\n      test:\n        - CMD-SHELL\n        - 'wget -qO- http://127.0.0.1:5680/healthz'\n      interval: 5s\n      timeout: 20s\n      retries: 10\n  freeploy-extra:\n    image: 'busybox:1.36'\n    environment:\n      - SERVICE_URL_FREEPLOYEXTRA_8080\n      - EXTRA_PASSWORD=${SERVICE_PASSWORD_FREEPLOYEXTRA}\n      - EXTRA_NAME=${EXTRA_NAME:-freeploy}\n    volumes:\n      - 'freeploy-extra-data:/data'\n      - './freeploy-extra/config.txt:/etc/extra/config.txt'\n"
+        }
+      ]
+    },
+    {
+      "id": "add-service-nextcloud",
+      "template": "nextcloud",
+      "replacements": [
+        {
+          "search": "  nextcloud:\n    image: 'lscr.io/linuxserver/nextcloud:35.0.3'\n    environment:\n      - SERVICE_URL_NEXTCLOUD_80\n      - PUID=1000\n      - PGID=1000\n      - 'TZ=${TZ:-Europe/Madrid}'\n    volumes:\n      - 'nextcloud-config:/config'\n      - 'nextcloud-data:/data'\n    healthcheck:\n      test:\n        - CMD\n        - curl\n        - '-f'\n        - 'http://127.0.0.1:80/status.php'\n      interval: 30s\n      timeout: 10s\n      retries: 15\n",
+          "replace": "  nextcloud:\n    image: 'lscr.io/linuxserver/nextcloud:35.0.3'\n    environment:\n      - SERVICE_URL_NEXTCLOUD_80\n      - PUID=1000\n      - PGID=1000\n      - 'TZ=${TZ:-Europe/Madrid}'\n    volumes:\n      - 'nextcloud-config:/config'\n      - 'nextcloud-data:/data'\n    healthcheck:\n      test:\n        - CMD\n        - curl\n        - '-f'\n        - 'http://127.0.0.1:80/status.php'\n      interval: 30s\n      timeout: 10s\n      retries: 15\n  freeploy-extra:\n    image: 'busybox:1.36'\n    environment:\n      - SERVICE_URL_FREEPLOYEXTRA_8080\n      - EXTRA_PASSWORD=${SERVICE_PASSWORD_FREEPLOYEXTRA}\n      - EXTRA_NAME=${EXTRA_NAME:-freeploy}\n    volumes:\n      - 'freeploy-extra-data:/data'\n      - './freeploy-extra/config.txt:/etc/extra/config.txt'\n"
+        }
+      ]
+    },
+    {
+      "id": "add-service-wordpress-with-mysql",
+      "template": "wordpress-with-mysql",
+      "replacements": [
+        {
+          "search": "  mysql:\n    image: 'mysql:8'\n    volumes:\n      - 'mysql-data:/var/lib/mysql'\n    environment:\n      - MYSQL_ROOT_PASSWORD=$SERVICE_PASSWORD_ROOT\n      - MYSQL_DATABASE=wordpress\n      - MYSQL_USER=$SERVICE_USER_WORDPRESS\n      - MYSQL_PASSWORD=$SERVICE_PASSWORD_WORDPRESS\n    healthcheck:\n      test:\n        - CMD\n        - mysqladmin\n        - ping\n        - '-h'\n        - 127.0.0.1\n      interval: 5s\n      timeout: 20s\n      retries: 10\n",
+          "replace": "  mysql:\n    image: 'mysql:8'\n    volumes:\n      - 'mysql-data:/var/lib/mysql'\n    environment:\n      - MYSQL_ROOT_PASSWORD=$SERVICE_PASSWORD_ROOT\n      - MYSQL_DATABASE=wordpress\n      - MYSQL_USER=$SERVICE_USER_WORDPRESS\n      - MYSQL_PASSWORD=$SERVICE_PASSWORD_WORDPRESS\n    healthcheck:\n      test:\n        - CMD\n        - mysqladmin\n        - ping\n        - '-h'\n        - 127.0.0.1\n      interval: 5s\n      timeout: 20s\n      retries: 10\n  freeploy-extra:\n    image: 'busybox:1.36'\n    environment:\n      - SERVICE_URL_FREEPLOYEXTRA_8080\n      - EXTRA_PASSWORD=${SERVICE_PASSWORD_FREEPLOYEXTRA}\n      - EXTRA_NAME=${EXTRA_NAME:-freeploy}\n    volumes:\n      - 'freeploy-extra-data:/data'\n      - './freeploy-extra/config.txt:/etc/extra/config.txt'\n"
+        }
+      ]
+    },
+    {
+      "id": "add-service-activepieces",
+      "template": "activepieces",
+      "replacements": [
+        {
+          "search": "  redis:\n    image: 'redis:7-alpine'\n    volumes:\n      - 'redis_data:/data'\n    healthcheck:\n      test:\n        - CMD\n        - redis-cli\n        - ping\n      interval: 5s\n      timeout: 20s\n      retries: 10\n",
+          "replace": "  redis:\n    image: 'redis:7-alpine'\n    volumes:\n      - 'redis_data:/data'\n    healthcheck:\n      test:\n        - CMD\n        - redis-cli\n        - ping\n      interval: 5s\n      timeout: 20s\n      retries: 10\n  freeploy-extra:\n    image: 'busybox:1.36'\n    environment:\n      - SERVICE_URL_FREEPLOYEXTRA_8080\n      - EXTRA_PASSWORD=${SERVICE_PASSWORD_FREEPLOYEXTRA}\n      - EXTRA_NAME=${EXTRA_NAME:-freeploy}\n    volumes:\n      - 'freeploy-extra-data:/data'\n      - './freeploy-extra/config.txt:/etc/extra/config.txt'\n"
+        }
+      ]
+    },
+    {
+      "id": "remove-service-plane",
+      "template": "plane",
+      "replacements": [
+        {
+          "search": "  plane-minio:\n    image: 'pgsty/silo:RELEASE.2026-10-15T00-00-00Z'\n    command: 'server /export --console-address \":9090\"'\n    environment:\n      MINIO_ROOT_USER: $SERVICE_USER_MINIO\n      MINIO_ROOT_PASSWORD: $SERVICE_PASSWORD_MINIO\n    volumes:\n      - 'uploads:/export'\n    healthcheck:\n      test:\n        - CMD\n        - mc\n        - ready\n        - local\n      interval: 5s\n      timeout: 20s\n      retries: 10\n",
+          "replace": ""
+        }
+      ]
+    },
+    {
+      "id": "remove-service-authentik",
+      "template": "authentik",
+      "replacements": [
+        {
+          "search": "  postgresql:\n    image: 'postgres:16-alpine'\n    restart: unless-stopped\n    healthcheck:\n      test:\n        - CMD-SHELL\n        - 'pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}'\n      interval: 2s\n      timeout: 10s\n      retries: 15\n    volumes:\n      - 'authentik-db:/var/lib/postgresql/data'\n    environment:\n      - 'POSTGRES_PASSWORD=${SERVICE_PASSWORD_POSTGRESQL}'\n      - 'POSTGRES_USER=${SERVICE_USER_POSTGRESQL}'\n      - POSTGRES_DB=authentik\n",
+          "replace": ""
+        }
+      ]
+    },
+    {
+      "id": "remove-service-affine",
+      "template": "affine",
+      "replacements": [
+        {
+          "search": "  postgres:\n    image: 'pgvector/pgvector:0.8.7-pg16'\n    volumes:\n      - 'affine-postgres-data:/var/lib/postgresql/data'\n    environment:\n      - 'POSTGRES_USER=${SERVICE_USER_POSTGRES}'\n      - 'POSTGRES_PASSWORD=${SERVICE_PASSWORD_POSTGRES}'\n      - 'POSTGRES_DB=${POSTGRES_DB:-affine}'\n      - PGDATA=/var/lib/postgresql/data/pgdata\n    healthcheck:\n      test:\n        - CMD-SHELL\n        - 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}'\n      interval: 5s\n      timeout: 20s\n      retries: 10\n",
+          "replace": ""
+        }
+      ]
+    },
+    {
+      "id": "remove-service-alexandrie",
+      "template": "alexandrie",
+      "replacements": [
+        {
+          "search": "  rustfs:\n    image: 'rustfs/rustfs:1.0.0-beta.8'\n    environment:\n      - SERVICE_URL_RUSTFS_9000\n      - 'RUSTFS_ACCESS_KEY=${SERVICE_USER_RUSTFS}'\n      - 'RUSTFS_SECRET_KEY=${SERVICE_PASSWORD_RUSTFS}'\n      - 'RUSTFS_CONSOLE_ENABLE=${RUSTFS_CONSOLE_ENABLE:-false}'\n      - 'RUSTFS_LOG_LEVEL=${RUSTFS_LOG_LEVEL:-info}'\n    volumes:\n      - 'rustfs-data:/data'\n      - 'rustfs-logs:/logs'\n    healthcheck:\n      test:\n        - CMD-SHELL\n        - 'nc -z localhost 9000 || exit 1'\n      interval: 10s\n      timeout: 5s\n      retries: 5\n",
+          "replace": ""
+        }
+      ]
+    },
+    {
+      "id": "port-actualbudget",
+      "template": "actualbudget",
+      "replacements": [
+        {
+          "search": "SERVICE_URL_ACTUAL_5006",
+          "replace": "SERVICE_URL_ACTUAL_5007",
+          "all": true
+        }
+      ]
+    },
+    {
+      "id": "port-anythingllm",
+      "template": "anythingllm",
+      "replacements": [
+        {
+          "search": "SERVICE_URL_ANYTHINGLLM_3001",
+          "replace": "SERVICE_URL_ANYTHINGLLM_3002",
+          "all": true
+        }
+      ]
+    },
+    {
+      "id": "port-apprise-api",
+      "template": "apprise-api",
+      "replacements": [
+        {
+          "search": "SERVICE_URL_APPRISE_8000",
+          "replace": "SERVICE_URL_APPRISE_8001",
+          "all": true
+        }
+      ]
+    },
+    {
+      "id": "port-argilla",
+      "template": "argilla",
+      "replacements": [
+        {
+          "search": "SERVICE_URL_ARGILLA_6900",
+          "replace": "SERVICE_URL_ARGILLA_6901",
+          "all": true
+        }
+      ]
+    },
+    {
+      "id": "port-audiobookshelf",
+      "template": "audiobookshelf",
+      "replacements": [
+        {
+          "search": "SERVICE_URL_AUDIOBOOKSHELF_80",
+          "replace": "SERVICE_URL_AUDIOBOOKSHELF_81",
+          "all": true
+        }
+      ]
+    },
+    {
+      "id": "env-appsmith",
+      "template": "appsmith",
+      "replacements": [
+        {
+          "search": "    environment:\n      - SERVICE_URL_APPSMITH\n",
+          "replace": "    environment:\n      - FREEPLOY_ADDED=hello\n      - FREEPLOY_DEFAULT=${FREEPLOY_DEFAULT:-fallback}\n      - FREEPLOY_SECRET=${SERVICE_PASSWORD_FREEPLOYADDED}\n      - SERVICE_URL_APPSMITH\n"
+        }
+      ]
+    },
+    {
+      "id": "env-autobase",
+      "template": "autobase",
+      "replacements": [
+        {
+          "search": "    environment:\n      - SERVICE_FQDN_AUTOBASE_80\n",
+          "replace": "    environment:\n      - FREEPLOY_ADDED=hello\n      - FREEPLOY_DEFAULT=${FREEPLOY_DEFAULT:-fallback}\n      - FREEPLOY_SECRET=${SERVICE_PASSWORD_FREEPLOYADDED}\n      - SERVICE_FQDN_AUTOBASE_80\n"
+        }
+      ]
+    },
+    {
+      "id": "env-babybuddy",
+      "template": "babybuddy",
+      "replacements": [
+        {
+          "search": "    environment:\n      - SERVICE_URL_BABYBUDDY\n",
+          "replace": "    environment:\n      - FREEPLOY_ADDED=hello\n      - FREEPLOY_DEFAULT=${FREEPLOY_DEFAULT:-fallback}\n      - FREEPLOY_SECRET=${SERVICE_PASSWORD_FREEPLOYADDED}\n      - SERVICE_URL_BABYBUDDY\n"
+        }
+      ]
+    },
+    {
+      "id": "env-bento-pdf",
+      "template": "bento-pdf",
+      "replacements": [
+        {
+          "search": "    environment:\n      - SERVICE_URL_BENTOPDF_8080\n",
+          "replace": "    environment:\n      - FREEPLOY_ADDED=hello\n      - FREEPLOY_DEFAULT=${FREEPLOY_DEFAULT:-fallback}\n      - FREEPLOY_SECRET=${SERVICE_PASSWORD_FREEPLOYADDED}\n      - SERVICE_URL_BENTOPDF_8080\n"
+        }
+      ]
+    },
+    {
+      "id": "env-beszel",
+      "template": "beszel",
+      "replacements": [
+        {
+          "search": "    environment:\n      - SERVICE_URL_BESZEL_8090\n",
+          "replace": "    environment:\n      - FREEPLOY_ADDED=hello\n      - FREEPLOY_DEFAULT=${FREEPLOY_DEFAULT:-fallback}\n      - FREEPLOY_SECRET=${SERVICE_PASSWORD_FREEPLOYADDED}\n      - SERVICE_URL_BESZEL_8090\n"
+        }
+      ]
+    },
+    {
+      "id": "volume-beszel-agent",
+      "template": "beszel-agent",
+      "replacements": [
+        {
+          "search": "    volumes:\n      - 'beszel_agent_data:/var/lib/beszel-agent'\n",
+          "replace": "    volumes:\n      - 'freeploy-added:/freeploy/data'\n      - './freeploy/notes.txt:/freeploy/notes.txt'\n      - 'beszel_agent_data:/var/lib/beszel-agent'\n"
+        }
+      ]
+    },
+    {
+      "id": "volume-bitcoin-core",
+      "template": "bitcoin-core",
+      "replacements": [
+        {
+          "search": "    volumes:\n      - 'blockchain-data:/home/bitcoin/.bitcoin'\n",
+          "replace": "    volumes:\n      - 'freeploy-added:/freeploy/data'\n      - './freeploy/notes.txt:/freeploy/notes.txt'\n      - 'blockchain-data:/home/bitcoin/.bitcoin'\n"
+        }
+      ]
+    },
+    {
+      "id": "volume-bluesky-pds",
+      "template": "bluesky-pds",
+      "replacements": [
+        {
+          "search": "    volumes:\n      - 'pds-data:/pds'\n",
+          "replace": "    volumes:\n      - 'freeploy-added:/freeploy/data'\n      - './freeploy/notes.txt:/freeploy/notes.txt'\n      - 'pds-data:/pds'\n"
+        }
+      ]
+    },
+    {
+      "id": "volume-bookstack",
+      "template": "bookstack",
+      "replacements": [
+        {
+          "search": "    volumes:\n      - 'bookstack-data:/config'\n",
+          "replace": "    volumes:\n      - 'freeploy-added:/freeploy/data'\n      - './freeploy/notes.txt:/freeploy/notes.txt'\n      - 'bookstack-data:/config'\n"
+        }
+      ]
+    },
+    {
+      "id": "volume-budibase",
+      "template": "budibase",
+      "replacements": [
+        {
+          "search": "    volumes:\n      - 'minio_data:/data'\n",
+          "replace": "    volumes:\n      - 'freeploy-added:/freeploy/data'\n      - './freeploy/notes.txt:/freeploy/notes.txt'\n      - 'minio_data:/data'\n"
+        }
+      ]
+    },
+    {
+      "id": "combined-immich",
+      "template": "immich",
+      "replacements": [
+        {
+          "search": "    environment:\n      - SERVICE_URL_IMMICH_2283\n",
+          "replace": "    environment:\n      - FREEPLOY_ADDED=hello\n      - FREEPLOY_DEFAULT=${FREEPLOY_DEFAULT:-fallback}\n      - FREEPLOY_SECRET=${SERVICE_PASSWORD_FREEPLOYADDED}\n      - SERVICE_URL_IMMICH_2283\n"
+        },
+        {
+          "search": "    volumes:\n      - 'immich-uploads:/usr/src/app/upload'\n",
+          "replace": "    volumes:\n      - 'freeploy-added:/freeploy/data'\n      - './freeploy/notes.txt:/freeploy/notes.txt'\n      - 'immich-uploads:/usr/src/app/upload'\n"
+        },
+        {
+          "search": "SERVICE_URL_IMMICH_2283",
+          "replace": "SERVICE_URL_IMMICH_2293",
+          "all": true
+        }
+      ]
+    },
+    {
+      "id": "combined-bugsink",
+      "template": "bugsink",
+      "replacements": [
+        {
+          "search": "    environment:\n      - 'POSTGRES_USER=${SERVICE_USER_POSTGRES}'\n",
+          "replace": "    environment:\n      - FREEPLOY_ADDED=hello\n      - FREEPLOY_DEFAULT=${FREEPLOY_DEFAULT:-fallback}\n      - FREEPLOY_SECRET=${SERVICE_PASSWORD_FREEPLOYADDED}\n      - 'POSTGRES_USER=${SERVICE_USER_POSTGRES}'\n"
+        },
+        {
+          "search": "    volumes:\n      - 'bugsink-postgres-data:/var/lib/postgresql/data'\n",
+          "replace": "    volumes:\n      - 'freeploy-added:/freeploy/data'\n      - './freeploy/notes.txt:/freeploy/notes.txt'\n      - 'bugsink-postgres-data:/var/lib/postgresql/data'\n"
+        },
+        {
+          "search": "SERVICE_URL_BUGSINK_8000",
+          "replace": "SERVICE_URL_BUGSINK_8010",
+          "all": true
+        }
+      ]
+    }
+  ]
+}

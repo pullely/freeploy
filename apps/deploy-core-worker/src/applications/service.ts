@@ -34,6 +34,7 @@ import { domainConflicts, generateUrl, normalizeApplicationDomains, normalizeDom
 import type { CreateDockerImageInput, GeneralInput } from "./validation.js";
 import type { ApplicationLabelContext } from "./labels-service.js";
 import type { ApplicationBuildContext } from "./create.js";
+import type { ServiceListResource } from "../services/resources.js";
 import { databaseResources, type DatabaseResource } from "../databases/service.js";
 
 export interface ApplicationStore {
@@ -56,6 +57,8 @@ export interface ApplicationStore {
   domains(): Promise<DeployApplicationDomainsRow[]>;
   /** $environment->databases(): the environment's standalone databases (databases/service.ts); a store without it lists applications only. */
   listDatabasesForEnvironment?(environmentId: string | number): Promise<DeployDatabaseRow[]>;
+  /** The environment's services with their tags (DP-66); none when the store does not list them. */
+  listServicesForEnvironment?(environmentId: string | number): Promise<ServiceListResource[]>;
 }
 
 export interface ApplicationContext {
@@ -443,10 +446,10 @@ export interface EnvironmentResources {
   project: { uuid: string; name: string };
   environment: { uuid: string; name: string };
   /** $this->environment->applications()…->sortBy('name'), then its databases, engine by engine, each sorted by name. */
-  resources: Array<EnvironmentResource | DatabaseResource>;
+  resources: Array<EnvironmentResource | DatabaseResource | ServiceListResource>;
 }
 
-/** Resource\Index::mount() + render(): the environment's applications and standalone databases (services are not ported yet). */
+/** Resource\Index::mount() + render(): the environment's applications, standalone databases and services. */
 export async function environmentResources(ctx: ApplicationContext, projectUuid: string, environmentUuid: string): Promise<EnvironmentResources | null> {
   const project = await ctx.store.findProject(projectUuid);
   if (!project) return null;
@@ -454,11 +457,12 @@ export async function environmentResources(ctx: ApplicationContext, projectUuid:
   if (!environment) return null;
   const rows = await ctx.store.listForEnvironment(environment.id);
   const databases = ctx.store.listDatabasesForEnvironment ? await ctx.store.listDatabasesForEnvironment(environment.id) : [];
+  const services = ctx.store.listServicesForEnvironment ? await ctx.store.listServicesForEnvironment(environment.id) : [];
   return {
     project: { uuid: project.uuid, name: project.name },
     environment: { uuid: environment.uuid, name: environment.name },
     // sortBy('name'): PHP's regular comparison, stable.
-    resources: [...rows.map(environmentResource).sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0)), ...databaseResources(databases)],
+    resources: [...rows.map(environmentResource).sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0)), ...databaseResources(databases), ...services],
   };
 }
 

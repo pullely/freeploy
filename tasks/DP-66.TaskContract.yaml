@@ -1,0 +1,24 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-66
+  title: "DP8: a service's configuration — general, its applications and databases, environment variables, storage, tags and danger zone"
+spec:
+  goal: A one-click service gets the configuration pages Coolify renders for it — the frame (heading with status and its actions, the configuration sidebar with every entry), General (StackForm with the template's fields and the "Edit Compose file" dialog), each application's and database's own settings (Index), Environment Variables, Persistent Storage (one section per application and database), Tags and the Danger Zone — under /v1/organizations/{org}/deploy/services/{uuid}/{configuration,actions,parts,environment-variables,storages,tags,danger} and /project/{uuid}/environment/{env_uuid}/service/{service_uuid}[/{environment-variables,storages,tags,danger,{stack_service_uuid}}], and services in the environment's resources list. Saving an edited Compose file is StackForm::submit() on the stored rows: the rules and messages, validateDockerComposeForInjection(), the template's fields written to their variables, and DP-59's parser run again so that parts, variables and volumes are reconciled, not duplicated — held to Coolify's own PHP by goldens of 32 edits of 32 templates (an image changed, a service added or removed, a port changed, a variable or a volume added, combined edits; 25 saved and 7 refused by the fields' rules), replayed byte for byte. The shared pages run on DP-64's ResourcesContext with the Service model (and, for storage, its parts) as the resource; deleting a service that never ran removes its rows with every child, otherwise 501. Without SSH, what Coolify does on the server — writing the Compose and .env files after a save, deploying, stopping, restarting, a part's restart or container removal, a public port's proxy — is stored first where Coolify stores first and reported as not available yet. Resource Operations (clone and move a service), the service's Domains page, converting a part between application and database, the secret manager link, the account password step of the confirmations, config_hash and the audit trail are not part of this task.
+  affects:
+    - apps/deploy-core-worker/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - on stage, a signed-in org owner opens an Umami service created from the catalogue, sees its heading (Exited, Deploy), the sidebar with every Coolify entry, the PostgreSQL fields on General and the two Compose resources; "Deploy" answers 501 "Deploying the service needs the SSH executor, which is not available yet."
+    - on stage, the owner edits the Compose file (a new image, then a new service with a SERVICE_URL_ variable and a named volume) and saves; the page shows the new image, the new application with its generated domain, the variable on the Environment Variables page and the volume on Persistent Storage, and no row is duplicated; removing the service again marks it "Not in Compose file"
+    - on stage, saving a Vaultwarden service whose Signup Allowed field is empty is refused with "The Signup Allowed field is required. (and 1 more error)" and stores nothing
+    - on stage, an application of a service saves a domain with the applications' domain rules (an invalid URL is refused with "Invalid URL: …", a domain another application uses answers the conflict), and a database of a service refuses public access while it is not running with "Database must be started to be publicly accessible."
+    - on stage, a service's Tags page adds and removes tags, its Danger Zone deletes a service that never ran (its rows removed) and the environment's resources list shows services with their status and tags
+    - the applications' and databases' pages and routes behave as before (their suites pass unchanged), and DP-59's 359-template parser goldens still pass
+    - the service pages pass the stage DOM gate or each difference is listed with its cause
+  gates: []

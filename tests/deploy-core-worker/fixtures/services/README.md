@@ -11,6 +11,8 @@ Nothing in the `emit*.php` files is a port: they call Coolify's code and print w
 | `select-golden.json` | `emit-select.php` | `App\Livewire\Project\New\Select::loadServices()`: the services as the New Resource page lists them and the categories, without `compose` and the dates |
 | `goldens.json.gz` | `emit.php` | every one of the 359 services created and parsed twice on Coolify's default server (11 MB of JSON, so gzipped) |
 | `goldens-traefik-exact.json.gz`, `goldens-caddy-exact.json.gz` | `emit.php --variant=…` | 34 of them on a server with a proxy chosen, "generate exact labels" on and a wildcard domain |
+| `reparse-cases.json` | `gen-reparse-cases.mjs` | 32 edits of 32 templates' Compose files, each a list of exact text replacements (DP-66) |
+| `reparse-goldens.json.gz` | `emit-reparse.php` | each edit saved through Coolify's "Edit Compose file" (StackForm): the fields the page loaded, the toasts, and the rows before and after |
 
 ## How a service is created and parsed (`emit.php`)
 
@@ -55,6 +57,28 @@ carries from its own rows, the others against the defaults of Coolify's schema �
 and `docker_compose_raw` as text. 359 services, 573 applications, 219 databases, 5849 environment
 variables, 791 volumes and 125 file storages on the default server; 34 services on each variant.
 
+## Editing a Compose file (`emit-reparse.php`, DP-66)
+
+The fixture and the creation are `emit.php`'s, with the team's owner signed in (`Auth::login`, the session's
+`currentTeam`) and a generated Ed25519 key on the server (its file goes to a temporary directory, and nothing is
+logged into the Coolify copy). Per case of `reparse-cases.json`: the service is created from its template
+(`before`), the case's replacements are applied to its stored `docker_compose_raw`, and the edited text is saved
+as the page saves it — `Livewire::test(StackForm::class, ['service' => …])->call('saveCompose', $raw)`, which runs
+`StackForm::submit()` with the fields `mount()` loaded: the rules, `validateDockerComposeForInjection()`, `save()`,
+`saveExtraFields()`, `parse()`, `ensureDockerComposeAccepted()` (skipped: the server is not functional) and
+`saveComposeConfigs()` (its SSH commands answered by `Process::fake()`). Emitted: the edited text, the fields, the
+success / error / warning toasts (a subclass of StackForm records them), and the rows `after`, as `emit.php` prints
+them. `gen-reparse-cases.mjs` picks the templates: each kind of edit (an image changed — twice to a database
+image —, a service added with a URL, a generated password, a named volume and a bind-mounted file, the last
+service removed, a SERVICE_URL_/SERVICE_FQDN_ port changed, variables added, volumes added, three edits at once) on
+templates no other kind used, among those whose Compose file is the same in Freeploy's catalogue and has no
+`content:` volume (the parser rewrites such a file). 25 edits are saved; 7 are refused by a field's rules (a
+template field whose variable does not exist, such as Vaultwarden's SIGNUP_ALLOWED, is required and empty).
+
+`service-reparse.test.ts` creates each service with the port, checks `before`, loads the same fields, saves the same
+text with `submitStackForm()` and compares every row and both Compose files with `after` (random values replayed as
+for `emit.php`); `services.config_hash`, which Coolify's `finally` block sets, is left out.
+
 ## Regenerating
 
 With a checkout of coollabsio/coolify at commit `91b7e3e`, in a scratch copy you can write to (the
@@ -66,8 +90,8 @@ printf 'APP_ENV=testing\nAPP_KEY=base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 bash /path/to/freeploy/tests/deploy-core-worker/fixtures/services/regenerate.sh "$PWD"
 ```
 
-`regenerate.sh` runs `../compose-yaml/emit.php`, `emit-catalogue.php`, `emit-select.php` and `emit.php`
-(default server, then the two variants) and takes about a minute. The emitters set the connection
+`regenerate.sh` runs `../compose-yaml/emit.php`, `emit-catalogue.php`, `emit-select.php`, `emit.php`
+(default server, then the two variants), `gen-reparse-cases.mjs` and `emit-reparse.php`, and takes about a minute. The emitters set the connection
 (`testing`), the cache (`array`) and the queue (`sync`) themselves. PHP needs `pdo_sqlite`.
 
 The committed files were emitted with PHP 8.3.6 (cli), Laravel 12.72.0, symfony/yaml v8.1.11 and

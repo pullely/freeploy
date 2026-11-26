@@ -28,6 +28,7 @@ import type {
 } from "@saas/db/deploy";
 import type { KeyCipher } from "../private-keys/service.js";
 import type { DatabaseShow } from "../databases/service.js";
+import type { ServiceInfo } from "../services/configuration.js";
 import { applicationShow, type ApplicationShow } from "./service.js";
 import { serverIsFunctional } from "./settings.js";
 import { applicationWorkdir } from "./storage-paths.js";
@@ -157,11 +158,12 @@ export interface ResourceRowsStore {
 }
 
 /** The configuration frame of the answer: the application or the database, as its own pages read it. */
-export type ResourceFrame = { application: ApplicationShow } | { database: DatabaseShow };
+export type ResourceFrame = { application: ApplicationShow } | { database: DatabaseShow } | { service: ServiceInfo };
 
 /** A resource as the shared pages need it. */
 export interface LoadedResource {
-  kind: "application" | "database";
+  /** "service": the service itself (its tags, its Danger Zone) or one of its parts (its storage, framed by the service). */
+  kind: "application" | "database" | "service";
   id: Id;
   uuid: string;
   name: string;

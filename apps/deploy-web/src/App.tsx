@@ -20,6 +20,11 @@ const ProjectEditPage = lazy(() => import("./pages/ProjectEdit").then((m) => ({ 
 const EnvironmentResourcesPage = lazy(() => import("./pages/EnvironmentResources").then((m) => ({ default: m.EnvironmentResourcesPage })));
 const ResourceCreatePage = lazy(() => import("./pages/ResourceCreate").then((m) => ({ default: m.ResourceCreatePage })));
 const ServiceShowPage = lazy(() => import("./pages/ServiceShow").then((m) => ({ default: m.ServiceShowPage })));
+const ServicePartPage = lazy(() => import("./pages/ServicePart").then((m) => ({ default: m.ServicePartPage })));
+const ServiceEnvironmentVariablesPage = lazy(() => import("./pages/ServiceSharedPages").then((m) => ({ default: m.ServiceEnvironmentVariablesPage })));
+const ServiceStoragesPage = lazy(() => import("./pages/ServiceSharedPages").then((m) => ({ default: m.ServiceStoragesPage })));
+const ServiceTagsPage = lazy(() => import("./pages/ServiceSharedPages").then((m) => ({ default: m.ServiceTagsPage })));
+const ServiceDangerPage = lazy(() => import("./pages/ServiceSharedPages").then((m) => ({ default: m.ServiceDangerPage })));
 const ApplicationGeneralPage = lazy(() => import("./pages/ApplicationGeneral").then((m) => ({ default: m.ApplicationGeneralPage })));
 const ApplicationDomainsPage = lazy(() => import("./pages/ApplicationDomains").then((m) => ({ default: m.ApplicationDomainsPage })));
 const ApplicationAdvancedPage = lazy(() => import("./pages/ApplicationAdvanced").then((m) => ({ default: m.ApplicationAdvancedPage })));
@@ -309,6 +314,36 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <ServiceShowPage />
+        </Suspense>
+      );
+    case "project.service.index":
+      return (
+        <Suspense fallback={null}>
+          <ServicePartPage />
+        </Suspense>
+      );
+    case "project.service.environment-variables":
+      return (
+        <Suspense fallback={null}>
+          <ServiceEnvironmentVariablesPage />
+        </Suspense>
+      );
+    case "project.service.storages":
+      return (
+        <Suspense fallback={null}>
+          <ServiceStoragesPage />
+        </Suspense>
+      );
+    case "project.service.tags":
+      return (
+        <Suspense fallback={null}>
+          <ServiceTagsPage />
+        </Suspense>
+      );
+    case "project.service.danger":
+      return (
+        <Suspense fallback={null}>
+          <ServiceDangerPage />
         </Suspense>
       );
     case "security.private-key.index":

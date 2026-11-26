@@ -120,9 +120,8 @@ test("an application's configuration routes map to General, Domains, Advanced, H
   assert.equal(pageFor(`${application}/environment-variables/more`), "not-ported");
   assert.equal(pageFor("/project/abc123def456ghi789jkl012/environment/mno345pqr678stu901vwx234/application"), "not-ported");
   assert.equal(pageFor("/project/abc123def456ghi789jkl012/environment/mno345pqr678stu901vwx234/database"), "not-ported");
-  // A service has its first page (DP-59); the pages below it are not ported.
+  // A service has its General page (DP-59, DP-66); its shared pages and its parts' settings are below (DP-66).
   assert.equal(pageFor("/project/abc123def456ghi789jkl012/environment/mno345pqr678stu901vwx234/service/svc1"), "project.service.configuration");
-  assert.equal(pageFor("/project/abc123def456ghi789jkl012/environment/mno345pqr678stu901vwx234/service/svc1/environment-variables"), "not-ported");
   assert.equal(pageFor("/project/abc123def456ghi789jkl012/environment/mno345pqr678stu901vwx234/service"), "not-ported");
 });
 
@@ -272,4 +271,21 @@ test("the notifications.* routes: each channel's settings page (DP-67)", () => {
   assert.equal(pageFor("/notifications"), "not-ported");
   assert.equal(pageFor("/notifications/teams"), "not-ported");
   assert.equal(pageFor("/notifications/discord/test"), "not-ported");
+});
+
+test("a service's configuration route maps to General, its shared pages to theirs, a part to its settings; every other entry of its menu is not ported (DP-66)", () => {
+  const service = "/project/abc123def456ghi789jkl012/environment/mno345pqr678stu901vwx234/service/svc1";
+  assert.equal(pageFor(service), "project.service.configuration");
+  assert.equal(pageFor(`${service}/`), "project.service.configuration");
+  assert.equal(pageFor(`${service}/environment-variables`), "project.service.environment-variables");
+  assert.equal(pageFor(`${service}/storages`), "project.service.storages");
+  assert.equal(pageFor(`${service}/tags/`), "project.service.tags");
+  assert.equal(pageFor(`${service}/danger`), "project.service.danger");
+  assert.equal(pageFor(`${service}/sub000000000000000000001`), "project.service.index");
+  assert.equal(pageFor(`${service}/sub000000000000000000001/`), "project.service.index");
+  for (const notPorted of ["domains", "maintenance", "logs", "analytics", "vulnerabilities", "storage-backups", "scheduled-tasks", "webhooks", "resource-operations", "terminal", "files", "import-backup"]) {
+    assert.equal(pageFor(`${service}/${notPorted}`), "not-ported", notPorted);
+  }
+  assert.equal(pageFor(`${service}/sub000000000000000000001/backups`), "not-ported");
+  assert.equal(pageFor(`${service}/environment-variables/more`), "not-ported");
 });

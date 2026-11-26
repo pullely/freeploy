@@ -587,7 +587,7 @@ export function resolveComposeVolumeSourceVariables(source: string, variables: R
   return sourceIsLocal(withValues) ? withValues : withoutValues;
 }
 
-function rejectComposeVolumeTargetVariable(target: string, prefix: string): void {
+export function rejectComposeVolumeTargetVariable(target: string, prefix: string): void {
   if (target.includes("${")) {
     throw new ComposeError(`${prefix}: the container path ${target} contains a variable. Coolify does not support variables in the container path of a volume. Write the path without variables, for example /app/data.`);
   }
@@ -752,7 +752,7 @@ function isComposeVolumeNameWithVariables(name: string): boolean {
   return name.includes("$") && /^(?:[A-Za-z0-9._-]|\$[A-Za-z_][A-Za-z0-9_]*|\$\{[A-Za-z_][A-Za-z0-9_]*(?::?-[A-Za-z0-9._-]*)?\})+$/.test(name);
 }
 
-function validateComposeExternalVolume(key: string, declaration: PhpArray): void {
+export function validateComposeExternalVolume(key: string, declaration: PhpArray): void {
   if (!VOLUME_NAME_PATTERN.test(key)) {
     throw new ComposeError("Invalid external Docker Compose volume. Volume names must start with an alphanumeric character and contain only alphanumeric characters, dots, hyphens, and underscores.");
   }

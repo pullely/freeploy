@@ -32,6 +32,7 @@ import {
 } from "@saas/db/deploy";
 import { errorResponse, methodNotAllowed, successResponse, validationError } from "../http.js";
 import { authorizeDeploy, columnCipher, readJson } from "./cloud-tokens.js";
+import { handleServiceConfiguration, isServiceConfigurationRoute } from "./service-configuration.js";
 import { ServiceError, createOneClickService, listServiceTemplates, showService, validateCreateService, type ServiceContext, type ServiceCreateDependencies, type ServiceStore } from "../services/service.js";
 
 const UUID_RE = /^[A-Za-z0-9-]{1,255}$/;
@@ -81,6 +82,8 @@ export async function handleServices(
   runner: ServiceRunner = runServicesInOrg,
   deps: ServiceCreateDependencies = {},
 ): Promise<Response> {
+  // The configuration pages of a service (DP-66).
+  if (isServiceConfigurationRoute(segments)) return handleServiceConfiguration(env, requestId, actor, orgId, segments, request, undefined, undefined, deps);
   const method = request.method;
   const [first] = segments;
   const notFound = () => errorResponse("not_found", "Not found", 404, requestId);
