@@ -114,7 +114,23 @@ interface Context {
   text: string;
   /** Symfony's "last line of the document" by its own count: see `losesFinalLineBreak`. */
   lastLine: number;
+  /** `Yaml::PARSE_CUSTOM_TAGS` (DP-90): a local tag (`!name`) gives a TaggedValue instead of an error. */
+  customTags?: boolean;
 }
+
+/**
+ * Symfony's TaggedValue (DP-90, `Yaml::PARSE_CUSTOM_TAGS`): the tag without its `!`, and the value as it would be read
+ * untagged. It sits where a PhpValue would; a caller that asks for custom tags unwraps it.
+ */
+export class TaggedValue {
+  constructor(
+    readonly tag: string,
+    readonly value: PhpValue,
+  ) {}
+}
+
+/** A local tag (`!name`), not one of YAML's (`!!str`) nor the non-specific `!`. */
+const localTag = (tag: string | undefined): tag is string => tag !== undefined && tag.startsWith("!") && tag.length > 1 && !tag.startsWith("!!");
 
 function keyOf(node: unknown, context: Context): { key: PhpKey; merge: boolean } {
   if (isScalar(node)) {
@@ -195,6 +211,14 @@ function convert(node: unknown, context: Context, lastInCollection = false): Php
     }
     return convert(target, context);
   }
+  if (context.customTags && (isScalar(node) || isMap(node) || isSeq(node)) && localTag(node.tag)) {
+    const tag = node.tag;
+    const untagged = node.clone() as typeof node;
+    delete (untagged as { tag?: string }).tag;
+    // An empty tagged scalar is '' (Symfony reads the rest of the line, which is empty), not null.
+    const value = isScalar(node) && node.type === "PLAIN" && (node.value === "" || node.value === null) ? "" : convert(untagged, context, lastInCollection);
+    return new TaggedValue(tag.slice(1), value) as unknown as PhpValue;
+  }
   if (isScalar(node)) {
     const text = typeof node.value === "string" ? node.value : "";
     const tag = node.tag;
@@ -246,12 +270,17 @@ function convert(node: unknown, context: Context, lastInCollection = false): Php
   throw new YamlParseError("Unsupported YAML node.");
 }
 
-function parseOnce(input: string, maxAliases: number): PhpValue {
+function parseOnce(input: string, maxAliases: number, customTags = false): PhpValue {
   const source = input.replace(/\r\n|\r/g, "\n");
   const document = parseDocument(source, { schema: "failsafe", merge: false, uniqueKeys: false, version: "1.2", logLevel: "silent", prettyErrors: false });
   const error = document.errors[0];
   if (error) throw new YamlParseError(error.message);
-  return convert(document.contents as Node | null, { document, aliases: 0, maxAliases, text: source, lastLine: lastLineThreshold(source) });
+  return convert(document.contents as Node | null, { document, aliases: 0, maxAliases, text: source, lastLine: lastLineThreshold(source), customTags });
+}
+
+/** `Yaml::parse($source, Yaml::PARSE_CUSTOM_TAGS)` (DP-90): a value may be a TaggedValue. Throws `YamlParseError`. */
+export function parseYamlWithCustomTags(source: string): PhpValue | TaggedValue {
+  return parseOnce(source, DEFAULT_MAX_ALIASES, true);
 }
 
 /** `joinComposeAnchorsToTheirKeys`: "key:\n  &name" becomes "key: &name". Only used after a failed parse. */

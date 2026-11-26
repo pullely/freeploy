@@ -59,6 +59,13 @@ export async function readApiBody(request: Request): Promise<ApiBody> {
   return { all: isJson ? all : {}, isJson, incomingError };
 }
 
+/** $request->query(): the query string's values, through TrimStrings and ConvertEmptyStringsToNull (DP-90). */
+export function queryAll(url: URL): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  url.searchParams.forEach((v, k) => (out[k] = v));
+  return cleanInput(out) as Record<string, unknown>;
+}
+
 export type Errors = Array<[string, string[]]>;
 
 export function addError(errors: Errors, field: string, message: string): void {

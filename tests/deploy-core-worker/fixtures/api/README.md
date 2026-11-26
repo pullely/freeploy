@@ -1,4 +1,4 @@
-# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85, DP-86, DP-87, DP-88)
+# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85, DP-86, DP-87, DP-88, DP-90)
 
 What Coolify's real API answers, so that Freeploy's `/api/v1` (api-edge's middleware and limiters,
 identity-worker's teams and tokens, deploy-core-worker's projects, environments, private keys and servers —
@@ -15,14 +15,15 @@ applications, databases and services — DP-86 — and creating an application f
 repository and a repository with a deploy key, and updating one — DP-87 — and a database's and a service's logs, an
 application's rollback images and rollback, executing a scheduled task, a storage's backup schedule, a server's proxy,
 Sentinel, log drains, image scanning, Cloudflare Tunnel, host key, registries and transfer, database imports and GitHub
-Apps — DP-88) can be replayed against it byte for byte.
+Apps — DP-88 — and the cloud provider tokens, the Hetzner, DigitalOcean, Vultr and Hostinger catalogs and a server's proxy
+configuration — DP-90) can be replayed against it byte for byte.
 
 | File | What it is |
 |---|---|
 | `cases.mjs` | writes `cases.json` (`node cases.mjs > cases.json`): the fixture and every request |
 | `cases.json` | the fixture (teams, users with their roles, projects and environments, private keys from `../ssh-keys`, a server per team with its default destination, applications and their variables, an S3 storage per team, the eight standalone database engines — made by Coolify's `create_standalone_<engine>()` helpers, so the created hook's volumes and Redis's variables are made too — and another team's PostgreSQL, four backup schedules and two executions, a service per team with its parts and variables and five deployments (DP-74), API tokens with fixed plain text) and the requests: a method, a path, a token of the fixture (sent as `Bearer <id>\|<plain text>`) or a raw `Authorization` header, a JSON body or raw content, the client IP, the instance settings (`is_api_enabled`, `allowed_ips`) and the limits (`API_RATE_LIMIT`, `API_FAILED_REQUEST_RATE_LIMIT`); a `sequence` is several requests sharing one cache, with `advance` moving the clock |
 | `emit.php` | sends each request through Coolify's HTTP kernel and prints the answers. Nothing in it is a port |
-| `goldens.json` | its output: per request the status, the rate-limit headers and content type, and the body exactly as Coolify wrote it; for a write, the rows it left (`after`); and the column order of the tables whose rows the API writes unsorted (`columns`: a loaded relation such as an application's destination, its server and their settings). Never edited by hand |
+| `goldens.json` | its output: per request the status, the rate-limit headers (and Retry-After) and content type, and the body exactly as Coolify wrote it; for a write, the rows it left (`after`); for a case with `http`, the requests Coolify sent to the faked API (`requests`); and the column order of the tables whose rows the API writes unsorted (`columns`: a loaded relation such as an application's destination, its server and their settings). Never edited by hand |
 | `freeploy-rows.json` | not Coolify's: the rows Freeploy's own database gives for the fixture (every column, type and default), written and checked by `tests/db/src/deploy-api-v1.test.ts`; DP-70's replay (`src/api-v1.test.ts`) makes its memory stores from them |
 
 DP-71's replay (`src/api-v1-resources.test.ts`) runs on Freeploy's own database instead: `src/api-v1-database.ts`
@@ -106,6 +107,17 @@ uuid as null. The GitHub App cases run as Coolify Cloud (`config.self_hosted` fa
 source may not point to a private network), as Freeploy does; `columns` gains `github_apps` (an updated App is answered
 unsorted). Coolify's absolute links and its private-target message name its APP_URL (`http://localhost`), which the test
 gives as Freeploy's console URL. No masking is added.
+DP-90's replay (`src/api-v1-cloud-providers.test.ts`: the cloud provider tokens, the providers' catalogs, a server's proxy
+configuration) adds five cloud provider tokens at the end of both fixtures (`cloudTokens`: one per provider of team 1, a
+Hetzner token of team 2), made through Coolify's model (the `encrypted` cast) and stored encrypted with the org's key on
+Freeploy's side. A case may carry `http`: the answers of the outside API (a cloud provider's), which emit.php gives
+Laravel's `Http::fake()` for that case only — the first whose `match` (a regex on `METHOD URL`) fits answers with its
+`body` (JSON) or `raw` text, `status` and `headers`; anything else is `{"message":"Not Found"}` with 404 — and every
+request Coolify sends is recorded in the golden's `requests` (method, URL with its query, Authorization, the JSON body).
+The test's fetch serves the same answers and records the same fields, so what Freeploy asks the provider (the pages,
+the retries, the decrypted token) is compared too; the Retry-After header of a rate-limited answer is compared with the
+golden's `headers`. The `after` queries read a token's ciphertext as whether it is set (`has_token`) and a created
+token's id as null; the proxy configuration's read the server's proxy as DP-88's do. No masking is added.
 
 ## How the goldens are made
 

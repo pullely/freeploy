@@ -108,7 +108,7 @@ function phpJsonDecode(raw: string): unknown {
 }
 
 /** PHP's md5() over the UTF-8 bytes of the string, as lowercase hex. Pure TypeScript, so it runs in Workers. */
-function md5(input: string): string {
+export function md5(input: string): string {
   const bytes = new TextEncoder().encode(input);
   const length = bytes.length;
   const blocks = ((length + 8) >>> 6) + 1;

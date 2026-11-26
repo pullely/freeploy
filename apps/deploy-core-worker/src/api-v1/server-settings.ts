@@ -89,13 +89,13 @@ const safeExternalUrl = (c: ApiV1Context, attribute: string): Rule => ({
 
 // ── the server ──────────────────────────────────────────────────────────────
 
-interface Found {
+export interface Found {
   server: ApiRow;
   settings: ApiRow;
 }
 
 /** Server::whereTeamId()->whereUuid()->first() with its settings. */
-async function findServer(tx: SqlExecutor, uuid: string): Promise<Found | null> {
+export async function findServer(tx: SqlExecutor, uuid: string): Promise<Found | null> {
   const rows = rowsOf(tx);
   const server = (await rows("servers", "t.deleted_at IS NULL AND t.uuid = $1", [uuid]))[0];
   if (!server) return null;
@@ -110,9 +110,9 @@ function requestUuid(c: ApiV1Context, all: Record<string, unknown>, route: strin
 }
 
 const setting = (f: Found, k: string): unknown => rowValue(f.settings, k);
-const functional = (f: Found): boolean =>
+export const functional = (f: Found): boolean =>
   isFunctional({ is_reachable: setting(f, "is_reachable") as boolean, is_usable: setting(f, "is_usable") as boolean, force_disabled: setting(f, "force_disabled") as boolean, ip: String(rowValue(f.server, "ip")) });
-const isSwarm = (f: Found): boolean => setting(f, "is_swarm_manager") === true || setting(f, "is_swarm_worker") === true;
+export const isSwarm = (f: Found): boolean => setting(f, "is_swarm_manager") === true || setting(f, "is_swarm_worker") === true;
 const isBuildServer = (f: Found): boolean => {
   const role = setting(f, "server_role");
   return role === "build" || (role !== "deployment" && role !== "both" && setting(f, "is_build_server") === true);
@@ -124,7 +124,7 @@ const sentinelEnabled = (f: Found): boolean => !isBuildServer(f) && !isSwarm(f) 
 const isLocalhost = (f: Found): boolean => rowValue(f.server, "ip") === "host.docker.internal" || Number(rowValue(f.server, "id")) === 0;
 
 /** $server->proxy as the model reads it: the retrieved hook gives redirect_enabled true when it is missing. */
-function proxyOf(f: Found): Record<string, unknown> {
+export function proxyOf(f: Found): Record<string, unknown> {
   const raw = rowValue(f.server, "proxy");
   const proxy: Record<string, unknown> = raw && typeof raw === "object" && !Array.isArray(raw) ? { ...(raw as Record<string, unknown>) } : {};
   if (!("redirect_enabled" in proxy) || proxy.redirect_enabled === null) proxy.redirect_enabled = true;
@@ -162,7 +162,7 @@ async function forgetSshHostKey(tx: SqlExecutor, f: Found): Promise<void> {
 }
 
 /** $server->save(): the retrieved proxy, and the saving hook's ip_previous when the ip changes (then saved's forgetSshHostKey()). */
-async function saveServer(tx: SqlExecutor, f: Found, changes: { proxy?: Record<string, unknown>; ip?: string; proxy_error_page?: string | null; detected_traefik_version?: null; traefik_outdated_info?: null }): Promise<void> {
+export async function saveServer(tx: SqlExecutor, f: Found, changes: { proxy?: Record<string, unknown>; ip?: string; proxy_error_page?: string | null; detected_traefik_version?: null; traefik_outdated_info?: null }): Promise<void> {
   const sets: Record<string, unknown> = { proxy: JSON.stringify(changes.proxy ?? proxyOf(f)) };
   for (const k of ["proxy_error_page", "detected_traefik_version", "traefik_outdated_info"] as const) if (k in changes) sets[k] = changes[k] ?? null;
   const oldIp = String(rowValue(f.server, "ip") ?? "");

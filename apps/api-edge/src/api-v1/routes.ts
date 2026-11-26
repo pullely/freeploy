@@ -82,6 +82,19 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("PATCH", "/github-apps/{github_app_id}", "write", "deploy"),
   r("DELETE", "/github-apps/{github_app_id}", "delete", "deploy"),
 
+  // DP-90: cloud provider tokens
+  r("GET", "/cloud-tokens", "read", "deploy"),
+  r("POST", "/cloud-tokens", "write", "deploy"),
+  r("GET", "/cloud-tokens/{uuid}", "read", "deploy"),
+  r("PATCH", "/cloud-tokens/{uuid}", "write", "deploy"),
+  r("DELETE", "/cloud-tokens/{uuid}", "delete", "deploy"),
+  r("POST", "/cloud-tokens/{uuid}/validate", "write", "deploy"),
+  // DP-90: what each cloud provider offers, read through a cloud provider token
+  ...["locations", "server-types", "images", "ssh-keys", "firewalls", "networks"].map((what) => r("GET", `/hetzner/${what}`, "read", "deploy")),
+  ...["regions", "plans", "os", "ssh-keys"].map((what) => r("GET", `/vultr/${what}`, "read", "deploy")),
+  ...["regions", "sizes", "images", "ssh-keys"].map((what) => r("GET", `/digitalocean/${what}`, "read", "deploy")),
+  ...["data-centers", "catalog", "templates", "ssh-keys", "post-install-scripts"].map((what) => r("GET", `/hostinger/${what}`, "read", "deploy")),
+
   // DP-81: S3 storages
   r("GET", "/s3-storages", "read", "deploy"),
   r("POST", "/s3-storages", "write", "deploy"),
@@ -102,7 +115,7 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   { ...r("POST", "/servers/{uuid}/docker-cleanup/run", "write", "deploy"), alsoAbilities: ["deploy"] },
   r("GET", "/servers/{uuid}/docker-cleanup/executions", "read", "deploy"),
   // DP-88: a server's log drains, Sentinel, image scanning, Cloudflare Tunnel, host key, registries, proxy and transfer
-  // (PUT …/proxy/configuration, POST /servers/import and POST …/transfer/complete are not ported)
+  // (POST /servers/import and POST …/transfer/complete are not ported; PUT …/proxy/configuration is DP-90's)
   r("GET", "/servers/{uuid}/log-drains", "read", "deploy"),
   { ...r("PATCH", "/servers/{uuid}/log-drains", "write", "deploy"), alsoAbilities: ["deploy"] },
   r("GET", "/servers/{uuid}/sentinel", "read", "deploy"),
@@ -120,6 +133,8 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("DELETE", "/servers/{uuid}/registries/{registry}", "delete", "deploy"),
   r("GET", "/servers/{uuid}/proxy", "read", "deploy"),
   r("PATCH", "/servers/{uuid}/proxy", "write", "deploy"),
+  // DP-90
+  r("PUT", "/servers/{uuid}/proxy/configuration", "write", "deploy"),
   r("POST", "/servers/{uuid}/proxy/restart", "deploy", "deploy"),
   { ...r("GET", "/servers/import/check", "write", "deploy"), alsoAbilities: ["deploy"] },
   // api.ability:read,write — either one.

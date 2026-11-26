@@ -49,6 +49,7 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 
@@ -219,6 +220,11 @@ foreach ($fixture['previews'] ?? [] as $p) {
     \App\Models\ApplicationPreview::unguarded(fn () => \App\Models\ApplicationPreview::query()->forceCreate(['id' => $p['id'], 'uuid' => $p['uuid'], 'application_id' => $p['application'], 'pull_request_id' => $p['pull_request_id'], 'pull_request_html_url' => $p['pull_request_html_url'], 'git_type' => $p['git_type'], 'fqdn' => $p['fqdn'], 'docker_registry_image_tag' => $p['docker_registry_image_tag'], 'status' => $p['status'], 'last_online_at' => $p['created_at'], 'created_at' => $p['created_at'], 'updated_at' => $p['created_at']]));
 }
 DB::statement("SELECT setval(pg_get_serial_sequence('application_previews', 'id'), GREATEST((SELECT COALESCE(MAX(id), 0) FROM application_previews), 1))");
+// DP-90: the teams' cloud provider tokens, through the model (the `encrypted` cast of the token).
+foreach ($fixture['cloudTokens'] ?? [] as $t) {
+    \App\Models\CloudProviderToken::unguarded(fn () => \App\Models\CloudProviderToken::query()->forceCreate(['id' => $t['id'], 'uuid' => $t['uuid'], 'team_id' => $t['team'], 'provider' => $t['provider'], 'token' => $t['token'], 'name' => $t['name'], 'description' => $t['description']]));
+}
+DB::statement("SELECT setval(pg_get_serial_sequence('cloud_provider_tokens', 'id'), GREATEST((SELECT COALESCE(MAX(id), 0) FROM cloud_provider_tokens), 1))");
 // Not in $advanceSequences: the servers' created hook took the first ids from the sequence, which must not be moved before.
 DB::statement("SELECT setval(pg_get_serial_sequence('shared_environment_variables', 'id'), (SELECT MAX(id) FROM shared_environment_variables))");
 // Tokens: the fixture's plain text, hashed as Sanctum stores it; the client sends "<id>|<plain text>".
@@ -301,6 +307,29 @@ foreach ($cases['cases'] as $case) {
     foreach ($case['setupCoolify'] ?? [] as $sql) {
         DB::statement($sql);
     }
+    // DP-90: an outside HTTP API (a cloud provider's, GitHub's) is Http::fake(): the case's `http` answers, the first whose
+    // `match` (a regex on "METHOD URL") fits; anything else is a 404. Every request Coolify sends is recorded (`requests`).
+    $requests = [];
+    if (isset($case['http'])) {
+        $answers = $case['http'];
+        Http::swap(new \Illuminate\Http\Client\Factory(app('events')));
+        Http::fake(function (\Illuminate\Http\Client\Request $request) use ($answers, &$requests) {
+            $body = $request->body();
+            $requests[] = array_filter([
+                'method' => $request->method(),
+                'url' => $request->url(),
+                'authorization' => $request->header('Authorization')[0] ?? null,
+                'body' => $body === '' ? null : json_decode($body, true),
+            ], fn ($v) => $v !== null);
+            foreach ($answers as $answer) {
+                if (preg_match('#'.$answer['match'].'#', $request->method().' '.$request->url()) === 1) {
+                    return Http::response(array_key_exists('raw', $answer) ? $answer['raw'] : ($answer['body'] ?? []), $answer['status'] ?? 200, $answer['headers'] ?? []);
+                }
+            }
+
+            return Http::response(['message' => 'Not Found'], 404);
+        });
+    }
     $steps = $case['sequence'] ?? [$case];
     $results = [];
     foreach ($steps as $step) {
@@ -316,7 +345,10 @@ foreach ($cases['cases'] as $case) {
         $after[$label] = DB::select($sql);
     }
     DB::rollBack();
-    $out[] = ['name' => $case['name']] + (isset($case['sequence']) ? ['steps' => $results] : $results[0]) + ($after ? ['after' => $after] : []);
+    if (isset($case['http'])) {
+        Http::swap(new \Illuminate\Http\Client\Factory(app('events')));
+    }
+    $out[] = ['name' => $case['name']] + (isset($case['sequence']) ? ['steps' => $results] : $results[0]) + ($after ? ['after' => $after] : []) + (isset($case['http']) ? ['requests' => $requests] : []);
 }
 
 // The column order of the tables whose rows the API writes as Eloquent's toArray() gives them, without serializeApiResponse()'s

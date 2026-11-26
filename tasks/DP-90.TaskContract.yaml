@@ -1,0 +1,23 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-90
+  title: "DP9: /api/v1 for cloud provider tokens, the Hetzner, DigitalOcean, Vultr and Hostinger catalogs, and a server's proxy configuration"
+spec:
+  goal: Coolify's /api/v1 answers, on DP-70's pipeline (api-edge's middleware and routes, deploy-core-worker's internal mount), for the routes that call an outside HTTP API — the org's cloud provider tokens (list, show, create, update, delete, validate; the token encrypted with the org's key under the console's column context, and answered only to a token that may read secrets) and what each cloud provider offers through one of them (Hetzner's locations, server types, images, SSH keys, firewalls and networks; DigitalOcean's regions, sizes, images and SSH keys; Vultr's regions, plans, operating systems and SSH keys; Hostinger's data centers, catalog, templates, SSH keys and post-install scripts) — and PUT /servers/{uuid}/proxy/configuration (ProxyPortParser's port checks and the proxy's container_name, the configuration saved into the server's proxy). The provider's API is called through an injectable fetch and asked exactly what Coolify asks — the same URLs, queries, pages, tokens and retries (Laravel's retry(…, throw: false) with each service's `when`) — and its answers are written back as Coolify writes the decoded arrays (PHP's json_decode() and json_encode()), with each controller's failure answers (CloudProviderApiException::safeMessage() and its 502, the rate limit's 429 and Retry-After, Hostinger's 403). The goldens fake the provider with Laravel's Http::fake() per case (`http` in cases.json), record what Coolify sent (`requests`), and the replay serves the same answers and compares the requests. 26 more of openapi.json's 330 operations are ported (274 in all). Where Coolify writes the proxy configuration on the server over SSH, Freeploy answers 501 in Coolify's envelope after the same save. Cut — POST /servers/{hetzner,digitalocean,vultr} (ValidCloudInitYaml needs Symfony YAML's exact parse errors, which compose-yaml's reader does not give; DigitalOcean's droplet also needs columns deploy.servers does not have), POST /servers/hostinger, POST /applications/private-github-app and the GitHub App repositories and branches routes (not reached), and the cloud-init scripts (ValidCloudInitYaml again).
+  affects:
+    - apps/api-edge/**
+    - apps/deploy-core-worker/**
+    - packages/db/**
+    - tests/api-edge/**
+    - tests/deploy-core-worker/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - every case of tests/deploy-core-worker/fixtures/api/cases.json (1937 cases, 171 of them DP-90's) replays against Freeploy byte-equal to goldens.json after the documented masking, except the listed departures (the 18 proxy configurations that answer 501 after the save) and the middleware answers, which tests/api-edge replays
+    - the requests each DP-90 case sends to the faked provider API equal the golden's `requests` (method, URL with its query, the decrypted token), and the Retry-After of a rate-limited answer is Coolify's
+    - the rows each DP-90 write leaves in Freeploy's database (PGlite with the deploy schema at head) equal the golden's `after` rows — the cloud provider tokens, the server's proxy (the departures included: Coolify saves before the SSH step)
+    - the earlier cases' goldens change only in random values (uuids, ciphertexts, generated passwords and names)
+    - specs/epics/freeploy-coolify-parity/parity/openapi.operations.json marks the 26 operations ported with taskKey DP-90 (274 ported of 330 in all), and node tools/parity/inventory.ts --check passes
+    - on stage, GET https://<edge>/api/v1/cloud-tokens with a read token of an org admin lists the org's cloud provider tokens without the token itself, and GET /api/v1/hetzner/locations?cloud_provider_token_uuid=… answers Hetzner's locations through the org's Hetzner token
+  gates: []
