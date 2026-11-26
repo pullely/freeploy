@@ -32,6 +32,7 @@ naming the Coolify source it came from. The derived areas are:
 | `apps/deploy-web` — UI | `resources/views/**` (Blade), `resources/css/**`, `resources/js/**` (Svelte canvases), `lang/**` | Blade/Livewire/Alpine re-implemented in React with the same DOM and classes; CSS, fonts, Svelte components and strings reused; brand marks replaced |
 | `apps/deploy-core-worker` — service catalog (`src/services/catalogue-data.ts`) | `templates/compose/*.yaml` | reused as Coolify's own generator writes them (`app/Console/Commands/Generate/Services.php`, ported in `catalogue-build.ts`); parsed by a TypeScript port of `parsers.php` / `services.php` |
 | `apps/deploy-core-worker` — Compose YAML (`src/compose/yaml.ts`) | `symfony/yaml` v8.1.11 (`Inline.php`, `Dumper.php`, `Escaper.php`, `Parser.php`), MIT, Copyright (c) Fabien Potencier | the scalar typing, merge key rules and dumper re-implemented in TypeScript so that a file reads and prints as Coolify's does |
+| `tests/deploy-core-worker/fixtures/s3/aws4-testsuite.json` | AWS's Signature Version 4 test suite, as botocore vendors it (`tests/unit/auth/aws4_testsuite`), Apache-2.0, Copyright Amazon.com, Inc. or its affiliates | 21 of its cases, verbatim, as test vectors for the SigV4 signer |
 | `apps/api-edge` — `/api/v1` | `routes/api.php`, `app/Http/Controllers/Api/**`, `openapi.json` | re-implemented on Workers; bearer tokens scoped to one org |
 | `specs/epics/freeploy-coolify-parity/parity/openapi.json` | `openapi.json` | verbatim copy, used as the API contract |
 

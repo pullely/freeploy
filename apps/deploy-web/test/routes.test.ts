@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { pageFor } from "../src/routes.ts";
+import { pageFor, backupScheduleRedirect } from "../src/routes.ts";
 import { showMonthlyReminder } from "../src/lib/reminder.ts";
 import { summarize } from "../src/lib/api.ts";
 import { splitPastedImageName } from "../src/lib/docker-image.ts";
@@ -136,8 +136,8 @@ test("a database's configuration route maps to General, its shared pages to thei
     assert.equal(pageFor(`${database}/${page}/`), `project.database.${page}`, page);
     assert.equal(pageFor(`${database}/${page}/more`), "not-ported", page);
   }
-  // routes/web.php's other project.database.* routes, and the backups page.
-  for (const page of ["servers", "import-backup", "healthcheck", "metrics", "vulnerabilities", "logs", "terminal", "files", "backups"]) {
+  // routes/web.php's other project.database.* routes (the backups page is ported: see below).
+  for (const page of ["servers", "import-backup", "healthcheck", "metrics", "vulnerabilities", "logs", "terminal", "files"]) {
     assert.equal(pageFor(`${database}/${page}`), "not-ported", page);
   }
   // A database is not an application, whatever its uuid.
@@ -239,4 +239,27 @@ test("Carbon's short diffForHumans for past times", () => {
   assert.equal(agoShort("2026-08-24T12:00:00Z", now), "3mos ago");
   assert.equal(agoShort("2025-11-24T12:00:00Z", now), "1yr ago");
   assert.equal(agoShort("2023-11-24T12:00:00Z", now), "3yrs ago");
+});
+
+test("Integrations → Storage (DP-65): the list, a storage and its tabs; New storage is a dialog, not a page", () => {
+  assert.equal(pageFor("/storages"), "storage.index");
+  assert.equal(pageFor("/storages/"), "storage.index");
+  assert.equal(pageFor("/storages/abc123def456ghi789jkl012"), "storage.show");
+  assert.equal(pageFor("/storages/abc123def456ghi789jkl012/resources"), "storage.resources");
+  assert.equal(pageFor("/storages/abc123def456ghi789jkl012/danger/"), "storage.danger");
+  assert.equal(pageFor("/storages/abc123def456ghi789jkl012/other"), "not-ported");
+  // "new" is a storage uuid like any other (Coolify has no /storages/new route; the show page goes back to the list).
+  assert.equal(pageFor("/storages/new"), "storage.show");
+});
+
+test("a database's backup schedules (DP-65); a schedule's links redirect to the page with ?schedule=", () => {
+  const database = "/project/abc123def456ghi789jkl012/environment/mno345pqr678stu901vwx234/database/yza567bcd890efg123hij456";
+  assert.equal(pageFor(`${database}/backups`), "project.database.backup.index");
+  assert.equal(pageFor(`${database}/backups/`), "project.database.backup.index");
+  for (const section of ["", "/executions", "/danger", "/s3", "/retention"]) {
+    assert.equal(pageFor(`${database}/backups/bkp123${section}`), "project.database.backup.show", section);
+    assert.equal(backupScheduleRedirect(`${database}/backups/bkp123${section}`), `${database}/backups?schedule=bkp123`);
+  }
+  assert.equal(pageFor(`${database}/backups/bkp123/other`), "not-ported");
+  assert.equal(backupScheduleRedirect(`${database}/backups/bkp123/`), `${database}/backups?schedule=bkp123`);
 });

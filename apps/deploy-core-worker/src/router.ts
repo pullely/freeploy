@@ -11,6 +11,7 @@ import { handleRegistries } from "./handlers/registries.js";
 import { handleServers } from "./handlers/servers.js";
 import { handleSharedVariables } from "./handlers/shared-variables.js";
 import { handleServices } from "./handlers/services.js";
+import { handleS3Storages, ORG_DEPLOY_STORAGES_RE } from "./handlers/s3-storages.js";
 import { errorResponse, notFound } from "./http.js";
 import { generateRequestId, parseOrgPublicId } from "./ids.js";
 
@@ -163,6 +164,15 @@ export async function route(request: Request, env: Env): Promise<Response> {
       if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
       const segments = (services[2] ?? "").split("/").filter(Boolean);
       return handleServices(env, requestId, actor, orgId, segments, request);
+    }
+    const storages = url.pathname.match(ORG_DEPLOY_STORAGES_RE);
+    if (storages) {
+      const orgId = parseOrgPublicId(storages[1]!);
+      if (!orgId) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
+      const segments = (storages[2] ?? "").split("/").filter(Boolean);
+      return handleS3Storages(env, requestId, actor, orgId, segments, request);
     }
     return notFound(requestId, url.pathname);
   } catch {
