@@ -1,7 +1,7 @@
 // Derived from coollabsio/coolify@91b7e3e:bootstrap/helpers/databases.php (create_standalone_*: the name prefixes
 // and which passwords are generated), app/Models/Standalone{Postgresql,Redis,Mysql,Mariadb,Mongodb,Keydb,Dragonfly,
-// Clickhouse}.php (type(), the created hooks' volumes, isBackupSolutionAvailable), app/Support/PostgresUser.php,
-// app/Livewire/Project/Database/{Postgresql,Redis,Mysql,Mariadb,Mongodb,Keydb,Dragonfly,Clickhouse}/{General,StatusInfo}.php
+// Clickhouse,Sqlite}.php (type(), the created hooks' volumes, isBackupSolutionAvailable, DATABASES_PATTERN), app/Support/PostgresUser.php,
+// app/Livewire/Project/Database/{Postgresql,Redis,Mysql,Mariadb,Mongodb,Keydb,Dragonfly,Clickhouse,Sqlite}/{General,StatusInfo}.php
 // (the properties, their rules, messages and validationAttributes, the SSL modes) and
 // app/Livewire/Project/New/Select.php (DATABASE_IMAGE_STEPS) (Apache-2.0), modified.
 //
@@ -21,8 +21,9 @@ export interface DatabaseField {
    * identifier  ValidationPatterns::databaseIdentifierRules()
    * password    ValidationPatterns::databasePasswordRules()
    * text        'nullable' / 'nullable|string': free text
+   * files       SQLite's sqliteDatabases: 'required|string|max:255|regex:'.StandaloneSqlite::DATABASES_PATTERN
    */
-  kind: "identifier" | "password" | "text";
+  kind: "identifier" | "password" | "text" | "files";
   /** The label of databaseIdentifierMessages() / databasePasswordMessages(): the regex, min and max messages. */
   label?: string;
   /** $validationAttributes' entry — or, where the component has none, what Laravel derives from the property: the `required` message. */
@@ -66,6 +67,15 @@ export interface DatabaseEngineSpec {
   showPublicUrlPlaceholder: boolean;
   /** isBackupSolutionAvailable(): the Backups entries show. */
   backups: boolean;
+  /**
+   * General has the Access section — ports_mappings, is_public, public_port, public_port_timeout — and the model the
+   * internal_db_url and external_db_url accessors. SQLite has neither: it is a file in a volume, never reached over TCP.
+   */
+  access: boolean;
+  /** The image create_standalone_*() sets itself (SQLite's; every other engine's comes from the column's default or the image step). */
+  image: string | null;
+  /** General's own required messages beside nameRequired (SQLite's 'sqliteDatabases.required', 'sqliteDatabases.regex'). */
+  messages?: Readonly<Record<string, string>>;
 }
 
 const POSTGRES_SSL_MODES: readonly SslMode[] = [
@@ -77,6 +87,12 @@ const POSTGRES_SSL_MODES: readonly SslMode[] = [
 ];
 
 const NAME_REQUIRED = "The Name field is required.";
+/** create_standalone_sqlite(): $database->image (the table's column has no default since 2026_10_30_171359). */
+export const SQLITE_IMAGE = "peakimages/sqlite:3.54.1-v0.2.0";
+/** StandaloneSqlite::DATA_DIRECTORY: where the data volume is mounted, and the database files live. */
+export const SQLITE_DATA_DIRECTORY = "/var/lib/sqlite";
+/** StandaloneSqlite::DATABASES_PATTERN: comma-separated file names. */
+export const SQLITE_DATABASES_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*(,[A-Za-z0-9][A-Za-z0-9._-]*)*$/;
 const NAME_REQUIRED_DEFAULT = "The name field is required.";
 
 const text = (property: string, column: string, attribute: string, sensitive = true): DatabaseField => ({ property, column, kind: "text", attribute, sensitive });
@@ -104,6 +120,8 @@ export const DATABASE_ENGINE_SPECS: Readonly<Record<DatabaseEngine, DatabaseEngi
     sslModeHelper: "Choose the SSL verification mode for PostgreSQL connections",
     showPublicUrlPlaceholder: false,
     backups: true,
+    access: true,
+    image: null,
   },
   redis: {
     engine: "redis",
@@ -124,6 +142,8 @@ export const DATABASE_ENGINE_SPECS: Readonly<Record<DatabaseEngine, DatabaseEngi
     sslModeHelper: null,
     showPublicUrlPlaceholder: false,
     backups: false,
+    access: true,
+    image: null,
   },
   mongodb: {
     engine: "mongodb",
@@ -145,6 +165,8 @@ export const DATABASE_ENGINE_SPECS: Readonly<Record<DatabaseEngine, DatabaseEngi
     sslModeHelper: "Choose the SSL verification mode for MongoDB connections",
     showPublicUrlPlaceholder: false,
     backups: true,
+    access: true,
+    image: null,
   },
   mysql: {
     engine: "mysql",
@@ -172,6 +194,8 @@ export const DATABASE_ENGINE_SPECS: Readonly<Record<DatabaseEngine, DatabaseEngi
     sslModeHelper: "Choose the SSL verification mode for MySQL connections",
     showPublicUrlPlaceholder: false,
     backups: true,
+    access: true,
+    image: null,
   },
   mariadb: {
     engine: "mariadb",
@@ -194,6 +218,8 @@ export const DATABASE_ENGINE_SPECS: Readonly<Record<DatabaseEngine, DatabaseEngi
     sslModeHelper: null,
     showPublicUrlPlaceholder: false,
     backups: true,
+    access: true,
+    image: null,
   },
   keydb: {
     engine: "keydb",
@@ -213,6 +239,8 @@ export const DATABASE_ENGINE_SPECS: Readonly<Record<DatabaseEngine, DatabaseEngi
     sslModeHelper: null,
     showPublicUrlPlaceholder: true,
     backups: false,
+    access: true,
+    image: null,
   },
   dragonfly: {
     engine: "dragonfly",
@@ -229,6 +257,8 @@ export const DATABASE_ENGINE_SPECS: Readonly<Record<DatabaseEngine, DatabaseEngi
     sslModeHelper: null,
     showPublicUrlPlaceholder: true,
     backups: false,
+    access: true,
+    image: null,
   },
   clickhouse: {
     engine: "clickhouse",
@@ -248,6 +278,30 @@ export const DATABASE_ENGINE_SPECS: Readonly<Record<DatabaseEngine, DatabaseEngi
     sslModeHelper: null,
     showPublicUrlPlaceholder: true,
     backups: true,
+    access: true,
+    image: null,
+  },
+  sqlite: {
+    engine: "sqlite",
+    databaseType: "standalone-sqlite",
+    namePrefix: "sqlite-database-",
+    headline: "Sqlite",
+    urlLabel: "SQLite",
+    imageStep: false,
+    generatedPasswords: [],
+    fields: [{ property: "sqliteDatabases", column: "sqlite_databases", kind: "files", attribute: "sqlite databases", sensitive: false }],
+    nameRequired: NAME_REQUIRED_DEFAULT,
+    supportsSsl: false,
+    sslModes: null,
+    sslModeHelper: null,
+    showPublicUrlPlaceholder: false,
+    backups: true,
+    access: false,
+    image: SQLITE_IMAGE,
+    messages: {
+      "sqliteDatabases.required": "The Database Files field is required.",
+      "sqliteDatabases.regex": "The Database Files must be comma-separated file names containing only letters, numbers, dots, dashes and underscores.",
+    },
   },
 };
 
@@ -293,5 +347,7 @@ export function defaultVolumes(engine: DatabaseEngine, uuid: string, image: stri
       return [{ name: `dragonfly-data-${uuid}`, mountPath: "/data" }];
     case "clickhouse":
       return [{ name: `clickhouse-data-${uuid}`, mountPath: "/var/lib/clickhouse" }];
+    case "sqlite":
+      return [{ name: `sqlite-data-${uuid}`, mountPath: SQLITE_DATA_DIRECTORY }];
   }
 }

@@ -7,7 +7,8 @@
   "mongodb": {"morphClass":"App\\Models\\StandaloneMongodb","type":"standalone-mongodb","table":"standalone_mongodbs","headline":"Mongodb","backups":true,"encrypted":["mongo_initdb_root_password"]},
   "keydb": {"morphClass":"App\\Models\\StandaloneKeydb","type":"standalone-keydb","table":"standalone_keydbs","headline":"Keydb","backups":false,"encrypted":["keydb_password"]},
   "dragonfly": {"morphClass":"App\\Models\\StandaloneDragonfly","type":"standalone-dragonfly","table":"standalone_dragonflies","headline":"Dragonfly","backups":false,"encrypted":["dragonfly_password"]},
-  "clickhouse": {"morphClass":"App\\Models\\StandaloneClickhouse","type":"standalone-clickhouse","table":"standalone_clickhouses","headline":"Clickhouse","backups":true,"encrypted":["clickhouse_admin_password"]}
+  "clickhouse": {"morphClass":"App\\Models\\StandaloneClickhouse","type":"standalone-clickhouse","table":"standalone_clickhouses","headline":"Clickhouse","backups":true,"encrypted":["clickhouse_admin_password"]},
+  "sqlite": {"morphClass":"App\\Models\\StandaloneSqlite","type":"standalone-sqlite","table":"standalone_sqlites","headline":"Sqlite","backups":true,"encrypted":[]}
  },
  "created": {
   "postgresql postgres:18-alpine": {"ok":true,"attributes":{"destination_id":"21","destination_type":"App\\Models\\StandaloneDocker","environment_id":"11","image":"postgres:18-alpine","name":"postgresql-database-{uuid}","postgres_password":{"encrypted":true,"length":64,"alphanumeric":true,"hasLetter":true,"hasDigit":true},"uuid":{"length":24,"lowerAlphanumeric":true}},"volumes":[{"name":"postgres-data-{uuid}","mount_path":"/var/lib/postgresql","host_path":null,"resource_type":"App\\Models\\StandalonePostgresql"}],"environmentVariables":[]},
@@ -26,7 +27,8 @@
   "mongodb": {"ok":true,"attributes":{"destination_id":"21","destination_type":"App\\Models\\StandaloneDocker","environment_id":"11","mongo_initdb_root_password":{"encrypted":true,"length":64,"alphanumeric":true,"hasLetter":true,"hasDigit":true},"name":"mongodb-database-{uuid}","uuid":{"length":24,"lowerAlphanumeric":true}},"volumes":[{"name":"mongodb-configdb-{uuid}","mount_path":"/data/configdb","host_path":null,"resource_type":"App\\Models\\StandaloneMongodb"},{"name":"mongodb-db-{uuid}","mount_path":"/data/db","host_path":null,"resource_type":"App\\Models\\StandaloneMongodb"}],"environmentVariables":[]},
   "keydb": {"ok":true,"attributes":{"destination_id":"21","destination_type":"App\\Models\\StandaloneDocker","environment_id":"11","keydb_password":{"encrypted":true,"length":64,"alphanumeric":true,"hasLetter":true,"hasDigit":true},"name":"keydb-database-{uuid}","uuid":{"length":24,"lowerAlphanumeric":true}},"volumes":[{"name":"keydb-data-{uuid}","mount_path":"/data","host_path":null,"resource_type":"App\\Models\\StandaloneKeydb"}],"environmentVariables":[]},
   "dragonfly": {"ok":true,"attributes":{"destination_id":"21","destination_type":"App\\Models\\StandaloneDocker","dragonfly_password":{"encrypted":true,"length":64,"alphanumeric":true,"hasLetter":true,"hasDigit":true},"environment_id":"11","name":"dragonfly-database-{uuid}","uuid":{"length":24,"lowerAlphanumeric":true}},"volumes":[{"name":"dragonfly-data-{uuid}","mount_path":"/data","host_path":null,"resource_type":"App\\Models\\StandaloneDragonfly"}],"environmentVariables":[]},
-  "clickhouse": {"ok":true,"attributes":{"clickhouse_admin_password":{"encrypted":true,"length":64,"alphanumeric":true,"hasLetter":true,"hasDigit":true},"destination_id":"21","destination_type":"App\\Models\\StandaloneDocker","environment_id":"11","name":"clickhouse-database-{uuid}","uuid":{"length":24,"lowerAlphanumeric":true}},"volumes":[{"name":"clickhouse-data-{uuid}","mount_path":"/var/lib/clickhouse","host_path":null,"resource_type":"App\\Models\\StandaloneClickhouse"}],"environmentVariables":[]}
+  "clickhouse": {"ok":true,"attributes":{"clickhouse_admin_password":{"encrypted":true,"length":64,"alphanumeric":true,"hasLetter":true,"hasDigit":true},"destination_id":"21","destination_type":"App\\Models\\StandaloneDocker","environment_id":"11","name":"clickhouse-database-{uuid}","uuid":{"length":24,"lowerAlphanumeric":true}},"volumes":[{"name":"clickhouse-data-{uuid}","mount_path":"/var/lib/clickhouse","host_path":null,"resource_type":"App\\Models\\StandaloneClickhouse"}],"environmentVariables":[]},
+  "sqlite": {"ok":true,"attributes":{"destination_id":"21","destination_type":"App\\Models\\StandaloneDocker","environment_id":"11","image":"peakimages/sqlite:3.54.1-v0.2.0","name":"sqlite-database-{uuid}","uuid":{"length":24,"lowerAlphanumeric":true}},"volumes":[{"name":"sqlite-data-{uuid}","mount_path":"/var/lib/sqlite","host_path":null,"resource_type":"App\\Models\\StandaloneSqlite"}],"environmentVariables":[]}
  },
  "urls": {
   "postgresql private": {"ok":true,"internal":"postgres://postgres:S3cretPass@dbuuid:5432/postgres","external":null},
@@ -1020,7 +1022,39 @@
   "clickhouse clickhouseAdminPassword with unicode": {"ok":true,"errors":{"clickhouseAdminPassword":["The Admin Password may not contain shell-unsafe characters (backtick, $, ;, |, &, <, >, \\, quotes, spaces, or control characters)."]}},
   "clickhouse clickhouseAdminPassword with one character": {"ok":true,"errors":{}},
   "redis locked password": {"ok":true,"errors":{}},
-  "redis locked password left empty": {"ok":true,"errors":{}}
+  "redis locked password left empty": {"ok":true,"errors":{}},
+  "sqlite everything valid": {"ok":true,"errors":{}},
+  "sqlite everything invalid": {"ok":true,"errors":{"name":["The name field is required."],"description":["The description may only contain letters (including Unicode), numbers, spaces, and common punctuation: - _ . , ! ? ( ) ' \" + = * / @ &"],"sqliteDatabases":["The Database Files field is required."],"image":["The Docker Image field is required."]}},
+  "sqlite name too long": {"ok":true,"errors":{"name":["The name may not be greater than 255 characters."]}},
+  "sqlite name not a string": {"ok":true,"errors":{"name":["The name must be at least 3 characters."]}},
+  "sqlite image null": {"ok":true,"typeErrors":["image"]},
+  "sqlite image not a string": {"ok":true,"errors":{}},
+  "sqlite database files two files": {"ok":true,"errors":{}},
+  "sqlite database files a dot first": {"ok":true,"errors":{"sqliteDatabases":["The Database Files must be comma-separated file names containing only letters, numbers, dots, dashes and underscores."]}},
+  "sqlite database files a slash": {"ok":true,"errors":{"sqliteDatabases":["The Database Files must be comma-separated file names containing only letters, numbers, dots, dashes and underscores."]}},
+  "sqlite database files a space": {"ok":true,"errors":{"sqliteDatabases":["The Database Files must be comma-separated file names containing only letters, numbers, dots, dashes and underscores."]}},
+  "sqlite database files spaces after a comma": {"ok":true,"errors":{"sqliteDatabases":["The Database Files must be comma-separated file names containing only letters, numbers, dots, dashes and underscores."]}},
+  "sqlite database files a trailing comma": {"ok":true,"errors":{"sqliteDatabases":["The Database Files must be comma-separated file names containing only letters, numbers, dots, dashes and underscores."]}},
+  "sqlite database files two commas": {"ok":true,"errors":{"sqliteDatabases":["The Database Files must be comma-separated file names containing only letters, numbers, dots, dashes and underscores."]}},
+  "sqlite database files a hyphen first": {"ok":true,"errors":{"sqliteDatabases":["The Database Files must be comma-separated file names containing only letters, numbers, dots, dashes and underscores."]}},
+  "sqlite database files an underscore first": {"ok":true,"errors":{"sqliteDatabases":["The Database Files must be comma-separated file names containing only letters, numbers, dots, dashes and underscores."]}},
+  "sqlite database files unicode": {"ok":true,"errors":{"sqliteDatabases":["The Database Files must be comma-separated file names containing only letters, numbers, dots, dashes and underscores."]}},
+  "sqlite database files a trailing newline": {"ok":true,"errors":{}},
+  "sqlite database files at its longest": {"ok":true,"errors":{}},
+  "sqlite database files too long": {"ok":true,"errors":{"sqliteDatabases":["The sqlite databases field must not be greater than 255 characters."]}},
+  "sqlite database files too long and invalid": {"ok":true,"errors":{"sqliteDatabases":["The sqlite databases field must not be greater than 255 characters.","The Database Files must be comma-separated file names containing only letters, numbers, dots, dashes and underscores."]}},
+  "sqlite database files blank": {"ok":true,"errors":{"sqliteDatabases":["The Database Files field is required."]}},
+  "sqlite database files only spaces": {"ok":true,"errors":{"sqliteDatabases":["The Database Files field is required."]}},
+  "sqlite database files null": {"ok":true,"typeErrors":["sqliteDatabases"]},
+  "sqlite database files a number": {"ok":true,"errors":{}},
+  "sqlite database files a list": {"ok":true,"typeErrors":["sqliteDatabases"]},
+  "sqlite log drain true": {"ok":true,"errors":{}},
+  "sqlite log drain zero": {"ok":true,"errors":{}},
+  "sqlite log drain yes": {"ok":true,"errors":{}},
+  "sqlite log drain null": {"ok":true,"typeErrors":["isLogDrainEnabled"]},
+  "sqlite docker options a number": {"ok":true,"errors":{}},
+  "sqlite docker options null": {"ok":true,"errors":{}},
+  "sqlite docker options blank": {"ok":true,"errors":{}}
  },
  "password": {
   "0": {"length":64,"alphanumeric":true,"hasLetter":true,"hasDigit":true},

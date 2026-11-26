@@ -53,7 +53,7 @@ const typeOf = (kind: "applications" | "services" | DatabaseEngine): string => (
 
 /**
  * resources(): the team's projects, then their applications, their services and their databases engine by engine
- * (DATABASE_TYPES' order; Freeploy has no SQLite), each read through the project (hasManyThrough: laravel_through_key)
+ * (DATABASE_TYPES' order, SQLite last since DP-112), each read through the project (hasManyThrough: laravel_through_key)
  * with its status and type. serializeApiResponse() of the list leaves the items as they are but for the server secrets.
  */
 export async function listResources(c: ApiV1Context): Promise<CoolifyAnswer> {

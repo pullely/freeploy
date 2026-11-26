@@ -92,7 +92,10 @@ describe("the goldens of DP-71", () => {
   });
 
   it("give Coolify's column order, which the worker's COOLIFY_COLUMNS holds", () => {
-    expect(COOLIFY_COLUMNS).toEqual(GOLDENS.columns);
+    // DP-112's SQLite order is held by the "sqlite: resources" goldens (its rows unsorted): the committed `columns` stay as they are.
+    const { standalone_sqlites: sqlite, ...rest } = COOLIFY_COLUMNS;
+    expect(rest).toEqual(GOLDENS.columns);
+    expect(sqlite[0]).toBe("id");
   });
 });
 

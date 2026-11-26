@@ -32,6 +32,8 @@ const TABLES = [
   "standalone_keydbs",
   "standalone_dragonflies",
   "standalone_clickhouses",
+  // DP-112: SQLite
+  "standalone_sqlites",
   "scheduled_database_backups",
   "scheduled_database_backup_executions",
   "scheduled_database_backup_s3_storage",
@@ -88,10 +90,10 @@ export function apiValue(row: ApiRow, column: string): unknown {
 /**
  * isPublicPortAlreadyUsed($server, $port, $id) (DP-73): a public database of the server's destinations, of any engine,
  * listens on the port. Coolify leaves out every database whose id is $id — of any engine, not only the one being
- * changed — and so does this.
+ * changed — and so does this. SQLite's table has no public_port (the collection's where() never matches it).
  */
 export async function databasePublicPortTaken(tx: SqlExecutor, serverId: string | number, port: number, excludeId: string | number | null = null): Promise<boolean> {
-  const parts = DATABASE_ENGINES.map(
+  const parts = DATABASE_ENGINES.filter((engine) => DATABASE_TABLES[engine].publicPort).map(
     (engine) => `SELECT d.id FROM deploy.${DATABASE_TABLES[engine].table} d
       LEFT JOIN deploy.standalone_dockers sd ON sd.id = d.destination_id AND d.destination_type = $3
       LEFT JOIN deploy.swarm_dockers wd ON wd.id = d.destination_id AND d.destination_type = $4

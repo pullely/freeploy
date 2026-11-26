@@ -1,4 +1,4 @@
-# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85, DP-86, DP-87, DP-88, DP-90, DP-93, DP-103, DP-104, DP-105, DP-106, DP-107, DP-108, DP-110, DP-111)
+# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85, DP-86, DP-87, DP-88, DP-90, DP-93, DP-103, DP-104, DP-105, DP-106, DP-107, DP-108, DP-110, DP-111, DP-112)
 
 What Coolify's real API answers, so that Freeploy's `/api/v1` (api-edge's middleware and limiters,
 identity-worker's teams and tokens, deploy-core-worker's projects, environments, private keys and servers —
@@ -24,7 +24,7 @@ records of an application's and a service's domains — DP-105 — and a resourc
 instance's email settings — DP-106 — and the team's two settings, the team's audit events, the instance's API and MCP
 switches and a server's update — DP-107 — and cloning a service — DP-108 — and the cloud-init scripts and the servers made through
 a Hetzner, Vultr or DigitalOcean token — DP-110 — and a server transfer bundle's checks and dry run and a transfer marked
-complete — DP-111) can be replayed against it byte for byte.
+complete — DP-111 — and SQLite, the ninth standalone database engine — DP-112) can be replayed against it byte for byte.
 
 | File | What it is |
 |---|---|
@@ -239,6 +239,19 @@ its time (`transferred_at`, whether it is an ISO 8601 time instead: Freeploy's c
 as the records' uuids, the runners' completion times as whether they are set and kept. One `denied:` case is added (51 in
 all). Only the new entries were inserted into goldens.json, after DP-110's; the committed ones are kept byte for byte. No
 masking is added.
+
+DP-112's replay (`src/api-v1-sqlite.test.ts`: POST /databases/sqlite, and SQLite in GET /databases, GET/PATCH/DELETE
+/databases/{uuid}, start, restart and stop, GET /resources, an environment's delete, a database's envs, storages, backup
+schedules, tags and clone) adds no fixture rows, so that no committed golden changes (GET /databases and GET /resources of
+the fixture list no SQLite database). A case that needs one makes it in `setupCoolify` and `setupFreeploy` — the row (id
+900, beyond what the sequence gives in a run of the cases, so that a clone the case makes takes the next) and the
+`sqlite-data-<uuid>` volume the created hook makes — and an application's volume connected to it
+(`standalone_sqlite_id`) the same way; a Docker Compose application that declares its volume as external is the shared
+`setup`. `columns` is not extended (it heads the committed file): the order of `standalone_sqlites`, which GET /resources
+writes unsorted, is the worker's `COOLIFY_COLUMNS`, and the two `sqlite: resources` goldens hold it. The `after` queries
+read a created database's generated name as `<uuid>` inside it. The departures are the start, the restart, the stop of a
+running one and `instant_deploy`, which answer 501 and store nothing. One `denied:` case is added (52 in all). Only the new
+entries were inserted into goldens.json, after DP-111's; the committed ones are kept byte for byte. No masking is added.
 
 ## How the goldens are made
 

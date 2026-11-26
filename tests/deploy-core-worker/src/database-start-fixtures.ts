@@ -165,7 +165,7 @@ export function goldenRun(id: string): GoldenRun {
   return { ...run, processes: run.processes.map((process) => ({ ...process, script: branded(process.script) })) };
 }
 
-export const ENGINES: readonly DatabaseEngine[] = ["postgresql", "redis", "mysql", "mariadb", "mongodb", "keydb", "dragonfly", "clickhouse"];
+export const ENGINES: readonly DatabaseEngine[] = ["postgresql", "redis", "mysql", "mariadb", "mongodb", "keydb", "dragonfly", "clickhouse", "sqlite"];
 
 // ── The world of a case ────────────────────────────────────────────────────────────────────────────────
 
@@ -179,6 +179,7 @@ const COLUMN_DEFAULTS: Readonly<Record<DatabaseEngine, Record<string, string | n
   keydb: { keydb_password: null, keydb_conf: null },
   dragonfly: { dragonfly_password: null },
   clickhouse: { clickhouse_admin_user: "default", clickhouse_db: "default", clickhouse_admin_password: null },
+  sqlite: { sqlite_databases: "database.sqlite" },
 };
 const SSL_MODE_DEFAULTS: Readonly<Partial<Record<DatabaseEngine, string>>> = { postgresql: "require", mysql: "REQUIRED", mongodb: "require" };
 /** The engine's configuration column, which a start can rewrite (emit.php's CONF_COLUMNS). */

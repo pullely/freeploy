@@ -1,10 +1,10 @@
-// Derived from coollabsio/coolify@91b7e3e:app/Models/Standalone{Postgresql,Redis,Mysql,Mariadb,Mongodb,Keydb,Dragonfly,Clickhouse}.php
+// Derived from coollabsio/coolify@91b7e3e:app/Models/Standalone{Postgresql,Redis,Mysql,Mariadb,Mongodb,Keydb,Dragonfly,Clickhouse,Sqlite}.php
 // (the fillable columns, the `encrypted` casts, the created and forceDeleting hooks, the relations),
 // bootstrap/helpers/databases.php (create_standalone_*: the row a database starts as), app/Models/Environment.php
 // (databases()), app/Jobs/DeleteResourceJob.php (deleteLocalResource) and app/Traits/{HasSecretManager,HasStars,
 // HasImageScans}.php (what goes with a deleted model) (Apache-2.0), modified.
 //
-// The eight deploy.standalone_* tables of the standalone databases, as one
+// The nine deploy.standalone_* tables of the standalone databases, as one
 // implementation with the engine as a parameter: the tables share their
 // columns but for each engine's credentials and configuration, which are
 // listed per engine below. Every function takes the transaction of withOrg():
@@ -18,8 +18,8 @@ import { FILE_VOLUME_MORPH_CLASS, PERSISTENT_VOLUME_MORPH_CLASS, insertPersisten
 /** Laravel's timestamps are UTC wall-clock times in TIMESTAMP(0) WITHOUT TIME ZONE columns. */
 const NOW = "date_trunc('second', timezone('UTC', now()))";
 
-/** The standalone database engines, in Create::createResource()'s order (SQLite is not ported). */
-export const DATABASE_ENGINES = ["postgresql", "redis", "mongodb", "mysql", "mariadb", "keydb", "dragonfly", "clickhouse"] as const;
+/** The standalone database engines, in Create::createResource()'s order (DATABASE_TYPES; SQLite since DP-112). */
+export const DATABASE_ENGINES = ["postgresql", "redis", "mongodb", "mysql", "mariadb", "keydb", "dragonfly", "clickhouse", "sqlite"] as const;
 export type DatabaseEngine = (typeof DATABASE_ENGINES)[number];
 
 export interface DatabaseTable {
@@ -37,6 +37,8 @@ export interface DatabaseTable {
   enableSsl: boolean;
   sslMode: boolean;
   legacyPasswordQuoting: boolean;
+  /** The table has public_port, public_port_timeout and ports_mappings (SQLite's has none: it is never reached over TCP). */
+  publicPort: boolean;
 }
 
 export const DATABASE_TABLES: Readonly<Record<DatabaseEngine, DatabaseTable>> = {
@@ -49,6 +51,7 @@ export const DATABASE_TABLES: Readonly<Record<DatabaseEngine, DatabaseTable>> = 
     enableSsl: true,
     sslMode: true,
     legacyPasswordQuoting: false,
+    publicPort: true,
   },
   redis: {
     table: "standalone_redis",
@@ -59,6 +62,7 @@ export const DATABASE_TABLES: Readonly<Record<DatabaseEngine, DatabaseTable>> = 
     enableSsl: true,
     sslMode: false,
     legacyPasswordQuoting: true,
+    publicPort: true,
   },
   mongodb: {
     table: "standalone_mongodbs",
@@ -69,6 +73,7 @@ export const DATABASE_TABLES: Readonly<Record<DatabaseEngine, DatabaseTable>> = 
     enableSsl: true,
     sslMode: true,
     legacyPasswordQuoting: false,
+    publicPort: true,
   },
   mysql: {
     table: "standalone_mysqls",
@@ -79,6 +84,7 @@ export const DATABASE_TABLES: Readonly<Record<DatabaseEngine, DatabaseTable>> = 
     enableSsl: true,
     sslMode: true,
     legacyPasswordQuoting: false,
+    publicPort: true,
   },
   mariadb: {
     table: "standalone_mariadbs",
@@ -89,6 +95,7 @@ export const DATABASE_TABLES: Readonly<Record<DatabaseEngine, DatabaseTable>> = 
     enableSsl: true,
     sslMode: false,
     legacyPasswordQuoting: false,
+    publicPort: true,
   },
   keydb: {
     table: "standalone_keydbs",
@@ -99,6 +106,7 @@ export const DATABASE_TABLES: Readonly<Record<DatabaseEngine, DatabaseTable>> = 
     enableSsl: true,
     sslMode: false,
     legacyPasswordQuoting: true,
+    publicPort: true,
   },
   dragonfly: {
     table: "standalone_dragonflies",
@@ -109,6 +117,7 @@ export const DATABASE_TABLES: Readonly<Record<DatabaseEngine, DatabaseTable>> = 
     enableSsl: true,
     sslMode: false,
     legacyPasswordQuoting: true,
+    publicPort: true,
   },
   clickhouse: {
     table: "standalone_clickhouses",
@@ -119,6 +128,18 @@ export const DATABASE_TABLES: Readonly<Record<DatabaseEngine, DatabaseTable>> = 
     enableSsl: false,
     sslMode: false,
     legacyPasswordQuoting: false,
+    publicPort: true,
+  },
+  sqlite: {
+    table: "standalone_sqlites",
+    morphClass: "App\\Models\\StandaloneSqlite",
+    columns: ["sqlite_databases"],
+    encrypted: [],
+    json: [],
+    enableSsl: false,
+    sslMode: false,
+    legacyPasswordQuoting: false,
+    publicPort: false,
   },
 };
 
@@ -127,10 +148,12 @@ export const databaseOwner = (engine: DatabaseEngine, id: string | number): Stor
 
 /** The columns every engine's table has. */
 const COMMON_COLUMNS = [
-  "id", "uuid", "name", "description", "status", "image", "is_public", "public_port", "public_port_timeout", "ports_mappings",
+  "id", "uuid", "name", "description", "status", "image", "is_public",
   "started_at", "destination_id", "destination_type", "environment_id", "is_log_drain_enabled", "config_hash",
   "custom_docker_run_options", "last_online_at", "created_at", "updated_at",
 ] as const;
+/** The columns of a database reached over TCP (DatabaseTable.publicPort): null for SQLite. */
+const PUBLIC_PORT_COLUMNS = [["public_port", "integer"], ["public_port_timeout", "integer"], ["ports_mappings", "text"]] as const;
 
 /** A standalone database with where it lives: environment, project, destination, server. */
 export interface DeployDatabaseRow extends SqlRow {
@@ -142,6 +165,7 @@ export interface DeployDatabaseRow extends SqlRow {
   status: string;
   image: string;
   is_public: boolean;
+  /** null where the engine's table has no such column (SQLite). */
   public_port: number | null;
   public_port_timeout: number | null;
   ports_mappings: string | null;
@@ -193,6 +217,7 @@ function tableColumns(engine: DatabaseEngine, common: boolean): string {
   return [
     `'${engine}'::text AS engine`,
     ...COMMON_COLUMNS.map((c) => `d."${c}"`),
+    ...PUBLIC_PORT_COLUMNS.map(([c, type]) => (t.publicPort ? `d."${c}"` : `NULL::${type} AS "${c}"`)),
     t.enableSsl ? "d.enable_ssl" : "NULL::boolean AS enable_ssl",
     t.sslMode ? "d.ssl_mode" : "NULL::varchar AS ssl_mode",
     t.legacyPasswordQuoting ? "d.legacy_password_quoting" : "NULL::boolean AS legacy_password_quoting",
@@ -281,7 +306,8 @@ export const DATABASE_API_COLUMNS = [
 /** The columns of an engine a caller may write: General's, the API's, the SSL ones the table has, and the engine's own. */
 export function writableDatabaseColumns(engine: DatabaseEngine): string[] {
   const t = DATABASE_TABLES[engine];
-  return [...DATABASE_GENERAL_COLUMNS, ...DATABASE_API_COLUMNS, ...(t.enableSsl ? ["enable_ssl"] : []), ...(t.sslMode ? ["ssl_mode"] : []), ...t.columns];
+  const general = t.publicPort ? DATABASE_GENERAL_COLUMNS : DATABASE_GENERAL_COLUMNS.filter((c) => !PUBLIC_PORT_COLUMNS.some(([p]) => p === c));
+  return [...general, ...DATABASE_API_COLUMNS, ...(t.enableSsl ? ["enable_ssl"] : []), ...(t.sslMode ? ["ssl_mode"] : []), ...t.columns];
 }
 
 export interface NewDatabaseVolume {
@@ -418,6 +444,66 @@ export async function findDatabaseCertificateValidUntil(tx: SqlExecutor, owner: 
     [owner.type, owner.id],
   );
   return r.rows[0]?.valid_until ?? null;
+}
+
+/** A volume of another resource that mounts a SQLite database's data volume (StandaloneSqlite::connectedVolumes()). */
+export interface DeploySqliteConnectedVolumeRow extends SqlRow {
+  id: string | number;
+  mount_path: string;
+  resource_type: string;
+  resource_id: string | number;
+  /** The resource's name: an application's, null when the resource is gone (a soft-deleted one is not loaded). */
+  resource_name: string | null;
+}
+
+/** $database->connectedVolumes()->with('resource')->orderBy('id')->get(): the volumes whose standalone_sqlite_id is the database's. */
+export async function listSqliteConnectedVolumes(tx: SqlExecutor, sqliteId: string | number): Promise<DeploySqliteConnectedVolumeRow[]> {
+  const r = await tx.execute<DeploySqliteConnectedVolumeRow>(
+    `SELECT v.id, v.mount_path, v.resource_type, v.resource_id, a.name AS resource_name
+       FROM deploy.local_persistent_volumes v
+       LEFT JOIN deploy.applications a ON v.resource_type = $2 AND a.id = v.resource_id AND a.deleted_at IS NULL
+      WHERE v.standalone_sqlite_id = $1
+      ORDER BY v.id`,
+    [sqliteId, "App\\Models\\Application"],
+  );
+  return r.rows;
+}
+
+/** A Docker Compose application and the server its destination is on. */
+export interface DeployComposeApplicationRow extends SqlRow {
+  id: string | number;
+  uuid: string;
+  name: string;
+  docker_compose_raw: string | null;
+  server_id: string | number | null;
+}
+
+/**
+ * Application::query()->where('build_pack', 'dockercompose')->whereRelation('environment.project', 'team_id', …)
+ * ->with('destination')->get() (StandaloneSqlite::composeApplicationsUsingDataVolume()): the org's Docker Compose
+ * applications (row-level security), with their destination's server.
+ */
+export async function listComposeApplications(tx: SqlExecutor): Promise<DeployComposeApplicationRow[]> {
+  const r = await tx.execute<DeployComposeApplicationRow>(
+    `SELECT a.id, a.uuid, a.name, a.docker_compose_raw, COALESCE(sd.server_id, wd.server_id) AS server_id
+       FROM deploy.applications a
+       JOIN deploy.environments e ON e.id = a.environment_id
+       JOIN deploy.projects p ON p.id = e.project_id
+       LEFT JOIN deploy.standalone_dockers sd ON sd.id = a.destination_id AND a.destination_type = E'${STANDALONE}'
+       LEFT JOIN deploy.swarm_dockers wd ON wd.id = a.destination_id AND a.destination_type = E'${SWARM}'
+      WHERE a.build_pack = 'dockercompose' AND a.deleted_at IS NULL
+      ORDER BY a.id`,
+  );
+  return r.rows;
+}
+
+/** $database->persistentStorages()->whereNull('host_path')->pluck('name'): a database's Docker volumes, oldest first. */
+export async function listDatabaseVolumeNames(tx: SqlExecutor, engine: DatabaseEngine, id: string | number): Promise<string[]> {
+  const r = await tx.execute<{ name: string }>(
+    "SELECT name FROM deploy.local_persistent_volumes WHERE resource_type = $1 AND resource_id = $2 AND host_path IS NULL ORDER BY id",
+    [DATABASE_TABLES[engine].morphClass, id],
+  );
+  return r.rows.map((row) => row.name);
 }
 
 /**

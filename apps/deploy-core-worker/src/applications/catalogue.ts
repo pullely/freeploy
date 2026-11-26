@@ -117,7 +117,8 @@ export const DATABASES: readonly ResourceType[] = [
     description: "A lightweight relational database stored in a single file.",
     logo: "resources/sqlite",
     experimental: true,
-    creatable: false,
+    // DP-112
+    creatable: true,
   },
 ];
 

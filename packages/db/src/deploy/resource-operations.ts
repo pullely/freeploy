@@ -254,7 +254,7 @@ export async function replicateEnvironmentVariable(tx: SqlExecutor, variableId: 
 }
 
 // ---------------------------------------------------------------- standalone databases
-// ResourceOperations::cloneTo()'s database branch and moveTo() for the eight
+// ResourceOperations::cloneTo()'s database branch and moveTo() for the nine
 // standalone database tables: the same replicate() of the database and of
 // what belongs to it.
 

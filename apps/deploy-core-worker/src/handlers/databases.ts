@@ -4,8 +4,8 @@
 // app/Http/Controllers/Api/DatabasesController.php (delete_by_uuid: the query fields) (Apache-2.0), modified.
 //
 // /v1/organizations/{org}/deploy/databases — the standalone databases:
-// PostgreSQL, Redis / Valkey, MongoDB, MySQL, MariaDB, KeyDB, Dragonfly and
-// ClickHouse.
+// PostgreSQL, Redis / Valkey, MongoDB, MySQL, MariaDB, KeyDB, Dragonfly,
+// ClickHouse and SQLite (DP-112).
 //
 //   POST   /databases                     Create::createResource { type, project_uuid, environment_uuid, destination,
 //                                         server_id, database_image }: the database's row, its data volumes and — for
@@ -14,7 +14,8 @@
 //                                         environment, destination and server, its connection URLs and SSL state
 //   PATCH  /databases/{uuid}              General::submit, or — named by `action` — "instantSave" (the Access
 //                                         listbox), "instantSaveAdvanced" (the Log drain listbox), "instantSaveSSL"
-//   DELETE /databases/{uuid}              Danger::delete: a database that was never started; else 501
+//   DELETE /databases/{uuid}              Danger::delete: a database that was never started; else 501 (a SQLite
+//                                         database an application mounts: Coolify's 422)
 //   POST   /databases/{uuid}/start        Heading::start     501 without the SSH executor (env.SSH_SESSION);
 //   POST   /databases/{uuid}/restart      Heading::restart   with it, the engine of databases/start-engine.ts
 //   POST   /databases/{uuid}/stop         Heading::stop      runs and the answer carries what it did; stop takes
@@ -64,6 +65,7 @@ import { deleteOptions } from "../applications/danger.js";
 import { handleDatabaseBackups } from "./database-backups.js";
 import { validateCreateDatabase } from "../databases/validation.js";
 import { handleDatabaseResources, isDatabaseResourceRoute } from "./database-resources.js";
+import { sqliteConnectedApplicationNames } from "../databases/sqlite.js";
 import {
   DatabaseError,
   DatabaseFieldErrors,
@@ -105,6 +107,7 @@ export function sqlStore(tx: SqlExecutor, orgId: string): DatabaseStore {
     updateVariableValue: (engine, id, variableId, value, isShared) => updateDatabaseVariableValue(tx, databaseOwner(engine, id), variableId, value, isShared),
     certificateValidUntil: (engine, id) => findDatabaseCertificateValidUntil(tx, databaseOwner(engine, id)),
     delete: (engine, id) => deleteDatabase(tx, engine, id),
+    sqliteMounts: (id, serverId) => sqliteConnectedApplicationNames(tx, { id, serverId }),
   };
 }
 

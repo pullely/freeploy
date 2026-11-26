@@ -1,5 +1,5 @@
 // Standalone databases (DP-57): creating one and its General page, for the
-// eight engines. What Coolify computes is checked against Coolify's own PHP:
+// nine engines (SQLite since DP-112). What Coolify computes is checked against Coolify's own PHP:
 // fixtures/databases/goldens.json is what coollabsio/coolify@91b7e3e returns
 // for fixtures/databases/cases.json (emit.php, see the README there) — the
 // rows create_standalone_*() stores, the connection URLs, and Laravel's
@@ -114,6 +114,8 @@ const SCHEMA_DEFAULTS: Record<DatabaseEngine, Record<string, unknown>> = {
   keydb: { image: "eqalpha/keydb:latest", keydb_conf: null, enable_ssl: false, ssl_mode: null, legacy_password_quoting: false },
   dragonfly: { image: "docker.dragonflydb.io/dragonflydb/dragonfly", enable_ssl: false, ssl_mode: null, legacy_password_quoting: false },
   clickhouse: { image: "clickhouse/clickhouse-server:26.8", clickhouse_admin_user: "default", clickhouse_db: "default", enable_ssl: null, ssl_mode: null },
+  // The image has no default since 2026_10_30_171359: create_standalone_sqlite() sets it. No public port columns.
+  sqlite: { sqlite_databases: "database.sqlite", enable_ssl: null, ssl_mode: null, public_port: null, public_port_timeout: null, ports_mappings: null },
 };
 
 class MemoryStore implements DatabaseStore {
@@ -237,6 +239,11 @@ class MemoryStore implements DatabaseStore {
   async certificateValidUntil(_engine: DatabaseEngine, id: Id) {
     return this.certificates.find((c) => c.databaseId === id)?.valid_until ?? null;
   }
+  /** Who mounts a SQLite database's data volume (StandaloneSqlite::connectedApplicationNames()), by database id. */
+  mounts = new Map<Id, string[]>();
+  async sqliteMounts(id: Id) {
+    return this.mounts.get(id) ?? null;
+  }
   async delete(engine: DatabaseEngine, id: Id) {
     this.deleted.push({ engine, id });
     const before = this.rows.length;
@@ -313,7 +320,7 @@ function setup(opts: { write?: boolean; read?: boolean } = {}) {
 }
 
 // ---------------------------------------------------------------- the engines, against Coolify's models
-describe("the eight engines", () => {
+describe("the nine engines", () => {
   it("are Coolify's models: table, morph class, type(), encrypted casts, backups", () => {
     expect(Object.keys(goldens.types).sort()).toEqual([...DATABASE_ENGINES].sort());
     for (const engine of DATABASE_ENGINES) {
@@ -332,16 +339,15 @@ describe("the eight engines", () => {
     }
   });
 
-  it("are the database types of the New Resource page, all creatable but SQLite", () => {
+  it("are the database types of the New Resource page, all creatable (SQLite since DP-112)", () => {
     expect(DATABASES.filter((d) => d.creatable).map((d) => d.id).sort()).toEqual([...DATABASE_ENGINES].sort());
-    expect(DATABASES.find((d) => d.id === "sqlite")!.creatable).toBe(false);
+    expect(DATABASES.find((d) => d.id === "sqlite")).toMatchObject({ creatable: true, experimental: true });
     for (const engine of DATABASE_ENGINES) {
       expect(CREATABLE_TYPE_IDS).toContain(engine);
       expect(DATABASE_TYPE_IDS).toContain(engine);
       expect(isDatabaseEngine(engine)).toBe(true);
     }
-    expect(CREATABLE_TYPE_IDS).not.toContain("sqlite");
-    for (const other of ["sqlite", "docker-image", "", "constructor", "toString", null, 5]) expect(isDatabaseEngine(other)).toBe(false);
+    for (const other of ["docker-image", "", "constructor", "toString", null, 5]) expect(isDatabaseEngine(other)).toBe(false);
     // Select::DATABASE_IMAGE_STEPS
     expect(DATABASE_ENGINES.filter((e) => DATABASE_ENGINE_SPECS[e].imageStep)).toEqual(["postgresql", "redis"]);
   });
@@ -464,7 +470,7 @@ describe("create_standalone_*() — the rows a database starts as", () => {
 
   it("refuses what Create::mount() would not create", async () => {
     const t = setup();
-    expect(t.refused(await t.call("POST", "", t.form("sqlite")))).toEqual([422, { type: ["The selected type is invalid."] }]);
+    expect(t.refused(await t.call("POST", "", t.form("docker-image")))).toEqual([422, { type: ["The selected type is invalid."] }]);
     expect(t.refused(await t.call("POST", "", {}))).toEqual([
       422,
       { type: ["The selected type is invalid."], project_uuid: ["The project uuid field is required."], environment_uuid: ["The environment uuid field is required."] },
@@ -728,6 +734,7 @@ describe("GET /databases/{uuid} — Configuration, General and StatusInfo", () =
       keydb: [["keydbConf", "keydbPassword"], "KeyDB", "no modes", null, false, true],
       dragonfly: [["dragonflyPassword"], "Dragonfly", "no modes", null, false, true],
       clickhouse: [["clickhouseAdminUser", "clickhouseAdminPassword"], "Clickhouse", "no ssl", null, true, true],
+      sqlite: [["sqliteDatabases"], "SQLite", "no ssl", null, true, false],
     });
   });
 
@@ -1224,5 +1231,46 @@ describe("the environment's resources", () => {
       ["id1", "database", "exited:unhealthy"],
     ]);
     expect(body.data.canCreate).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------- SQLite (DP-112)
+describe("a SQLite database (Sqlite\\General, DP-112)", () => {
+  it("has its database files where the other engines have credentials, and no Access section or connection URL", async () => {
+    const t = setup();
+    const uuid = await t.create("sqlite");
+    // create_standalone_sqlite(): the image it sets itself; the created hook's sqlite-data-<uuid> volume.
+    expect(t.store.inserts[0]!.database.values).toEqual({ image: "peakimages/sqlite:3.54.1-v0.2.0" });
+    expect(t.store.volumes.map((v) => [v.name, v.mountPath])).toEqual([[`sqlite-data-${uuid}`, "/var/lib/sqlite"]]);
+    const d = await t.database(uuid);
+    expect([d.databaseType, d.fields, d.dbUrl, d.dbUrlPublic, d.ssl, d.backups]).toEqual(["standalone-sqlite", { sqliteDatabases: "database.sqlite" }, null, null, null, true]);
+  });
+
+  it("trims the file names and drops the empty ones before validating, as submit() does", async () => {
+    const t = setup();
+    const uuid = await t.create("sqlite");
+    const r = await t.call("PATCH", uuid, { sqliteDatabases: " app.sqlite , ,cache.db,", name: "files-db" });
+    expect(r.status).toBe(200);
+    expect(t.store.updates.at(-1)!.changes).toEqual({ name: "files-db", sqlite_databases: "app.sqlite,cache.db" });
+    expect(t.refused(await t.call("PATCH", uuid, { sqliteDatabases: " , " }))).toEqual([422, { sqliteDatabases: ["The Database Files field is required."] }]);
+    expect(t.refused(await t.call("PATCH", uuid, { sqliteDatabases: "data/app.db" }))).toEqual([
+      422,
+      { sqliteDatabases: ["The Database Files must be comma-separated file names containing only letters, numbers, dots, dashes and underscores."] },
+    ]);
+    // The Access properties are not Sqlite\General's: they are not read, and its listbox has no action.
+    await t.call("PATCH", uuid, { publicPort: 5432, portsMappings: "3000:5432", description: "kept" });
+    expect(t.store.updates.at(-1)!.changes).toEqual({ description: "kept" });
+    expect(t.refused(await t.call("PATCH", uuid, { action: "instantSave", isPublic: true }))).toEqual([422, DATABASE_SERVICE_MESSAGES.accessUnsupported]);
+  });
+
+  it("is not deleted while an application mounts its data volume (Danger::delete())", async () => {
+    const t = setup();
+    const uuid = await t.create("sqlite");
+    t.store.mounts.set(t.store.row(uuid).id as Id, ["shop-web", "worker"]);
+    expect(t.refused(await t.call("DELETE", uuid))).toEqual([422, "This database volume is mounted by shop-web, worker. Remove those mounts before deleting the database."]);
+    expect(t.store.deleted).toEqual([]);
+    t.store.mounts.clear();
+    expect((await t.call("DELETE", uuid)).status).toBe(200);
+    expect(t.store.deleted).toHaveLength(1);
   });
 });

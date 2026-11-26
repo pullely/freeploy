@@ -38,6 +38,8 @@ const ENGINES = [
     'keydb' => ['model' => App\Models\StandaloneKeydb::class, 'general' => App\Livewire\Project\Database\Keydb\General::class, 'create' => 'create_standalone_keydb'],
     'dragonfly' => ['model' => App\Models\StandaloneDragonfly::class, 'general' => App\Livewire\Project\Database\Dragonfly\General::class, 'create' => 'create_standalone_dragonfly'],
     'clickhouse' => ['model' => App\Models\StandaloneClickhouse::class, 'general' => App\Livewire\Project\Database\Clickhouse\General::class, 'create' => 'create_standalone_clickhouse'],
+    // DP-112
+    'sqlite' => ['model' => App\Models\StandaloneSqlite::class, 'general' => App\Livewire\Project\Database\Sqlite\General::class, 'create' => 'create_standalone_sqlite'],
 ];
 
 /** A generated secret is random: its shape is the golden, not its value. */

@@ -252,7 +252,7 @@ export interface DeployStorageBackupRow extends SqlRow {
   project_uuid: string | null;
 }
 
-/** The eight standalone tables as one relation: what a backup schedule's morphTo() reaches. */
+/** The nine standalone tables as one relation: what a backup schedule's morphTo() reaches. */
 export const STANDALONE_DATABASES_SQL = DATABASE_ENGINES.map(
   (e) => `SELECT E'${DATABASE_TABLES[e].morphClass.replace(/\\/g, "\\\\")}'::text AS morph, id, uuid, name, environment_id FROM deploy.${DATABASE_TABLES[e].table} WHERE deleted_at IS NULL`,
 ).join(" UNION ALL ");

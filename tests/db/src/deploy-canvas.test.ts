@@ -112,6 +112,7 @@ describe("EnvironmentCanvas::resourceIndex()", () => {
       "standalone_keydbs",
       "standalone_dragonflies",
       "standalone_clickhouses",
+      "standalone_sqlites",
     ]);
     const rows = await withOrg(ex, A, (tx) => listEnvironmentCanvasResources(tx, fx.a!.environmentId));
     expect(rows.map((r) => [r.uuid, r.type, String(r.id)])).toEqual([

@@ -74,6 +74,7 @@ use App\Models\StandaloneMongodb;
 use App\Models\StandaloneMysql;
 use App\Models\StandalonePostgresql;
 use App\Models\StandaloneRedis;
+use App\Models\StandaloneSqlite;
 use App\Models\Team;
 use Illuminate\Process\PendingProcess;
 use Illuminate\Support\Carbon;
@@ -125,6 +126,8 @@ const MODELS = [
     'keydb' => StandaloneKeydb::class,
     'dragonfly' => StandaloneDragonfly::class,
     'clickhouse' => StandaloneClickhouse::class,
+    // DP-112
+    'sqlite' => StandaloneSqlite::class,
 ];
 
 /** The engine's configuration column, which a start can rewrite (PostgreSQL's listen_addresses). */

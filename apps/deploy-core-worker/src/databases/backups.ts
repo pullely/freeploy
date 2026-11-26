@@ -76,16 +76,17 @@ export class BackupError extends Error {
   }
 }
 
-/** isBackupSolutionAvailable(): false for Redis, KeyDB and Dragonfly. */
+/** isBackupSolutionAvailable(): false for Redis, KeyDB and Dragonfly (SQLite's is true, DP-112). */
 export function backupSolutionAvailable(engine: DatabaseEngine): boolean {
-  return ["postgresql", "mongodb", "mysql", "mariadb", "clickhouse"].includes(engine);
+  return ["postgresql", "mongodb", "mysql", "mariadb", "clickhouse", "sqlite"].includes(engine);
 }
 
 /** What the General section offers for "what to back up", by engine (backup-edit/general.blade.php). */
-export function databaseSelection(engine: DatabaseEngine): "dump-all" | "mongodb" | "clickhouse" | null {
+export function databaseSelection(engine: DatabaseEngine): "dump-all" | "mongodb" | "clickhouse" | "sqlite" | null {
   if (engine === "postgresql" || engine === "mysql" || engine === "mariadb") return "dump-all";
   if (engine === "mongodb") return "mongodb";
   if (engine === "clickhouse") return "clickhouse";
+  if (engine === "sqlite") return "sqlite";
   return null;
 }
 
