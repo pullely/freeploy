@@ -10,6 +10,8 @@
 // DP-86: present, missing, url, in and required_if, and — with `laravelWildcards` — a `field.*` rule expanded in the
 // order Laravel's ValidationRuleParser::explodeWildcardRules() gives (ValidationData::initializeAndGatherData()).
 // DP-87: not_regex.
+// DP-104: prohibited, sometimes and url:http,https; and, for a Livewire component's validate(), Laravel's displayed name of a
+// nested attribute (`metadata.base url`), an empty string treated as absent by a non-implicit rule, and custom messages.
 import { addError, type Errors } from "./request.js";
 import { isLaravelUrl } from "./laravel-url.js";
 
@@ -42,7 +44,13 @@ export type Rule =
   /** required_if:other,value (implicit), DP-86 */
   | { requiredIf: readonly [string, string] }
   /** not_regex:/…/: "The x field format is invalid." for a value that matches (or is not a string or a number), DP-87 */
-  | { notRegex: RegExp };
+  | { notRegex: RegExp }
+  /** prohibited (implicit): "The x field is prohibited." for a value `required` would accept, DP-104 */
+  | "prohibited"
+  /** sometimes: the attribute's rules run only when the data has it, DP-104 */
+  | "sometimes"
+  /** url:http,https — Str::isUrl() with these protocols, DP-104 */
+  | { url: readonly string[] };
 
 export type Rules = Array<[string, readonly Rule[]]>;
 
@@ -147,7 +155,7 @@ function laravelWildcardKeys(all: Record<string, unknown>, attribute: string): s
 }
 
 /** Expands `field.*` and `field.*.child` into the items of the array the request holds (none when it is not an array). */
-function expand(all: Record<string, unknown>, rules: Rules, laravelWildcards = false): Rules {
+function expand(all: Record<string, unknown>, rules: Rules, laravelWildcards = false, expanded?: Set<string>): Rules {
   const out: Rules = [];
   for (const [attribute, list] of rules) {
     const star = attribute.indexOf(".*");
@@ -156,12 +164,18 @@ function expand(all: Record<string, unknown>, rules: Rules, laravelWildcards = f
       continue;
     }
     if (laravelWildcards) {
-      for (const k of laravelWildcardKeys(all, attribute)) out.push([k, list]);
+      for (const k of laravelWildcardKeys(all, attribute)) {
+        out.push([k, list]);
+        expanded?.add(k);
+      }
       continue;
     }
     const parent = attribute.slice(0, star);
     const child = attribute.slice(star + 2);
-    for (const k of keysOf(all[parent])) out.push([`${parent}.${k}${child}`, list]);
+    for (const k of keysOf(all[parent])) {
+      out.push([`${parent}.${k}${child}`, list]);
+      expanded?.add(`${parent}.${k}${child}`);
+    }
   }
   return out;
 }
@@ -185,6 +199,29 @@ export interface RuleOptions {
   laravelMessages?: boolean;
   /** `field.*` expanded in Laravel's own order, and distinct over nested items (DP-86). */
   laravelWildcards?: boolean;
+  /**
+   * DP-104: getDisplayableAttribute() for an attribute that is not a wildcard's item: its underscores as spaces, dots
+   * and all (`metadata.base url`); a wildcard's item stays as it is (`capabilities.0`).
+   */
+  nestedDisplay?: boolean;
+  /** DP-104: presentOrRuleIsImplicit(): a non-implicit rule skips a string that trims to nothing (a Livewire property). */
+  emptyStringsAbsent?: boolean;
+  /** DP-104: a component's messages(), by `attribute.rule` (rule: required, min, regex, …). */
+  messages?: Readonly<Record<string, string>>;
+}
+
+/** Str::snake(): a camelCase property (`newToken`) as `new_token`; a value already lower case as it is. */
+function strSnake(value: string): string {
+  if (!/[^a-z]/.test(value) || value === value.toLowerCase()) return value;
+  const words = value.replace(/(^|\s)(\S)/g, (_, space: string, c: string) => space + c.toUpperCase()).replace(/\s+/g, "");
+  return words.replace(/(.)(?=[A-Z])/gu, "$1_").toLowerCase();
+}
+
+/** The rule's name as Laravel's custom messages key it (`min`, `regex`, `required`, …). */
+function ruleName(rule: Rule): string {
+  if (typeof rule === "string") return rule.split(":")[0]!;
+  const key = Object.keys(rule)[0]!;
+  return key === "notRegex" ? "not_regex" : key === "requiredWithout" ? "required_without" : key === "requiredIf" ? "required_if" : key === "arrayKeys" ? "array" : key;
 }
 
 /** validateDistinct(): the other items' values of the same wildcard attribute (getDistinctValues()), loosely compared. */
@@ -205,14 +242,18 @@ function distinctFails(all: Record<string, unknown>, attribute: string, value: u
 
 /** Validator::make($all, $rules, ['required' => 'This field is required.'])->errors(), appended to `errors`. */
 export async function validateRules(errors: Errors, all: Record<string, unknown>, rules: Rules, options: RuleOptions = {}): Promise<void> {
-  for (const [attribute, list] of expand(all, rules, options.laravelWildcards)) {
+  const expanded = new Set<string>();
+  for (const [attribute, list] of expand(all, rules, options.laravelWildcards, expanded)) {
     const { present, value } = valueOf(all, attribute);
+    if (list.includes("sometimes") && !present) continue;
     const nullable = list.includes("nullable");
     const numeric = list.some((r) => typeof r === "string" && NUMERIC_RULES.includes(r));
-    const name = display(attribute);
-    const failed = (message: string) => addError(errors, attribute, message);
+    const name = options.nestedDisplay && !expanded.has(attribute) ? strSnake(attribute).replace(/_/g, " ") : display(attribute);
+    let current: Rule = list[0]!;
+    const failed = (message: string) => addError(errors, attribute, options.messages?.[`${attribute}.${ruleName(current)}`] ?? message);
     const hasError = () => errors.some(([k]) => k === attribute);
     for (const rule of list) {
+      current = rule;
       if (rule === "required") {
         if (missingValue(value)) {
           failed(options.laravelMessages ? `The ${name} field is required.` : "This field is required.");
@@ -242,9 +283,14 @@ export async function validateRules(errors: Errors, all: Record<string, unknown>
         }
         continue;
       }
-      if (rule === "nullable") continue;
+      if (rule === "prohibited") {
+        if (present && !missingValue(value)) failed(`The ${name} field is prohibited.`);
+        continue;
+      }
+      if (rule === "nullable" || rule === "sometimes") continue;
       // isValidatable(): a non-implicit rule skips an absent attribute, and a null one marked nullable.
       if (!present || (nullable && value === null)) continue;
+      if (options.emptyStringsAbsent && typeof value === "string" && value.trim() === "") continue;
       if (rule === "string") {
         if (typeof value !== "string") failed(`The ${name} field must be a string.`);
       } else if (rule === "numeric") {
@@ -259,6 +305,8 @@ export async function validateRules(errors: Errors, all: Record<string, unknown>
         if (distinctFails(all, attribute, value)) failed(`The ${name} field has a duplicate value.`);
       } else if (rule === "url") {
         if (!isLaravelUrl(value)) failed(`The ${name} field must be a valid URL.`);
+      } else if (typeof rule === "object" && "url" in rule) {
+        if (!isLaravelUrl(value, rule.url)) failed(`The ${name} field must be a valid URL.`);
       } else if (typeof rule === "object" && "in" in rule) {
         if (value === null || typeof value === "object" || !rule.in.includes(phpString(value))) failed(`The selected ${name} is invalid.`);
       } else if (rule === "distinct") {

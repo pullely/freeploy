@@ -233,6 +233,16 @@ foreach ($fixture['cloudTokens'] ?? [] as $t) {
     \App\Models\CloudProviderToken::unguarded(fn () => \App\Models\CloudProviderToken::query()->forceCreate(['id' => $t['id'], 'uuid' => $t['uuid'], 'team_id' => $t['team'], 'provider' => $t['provider'], 'token' => $t['token'], 'name' => $t['name'], 'description' => $t['description']]));
 }
 DB::statement("SELECT setval(pg_get_serial_sequence('cloud_provider_tokens', 'id'), GREATEST((SELECT COALESCE(MAX(id), 0) FROM cloud_provider_tokens), 1))");
+// DP-104: the teams' integration tokens, through the model (the `encrypted` cast of the token, the JSON casts), and the DNS
+// zones of their Cloudflare tokens.
+foreach ($fixture['integrationTokens'] ?? [] as $t) {
+    \App\Models\IntegrationToken::unguarded(fn () => \App\Models\IntegrationToken::query()->forceCreate(['id' => $t['id'], 'uuid' => $t['uuid'], 'team_id' => $t['team'], 'provider' => $t['provider'], 'name' => $t['name'], 'token' => $t['token'], 'capabilities' => $t['capabilities'], 'metadata' => $t['metadata'], 'created_at' => $t['created_at'], 'updated_at' => $t['created_at']]));
+}
+DB::statement("SELECT setval(pg_get_serial_sequence('integration_tokens', 'id'), GREATEST((SELECT COALESCE(MAX(id), 0) FROM integration_tokens), 1))");
+foreach ($fixture['dnsZones'] ?? [] as $z) {
+    \App\Models\DnsProviderZone::unguarded(fn () => \App\Models\DnsProviderZone::query()->forceCreate(['id' => $z['id'], 'uuid' => $z['uuid'], 'integration_token_id' => $z['token'], 'provider_zone_id' => $z['provider_zone_id'], 'name' => $z['name'], 'account_id' => $z['account_id'], 'account_name' => $z['account_name'], 'created_at' => $z['created_at'], 'updated_at' => $z['created_at']]));
+}
+DB::statement("SELECT setval(pg_get_serial_sequence('dns_provider_zones', 'id'), GREATEST((SELECT COALESCE(MAX(id), 0) FROM dns_provider_zones), 1))");
 // Not in $advanceSequences: the servers' created hook took the first ids from the sequence, which must not be moved before.
 DB::statement("SELECT setval(pg_get_serial_sequence('shared_environment_variables', 'id'), (SELECT MAX(id) FROM shared_environment_variables))");
 // Tokens: the fixture's plain text, hashed as Sanctum stores it; the client sends "<id>|<plain text>".
@@ -327,10 +337,17 @@ foreach ($cases['cases'] as $case) {
                 'method' => $request->method(),
                 'url' => $request->url(),
                 'authorization' => $request->header('Authorization')[0] ?? null,
+                // DP-104: a Vault token and namespace travel in their own headers.
+                'x-vault-token' => $request->header('X-Vault-Token')[0] ?? null,
+                'x-vault-namespace' => $request->header('X-Vault-Namespace')[0] ?? null,
                 'body' => $body === '' ? null : json_decode($body, true),
             ], fn ($v) => $v !== null);
             foreach ($answers as $answer) {
                 if (preg_match('#'.$answer['match'].'#', $request->method().' '.$request->url()) === 1) {
+                    // DP-104: a transfer that fails (Laravel's ConnectionException).
+                    if (! empty($answer['failedConnection'])) {
+                        return Http::failedConnection();
+                    }
                     return Http::response(array_key_exists('raw', $answer) ? $answer['raw'] : ($answer['body'] ?? []), $answer['status'] ?? 200, $answer['headers'] ?? []);
                 }
             }

@@ -43,6 +43,7 @@
 //   /v1/internal/api-v1/{org}/databases/{uuid}/imports…, /services/{uuid}/databases/{database_uuid}/imports…  database-imports.ts (DP-88)
 //   /v1/internal/api-v1/{org}/github-apps[/{github_app_id}]                                                    github-apps.ts (DP-88)
 //   /v1/internal/api-v1/{org}/cloud-tokens[/{uuid}[/validate]]                                                 cloud-provider-tokens.ts (DP-90)
+//   /v1/internal/api-v1/{org}/security/integration-tokens[/{uuid}[/sync-zones]]                                integration-tokens.ts (DP-104)
 //   /v1/internal/api-v1/{org}/{hetzner,digitalocean,vultr,hostinger}/{catalog}                                 cloud-catalogs.ts (DP-90)
 //   PUT /v1/internal/api-v1/{org}/servers/{uuid}/proxy/configuration                                           proxy-configuration.ts (DP-90)
 //   GET /v1/internal/api-v1/{org}/github-apps/{id}/repositories[/{owner}/{repo}/branches]                        github-repositories.ts (DP-93)
@@ -116,6 +117,7 @@ import { databaseImportsApi } from "./database-imports.js";
 import { githubAppsApi } from "./github-apps.js";
 import { createHostingerServer } from "./hostinger-servers.js";
 import { cloudProviderTokensApi } from "./cloud-provider-tokens.js";
+import { integrationTokensApi } from "./integration-tokens.js";
 import { cloudCatalogsApi } from "./cloud-catalogs.js";
 import type { ProviderNetwork } from "./cloud-providers.js";
 import { saveProxyConfiguration } from "./proxy-configuration.js";
@@ -214,6 +216,8 @@ export async function handleApiV1(request: Request, env: Env, requestId: string,
       return send(await environmentDetails(context, second, third, () => authorize(false)));
     }
     if (first === "projects") return send(await projects(second, third, fourth, fifth));
+    // DP-104: the org's integration tokens (Cloudflare, Doppler, Infisical, Vault).
+    if (first === "security" && second === "integration-tokens") return send((await integrationTokensApi(context, segments.slice(2))) ?? COOLIFY_API.notFound());
     if (first === "security" && second === "keys") return send(await keys(third, fourth));
     // DP-85: destinations, a server's destinations, shared variables and Docker cleanup.
     if (first === "servers" && second !== undefined && third === "docker-cleanup") return send((await dockerCleanupApi(context, second, segments.slice(3))) ?? COOLIFY_API.notFound());

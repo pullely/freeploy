@@ -667,3 +667,5 @@ export * from "./preview-pages.js";
 export * from "./dashboard.js";
 // DP-102: an application's Swarm and Maintenance Mode pages, a service's Maintenance Mode and Domains pages.
 export * from "./config-subpages.js";
+// DP-104: integration tokens (Cloudflare, Doppler, Infisical, Vault) and the DNS zones of a Cloudflare token.
+export * from "./integration-tokens.js";

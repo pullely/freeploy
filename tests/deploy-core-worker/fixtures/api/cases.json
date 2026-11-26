@@ -1170,6 +1170,141 @@
     "description": null
    }
   ],
+  "integrationTokens": [
+   {
+    "id": 1,
+    "uuid": "i1paritycloudflaredns001",
+    "team": 1,
+    "provider": "cloudflare",
+    "name": "Parity Cloudflare",
+    "token": "cf-team1-token",
+    "capabilities": [
+     "dns"
+    ],
+    "metadata": {
+     "zones_synced_at": "2025-12-30T00:00:00+00:00"
+    },
+    "created_at": "2025-12-20 00:00:00"
+   },
+   {
+    "id": 2,
+    "uuid": "i2paritycloudflaretun002",
+    "team": 1,
+    "provider": "cloudflare",
+    "name": "Parity Tunnel",
+    "token": "cf-team1-tunnel",
+    "capabilities": [
+     "dns",
+     "tunnel"
+    ],
+    "metadata": {
+     "automatic_dns": false,
+     "proxied_dns": true
+    },
+    "created_at": "2025-12-21 00:00:00"
+   },
+   {
+    "id": 3,
+    "uuid": "i3paritydoppler000000003",
+    "team": 1,
+    "provider": "doppler",
+    "name": "Parity Doppler",
+    "token": "dp.st.team1token",
+    "capabilities": [
+     "secrets"
+    ],
+    "metadata": null,
+    "created_at": "2025-12-22 00:00:00"
+   },
+   {
+    "id": 4,
+    "uuid": "i4parityinfisical0000004",
+    "team": 1,
+    "provider": "infisical",
+    "name": "Parity Infisical",
+    "token": "inf-team1-secret",
+    "capabilities": [
+     "secrets"
+    ],
+    "metadata": {
+     "base_url": "https://app.infisical.com",
+     "client_id": "client-team1"
+    },
+    "created_at": "2025-12-23 00:00:00"
+   },
+   {
+    "id": 5,
+    "uuid": "i5parityvault00000000005",
+    "team": 1,
+    "provider": "vault",
+    "name": "Parity Vault",
+    "token": "hvs.team1token",
+    "capabilities": [
+     "secrets"
+    ],
+    "metadata": {
+     "base_url": "https://vault.example.com:8200",
+     "namespace": "admin/team-a",
+     "timeout": 15
+    },
+    "created_at": "2025-12-24 00:00:00"
+   },
+   {
+    "id": 6,
+    "uuid": "i6othercloudflare0000006",
+    "team": 2,
+    "provider": "cloudflare",
+    "name": "Other Cloudflare",
+    "token": "cf-team2-token",
+    "capabilities": [
+     "dns"
+    ],
+    "metadata": null,
+    "created_at": "2025-12-25 00:00:00"
+   }
+  ],
+  "dnsZones": [
+   {
+    "id": 1,
+    "uuid": "z1parityzoneexamplecom01",
+    "token": 1,
+    "provider_zone_id": "zone-com",
+    "name": "example.com",
+    "account_id": "acc-1",
+    "account_name": "Parity Account",
+    "created_at": "2025-12-20 00:00:00"
+   },
+   {
+    "id": 2,
+    "uuid": "z2parityzoneexampleorg02",
+    "token": 1,
+    "provider_zone_id": "zone-org",
+    "name": "example.org",
+    "account_id": "acc-1",
+    "account_name": "Parity Account",
+    "created_at": "2025-12-20 00:00:00"
+   },
+   {
+    "id": 3,
+    "uuid": "z3parityzoneexamplenet03",
+    "token": 2,
+    "provider_zone_id": "zone-net",
+    "name": "example.net",
+    "account_id": "acc-1",
+    "account_name": null,
+    "created_at": "2025-12-21 00:00:00"
+   },
+   {
+    "id": 4,
+    "uuid": "z4otherzoneotherexample4",
+    "token": 6,
+    "provider_zone_id": "zone-other",
+    "name": "other.example",
+    "account_id": "acc-9",
+    "account_name": "Other Account",
+    "created_at": "2025-12-25 00:00:00"
+   }
+  ],
   "tokens": [
    {
     "key": "root",
@@ -27250,6 +27385,2643 @@
     "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
     "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
    },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "integration tokens: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/security/integration-tokens"
+  },
+  {
+   "name": "integration tokens: list, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/security/integration-tokens"
+  },
+  {
+   "name": "integration tokens: list by a member",
+   "token": "memberRead",
+   "method": "GET",
+   "path": "/api/v1/security/integration-tokens"
+  },
+  {
+   "name": "integration tokens: show a cloudflare token",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/security/integration-tokens/i1paritycloudflaredns001"
+  },
+  {
+   "name": "integration tokens: show a cloudflare token without automatic DNS",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/security/integration-tokens/i2paritycloudflaretun002"
+  },
+  {
+   "name": "integration tokens: show a doppler token",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/security/integration-tokens/i3paritydoppler000000003"
+  },
+  {
+   "name": "integration tokens: show a vault token",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/security/integration-tokens/i5parityvault00000000005"
+  },
+  {
+   "name": "integration tokens: show unknown",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/security/integration-tokens/nonexistentuuid"
+  },
+  {
+   "name": "integration tokens: show another team's",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/security/integration-tokens/i6othercloudflare0000006"
+  },
+  {
+   "name": "integration tokens: show by a member",
+   "token": "memberRead",
+   "method": "GET",
+   "path": "/api/v1/security/integration-tokens/i1paritycloudflaredns001"
+  },
+  {
+   "name": "integration tokens: show unknown by a member",
+   "token": "memberRead",
+   "method": "GET",
+   "path": "/api/v1/security/integration-tokens/nonexistentuuid"
+  },
+  {
+   "name": "integration tokens: create a cloudflare token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "cloudflare",
+    "name": "New Cloudflare",
+    "token": "cf-new-token",
+    "capabilities": [
+     "dns"
+    ]
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/user/tokens/verify$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "tok-1",
+       "status": "active"
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?per_page=1$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "zone-com",
+        "name": "example.com",
+        "status": "active",
+        "account": {
+         "id": "acc-1",
+         "name": "Parity Account"
+        }
+       }
+      ]
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?per_page=1$",
+     "body": {
+      "success": true,
+      "result": []
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?page=1&per_page=50$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "zone-com",
+        "name": "Example.com",
+        "status": "active",
+        "account": {
+         "id": "acc-1",
+         "name": "Parity Account"
+        }
+       },
+       {
+        "id": "zone-new",
+        "name": "new.example",
+        "status": "active",
+        "account": {
+         "id": "acc-2",
+         "name": null
+        }
+       }
+      ],
+      "result_info": {
+       "page": 1,
+       "per_page": 50,
+       "total_pages": 1,
+       "count": 2
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: create a cloudflare token, the default capability",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "cloudflare",
+    "name": "Default DNS",
+    "token": "cf-new-token"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/user/tokens/verify$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "tok-1",
+       "status": "active"
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?per_page=1$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "zone-com",
+        "name": "example.com",
+        "status": "active",
+        "account": {
+         "id": "acc-1",
+         "name": "Parity Account"
+        }
+       }
+      ]
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?per_page=1$",
+     "body": {
+      "success": true,
+      "result": []
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?page=1&per_page=50$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "zone-com",
+        "name": "Example.com",
+        "status": "active",
+        "account": {
+         "id": "acc-1",
+         "name": "Parity Account"
+        }
+       },
+       {
+        "id": "zone-new",
+        "name": "new.example",
+        "status": "active",
+        "account": {
+         "id": "acc-2",
+         "name": null
+        }
+       }
+      ],
+      "result_info": {
+       "page": 1,
+       "per_page": 50,
+       "total_pages": 1,
+       "count": 2
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: create a cloudflare token with a tunnel, no automatic DNS, proxied",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "cloudflare",
+    "name": "With tunnel",
+    "token": "cf-tunnel-token",
+    "capabilities": [
+     "tunnel",
+     "dns",
+     "dns"
+    ],
+    "automatic_dns": false,
+    "proxied_dns": true
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/user/tokens/verify$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "tok-1",
+       "status": "active"
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?per_page=1$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "zone-com",
+        "name": "example.com",
+        "status": "active",
+        "account": {
+         "id": "acc-1",
+         "name": "Parity Account"
+        }
+       }
+      ]
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?per_page=1$",
+     "body": {
+      "success": true,
+      "result": []
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?page=1&per_page=50$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "zone-com",
+        "name": "Example.com",
+        "status": "active",
+        "account": {
+         "id": "acc-1",
+         "name": "Parity Account"
+        }
+       },
+       {
+        "id": "zone-new",
+        "name": "new.example",
+        "status": "active",
+        "account": {
+         "id": "acc-2",
+         "name": null
+        }
+       }
+      ],
+      "result_info": {
+       "page": 1,
+       "per_page": 50,
+       "total_pages": 1,
+       "count": 2
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/accounts/acc-1/cfd_tunnel\\?per_page=1&is_deleted=false$",
+     "body": {
+      "success": true,
+      "result": []
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: create a cloudflare token, zones on two pages",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "cloudflare",
+    "name": "Two pages",
+    "token": "cf-new-token"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/user/tokens/verify$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "tok-1",
+       "status": "active"
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?per_page=1$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "zone-com",
+        "name": "example.com",
+        "status": "active",
+        "account": {
+         "id": "acc-1",
+         "name": "Parity Account"
+        }
+       }
+      ]
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?per_page=1$",
+     "body": {
+      "success": true,
+      "result": []
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?page=1&per_page=50$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "zone-a",
+        "name": "A.example",
+        "status": "active",
+        "account": {
+         "id": "acc-1",
+         "name": "Parity Account"
+        }
+       }
+      ],
+      "result_info": {
+       "page": 1,
+       "per_page": 50,
+       "total_pages": 2,
+       "count": 1
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?page=2&per_page=50$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "zone-b",
+        "name": "b.example",
+        "status": "active",
+        "account": null
+       }
+      ],
+      "result_info": {
+       "page": 2,
+       "per_page": 50,
+       "total_pages": 2,
+       "count": 1
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: create a cloudflare token, not active",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "cloudflare",
+    "name": "Disabled",
+    "token": "cf-disabled"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/user/tokens/verify$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "tok-1",
+       "status": "disabled"
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: create a cloudflare token, refused",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "cloudflare",
+    "name": "Refused",
+    "token": "cf-bad"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/user/tokens/verify$",
+     "body": {
+      "success": false,
+      "errors": [
+       {
+        "code": 1000,
+        "message": "Invalid API Token"
+       }
+      ]
+     },
+     "status": 401
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: create a cloudflare token, no zone",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "cloudflare",
+    "name": "No zone",
+    "token": "cf-new-token"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/user/tokens/verify$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "tok-1",
+       "status": "active"
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?per_page=1$",
+     "body": {
+      "success": true,
+      "result": []
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: create a cloudflare token, no DNS access",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "cloudflare",
+    "name": "No records",
+    "token": "cf-new-token"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/user/tokens/verify$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "tok-1",
+       "status": "active"
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?per_page=1$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "zone-com",
+        "name": "example.com",
+        "status": "active",
+        "account": {
+         "id": "acc-1",
+         "name": "Parity Account"
+        }
+       }
+      ]
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?per_page=1$",
+     "body": {
+      "success": false,
+      "result": []
+     },
+     "status": 403
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: create a cloudflare token, no tunnel access",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "cloudflare",
+    "name": "No tunnel",
+    "token": "cf-new-token",
+    "capabilities": [
+     "dns",
+     "tunnel"
+    ]
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/user/tokens/verify$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "tok-1",
+       "status": "active"
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?per_page=1$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "zone-com",
+        "name": "example.com",
+        "status": "active",
+        "account": {
+         "id": "acc-1",
+         "name": "Parity Account"
+        }
+       }
+      ]
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?per_page=1$",
+     "body": {
+      "success": true,
+      "result": []
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/accounts/acc-1/cfd_tunnel\\?per_page=1&is_deleted=false$",
+     "body": {
+      "success": false,
+      "result": []
+     },
+     "status": 403
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: create a cloudflare token, a tunnel and a zone without an account",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "cloudflare",
+    "name": "No account",
+    "token": "cf-new-token",
+    "capabilities": [
+     "dns",
+     "tunnel"
+    ]
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/user/tokens/verify$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "tok-1",
+       "status": "active"
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?per_page=1$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "zone-com",
+        "name": "example.com",
+        "status": "active",
+        "account": null
+       }
+      ]
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?per_page=1$",
+     "body": {
+      "success": true,
+      "result": []
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: create a cloudflare token, the zones refused",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "cloudflare",
+    "name": "Zones refused",
+    "token": "cf-new-token"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/user/tokens/verify$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "tok-1",
+       "status": "active"
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?per_page=1$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "zone-com",
+        "name": "example.com",
+        "status": "active",
+        "account": {
+         "id": "acc-1",
+         "name": "Parity Account"
+        }
+       }
+      ]
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?per_page=1$",
+     "body": {
+      "success": true,
+      "result": []
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?page=1&per_page=50$",
+     "body": {
+      "success": false,
+      "result": [],
+      "result_info": {
+       "page": 1,
+       "per_page": 50,
+       "total_pages": 1,
+       "count": 0
+      }
+     },
+     "status": 403
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: create a cloudflare token, the zones not synchronized",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "cloudflare",
+    "name": "Zones failed",
+    "token": "cf-new-token"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/user/tokens/verify$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "tok-1",
+       "status": "active"
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?per_page=1$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "zone-com",
+        "name": "example.com",
+        "status": "active",
+        "account": {
+         "id": "acc-1",
+         "name": "Parity Account"
+        }
+       }
+      ]
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?per_page=1$",
+     "body": {
+      "success": true,
+      "result": []
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?page=1&per_page=50$",
+     "body": {
+      "success": false,
+      "result": [],
+      "result_info": {
+       "page": 1,
+       "per_page": 50,
+       "total_pages": 1,
+       "count": 0
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: create a cloudflare token, Cloudflare unreachable",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "cloudflare",
+    "name": "Offline",
+    "token": "cf-new-token"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/user/tokens/verify$",
+     "failedConnection": true
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: create a cloudflare token, a tunnel without DNS",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "cloudflare",
+    "name": "Tunnel only",
+    "token": "cf-new-token",
+    "capabilities": [
+     "tunnel"
+    ]
+   },
+   "http": []
+  },
+  {
+   "name": "integration tokens: create a cloudflare token, the secrets capability and metadata",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "cloudflare",
+    "name": "Wrong",
+    "token": "cf-new-token",
+    "capabilities": [
+     "dns",
+     "secrets",
+     7
+    ],
+    "metadata": {
+     "base_url": "https://x.example"
+    },
+    "automatic_dns": "maybe"
+   },
+   "http": []
+  },
+  {
+   "name": "integration tokens: create a cloudflare token, no capabilities",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "cloudflare",
+    "name": "None",
+    "token": "cf-new-token",
+    "capabilities": []
+   },
+   "http": []
+  },
+  {
+   "name": "integration tokens: create a cloudflare token, capabilities not a list",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "cloudflare",
+    "name": "String",
+    "token": "cf-new-token",
+    "capabilities": "dns",
+    "proxied_dns": 2
+   },
+   "http": []
+  },
+  {
+   "name": "integration tokens: create a doppler token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "doppler",
+    "name": "New Doppler",
+    "token": "dp.sa.newtoken"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.doppler\\.com/v3/me$",
+     "body": {
+      "workplace": {
+       "name": "Parity"
+      },
+      "type": "service_token"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: create a doppler token, refused",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "doppler",
+    "name": "Refused",
+    "token": "dp.st.bad"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.doppler\\.com/v3/me$",
+     "body": {
+      "messages": [
+       "Invalid Auth token"
+      ],
+      "success": false
+     },
+     "status": 401
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: create a doppler token, Doppler unreachable",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "doppler",
+    "name": "Offline",
+    "token": "dp.st.offline"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.doppler\\.com/v3/me$",
+     "failedConnection": true
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: create a doppler token, not a service token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "doppler",
+    "name": "Personal",
+    "token": "dp.pt.personal",
+    "automatic_dns": true,
+    "capabilities": [
+     "dns"
+    ]
+   },
+   "http": []
+  },
+  {
+   "name": "integration tokens: create an infisical token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "infisical",
+    "name": "New Infisical",
+    "token": "inf-new-secret",
+    "metadata": {
+     "base_url": "https://app.infisical.com/",
+     "client_id": "client-new",
+     "timeout": 30,
+     "extra": ""
+    }
+   },
+   "http": [
+    {
+     "match": "^POST https://app\\.infisical\\.com/api/v1/auth/universal-auth/login$",
+     "body": {
+      "accessToken": "inf-access-token",
+      "expiresIn": 7200,
+      "tokenType": "Bearer"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: create an infisical token, the login refused",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "infisical",
+    "name": "Refused",
+    "token": "inf-bad",
+    "metadata": {
+     "base_url": "https://app.infisical.com",
+     "client_id": "client-bad"
+    }
+   },
+   "http": [
+    {
+     "match": "^POST https://app\\.infisical\\.com/api/v1/auth/universal-auth/login$",
+     "body": {
+      "message": "Invalid credentials"
+     },
+     "status": 401
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: create an infisical token, no access token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "infisical",
+    "name": "No token",
+    "token": "inf-x",
+    "metadata": {
+     "base_url": "https://app.infisical.com",
+     "client_id": "client-x"
+    }
+   },
+   "http": [
+    {
+     "match": "^POST https://app\\.infisical\\.com/api/v1/auth/universal-auth/login$",
+     "body": {
+      "accessToken": ""
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: create an infisical token, no settings",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "infisical",
+    "name": "Missing",
+    "token": "inf-x"
+   },
+   "http": []
+  },
+  {
+   "name": "integration tokens: create an infisical token, invalid settings",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "infisical",
+    "name": "Invalid",
+    "token": "inf-x",
+    "metadata": {
+     "base_url": "ftp://files.example.com",
+     "client_id": 12,
+     "timeout": 0
+    }
+   },
+   "http": []
+  },
+  {
+   "name": "integration tokens: create an infisical token, a timeout too long",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "infisical",
+    "name": "Slow",
+    "token": "inf-x",
+    "metadata": {
+     "base_url": "https://app.infisical.com",
+     "client_id": "c",
+     "timeout": "abc"
+    }
+   },
+   "http": []
+  },
+  {
+   "name": "integration tokens: create an infisical token, a private address",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "infisical",
+    "name": "Private",
+    "token": "inf-x",
+    "metadata": {
+     "base_url": "https://private.example",
+     "client_id": "c"
+    }
+   },
+   "http": [],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: create an infisical token, an unresolvable host",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "infisical",
+    "name": "Nowhere",
+    "token": "inf-x",
+    "metadata": {
+     "base_url": "https://unresolvable.example",
+     "client_id": "c"
+    }
+   },
+   "http": []
+  },
+  {
+   "name": "integration tokens: create a vault token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "vault",
+    "name": "New Vault",
+    "token": "hvs.newtoken",
+    "capabilities": [
+     "secrets"
+    ],
+    "metadata": {
+     "base_url": "https://vault.example.com:8200",
+     "namespace": "admin/new",
+     "timeout": "20"
+    }
+   },
+   "http": [
+    {
+     "match": "^GET https://vault\\.example\\.com:8200/v1/auth/token/lookup-self$",
+     "body": {
+      "data": {
+       "policies": [
+        "default"
+       ]
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: create a vault token without a namespace",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "vault",
+    "name": "Plain Vault",
+    "token": "hvs.plain",
+    "metadata": {
+     "base_url": "https://vault.example.com:8200"
+    }
+   },
+   "http": [
+    {
+     "match": "^GET https://vault\\.example\\.com:8200/v1/auth/token/lookup-self$",
+     "body": {
+      "data": {
+       "policies": [
+        "default"
+       ]
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: create a vault token, refused",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "vault",
+    "name": "Refused",
+    "token": "hvs.bad",
+    "metadata": {
+     "base_url": "https://vault.example.com:8200"
+    }
+   },
+   "http": [
+    {
+     "match": "^GET https://vault\\.example\\.com:8200/v1/auth/token/lookup-self$",
+     "body": {
+      "errors": [
+       "permission denied"
+      ]
+     },
+     "status": 403
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: create a vault token, metadata not an object",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "vault",
+    "name": "Bad",
+    "token": "hvs.x",
+    "metadata": "https://vault.example.com"
+   },
+   "http": []
+  },
+  {
+   "name": "integration tokens: create, invalid",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "aws",
+    "name": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "token": 5,
+    "description": "not allowed",
+    "capabilities": [
+     "secrets"
+    ]
+   },
+   "http": []
+  },
+  {
+   "name": "integration tokens: create, nothing required",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "other": 1
+   },
+   "http": []
+  },
+  {
+   "name": "integration tokens: create, a provider that is not a string",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": [
+     "cloudflare"
+    ],
+    "name": "n",
+    "token": "t"
+   },
+   "http": []
+  },
+  {
+   "name": "integration tokens: create, not JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "raw": "provider=doppler",
+   "contentType": "application/x-www-form-urlencoded",
+   "http": []
+  },
+  {
+   "name": "integration tokens: create, empty JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "raw": "{}",
+   "http": []
+  },
+  {
+   "name": "integration tokens: create with a read token",
+   "token": "read",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "doppler",
+    "name": "n",
+    "token": "dp.st.x"
+   },
+   "http": []
+  },
+  {
+   "name": "integration tokens: update, a new name",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/i1paritycloudflaredns001",
+   "body": {
+    "name": "Renamed Cloudflare"
+   },
+   "http": [],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: update, the same name",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/i1paritycloudflaredns001",
+   "body": {
+    "name": "Parity Cloudflare"
+   },
+   "http": [],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id",
+    "touched": "select updated_at = created_at as untouched from integration_tokens where id = 1"
+   }
+  },
+  {
+   "name": "integration tokens: update, automatic DNS off",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/i1paritycloudflaredns001",
+   "body": {
+    "automatic_dns": false,
+    "proxied_dns": true
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/user/tokens/verify$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "tok-1",
+       "status": "active"
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?per_page=1$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "zone-com",
+        "name": "example.com",
+        "status": "active",
+        "account": {
+         "id": "acc-1",
+         "name": "Parity Account"
+        }
+       }
+      ]
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?per_page=1$",
+     "body": {
+      "success": true,
+      "result": []
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: update, the flags as they are",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/i2paritycloudflaretun002",
+   "body": {
+    "automatic_dns": false,
+    "proxied_dns": 1
+   },
+   "http": [],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: update, a new cloudflare token",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/i1paritycloudflaredns001",
+   "body": {
+    "token": "cf-rotated"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/user/tokens/verify$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "tok-1",
+       "status": "active"
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?per_page=1$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "zone-com",
+        "name": "example.com",
+        "status": "active",
+        "account": {
+         "id": "acc-1",
+         "name": "Parity Account"
+        }
+       }
+      ]
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?per_page=1$",
+     "body": {
+      "success": true,
+      "result": []
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?page=1&per_page=50$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "zone-com",
+        "name": "EXAMPLE.com",
+        "status": "active",
+        "account": {
+         "id": "acc-1",
+         "name": "Renamed Account"
+        }
+       },
+       {
+        "id": "zone-io",
+        "name": "example.io",
+        "status": "active",
+        "account": {
+         "id": "acc-1",
+         "name": "Parity Account"
+        }
+       }
+      ],
+      "result_info": {
+       "page": 1,
+       "per_page": 50,
+       "total_pages": 1,
+       "count": 2
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: update, a new cloudflare token, a zone with a managed record kept",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/i1paritycloudflaredns001",
+   "body": {
+    "token": "cf-rotated"
+   },
+   "setupCoolify": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m1paritymanagedrecord001', 1, 2, 'rec-1', 'A', 'app.example.org', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m1paritymanagedrecord001', 1, 2, 'rec-1', 'A', 'app.example.org', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/user/tokens/verify$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "tok-1",
+       "status": "active"
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?per_page=1$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "zone-com",
+        "name": "example.com",
+        "status": "active",
+        "account": {
+         "id": "acc-1",
+         "name": "Parity Account"
+        }
+       }
+      ]
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?per_page=1$",
+     "body": {
+      "success": true,
+      "result": []
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?page=1&per_page=50$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "zone-com",
+        "name": "example.com",
+        "status": "active",
+        "account": {
+         "id": "acc-1",
+         "name": "Parity Account"
+        }
+       }
+      ],
+      "result_info": {
+       "page": 1,
+       "per_page": 50,
+       "total_pages": 1,
+       "count": 1
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: update, the tunnel capability",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/i1paritycloudflaredns001",
+   "body": {
+    "capabilities": [
+     "dns",
+     "tunnel"
+    ]
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/user/tokens/verify$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "tok-1",
+       "status": "active"
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?per_page=1$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "zone-com",
+        "name": "example.com",
+        "status": "active",
+        "account": {
+         "id": "acc-1",
+         "name": "Parity Account"
+        }
+       }
+      ]
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?per_page=1$",
+     "body": {
+      "success": true,
+      "result": []
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/accounts/acc-1/cfd_tunnel\\?per_page=1&is_deleted=false$",
+     "body": {
+      "success": true,
+      "result": []
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?page=1&per_page=50$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "zone-com",
+        "name": "example.com",
+        "status": "active",
+        "account": {
+         "id": "acc-1",
+         "name": "Parity Account"
+        }
+       }
+      ],
+      "result_info": {
+       "page": 1,
+       "per_page": 50,
+       "total_pages": 1,
+       "count": 1
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: update, the capabilities in another order",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/i2paritycloudflaretun002",
+   "body": {
+    "capabilities": [
+     "tunnel",
+     "dns"
+    ]
+   },
+   "http": [],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: update, the new cloudflare token refused",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/i1paritycloudflaredns001",
+   "body": {
+    "token": "cf-bad",
+    "name": "Never saved"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/user/tokens/verify$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "tok-1",
+       "status": "expired"
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: update, the zones refused",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/i1paritycloudflaredns001",
+   "body": {
+    "token": "cf-rotated",
+    "name": "Never saved"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/user/tokens/verify$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "tok-1",
+       "status": "active"
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?per_page=1$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "zone-com",
+        "name": "example.com",
+        "status": "active",
+        "account": {
+         "id": "acc-1",
+         "name": "Parity Account"
+        }
+       }
+      ]
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?per_page=1$",
+     "body": {
+      "success": true,
+      "result": []
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?page=1&per_page=50$",
+     "body": {
+      "success": false,
+      "result": [],
+      "result_info": {
+       "page": 1,
+       "per_page": 50,
+       "total_pages": 1,
+       "count": 0
+      }
+     },
+     "status": 403
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: update, Cloudflare unreachable",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/i1paritycloudflaredns001",
+   "body": {
+    "token": "cf-rotated"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/user/tokens/verify$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "tok-1",
+       "status": "active"
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?per_page=1$",
+     "failedConnection": true
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: update a cloudflare token, invalid",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/i1paritycloudflaredns001",
+   "body": {
+    "name": 7,
+    "capabilities": [
+     "tunnel"
+    ],
+    "metadata": {
+     "a": 1
+    },
+    "automatic_dns": "x",
+    "provider": "doppler"
+   },
+   "http": []
+  },
+  {
+   "name": "integration tokens: update a cloudflare token, no capabilities",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/i1paritycloudflaredns001",
+   "body": {
+    "capabilities": [],
+    "name": ""
+   },
+   "http": []
+  },
+  {
+   "name": "integration tokens: update a doppler token, a new name",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/i3paritydoppler000000003",
+   "body": {
+    "name": "Renamed Doppler",
+    "metadata": {}
+   },
+   "http": [],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: update a doppler token, a new token",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/i3paritydoppler000000003",
+   "body": {
+    "token": "dp.sa.rotated"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.doppler\\.com/v3/me$",
+     "body": {
+      "workplace": {
+       "name": "Parity"
+      },
+      "type": "service_token"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: update a doppler token, not a service token",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/i3paritydoppler000000003",
+   "body": {
+    "token": "dp.pt.personal",
+    "automatic_dns": true
+   },
+   "http": []
+  },
+  {
+   "name": "integration tokens: update an infisical token, the base URL without the secret",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/i4parityinfisical0000004",
+   "body": {
+    "metadata": {
+     "base_url": "https://infisical.example.com"
+    }
+   },
+   "http": [],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: update an infisical token, the base URL with the secret",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/i4parityinfisical0000004",
+   "body": {
+    "token": "inf-rotated",
+    "metadata": {
+     "base_url": "https://infisical.example.com"
+    }
+   },
+   "http": [
+    {
+     "match": "^POST https://infisical\\.example\\.com/api/v1/auth/universal-auth/login$",
+     "body": {
+      "accessToken": "inf-access-token",
+      "expiresIn": 7200,
+      "tokenType": "Bearer"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: update an infisical token, a timeout",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/i4parityinfisical0000004",
+   "body": {
+    "metadata": {
+     "timeout": 45
+    }
+   },
+   "http": [
+    {
+     "match": "^POST https://app\\.infisical\\.com/api/v1/auth/universal-auth/login$",
+     "body": {
+      "accessToken": "inf-access-token",
+      "expiresIn": 7200,
+      "tokenType": "Bearer"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: update an infisical token, the timeout removed",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/i4parityinfisical0000004",
+   "body": {
+    "metadata": {
+     "timeout": ""
+    }
+   },
+   "http": [],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: update an infisical token, the client ID removed",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/i4parityinfisical0000004",
+   "body": {
+    "metadata": {
+     "client_id": ""
+    }
+   },
+   "http": []
+  },
+  {
+   "name": "integration tokens: update an infisical token, the login refused",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/i4parityinfisical0000004",
+   "body": {
+    "metadata": {
+     "timeout": 5
+    }
+   },
+   "http": [
+    {
+     "match": "^POST https://app\\.infisical\\.com/api/v1/auth/universal-auth/login$",
+     "body": {
+      "message": "Invalid credentials"
+     },
+     "status": 401
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: update a vault token, the namespace without the token",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/i5parityvault00000000005",
+   "body": {
+    "metadata": {
+     "namespace": "admin/team-b"
+    }
+   },
+   "http": []
+  },
+  {
+   "name": "integration tokens: update a vault token, a private address",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/i5parityvault00000000005",
+   "body": {
+    "token": "hvs.rotated",
+    "metadata": {
+     "base_url": "https://private.example"
+    }
+   },
+   "http": [],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: update a vault token, a new token",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/i5parityvault00000000005",
+   "body": {
+    "token": "hvs.rotated",
+    "name": "Rotated Vault"
+   },
+   "http": [
+    {
+     "match": "^GET https://vault\\.example\\.com:8200/v1/auth/token/lookup-self$",
+     "body": {
+      "data": {
+       "policies": [
+        "default"
+       ]
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: update a vault token, the namespace removed",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/i5parityvault00000000005",
+   "body": {
+    "token": "hvs.rotated",
+    "metadata": {
+     "namespace": null
+    }
+   },
+   "http": [
+    {
+     "match": "^GET https://vault\\.example\\.com:8200/v1/auth/token/lookup-self$",
+     "body": {
+      "data": {
+       "policies": [
+        "default"
+       ]
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: update, not JSON",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/i1paritycloudflaredns001",
+   "raw": "name=x",
+   "contentType": "application/x-www-form-urlencoded",
+   "http": []
+  },
+  {
+   "name": "integration tokens: update, empty JSON",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/i1paritycloudflaredns001",
+   "raw": "{}",
+   "http": []
+  },
+  {
+   "name": "integration tokens: update unknown",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/nonexistentuuid",
+   "body": {
+    "name": "x"
+   },
+   "http": []
+  },
+  {
+   "name": "integration tokens: update another team's",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/i6othercloudflare0000006",
+   "body": {
+    "name": "x"
+   },
+   "http": []
+  },
+  {
+   "name": "integration tokens: delete a doppler token",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/security/integration-tokens/i3paritydoppler000000003",
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: delete a cloudflare token and its zones",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/security/integration-tokens/i1paritycloudflaredns001",
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: delete, a secret manager source",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/security/integration-tokens/i3paritydoppler000000003",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('l1paritysecretlink000001', 'App\\Models\\Application', 1, 3, null, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('l1paritysecretlink000001', 'App\\Models\\Application', 1, 3, null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: delete, it manages DNS records",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/security/integration-tokens/i1paritycloudflaredns001",
+   "setupCoolify": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m1paritymanagedrecord001', 1, 1, 'rec-1', 'A', 'app.example.org', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m1paritymanagedrecord001', 1, 1, 'rec-1', 'A', 'app.example.org', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: delete unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/security/integration-tokens/nonexistentuuid"
+  },
+  {
+   "name": "integration tokens: delete another team's",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/security/integration-tokens/i6othercloudflare0000006"
+  },
+  {
+   "name": "integration tokens: delete with a write token",
+   "token": "write",
+   "method": "DELETE",
+   "path": "/api/v1/security/integration-tokens/i3paritydoppler000000003"
+  },
+  {
+   "name": "integration tokens: sync zones",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens/i1paritycloudflaredns001/sync-zones",
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?page=1&per_page=50$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "zone-com",
+        "name": "example.com",
+        "status": "active",
+        "account": {
+         "id": "acc-1",
+         "name": "Parity Account"
+        }
+       },
+       {
+        "id": "zone-dev",
+        "name": "Example.DEV",
+        "status": "active",
+        "account": {
+         "id": "acc-3",
+         "name": "Dev"
+        }
+       }
+      ],
+      "result_info": {
+       "page": 1,
+       "per_page": 50,
+       "total_pages": 1,
+       "count": 2
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: sync zones, a zone with a managed record kept",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens/i1paritycloudflaredns001/sync-zones",
+   "setupCoolify": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m1paritymanagedrecord001', 1, 2, 'rec-1', 'A', 'app.example.org', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m1paritymanagedrecord001', 1, 2, 'rec-1', 'A', 'app.example.org', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?page=1&per_page=50$",
+     "body": {
+      "success": true,
+      "result": [],
+      "result_info": {
+       "page": 1,
+       "per_page": 50,
+       "total_pages": 1,
+       "count": 0
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: sync zones, three pages",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens/i2paritycloudflaretun002/sync-zones",
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?page=1&per_page=50$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "zone-net",
+        "name": "example.net",
+        "status": "active",
+        "account": {
+         "id": "acc-1",
+         "name": "Parity Account"
+        }
+       }
+      ],
+      "result_info": {
+       "page": 1,
+       "per_page": 50,
+       "total_pages": 3,
+       "count": 1
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?page=2&per_page=50$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "zone-p2",
+        "name": "p2.example",
+        "status": "active",
+        "account": {
+         "id": "acc-1",
+         "name": "Parity Account"
+        }
+       }
+      ],
+      "result_info": {
+       "page": 2,
+       "per_page": 50,
+       "total_pages": 3,
+       "count": 1
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?page=3&per_page=50$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "zone-p3",
+        "name": "p3.example",
+        "status": "active",
+        "account": {
+         "id": "acc-1",
+         "name": "Parity Account"
+        }
+       }
+      ],
+      "result_info": {
+       "page": 3,
+       "per_page": 50,
+       "total_pages": 3,
+       "count": 1
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: sync zones, refused",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens/i1paritycloudflaredns001/sync-zones",
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?page=1&per_page=50$",
+     "body": {
+      "success": false,
+      "result": [],
+      "result_info": {
+       "page": 1,
+       "per_page": 50,
+       "total_pages": 1,
+       "count": 0
+      }
+     },
+     "status": 403
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: sync zones, Cloudflare fails",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens/i1paritycloudflaredns001/sync-zones",
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?page=1&per_page=50$",
+     "body": {
+      "success": false,
+      "result": [],
+      "result_info": {
+       "page": 1,
+       "per_page": 50,
+       "total_pages": 1,
+       "count": 0
+      }
+     },
+     "status": 500
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: sync zones, Cloudflare unreachable",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens/i1paritycloudflaredns001/sync-zones",
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones",
+     "failedConnection": true
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   }
+  },
+  {
+   "name": "integration tokens: sync zones of a doppler token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens/i3paritydoppler000000003/sync-zones",
+   "http": []
+  },
+  {
+   "name": "integration tokens: sync zones, unknown",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens/nonexistentuuid/sync-zones",
+   "http": []
+  },
+  {
+   "name": "integration tokens: sync zones, another team's",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens/i6othercloudflare0000006/sync-zones",
+   "http": []
+  },
+  {
+   "name": "integration tokens: sync zones with a read token",
+   "token": "read",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens/i1paritycloudflaredns001/sync-zones",
+   "http": []
+  },
+  {
+   "name": "integration tokens: GET sync zones",
+   "token": "write",
+   "method": "GET",
+   "path": "/api/v1/security/integration-tokens/i1paritycloudflaredns001/sync-zones"
+  },
+  {
+   "name": "denied: integration tokens: create a doppler token, a member with write and delete",
+   "token": "memberWrite",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens",
+   "body": {
+    "provider": "doppler",
+    "name": "New Doppler",
+    "token": "dp.sa.newtoken"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.doppler\\.com/v3/me$",
+     "body": {
+      "workplace": {
+       "name": "Parity"
+      },
+      "type": "service_token"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: integration tokens: update, a new name, a member with write and delete",
+   "token": "memberWrite",
+   "method": "PATCH",
+   "path": "/api/v1/security/integration-tokens/i1paritycloudflaredns001",
+   "body": {
+    "name": "Renamed Cloudflare"
+   },
+   "http": [],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: integration tokens: delete a doppler token, a member with write and delete",
+   "token": "memberDelete",
+   "method": "DELETE",
+   "path": "/api/v1/security/integration-tokens/i3paritydoppler000000003",
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: integration tokens: sync zones, a member with write and delete",
+   "token": "memberWrite",
+   "method": "POST",
+   "path": "/api/v1/security/integration-tokens/i1paritycloudflaredns001/sync-zones",
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones\\?page=1&per_page=50$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "zone-com",
+        "name": "example.com",
+        "status": "active",
+        "account": {
+         "id": "acc-1",
+         "name": "Parity Account"
+        }
+       },
+       {
+        "id": "zone-dev",
+        "name": "Example.DEV",
+        "status": "active",
+        "account": {
+         "id": "acc-3",
+         "name": "Dev"
+        }
+       }
+      ],
+      "result_info": {
+       "page": 1,
+       "per_page": 50,
+       "total_pages": 1,
+       "count": 2
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> 'i6othercloudflare0000006' order by id",
+    "zones": "select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> 'i6othercloudflare0000006' order by z.provider_zone_id, z.id"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: integration tokens: list, a member with write and delete",
+   "token": "memberWrite",
+   "method": "GET",
+   "path": "/api/v1/security/integration-tokens",
    "setupCoolify": [
     "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
    ]

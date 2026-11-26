@@ -1,0 +1,25 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-104
+  title: "DP9: Keys & Tokens → Integration Tokens (Cloudflare, Doppler, Infisical, HashiCorp Vault), each asked before it is stored, a Cloudflare token's zones, and /api/v1/security/integration-tokens"
+spec:
+  goal: deploy-web gains /security/integration-tokens (routes/web.php's security.integration-tokens, App\Livewire\Security\IntegrationTokens) with its New Integration Token form (IntegrationTokenForm) and Edit Integration Token dialog (IntegrationTokenEditor) — the provider listbox and updatedProvider(), the Cloudflare capabilities where Tunnel selects DNS, Automatically configure DNS and Proxy DNS records, the Required Cloudflare permissions with cloudflareTokenTemplateUrl(), the secret managers' notes and settings (Infisical's base URL, client ID and timeout, Vault's base URL, namespace and timeout), the zones a Cloudflare token can manage with their managed record counts and Refresh zones, rotation, and Delete with deletionBlocker() — Blade copy, Livewire rules, messages and toasts verbatim. New endpoints /v1/organizations/{org}/deploy/integration-tokens[/{uuid}[/refresh-zones]] run inside withOrg with deploy.resource.read (list, editor) and deploy.resource.write (the rest) and answer a denial with 404 that runs nothing. CreateIntegrationToken and UpdateIntegrationToken are ported as shared actions (apps/deploy-core-worker/src/integration-tokens/), the provider asked through an injectable fetch as Coolify's validators ask it (CloudflareTokenValidator, DopplerService, InfisicalService, VaultService, SafeExternalUrl on a base URL) and a Cloudflare token's zones read as syncZones() reads them; the token is encrypted with the org's key (integration_tokens.token) and never returned. On DP-70's pipeline, IntegrationTokensController's six operations — list, show, create, update, delete, sync-zones — are ported and held to goldens emitted by Coolify's PHP with the providers faked by Http::fake() (a failed connection included); 6 more of openapi.json's 330 operations are ported (284 in all). No migration (the tables are in the head schema); packages/db gains deploy/integration-tokens.ts.
+  affects:
+    - apps/api-edge/**
+    - apps/deploy-core-worker/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/api-edge/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - apps/deploy-web/test/routes.test.ts maps /security/integration-tokens to its page and apps/deploy-web/test/integration-tokens.test.ts holds updatedProvider(), updatedCapabilities(), cloudflareTokenTemplateUrl() and the form's and editor's labels
+    - tests/deploy-core-worker/src/integration-tokens.test.ts holds the form's and editor's rules and messages, the toasts, what each provider is asked, deletionBlocker(), Refresh zones, authorization (a denial is a 404 that runs nothing) and org isolation
+    - every DP-104 case of tests/deploy-core-worker/fixtures/api/cases.json replays against Freeploy's handler byte-equal to goldens.json (status, body, the requests sent to Cloudflare, Doppler, Infisical and Vault, and the rows of the writes), and the five member denials answer as Coolify's exception handler does
+    - tests/db/src/deploy-integration-tokens.test.ts runs the new queries on the schema at head, row-level security included
+    - specs/epics/freeploy-coolify-parity/parity/openapi.operations.json marks the 6 operations ported with taskKey DP-104 (284 ported of 330 in all), and node tools/parity/inventory.ts --check passes
+    - on stage, a Doppler token whose service token Doppler accepts is added, renamed and deleted from Keys & Tokens → Integration Tokens, and a Cloudflare token's zones are listed and refreshed
+  gates: []

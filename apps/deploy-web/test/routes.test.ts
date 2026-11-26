@@ -33,7 +33,9 @@ test("routes/web.php paths map to ported pages; the rest are not ported", () => 
   assert.equal(pageFor("/security/cloud-tokens/abc/validate"), "not-ported");
   assert.equal(pageFor("/security/cloud-init-scripts"), "security.cloud-init-scripts");
   assert.equal(pageFor("/security/cloud-init-scripts/abc123def456ghi789jkl012/"), "security.cloud-init-scripts.show");
-  assert.equal(pageFor("/security/integration-tokens"), "not-ported");
+  assert.equal(pageFor("/security/integration-tokens"), "security.integration-tokens");
+  assert.equal(pageFor("/security/integration-tokens/"), "security.integration-tokens");
+  assert.equal(pageFor("/security/integration-tokens/abc123def456ghi789jkl012"), "not-ported");
   assert.equal(pageFor("/security/api-tokens"), "security.api-tokens");
   assert.equal(pageFor("/security/api-tokens/"), "security.api-tokens");
   assert.equal(pageFor("/servers"), "server.index");

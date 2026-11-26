@@ -54,6 +54,9 @@ test("the current page's submenu is marked, and so is its parent entry", () => {
   assert.equal(childActive("/security/cloud-tokens/abc", "/security/cloud-tokens"), true);
   assert.equal(childActive("/security/cloud-init-scripts/abc", "/security/cloud-init-scripts"), true);
   assert.equal(childActive("/security/cloud-init-scripts", "/security/cloud-tokens"), false);
+  // DP-104: routeIs('security.integration-tokens'): the page itself only.
+  assert.equal(childActive("/security/integration-tokens", "/security/integration-tokens"), true);
+  assert.equal(childActive("/security/integration-tokens/abc", "/security/integration-tokens"), false);
 });
 
 test("a parent entry opens its submenu forward; Back opens the main menu", () => {
