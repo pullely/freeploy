@@ -23,10 +23,13 @@ const ORG_TEAM_MEMBER_ID_RE = /^\/v1\/organizations\/[^/]+\/team\/members\/[^/]+
 const ORG_TEAM_INVITATIONS_RE = /^\/v1\/organizations\/[^/]+\/team\/invitations$/;
 const ORG_TEAM_INVITATION_ID_RE = /^\/v1\/organizations\/[^/]+\/team\/invitations\/[^/]+$/;
 const TEAM_INVITATION_RE = /^\/v1\/team-invitations\/[^/]+$/;
+// The team's Danger Zone (DP-75): its state, and DELETE …/team.
+const ORG_TEAM_DANGER_RE = /^\/v1\/organizations\/[^/]+\/team\/danger$/;
 
 /** The methods of each team route. */
 const TEAM_ROUTES: Array<[RegExp, readonly string[]]> = [
-  [ORG_TEAM_RE, ["GET", "PATCH"]],
+  [ORG_TEAM_RE, ["GET", "PATCH", "DELETE"]],
+  [ORG_TEAM_DANGER_RE, ["GET"]],
   [ORG_TEAM_MEMBERS_RE, ["GET"]],
   [ORG_TEAM_MEMBER_ID_RE, ["PATCH", "DELETE"]],
   [ORG_TEAM_INVITATIONS_RE, ["GET", "POST"]],

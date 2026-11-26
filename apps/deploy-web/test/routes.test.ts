@@ -297,7 +297,19 @@ test("the team pages and the invitation page (DP-69); the team's other pages are
   assert.equal(pageFor("/team/members"), "team.member.index");
   assert.equal(pageFor("/team/members/"), "team.member.index");
   assert.equal(pageFor("/invitations/inv_0123456789abcdef0123456789abcdef"), "team.invitation.show");
-  for (const other of ["/team/audit-log", "/team/image-scanning", "/team/admin", "/team/danger", "/team/members/7/avatar", "/invitations", "/invitations/a/b"]) {
+  for (const other of ["/team/image-scanning", "/team/admin", "/team/members/7/avatar", "/invitations", "/invitations/a/b"]) {
+    assert.equal(pageFor(other), "not-ported", other);
+  }
+});
+
+test("the team's audit log and Danger Zone, and Boarding (DP-75); the subscription pages are not (Cloud only)", () => {
+  assert.equal(pageFor("/team/audit-log"), "team.audit-log");
+  assert.equal(pageFor("/team/audit-log/"), "team.audit-log");
+  assert.equal(pageFor("/team/danger"), "team.danger-zone");
+  assert.equal(pageFor("/team/danger/"), "team.danger-zone");
+  assert.equal(pageFor("/onboarding"), "onboarding");
+  assert.equal(pageFor("/onboarding/"), "onboarding");
+  for (const other of ["/team/audit-log/x", "/team/danger/x", "/onboarding/x", "/subscription", "/subscription/new"]) {
     assert.equal(pageFor(other), "not-ported", other);
   }
 });

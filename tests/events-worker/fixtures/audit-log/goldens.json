@@ -1,0 +1,132 @@
+{
+    "coolify": "91b7e3e",
+    "events": {
+        "team.created": {
+            "event": "ui.team.created",
+            "source": "ui",
+            "action": "created",
+            "actor_type": "user",
+            "actor_name": "Owner",
+            "actor_email": "owner@example.com",
+            "resource_type": "team",
+            "resource_name": "Acme",
+            "description": "Acme Created"
+        },
+        "team.updated": {
+            "event": "ui.team.updated",
+            "source": "ui",
+            "action": "updated",
+            "actor_type": "user",
+            "actor_name": "Owner",
+            "actor_email": "owner@example.com",
+            "resource_type": "team",
+            "resource_name": "Acme Inc",
+            "description": "Acme Inc Updated"
+        },
+        "team_member.role_updated": {
+            "event": "ui.team_member.role_updated",
+            "source": "ui",
+            "action": "role_updated",
+            "actor_type": "user",
+            "actor_name": "Owner",
+            "actor_email": "owner@example.com",
+            "resource_type": "team_member",
+            "resource_name": "Member",
+            "description": "Member Role Updated"
+        },
+        "team_member.removed": {
+            "event": "ui.team_member.removed",
+            "source": "ui",
+            "action": "removed",
+            "actor_type": "user",
+            "actor_name": "Owner",
+            "actor_email": "owner@example.com",
+            "resource_type": "team_member",
+            "resource_name": "Member",
+            "description": "Member Removed"
+        },
+        "team_invitation.created": {
+            "event": "ui.team_invitation.created",
+            "source": "ui",
+            "action": "created",
+            "actor_type": "user",
+            "actor_name": "Owner",
+            "actor_email": "owner@example.com",
+            "resource_type": "team_invitation",
+            "resource_name": null,
+            "description": "Team Invitation Created"
+        },
+        "team_invitation.revoked": {
+            "event": "ui.team_invitation.revoked",
+            "source": "ui",
+            "action": "revoked",
+            "actor_type": "user",
+            "actor_name": "Owner",
+            "actor_email": "owner@example.com",
+            "resource_type": "team_invitation",
+            "resource_name": null,
+            "description": "Team Invitation Revoked"
+        },
+        "team_invitation.accepted": {
+            "event": "ui.team_invitation.accepted",
+            "source": "ui",
+            "action": "accepted",
+            "actor_type": "user",
+            "actor_name": "Owner",
+            "actor_email": "owner@example.com",
+            "resource_type": "team_invitation",
+            "resource_name": "Owner",
+            "description": "Owner Accepted"
+        },
+        "team.deleted": {
+            "event": "ui.team.deleted",
+            "source": "ui",
+            "action": "deleted",
+            "actor_type": "user",
+            "actor_name": "Owner",
+            "actor_email": "owner@example.com",
+            "resource_type": "team",
+            "resource_name": "Acme Inc",
+            "description": "Acme Inc Deleted"
+        }
+    },
+    "headline": {
+        "created": "Created",
+        "updated": "Updated",
+        "deleted": "Deleted",
+        "removed": "Removed",
+        "role_updated": "Role Updated",
+        "revoked": "Revoked",
+        "accepted": "Accepted",
+        "added": "Added",
+        "archived": "Archived",
+        "rotated": "Rotated",
+        "secret_rotated": "Secret Rotated",
+        "delivery_succeeded": "Delivery Succeeded",
+        "action_recorded": "Action Recorded",
+        "access_denied": "Access Denied",
+        "paid": "Paid",
+        "recorded": "Recorded",
+        "failed": "Failed",
+        "activated": "Activated",
+        "canceled": "Canceled",
+        "enabled": "Enabled",
+        "disabled": "Disabled",
+        "user": "User",
+        "api_token": "Api Token",
+        "system": "System",
+        "webhook": "Webhook",
+        "mcp": "Mcp",
+        "scheduler": "Scheduler",
+        "team_member": "Team Member",
+        "team_invitation": "Team Invitation",
+        "team": "Team",
+        "changed_fields": "Changed Fields",
+        "description": "Description",
+        "name": "Name"
+    },
+    "upper": {
+        "ui": "UI",
+        "api": "API"
+    }
+}

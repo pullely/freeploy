@@ -109,7 +109,7 @@ export const ROWS: Record<string, Row> = {
   "team.viewSharedVariables": { actions: READ, route: "GET /deploy/shared-variables/team" },
   "team.create": NO_ROUTE("a new team from the console (Team\\Create)"),
   "team.update": { actions: ["organization.settings.update"], route: "PATCH /team (membership-worker)" },
-  "team.delete": NO_ROUTE("the team's danger zone (an org cannot be deleted yet)"),
+  "team.delete": { actions: ["organization.delete"], route: "GET /team/danger, DELETE /team (membership-worker, DP-75)" },
   "team.manageMembers": {
     actions: ["organization.member.update_role", "organization.member.remove"],
     route: "PATCH|DELETE /team/members/{member} (membership-worker)",
@@ -159,9 +159,9 @@ describe("the role permission matrix: Freeploy against Coolify's policies", () =
   });
 
   // The count is part of the result: a row moves from skipped to compared when its route lands.
-  test("the comparison covers 62 abilities × 3 roles, and 16 abilities are skipped for want of a route", () => {
+  test("the comparison covers 63 abilities × 3 roles, and 15 abilities are skipped for want of a route", () => {
     expect(abilities.length).toBe(78);
-    expect(compared.length).toBe(62);
+    expect(compared.length).toBe(63);
     expect(skipped).toEqual([
       "servers.transfer",
       "servers.manageProxy",
@@ -177,7 +177,6 @@ describe("the role permission matrix: Freeploy against Coolify's policies", () =
       "services.deploy",
       "team.viewAny",
       "team.create",
-      "team.delete",
       "team.viewAdmin",
     ]);
   });

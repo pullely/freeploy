@@ -98,8 +98,19 @@ describe("authorize", () => {
       expect(authorize(authReq("deploy.team.read", "org_1", facts)).allow).toBe(team);
     });
 
+    // DP-75: TeamPolicy::delete is the owner's alone.
+    it.each([
+      ["owner", true],
+      ["admin", false],
+      ["builder", false],
+      ["viewer", false],
+      ["billing_admin", false],
+    ])("%s: organization.delete %s", (role, allow) => {
+      expect(authorize(authReq("organization.delete", "org_1", [orgFact(role, "org_1")])).allow).toBe(allow);
+    });
+
     it("is never unknown_action", () => {
-      for (const action of ["deploy.resource.read", "deploy.resource.write", "deploy.team.read"]) {
+      for (const action of ["deploy.resource.read", "deploy.resource.write", "deploy.team.read", "organization.delete"]) {
         expect(authorize(authReq(action, "org_1", [])).reason).toBe("no_matching_role");
       }
     });
@@ -710,7 +721,7 @@ describe("listEffectivePermissions", () => {
     expect(result.derivedScope.orgId).toBe("org_1");
 
     const allowed = result.permissions.filter((p) => p.allow);
-    expect(allowed.length).toBe(34); // 31 + deploy.resource.read/write (DP-40) + deploy.team.read (DP-69)
+    expect(allowed.length).toBe(35); // 31 + deploy.resource.read/write (DP-40) + deploy.team.read (DP-69) + organization.delete (DP-75)
   });
 
   it("returns limited permissions for viewer", () => {

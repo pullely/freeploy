@@ -86,6 +86,9 @@ const NotificationSettingsPage = lazy(() => import("./pages/NotificationSettings
 const TeamGeneralPage = lazy(() => import("./pages/Team").then((m) => ({ default: m.TeamGeneralPage })));
 const TeamMembersPage = lazy(() => import("./pages/Team").then((m) => ({ default: m.TeamMembersPage })));
 const InvitationPage = lazy(() => import("./pages/Team").then((m) => ({ default: m.InvitationPage })));
+const TeamAuditLogPage = lazy(() => import("./pages/TeamAuditLog").then((m) => ({ default: m.TeamAuditLogPage })));
+const TeamDangerPage = lazy(() => import("./pages/TeamDanger").then((m) => ({ default: m.TeamDangerPage })));
+const BoardingPage = lazy(() => import("./pages/Boarding").then((m) => ({ default: m.BoardingPage })));
 
 /** routes/web.php: security.private-key.show is redirect()->route('security.private-key.index'). */
 function RedirectTo({ path }: { path: string }) {
@@ -605,6 +608,24 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <InvitationPage />
+        </Suspense>
+      );
+    case "team.audit-log":
+      return (
+        <Suspense fallback={null}>
+          <TeamAuditLogPage />
+        </Suspense>
+      );
+    case "team.danger-zone":
+      return (
+        <Suspense fallback={null}>
+          <TeamDangerPage />
+        </Suspense>
+      );
+    case "onboarding":
+      return (
+        <Suspense fallback={null}>
+          <BoardingPage />
         </Suspense>
       );
     default:

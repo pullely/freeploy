@@ -50,3 +50,6 @@ exercised through `api-edge` (this Worker has no public URL).
   Coolify's own policies ability by ability in
   `tests/policy-worker/src/role-matrix.test.ts`
   (`tests/policy-worker/fixtures/role-matrix/README.md`).
+- **Only an owner can delete a team**: intended (Freeploy DP-75).
+  `organization.delete` is the owner's alone, as Coolify's
+  `TeamPolicy::delete`; membership-worker asks it for the team's Danger Zone.

@@ -1331,7 +1331,9 @@ describe("api-edge org facade", () => {
 // The deploy console's team pages (DP-69): routed to membership-worker's handlers/team.ts.
 describe("api-edge org facade: the team routes", () => {
   it.each([
-    ["/v1/organizations/org_abc/team", ["GET", "PATCH"]],
+    ["/v1/organizations/org_abc/team", ["GET", "PATCH", "DELETE"]],
+    // The Danger Zone (DP-75): its state; DELETE …/team deletes the team.
+    ["/v1/organizations/org_abc/team/danger", ["GET"]],
     ["/v1/organizations/org_abc/team/members", ["GET"]],
     ["/v1/organizations/org_abc/team/members/mem_abc", ["PATCH", "DELETE"]],
     ["/v1/organizations/org_abc/team/invitations", ["GET", "POST"]],
@@ -1361,6 +1363,7 @@ describe("api-edge org facade: the team routes", () => {
   it("does not match deeper team paths", () => {
     expect(isOrgRoute("/v1/organizations/org_abc/team/members/mem_abc/extra")).toBe(false);
     expect(isOrgRoute("/v1/organizations/org_abc/team/other")).toBe(false);
+    expect(isOrgRoute("/v1/organizations/org_abc/team/danger/extra")).toBe(false);
     expect(isOrgRoute("/v1/team-invitations")).toBe(false);
   });
 });

@@ -57,12 +57,12 @@ interface InvitationRow {
   expired: boolean;
 }
 
-const teamApi = (orgId: string | undefined) => `/v1/organizations/${orgId ?? ""}/team`;
+export const teamApi = (orgId: string | undefined) => `/v1/organizations/${orgId ?? ""}/team`;
 const RANK: Record<string, number> = { member: 1, admin: 2, owner: 3 };
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 /** <x-team.settings-layout>: the mobile title and the team pages fed to the page search. */
-function TeamLayout({ role, children }: { role: string | null; children: ReactNode }) {
+export function TeamLayout({ role, children }: { role: string | null; children: ReactNode }) {
   const origin = window.location.origin;
   const pages: Array<[string, string, string]> = [
     ["General", "/team", "settings"],
@@ -206,13 +206,13 @@ function TwoFactorBadge({ enabled }: { enabled: boolean }) {
 }
 
 /** <x-table.sort-header> over a plain sort value. */
-function Sort(props: { label: string; asc: string; desc: string; first?: "asc" | "desc"; sortBy: string; onSort: (v: string) => void }) {
+export function Sort(props: { label: string; asc: string; desc: string; first?: "asc" | "desc"; sortBy: string; onSort: (v: string) => void; className?: string }) {
   const firstValue = props.first === "desc" ? props.desc : props.asc;
   const otherValue = props.first === "desc" ? props.asc : props.desc;
   const sorted = props.sortBy === props.asc || props.sortBy === props.desc;
   const aria = `Sort by ${props.label.toLowerCase()}` + (props.sortBy === props.asc ? ", sorted ascending" : props.sortBy === props.desc ? ", sorted descending" : "");
   return (
-    <button type="button" onClick={() => props.onSort(props.sortBy === firstValue ? otherValue : firstValue)} aria-label={aria} className={`table-sort-header group${sorted ? " is-sorted" : ""}`}>
+    <button type="button" onClick={() => props.onSort(props.sortBy === firstValue ? otherValue : firstValue)} aria-label={aria} className={`table-sort-header group${sorted ? " is-sorted" : ""}${props.className ? ` ${props.className}` : ""}`}>
       <span className="truncate">{props.label}</span>
       <svg className={["table-sort-header-icon", sorted ? "is-visible" : "", props.sortBy === props.desc ? "rotate-180" : ""].filter(Boolean).join(" ")} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
         <path strokeLinecap="round" strokeLinejoin="round" d="M6 15l6-6 6 6" />
