@@ -42315,6 +42315,7459 @@
    "setupCoolify": [
     "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
    ]
+  },
+  {
+   "name": "server import: dry run",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "bundle": {
+     "schema_version": 1,
+     "coolify_version": "4.7.6",
+     "exported_at": "2025-12-31T00:00:00+00:00",
+     "export_id": "exp-parity-1",
+     "source_instance": {
+      "url": "https://source.example.com"
+     },
+     "server": {
+      "uuid": "s9importedserver00000009",
+      "name": "imported",
+      "description": null,
+      "ip": "203.0.113.90",
+      "port": 22,
+      "user": "root"
+     },
+     "private_key": {
+      "uuid": "k9importedprivatekey0009",
+      "name": "Imported key",
+      "private_key": "placeholder, not a key"
+     },
+     "private_keys": [],
+     "destinations": [
+      {
+       "uuid": "d9importeddestination009",
+       "name": "default",
+       "network": "coolify"
+      }
+     ],
+     "github_apps": [
+      {
+       "uuid": "j9importedgithubapp00009",
+       "html_url": "https://github.com",
+       "api_url": "https://api.github.com"
+      }
+     ],
+     "s3_storages": [
+      {
+       "uuid": "o9importeds3storage00009"
+      },
+      {
+       "uuid": "o8importeds3storage00008"
+      }
+     ],
+     "projects": [
+      {
+       "uuid": "p9importedproject0000009",
+       "name": "Imported",
+       "environments": [
+        {
+         "uuid": "e9importedenvironment009",
+         "name": "production",
+         "applications": [
+          {
+           "uuid": "a9importedapplication009",
+           "attributes": {
+            "fqdn": "https://app.example.com,http://www.example.com",
+            "docker_compose_domains": "{\"web\":{\"domain\":\"https://web.example.com\"}}"
+           },
+           "previews": [
+            {
+             "uuid": "r9importedpreview0000009",
+             "fqdn": "https://pr-1.app.example.com"
+            }
+           ],
+           "persistent_storages": [
+            {
+             "uuid": "v9importedvolume00000009",
+             "mount_path": "/data",
+             "host_path": null
+            }
+           ],
+           "scheduled_tasks": [
+            {
+             "uuid": "t9importedtask0000000009",
+             "command": "php artisan schedule:run",
+             "container": "web",
+             "frequency": "* * * * *"
+            }
+           ],
+           "tag_uuids": [
+            "g9importedtag00000000009"
+           ]
+          }
+         ],
+         "databases": [
+          {
+           "uuid": "b9importeddatabase000009",
+           "type": "standalone-postgresql",
+           "attributes": {
+            "public_port": 5432,
+            "ports_mappings": "5432:5432, 127.0.0.1:8080:80/udp"
+           },
+           "scheduled_backups": [
+            {
+             "frequency": "daily",
+             "databases_to_backup": "app"
+            }
+           ]
+          }
+         ],
+         "services": [
+          {
+           "uuid": "f9importedservice0000009",
+           "applications": [
+            {
+             "uuid": "y9importedserviceapp0009",
+             "fqdn": "https://svc.example.com"
+            }
+           ],
+           "databases": [
+            {
+             "uuid": "z9importedservicedb00009"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "uuid": "e8importedenvironment008",
+         "name": "staging"
+        }
+       ]
+      }
+     ],
+     "warnings": [
+      "The source had a warning.",
+      "The source had a warning."
+     ],
+     "post_transfer_checklist": [
+      "Point the DNS records to {target_url}.",
+      "Check the backups.",
+      "Check the backups.",
+      5,
+      null
+     ]
+    },
+    "dry_run": true
+   }
+  },
+  {
+   "name": "server import: dry run without preserving uuids or adopting",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "bundle": {
+     "schema_version": 1,
+     "coolify_version": "4.7.6",
+     "exported_at": "2025-12-31T00:00:00+00:00",
+     "export_id": "exp-parity-1",
+     "source_instance": {
+      "url": "https://source.example.com"
+     },
+     "server": {
+      "uuid": "s9importedserver00000009",
+      "name": "imported",
+      "description": null,
+      "ip": "203.0.113.90",
+      "port": 22,
+      "user": "root"
+     },
+     "private_key": {
+      "uuid": "k9importedprivatekey0009",
+      "name": "Imported key",
+      "private_key": "placeholder, not a key"
+     },
+     "private_keys": [],
+     "destinations": [
+      {
+       "uuid": "d9importeddestination009",
+       "name": "default",
+       "network": "coolify"
+      }
+     ],
+     "github_apps": [
+      {
+       "uuid": "j9importedgithubapp00009",
+       "html_url": "https://github.com",
+       "api_url": "https://api.github.com"
+      }
+     ],
+     "s3_storages": [
+      {
+       "uuid": "o9importeds3storage00009"
+      },
+      {
+       "uuid": "o8importeds3storage00008"
+      }
+     ],
+     "projects": [
+      {
+       "uuid": "p9importedproject0000009",
+       "name": "Imported",
+       "environments": [
+        {
+         "uuid": "e9importedenvironment009",
+         "name": "production",
+         "applications": [
+          {
+           "uuid": "a9importedapplication009",
+           "attributes": {
+            "fqdn": "https://app.example.com,http://www.example.com",
+            "docker_compose_domains": "{\"web\":{\"domain\":\"https://web.example.com\"}}"
+           },
+           "previews": [
+            {
+             "uuid": "r9importedpreview0000009",
+             "fqdn": "https://pr-1.app.example.com"
+            }
+           ],
+           "persistent_storages": [
+            {
+             "uuid": "v9importedvolume00000009",
+             "mount_path": "/data",
+             "host_path": null
+            }
+           ],
+           "scheduled_tasks": [
+            {
+             "uuid": "t9importedtask0000000009",
+             "command": "php artisan schedule:run",
+             "container": "web",
+             "frequency": "* * * * *"
+            }
+           ],
+           "tag_uuids": [
+            "g9importedtag00000000009"
+           ]
+          }
+         ],
+         "databases": [
+          {
+           "uuid": "b9importeddatabase000009",
+           "type": "standalone-postgresql",
+           "attributes": {
+            "public_port": 5432,
+            "ports_mappings": "5432:5432, 127.0.0.1:8080:80/udp"
+           },
+           "scheduled_backups": [
+            {
+             "frequency": "daily",
+             "databases_to_backup": "app"
+            }
+           ]
+          }
+         ],
+         "services": [
+          {
+           "uuid": "f9importedservice0000009",
+           "applications": [
+            {
+             "uuid": "y9importedserviceapp0009",
+             "fqdn": "https://svc.example.com"
+            }
+           ],
+           "databases": [
+            {
+             "uuid": "z9importedservicedb00009"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "uuid": "e8importedenvironment008",
+         "name": "staging"
+        }
+       ]
+      }
+     ],
+     "warnings": [
+      "The source had a warning.",
+      "The source had a warning."
+     ],
+     "post_transfer_checklist": [
+      "Point the DNS records to {target_url}.",
+      "Check the backups.",
+      "Check the backups.",
+      5,
+      null
+     ]
+    },
+    "dry_run": 1,
+    "preserve_uuids": false,
+    "adopt_mode": "0"
+   }
+  },
+  {
+   "name": "server import: dry run, nulls as false",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "bundle": {
+     "schema_version": 1,
+     "coolify_version": "4.7.6",
+     "exported_at": "2025-12-31T00:00:00+00:00",
+     "export_id": "exp-parity-1",
+     "source_instance": {
+      "url": "https://source.example.com"
+     },
+     "server": {
+      "uuid": "s9importedserver00000009",
+      "name": "imported",
+      "description": null,
+      "ip": "203.0.113.90",
+      "port": 22,
+      "user": "root"
+     },
+     "private_key": {
+      "uuid": "k9importedprivatekey0009",
+      "name": "Imported key",
+      "private_key": "placeholder, not a key"
+     },
+     "private_keys": [],
+     "destinations": [],
+     "github_apps": [
+      {
+       "uuid": "j9importedgithubapp00009",
+       "html_url": "https://github.com",
+       "api_url": "https://api.github.com"
+      }
+     ],
+     "s3_storages": [
+      {
+       "uuid": "o9importeds3storage00009"
+      },
+      {
+       "uuid": "o8importeds3storage00008"
+      }
+     ],
+     "projects": [
+      {
+       "uuid": "p9importedproject0000009",
+       "name": "Imported",
+       "environments": [
+        {
+         "uuid": "e9importedenvironment009",
+         "name": "production",
+         "applications": [
+          {
+           "uuid": "a9importedapplication009",
+           "attributes": {
+            "fqdn": "https://app.example.com,http://www.example.com",
+            "docker_compose_domains": "{\"web\":{\"domain\":\"https://web.example.com\"}}"
+           },
+           "previews": [
+            {
+             "uuid": "r9importedpreview0000009",
+             "fqdn": "https://pr-1.app.example.com"
+            }
+           ],
+           "persistent_storages": [
+            {
+             "uuid": "v9importedvolume00000009",
+             "mount_path": "/data",
+             "host_path": null
+            }
+           ],
+           "scheduled_tasks": [
+            {
+             "uuid": "t9importedtask0000000009",
+             "command": "php artisan schedule:run",
+             "container": "web",
+             "frequency": "* * * * *"
+            }
+           ],
+           "tag_uuids": [
+            "g9importedtag00000000009"
+           ]
+          }
+         ],
+         "databases": [
+          {
+           "uuid": "b9importeddatabase000009",
+           "type": "standalone-postgresql",
+           "attributes": {
+            "public_port": 5432,
+            "ports_mappings": "5432:5432, 127.0.0.1:8080:80/udp"
+           },
+           "scheduled_backups": [
+            {
+             "frequency": "daily",
+             "databases_to_backup": "app"
+            }
+           ]
+          }
+         ],
+         "services": [
+          {
+           "uuid": "f9importedservice0000009",
+           "applications": [
+            {
+             "uuid": "y9importedserviceapp0009",
+             "fqdn": "https://svc.example.com"
+            }
+           ],
+           "databases": [
+            {
+             "uuid": "z9importedservicedb00009"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "uuid": "e8importedenvironment008",
+         "name": "staging"
+        }
+       ]
+      }
+     ],
+     "warnings": null,
+     "post_transfer_checklist": "Check {target_url}"
+    },
+    "dry_run": true,
+    "preserve_uuids": null,
+    "adopt_mode": null
+   }
+  },
+  {
+   "name": "server import: dry run, the server's uuid and address in use",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "bundle": {
+     "schema_version": 1,
+     "coolify_version": "4.7.6",
+     "exported_at": "2025-12-31T00:00:00+00:00",
+     "export_id": "exp-parity-1",
+     "source_instance": {
+      "url": "https://source.example.com"
+     },
+     "server": {
+      "uuid": "s1parityserveruuid000001",
+      "name": "imported",
+      "description": null,
+      "ip": "203.0.113.10",
+      "port": 22,
+      "user": "root"
+     },
+     "private_key": {
+      "uuid": "k9importedprivatekey0009",
+      "name": "Imported key",
+      "private_key": "placeholder, not a key"
+     },
+     "private_keys": [],
+     "destinations": [
+      {
+       "uuid": "d9importeddestination009",
+       "name": "default",
+       "network": "coolify"
+      }
+     ],
+     "github_apps": [
+      {
+       "uuid": "j9importedgithubapp00009",
+       "html_url": "https://github.com",
+       "api_url": "https://api.github.com"
+      }
+     ],
+     "s3_storages": [
+      {
+       "uuid": "o9importeds3storage00009"
+      },
+      {
+       "uuid": "o8importeds3storage00008"
+      }
+     ],
+     "projects": [
+      {
+       "uuid": "p9importedproject0000009",
+       "name": "Imported",
+       "environments": [
+        {
+         "uuid": "e9importedenvironment009",
+         "name": "production",
+         "applications": [
+          {
+           "uuid": "a9importedapplication009",
+           "attributes": {
+            "fqdn": "https://app.example.com,http://www.example.com",
+            "docker_compose_domains": "{\"web\":{\"domain\":\"https://web.example.com\"}}"
+           },
+           "previews": [
+            {
+             "uuid": "r9importedpreview0000009",
+             "fqdn": "https://pr-1.app.example.com"
+            }
+           ],
+           "persistent_storages": [
+            {
+             "uuid": "v9importedvolume00000009",
+             "mount_path": "/data",
+             "host_path": null
+            }
+           ],
+           "scheduled_tasks": [
+            {
+             "uuid": "t9importedtask0000000009",
+             "command": "php artisan schedule:run",
+             "container": "web",
+             "frequency": "* * * * *"
+            }
+           ],
+           "tag_uuids": [
+            "g9importedtag00000000009"
+           ]
+          }
+         ],
+         "databases": [
+          {
+           "uuid": "b9importeddatabase000009",
+           "type": "standalone-postgresql",
+           "attributes": {
+            "public_port": 5432,
+            "ports_mappings": "5432:5432, 127.0.0.1:8080:80/udp"
+           },
+           "scheduled_backups": [
+            {
+             "frequency": "daily",
+             "databases_to_backup": "app"
+            }
+           ]
+          }
+         ],
+         "services": [
+          {
+           "uuid": "f9importedservice0000009",
+           "applications": [
+            {
+             "uuid": "y9importedserviceapp0009",
+             "fqdn": "https://svc.example.com"
+            }
+           ],
+           "databases": [
+            {
+             "uuid": "z9importedservicedb00009"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "uuid": "e8importedenvironment008",
+         "name": "staging"
+        }
+       ]
+      }
+     ],
+     "warnings": [
+      "The source had a warning.",
+      "The source had a warning."
+     ],
+     "post_transfer_checklist": [
+      "Point the DNS records to {target_url}.",
+      "Check the backups.",
+      "Check the backups.",
+      5,
+      null
+     ]
+    },
+    "dry_run": true
+   }
+  },
+  {
+   "name": "server import: dry run, another port of the address",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "bundle": {
+     "schema_version": 1,
+     "coolify_version": "4.7.6",
+     "exported_at": "2025-12-31T00:00:00+00:00",
+     "export_id": "exp-parity-1",
+     "source_instance": {
+      "url": "https://source.example.com"
+     },
+     "server": {
+      "uuid": "s9importedserver00000009",
+      "name": "imported",
+      "description": null,
+      "ip": "203.0.113.10",
+      "port": 2222,
+      "user": "root"
+     },
+     "private_key": {
+      "uuid": "k9importedprivatekey0009",
+      "name": "Imported key",
+      "private_key": "placeholder, not a key"
+     },
+     "private_keys": [],
+     "destinations": [
+      {
+       "uuid": "d9importeddestination009",
+       "name": "default",
+       "network": "coolify"
+      }
+     ],
+     "github_apps": [
+      {
+       "uuid": "j9importedgithubapp00009",
+       "html_url": "https://github.com",
+       "api_url": "https://api.github.com"
+      }
+     ],
+     "s3_storages": [
+      {
+       "uuid": "o9importeds3storage00009"
+      },
+      {
+       "uuid": "o8importeds3storage00008"
+      }
+     ],
+     "projects": [
+      {
+       "uuid": "p9importedproject0000009",
+       "name": "Imported",
+       "environments": [
+        {
+         "uuid": "e9importedenvironment009",
+         "name": "production",
+         "applications": [
+          {
+           "uuid": "a9importedapplication009",
+           "attributes": {
+            "fqdn": "https://app.example.com,http://www.example.com",
+            "docker_compose_domains": "{\"web\":{\"domain\":\"https://web.example.com\"}}"
+           },
+           "previews": [
+            {
+             "uuid": "r9importedpreview0000009",
+             "fqdn": "https://pr-1.app.example.com"
+            }
+           ],
+           "persistent_storages": [
+            {
+             "uuid": "v9importedvolume00000009",
+             "mount_path": "/data",
+             "host_path": null
+            }
+           ],
+           "scheduled_tasks": [
+            {
+             "uuid": "t9importedtask0000000009",
+             "command": "php artisan schedule:run",
+             "container": "web",
+             "frequency": "* * * * *"
+            }
+           ],
+           "tag_uuids": [
+            "g9importedtag00000000009"
+           ]
+          }
+         ],
+         "databases": [
+          {
+           "uuid": "b9importeddatabase000009",
+           "type": "standalone-postgresql",
+           "attributes": {
+            "public_port": 5432,
+            "ports_mappings": "5432:5432, 127.0.0.1:8080:80/udp"
+           },
+           "scheduled_backups": [
+            {
+             "frequency": "daily",
+             "databases_to_backup": "app"
+            }
+           ]
+          }
+         ],
+         "services": [
+          {
+           "uuid": "f9importedservice0000009",
+           "applications": [
+            {
+             "uuid": "y9importedserviceapp0009",
+             "fqdn": "https://svc.example.com"
+            }
+           ],
+           "databases": [
+            {
+             "uuid": "z9importedservicedb00009"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "uuid": "e8importedenvironment008",
+         "name": "staging"
+        }
+       ]
+      }
+     ],
+     "warnings": [
+      "The source had a warning.",
+      "The source had a warning."
+     ],
+     "post_transfer_checklist": [
+      "Point the DNS records to {target_url}.",
+      "Check the backups.",
+      "Check the backups.",
+      5,
+      null
+     ]
+    },
+    "dry_run": true
+   }
+  },
+  {
+   "name": "server import: dry run, the archive of a transferred server",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "setup": [
+    "update servers set server_metadata = '{\"transfer\":{\"status\":\"transferred\"}}' where id = 1"
+   ],
+   "body": {
+    "bundle": {
+     "schema_version": 1,
+     "coolify_version": "4.7.6",
+     "exported_at": "2025-12-31T00:00:00+00:00",
+     "export_id": "exp-parity-1",
+     "source_instance": {
+      "url": "https://source.example.com"
+     },
+     "server": {
+      "uuid": "s1parityserveruuid000001",
+      "name": "imported",
+      "description": null,
+      "ip": "203.0.113.10",
+      "port": 22,
+      "user": "root"
+     },
+     "private_key": {
+      "uuid": "k9importedprivatekey0009",
+      "name": "Imported key",
+      "private_key": "placeholder, not a key"
+     },
+     "private_keys": [],
+     "destinations": [
+      {
+       "uuid": "d9importeddestination009",
+       "name": "default",
+       "network": "coolify"
+      }
+     ],
+     "github_apps": [
+      {
+       "uuid": "j9importedgithubapp00009",
+       "html_url": "https://github.com",
+       "api_url": "https://api.github.com"
+      }
+     ],
+     "s3_storages": [
+      {
+       "uuid": "o9importeds3storage00009"
+      },
+      {
+       "uuid": "o8importeds3storage00008"
+      }
+     ],
+     "projects": [
+      {
+       "uuid": "p9importedproject0000009",
+       "name": "Imported",
+       "environments": [
+        {
+         "uuid": "e9importedenvironment009",
+         "name": "production",
+         "applications": [
+          {
+           "uuid": "a9importedapplication009",
+           "attributes": {
+            "fqdn": "https://app.example.com,http://www.example.com",
+            "docker_compose_domains": "{\"web\":{\"domain\":\"https://web.example.com\"}}"
+           },
+           "previews": [
+            {
+             "uuid": "r9importedpreview0000009",
+             "fqdn": "https://pr-1.app.example.com"
+            }
+           ],
+           "persistent_storages": [
+            {
+             "uuid": "v9importedvolume00000009",
+             "mount_path": "/data",
+             "host_path": null
+            }
+           ],
+           "scheduled_tasks": [
+            {
+             "uuid": "t9importedtask0000000009",
+             "command": "php artisan schedule:run",
+             "container": "web",
+             "frequency": "* * * * *"
+            }
+           ],
+           "tag_uuids": [
+            "g9importedtag00000000009"
+           ]
+          }
+         ],
+         "databases": [
+          {
+           "uuid": "b9importeddatabase000009",
+           "type": "standalone-postgresql",
+           "attributes": {
+            "public_port": 5432,
+            "ports_mappings": "5432:5432, 127.0.0.1:8080:80/udp"
+           },
+           "scheduled_backups": [
+            {
+             "frequency": "daily",
+             "databases_to_backup": "app"
+            }
+           ]
+          }
+         ],
+         "services": [
+          {
+           "uuid": "f9importedservice0000009",
+           "applications": [
+            {
+             "uuid": "y9importedserviceapp0009",
+             "fqdn": "https://svc.example.com"
+            }
+           ],
+           "databases": [
+            {
+             "uuid": "z9importedservicedb00009"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "uuid": "e8importedenvironment008",
+         "name": "staging"
+        }
+       ]
+      }
+     ],
+     "warnings": [
+      "The source had a warning.",
+      "The source had a warning."
+     ],
+     "post_transfer_checklist": [
+      "Point the DNS records to {target_url}.",
+      "Check the backups.",
+      "Check the backups.",
+      5,
+      null
+     ]
+    },
+    "dry_run": true
+   }
+  },
+  {
+   "name": "server import: adopting without preserving uuids",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "bundle": {
+     "schema_version": 1,
+     "coolify_version": "4.7.6",
+     "exported_at": "2025-12-31T00:00:00+00:00",
+     "export_id": "exp-parity-1",
+     "source_instance": {
+      "url": "https://source.example.com"
+     },
+     "server": {
+      "uuid": "s9importedserver00000009",
+      "name": "imported",
+      "description": null,
+      "ip": "203.0.113.90",
+      "port": 22,
+      "user": "root"
+     },
+     "private_key": {
+      "uuid": "k9importedprivatekey0009",
+      "name": "Imported key",
+      "private_key": "placeholder, not a key"
+     },
+     "private_keys": [],
+     "destinations": [
+      {
+       "uuid": "d9importeddestination009",
+       "name": "default",
+       "network": "coolify"
+      }
+     ],
+     "github_apps": [
+      {
+       "uuid": "j9importedgithubapp00009",
+       "html_url": "https://github.com",
+       "api_url": "https://api.github.com"
+      }
+     ],
+     "s3_storages": [
+      {
+       "uuid": "o9importeds3storage00009"
+      },
+      {
+       "uuid": "o8importeds3storage00008"
+      }
+     ],
+     "projects": [
+      {
+       "uuid": "p9importedproject0000009",
+       "name": "Imported",
+       "environments": [
+        {
+         "uuid": "e9importedenvironment009",
+         "name": "production",
+         "applications": [
+          {
+           "uuid": "a9importedapplication009",
+           "attributes": {
+            "fqdn": "https://app.example.com,http://www.example.com",
+            "docker_compose_domains": "{\"web\":{\"domain\":\"https://web.example.com\"}}"
+           },
+           "previews": [
+            {
+             "uuid": "r9importedpreview0000009",
+             "fqdn": "https://pr-1.app.example.com"
+            }
+           ],
+           "persistent_storages": [
+            {
+             "uuid": "v9importedvolume00000009",
+             "mount_path": "/data",
+             "host_path": null
+            }
+           ],
+           "scheduled_tasks": [
+            {
+             "uuid": "t9importedtask0000000009",
+             "command": "php artisan schedule:run",
+             "container": "web",
+             "frequency": "* * * * *"
+            }
+           ],
+           "tag_uuids": [
+            "g9importedtag00000000009"
+           ]
+          }
+         ],
+         "databases": [
+          {
+           "uuid": "b9importeddatabase000009",
+           "type": "standalone-postgresql",
+           "attributes": {
+            "public_port": 5432,
+            "ports_mappings": "5432:5432, 127.0.0.1:8080:80/udp"
+           },
+           "scheduled_backups": [
+            {
+             "frequency": "daily",
+             "databases_to_backup": "app"
+            }
+           ]
+          }
+         ],
+         "services": [
+          {
+           "uuid": "f9importedservice0000009",
+           "applications": [
+            {
+             "uuid": "y9importedserviceapp0009",
+             "fqdn": "https://svc.example.com"
+            }
+           ],
+           "databases": [
+            {
+             "uuid": "z9importedservicedb00009"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "uuid": "e8importedenvironment008",
+         "name": "staging"
+        }
+       ]
+      }
+     ],
+     "warnings": [
+      "The source had a warning.",
+      "The source had a warning."
+     ],
+     "post_transfer_checklist": [
+      "Point the DNS records to {target_url}.",
+      "Check the backups.",
+      "Check the backups.",
+      5,
+      null
+     ]
+    },
+    "dry_run": true,
+    "preserve_uuids": false
+   }
+  },
+  {
+   "name": "server import: import",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "bundle": {
+     "schema_version": 1,
+     "coolify_version": "4.7.6",
+     "exported_at": "2025-12-31T00:00:00+00:00",
+     "export_id": "exp-parity-1",
+     "source_instance": {
+      "url": "https://source.example.com"
+     },
+     "server": {
+      "uuid": "s9importedserver00000009",
+      "name": "imported",
+      "description": null,
+      "ip": "203.0.113.90",
+      "port": 22,
+      "user": "root"
+     },
+     "private_key": {
+      "uuid": "k9importedprivatekey0009",
+      "name": "Imported key",
+      "private_key": "placeholder, not a key"
+     },
+     "private_keys": [],
+     "destinations": [
+      {
+       "uuid": "d9importeddestination009",
+       "name": "default",
+       "network": "coolify"
+      }
+     ],
+     "github_apps": [
+      {
+       "uuid": "j9importedgithubapp00009",
+       "html_url": "https://github.com",
+       "api_url": "https://api.github.com"
+      }
+     ],
+     "s3_storages": [
+      {
+       "uuid": "o9importeds3storage00009"
+      },
+      {
+       "uuid": "o8importeds3storage00008"
+      }
+     ],
+     "projects": [
+      {
+       "uuid": "p9importedproject0000009",
+       "name": "Imported",
+       "environments": [
+        {
+         "uuid": "e9importedenvironment009",
+         "name": "production",
+         "applications": [
+          {
+           "uuid": "a9importedapplication009",
+           "attributes": {
+            "fqdn": "https://app.example.com,http://www.example.com",
+            "docker_compose_domains": "{\"web\":{\"domain\":\"https://web.example.com\"}}"
+           },
+           "previews": [
+            {
+             "uuid": "r9importedpreview0000009",
+             "fqdn": "https://pr-1.app.example.com"
+            }
+           ],
+           "persistent_storages": [
+            {
+             "uuid": "v9importedvolume00000009",
+             "mount_path": "/data",
+             "host_path": null
+            }
+           ],
+           "scheduled_tasks": [
+            {
+             "uuid": "t9importedtask0000000009",
+             "command": "php artisan schedule:run",
+             "container": "web",
+             "frequency": "* * * * *"
+            }
+           ],
+           "tag_uuids": [
+            "g9importedtag00000000009"
+           ]
+          }
+         ],
+         "databases": [
+          {
+           "uuid": "b9importeddatabase000009",
+           "type": "standalone-postgresql",
+           "attributes": {
+            "public_port": 5432,
+            "ports_mappings": "5432:5432, 127.0.0.1:8080:80/udp"
+           },
+           "scheduled_backups": [
+            {
+             "frequency": "daily",
+             "databases_to_backup": "app"
+            }
+           ]
+          }
+         ],
+         "services": [
+          {
+           "uuid": "f9importedservice0000009",
+           "applications": [
+            {
+             "uuid": "y9importedserviceapp0009",
+             "fqdn": "https://svc.example.com"
+            }
+           ],
+           "databases": [
+            {
+             "uuid": "z9importedservicedb00009"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "uuid": "e8importedenvironment008",
+         "name": "staging"
+        }
+       ]
+      }
+     ],
+     "warnings": [
+      "The source had a warning.",
+      "The source had a warning."
+     ],
+     "post_transfer_checklist": [
+      "Point the DNS records to {target_url}.",
+      "Check the backups.",
+      "Check the backups.",
+      5,
+      null
+     ]
+    }
+   },
+   "after": {
+    "imported": "select uuid, name, ip from servers where uuid = 's9importedserver00000009' order by id"
+   }
+  },
+  {
+   "name": "server import: import, the uuid in use",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "bundle": {
+     "schema_version": 1,
+     "coolify_version": "4.7.6",
+     "exported_at": "2025-12-31T00:00:00+00:00",
+     "export_id": "exp-parity-1",
+     "source_instance": {
+      "url": "https://source.example.com"
+     },
+     "server": {
+      "uuid": "s1parityserveruuid000001",
+      "name": "imported",
+      "description": null,
+      "ip": "203.0.113.90",
+      "port": 22,
+      "user": "root"
+     },
+     "private_key": {
+      "uuid": "k9importedprivatekey0009",
+      "name": "Imported key",
+      "private_key": "placeholder, not a key"
+     },
+     "private_keys": [],
+     "destinations": [
+      {
+       "uuid": "d9importeddestination009",
+       "name": "default",
+       "network": "coolify"
+      }
+     ],
+     "github_apps": [
+      {
+       "uuid": "j9importedgithubapp00009",
+       "html_url": "https://github.com",
+       "api_url": "https://api.github.com"
+      }
+     ],
+     "s3_storages": [
+      {
+       "uuid": "o9importeds3storage00009"
+      },
+      {
+       "uuid": "o8importeds3storage00008"
+      }
+     ],
+     "projects": [
+      {
+       "uuid": "p9importedproject0000009",
+       "name": "Imported",
+       "environments": [
+        {
+         "uuid": "e9importedenvironment009",
+         "name": "production",
+         "applications": [
+          {
+           "uuid": "a9importedapplication009",
+           "attributes": {
+            "fqdn": "https://app.example.com,http://www.example.com",
+            "docker_compose_domains": "{\"web\":{\"domain\":\"https://web.example.com\"}}"
+           },
+           "previews": [
+            {
+             "uuid": "r9importedpreview0000009",
+             "fqdn": "https://pr-1.app.example.com"
+            }
+           ],
+           "persistent_storages": [
+            {
+             "uuid": "v9importedvolume00000009",
+             "mount_path": "/data",
+             "host_path": null
+            }
+           ],
+           "scheduled_tasks": [
+            {
+             "uuid": "t9importedtask0000000009",
+             "command": "php artisan schedule:run",
+             "container": "web",
+             "frequency": "* * * * *"
+            }
+           ],
+           "tag_uuids": [
+            "g9importedtag00000000009"
+           ]
+          }
+         ],
+         "databases": [
+          {
+           "uuid": "b9importeddatabase000009",
+           "type": "standalone-postgresql",
+           "attributes": {
+            "public_port": 5432,
+            "ports_mappings": "5432:5432, 127.0.0.1:8080:80/udp"
+           },
+           "scheduled_backups": [
+            {
+             "frequency": "daily",
+             "databases_to_backup": "app"
+            }
+           ]
+          }
+         ],
+         "services": [
+          {
+           "uuid": "f9importedservice0000009",
+           "applications": [
+            {
+             "uuid": "y9importedserviceapp0009",
+             "fqdn": "https://svc.example.com"
+            }
+           ],
+           "databases": [
+            {
+             "uuid": "z9importedservicedb00009"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "uuid": "e8importedenvironment008",
+         "name": "staging"
+        }
+       ]
+      }
+     ],
+     "warnings": [
+      "The source had a warning.",
+      "The source had a warning."
+     ],
+     "post_transfer_checklist": [
+      "Point the DNS records to {target_url}.",
+      "Check the backups.",
+      "Check the backups.",
+      5,
+      null
+     ]
+    }
+   },
+   "after": {
+    "imported": "select uuid, name, ip from servers where uuid = 's9importedserver00000009' order by id"
+   }
+  },
+  {
+   "name": "server import: import, the address in use",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "bundle": {
+     "schema_version": 1,
+     "coolify_version": "4.7.6",
+     "exported_at": "2025-12-31T00:00:00+00:00",
+     "export_id": "exp-parity-1",
+     "source_instance": {
+      "url": "https://source.example.com"
+     },
+     "server": {
+      "uuid": "s9importedserver00000009",
+      "name": "imported",
+      "description": null,
+      "ip": "203.0.113.10",
+      "port": 22,
+      "user": "root"
+     },
+     "private_key": {
+      "uuid": "k9importedprivatekey0009",
+      "name": "Imported key",
+      "private_key": "placeholder, not a key"
+     },
+     "private_keys": [],
+     "destinations": [
+      {
+       "uuid": "d9importeddestination009",
+       "name": "default",
+       "network": "coolify"
+      }
+     ],
+     "github_apps": [
+      {
+       "uuid": "j9importedgithubapp00009",
+       "html_url": "https://github.com",
+       "api_url": "https://api.github.com"
+      }
+     ],
+     "s3_storages": [
+      {
+       "uuid": "o9importeds3storage00009"
+      },
+      {
+       "uuid": "o8importeds3storage00008"
+      }
+     ],
+     "projects": [
+      {
+       "uuid": "p9importedproject0000009",
+       "name": "Imported",
+       "environments": [
+        {
+         "uuid": "e9importedenvironment009",
+         "name": "production",
+         "applications": [
+          {
+           "uuid": "a9importedapplication009",
+           "attributes": {
+            "fqdn": "https://app.example.com,http://www.example.com",
+            "docker_compose_domains": "{\"web\":{\"domain\":\"https://web.example.com\"}}"
+           },
+           "previews": [
+            {
+             "uuid": "r9importedpreview0000009",
+             "fqdn": "https://pr-1.app.example.com"
+            }
+           ],
+           "persistent_storages": [
+            {
+             "uuid": "v9importedvolume00000009",
+             "mount_path": "/data",
+             "host_path": null
+            }
+           ],
+           "scheduled_tasks": [
+            {
+             "uuid": "t9importedtask0000000009",
+             "command": "php artisan schedule:run",
+             "container": "web",
+             "frequency": "* * * * *"
+            }
+           ],
+           "tag_uuids": [
+            "g9importedtag00000000009"
+           ]
+          }
+         ],
+         "databases": [
+          {
+           "uuid": "b9importeddatabase000009",
+           "type": "standalone-postgresql",
+           "attributes": {
+            "public_port": 5432,
+            "ports_mappings": "5432:5432, 127.0.0.1:8080:80/udp"
+           },
+           "scheduled_backups": [
+            {
+             "frequency": "daily",
+             "databases_to_backup": "app"
+            }
+           ]
+          }
+         ],
+         "services": [
+          {
+           "uuid": "f9importedservice0000009",
+           "applications": [
+            {
+             "uuid": "y9importedserviceapp0009",
+             "fqdn": "https://svc.example.com"
+            }
+           ],
+           "databases": [
+            {
+             "uuid": "z9importedservicedb00009"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "uuid": "e8importedenvironment008",
+         "name": "staging"
+        }
+       ]
+      }
+     ],
+     "warnings": [
+      "The source had a warning.",
+      "The source had a warning."
+     ],
+     "post_transfer_checklist": [
+      "Point the DNS records to {target_url}.",
+      "Check the backups.",
+      "Check the backups.",
+      5,
+      null
+     ]
+    },
+    "dry_run": false
+   },
+   "after": {
+    "imported": "select uuid, name, ip from servers where uuid = 's9importedserver00000009' order by id"
+   }
+  },
+  {
+   "name": "server import: import, a server being deleted",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "setup": [
+    "update servers set deleted_at = '2025-12-31 00:00:00' where id = 1"
+   ],
+   "body": {
+    "bundle": {
+     "schema_version": 1,
+     "coolify_version": "4.7.6",
+     "exported_at": "2025-12-31T00:00:00+00:00",
+     "export_id": "exp-parity-1",
+     "source_instance": {
+      "url": "https://source.example.com"
+     },
+     "server": {
+      "uuid": "s1parityserveruuid000001",
+      "name": "imported",
+      "description": null,
+      "ip": "203.0.113.90",
+      "port": 22,
+      "user": "root"
+     },
+     "private_key": {
+      "uuid": "k9importedprivatekey0009",
+      "name": "Imported key",
+      "private_key": "placeholder, not a key"
+     },
+     "private_keys": [],
+     "destinations": [
+      {
+       "uuid": "d9importeddestination009",
+       "name": "default",
+       "network": "coolify"
+      }
+     ],
+     "github_apps": [
+      {
+       "uuid": "j9importedgithubapp00009",
+       "html_url": "https://github.com",
+       "api_url": "https://api.github.com"
+      }
+     ],
+     "s3_storages": [
+      {
+       "uuid": "o9importeds3storage00009"
+      },
+      {
+       "uuid": "o8importeds3storage00008"
+      }
+     ],
+     "projects": [
+      {
+       "uuid": "p9importedproject0000009",
+       "name": "Imported",
+       "environments": [
+        {
+         "uuid": "e9importedenvironment009",
+         "name": "production",
+         "applications": [
+          {
+           "uuid": "a9importedapplication009",
+           "attributes": {
+            "fqdn": "https://app.example.com,http://www.example.com",
+            "docker_compose_domains": "{\"web\":{\"domain\":\"https://web.example.com\"}}"
+           },
+           "previews": [
+            {
+             "uuid": "r9importedpreview0000009",
+             "fqdn": "https://pr-1.app.example.com"
+            }
+           ],
+           "persistent_storages": [
+            {
+             "uuid": "v9importedvolume00000009",
+             "mount_path": "/data",
+             "host_path": null
+            }
+           ],
+           "scheduled_tasks": [
+            {
+             "uuid": "t9importedtask0000000009",
+             "command": "php artisan schedule:run",
+             "container": "web",
+             "frequency": "* * * * *"
+            }
+           ],
+           "tag_uuids": [
+            "g9importedtag00000000009"
+           ]
+          }
+         ],
+         "databases": [
+          {
+           "uuid": "b9importeddatabase000009",
+           "type": "standalone-postgresql",
+           "attributes": {
+            "public_port": 5432,
+            "ports_mappings": "5432:5432, 127.0.0.1:8080:80/udp"
+           },
+           "scheduled_backups": [
+            {
+             "frequency": "daily",
+             "databases_to_backup": "app"
+            }
+           ]
+          }
+         ],
+         "services": [
+          {
+           "uuid": "f9importedservice0000009",
+           "applications": [
+            {
+             "uuid": "y9importedserviceapp0009",
+             "fqdn": "https://svc.example.com"
+            }
+           ],
+           "databases": [
+            {
+             "uuid": "z9importedservicedb00009"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "uuid": "e8importedenvironment008",
+         "name": "staging"
+        }
+       ]
+      }
+     ],
+     "warnings": [
+      "The source had a warning.",
+      "The source had a warning."
+     ],
+     "post_transfer_checklist": [
+      "Point the DNS records to {target_url}.",
+      "Check the backups.",
+      "Check the backups.",
+      5,
+      null
+     ]
+    }
+   },
+   "after": {
+    "imported": "select uuid, name, ip from servers where uuid = 's9importedserver00000009' order by id"
+   }
+  },
+  {
+   "name": "server import: import over the archive of a transferred server",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "setup": [
+    "update servers set server_metadata = '{\"transfer\":{\"status\":\"transferred\"}}' where id = 1"
+   ],
+   "body": {
+    "bundle": {
+     "schema_version": 1,
+     "coolify_version": "4.7.6",
+     "exported_at": "2025-12-31T00:00:00+00:00",
+     "export_id": "exp-parity-1",
+     "source_instance": {
+      "url": "https://source.example.com"
+     },
+     "server": {
+      "uuid": "s1parityserveruuid000001",
+      "name": "imported",
+      "description": null,
+      "ip": "203.0.113.10",
+      "port": 22,
+      "user": "root"
+     },
+     "private_key": {
+      "uuid": "k9importedprivatekey0009",
+      "name": "Imported key",
+      "private_key": "placeholder, not a key"
+     },
+     "private_keys": [],
+     "destinations": [
+      {
+       "uuid": "d9importeddestination009",
+       "name": "default",
+       "network": "coolify"
+      }
+     ],
+     "github_apps": [
+      {
+       "uuid": "j9importedgithubapp00009",
+       "html_url": "https://github.com",
+       "api_url": "https://api.github.com"
+      }
+     ],
+     "s3_storages": [
+      {
+       "uuid": "o9importeds3storage00009"
+      },
+      {
+       "uuid": "o8importeds3storage00008"
+      }
+     ],
+     "projects": [
+      {
+       "uuid": "p9importedproject0000009",
+       "name": "Imported",
+       "environments": [
+        {
+         "uuid": "e9importedenvironment009",
+         "name": "production",
+         "applications": [
+          {
+           "uuid": "a9importedapplication009",
+           "attributes": {
+            "fqdn": "https://app.example.com,http://www.example.com",
+            "docker_compose_domains": "{\"web\":{\"domain\":\"https://web.example.com\"}}"
+           },
+           "previews": [
+            {
+             "uuid": "r9importedpreview0000009",
+             "fqdn": "https://pr-1.app.example.com"
+            }
+           ],
+           "persistent_storages": [
+            {
+             "uuid": "v9importedvolume00000009",
+             "mount_path": "/data",
+             "host_path": null
+            }
+           ],
+           "scheduled_tasks": [
+            {
+             "uuid": "t9importedtask0000000009",
+             "command": "php artisan schedule:run",
+             "container": "web",
+             "frequency": "* * * * *"
+            }
+           ],
+           "tag_uuids": [
+            "g9importedtag00000000009"
+           ]
+          }
+         ],
+         "databases": [
+          {
+           "uuid": "b9importeddatabase000009",
+           "type": "standalone-postgresql",
+           "attributes": {
+            "public_port": 5432,
+            "ports_mappings": "5432:5432, 127.0.0.1:8080:80/udp"
+           },
+           "scheduled_backups": [
+            {
+             "frequency": "daily",
+             "databases_to_backup": "app"
+            }
+           ]
+          }
+         ],
+         "services": [
+          {
+           "uuid": "f9importedservice0000009",
+           "applications": [
+            {
+             "uuid": "y9importedserviceapp0009",
+             "fqdn": "https://svc.example.com"
+            }
+           ],
+           "databases": [
+            {
+             "uuid": "z9importedservicedb00009"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "uuid": "e8importedenvironment008",
+         "name": "staging"
+        }
+       ]
+      }
+     ],
+     "warnings": [
+      "The source had a warning.",
+      "The source had a warning."
+     ],
+     "post_transfer_checklist": [
+      "Point the DNS records to {target_url}.",
+      "Check the backups.",
+      "Check the backups.",
+      5,
+      null
+     ]
+    }
+   },
+   "after": {
+    "archive": "select uuid, name, ip from servers where id = 1"
+   }
+  },
+  {
+   "name": "server import: an empty bundle",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "bundle": {},
+    "dry_run": true
+   }
+  },
+  {
+   "name": "server import: invalid",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "bundle": "bundle",
+    "dry_run": "maybe",
+    "preserve_uuids": 2,
+    "adopt_mode": [],
+    "extra": 1
+   }
+  },
+  {
+   "name": "server import: nothing",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "dry_run": true
+   }
+  },
+  {
+   "name": "server import: not JSON",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "raw": "bundle=x",
+   "contentType": "application/x-www-form-urlencoded"
+  },
+  {
+   "name": "server import: with a write token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "bundle": {
+     "schema_version": 1,
+     "coolify_version": "4.7.6",
+     "exported_at": "2025-12-31T00:00:00+00:00",
+     "export_id": "exp-parity-1",
+     "source_instance": {
+      "url": "https://source.example.com"
+     },
+     "server": {
+      "uuid": "s9importedserver00000009",
+      "name": "imported",
+      "description": null,
+      "ip": "203.0.113.90",
+      "port": 22,
+      "user": "root"
+     },
+     "private_key": {
+      "uuid": "k9importedprivatekey0009",
+      "name": "Imported key",
+      "private_key": "placeholder, not a key"
+     },
+     "private_keys": [],
+     "destinations": [
+      {
+       "uuid": "d9importeddestination009",
+       "name": "default",
+       "network": "coolify"
+      }
+     ],
+     "github_apps": [
+      {
+       "uuid": "j9importedgithubapp00009",
+       "html_url": "https://github.com",
+       "api_url": "https://api.github.com"
+      }
+     ],
+     "s3_storages": [
+      {
+       "uuid": "o9importeds3storage00009"
+      },
+      {
+       "uuid": "o8importeds3storage00008"
+      }
+     ],
+     "projects": [
+      {
+       "uuid": "p9importedproject0000009",
+       "name": "Imported",
+       "environments": [
+        {
+         "uuid": "e9importedenvironment009",
+         "name": "production",
+         "applications": [
+          {
+           "uuid": "a9importedapplication009",
+           "attributes": {
+            "fqdn": "https://app.example.com,http://www.example.com",
+            "docker_compose_domains": "{\"web\":{\"domain\":\"https://web.example.com\"}}"
+           },
+           "previews": [
+            {
+             "uuid": "r9importedpreview0000009",
+             "fqdn": "https://pr-1.app.example.com"
+            }
+           ],
+           "persistent_storages": [
+            {
+             "uuid": "v9importedvolume00000009",
+             "mount_path": "/data",
+             "host_path": null
+            }
+           ],
+           "scheduled_tasks": [
+            {
+             "uuid": "t9importedtask0000000009",
+             "command": "php artisan schedule:run",
+             "container": "web",
+             "frequency": "* * * * *"
+            }
+           ],
+           "tag_uuids": [
+            "g9importedtag00000000009"
+           ]
+          }
+         ],
+         "databases": [
+          {
+           "uuid": "b9importeddatabase000009",
+           "type": "standalone-postgresql",
+           "attributes": {
+            "public_port": 5432,
+            "ports_mappings": "5432:5432, 127.0.0.1:8080:80/udp"
+           },
+           "scheduled_backups": [
+            {
+             "frequency": "daily",
+             "databases_to_backup": "app"
+            }
+           ]
+          }
+         ],
+         "services": [
+          {
+           "uuid": "f9importedservice0000009",
+           "applications": [
+            {
+             "uuid": "y9importedserviceapp0009",
+             "fqdn": "https://svc.example.com"
+            }
+           ],
+           "databases": [
+            {
+             "uuid": "z9importedservicedb00009"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "uuid": "e8importedenvironment008",
+         "name": "staging"
+        }
+       ]
+      }
+     ],
+     "warnings": [
+      "The source had a warning.",
+      "The source had a warning."
+     ],
+     "post_transfer_checklist": [
+      "Point the DNS records to {target_url}.",
+      "Check the backups.",
+      "Check the backups.",
+      5,
+      null
+     ]
+    },
+    "dry_run": true
+   }
+  },
+  {
+   "name": "server import: a bundle without its parts",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "bundle": {
+     "name": "x"
+    },
+    "dry_run": true
+   }
+  },
+  {
+   "name": "server import: a bundle with the wrong versions",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "bundle": {
+     "schema_version": "2",
+     "coolify_version": "4.7.10",
+     "exported_at": "2025-12-31T00:00:00+00:00",
+     "export_id": 7,
+     "source_instance": {
+      "url": "https://source.example.com"
+     },
+     "server": {
+      "uuid": "s9importedserver00000009",
+      "name": "imported",
+      "description": null,
+      "ip": "203.0.113.90",
+      "port": 22,
+      "user": "root"
+     },
+     "private_key": {
+      "uuid": "k9importedprivatekey0009",
+      "name": "Imported key",
+      "private_key": "placeholder, not a key"
+     },
+     "private_keys": [],
+     "destinations": [
+      {
+       "uuid": "d9importeddestination009",
+       "name": "default",
+       "network": "coolify"
+      }
+     ],
+     "github_apps": [
+      {
+       "uuid": "j9importedgithubapp00009",
+       "html_url": "https://github.com",
+       "api_url": "https://api.github.com"
+      }
+     ],
+     "s3_storages": [
+      {
+       "uuid": "o9importeds3storage00009"
+      },
+      {
+       "uuid": "o8importeds3storage00008"
+      }
+     ],
+     "projects": [
+      {
+       "uuid": "p9importedproject0000009",
+       "name": "Imported",
+       "environments": [
+        {
+         "uuid": "e9importedenvironment009",
+         "name": "production",
+         "applications": [
+          {
+           "uuid": "a9importedapplication009",
+           "attributes": {
+            "fqdn": "https://app.example.com,http://www.example.com",
+            "docker_compose_domains": "{\"web\":{\"domain\":\"https://web.example.com\"}}"
+           },
+           "previews": [
+            {
+             "uuid": "r9importedpreview0000009",
+             "fqdn": "https://pr-1.app.example.com"
+            }
+           ],
+           "persistent_storages": [
+            {
+             "uuid": "v9importedvolume00000009",
+             "mount_path": "/data",
+             "host_path": null
+            }
+           ],
+           "scheduled_tasks": [
+            {
+             "uuid": "t9importedtask0000000009",
+             "command": "php artisan schedule:run",
+             "container": "web",
+             "frequency": "* * * * *"
+            }
+           ],
+           "tag_uuids": [
+            "g9importedtag00000000009"
+           ]
+          }
+         ],
+         "databases": [
+          {
+           "uuid": "b9importeddatabase000009",
+           "type": "standalone-postgresql",
+           "attributes": {
+            "public_port": 5432,
+            "ports_mappings": "5432:5432, 127.0.0.1:8080:80/udp"
+           },
+           "scheduled_backups": [
+            {
+             "frequency": "daily",
+             "databases_to_backup": "app"
+            }
+           ]
+          }
+         ],
+         "services": [
+          {
+           "uuid": "f9importedservice0000009",
+           "applications": [
+            {
+             "uuid": "y9importedserviceapp0009",
+             "fqdn": "https://svc.example.com"
+            }
+           ],
+           "databases": [
+            {
+             "uuid": "z9importedservicedb00009"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "uuid": "e8importedenvironment008",
+         "name": "staging"
+        }
+       ]
+      }
+     ],
+     "warnings": [
+      "The source had a warning.",
+      "The source had a warning."
+     ],
+     "post_transfer_checklist": [
+      "Point the DNS records to {target_url}.",
+      "Check the backups.",
+      "Check the backups.",
+      5,
+      null
+     ]
+    },
+    "dry_run": true
+   }
+  },
+  {
+   "name": "server import: a bundle of a newer beta",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "bundle": {
+     "schema_version": "1abc",
+     "coolify_version": "4.8.0-beta.1",
+     "exported_at": "2025-12-31T00:00:00+00:00",
+     "export_id": "exp-parity-1",
+     "source_instance": {
+      "url": "https://source.example.com"
+     },
+     "server": {
+      "uuid": "s9importedserver00000009",
+      "name": "imported",
+      "description": null,
+      "ip": "203.0.113.90",
+      "port": 22,
+      "user": "root"
+     },
+     "private_key": {
+      "uuid": "k9importedprivatekey0009",
+      "name": "Imported key",
+      "private_key": "placeholder, not a key"
+     },
+     "private_keys": [],
+     "destinations": [
+      {
+       "uuid": "d9importeddestination009",
+       "name": "default",
+       "network": "coolify"
+      }
+     ],
+     "github_apps": [
+      {
+       "uuid": "j9importedgithubapp00009",
+       "html_url": "https://github.com",
+       "api_url": "https://api.github.com"
+      }
+     ],
+     "s3_storages": [
+      {
+       "uuid": "o9importeds3storage00009"
+      },
+      {
+       "uuid": "o8importeds3storage00008"
+      }
+     ],
+     "projects": [
+      {
+       "uuid": "p9importedproject0000009",
+       "name": "Imported",
+       "environments": [
+        {
+         "uuid": "e9importedenvironment009",
+         "name": "production",
+         "applications": [
+          {
+           "uuid": "a9importedapplication009",
+           "attributes": {
+            "fqdn": "https://app.example.com,http://www.example.com",
+            "docker_compose_domains": "{\"web\":{\"domain\":\"https://web.example.com\"}}"
+           },
+           "previews": [
+            {
+             "uuid": "r9importedpreview0000009",
+             "fqdn": "https://pr-1.app.example.com"
+            }
+           ],
+           "persistent_storages": [
+            {
+             "uuid": "v9importedvolume00000009",
+             "mount_path": "/data",
+             "host_path": null
+            }
+           ],
+           "scheduled_tasks": [
+            {
+             "uuid": "t9importedtask0000000009",
+             "command": "php artisan schedule:run",
+             "container": "web",
+             "frequency": "* * * * *"
+            }
+           ],
+           "tag_uuids": [
+            "g9importedtag00000000009"
+           ]
+          }
+         ],
+         "databases": [
+          {
+           "uuid": "b9importeddatabase000009",
+           "type": "standalone-postgresql",
+           "attributes": {
+            "public_port": 5432,
+            "ports_mappings": "5432:5432, 127.0.0.1:8080:80/udp"
+           },
+           "scheduled_backups": [
+            {
+             "frequency": "daily",
+             "databases_to_backup": "app"
+            }
+           ]
+          }
+         ],
+         "services": [
+          {
+           "uuid": "f9importedservice0000009",
+           "applications": [
+            {
+             "uuid": "y9importedserviceapp0009",
+             "fqdn": "https://svc.example.com"
+            }
+           ],
+           "databases": [
+            {
+             "uuid": "z9importedservicedb00009"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "uuid": "e8importedenvironment008",
+         "name": "staging"
+        }
+       ]
+      }
+     ],
+     "warnings": [
+      "The source had a warning.",
+      "The source had a warning."
+     ],
+     "post_transfer_checklist": [
+      "Point the DNS records to {target_url}.",
+      "Check the backups.",
+      "Check the backups.",
+      5,
+      null
+     ]
+    },
+    "dry_run": true
+   }
+  },
+  {
+   "name": "server import: a bundle of an older version",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "bundle": {
+     "schema_version": 1.9,
+     "coolify_version": "4.7.6-rc.1",
+     "exported_at": "2025-12-31T00:00:00+00:00",
+     "export_id": "exp-parity-1",
+     "source_instance": {
+      "url": "https://source.example.com"
+     },
+     "server": {
+      "uuid": "s9importedserver00000009",
+      "name": "imported",
+      "description": null,
+      "ip": "203.0.113.90",
+      "port": 22,
+      "user": "root"
+     },
+     "private_key": {
+      "uuid": "k9importedprivatekey0009",
+      "name": "Imported key",
+      "private_key": "placeholder, not a key"
+     },
+     "private_keys": [],
+     "destinations": [
+      {
+       "uuid": "d9importeddestination009",
+       "name": "default",
+       "network": "coolify"
+      }
+     ],
+     "github_apps": [
+      {
+       "uuid": "j9importedgithubapp00009",
+       "html_url": "https://github.com",
+       "api_url": "https://api.github.com"
+      }
+     ],
+     "s3_storages": [
+      {
+       "uuid": "o9importeds3storage00009"
+      },
+      {
+       "uuid": "o8importeds3storage00008"
+      }
+     ],
+     "projects": [
+      {
+       "uuid": "p9importedproject0000009",
+       "name": "Imported",
+       "environments": [
+        {
+         "uuid": "e9importedenvironment009",
+         "name": "production",
+         "applications": [
+          {
+           "uuid": "a9importedapplication009",
+           "attributes": {
+            "fqdn": "https://app.example.com,http://www.example.com",
+            "docker_compose_domains": "{\"web\":{\"domain\":\"https://web.example.com\"}}"
+           },
+           "previews": [
+            {
+             "uuid": "r9importedpreview0000009",
+             "fqdn": "https://pr-1.app.example.com"
+            }
+           ],
+           "persistent_storages": [
+            {
+             "uuid": "v9importedvolume00000009",
+             "mount_path": "/data",
+             "host_path": null
+            }
+           ],
+           "scheduled_tasks": [
+            {
+             "uuid": "t9importedtask0000000009",
+             "command": "php artisan schedule:run",
+             "container": "web",
+             "frequency": "* * * * *"
+            }
+           ],
+           "tag_uuids": [
+            "g9importedtag00000000009"
+           ]
+          }
+         ],
+         "databases": [
+          {
+           "uuid": "b9importeddatabase000009",
+           "type": "standalone-postgresql",
+           "attributes": {
+            "public_port": 5432,
+            "ports_mappings": "5432:5432, 127.0.0.1:8080:80/udp"
+           },
+           "scheduled_backups": [
+            {
+             "frequency": "daily",
+             "databases_to_backup": "app"
+            }
+           ]
+          }
+         ],
+         "services": [
+          {
+           "uuid": "f9importedservice0000009",
+           "applications": [
+            {
+             "uuid": "y9importedserviceapp0009",
+             "fqdn": "https://svc.example.com"
+            }
+           ],
+           "databases": [
+            {
+             "uuid": "z9importedservicedb00009"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "uuid": "e8importedenvironment008",
+         "name": "staging"
+        }
+       ]
+      }
+     ],
+     "warnings": [
+      "The source had a warning.",
+      "The source had a warning."
+     ],
+     "post_transfer_checklist": [
+      "Point the DNS records to {target_url}.",
+      "Check the backups.",
+      "Check the backups.",
+      5,
+      null
+     ]
+    },
+    "dry_run": true
+   }
+  },
+  {
+   "name": "server import: a bundle without a version string",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "bundle": {
+     "schema_version": "abc",
+     "coolify_version": 4.8,
+     "exported_at": "2025-12-31T00:00:00+00:00",
+     "export_id": "exp-parity-1",
+     "source_instance": {
+      "url": "https://source.example.com"
+     },
+     "server": {
+      "uuid": "s9importedserver00000009",
+      "name": "imported",
+      "description": null,
+      "ip": "203.0.113.90",
+      "port": 22,
+      "user": "root"
+     },
+     "private_key": {
+      "uuid": "k9importedprivatekey0009",
+      "name": "Imported key",
+      "private_key": "placeholder, not a key"
+     },
+     "private_keys": [],
+     "destinations": [
+      {
+       "uuid": "d9importeddestination009",
+       "name": "default",
+       "network": "coolify"
+      }
+     ],
+     "github_apps": [
+      {
+       "uuid": "j9importedgithubapp00009",
+       "html_url": "https://github.com",
+       "api_url": "https://api.github.com"
+      }
+     ],
+     "s3_storages": [
+      {
+       "uuid": "o9importeds3storage00009"
+      },
+      {
+       "uuid": "o8importeds3storage00008"
+      }
+     ],
+     "projects": [
+      {
+       "uuid": "p9importedproject0000009",
+       "name": "Imported",
+       "environments": [
+        {
+         "uuid": "e9importedenvironment009",
+         "name": "production",
+         "applications": [
+          {
+           "uuid": "a9importedapplication009",
+           "attributes": {
+            "fqdn": "https://app.example.com,http://www.example.com",
+            "docker_compose_domains": "{\"web\":{\"domain\":\"https://web.example.com\"}}"
+           },
+           "previews": [
+            {
+             "uuid": "r9importedpreview0000009",
+             "fqdn": "https://pr-1.app.example.com"
+            }
+           ],
+           "persistent_storages": [
+            {
+             "uuid": "v9importedvolume00000009",
+             "mount_path": "/data",
+             "host_path": null
+            }
+           ],
+           "scheduled_tasks": [
+            {
+             "uuid": "t9importedtask0000000009",
+             "command": "php artisan schedule:run",
+             "container": "web",
+             "frequency": "* * * * *"
+            }
+           ],
+           "tag_uuids": [
+            "g9importedtag00000000009"
+           ]
+          }
+         ],
+         "databases": [
+          {
+           "uuid": "b9importeddatabase000009",
+           "type": "standalone-postgresql",
+           "attributes": {
+            "public_port": 5432,
+            "ports_mappings": "5432:5432, 127.0.0.1:8080:80/udp"
+           },
+           "scheduled_backups": [
+            {
+             "frequency": "daily",
+             "databases_to_backup": "app"
+            }
+           ]
+          }
+         ],
+         "services": [
+          {
+           "uuid": "f9importedservice0000009",
+           "applications": [
+            {
+             "uuid": "y9importedserviceapp0009",
+             "fqdn": "https://svc.example.com"
+            }
+           ],
+           "databases": [
+            {
+             "uuid": "z9importedservicedb00009"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "uuid": "e8importedenvironment008",
+         "name": "staging"
+        }
+       ]
+      }
+     ],
+     "warnings": [
+      "The source had a warning.",
+      "The source had a warning."
+     ],
+     "post_transfer_checklist": [
+      "Point the DNS records to {target_url}.",
+      "Check the backups.",
+      "Check the backups.",
+      5,
+      null
+     ]
+    },
+    "dry_run": true
+   }
+  },
+  {
+   "name": "server import: a bundle with an array as its schema version",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "bundle": {
+     "schema_version": [
+      1
+     ],
+     "coolify_version": "4.7.6",
+     "exported_at": "2025-12-31T00:00:00+00:00",
+     "export_id": "exp-parity-1",
+     "source_instance": {
+      "url": "https://source.example.com"
+     },
+     "server": {
+      "uuid": "s9importedserver00000009",
+      "name": "imported",
+      "description": null,
+      "ip": "203.0.113.90",
+      "port": 22,
+      "user": "root"
+     },
+     "private_key": {
+      "uuid": "k9importedprivatekey0009",
+      "name": "Imported key",
+      "private_key": "placeholder, not a key"
+     },
+     "private_keys": [],
+     "destinations": [
+      {
+       "uuid": "d9importeddestination009",
+       "name": "default",
+       "network": "coolify"
+      }
+     ],
+     "github_apps": [
+      {
+       "uuid": "j9importedgithubapp00009",
+       "html_url": "https://github.com",
+       "api_url": "https://api.github.com"
+      }
+     ],
+     "s3_storages": [
+      {
+       "uuid": "o9importeds3storage00009"
+      },
+      {
+       "uuid": "o8importeds3storage00008"
+      }
+     ],
+     "projects": [
+      {
+       "uuid": "p9importedproject0000009",
+       "name": "Imported",
+       "environments": [
+        {
+         "uuid": "e9importedenvironment009",
+         "name": "production",
+         "applications": [
+          {
+           "uuid": "a9importedapplication009",
+           "attributes": {
+            "fqdn": "https://app.example.com,http://www.example.com",
+            "docker_compose_domains": "{\"web\":{\"domain\":\"https://web.example.com\"}}"
+           },
+           "previews": [
+            {
+             "uuid": "r9importedpreview0000009",
+             "fqdn": "https://pr-1.app.example.com"
+            }
+           ],
+           "persistent_storages": [
+            {
+             "uuid": "v9importedvolume00000009",
+             "mount_path": "/data",
+             "host_path": null
+            }
+           ],
+           "scheduled_tasks": [
+            {
+             "uuid": "t9importedtask0000000009",
+             "command": "php artisan schedule:run",
+             "container": "web",
+             "frequency": "* * * * *"
+            }
+           ],
+           "tag_uuids": [
+            "g9importedtag00000000009"
+           ]
+          }
+         ],
+         "databases": [
+          {
+           "uuid": "b9importeddatabase000009",
+           "type": "standalone-postgresql",
+           "attributes": {
+            "public_port": 5432,
+            "ports_mappings": "5432:5432, 127.0.0.1:8080:80/udp"
+           },
+           "scheduled_backups": [
+            {
+             "frequency": "daily",
+             "databases_to_backup": "app"
+            }
+           ]
+          }
+         ],
+         "services": [
+          {
+           "uuid": "f9importedservice0000009",
+           "applications": [
+            {
+             "uuid": "y9importedserviceapp0009",
+             "fqdn": "https://svc.example.com"
+            }
+           ],
+           "databases": [
+            {
+             "uuid": "z9importedservicedb00009"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "uuid": "e8importedenvironment008",
+         "name": "staging"
+        }
+       ]
+      }
+     ],
+     "warnings": [
+      "The source had a warning.",
+      "The source had a warning."
+     ],
+     "post_transfer_checklist": [
+      "Point the DNS records to {target_url}.",
+      "Check the backups.",
+      "Check the backups.",
+      5,
+      null
+     ]
+    },
+    "dry_run": true
+   }
+  },
+  {
+   "name": "server import: a bundle with an empty array as its schema version",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "bundle": {
+     "schema_version": [],
+     "coolify_version": "4.7.6",
+     "exported_at": "2025-12-31T00:00:00+00:00",
+     "export_id": "exp-parity-1",
+     "source_instance": {
+      "url": "https://source.example.com"
+     },
+     "server": {
+      "uuid": "s9importedserver00000009",
+      "name": "imported",
+      "description": null,
+      "ip": "203.0.113.90",
+      "port": 22,
+      "user": "root"
+     },
+     "private_key": {
+      "uuid": "k9importedprivatekey0009",
+      "name": "Imported key",
+      "private_key": "placeholder, not a key"
+     },
+     "private_keys": [],
+     "destinations": [
+      {
+       "uuid": "d9importeddestination009",
+       "name": "default",
+       "network": "coolify"
+      }
+     ],
+     "github_apps": [
+      {
+       "uuid": "j9importedgithubapp00009",
+       "html_url": "https://github.com",
+       "api_url": "https://api.github.com"
+      }
+     ],
+     "s3_storages": [
+      {
+       "uuid": "o9importeds3storage00009"
+      },
+      {
+       "uuid": "o8importeds3storage00008"
+      }
+     ],
+     "projects": [
+      {
+       "uuid": "p9importedproject0000009",
+       "name": "Imported",
+       "environments": [
+        {
+         "uuid": "e9importedenvironment009",
+         "name": "production",
+         "applications": [
+          {
+           "uuid": "a9importedapplication009",
+           "attributes": {
+            "fqdn": "https://app.example.com,http://www.example.com",
+            "docker_compose_domains": "{\"web\":{\"domain\":\"https://web.example.com\"}}"
+           },
+           "previews": [
+            {
+             "uuid": "r9importedpreview0000009",
+             "fqdn": "https://pr-1.app.example.com"
+            }
+           ],
+           "persistent_storages": [
+            {
+             "uuid": "v9importedvolume00000009",
+             "mount_path": "/data",
+             "host_path": null
+            }
+           ],
+           "scheduled_tasks": [
+            {
+             "uuid": "t9importedtask0000000009",
+             "command": "php artisan schedule:run",
+             "container": "web",
+             "frequency": "* * * * *"
+            }
+           ],
+           "tag_uuids": [
+            "g9importedtag00000000009"
+           ]
+          }
+         ],
+         "databases": [
+          {
+           "uuid": "b9importeddatabase000009",
+           "type": "standalone-postgresql",
+           "attributes": {
+            "public_port": 5432,
+            "ports_mappings": "5432:5432, 127.0.0.1:8080:80/udp"
+           },
+           "scheduled_backups": [
+            {
+             "frequency": "daily",
+             "databases_to_backup": "app"
+            }
+           ]
+          }
+         ],
+         "services": [
+          {
+           "uuid": "f9importedservice0000009",
+           "applications": [
+            {
+             "uuid": "y9importedserviceapp0009",
+             "fqdn": "https://svc.example.com"
+            }
+           ],
+           "databases": [
+            {
+             "uuid": "z9importedservicedb00009"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "uuid": "e8importedenvironment008",
+         "name": "staging"
+        }
+       ]
+      }
+     ],
+     "warnings": [
+      "The source had a warning.",
+      "The source had a warning."
+     ],
+     "post_transfer_checklist": [
+      "Point the DNS records to {target_url}.",
+      "Check the backups.",
+      "Check the backups.",
+      5,
+      null
+     ]
+    },
+    "dry_run": true
+   }
+  },
+  {
+   "name": "server import: dry run, a warning that is an array",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "bundle": {
+     "schema_version": 1,
+     "coolify_version": "4.7.6",
+     "exported_at": "2025-12-31T00:00:00+00:00",
+     "export_id": "exp-parity-1",
+     "source_instance": {
+      "url": "https://source.example.com"
+     },
+     "server": {
+      "uuid": "s9importedserver00000009",
+      "name": "imported",
+      "description": null,
+      "ip": "203.0.113.90",
+      "port": 22,
+      "user": "root"
+     },
+     "private_key": {
+      "uuid": "k9importedprivatekey0009",
+      "name": "Imported key",
+      "private_key": "placeholder, not a key"
+     },
+     "private_keys": [],
+     "destinations": [
+      {
+       "uuid": "d9importeddestination009",
+       "name": "default",
+       "network": "coolify"
+      }
+     ],
+     "github_apps": [
+      {
+       "uuid": "j9importedgithubapp00009",
+       "html_url": "https://github.com",
+       "api_url": "https://api.github.com"
+      }
+     ],
+     "s3_storages": [
+      {
+       "uuid": "o9importeds3storage00009"
+      },
+      {
+       "uuid": "o8importeds3storage00008"
+      }
+     ],
+     "projects": [
+      {
+       "uuid": "p9importedproject0000009",
+       "name": "Imported",
+       "environments": [
+        {
+         "uuid": "e9importedenvironment009",
+         "name": "production",
+         "applications": [
+          {
+           "uuid": "a9importedapplication009",
+           "attributes": {
+            "fqdn": "https://app.example.com,http://www.example.com",
+            "docker_compose_domains": "{\"web\":{\"domain\":\"https://web.example.com\"}}"
+           },
+           "previews": [
+            {
+             "uuid": "r9importedpreview0000009",
+             "fqdn": "https://pr-1.app.example.com"
+            }
+           ],
+           "persistent_storages": [
+            {
+             "uuid": "v9importedvolume00000009",
+             "mount_path": "/data",
+             "host_path": null
+            }
+           ],
+           "scheduled_tasks": [
+            {
+             "uuid": "t9importedtask0000000009",
+             "command": "php artisan schedule:run",
+             "container": "web",
+             "frequency": "* * * * *"
+            }
+           ],
+           "tag_uuids": [
+            "g9importedtag00000000009"
+           ]
+          }
+         ],
+         "databases": [
+          {
+           "uuid": "b9importeddatabase000009",
+           "type": "standalone-postgresql",
+           "attributes": {
+            "public_port": 5432,
+            "ports_mappings": "5432:5432, 127.0.0.1:8080:80/udp"
+           },
+           "scheduled_backups": [
+            {
+             "frequency": "daily",
+             "databases_to_backup": "app"
+            }
+           ]
+          }
+         ],
+         "services": [
+          {
+           "uuid": "f9importedservice0000009",
+           "applications": [
+            {
+             "uuid": "y9importedserviceapp0009",
+             "fqdn": "https://svc.example.com"
+            }
+           ],
+           "databases": [
+            {
+             "uuid": "z9importedservicedb00009"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "uuid": "e8importedenvironment008",
+         "name": "staging"
+        }
+       ]
+      }
+     ],
+     "warnings": [
+      "The source had a warning.",
+      [
+       "nested"
+      ]
+     ],
+     "post_transfer_checklist": [
+      "Point the DNS records to {target_url}.",
+      "Check the backups.",
+      "Check the backups.",
+      5,
+      null
+     ]
+    },
+    "dry_run": true
+   }
+  },
+  {
+   "name": "server import: a bundle with missing server fields and key material",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "bundle": {
+     "schema_version": 1,
+     "coolify_version": "4.7.6",
+     "exported_at": "2025-12-31T00:00:00+00:00",
+     "export_id": "exp-parity-1",
+     "source_instance": {
+      "url": "https://source.example.com"
+     },
+     "server": {
+      "uuid": "s9importedserver00000009",
+      "ip": null
+     },
+     "private_key": {
+      "uuid": "k9importedprivatekey0009",
+      "private_key": "   "
+     },
+     "private_keys": [],
+     "destinations": "none",
+     "github_apps": [
+      {
+       "uuid": "j9importedgithubapp00009",
+       "html_url": "https://github.com",
+       "api_url": "https://api.github.com"
+      }
+     ],
+     "s3_storages": [
+      {
+       "uuid": "o9importeds3storage00009"
+      },
+      {
+       "uuid": "o8importeds3storage00008"
+      }
+     ],
+     "projects": {},
+     "warnings": [
+      "The source had a warning.",
+      "The source had a warning."
+     ],
+     "post_transfer_checklist": [
+      "Point the DNS records to {target_url}.",
+      "Check the backups.",
+      "Check the backups.",
+      5,
+      null
+     ]
+    },
+    "dry_run": true
+   }
+  },
+  {
+   "name": "server import: a bundle with invalid ids",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "bundle": {
+     "schema_version": 1,
+     "coolify_version": "4.7.6",
+     "exported_at": "2025-12-31T00:00:00+00:00",
+     "export_id": "exp-parity-1",
+     "source_instance": {
+      "url": "https://source.example.com"
+     },
+     "server": {
+      "uuid": "../etc/passwd",
+      "name": "imported",
+      "description": null,
+      "ip": "203.0.113.90",
+      "port": 22,
+      "user": "root"
+     },
+     "private_key": {
+      "uuid": "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk",
+      "name": "Imported key",
+      "private_key": "placeholder, not a key"
+     },
+     "private_keys": [],
+     "destinations": [
+      {
+       "uuid": 42,
+       "server_uuid": "-starts-with-a-hyphen",
+       "network": "bad net!"
+      }
+     ],
+     "github_apps": [
+      {
+       "uuid": "j9importedgithubapp00009",
+       "html_url": "https://github.com",
+       "api_url": "https://api.github.com"
+      }
+     ],
+     "s3_storages": [
+      {
+       "uuid": "o9importeds3storage00009"
+      },
+      {
+       "uuid": "o8importeds3storage00008"
+      }
+     ],
+     "projects": [
+      {
+       "uuid": "ok_id-1",
+       "environments": [
+        {
+         "uuid": "e;x",
+         "applications": [
+          {
+           "uuid": true,
+           "tag_uuids": [
+            "good",
+            "b@d",
+            null,
+            5
+           ],
+           "storage_uuids": "single bad!"
+          }
+         ]
+        }
+       ]
+      }
+     ],
+     "warnings": [
+      "The source had a warning.",
+      "The source had a warning."
+     ],
+     "post_transfer_checklist": [
+      "Point the DNS records to {target_url}.",
+      "Check the backups.",
+      "Check the backups.",
+      5,
+      null
+     ]
+    },
+    "dry_run": true
+   }
+  },
+  {
+   "name": "server import: a bundle with too many items",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "bundle": {
+     "schema_version": 1,
+     "coolify_version": "4.7.6",
+     "exported_at": "2025-12-31T00:00:00+00:00",
+     "export_id": "exp-parity-1",
+     "source_instance": {
+      "url": "https://source.example.com"
+     },
+     "server": {
+      "uuid": "s9importedserver00000009",
+      "name": "imported",
+      "description": null,
+      "ip": "203.0.113.90",
+      "port": 22,
+      "user": "root"
+     },
+     "private_key": {
+      "uuid": "k9importedprivatekey0009",
+      "name": "Imported key",
+      "private_key": "placeholder, not a key"
+     },
+     "private_keys": {
+      "a": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "b": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "c": "x"
+     },
+     "destinations": [
+      {
+       "uuid": "bad id",
+       "network": "bad net!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "github_apps": [
+      {
+       "uuid": "j9importedgithubapp00009",
+       "html_url": "https://github.com",
+       "api_url": "https://api.github.com"
+      }
+     ],
+     "s3_storages": [
+      {
+       "uuid": "o9importeds3storage00009"
+      },
+      {
+       "uuid": "o8importeds3storage00008"
+      }
+     ],
+     "projects": [
+      {
+       "tags": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "tags": {
+        "x": [
+         0,
+         0,
+         0,
+         0,
+         0
+        ]
+       }
+      }
+     ],
+     "warnings": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "post_transfer_checklist": [
+      "Point the DNS records to {target_url}.",
+      "Check the backups.",
+      "Check the backups.",
+      5,
+      null
+     ]
+    },
+    "dry_run": true
+   }
+  },
+  {
+   "name": "server import: a bundle with invalid values",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "bundle": {
+     "schema_version": 1,
+     "coolify_version": "4.7.6",
+     "exported_at": "2025-12-31T00:00:00+00:00",
+     "export_id": "exp-parity-1",
+     "source_instance": {
+      "url": "https://source.example.com"
+     },
+     "server": {
+      "uuid": "s9importedserver00000009",
+      "name": "imported",
+      "description": null,
+      "ip": "203.0.113.90",
+      "port": 22,
+      "user": "root"
+     },
+     "private_key": {
+      "uuid": "k9importedprivatekey0009",
+      "name": "Imported key",
+      "private_key": "placeholder, not a key"
+     },
+     "private_keys": [],
+     "destinations": [
+      {
+       "network": "bad net!"
+      },
+      {
+       "network": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      },
+      {
+       "network": [
+        "a"
+       ]
+      },
+      "skipped",
+      {
+       "network": null
+      }
+     ],
+     "github_apps": [
+      {
+       "html_url": "ftp://github.example.com",
+       "api_url": "not a url"
+      },
+      {
+       "html_url": 5
+      }
+     ],
+     "s3_storages": [
+      {
+       "uuid": "o9importeds3storage00009"
+      },
+      {
+       "uuid": "o8importeds3storage00008"
+      }
+     ],
+     "projects": [
+      {
+       "environments": [
+        {
+         "applications": [
+          {
+           "attributes": {
+            "fqdn": "javascript:alert(1),https://ok.example.com,ftp://files.example.com",
+            "docker_compose_domains": "{\"web\":{\"domain\":\"ftp://web.example.com\"},\"api\":{\"domain\":\"https://api.example.com\"},\"worker\":\"none\"}"
+           },
+           "persistent_storages": [
+            {
+             "mount_path": "/data|x",
+             "host_path": "$(whoami)"
+            },
+            {
+             "mount_path": 5
+            }
+           ],
+           "file_storages": [
+            {
+             "fs_path": "/files`id`",
+             "mount_path": "/mnt>x"
+            }
+           ],
+           "scheduled_tasks": [
+            {
+             "command": null,
+             "container": "bad name",
+             "frequency": "every minute",
+             "disabled_reason": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+            },
+            {
+             "command": [
+              "ls"
+             ],
+             "container": "-web"
+            },
+            {
+             "command": "ls",
+             "frequency": "hourly"
+            }
+           ],
+           "previews": [
+            {
+             "fqdn": 5,
+             "docker_compose_domains": {
+              "web": {
+               "domain": "javascript:x"
+              }
+             },
+             "persistent_storages": [
+              {
+               "mount_path": "/a&b"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "attributes": {
+            "fqdn": "",
+            "docker_compose_domains": "not json"
+           }
+          }
+         ],
+         "databases": [
+          {
+           "attributes": {
+            "public_port": 70000,
+            "ports_mappings": "5432:5432, 80 ,abc,9000"
+           },
+           "scheduled_backups": [
+            {
+             "frequency": "nope",
+             "databases_to_backup": "a&b"
+            }
+           ],
+           "persistent_storages": [
+            {
+             "host_path": "/x\ty"
+            }
+           ]
+          },
+          {
+           "attributes": {
+            "public_port": "x",
+            "ports_mappings": 5432
+           }
+          },
+          {
+           "attributes": {
+            "public_port": null,
+            "ports_mappings": null
+           }
+          },
+          {
+           "attributes": "plain"
+          }
+         ],
+         "services": [
+          {
+           "scheduled_tasks": [
+            {
+             "command": "ls"
+            }
+           ],
+           "applications": [
+            {
+             "attributes": {
+              "fqdn": "https://svc;x.example.com"
+             }
+            },
+            {
+             "fqdn": "javascript:svc"
+            },
+            {
+             "attributes": {
+              "fqdn": null
+             },
+             "fqdn": "javascript:ignored"
+            }
+           ],
+           "databases": [
+            {
+             "persistent_storages": [
+              {
+               "mount_path": "/db;x"
+              }
+             ],
+             "scheduled_backups": [
+              {
+               "frequency": "weekly",
+               "databases_to_backup": "a|b"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ],
+     "warnings": [
+      "The source had a warning.",
+      "The source had a warning."
+     ],
+     "post_transfer_checklist": [
+      "Point the DNS records to {target_url}.",
+      "Check the backups.",
+      "Check the backups.",
+      5,
+      null
+     ],
+     "gitlab_apps": [
+      {
+       "api_url": "https://gitlab.example.com/api/v4"
+      },
+      {
+       "html_url": "javascript:alert(1)"
+      }
+     ],
+     "gitea_apps": {
+      "first": {
+       "api_url": "gitea.example.com"
+      }
+     },
+     "ssl_certificates": [
+      {
+       "configuration_dir": "/etc/certs;reboot",
+       "mount_path": 5
+      },
+      {
+       "configuration_dir": "/ok",
+       "mount_path": "/certs|x"
+      }
+     ],
+     "volume_backups": [
+      {
+       "frequency": "every day"
+      },
+      {
+       "frequency": "@daily"
+      },
+      {
+       "frequency": 5
+      },
+      {
+       "frequency": null
+      },
+      {}
+     ]
+    },
+    "dry_run": true
+   }
+  },
+  {
+   "name": "server import: a server payload Coolify refuses",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "bundle": {
+     "schema_version": 1,
+     "coolify_version": "4.7.6",
+     "exported_at": "2025-12-31T00:00:00+00:00",
+     "export_id": "exp-parity-1",
+     "source_instance": {
+      "url": "https://source.example.com"
+     },
+     "server": {
+      "uuid": "s9importedserver00000009",
+      "name": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "description": null,
+      "ip": "bad ip!",
+      "port": 70000,
+      "user": "bad user"
+     },
+     "private_key": {
+      "uuid": "k9importedprivatekey0009",
+      "name": "Imported key",
+      "private_key": "placeholder, not a key"
+     },
+     "private_keys": [],
+     "destinations": [
+      {
+       "uuid": "d9importeddestination009",
+       "name": "default",
+       "network": "coolify"
+      }
+     ],
+     "github_apps": [
+      {
+       "uuid": "j9importedgithubapp00009",
+       "html_url": "https://github.com",
+       "api_url": "https://api.github.com"
+      }
+     ],
+     "s3_storages": [
+      {
+       "uuid": "o9importeds3storage00009"
+      },
+      {
+       "uuid": "o8importeds3storage00008"
+      }
+     ],
+     "projects": [
+      {
+       "uuid": "p9importedproject0000009",
+       "name": "Imported",
+       "environments": [
+        {
+         "uuid": "e9importedenvironment009",
+         "name": "production",
+         "applications": [
+          {
+           "uuid": "a9importedapplication009",
+           "attributes": {
+            "fqdn": "https://app.example.com,http://www.example.com",
+            "docker_compose_domains": "{\"web\":{\"domain\":\"https://web.example.com\"}}"
+           },
+           "previews": [
+            {
+             "uuid": "r9importedpreview0000009",
+             "fqdn": "https://pr-1.app.example.com"
+            }
+           ],
+           "persistent_storages": [
+            {
+             "uuid": "v9importedvolume00000009",
+             "mount_path": "/data",
+             "host_path": null
+            }
+           ],
+           "scheduled_tasks": [
+            {
+             "uuid": "t9importedtask0000000009",
+             "command": "php artisan schedule:run",
+             "container": "web",
+             "frequency": "* * * * *"
+            }
+           ],
+           "tag_uuids": [
+            "g9importedtag00000000009"
+           ]
+          }
+         ],
+         "databases": [
+          {
+           "uuid": "b9importeddatabase000009",
+           "type": "standalone-postgresql",
+           "attributes": {
+            "public_port": 5432,
+            "ports_mappings": "5432:5432, 127.0.0.1:8080:80/udp"
+           },
+           "scheduled_backups": [
+            {
+             "frequency": "daily",
+             "databases_to_backup": "app"
+            }
+           ]
+          }
+         ],
+         "services": [
+          {
+           "uuid": "f9importedservice0000009",
+           "applications": [
+            {
+             "uuid": "y9importedserviceapp0009",
+             "fqdn": "https://svc.example.com"
+            }
+           ],
+           "databases": [
+            {
+             "uuid": "z9importedservicedb00009"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "uuid": "e8importedenvironment008",
+         "name": "staging"
+        }
+       ]
+      }
+     ],
+     "warnings": [
+      "The source had a warning.",
+      "The source had a warning."
+     ],
+     "post_transfer_checklist": [
+      "Point the DNS records to {target_url}.",
+      "Check the backups.",
+      "Check the backups.",
+      5,
+      null
+     ]
+    },
+    "dry_run": true
+   }
+  },
+  {
+   "name": "server import: a server payload without a port",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "bundle": {
+     "schema_version": 1,
+     "coolify_version": "4.7.6",
+     "exported_at": "2025-12-31T00:00:00+00:00",
+     "export_id": "exp-parity-1",
+     "source_instance": {
+      "url": "https://source.example.com"
+     },
+     "server": {
+      "uuid": "s9importedserver00000009",
+      "name": 5,
+      "description": null,
+      "ip": 5,
+      "port": null,
+      "user": [
+       "root"
+      ]
+     },
+     "private_key": {
+      "uuid": "k9importedprivatekey0009",
+      "name": "Imported key",
+      "private_key": "placeholder, not a key"
+     },
+     "private_keys": [],
+     "destinations": [
+      {
+       "uuid": "d9importeddestination009",
+       "name": "default",
+       "network": "coolify"
+      }
+     ],
+     "github_apps": [
+      {
+       "uuid": "j9importedgithubapp00009",
+       "html_url": "https://github.com",
+       "api_url": "https://api.github.com"
+      }
+     ],
+     "s3_storages": [
+      {
+       "uuid": "o9importeds3storage00009"
+      },
+      {
+       "uuid": "o8importeds3storage00008"
+      }
+     ],
+     "projects": [
+      {
+       "uuid": "p9importedproject0000009",
+       "name": "Imported",
+       "environments": [
+        {
+         "uuid": "e9importedenvironment009",
+         "name": "production",
+         "applications": [
+          {
+           "uuid": "a9importedapplication009",
+           "attributes": {
+            "fqdn": "https://app.example.com,http://www.example.com",
+            "docker_compose_domains": "{\"web\":{\"domain\":\"https://web.example.com\"}}"
+           },
+           "previews": [
+            {
+             "uuid": "r9importedpreview0000009",
+             "fqdn": "https://pr-1.app.example.com"
+            }
+           ],
+           "persistent_storages": [
+            {
+             "uuid": "v9importedvolume00000009",
+             "mount_path": "/data",
+             "host_path": null
+            }
+           ],
+           "scheduled_tasks": [
+            {
+             "uuid": "t9importedtask0000000009",
+             "command": "php artisan schedule:run",
+             "container": "web",
+             "frequency": "* * * * *"
+            }
+           ],
+           "tag_uuids": [
+            "g9importedtag00000000009"
+           ]
+          }
+         ],
+         "databases": [
+          {
+           "uuid": "b9importeddatabase000009",
+           "type": "standalone-postgresql",
+           "attributes": {
+            "public_port": 5432,
+            "ports_mappings": "5432:5432, 127.0.0.1:8080:80/udp"
+           },
+           "scheduled_backups": [
+            {
+             "frequency": "daily",
+             "databases_to_backup": "app"
+            }
+           ]
+          }
+         ],
+         "services": [
+          {
+           "uuid": "f9importedservice0000009",
+           "applications": [
+            {
+             "uuid": "y9importedserviceapp0009",
+             "fqdn": "https://svc.example.com"
+            }
+           ],
+           "databases": [
+            {
+             "uuid": "z9importedservicedb00009"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "uuid": "e8importedenvironment008",
+         "name": "staging"
+        }
+       ]
+      }
+     ],
+     "warnings": [
+      "The source had a warning.",
+      "The source had a warning."
+     ],
+     "post_transfer_checklist": [
+      "Point the DNS records to {target_url}.",
+      "Check the backups.",
+      "Check the backups.",
+      5,
+      null
+     ]
+    },
+    "dry_run": true
+   }
+  },
+  {
+   "name": "server import: a server payload with an array as its address",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "bundle": {
+     "schema_version": 1,
+     "coolify_version": "4.7.6",
+     "exported_at": "2025-12-31T00:00:00+00:00",
+     "export_id": "exp-parity-1",
+     "source_instance": {
+      "url": "https://source.example.com"
+     },
+     "server": {
+      "uuid": "s9importedserver00000009",
+      "name": "imported",
+      "description": null,
+      "ip": [
+       "203.0.113.90"
+      ],
+      "port": 22,
+      "user": "root"
+     },
+     "private_key": {
+      "uuid": "k9importedprivatekey0009",
+      "name": "Imported key",
+      "private_key": "placeholder, not a key"
+     },
+     "private_keys": [],
+     "destinations": [
+      {
+       "uuid": "d9importeddestination009",
+       "name": "default",
+       "network": "coolify"
+      }
+     ],
+     "github_apps": [
+      {
+       "uuid": "j9importedgithubapp00009",
+       "html_url": "https://github.com",
+       "api_url": "https://api.github.com"
+      }
+     ],
+     "s3_storages": [
+      {
+       "uuid": "o9importeds3storage00009"
+      },
+      {
+       "uuid": "o8importeds3storage00008"
+      }
+     ],
+     "projects": [
+      {
+       "uuid": "p9importedproject0000009",
+       "name": "Imported",
+       "environments": [
+        {
+         "uuid": "e9importedenvironment009",
+         "name": "production",
+         "applications": [
+          {
+           "uuid": "a9importedapplication009",
+           "attributes": {
+            "fqdn": "https://app.example.com,http://www.example.com",
+            "docker_compose_domains": "{\"web\":{\"domain\":\"https://web.example.com\"}}"
+           },
+           "previews": [
+            {
+             "uuid": "r9importedpreview0000009",
+             "fqdn": "https://pr-1.app.example.com"
+            }
+           ],
+           "persistent_storages": [
+            {
+             "uuid": "v9importedvolume00000009",
+             "mount_path": "/data",
+             "host_path": null
+            }
+           ],
+           "scheduled_tasks": [
+            {
+             "uuid": "t9importedtask0000000009",
+             "command": "php artisan schedule:run",
+             "container": "web",
+             "frequency": "* * * * *"
+            }
+           ],
+           "tag_uuids": [
+            "g9importedtag00000000009"
+           ]
+          }
+         ],
+         "databases": [
+          {
+           "uuid": "b9importeddatabase000009",
+           "type": "standalone-postgresql",
+           "attributes": {
+            "public_port": 5432,
+            "ports_mappings": "5432:5432, 127.0.0.1:8080:80/udp"
+           },
+           "scheduled_backups": [
+            {
+             "frequency": "daily",
+             "databases_to_backup": "app"
+            }
+           ]
+          }
+         ],
+         "services": [
+          {
+           "uuid": "f9importedservice0000009",
+           "applications": [
+            {
+             "uuid": "y9importedserviceapp0009",
+             "fqdn": "https://svc.example.com"
+            }
+           ],
+           "databases": [
+            {
+             "uuid": "z9importedservicedb00009"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "uuid": "e8importedenvironment008",
+         "name": "staging"
+        }
+       ]
+      }
+     ],
+     "warnings": [
+      "The source had a warning.",
+      "The source had a warning."
+     ],
+     "post_transfer_checklist": [
+      "Point the DNS records to {target_url}.",
+      "Check the backups.",
+      "Check the backups.",
+      5,
+      null
+     ]
+    },
+    "dry_run": true
+   }
+  },
+  {
+   "name": "server import: dry run, environments PHP cannot loop over",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "bundle": {
+     "schema_version": 1,
+     "coolify_version": "4.7.6",
+     "exported_at": "2025-12-31T00:00:00+00:00",
+     "export_id": "exp-parity-1",
+     "source_instance": {
+      "url": "https://source.example.com"
+     },
+     "server": {
+      "uuid": "s9importedserver00000009",
+      "name": "imported",
+      "description": null,
+      "ip": "203.0.113.90",
+      "port": 22,
+      "user": "root"
+     },
+     "private_key": {
+      "uuid": "k9importedprivatekey0009",
+      "name": "Imported key",
+      "private_key": "placeholder, not a key"
+     },
+     "private_keys": [],
+     "destinations": [
+      {
+       "uuid": "d9importeddestination009",
+       "name": "default",
+       "network": "coolify"
+      }
+     ],
+     "github_apps": [
+      {
+       "uuid": "j9importedgithubapp00009",
+       "html_url": "https://github.com",
+       "api_url": "https://api.github.com"
+      }
+     ],
+     "s3_storages": [
+      {
+       "uuid": "o9importeds3storage00009"
+      },
+      {
+       "uuid": "o8importeds3storage00008"
+      }
+     ],
+     "projects": [
+      {
+       "environments": "none"
+      }
+     ],
+     "warnings": [
+      "The source had a warning.",
+      "The source had a warning."
+     ],
+     "post_transfer_checklist": [
+      "Point the DNS records to {target_url}.",
+      "Check the backups.",
+      "Check the backups.",
+      5,
+      null
+     ]
+    },
+    "dry_run": true
+   }
+  },
+  {
+   "name": "server import: dry run, GitHub Apps PHP cannot count",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "bundle": {
+     "schema_version": 1,
+     "coolify_version": "4.7.6",
+     "exported_at": "2025-12-31T00:00:00+00:00",
+     "export_id": "exp-parity-1",
+     "source_instance": {
+      "url": "https://source.example.com"
+     },
+     "server": {
+      "uuid": "s9importedserver00000009",
+      "name": "imported",
+      "description": null,
+      "ip": "203.0.113.90",
+      "port": 22,
+      "user": "root"
+     },
+     "private_key": {
+      "uuid": "k9importedprivatekey0009",
+      "name": "Imported key",
+      "private_key": "placeholder, not a key"
+     },
+     "private_keys": [],
+     "destinations": [
+      {
+       "uuid": "d9importeddestination009",
+       "name": "default",
+       "network": "coolify"
+      }
+     ],
+     "github_apps": "none",
+     "s3_storages": [
+      {
+       "uuid": "o9importeds3storage00009"
+      },
+      {
+       "uuid": "o8importeds3storage00008"
+      }
+     ],
+     "projects": [
+      {
+       "uuid": "p9importedproject0000009",
+       "name": "Imported",
+       "environments": [
+        {
+         "uuid": "e9importedenvironment009",
+         "name": "production",
+         "applications": [
+          {
+           "uuid": "a9importedapplication009",
+           "attributes": {
+            "fqdn": "https://app.example.com,http://www.example.com",
+            "docker_compose_domains": "{\"web\":{\"domain\":\"https://web.example.com\"}}"
+           },
+           "previews": [
+            {
+             "uuid": "r9importedpreview0000009",
+             "fqdn": "https://pr-1.app.example.com"
+            }
+           ],
+           "persistent_storages": [
+            {
+             "uuid": "v9importedvolume00000009",
+             "mount_path": "/data",
+             "host_path": null
+            }
+           ],
+           "scheduled_tasks": [
+            {
+             "uuid": "t9importedtask0000000009",
+             "command": "php artisan schedule:run",
+             "container": "web",
+             "frequency": "* * * * *"
+            }
+           ],
+           "tag_uuids": [
+            "g9importedtag00000000009"
+           ]
+          }
+         ],
+         "databases": [
+          {
+           "uuid": "b9importeddatabase000009",
+           "type": "standalone-postgresql",
+           "attributes": {
+            "public_port": 5432,
+            "ports_mappings": "5432:5432, 127.0.0.1:8080:80/udp"
+           },
+           "scheduled_backups": [
+            {
+             "frequency": "daily",
+             "databases_to_backup": "app"
+            }
+           ]
+          }
+         ],
+         "services": [
+          {
+           "uuid": "f9importedservice0000009",
+           "applications": [
+            {
+             "uuid": "y9importedserviceapp0009",
+             "fqdn": "https://svc.example.com"
+            }
+           ],
+           "databases": [
+            {
+             "uuid": "z9importedservicedb00009"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "uuid": "e8importedenvironment008",
+         "name": "staging"
+        }
+       ]
+      }
+     ],
+     "warnings": [
+      "The source had a warning.",
+      "The source had a warning."
+     ],
+     "post_transfer_checklist": [
+      "Point the DNS records to {target_url}.",
+      "Check the backups.",
+      "Check the backups.",
+      5,
+      null
+     ]
+    },
+    "dry_run": true
+   }
+  },
+  {
+   "name": "server import: dry run, applications PHP cannot count",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/import",
+   "body": {
+    "bundle": {
+     "schema_version": 1,
+     "coolify_version": "4.7.6",
+     "exported_at": "2025-12-31T00:00:00+00:00",
+     "export_id": "exp-parity-1",
+     "source_instance": {
+      "url": "https://source.example.com"
+     },
+     "server": {
+      "uuid": "s9importedserver00000009",
+      "name": "imported",
+      "description": null,
+      "ip": "203.0.113.90",
+      "port": 22,
+      "user": "root"
+     },
+     "private_key": {
+      "uuid": "k9importedprivatekey0009",
+      "name": "Imported key",
+      "private_key": "placeholder, not a key"
+     },
+     "private_keys": [],
+     "destinations": [
+      {
+       "uuid": "d9importeddestination009",
+       "name": "default",
+       "network": "coolify"
+      }
+     ],
+     "github_apps": [
+      {
+       "uuid": "j9importedgithubapp00009",
+       "html_url": "https://github.com",
+       "api_url": "https://api.github.com"
+      }
+     ],
+     "s3_storages": [
+      {
+       "uuid": "o9importeds3storage00009"
+      },
+      {
+       "uuid": "o8importeds3storage00008"
+      }
+     ],
+     "projects": [
+      {
+       "environments": [
+        {
+         "applications": 5
+        }
+       ]
+      }
+     ],
+     "warnings": [
+      "The source had a warning.",
+      "The source had a warning."
+     ],
+     "post_transfer_checklist": [
+      "Point the DNS records to {target_url}.",
+      "Check the backups.",
+      "Check the backups.",
+      5,
+      null
+     ]
+    },
+    "dry_run": true
+   }
+  },
+  {
+   "name": "transfer complete: marked",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/s1parityserveruuid000001/transfer/complete",
+   "body": {
+    "export_id": "exp-9"
+   },
+   "after": {
+    "server": "select (server_metadata::jsonb #- '{transfer,transferred_at}' #- '{transfer,parked_dns_record_ids}')::text as metadata, coalesce(jsonb_exists(server_metadata::jsonb -> 'transfer', 'transferred_at'), false) as has_transferred_at, (server_metadata::jsonb -> 'transfer' ->> 'transferred_at') ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}[+]00:00$' as transferred_at_iso, (select coalesce(json_agg(r.uuid order by r.uuid), '[]'::json)::text from managed_dns_records r where r.id in (select jsonb_array_elements_text(server_metadata::jsonb -> 'transfer' -> 'parked_dns_record_ids')::bigint)) as parked, jsonb_typeof(server_metadata::jsonb -> 'transfer' -> 'parked_dns_record_ids') as parked_type from servers where id = 1",
+    "settings": "select force_disabled, is_sentinel_enabled from server_settings where server_id = 1",
+    "runners": "select uuid, is_enabled from github_runner_configs order by uuid",
+    "executions": "select uuid, status, error_message, completed_at is not null as has_completed_at, completed_at < '2026-01-01 00:00:00' as kept_completed_at from github_runner_executions order by uuid",
+    "records": "select uuid, owned from managed_dns_records order by uuid",
+    "references": "select r.uuid, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.uuid, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "transfer complete: with runners and DNS records",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/s1parityserveruuid000001/transfer/complete",
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (1, 'j1paritygithubapp0000001', 'Parity App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1001, 2001, 'Iv1.parity1', false, false, 1, 1, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into github_runner_configs (uuid, server_id, github_app_id, labels, is_enabled, created_at, updated_at) values ('gparityrunnerconfig00001', 1, 1, '[\"self-hosted\"]', true, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into github_runner_executions (uuid, github_app_id, github_runner_config_id, server_id, status, trigger_workflow_job_id, error_message, completed_at, created_at, updated_at) select 'h1parityrunnerqueued0001', 1, id, 1, 'queued', 9001, 'earlier', null, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from github_runner_configs where uuid = 'gparityrunnerconfig00001'",
+    "insert into github_runner_executions (uuid, github_app_id, github_runner_config_id, server_id, status, trigger_workflow_job_id, error_message, completed_at, created_at, updated_at) select 'h2parityrunnerprovision2', 1, id, 1, 'provisioning', 9002, 'earlier', null, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from github_runner_configs where uuid = 'gparityrunnerconfig00001'",
+    "insert into github_runner_executions (uuid, github_app_id, github_runner_config_id, server_id, status, trigger_workflow_job_id, error_message, completed_at, created_at, updated_at) select 'h3parityrunneridle000003', 1, id, 1, 'idle', 9003, 'earlier', '2025-12-29 00:00:00', '2025-12-30 00:00:00', '2025-12-30 00:00:00' from github_runner_configs where uuid = 'gparityrunnerconfig00001'",
+    "insert into github_runner_executions (uuid, github_app_id, github_runner_config_id, server_id, status, trigger_workflow_job_id, error_message, completed_at, created_at, updated_at) select 'h4parityrunnerrunning004', 1, id, 1, 'running', 9004, 'earlier', null, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from github_runner_configs where uuid = 'gparityrunnerconfig00001'",
+    "insert into github_runner_executions (uuid, github_app_id, github_runner_config_id, server_id, status, trigger_workflow_job_id, error_message, completed_at, created_at, updated_at) select 'h5parityrunnercompleted5', 1, id, 1, 'completed', 9005, 'earlier', '2025-12-28 00:00:00', '2025-12-30 00:00:00', '2025-12-30 00:00:00' from github_runner_configs where uuid = 'gparityrunnerconfig00001'",
+    "insert into github_runner_executions (uuid, github_app_id, github_runner_config_id, server_id, status, trigger_workflow_job_id, error_message, completed_at, created_at, updated_at) select 'h6parityrunnerfailed0006', 1, id, 1, 'failed', 9006, 'earlier', null, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from github_runner_configs where uuid = 'gparityrunnerconfig00001'",
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m5paritytransfersrv00005', 1, 1, 'rec-srv', 'A', 'tunnel.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\Server', 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm5paritytransfersrv00005'",
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m6paritytransferapp00006', 1, 1, 'rec-app', 'A', 'image.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm6paritytransferapp00006'",
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m7paritytransferpr000007', 1, 1, 'rec-pr', 'A', 'pr-12.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\ApplicationPreview', 3, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm7paritytransferpr000007'",
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m8paritytransfersvc00008', 1, 1, 'rec-svc', 'A', 'web.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\ServiceApplication', 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm8paritytransfersvc00008'",
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m9paritytransfershared09', 1, 1, 'rec-shared', 'A', 'shared.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm9paritytransfershared09'",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\Application', 3, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm9paritytransfershared09'",
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('mAparitytransferunowned0', 1, 1, 'rec-unowned', 'A', 'unowned.example.com', '203.0.113.10', false, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\Application', 2, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'mAparitytransferunowned0'",
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('mBparitytransferelse0000', 1, 1, 'rec-else', 'A', 'else.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\Application', 3, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'mBparitytransferelse0000'"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (1, 'j1paritygithubapp0000001', 'Parity App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1001, 2001, 'Iv1.parity1', false, false, 1, deploy.current_org(), '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into github_runner_configs (uuid, server_id, github_app_id, labels, is_enabled, org_id, created_at, updated_at) values ('gparityrunnerconfig00001', 1, 1, '[\"self-hosted\"]', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into github_runner_executions (uuid, github_app_id, github_runner_config_id, server_id, status, trigger_workflow_job_id, error_message, completed_at, org_id, created_at, updated_at) select 'h1parityrunnerqueued0001', 1, id, 1, 'queued', 9001, 'earlier', null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from github_runner_configs where uuid = 'gparityrunnerconfig00001'",
+    "insert into github_runner_executions (uuid, github_app_id, github_runner_config_id, server_id, status, trigger_workflow_job_id, error_message, completed_at, org_id, created_at, updated_at) select 'h2parityrunnerprovision2', 1, id, 1, 'provisioning', 9002, 'earlier', null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from github_runner_configs where uuid = 'gparityrunnerconfig00001'",
+    "insert into github_runner_executions (uuid, github_app_id, github_runner_config_id, server_id, status, trigger_workflow_job_id, error_message, completed_at, org_id, created_at, updated_at) select 'h3parityrunneridle000003', 1, id, 1, 'idle', 9003, 'earlier', '2025-12-29 00:00:00', deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from github_runner_configs where uuid = 'gparityrunnerconfig00001'",
+    "insert into github_runner_executions (uuid, github_app_id, github_runner_config_id, server_id, status, trigger_workflow_job_id, error_message, completed_at, org_id, created_at, updated_at) select 'h4parityrunnerrunning004', 1, id, 1, 'running', 9004, 'earlier', null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from github_runner_configs where uuid = 'gparityrunnerconfig00001'",
+    "insert into github_runner_executions (uuid, github_app_id, github_runner_config_id, server_id, status, trigger_workflow_job_id, error_message, completed_at, org_id, created_at, updated_at) select 'h5parityrunnercompleted5', 1, id, 1, 'completed', 9005, 'earlier', '2025-12-28 00:00:00', deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from github_runner_configs where uuid = 'gparityrunnerconfig00001'",
+    "insert into github_runner_executions (uuid, github_app_id, github_runner_config_id, server_id, status, trigger_workflow_job_id, error_message, completed_at, org_id, created_at, updated_at) select 'h6parityrunnerfailed0006', 1, id, 1, 'failed', 9006, 'earlier', null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from github_runner_configs where uuid = 'gparityrunnerconfig00001'",
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m5paritytransfersrv00005', 1, 1, 'rec-srv', 'A', 'tunnel.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\Server', 1, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm5paritytransfersrv00005'",
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m6paritytransferapp00006', 1, 1, 'rec-app', 'A', 'image.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm6paritytransferapp00006'",
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m7paritytransferpr000007', 1, 1, 'rec-pr', 'A', 'pr-12.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\ApplicationPreview', 3, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm7paritytransferpr000007'",
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m8paritytransfersvc00008', 1, 1, 'rec-svc', 'A', 'web.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\ServiceApplication', 1, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm8paritytransfersvc00008'",
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m9paritytransfershared09', 1, 1, 'rec-shared', 'A', 'shared.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm9paritytransfershared09'",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\Application', 3, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm9paritytransfershared09'",
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('mAparitytransferunowned0', 1, 1, 'rec-unowned', 'A', 'unowned.example.com', '203.0.113.10', false, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\Application', 2, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'mAparitytransferunowned0'",
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('mBparitytransferelse0000', 1, 1, 'rec-else', 'A', 'else.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\Application', 3, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'mBparitytransferelse0000'"
+   ],
+   "body": {
+    "export_id": "exp-9"
+   },
+   "after": {
+    "server": "select (server_metadata::jsonb #- '{transfer,transferred_at}' #- '{transfer,parked_dns_record_ids}')::text as metadata, coalesce(jsonb_exists(server_metadata::jsonb -> 'transfer', 'transferred_at'), false) as has_transferred_at, (server_metadata::jsonb -> 'transfer' ->> 'transferred_at') ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}[+]00:00$' as transferred_at_iso, (select coalesce(json_agg(r.uuid order by r.uuid), '[]'::json)::text from managed_dns_records r where r.id in (select jsonb_array_elements_text(server_metadata::jsonb -> 'transfer' -> 'parked_dns_record_ids')::bigint)) as parked, jsonb_typeof(server_metadata::jsonb -> 'transfer' -> 'parked_dns_record_ids') as parked_type from servers where id = 1",
+    "settings": "select force_disabled, is_sentinel_enabled from server_settings where server_id = 1",
+    "runners": "select uuid, is_enabled from github_runner_configs order by uuid",
+    "executions": "select uuid, status, error_message, completed_at is not null as has_completed_at, completed_at < '2026-01-01 00:00:00' as kept_completed_at from github_runner_executions order by uuid",
+    "records": "select uuid, owned from managed_dns_records order by uuid",
+    "references": "select r.uuid, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.uuid, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "transfer complete: with a target URL, the earlier transfer kept",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/s1parityserveruuid000001/transfer/complete",
+   "setup": [
+    "update servers set server_metadata = '{\"migration\":{\"status\":\"done\"},\"transfer\":{\"status\":\"claimed\",\"export_id\":\"exp-1\",\"claim\":{\"claim_id\":\"c-1\"},\"finish\":{\"items\":[]},\"taken_back_at\":\"2025-12-01T00:00:00+00:00\",\"owner_marker_conflict\":{\"claim_id\":\"c-2\"},\"parked_dns_record_ids\":[99]}}' where id = 1",
+    "update server_settings set is_sentinel_enabled = true where server_id = 1"
+   ],
+   "body": {
+    "target_instance_url": "  https://target.example.com/  "
+   },
+   "after": {
+    "server": "select (server_metadata::jsonb #- '{transfer,transferred_at}' #- '{transfer,parked_dns_record_ids}')::text as metadata, coalesce(jsonb_exists(server_metadata::jsonb -> 'transfer', 'transferred_at'), false) as has_transferred_at, (server_metadata::jsonb -> 'transfer' ->> 'transferred_at') ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}[+]00:00$' as transferred_at_iso, (select coalesce(json_agg(r.uuid order by r.uuid), '[]'::json)::text from managed_dns_records r where r.id in (select jsonb_array_elements_text(server_metadata::jsonb -> 'transfer' -> 'parked_dns_record_ids')::bigint)) as parked, jsonb_typeof(server_metadata::jsonb -> 'transfer' -> 'parked_dns_record_ids') as parked_type from servers where id = 1",
+    "settings": "select force_disabled, is_sentinel_enabled from server_settings where server_id = 1",
+    "runners": "select uuid, is_enabled from github_runner_configs order by uuid",
+    "executions": "select uuid, status, error_message, completed_at is not null as has_completed_at, completed_at < '2026-01-01 00:00:00' as kept_completed_at from github_runner_executions order by uuid",
+    "records": "select uuid, owned from managed_dns_records order by uuid",
+    "references": "select r.uuid, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.uuid, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "transfer complete: without a body",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/s1parityserveruuid000001/transfer/complete",
+   "setup": [
+    "update servers set server_metadata = '{\"transfer\":{\"status\":\"imported\",\"export_id\":\"exp-3\"}}' where id = 1"
+   ],
+   "after": {
+    "server": "select (server_metadata::jsonb #- '{transfer,transferred_at}' #- '{transfer,parked_dns_record_ids}')::text as metadata, coalesce(jsonb_exists(server_metadata::jsonb -> 'transfer', 'transferred_at'), false) as has_transferred_at, (server_metadata::jsonb -> 'transfer' ->> 'transferred_at') ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}[+]00:00$' as transferred_at_iso, (select coalesce(json_agg(r.uuid order by r.uuid), '[]'::json)::text from managed_dns_records r where r.id in (select jsonb_array_elements_text(server_metadata::jsonb -> 'transfer' -> 'parked_dns_record_ids')::bigint)) as parked, jsonb_typeof(server_metadata::jsonb -> 'transfer' -> 'parked_dns_record_ids') as parked_type from servers where id = 1",
+    "settings": "select force_disabled, is_sentinel_enabled from server_settings where server_id = 1",
+    "runners": "select uuid, is_enabled from github_runner_configs order by uuid",
+    "executions": "select uuid, status, error_message, completed_at is not null as has_completed_at, completed_at < '2026-01-01 00:00:00' as kept_completed_at from github_runner_executions order by uuid",
+    "records": "select uuid, owned from managed_dns_records order by uuid",
+    "references": "select r.uuid, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.uuid, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "transfer complete: a form body",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/s1parityserveruuid000001/transfer/complete",
+   "raw": "export_id=exp-form&target_instance_url=",
+   "contentType": "application/x-www-form-urlencoded",
+   "after": {
+    "server": "select (server_metadata::jsonb #- '{transfer,transferred_at}' #- '{transfer,parked_dns_record_ids}')::text as metadata, coalesce(jsonb_exists(server_metadata::jsonb -> 'transfer', 'transferred_at'), false) as has_transferred_at, (server_metadata::jsonb -> 'transfer' ->> 'transferred_at') ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}[+]00:00$' as transferred_at_iso, (select coalesce(json_agg(r.uuid order by r.uuid), '[]'::json)::text from managed_dns_records r where r.id in (select jsonb_array_elements_text(server_metadata::jsonb -> 'transfer' -> 'parked_dns_record_ids')::bigint)) as parked, jsonb_typeof(server_metadata::jsonb -> 'transfer' -> 'parked_dns_record_ids') as parked_type from servers where id = 1",
+    "settings": "select force_disabled, is_sentinel_enabled from server_settings where server_id = 1",
+    "runners": "select uuid, is_enabled from github_runner_configs order by uuid",
+    "executions": "select uuid, status, error_message, completed_at is not null as has_completed_at, completed_at < '2026-01-01 00:00:00' as kept_completed_at from github_runner_executions order by uuid",
+    "records": "select uuid, owned from managed_dns_records order by uuid",
+    "references": "select r.uuid, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.uuid, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "transfer complete: to an http URL",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/s1parityserveruuid000001/transfer/complete",
+   "body": {
+    "target_instance_url": "http://target.example.com"
+   },
+   "after": {
+    "server": "select (server_metadata::jsonb #- '{transfer,transferred_at}' #- '{transfer,parked_dns_record_ids}')::text as metadata, coalesce(jsonb_exists(server_metadata::jsonb -> 'transfer', 'transferred_at'), false) as has_transferred_at, (server_metadata::jsonb -> 'transfer' ->> 'transferred_at') ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}[+]00:00$' as transferred_at_iso, (select coalesce(json_agg(r.uuid order by r.uuid), '[]'::json)::text from managed_dns_records r where r.id in (select jsonb_array_elements_text(server_metadata::jsonb -> 'transfer' -> 'parked_dns_record_ids')::bigint)) as parked, jsonb_typeof(server_metadata::jsonb -> 'transfer' -> 'parked_dns_record_ids') as parked_type from servers where id = 1",
+    "settings": "select force_disabled, is_sentinel_enabled from server_settings where server_id = 1",
+    "runners": "select uuid, is_enabled from github_runner_configs order by uuid",
+    "executions": "select uuid, status, error_message, completed_at is not null as has_completed_at, completed_at < '2026-01-01 00:00:00' as kept_completed_at from github_runner_executions order by uuid",
+    "records": "select uuid, owned from managed_dns_records order by uuid",
+    "references": "select r.uuid, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.uuid, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "transfer complete: to a private URL",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/s1parityserveruuid000001/transfer/complete",
+   "body": {
+    "target_instance_url": "https://private.example/"
+   },
+   "after": {
+    "server": "select (server_metadata::jsonb #- '{transfer,transferred_at}' #- '{transfer,parked_dns_record_ids}')::text as metadata, coalesce(jsonb_exists(server_metadata::jsonb -> 'transfer', 'transferred_at'), false) as has_transferred_at, (server_metadata::jsonb -> 'transfer' ->> 'transferred_at') ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}[+]00:00$' as transferred_at_iso, (select coalesce(json_agg(r.uuid order by r.uuid), '[]'::json)::text from managed_dns_records r where r.id in (select jsonb_array_elements_text(server_metadata::jsonb -> 'transfer' -> 'parked_dns_record_ids')::bigint)) as parked, jsonb_typeof(server_metadata::jsonb -> 'transfer' -> 'parked_dns_record_ids') as parked_type from servers where id = 1",
+    "settings": "select force_disabled, is_sentinel_enabled from server_settings where server_id = 1",
+    "runners": "select uuid, is_enabled from github_runner_configs order by uuid",
+    "executions": "select uuid, status, error_message, completed_at is not null as has_completed_at, completed_at < '2026-01-01 00:00:00' as kept_completed_at from github_runner_executions order by uuid",
+    "records": "select uuid, owned from managed_dns_records order by uuid",
+    "references": "select r.uuid, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.uuid, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "transfer complete: to an internal address",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/s1parityserveruuid000001/transfer/complete",
+   "body": {
+    "target_instance_url": "https://10.0.0.8"
+   }
+  },
+  {
+   "name": "transfer complete: to an invalid URL",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/s1parityserveruuid000001/transfer/complete",
+   "body": {
+    "target_instance_url": "nope"
+   }
+  },
+  {
+   "name": "transfer complete: invalid",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/s1parityserveruuid000001/transfer/complete",
+   "body": {
+    "export_id": 5,
+    "target_instance_url": [
+     "https://target.example.com"
+    ],
+    "other": 1
+   }
+  },
+  {
+   "name": "transfer complete: unknown",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/nonexistentuuid/transfer/complete",
+   "body": {}
+  },
+  {
+   "name": "transfer complete: another team's server",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/s2otherteamserver0000002/transfer/complete",
+   "body": {}
+  },
+  {
+   "name": "transfer complete: with a read token",
+   "token": "read",
+   "method": "POST",
+   "path": "/api/v1/servers/s1parityserveruuid000001/transfer/complete",
+   "body": {}
+  },
+  {
+   "name": "denied: transfer complete: marked, a member with write and delete",
+   "token": "memberWrite",
+   "method": "POST",
+   "path": "/api/v1/servers/s1parityserveruuid000001/transfer/complete",
+   "body": {
+    "export_id": "exp-9"
+   },
+   "after": {
+    "server": "select (server_metadata::jsonb #- '{transfer,transferred_at}' #- '{transfer,parked_dns_record_ids}')::text as metadata, coalesce(jsonb_exists(server_metadata::jsonb -> 'transfer', 'transferred_at'), false) as has_transferred_at, (server_metadata::jsonb -> 'transfer' ->> 'transferred_at') ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}[+]00:00$' as transferred_at_iso, (select coalesce(json_agg(r.uuid order by r.uuid), '[]'::json)::text from managed_dns_records r where r.id in (select jsonb_array_elements_text(server_metadata::jsonb -> 'transfer' -> 'parked_dns_record_ids')::bigint)) as parked, jsonb_typeof(server_metadata::jsonb -> 'transfer' -> 'parked_dns_record_ids') as parked_type from servers where id = 1",
+    "settings": "select force_disabled, is_sentinel_enabled from server_settings where server_id = 1",
+    "runners": "select uuid, is_enabled from github_runner_configs order by uuid",
+    "executions": "select uuid, status, error_message, completed_at is not null as has_completed_at, completed_at < '2026-01-01 00:00:00' as kept_completed_at from github_runner_executions order by uuid",
+    "records": "select uuid, owned from managed_dns_records order by uuid",
+    "references": "select r.uuid, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.uuid, f.resource_type, f.resource_id"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
   }
  ]
 }

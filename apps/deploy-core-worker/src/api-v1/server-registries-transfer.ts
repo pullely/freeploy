@@ -205,12 +205,8 @@ async function migrate(c: ApiV1Context, uuid: string): Promise<CoolifyAnswer> {
  * and hasRunningMigration(). The first refusal's message, or null. The console's Transfer page (DP-96) asks the same.
  */
 export async function transferStartError(c: { env: Pick<ApiV1Context["env"], "DEPLOY_CONSOLE_URL"> }, targetUrl: unknown, targetToken: unknown, server: ApiRow, resolve: HostResolver): Promise<string | null> {
-  // validateInstanceUrl()
-  const url = String(targetUrl ?? "").trim().replace(/\/+$/, "");
-  if (url === "" || !filterValidateUrl(url)) return "A valid target instance URL is required (e.g. https://coolify.example.com).";
-  if ((/^([a-z][a-z0-9+.-]*):/i.exec(url)?.[1] ?? "").toLowerCase() !== "https") return "The target instance URL must use https, because the transfer sends credentials.";
-  const unsafe = await safeExternalUrlMessage(c, url, "target_url", resolve);
-  if (unsafe) return unsafe;
+  const invalidUrl = await instanceUrlError(c, targetUrl, resolve);
+  if (invalidUrl) return invalidUrl;
   // normalizeToken()
   let token = String(targetToken ?? "").trim();
   if (token.toLowerCase().startsWith("bearer ")) token = token.slice(7).trim();
@@ -219,6 +215,20 @@ export async function transferStartError(c: { env: Pick<ApiV1Context["env"], "DE
   const running = metadataOf(server).migration as Record<string, unknown> | undefined;
   if (running && running.status === "running" && typeof running.started_at === "string" && Date.parse(running.started_at) > Date.now() - STALE_MIGRATION_SECONDS * 1000) return "A transfer of this server is already running.";
   return null;
+}
+
+/** The URL ServerTransferMigrator::validateInstanceUrl() returns: rtrim(trim($url), '/'). */
+export const instanceUrl = (value: unknown): string => String(value ?? "").trim().replace(/\/+$/, "");
+
+/**
+ * ServerTransferMigrator::validateInstanceUrl(): a URL, https, and SafeWebhookUrl's check of its host (Coolify's local
+ * development targets are a development instance's only). The refusal, or null.
+ */
+export async function instanceUrlError(c: { env: Pick<ApiV1Context["env"], "DEPLOY_CONSOLE_URL"> }, value: unknown, resolve: HostResolver): Promise<string | null> {
+  const url = instanceUrl(value);
+  if (url === "" || !filterValidateUrl(url)) return "A valid target instance URL is required (e.g. https://coolify.example.com).";
+  if ((/^([a-z][a-z0-9+.-]*):/i.exec(url)?.[1] ?? "").toLowerCase() !== "https") return "The target instance URL must use https, because the transfer sends credentials.";
+  return safeExternalUrlMessage(c, url, "target_url", resolve);
 }
 
 /** $request->query() as PHP parses it (`a[]=x` an array), after TrimStrings and ConvertEmptyStringsToNull. */

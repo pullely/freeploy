@@ -111,6 +111,15 @@ export {
   type ServerSettingsPageChanges,
 } from "./server-settings.js";
 export {
+  disableTransferredServerSettings,
+  findTransferServer,
+  lockTransferServer,
+  parkServerDnsRecords,
+  releaseServerGithubRunners,
+  saveServerMetadata,
+  type DeployTransferServerRow,
+} from "./server-transfer.js";
+export {
   listUsableServers,
   listUsableServerDestinations,
   listServerDestinations,

@@ -55,6 +55,7 @@
 //   GET|POST /v1/internal/api-v1/{org}/disable, POST …/mcp/{enable,disable}: the platform operator's             instance-switches.ts (DP-107)
 //   /v1/internal/api-v1/{org}/cloud-init-scripts[/{uuid}]                                                      cloud-init-scripts.ts (DP-110)
 //   POST /v1/internal/api-v1/{org}/servers/{hetzner,vultr,digitalocean}                                         cloud-servers.ts (DP-110)
+//   POST /v1/internal/api-v1/{org}/servers/import, POST …/servers/{uuid}/transfer/complete                      server-transfer.ts (DP-111)
 //
 // $this->authorize(…) is policy-worker's deploy.resource.read (view) or deploy.resource.write (create,
 // update, delete) for the token's user; a denial is the exception handler's 403 (COOLIFY_API.unauthorized(), DP-93).
@@ -120,6 +121,7 @@ import { rollback, rollbackImages } from "./rollback.js";
 import { volumeBackupsApi } from "./volume-backups.js";
 import { serverSettingsApi } from "./server-settings.js";
 import { importCheck, serverRegistriesApi, serverTransferApi } from "./server-registries-transfer.js";
+import { completeServerTransfer, importServer } from "./server-transfer.js";
 import { databaseImportsApi } from "./database-imports.js";
 import { githubAppsApi } from "./github-apps.js";
 import { giteaAppsApi, gitlabAppsApi } from "./oauth-source-apps.js";
@@ -266,6 +268,9 @@ export async function handleApiV1(request: Request, env: Env, requestId: string,
     if (first === "servers" && second !== undefined && third === "envs") return send((await serverSharedVariablesApi(context, second, segments.slice(3))) ?? COOLIFY_API.notFound());
     // DP-88: a server's proxy, Sentinel, log drains, image scanning, Cloudflare Tunnel, host key, registries and transfer.
     if (first === "servers" && second === "import" && third === "check" && fourth === undefined) return send(method === "GET" ? await importCheck(context) : COOLIFY_API.notFound());
+    // DP-111: a server transfer bundle imported (its checks and the dry run), and a transfer marked complete.
+    if (first === "servers" && second === "import" && third === undefined && method === "POST") return send(await importServer(context));
+    if (first === "servers" && second !== undefined && third === "transfer" && fourth === "complete" && fifth === undefined) return send(method === "POST" ? await completeServerTransfer(context, second) : COOLIFY_API.notFound());
     // DP-90: a server's proxy configuration.
     if (first === "servers" && second !== undefined && third === "proxy" && fourth === "configuration" && fifth === undefined) return send(method === "PUT" ? await saveProxyConfiguration(context, second) : COOLIFY_API.notFound());
     if (first === "servers" && second !== undefined && (third === "proxy" || third === "sentinel" || third === "log-drains" || third === "image-scanning" || third === "cloudflare-tunnel" || third === "host-key")) {

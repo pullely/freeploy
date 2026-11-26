@@ -12,6 +12,7 @@
 // DP-87: not_regex.
 // DP-104: prohibited, sometimes and url:http,https; and, for a Livewire component's validate(), Laravel's displayed name of a
 // nested attribute (`metadata.base url`), an empty string treated as absent by a non-implicit rule, and custom messages.
+// DP-111: custom attribute names (Validator::make()'s fourth argument).
 import { addError, type Errors } from "./request.js";
 import { isLaravelUrl } from "./laravel-url.js";
 
@@ -208,6 +209,8 @@ export interface RuleOptions {
   emptyStringsAbsent?: boolean;
   /** DP-104: a component's messages(), by `attribute.rule` (rule: required, min, regex, …). */
   messages?: Readonly<Record<string, string>>;
+  /** DP-111: Validator::make()'s custom attribute names (its fourth argument), as they read in the messages. */
+  attributes?: Readonly<Record<string, string>>;
 }
 
 /** Str::snake(): a camelCase property (`newToken`) as `new_token`; a value already lower case as it is. */
@@ -248,7 +251,7 @@ export async function validateRules(errors: Errors, all: Record<string, unknown>
     if (list.includes("sometimes") && !present) continue;
     const nullable = list.includes("nullable");
     const numeric = list.some((r) => typeof r === "string" && NUMERIC_RULES.includes(r));
-    const name = options.nestedDisplay && !expanded.has(attribute) ? strSnake(attribute).replace(/_/g, " ") : display(attribute);
+    const name = options.attributes?.[attribute] ?? (options.nestedDisplay && !expanded.has(attribute) ? strSnake(attribute).replace(/_/g, " ") : display(attribute));
     let current: Rule = list[0]!;
     const failed = (message: string) => addError(errors, attribute, options.messages?.[`${attribute}.${ruleName(current)}`] ?? message);
     const hasError = () => errors.some(([k]) => k === attribute);

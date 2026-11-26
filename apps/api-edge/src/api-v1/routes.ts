@@ -161,7 +161,7 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   { ...r("POST", "/servers/{uuid}/docker-cleanup/run", "write", "deploy"), alsoAbilities: ["deploy"] },
   r("GET", "/servers/{uuid}/docker-cleanup/executions", "read", "deploy"),
   // DP-88: a server's log drains, Sentinel, image scanning, Cloudflare Tunnel, host key, registries, proxy and transfer
-  // (POST /servers/import and POST …/transfer/complete are not ported; PUT …/proxy/configuration is DP-90's)
+  // (POST /servers/import and POST …/transfer/complete are DP-111's; PUT …/proxy/configuration is DP-90's)
   r("GET", "/servers/{uuid}/log-drains", "read", "deploy"),
   { ...r("PATCH", "/servers/{uuid}/log-drains", "write", "deploy"), alsoAbilities: ["deploy"] },
   r("GET", "/servers/{uuid}/sentinel", "read", "deploy"),
@@ -183,9 +183,13 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("PUT", "/servers/{uuid}/proxy/configuration", "write", "deploy"),
   r("POST", "/servers/{uuid}/proxy/restart", "deploy", "deploy"),
   { ...r("GET", "/servers/import/check", "write", "deploy"), alsoAbilities: ["deploy"] },
+  // DP-111: a server transfer bundle imported (routes/api.php: api.ability:write and api.ability:deploy)
+  { ...r("POST", "/servers/import", "write", "deploy"), alsoAbilities: ["deploy"] },
   // api.ability:read,write — either one.
   { method: "GET", path: "/servers/{uuid}/transfer", abilities: ["read", "write"], target: "deploy" },
   r("POST", "/servers/{uuid}/migrate", "write", "deploy"),
+  // DP-111: a transfer marked complete
+  r("POST", "/servers/{uuid}/transfer/complete", "write", "deploy"),
   // DP-85: destinations (in routes/api.php after the servers' settings routes; no route here matches both)
   r("GET", "/destinations", "read", "deploy"),
   r("GET", "/destinations/{uuid}", "read", "deploy"),

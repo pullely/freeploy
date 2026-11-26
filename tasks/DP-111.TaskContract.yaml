@@ -1,0 +1,22 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-111
+  title: "DP9/DP11: a server transfer bundle's import checks and dry run, and a transfer marked complete, on /api/v1"
+spec:
+  goal: The last seven planned operations of openapi.json are triaged. ServerTransferBundle::validate() is ported (apps/deploy-core-worker/src/servers/transfer-bundle.ts) and, on DP-70's pipeline, POST /servers/import (ServerTransferController::import and ServerTransferImporter::import up to what it writes — the bundle's refusals, the server payload's, the adopt mode, the import checks, the PHP errors Coolify's dry run meets, a dry run's answer; a real import answers 501 once the checks pass, storing nothing) and POST /servers/{uuid}/transfer/complete (ServerTransferClaimer::markTransferred — the settings, the metadata, the GitHub runners released, the managed DNS records parked) are ported and held to goldens emitted by Coolify's PHP; 2 more of openapi.json's 330 operations are ported (325 in all). POST /databases/sqlite (SQLite is not one of Freeploy's database engines) and the four vulnerabilities GETs (Coolify's security status engine is not ported) stay planned. No migration, no binding.
+  affects:
+    - apps/api-edge/**
+    - apps/deploy-core-worker/**
+    - packages/db/**
+    - tests/api-edge/**
+    - tests/deploy-core-worker/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - every DP-111 case of tests/deploy-core-worker/fixtures/api/cases.json replays byte-equal to goldens.json against deploy-core-worker's handler with the rows of the writes (tests/deploy-core-worker/src/api-v1-server-transfer.test.ts), the middleware's answers at the edge, and the member denial (51 in all) as Coolify's exception handler answers it
+    - the departure (a real import that passes the import checks) answers 501 and stores nothing, where Coolify's importer writes the bundle's rows and claims the server over SSH
+    - specs/epics/freeploy-coolify-parity/parity/openapi.operations.json marks the 2 operations ported with taskKey DP-111 (325 ported of 330), tests/api-edge/src/api-v1.test.ts counts 325, and node tools/parity/inventory.ts --check passes
+    - IMPLEMENTATION-STATUS.md's DP9 and DP11 notes say why POST /databases/sqlite and the four vulnerabilities GETs stay planned
+    - on stage, POST /api/v1/servers/import with a dry run answers the bundle's counts and warnings, a bundle without its parts answers Coolify's 422, and POST /api/v1/servers/{uuid}/transfer/complete of a server made for the check marks it transferred (GET …/transfer shows it)
+  gates: []
