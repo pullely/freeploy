@@ -15,6 +15,8 @@ export interface ApiRoute {
   target: Target;
   /** A path this route does not take: an earlier route of routes/api.php Freeploy has not ported takes it (DP-78). */
   except?: RegExp;
+  /** The abilities of the route's further api.ability middlewares, each needed in turn (DP-85). */
+  alsoAbilities?: readonly string[];
 }
 
 const r = (method: ApiRoute["method"], path: string, ability: string, target: Target): ApiRoute => ({ method, path, abilities: [ability], target });
@@ -27,6 +29,8 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("GET", "/team/members", "read", "identity"),
   r("GET", "/teams/current", "read", "identity"),
   r("GET", "/teams/current/members", "read", "identity"),
+  // DP-85: the team's notification channels
+  ...["email", "discord", "slack", "telegram", "pushover", "webhook"].flatMap((channel) => [r("GET", `/notifications/${channel}`, "read", "deploy"), r("PATCH", `/notifications/${channel}`, "write", "deploy")]),
   // DP-84: the team's shared variables (deploy-core-worker's, as the other shared variables are)
   r("GET", "/team/envs", "read", "deploy"),
   r("POST", "/team/envs", "write", "deploy"),
@@ -83,6 +87,23 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   // DP-78
   r("GET", "/servers/{uuid}/domains", "read", "deploy"),
   r("GET", "/servers/{uuid}/resources", "read", "deploy"),
+  // DP-85: a server's Docker cleanup (run needs write and deploy: routes/api.php gives it both api.ability middlewares)
+  r("GET", "/servers/{uuid}/docker-cleanup", "read", "deploy"),
+  r("PATCH", "/servers/{uuid}/docker-cleanup", "write", "deploy"),
+  { ...r("POST", "/servers/{uuid}/docker-cleanup/run", "write", "deploy"), alsoAbilities: ["deploy"] },
+  r("GET", "/servers/{uuid}/docker-cleanup/executions", "read", "deploy"),
+  // DP-85: destinations (in routes/api.php after the servers' settings routes; no route here matches both)
+  r("GET", "/destinations", "read", "deploy"),
+  r("GET", "/destinations/{uuid}", "read", "deploy"),
+  r("PATCH", "/destinations/{uuid}", "write", "deploy"),
+  r("DELETE", "/destinations/{uuid}", "delete", "deploy"),
+  r("GET", "/servers/{server_uuid}/destinations", "read", "deploy"),
+  r("POST", "/servers/{server_uuid}/destinations", "write", "deploy"),
+  // DP-85: a server's shared variables
+  r("GET", "/servers/{uuid}/envs", "read", "deploy"),
+  r("POST", "/servers/{uuid}/envs", "write", "deploy"),
+  r("PATCH", "/servers/{uuid}/envs/{env_id}", "write", "deploy"),
+  r("DELETE", "/servers/{uuid}/envs/{env_id}", "delete", "deploy"),
   r("POST", "/servers", "write", "deploy"),
   r("DELETE", "/servers/{uuid}", "delete", "deploy"),
 
@@ -182,6 +203,26 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("PATCH", "/services/{uuid}/envs/bulk", "write", "deploy"),
   r("PATCH", "/services/{uuid}/envs", "write", "deploy"),
   r("DELETE", "/services/{uuid}/envs/{env_uuid}", "delete", "deploy"),
+  // DP-85: a service's applications and databases (the database imports are not ported: they run on the server)
+  r("GET", "/services/{uuid}/applications", "read", "deploy"),
+  r("GET", "/services/{uuid}/applications/{app_uuid}", "read", "deploy"),
+  r("PATCH", "/services/{uuid}/applications/{app_uuid}", "write", "deploy"),
+  r("GET", "/services/{uuid}/applications/{app_uuid}/logs", "read:sensitive", "deploy"),
+  r("POST", "/services/{uuid}/applications/{app_uuid}/logs", "read:sensitive", "deploy"),
+  // OtherController::post_required
+  r("GET", "/services/{uuid}/applications/{app_uuid}/start", "deploy", "deploy"),
+  r("GET", "/services/{uuid}/applications/{app_uuid}/restart", "deploy", "deploy"),
+  r("GET", "/services/{uuid}/applications/{app_uuid}/stop", "deploy", "deploy"),
+  r("POST", "/services/{uuid}/applications/{app_uuid}/start", "deploy", "deploy"),
+  r("POST", "/services/{uuid}/applications/{app_uuid}/restart", "deploy", "deploy"),
+  r("POST", "/services/{uuid}/applications/{app_uuid}/stop", "deploy", "deploy"),
+  r("GET", "/services/{uuid}/databases", "read", "deploy"),
+  r("GET", "/services/{uuid}/databases/{database_uuid}", "read", "deploy"),
+  r("PATCH", "/services/{uuid}/databases/{database_uuid}", "write", "deploy"),
+  r("GET", "/services/{uuid}/databases/{database_uuid}/logs", "read:sensitive", "deploy"),
+  r("POST", "/services/{uuid}/databases/{database_uuid}/start", "deploy", "deploy"),
+  r("POST", "/services/{uuid}/databases/{database_uuid}/restart", "deploy", "deploy"),
+  r("POST", "/services/{uuid}/databases/{database_uuid}/stop", "deploy", "deploy"),
   // OtherController::post_required
   r("GET", "/services/{uuid}/start", "deploy", "deploy"),
   r("GET", "/services/{uuid}/restart", "deploy", "deploy"),

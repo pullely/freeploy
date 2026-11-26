@@ -126,7 +126,7 @@ function isTrue(v: unknown): boolean {
 }
 
 /** Laravel's `email` rule (RFC validation), as far as a setting needs it: local@domain without spaces. */
-function isEmail(v: string): boolean {
+export function isEmail(v: string): boolean {
   return /^[^\s@]+@[^\s@]+$/.test(v) && !/\.\./.test(v.split("@")[1] ?? "") && !(v.split("@")[1] ?? "").startsWith(".");
 }
 

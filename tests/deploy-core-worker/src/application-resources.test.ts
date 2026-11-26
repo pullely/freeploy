@@ -1068,8 +1068,9 @@ describe("the Resource Operations page (ResourceOperations, clone_application)",
     for (const copy of copies) expect(originals.map((o) => o.uuid)).not.toContain(copy.uuid);
     expect(t.store.pivots.filter((p) => p.applicationId === clone.id)).toHaveLength(2);
     expect(t.store.tasks.filter((x) => x.applicationId === clone.id).map((x) => [x.name, x.uuid === "task1"])).toEqual([["prune", false]]);
-    expect(t.store.variables.filter((v) => v.applicationId === clone.id).map((v) => [v.key, v.value, v.is_preview, v.uuid.startsWith("ev")])).toEqual([
-      // The values as stored: a ciphertext is bound to the org and the column, not to the row.
+    expect(t.store.variables.filter((v) => v.applicationId === clone.id).map((v) => [v.key, v.value, v.is_preview, ["ev1", "ev2"].includes(v.uuid)])).toEqual([
+      // The values as stored: a ciphertext is bound to the org and the column, not to the row. The copies get
+      // new uuids — not the source's ev1 and ev2 (a random uuid may itself start with "ev").
       ["API_KEY", "fp1:1:secret", false, false],
       ["API_KEY", "fp1:1:preview", true, false],
     ]);

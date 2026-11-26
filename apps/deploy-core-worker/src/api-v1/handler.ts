@@ -23,6 +23,11 @@
 //   /v1/internal/api-v1/{org}/{applications,services}/{uuid}/scheduled-tasks[/{task_uuid}[/executions]]     scheduled-tasks.ts (DP-84)
 //   /v1/internal/api-v1/{org}/databases/{uuid}/envs[/bulk|/{env_uuid}]                                       database-envs.ts (DP-84)
 //   /v1/internal/api-v1/{org}/team/envs[/{env_id}]                                                           shared-variables.ts (DP-84)
+//   /v1/internal/api-v1/{org}/notifications/{email,discord,slack,telegram,pushover,webhook}                  notifications.ts (DP-85)
+//   /v1/internal/api-v1/{org}/destinations[/{uuid}], /servers/{uuid}/destinations                            destinations.ts (DP-85)
+//   /v1/internal/api-v1/{org}/servers/{uuid}/envs[/{env_id}]                                                 shared-variables.ts (DP-85)
+//   /v1/internal/api-v1/{org}/servers/{uuid}/docker-cleanup[/run|/executions]                                docker-cleanup.ts (DP-85)
+//   /v1/internal/api-v1/{org}/services/{uuid}/{applications,databases}[/{part_uuid}[/logs|/start|/restart|/stop]]  service-parts.ts (DP-85)
 //
 // $this->authorize(…) is policy-worker's deploy.resource.read (view) or deploy.resource.write (create,
 // update, delete) for the token's user; a denial is Laravel's 403 "This action is unauthorized.".
@@ -71,11 +76,15 @@ import { deployApi, deploymentsApi } from "./deployments.js";
 import { environmentDetails, listResources } from "./resources.js";
 import { serverResourcesPayload, serversApi } from "./servers.js";
 import { resourceTagsApi, tagsApi, type TaggableKind } from "./tags.js";
-import { sharedVariablesApi, teamSharedVariablesApi } from "./shared-variables.js";
+import { serverSharedVariablesApi, sharedVariablesApi, teamSharedVariablesApi } from "./shared-variables.js";
 import { s3StoragesApi } from "./s3-storages.js";
 import { storagesApi, type StorageKind } from "./storages.js";
 import { scheduledTasksApi } from "./scheduled-tasks.js";
 import { databaseEnvsApi } from "./database-envs.js";
+import { notificationsApi } from "./notifications.js";
+import { servicePartsApi } from "./service-parts.js";
+import { destinationsApi, serverDestinationsApi } from "./destinations.js";
+import { dockerCleanupApi } from "./docker-cleanup.js";
 import { s3Fetch } from "../s3-storages/connection.js";
 import { dohResolver } from "../s3-storages/safe-url.js";
 import type { S3StorageNetwork } from "../s3-storages/service.js";
@@ -165,6 +174,11 @@ export async function handleApiV1(request: Request, env: Env, requestId: string,
     }
     if (first === "projects") return send(await projects(second, third, fourth, fifth));
     if (first === "security" && second === "keys") return send(await keys(third, fourth));
+    // DP-85: destinations, a server's destinations, shared variables and Docker cleanup.
+    if (first === "servers" && second !== undefined && third === "docker-cleanup") return send((await dockerCleanupApi(context, second, segments.slice(3))) ?? COOLIFY_API.notFound());
+    if (first === "destinations") return send((await destinationsApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
+    if (first === "servers" && second !== undefined && third === "destinations") return send((await serverDestinationsApi(context, second, segments.slice(3))) ?? COOLIFY_API.notFound());
+    if (first === "servers" && second !== undefined && third === "envs") return send((await serverSharedVariablesApi(context, second, segments.slice(3))) ?? COOLIFY_API.notFound());
     if (first === "servers" && fourth === undefined) {
       const answer = await serversApi(context, second, third);
       if (answer) return send(answer);
@@ -185,6 +199,11 @@ export async function handleApiV1(request: Request, env: Env, requestId: string,
     }
     if (first === "databases" && second !== undefined && third === "envs") return send((await databaseEnvsApi(context, second, segments.slice(3))) ?? COOLIFY_API.notFound());
     if (first === "team" && second === "envs") return send((await teamSharedVariablesApi(context, segments.slice(2))) ?? COOLIFY_API.notFound());
+    // DP-85: a service's applications and databases, the team's notification channels.
+    if (first === "services" && second !== undefined && (third === "applications" || third === "databases")) {
+      return send((await servicePartsApi(context, third === "applications" ? "application" : "database", second, segments.slice(3))) ?? COOLIFY_API.notFound());
+    }
+    if (first === "notifications") return send((await notificationsApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
     if (first === "applications") return send((await applicationsApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
     if (first === "databases") return send((await databasesApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
     if (first === "services") return send((await servicesApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());

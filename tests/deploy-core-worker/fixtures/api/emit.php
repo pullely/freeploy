@@ -210,6 +210,10 @@ foreach ($fixture['scheduledTasks'] ?? [] as $t) {
 foreach ($fixture['scheduledTaskExecutions'] ?? [] as $x) {
     ScheduledTaskExecution::unguarded(fn () => ScheduledTaskExecution::query()->forceCreate(['id' => $x['id'], 'uuid' => $x['uuid'], 'scheduled_task_id' => $x['task'], 'status' => $x['status'], 'message' => $x['message'], 'started_at' => $x['started_at'], 'finished_at' => $x['finished_at'], 'duration' => $x['duration'], 'retry_count' => $x['retry_count'], 'created_at' => $x['created_at'], 'updated_at' => $x['created_at']]));
 }
+// DP-85: a server's Docker cleanup runs, with fixed timestamps.
+foreach ($fixture['dockerCleanupExecutions'] ?? [] as $x) {
+    \App\Models\DockerCleanupExecution::unguarded(fn () => \App\Models\DockerCleanupExecution::query()->forceCreate(['id' => $x['id'], 'uuid' => $x['uuid'], 'server_id' => $x['server_id'], 'status' => $x['status'], 'message' => $x['message'], 'finished_at' => $x['finished_at'], 'created_at' => $x['created_at'], 'updated_at' => $x['created_at']]));
+}
 // Not in $advanceSequences: the servers' created hook took the first ids from the sequence, which must not be moved before.
 DB::statement("SELECT setval(pg_get_serial_sequence('shared_environment_variables', 'id'), (SELECT MAX(id) FROM shared_environment_variables))");
 // Tokens: the fixture's plain text, hashed as Sanctum stores it; the client sends "<id>|<plain text>".
@@ -283,6 +287,8 @@ foreach ($cases['cases'] as $case) {
     $settings->forceFill(['is_api_enabled' => $case['instance']['is_api_enabled'] ?? true, 'allowed_ips' => $case['instance']['allowed_ips'] ?? null])->saveQuietly();
     Cache::flush();
     config(['api.rate_limit' => $case['config']['rate_limit'] ?? 200, 'api.failed_request_rate_limit' => $case['config']['failed_request_rate_limit'] ?? 30]);
+    // DP-85: a case may run as Coolify Cloud (isCloud(): SafeSmtpHost blocks private networks there, as Freeploy does).
+    config(['constants.coolify.self_hosted' => $case['config']['self_hosted'] ?? true]);
     foreach ($case['setup'] ?? [] as $sql) {
         DB::statement($sql);
     }

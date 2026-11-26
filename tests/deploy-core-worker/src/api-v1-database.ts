@@ -38,6 +38,8 @@ import {
   insertPersistentVolume,
   insertFileVolume,
   insertScheduledTask,
+  ensureNotificationSettings,
+  NOTIFICATION_CHANNELS,
   withOrg,
 } from "@saas/db/deploy";
 import { columnCipher } from "@deploy-core-worker/handlers/cloud-tokens";
@@ -123,9 +125,9 @@ export async function fixtureDatabase(): Promise<FixtureDatabase> {
     await withOrg(db, org(s.team), async (tx) => {
       // Coolify's created hook: redirect_enabled (the fixture's server is made with forceCreate()).
       await insertServer(tx, { orgId: org(s.team), uuid: s.uuid, name: s.name, description: s.description, ip: s.ip, user: s.user, port: s.port, privateKeyId: s.private_key_id, proxy: { redirect_enabled: true }, serverRole: "both", imageScanEnabled: false, defaultDestinationUuid: destination.uuid });
-      // The created hook's predefined variables (DP-81: they take the first ids of the shared variables, as in Coolify).
+      // The created hook's predefined variables, literal (DP-81: they take the first ids of the shared variables, as in Coolify).
       for (const [key, value] of [["COOLIFY_SERVER_UUID", s.uuid], ["COOLIFY_SERVER_NAME", s.name]] as const) {
-        await insertSharedVariable(tx, { orgId: org(s.team), owner: { type: "server", id: s.id }, key, value: await encrypt(tx, s.team, "shared_environment_variables.value", value) });
+        await insertSharedVariable(tx, { orgId: org(s.team), owner: { type: "server", id: s.id }, key, value: await encrypt(tx, s.team, "shared_environment_variables.value", value), isLiteral: true });
       }
     });
   }
@@ -317,6 +319,22 @@ export async function fixtureDatabase(): Promise<FixtureDatabase> {
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $10, $11)`,
         [x.id, x.uuid, x.task, x.status, x.message, x.started_at, x.finished_at, x.duration, x.retry_count, x.created_at, org(team)],
       );
+    });
+  }
+  // DP-85: a server's Docker cleanup runs.
+  for (const x of f.dockerCleanupExecutions) {
+    const team = f.servers.find((s) => s.id === x.server_id)!.team;
+    await withOrg(db, org(team), (tx) =>
+      tx.execute(
+        `INSERT INTO deploy.docker_cleanup_executions (id, uuid, server_id, status, message, created_at, updated_at, finished_at, org_id) VALUES ($1, $2, $3, $4, $5, $6, $6, $7, $8)`,
+        [x.id, x.uuid, x.server_id, x.status, x.message, x.created_at, x.finished_at, org(team)],
+      ),
+    );
+  }
+  // DP-85: the six notification channels' rows, team 1's first (Team's created hook made them in Coolify, so team 1's are id 1).
+  for (const team of [1, 2]) {
+    await withOrg(db, org(team), async (tx) => {
+      for (const channel of NOTIFICATION_CHANNELS) same(`${channel} settings`, (await ensureNotificationSettings(tx, channel, org(team))).id, team);
     });
   }
   return {

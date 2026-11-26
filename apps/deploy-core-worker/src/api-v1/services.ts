@@ -439,7 +439,7 @@ function applicationEntries(row: ApiRow): Array<{ domain: string; serviceName: s
  * (by name) that use one of the domains, the one being changed left out. The service being created or changed is read
  * as it now stands in memory (Coolify has saved it by then).
  */
-async function domainConflicts(tx: SqlExecutor, memory: ServiceStore, wanted: string[], current: string): Promise<PhpObject[]> {
+export async function domainConflicts(tx: SqlExecutor, memory: ServiceStore, wanted: string[], current: string): Promise<PhpObject[]> {
   const keys = wanted.map((d) => domainConflictKey(d.endsWith("/") ? d.slice(0, d.lastIndexOf("/")) : d));
   const rows = rowsOf(tx);
   const conflicts: PhpObject[] = [];

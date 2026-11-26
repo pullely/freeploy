@@ -86,6 +86,8 @@ export interface Fixture {
   /** DP-84: scheduled tasks and their executions. */
   scheduledTasks: Array<{ id: number; uuid: string; team: number; application_id: number | null; service_id: number | null; name: string; command: string; frequency: string; container: string | null; timeout: number; use_shell: boolean; enabled: boolean; created_at: string }>;
   scheduledTaskExecutions: Array<{ id: number; uuid: string; task: number; status: string; message: string | null; started_at: string | null; finished_at: string | null; duration: number | null; retry_count: number; created_at: string }>;
+  /** DP-85: a server's Docker cleanup runs. */
+  dockerCleanupExecutions: Array<{ id: number; uuid: string; server_id: number; status: string; message: string | null; created_at: string; finished_at: string | null }>;
 }
 
 export type StorageResource = "application" | "postgresql" | "serviceApplication";
@@ -122,6 +124,7 @@ const FIXTURE_UUIDS = new Set<string>([
   ...CASES.fixture.fileStorages.map((f) => f.uuid),
   ...CASES.fixture.scheduledTasks.map((t) => t.uuid),
   ...CASES.fixture.scheduledTaskExecutions.map((x) => x.uuid),
+  ...CASES.fixture.dockerCleanupExecutions.map((x) => x.uuid),
 ]);
 
 const LARAVEL_DATE = /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{6}Z$/;
