@@ -21,6 +21,11 @@ spec:
     # a months-old copy of a package that has since changed underneath it.
     - component: contracts
     - component: policy-engine
+  # Runtime secrets: the platform operators (freeploy-coolify-parity DP12) — the Freeploy user ids
+  # (`usr_…`, comma-separated) allowed the platform actions (Coolify's /settings/*, /admin). Seeded per
+  # environment with `orun secrets set`; unset, nobody is an operator. Pushed by the secrets-live step.
+  optionalSecretEnv:
+    PLATFORM_OPERATORS: "secret://ws_65T3WPCP/freeploy/{{ .environment }}/PLATFORM_OPERATORS"
   subscribe:
     environments:
       - name: dev
@@ -48,6 +53,9 @@ spec:
     owner: sourceplane
     repo: freeploy
 
+    # Runtime worker secrets, pushed by the secrets-live step from the
+    # values orun resolves for the optionalSecretEnv reference above.
+    runtimeSecrets: "PLATFORM_OPERATORS"
     turboFilter: "@saas/policy-worker"
     wranglerConfig: wrangler.jsonc
     installCommand: pnpm install --frozen-lockfile

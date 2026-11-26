@@ -14,7 +14,9 @@
       "@saas/db": ["../../packages/db/src/index.ts"],
       "@saas/db/*": ["../../packages/db/src/*/index.ts"],
       "@electric-sql/pglite": ["../db/node_modules/@electric-sql/pglite/dist/index.d.ts"],
-      "@deploy-core-worker/*": ["../../apps/deploy-core-worker/src/*.ts"]
+      "@deploy-core-worker/*": ["../../apps/deploy-core-worker/src/*.ts"],
+      "@saas/policy-engine": ["../../packages/policy-engine/src/index.ts"],
+      "@policy-worker/*": ["../../apps/policy-worker/src/*.ts"]
     }
   },
   "include": ["src/**/*.ts", "../../apps/deploy-core-worker/src/**/*.ts"],

@@ -18,6 +18,7 @@ import { generateRequestId, parseOrgPublicId } from "./ids.js";
 import { API_V1_INTERNAL_RE, handleApiV1 } from "./api-v1/handler.js";
 import { handleSources } from "./handlers/sources.js";
 import { GIT_WEBHOOK_INTERNAL_RE, handleGitWebhook } from "./handlers/git-webhooks.js";
+import { PLATFORM_RE, handlePlatform } from "./handlers/platform.js";
 
 const REQUEST_ID_RE = /^[\w-]{1,128}$/;
 
@@ -85,6 +86,10 @@ export async function route(request: Request, env: Env): Promise<Response> {
     // The Git webhooks (DP-72), from api-edge's public /webhooks/source/*: no actor, the signature is the authentication.
     const gitWebhook = url.pathname.match(GIT_WEBHOOK_INTERNAL_RE);
     if (gitWebhook) return await handleGitWebhook(request, env, requestId, gitWebhook[1]!, gitWebhook[2] === "/manual");
+
+    // The platform operator's pages (DP-79): no org; policy-worker's platform actions decide, a denial is a 404.
+    const platform = url.pathname.match(PLATFORM_RE);
+    if (platform) return await handlePlatform(env, requestId, resolveActor(request), platform[1] ?? "", request);
 
     const sources = url.pathname.match(ORG_DEPLOY_SOURCES_RE);
     if (sources) {

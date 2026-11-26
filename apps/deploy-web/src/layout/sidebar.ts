@@ -7,8 +7,10 @@
 // its submenu, without leaving the page; `navSwap` ('forward' or 'back') picks
 // the enter animation of every menu list.
 //
-// Only the entries the reference renders are listed (a non-admin's sidebar:
-// no Settings submenu, no Team → Admin View).
+// SUBMENUS lists the entries the reference renders (a non-admin's sidebar: no
+// Settings submenu, no Team → Admin View). A platform operator (DP-79) also has
+// Coolify's instance admin's entries, OPERATOR_SUBMENUS and Team → Admin View;
+// every function takes whether the signed-in user is one.
 
 export interface SubmenuChild {
   href: string;
@@ -100,14 +102,45 @@ export function requestIs(pathname: string, patterns: string[]): boolean {
   });
 }
 
+/**
+ * The platform operator's submenu (DP-79): navbar.blade.php's Settings, `'visible' => $teamWide && isInstanceAdmin()`,
+ * with the pages Freeploy has (General, Advanced; Updates, Image Scanning, Authentication, Email and Backup are not
+ * ported). Coolify lists it last, after Tags.
+ */
+export const OPERATOR_SUBMENUS: ReadonlyArray<{ label: string; children: SubmenuChild[] }> = [
+  {
+    label: "Settings",
+    children: [
+      { href: "/settings", is: ["settings"] },
+      { href: "/settings/advanced", is: ["settings/advanced"] },
+    ],
+  },
+];
+
+/** Team → Admin View, `'visible' => isInstanceAdmin()`: after Image Scanning. */
+export const OPERATOR_TEAM_CHILD: SubmenuChild = { href: "/team/admin", is: ["team/admin"] };
+
+/** The submenus a user's sidebar has: an operator's also hold the platform's pages. */
+export function submenusFor(operator: boolean): ReadonlyArray<{ label: string; children: SubmenuChild[] }> {
+  if (!operator) return SUBMENUS;
+  const withAdminView = SUBMENUS.map((s) => {
+    if (s.label !== "Team") return s;
+    const at = s.children.findIndex((c) => c.href === "/team/image-scanning") + 1;
+    return { ...s, children: [...s.children.slice(0, at), OPERATOR_TEAM_CHILD, ...s.children.slice(at)] };
+  });
+  return [...withAdminView, ...OPERATOR_SUBMENUS];
+}
+
 /** The submenu holding the current page ('' for the main menu). */
-export function activeSubmenu(pathname: string): string {
-  return SUBMENUS.find((s) => s.children.some((c) => requestIs(pathname, c.is)))?.label ?? "";
+export function activeSubmenu(pathname: string, operator = false): string {
+  return submenusFor(operator).find((s) => s.children.some((c) => requestIs(pathname, c.is)))?.label ?? "";
 }
 
 /** Whether a submenu child is the current page. */
-export function childActive(pathname: string, href: string): boolean {
-  const child = SUBMENUS.flatMap((s) => s.children).find((c) => c.href === href);
+export function childActive(pathname: string, href: string, operator = false): boolean {
+  const child = submenusFor(operator)
+    .flatMap((s) => s.children)
+    .find((c) => c.href === href);
   return child ? requestIs(pathname, child.is) : false;
 }
 

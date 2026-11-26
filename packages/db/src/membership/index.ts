@@ -40,3 +40,13 @@ export {
 
 export type { TeamDeletionBlockers, TeamOwnedRecords, TeamDeployResources } from "./team-danger.js";
 export { teamDeployResources, countSubjectTeams, deleteTeam } from "./team-danger.js";
+
+// DP-79: the platform operator's Admin View — every user, the teams they belong to, subscriptions (read only).
+export {
+  listPlatformUsers,
+  countPlatformSubscribers,
+  type PlatformUsersQuery,
+  type PlatformUserRecord,
+  type PlatformUserSort,
+  type PlatformTeamFilter,
+} from "./platform-admin.js";

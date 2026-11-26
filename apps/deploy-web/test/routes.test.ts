@@ -297,7 +297,7 @@ test("the team pages and the invitation page (DP-69); the team's other pages are
   assert.equal(pageFor("/team/members"), "team.member.index");
   assert.equal(pageFor("/team/members/"), "team.member.index");
   assert.equal(pageFor("/invitations/inv_0123456789abcdef0123456789abcdef"), "team.invitation.show");
-  for (const other of ["/team/image-scanning", "/team/admin", "/team/members/7/avatar", "/invitations", "/invitations/a/b"]) {
+  for (const other of ["/team/image-scanning", "/team/members/7/avatar", "/invitations", "/invitations/a/b"]) {
     assert.equal(pageFor(other), "not-ported", other);
   }
 });
@@ -326,6 +326,18 @@ test("the Sources pages, a GitHub App's tabs and the pages GitHub sends the brow
   assert.equal(pageFor("/webhooks/source/github/redirect"), "source.github.redirect");
   assert.equal(pageFor("/webhooks/source/github/install/"), "source.github.install");
   for (const other of [`${app}/more`, "/source/gitlab/abc", "/source/gitea/abc", "/source/github", "/webhooks/source/github/events", "/sources/new"]) {
+    assert.equal(pageFor(other), "not-ported", other);
+  }
+});
+
+test("the platform operator's pages (DP-79): General and Advanced settings, Admin, Team → Admin View; the other settings pages are not ported", () => {
+  assert.equal(pageFor("/settings"), "settings.index");
+  assert.equal(pageFor("/settings/"), "settings.index");
+  assert.equal(pageFor("/settings/advanced"), "settings.advanced");
+  assert.equal(pageFor("/settings/advanced/"), "settings.advanced");
+  assert.equal(pageFor("/admin"), "admin.index");
+  assert.equal(pageFor("/team/admin"), "team.admin-view");
+  for (const other of ["/settings/updates", "/settings/image-scanning", "/settings/backup", "/settings/email", "/settings/oauth", "/settings/oauth/github", "/settings/x/y", "/admin/x"]) {
     assert.equal(pageFor(other), "not-ported", other);
   }
 });

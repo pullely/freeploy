@@ -12,5 +12,10 @@ storages, backups, …) ported from coollabsio/coolify@91b7e3e, one org per row.
   the rest (`packages/db/src/migrations/500_deploy_core`).
 - **Authorization** is membership-worker's facts plus policy-worker's decision
   (`deploy.resource.read`, `deploy.resource.write`), deny-by-default.
+- **The platform operator** (DP12). `api-edge` also forwards `/v1/platform/*`
+  here: Coolify's instance settings and Admin View, decided by policy-worker's
+  platform actions from its `PLATFORM_OPERATORS` secret alone (no org role
+  passes); every denial is a 404. The settings are row 0 of
+  `deploy.instance_settings`, owned by no org, read in `asPlatformAdmin()`.
 
 Design: `specs/epics/freeploy-coolify-parity/design.md`.

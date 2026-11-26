@@ -114,7 +114,11 @@ export const ROWS: Record<string, Row> = {
     actions: ["organization.member.update_role", "organization.member.remove"],
     route: "PATCH|DELETE /team/members/{member} (membership-worker)",
   },
-  "team.viewAdmin": NO_ROUTE("Team → Admin View (an instance admin's page, DP12)"),
+  // TeamPolicy::viewAdmin is isAdminOfTeam(): Coolify asks it only for the audit log's action and source filters
+  // (`canGate="viewAdmin"`), which Freeploy's audit log gives to `audit.read` (owner, admin; DP-75). The Admin View
+  // page itself is not gated by it but by isInstanceAdmin(), which is the platform operator's
+  // `platform.admin.read` (DP-79), denied to every org role (tests/policy-engine/src/platform.test.ts).
+  "team.viewAdmin": { actions: ["audit.read"], route: "GET /audit/team-log (events-worker, DP-75: the audit log's filters)" },
   "team.manageInvitations": {
     actions: ["organization.invitation.create", "organization.invitation.list", "organization.invitation.revoke"],
     route: "GET|POST /team/invitations, DELETE /team/invitations/{invitation} (membership-worker)",
@@ -159,9 +163,9 @@ describe("the role permission matrix: Freeploy against Coolify's policies", () =
   });
 
   // The count is part of the result: a row moves from skipped to compared when its route lands.
-  test("the comparison covers 63 abilities × 3 roles, and 15 abilities are skipped for want of a route", () => {
+  test("the comparison covers 64 abilities × 3 roles, and 14 abilities are skipped for want of a route", () => {
     expect(abilities.length).toBe(78);
-    expect(compared.length).toBe(63);
+    expect(compared.length).toBe(64);
     expect(skipped).toEqual([
       "servers.transfer",
       "servers.manageProxy",
@@ -177,7 +181,6 @@ describe("the role permission matrix: Freeploy against Coolify's policies", () =
       "services.deploy",
       "team.viewAny",
       "team.create",
-      "team.viewAdmin",
     ]);
   });
 

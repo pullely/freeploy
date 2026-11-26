@@ -1,10 +1,14 @@
 import type { AuthorizationRequest } from "@saas/contracts/policy";
-import { authorize } from "@saas/policy-engine";
+import { authorize, authorizePlatform, parsePlatformOperators, PLATFORM_ACTIONS } from "@saas/policy-engine";
 import { successResponse, errorResponse, validationError } from "../http.js";
 
 const SUBJECT_TYPES = new Set(["user", "service_principal", "workflow", "system"]);
 
-export async function handleAuthorize(request: Request, requestId: string): Promise<Response> {
+/**
+ * `platformOperators`: the deployment's PLATFORM_OPERATORS (DP12). A platform action is decided from it
+ * alone, never from the memberships the caller sends.
+ */
+export async function handleAuthorize(request: Request, requestId: string, platformOperators?: string): Promise<Response> {
   let body: unknown;
   try {
     body = await request.json();
@@ -18,7 +22,7 @@ export async function handleAuthorize(request: Request, requestId: string): Prom
   }
 
   const input = body as AuthorizationRequest;
-  const result = authorize(input);
+  const result = PLATFORM_ACTIONS.has(input.action) ? authorizePlatform(input, parsePlatformOperators(platformOperators)) : authorize(input);
 
   return successResponse(result, requestId);
 }

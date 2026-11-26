@@ -618,3 +618,5 @@ export {
 export { apiRows, apiValue, databasePublicPortTaken, type ApiRow, type ApiTable } from "./api-v1.js";
 // DP-72: Git sources — GitHub Apps, the Sources page, what the Git webhooks read and write, previews.
 export * from "./git-sources.js";
+// DP-79: the platform settings (Coolify's instance settings, row 0 of deploy.instance_settings), for asPlatformAdmin().
+export * from "./platform-settings.js";

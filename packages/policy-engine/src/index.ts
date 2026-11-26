@@ -309,6 +309,54 @@ function allow(reason: string, orgId: string, projectId?: string): Authorization
   return { allow: true, reason, policyVersion: POLICY_VERSION, derivedScope: buildScope(orgId, projectId) };
 }
 
+// ── The platform operator (freeploy-coolify-parity DP12) ─────────────────────
+//
+// Coolify's instance-level pages (/settings/*, /admin, Team → Admin View) belong to its instance admin
+// (isInstanceAdmin(): a member of the root team) and, for /admin, to the root user. In a hosted,
+// multi-tenant Freeploy no customer org is that: these actions are the platform operator's alone. No
+// org or project role grants them, and no fact a caller sends does either — a request's memberships
+// are ignored for them. The operators are named by the deployment (policy-worker's PLATFORM_OPERATORS,
+// user ids `usr_…`), never by data a tenant can write; an API key or any other non-user subject is never
+// one. An organization owner — and so a Coolify API token with the `root` ability, which acts as its
+// user's owner role — is denied like every other member (tests/policy-engine/src/platform.test.ts).
+export const PLATFORM_ACTIONS: ReadonlySet<string> = new Set([
+  // /settings and /settings/advanced (Settings\Index, Settings\Advanced): read the platform settings.
+  "platform.settings.read",
+  // Their instantSave() and submit().
+  "platform.settings.update",
+  // /admin (Admin\Index) and /team/admin (Team\AdminView): every user and team, read only.
+  "platform.admin.read",
+]);
+
+/** The resource every platform action names: the platform, not an org. */
+export const PLATFORM_RESOURCE = { kind: "platform", orgId: "platform" } as const;
+
+/** PLATFORM_OPERATORS as policy-worker holds it: user ids (`usr_` and 32 hex digits) separated by commas or white space. */
+export function parsePlatformOperators(value: string | undefined | null): ReadonlySet<string> {
+  return new Set(
+    (value ?? "")
+      .split(/[\s,]+/)
+      .map((s) => s.trim())
+      .filter((s) => /^usr_[0-9a-f]{32}$/.test(s)),
+  );
+}
+
+/**
+ * A platform action: allowed only for a user subject the deployment names as an operator.
+ * `operators` is policy-worker's PLATFORM_OPERATORS; empty (unset) means nobody is an operator.
+ */
+export function authorizePlatform(
+  input: Pick<AuthorizationRequest, "subject" | "action" | "resource">,
+  operators: ReadonlySet<string>,
+): AuthorizationResponse {
+  const derivedScope = { orgId: PLATFORM_RESOURCE.orgId };
+  const no = (reason: string): AuthorizationResponse => ({ allow: false, reason, policyVersion: POLICY_VERSION, derivedScope });
+  if (!PLATFORM_ACTIONS.has(input.action)) return no("unknown_action");
+  if (input.resource.kind !== PLATFORM_RESOURCE.kind || input.resource.orgId !== PLATFORM_RESOURCE.orgId) return no("invalid_scope");
+  if (input.subject.type !== "user" || !operators.has(input.subject.id)) return no("platform_operator_required");
+  return { allow: true, reason: "platform_operator", policyVersion: POLICY_VERSION, derivedScope };
+}
+
 export function authorize(input: AuthorizationRequest): AuthorizationResponse {
   const { action, resource, context } = input;
   const orgId = resource.orgId;
@@ -316,6 +364,11 @@ export function authorize(input: AuthorizationRequest): AuthorizationResponse {
 
   if (!orgId) {
     return deny("invalid_scope", "");
+  }
+
+  // A platform action is never decided by roles: authorizePlatform decides it, from the operators.
+  if (PLATFORM_ACTIONS.has(action)) {
+    return deny("platform_operator_required", orgId, projectId);
   }
 
   if (!ALL_KNOWN_ACTIONS.has(action)) {

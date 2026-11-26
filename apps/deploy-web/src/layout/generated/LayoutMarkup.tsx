@@ -24,6 +24,7 @@ export interface LayoutMarkupProps {
   avatarUrl: string | null;
   mobileMenu: { panel: (label: string) => { style?: { display: "none" }; "data-active-submenu"?: string }; parent: (label: string) => { className: string; onClick: () => void }; back: () => void; list: string };
   desktopMenu: { panel: (label: string) => { style?: { display: "none" }; "data-active-submenu"?: string }; parent: (label: string) => { className: string; onClick: () => void }; back: () => void; list: string };
+  platform?: { panel: (menu: LayoutMarkupProps["desktopMenu"]) => ReactNode; entry: (menu: LayoutMarkupProps["desktopMenu"]) => ReactNode; admin: (menu: LayoutMarkupProps["desktopMenu"]) => ReactNode; teamAdminView: ReactNode };
 }
 
 export function LayoutMarkup(props: LayoutMarkupProps) {
@@ -596,7 +597,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                             {" "}
                             <span className="menu-item-label">Image Scanning</span>
                           </a>
-                        </li>
+                        </li>{props.platform?.teamAdminView}
                         {" "}
                         <li className="my-2 border-t border-neutral-200 dark:border-white/[0.06]" aria-hidden="true" />
                         {" "}
@@ -769,7 +770,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                       </ul>
                     </li>
                     {" "}
-                    <li className="contents" {...props.mobileMenu.panel("")}>
+                    {props.platform?.panel(props.mobileMenu)}<li className="contents" {...props.mobileMenu.panel("")}>
                       <ul role="list" className={props.mobileMenu.list}>
                         <li>
                           <a title="Dashboard" href="/" {...props.nav("/")}>
@@ -925,11 +926,11 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                             {" "}
                             <span className="menu-item-label flex-1">Tags</span>
                           </a>
-                        </li>
+                        </li>{props.platform?.entry(props.mobileMenu)}
                       </ul>
                     </li>
                     {" "}
-                    <li className="flex-1" aria-hidden="true" />
+                    <li className="flex-1" aria-hidden="true" />{props.platform?.admin(props.mobileMenu)}
                   </ul>
                   {" "}
                   <div className="sidebar-footer shrink-0 -mx-2 hidden flex-col gap-1 bg-neutral-50 px-2 py-2 dark:bg-transparent lg:-mx-3 lg:flex lg:px-3">
@@ -1326,7 +1327,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                         {" "}
                         <span className="menu-item-label">Image Scanning</span>
                       </a>
-                    </li>
+                    </li>{props.platform?.teamAdminView}
                     {" "}
                     <li className="my-2 border-t border-neutral-200 dark:border-white/[0.06]" aria-hidden="true" />
                     {" "}
@@ -1499,7 +1500,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                   </ul>
                 </li>
                 {" "}
-                <li className="contents" {...props.desktopMenu.panel("")}>
+                {props.platform?.panel(props.desktopMenu)}<li className="contents" {...props.desktopMenu.panel("")}>
                   <ul role="list" className={props.desktopMenu.list}>
                     <li>
                       <a title="Dashboard" href="/" {...props.nav("/")}>
@@ -1655,11 +1656,11 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
                         {" "}
                         <span className="menu-item-label flex-1">Tags</span>
                       </a>
-                    </li>
+                    </li>{props.platform?.entry(props.desktopMenu)}
                   </ul>
                 </li>
                 {" "}
-                <li className="flex-1" aria-hidden="true" />
+                <li className="flex-1" aria-hidden="true" />{props.platform?.admin(props.desktopMenu)}
               </ul>
               {" "}
               <div className="sidebar-footer shrink-0 -mx-2 hidden flex-col gap-1 bg-neutral-50 px-2 py-2 dark:bg-transparent lg:-mx-3 lg:flex lg:px-3">
