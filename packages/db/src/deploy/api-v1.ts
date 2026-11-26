@@ -8,17 +8,31 @@ import type { SqlExecutor } from "../hyperdrive/executor.js";
 /** One row: its columns in table order. */
 export type ApiRow = Array<[string, unknown]>;
 
-const TABLES = ["projects", "environments", "private_keys", "servers", "server_settings"] as const;
+const TABLES = [
+  "projects",
+  "environments",
+  "private_keys",
+  "servers",
+  "server_settings",
+  // DP-71
+  "applications",
+  "application_settings",
+  "environment_variables",
+  "standalone_dockers",
+  "additional_destinations",
+  "application_deployment_queues",
+] as const;
 export type ApiTable = (typeof TABLES)[number];
 
 function parse(text: string): ApiRow {
   return Object.entries(JSON.parse(text) as Record<string, unknown>).filter(([k]) => k !== "org_id");
 }
 
-/** SELECT * FROM deploy.<table> [WHERE …] ORDER BY id, as rows. */
-export async function apiRows(tx: SqlExecutor, table: ApiTable, where: string | null = null, params: unknown[] = []): Promise<ApiRow[]> {
+/** SELECT * FROM deploy.<table> [WHERE …] ORDER BY id (or by name, then id: Eloquent's ->orderBy('name')), as rows. */
+export async function apiRows(tx: SqlExecutor, table: ApiTable, where: string | null = null, params: unknown[] = [], order: "id" | "name" = "id"): Promise<ApiRow[]> {
   if (!TABLES.includes(table)) throw new Error(`apiRows: ${table}`);
-  const r = await tx.execute<{ j: string }>(`SELECT row_to_json(t)::text AS j FROM deploy.${table} t${where ? ` WHERE ${where}` : ""} ORDER BY t.id`, params);
+  const orderBy = order === "name" ? "t.name, t.id" : "t.id";
+  const r = await tx.execute<{ j: string }>(`SELECT row_to_json(t)::text AS j FROM deploy.${table} t${where ? ` WHERE ${where}` : ""} ORDER BY ${orderBy}`, params);
   return r.rows.map((x) => parse(x.j));
 }
 

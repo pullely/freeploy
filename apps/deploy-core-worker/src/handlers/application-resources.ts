@@ -151,19 +151,22 @@ function sqlStore(tx: SqlExecutor, orgId: string): ApplicationResourcesStore {
   };
 }
 
+/** One org's application resources context over a transaction confined to that org (also /api/v1's, DP-71). */
+export function applicationResourcesContext(tx: SqlExecutor, orgId: string, secret: string | undefined): ApplicationResourcesContext {
+  return {
+    store: sqlStore(tx, orgId),
+    // The value is bound to "local_file_volumes.content".
+    content: columnCipher(tx, orgId, secret, "local_file_volumes.content"),
+    generateLabels: async (uuid) => {
+      await resetDefaultLabels(labelSqlContext(tx, orgId, secret), uuid);
+    },
+  };
+}
+
 export const runApplicationResourcesInOrg: ApplicationResourcesRunner = async (env, orgId, fn) => {
   const db = createSqlExecutor(env.PLATFORM_DB!);
   try {
-    // The value is bound to "local_file_volumes.content".
-    return await withOrg(db, orgId, (tx) =>
-      fn({
-        store: sqlStore(tx, orgId),
-        content: columnCipher(tx, orgId, env.DEPLOY_ENCRYPTION_KEY, "local_file_volumes.content"),
-        generateLabels: async (uuid) => {
-          await resetDefaultLabels(labelSqlContext(tx, orgId, env.DEPLOY_ENCRYPTION_KEY), uuid);
-        },
-      }),
-    );
+    return await withOrg(db, orgId, (tx) => fn(applicationResourcesContext(tx, orgId, env.DEPLOY_ENCRYPTION_KEY)));
   } finally {
     await db.dispose();
   }

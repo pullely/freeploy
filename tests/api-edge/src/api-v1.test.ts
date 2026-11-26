@@ -174,20 +174,29 @@ describe("what the edge sends a worker", () => {
 });
 
 describe("the routes", () => {
-  it("are the 24 ported operations of openapi.json (health and the deprecated team aliases aside)", () => {
+  it("are the 36 ported operations of openapi.json (health, the deprecated team aliases and the GET answers of start, restart and stop aside)", () => {
     const openapi = JSON.parse(readFileSync(resolve(FIXTURES, "../../../../specs/epics/freeploy-coolify-parity/parity/openapi.operations.json"), "utf8")) as { rows: Array<{ method: string; path: string }> };
     const ops = new Set(openapi.rows.map((r) => `${r.method} ${r.path}`));
     const routes = API_V1_ROUTES.map((r) => `${r.method} /api/v1${r.path}`);
     const inOpenapi = routes.filter((r) => ops.has(r));
-    expect(routes.filter((r) => !ops.has(r))).toEqual(["GET /api/v1/teams/current", "GET /api/v1/teams/current/members"]);
-    expect(inOpenapi.length + 1 /* GET /api/v1/health */).toBe(24);
+    expect(routes.filter((r) => !ops.has(r))).toEqual([
+      "GET /api/v1/teams/current",
+      "GET /api/v1/teams/current/members",
+      // OtherController::post_required (DP-71)
+      "GET /api/v1/applications/{uuid}/start",
+      "GET /api/v1/applications/{uuid}/restart",
+      "GET /api/v1/applications/{uuid}/stop",
+    ]);
+    expect(inOpenapi.length + 1 /* GET /api/v1/health */).toBe(36);
   });
 
   it("take the first match in routes/api.php's order and ignore a trailing slash", () => {
     expect(matchApiRoute("GET", "/projects/")?.path).toBe("/projects");
     expect(matchApiRoute("GET", "/teams/current")?.path).toBe("/teams/current");
     expect(matchApiRoute("PUT", "/projects")).toBeNull();
-    expect(matchApiRoute("GET", "/applications")).toBeNull();
+    expect(matchApiRoute("GET", "/applications")?.path).toBe("/applications");
+    expect(matchApiRoute("PATCH", "/applications/a1/envs/bulk")?.path).toBe("/applications/{uuid}/envs/bulk");
+    expect(matchApiRoute("GET", "/databases")).toBeNull();
   });
 });
 

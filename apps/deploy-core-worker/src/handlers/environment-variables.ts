@@ -84,18 +84,21 @@ function sqlStore(tx: SqlExecutor, orgId: string, type: EnvironmentVariableResou
   };
 }
 
+/** One org's variables of one resource type and the ciphers, over a transaction confined to that org (also /api/v1's, DP-71). */
+export function environmentVariableContext(tx: SqlExecutor, orgId: string, secret: string | undefined, type: EnvironmentVariableResourceType): EnvironmentVariableContext {
+  return {
+    resourceType: type,
+    store: sqlStore(tx, orgId, type),
+    // One cipher per encrypted column: a value is bound to "<table>.value".
+    cipher: columnCipher(tx, orgId, secret, "environment_variables.value"),
+    sharedCipher: columnCipher(tx, orgId, secret, "shared_environment_variables.value"),
+  };
+}
+
 export const runEnvironmentVariablesInOrg: EnvironmentVariableRunner = async (env, orgId, type, fn) => {
   const db = createSqlExecutor(env.PLATFORM_DB!);
   try {
-    return await withOrg(db, orgId, (tx) =>
-      fn({
-        resourceType: type,
-        store: sqlStore(tx, orgId, type),
-        // One cipher per encrypted column: a value is bound to "<table>.value".
-        cipher: columnCipher(tx, orgId, env.DEPLOY_ENCRYPTION_KEY, "environment_variables.value"),
-        sharedCipher: columnCipher(tx, orgId, env.DEPLOY_ENCRYPTION_KEY, "shared_environment_variables.value"),
-      }),
-    );
+    return await withOrg(db, orgId, (tx) => fn(environmentVariableContext(tx, orgId, env.DEPLOY_ENCRYPTION_KEY, type)));
   } finally {
     await db.dispose();
   }

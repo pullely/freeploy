@@ -320,7 +320,7 @@ describe("authorization", () => {
 
   it("answers Coolify's fallback for a path it does not serve", async () => {
     const m = await MemoryOrg.fromFixture();
-    const res = await handleApiV1(new Request("https://x/"), env, "r", { subjectId: "usr_1", subjectType: "user" }, ORG_UUID, ORG, "/applications", m.runners());
+    const res = await handleApiV1(new Request("https://x/"), env, "r", { subjectId: "usr_1", subjectType: "user" }, ORG_UUID, ORG, "/hetzner/locations", m.runners());
     expect(res.status).toBe(404);
   });
 });

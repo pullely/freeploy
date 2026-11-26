@@ -54,6 +54,53 @@ export const SERVER_SETTING: ModelShape = {
   dates: ["created_at", "updated_at", "docker_version_checked_at", "compose_version_checked_at", "patch_checked_at", "image_candidate_scans_date", "ssh_host_key_trusted_at"],
 };
 
+// ── DP-71: app/Models/{Application,ApplicationSetting,StandaloneDocker,SwarmDocker,EnvironmentVariable}.php ──
+
+/** Application::COMMAND_AND_CONFIGURATION_ATTRIBUTES */
+export const APPLICATION_COMMAND_AND_CONFIGURATION = [
+  "install_command",
+  "build_command",
+  "start_command",
+  "pre_deployment_command",
+  "post_deployment_command",
+  "health_check_command",
+  "health_check_response_text",
+  "custom_docker_run_options",
+  "docker_compose_custom_start_command",
+  "docker_compose_custom_build_command",
+  "custom_nginx_configuration",
+] as const;
+export const APPLICATION_WEBHOOK_SECRETS = ["manual_webhook_secret_github", "manual_webhook_secret_gitlab", "manual_webhook_secret_bitbucket", "manual_webhook_secret_gitea"] as const;
+export const APPLICATION: ModelShape = {
+  hidden: [
+    ...APPLICATION_COMMAND_AND_CONFIGURATION,
+    "http_basic_auth_password",
+    "git_https_password",
+    ...APPLICATION_WEBHOOK_SECRETS,
+    "dockerfile",
+    "docker_compose",
+    "docker_compose_raw",
+    "custom_labels",
+    "domain_dns_statuses",
+    "domain_port_overrides",
+  ],
+  dates: ["created_at", "updated_at", "deleted_at", "last_restart_at"],
+};
+/** ApplicationsController::removeSensitiveData(): what a token that may read secrets sees of an application. */
+export const APPLICATION_SENSITIVE: readonly string[] = [
+  ...APPLICATION_COMMAND_AND_CONFIGURATION,
+  "custom_labels",
+  "dockerfile",
+  "docker_compose",
+  "docker_compose_raw",
+  ...APPLICATION_WEBHOOK_SECRETS,
+  "http_basic_auth_password",
+];
+/** The loaded settings relation, as removeSensitiveData() hides its keys. */
+export const APPLICATION_SETTING: ModelShape = { hidden: ["id", "application_id", "created_at", "updated_at"], dates: ["created_at", "updated_at"] };
+export const DESTINATION: ModelShape = { hidden: [], dates: ["created_at", "updated_at"] };
+export const ENVIRONMENT_VARIABLE: ModelShape = { hidden: ["value", "real_value", "uses_legacy_escaping"], dates: ["created_at", "updated_at"] };
+
 export function rowValue(row: ApiRow, column: string): unknown {
   return row.find(([k]) => k === column)?.[1];
 }

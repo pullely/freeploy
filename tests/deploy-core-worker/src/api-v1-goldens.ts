@@ -24,6 +24,8 @@ export interface Case extends Step {
   instance?: { is_api_enabled?: boolean; allowed_ips?: string };
   config?: { rate_limit?: number; failed_request_rate_limit?: number };
   sequence?: Step[];
+  /** SQL whose rows emit.php reports after a write (`after` of the golden). */
+  after?: Record<string, string>;
 }
 export interface Answer {
   status: number;
@@ -33,6 +35,8 @@ export interface Answer {
 export interface Golden extends Answer {
   name: string;
   steps?: Answer[];
+  /** For a write: the rows its `after` queries found (emit.php). */
+  after?: Record<string, unknown[]>;
 }
 export interface FixtureToken {
   key: string;
@@ -51,10 +55,14 @@ export interface Fixture {
   privateKeys: Array<{ id: number; uuid: string; name: string; description: string | null; file: string; team: number }>;
   servers: Array<{ id: number; uuid: string; name: string; description: string | null; ip: string; user: string; port: number; team: number; private_key_id: number }>;
   tokens: FixtureToken[];
+  /** DP-71: each server's default destination, the applications and their variables. */
+  destinations: Array<{ id: number; uuid: string; server_id: number }>;
+  applications: Array<{ id: number; uuid: string; team: number; environment_id: number; destination_id: number; name: string; fqdn: string | null; columns: Record<string, string | number | boolean> }>;
+  variables: Array<{ uuid: string; application: number; key: string; value: string; is_literal: boolean; is_multiline: boolean; is_shown_once: boolean; is_runtime: boolean; is_buildtime: boolean; comment: string | null }>;
 }
 
 export const CASES = JSON.parse(readFileSync(resolve(API_FIXTURES, "cases.json"), "utf8")) as { fixture: Fixture; cases: Case[] };
-export const GOLDENS = JSON.parse(readFileSync(resolve(API_FIXTURES, "goldens.json"), "utf8")) as { version: string; cases: Golden[] };
+export const GOLDENS = JSON.parse(readFileSync(resolve(API_FIXTURES, "goldens.json"), "utf8")) as { version: string; columns: Record<string, string[]>; cases: Golden[] };
 export const FREEPLOY_ROWS = JSON.parse(readFileSync(resolve(API_FIXTURES, "freeploy-rows.json"), "utf8")) as Record<string, Array<Array<[string, unknown]>>>;
 
 export function golden(name: string): Golden {
@@ -68,6 +76,9 @@ const FIXTURE_UUIDS = new Set<string>([
   ...CASES.fixture.projects.flatMap((p) => [p.uuid, ...p.environments.map((e) => e.uuid)]),
   ...CASES.fixture.privateKeys.map((k) => k.uuid),
   ...CASES.fixture.servers.map((s) => s.uuid),
+  ...CASES.fixture.destinations.map((d) => d.uuid),
+  ...CASES.fixture.applications.map((a) => a.uuid),
+  ...CASES.fixture.variables.map((v) => v.uuid),
 ]);
 
 const LARAVEL_DATE = /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{6}Z$/;
@@ -94,6 +105,8 @@ export function mask(value: PhpValue, context: { teamIdKey?: boolean } = {}, par
         if (k === "id" && context.teamIdKey && parentKey === "") return [k, "<team>"];
         if (k === "id" && typeof email === "string") return [k, `<user:${email}>`];
         if (k === "id" && parentKey === "settings") return [k, "<settings-id>"];
+        // A server's default destination: Coolify names it "coolify", Freeploy "freeploy" (a label; the network is "coolify" on both, DP-71).
+        if (k === "name" && parentKey === "destination" && (v === "coolify" || v === "freeploy")) return [k, "<default-destination-name>"];
         return [k, mask(v, context, k)];
       }),
     );

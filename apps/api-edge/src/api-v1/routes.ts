@@ -47,6 +47,24 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("GET", "/servers", "read", "deploy"),
   r("GET", "/servers/{uuid}", "read", "deploy"),
   r("POST", "/servers/{uuid}/validate", "write", "deploy"),
+
+  // DP-71
+  r("GET", "/applications", "read", "deploy"),
+  r("GET", "/applications/{uuid}", "read", "deploy"),
+  r("DELETE", "/applications/{uuid}", "delete", "deploy"),
+  r("GET", "/applications/{uuid}/envs", "read", "deploy"),
+  r("POST", "/applications/{uuid}/envs", "write", "deploy"),
+  r("PATCH", "/applications/{uuid}/envs/bulk", "write", "deploy"),
+  r("PATCH", "/applications/{uuid}/envs", "write", "deploy"),
+  r("DELETE", "/applications/{uuid}/envs/{env_uuid}", "delete", "deploy"),
+  r("GET", "/applications/{uuid}/logs", "read:sensitive", "deploy"),
+  // OtherController::post_required: "This endpoint has changed to a POST request."
+  r("GET", "/applications/{uuid}/start", "deploy", "deploy"),
+  r("GET", "/applications/{uuid}/restart", "deploy", "deploy"),
+  r("GET", "/applications/{uuid}/stop", "deploy", "deploy"),
+  r("POST", "/applications/{uuid}/start", "deploy", "deploy"),
+  r("POST", "/applications/{uuid}/restart", "deploy", "deploy"),
+  r("POST", "/applications/{uuid}/stop", "deploy", "deploy"),
 ];
 
 /** Laravel's route parameters match one segment ([^/]+). */

@@ -9,6 +9,7 @@
 //   /v1/internal/api-v1/{org}/projects[/{uuid}[/environments[/{environment_name_or_uuid}]]]
 //   /v1/internal/api-v1/{org}/security/keys[/{uuid}]
 //   /v1/internal/api-v1/{org}/servers[/{uuid}[/validate]]
+//   /v1/internal/api-v1/{org}/applications[/{uuid}[/envs[/bulk|/{env_uuid}]|/logs|/start|/restart|/stop]]   applications.ts (DP-71)
 //
 // $this->authorize(…) is policy-worker's deploy.resource.read (view) or deploy.resource.write (create,
 // update, delete) for the token's user; a denial is Laravel's 403 "This action is unauthorized.".
@@ -49,6 +50,8 @@ import {
   validationFailed,
   type Errors,
 } from "./request.js";
+import { applicationsApi } from "./applications.js";
+import type { ApiV1Context, SqlRunner } from "./context.js";
 import { ENVIRONMENT, PRIVATE_KEY, PROJECT, SERVER, SERVER_SETTING, onlyColumns, rowValue, toModel, withoutColumns } from "./models.js";
 
 export const API_V1_INTERNAL_RE = /^\/v1\/internal\/api-v1\/(org_[0-9a-f]{32})(\/.*)$/;
@@ -69,11 +72,22 @@ export interface ApiV1Runners {
   projects: ProjectsRunner;
   keys: OrgRunner;
   rows: RowsRunner;
+  /** One org's transaction, for the groups that call the services with their SQL stores (DP-71). */
+  sql?: SqlRunner;
   /** policy-worker's answer for the token's user; replaceable for tests. */
   allows?: (action: "deploy.resource.read" | "deploy.resource.write") => Promise<boolean>;
 }
 
-const DEFAULT_RUNNERS: ApiV1Runners = { projects: runProjects, keys: runKeys, rows: runRows };
+export const runSql: SqlRunner = async (env, orgId, fn) => {
+  const db = createSqlExecutor(env.PLATFORM_DB!);
+  try {
+    return await withOrg(db, orgId, fn);
+  } finally {
+    await db.dispose();
+  }
+};
+
+const DEFAULT_RUNNERS: ApiV1Runners = { projects: runProjects, keys: runKeys, rows: runRows, sql: runSql };
 
 const send = (a: CoolifyAnswer): Response => new Response(a.body, { status: a.status, headers: a.headers });
 const message = (text: string, status: number, extra: Record<string, PhpValue> = {}) => coolifyJson(obj({ message: text, ...extra }), status);
@@ -106,6 +120,8 @@ export async function handleApiV1(request: Request, env: Env, requestId: string,
     if (first === "projects") return send(await projects(second, third, fourth, fifth));
     if (first === "security" && second === "keys") return send(await keys(third, fourth));
     if (first === "servers") return send(await servers(second, third, fourth));
+    const context: ApiV1Context = { env, orgId, orgPublicId, request, method, url, canReadSensitive, allows: (write) => allows(write ? "deploy.resource.write" : "deploy.resource.read"), sql: r.sql ?? runSql };
+    if (first === "applications") return send((await applicationsApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
     return send(COOLIFY_API.notFound());
   } catch (e) {
     if (e instanceof PrivateKeyError && e.field) return send(message(e.message, 422, { errors: obj({ [e.field]: [e.message] }) }));

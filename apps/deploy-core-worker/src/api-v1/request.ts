@@ -46,6 +46,12 @@ export async function readApiBody(request: Request): Promise<ApiBody> {
   }
   const all = ok && parsed && typeof parsed === "object" && !Array.isArray(parsed) ? (cleanInput(parsed) as Record<string, unknown>) : ok && Array.isArray(parsed) ? Object.fromEntries(parsed.map((x, i) => [String(i), cleanInput(x)])) : {};
   let incomingError: CoolifyAnswer | null = null;
+  // A form body is PHP's $_POST: $request->all() of a controller that does not call validateIncomingRequest() (DP-71).
+  if (!isJson && /^application\/x-www-form-urlencoded/i.test(contentType)) {
+    const form: Record<string, string> = {};
+    new URLSearchParams(text).forEach((v, k) => (form[k] = v));
+    return { all: cleanInput(form) as Record<string, unknown>, isJson, incomingError: COOLIFY_API.notJson() };
+  }
   if (!isJson) incomingError = COOLIFY_API.notJson();
   // json_decode() of the content: invalid, or a falsy value ("[]", "0", "null", "false").
   else if (!ok || phpFalsy(parsed)) incomingError = COOLIFY_API.invalidJson();

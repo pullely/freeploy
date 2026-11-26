@@ -17,12 +17,15 @@
 // Fixed: the clock (2026-01-01T00:00:00Z), every id and uuid of the fixture, the tokens' plain text. The
 // uuid of what a case creates is Coolify's random one; the test masks it (README.md, "Masking").
 
+use App\Models\Application;
 use App\Models\Environment;
+use App\Models\EnvironmentVariable;
 use App\Models\InstanceSettings;
 use App\Models\PersonalAccessToken;
 use App\Models\PrivateKey;
 use App\Models\Project;
 use App\Models\Server;
+use App\Models\StandaloneDocker;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Contracts\Http\Kernel as HttpKernel;
@@ -54,7 +57,7 @@ Artisan::call('migrate:fresh', ['--force' => true]);
 ob_end_clean();
 /** The fixture's ids are given; what is created after them (a user's personal team, a case's rows) continues after them. */
 $advanceSequences = function (): void {
-    foreach (['teams', 'users', 'team_user', 'projects', 'environments', 'private_keys', 'servers', 'server_settings', 'standalone_dockers', 'personal_access_tokens'] as $table) {
+    foreach (['teams', 'users', 'team_user', 'projects', 'environments', 'private_keys', 'servers', 'server_settings', 'standalone_dockers', 'personal_access_tokens', 'applications', 'application_settings', 'environment_variables', 'application_deployment_queues'] as $table) {
         DB::statement("SELECT setval(pg_get_serial_sequence('{$table}', 'id'), GREATEST((SELECT COALESCE(MAX(id), 0) FROM {$table}), 1))");
     }
 };
@@ -95,6 +98,19 @@ $advanceSequences();
 foreach ($fixture['servers'] ?? [] as $s) {
     Server::unguarded(fn () => Server::query()->forceCreate(['id' => $s['id'], 'uuid' => $s['uuid'], 'name' => $s['name'], 'description' => $s['description'], 'ip' => $s['ip'], 'user' => $s['user'], 'port' => $s['port'], 'team_id' => $s['team'], 'private_key_id' => $s['private_key_id']]));
 }
+// The server's created hook made its default destination with a random uuid: give it the fixture's (DP-71).
+foreach ($fixture['destinations'] ?? [] as $d) {
+    DB::table('standalone_dockers')->where('server_id', $d['server_id'])->update(['id' => $d['id'], 'uuid' => $d['uuid']]);
+}
+$advanceSequences();
+// Applications and their variables through the models, so the creating and created hooks run (DP-71).
+foreach ($fixture['applications'] ?? [] as $a) {
+    Application::unguarded(fn () => Application::query()->forceCreate(['id' => $a['id'], 'uuid' => $a['uuid'], 'name' => $a['name'], 'fqdn' => $a['fqdn'], 'environment_id' => $a['environment_id'], 'destination_id' => $a['destination_id'], 'destination_type' => StandaloneDocker::class] + $a['columns']));
+}
+$advanceSequences();
+foreach ($fixture['variables'] ?? [] as $v) {
+    EnvironmentVariable::unguarded(fn () => EnvironmentVariable::query()->create(['uuid' => $v['uuid'], 'key' => $v['key'], 'value' => $v['value'], 'comment' => $v['comment'], 'is_literal' => $v['is_literal'], 'is_multiline' => $v['is_multiline'], 'is_shown_once' => $v['is_shown_once'], 'is_runtime' => $v['is_runtime'], 'is_buildtime' => $v['is_buildtime'], 'is_preview' => false, 'resourceable_type' => Application::class, 'resourceable_id' => $v['application']]));
+}
 // Tokens: the fixture's plain text, hashed as Sanctum stores it; the client sends "<id>|<plain text>".
 $advanceSequences();
 foreach ($fixture['tokens'] as $t) {
@@ -132,9 +148,17 @@ $send = function (array $step) use ($kernel, $tokens, $app): array {
         $content = json_encode($step['body'], JSON_UNESCAPED_SLASHES);
         $server['CONTENT_TYPE'] = 'application/json';
     }
-    $request = Request::create($step['path'], $step['method'], [], [], [], $server, $content);
-    // A new request each time: forget the user Sanctum resolved for the previous one.
+    // As PHP and Request::capture() make it: a form body is parsed into the request bag ($_POST), and createFromBase() makes a
+    // JSON body the request bag too, which $request->get() reads (DP-71).
+    $parameters = [];
+    if ($content !== null && str_starts_with($server['CONTENT_TYPE'], 'application/x-www-form-urlencoded')) {
+        parse_str($content, $parameters);
+    }
+    $request = Request::createFromBase(\Symfony\Component\HttpFoundation\Request::create($step['path'], $step['method'], $parameters, [], [], $server, $content));
+    // A new request each time: forget the user Sanctum resolved for the previous one, and the servers the previous request
+    // loaded (Server's request-scoped identity map is static: in one PHP process it would outlive the request, DP-71).
     $app['auth']->forgetGuards();
+    \App\Models\Server::flushIdentityMap();
     $response = $kernel->handle($request);
     $kernel->terminate($request, $response);
     $text = $response->getContent();
@@ -179,4 +203,11 @@ foreach ($cases['cases'] as $case) {
     $out[] = ['name' => $case['name']] + (isset($case['sequence']) ? ['steps' => $results] : $results[0]) + ($after ? ['after' => $after] : []);
 }
 
-echo json_encode(['coolify' => '91b7e3e', 'version' => config('constants.coolify.version'), 'cases' => $out], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), "\n";
+// The column order of the tables whose rows the API writes as Eloquent's toArray() gives them, without serializeApiResponse()'s
+// sorting (a nested relation, such as an application's destination, its server and their settings): the schema's order (DP-71).
+$columns = [];
+foreach ($cases['columnsOf'] ?? [] as $table) {
+    $columns[$table] = array_map(fn ($c) => $c->column_name, DB::select("select column_name from information_schema.columns where table_schema = 'public' and table_name = ? order by ordinal_position", [$table]));
+}
+
+echo json_encode(['coolify' => '91b7e3e', 'version' => config('constants.coolify.version'), 'columns' => $columns, 'cases' => $out], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), "\n";
