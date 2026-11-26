@@ -75,6 +75,13 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("GET", "/security/keys/{uuid}", "read", "deploy"),
   r("PATCH", "/security/keys/{uuid}", "write", "deploy"),
   r("DELETE", "/security/keys/{uuid}", "delete", "deploy"),
+  // DP-104: integration tokens
+  r("GET", "/security/integration-tokens", "read", "deploy"),
+  r("POST", "/security/integration-tokens", "write", "deploy"),
+  r("GET", "/security/integration-tokens/{uuid}", "read", "deploy"),
+  r("PATCH", "/security/integration-tokens/{uuid}", "write", "deploy"),
+  r("DELETE", "/security/integration-tokens/{uuid}", "delete", "deploy"),
+  r("POST", "/security/integration-tokens/{uuid}/sync-zones", "write", "deploy"),
 
   // DP-88: GitHub Apps
   r("GET", "/github-apps", "read", "deploy"),

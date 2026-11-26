@@ -366,6 +366,29 @@ export async function fixtureDatabase(): Promise<FixtureDatabase> {
     );
   }
   await db.execute("SELECT setval(pg_get_serial_sequence('deploy.cloud_provider_tokens', 'id'), $1)", [Math.max(...f.cloudTokens.map((t) => t.id))]);
+  // DP-104: the integration tokens (the token encrypted with the org's key, the JSON columns as Coolify's casts write them)
+  // and the Cloudflare tokens' zones.
+  for (const t of f.integrationTokens) {
+    await withOrg(db, org(t.team), async (tx) =>
+      tx.execute(
+        `INSERT INTO deploy.integration_tokens (id, uuid, provider, name, token, capabilities, metadata, org_id, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6::json, $7::json, $8, $9, $9)`,
+        [t.id, t.uuid, t.provider, t.name, await encrypt(tx, t.team, "integration_tokens.token", t.token), JSON.stringify(t.capabilities), t.metadata === null ? null : JSON.stringify(t.metadata), org(t.team), t.created_at],
+      ),
+    );
+  }
+  await db.execute("SELECT setval(pg_get_serial_sequence('deploy.integration_tokens', 'id'), $1)", [Math.max(...f.integrationTokens.map((t) => t.id))]);
+  for (const z of f.dnsZones) {
+    const team = f.integrationTokens.find((t) => t.id === z.token)!.team;
+    await withOrg(db, org(team), (tx) =>
+      tx.execute(
+        `INSERT INTO deploy.dns_provider_zones (id, uuid, integration_token_id, provider_zone_id, name, account_id, account_name, org_id, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9)`,
+        [z.id, z.uuid, z.token, z.provider_zone_id, z.name, z.account_id, z.account_name, org(team), z.created_at],
+      ),
+    );
+  }
+  await db.execute("SELECT setval(pg_get_serial_sequence('deploy.dns_provider_zones', 'id'), $1)", [Math.max(...f.dnsZones.map((z) => z.id))]);
   return {
     pg,
     async inCase(fn) {

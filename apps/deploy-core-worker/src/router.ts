@@ -4,6 +4,7 @@ import { handleDatabases } from "./handlers/databases.js";
 import { handleDestinations } from "./handlers/destinations.js";
 import { handleHealth } from "./handlers/health.js";
 import { handleCloudTokens } from "./handlers/cloud-tokens.js";
+import { handleIntegrationTokens } from "./handlers/integration-tokens.js";
 import { handleCloudInitScripts } from "./handlers/cloud-init-scripts.js";
 import { handleProjects } from "./handlers/projects.js";
 import { handlePrivateKeys } from "./handlers/private-keys.js";
@@ -54,6 +55,8 @@ export const ORG_DEPLOY_SERVICES_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/se
 /** Keys & Tokens → Cloud Tokens: the collection, a token, and a token's validate action. */
 export const ORG_DEPLOY_CLOUD_TOKENS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/cloud-tokens((?:\/[^/]+){0,2})\/?$/;
 /** Keys & Tokens → Cloud-Init Scripts: the collection and a script. */
+/** DP-104: Keys & Tokens → Integration Tokens: [/{uuid}[/refresh-zones]]. */
+export const ORG_DEPLOY_INTEGRATION_TOKENS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/integration-tokens((?:\/[^/]+){0,2})\/?$/;
 export const ORG_DEPLOY_CLOUD_INIT_SCRIPTS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/cloud-init-scripts((?:\/[^/]+){0,1})\/?$/;
 /** Keys & Tokens → Private Keys: the collection and up to two segments below it. */
 export const ORG_DEPLOY_PRIVATE_KEYS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/private-keys((?:\/[^/]+){0,2})\/?$/;
@@ -171,6 +174,16 @@ export async function route(request: Request, env: Env): Promise<Response> {
       if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
       const segments = (cloud[2] ?? "").split("/").filter(Boolean);
       return (cloudTokens ? handleCloudTokens : handleCloudInitScripts)(env, requestId, actor, orgId, segments, request);
+    }
+
+    const integrationTokens = url.pathname.match(ORG_DEPLOY_INTEGRATION_TOKENS_RE);
+    if (integrationTokens) {
+      const orgId = parseOrgPublicId(integrationTokens[1]!);
+      if (!orgId) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
+      const segments = (integrationTokens[2] ?? "").split("/").filter(Boolean);
+      return handleIntegrationTokens(env, requestId, actor, orgId, segments, request);
     }
 
     const privateKeys = url.pathname.match(ORG_DEPLOY_PRIVATE_KEYS_RE);

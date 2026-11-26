@@ -67,6 +67,7 @@ const GithubSourcePage = lazy(() => import("./pages/SourceGithub").then((m) => (
 const GithubSetupCallbackPage = lazy(() => import("./pages/SourceGithub").then((m) => ({ default: m.GithubSetupCallbackPage })));
 const CloudTokensPage = lazy(() => import("./pages/CloudTokens").then((m) => ({ default: m.CloudTokensPage })));
 const CloudTokenShowPage = lazy(() => import("./pages/CloudTokenEditor").then((m) => ({ default: m.CloudTokenShowPage })));
+const IntegrationTokensPage = lazy(() => import("./pages/IntegrationTokens").then((m) => ({ default: m.IntegrationTokensPage })));
 const ApiTokensPage = lazy(() => import("./pages/ApiTokens").then((m) => ({ default: m.ApiTokensPage })));
 const CloudInitScriptsPage = lazy(() => import("./pages/CloudInitScripts").then((m) => ({ default: m.CloudInitScriptsPage })));
 const CloudInitScriptShowPage = lazy(() => import("./pages/CloudInitScriptEditor").then((m) => ({ default: m.CloudInitScriptShowPage })));
@@ -526,6 +527,12 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <CloudTokenShowPage />
+        </Suspense>
+      );
+    case "security.integration-tokens":
+      return (
+        <Suspense fallback={null}>
+          <IntegrationTokensPage />
         </Suspense>
       );
     case "security.api-tokens":

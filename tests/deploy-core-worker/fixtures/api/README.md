@@ -1,4 +1,4 @@
-# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85, DP-86, DP-87, DP-88, DP-90, DP-93)
+# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85, DP-86, DP-87, DP-88, DP-90, DP-93, DP-104)
 
 What Coolify's real API answers, so that Freeploy's `/api/v1` (api-edge's middleware and limiters,
 identity-worker's teams and tokens, deploy-core-worker's projects, environments, private keys and servers —
@@ -17,8 +17,8 @@ application's rollback images and rollback, executing a scheduled task, a storag
 Sentinel, log drains, image scanning, Cloudflare Tunnel, host key, registries and transfer, database imports and GitHub
 Apps — DP-88 — and the cloud provider tokens, the Hetzner, DigitalOcean, Vultr and Hostinger catalogs and a server's proxy
 configuration — DP-90 — and a policy's denial on a route of each group, a GitHub App's repositories and branches, an
-application from a private repository through a GitHub App and a Hostinger server — DP-93) can be replayed against it byte
-for byte.
+application from a private repository through a GitHub App and a Hostinger server — DP-93 — and the integration tokens
+and a Cloudflare token's zones — DP-104) can be replayed against it byte for byte.
 
 | File | What it is |
 |---|---|
@@ -133,6 +133,18 @@ member's token itself. A GitHub App case's `setupCoolify`/`setupFreeploy` make A
 `requests` hold the JWT Coolify signed at the fixed clock, which Freeploy's request must equal. A Hostinger case's
 `after` reads the servers made after the fixture's (`id > 2`), with a generated name as `<random-name>`. No masking is
 added.
+
+DP-104's replay (`src/api-v1-integration-tokens.test.ts`: /security/integration-tokens) adds six integration tokens at the
+end of both fixtures (`integrationTokens`: two Cloudflare tokens, a Doppler, an Infisical and a Vault token of team 1, a
+Cloudflare token of team 2, with fixed `created_at` so that `latest()` orders them) and four DNS zones of the Cloudflare
+tokens (`dnsZones`), made through Coolify's models (the `encrypted` and JSON casts) and stored with the org's key on
+Freeploy's side. An `http` answer may carry `failedConnection: true`: emit.php answers it with `Http::failedConnection()`
+(Laravel's ConnectionException), the test's fetch throws. `requests` also records a Vault request's `x-vault-token` and
+`x-vault-namespace` (absent from every earlier request, so no earlier golden changes). A secret manager link or a managed
+DNS record of a case is a row of `setupCoolify` (Coolify's secret_manager_links has no team) and `setupFreeploy` (org_id).
+The `after` queries read the JSON columns as `::jsonb::text`, `zones_synced_at` as whether it is set (Freeploy's clock is the
+test's), a created row's id as null and a zone's token as whether it is the fixture's. The goldens of the earlier cases
+are those already committed: emitted again, they differ only in random values. No masking is added.
 
 ## How the goldens are made
 

@@ -100,6 +100,9 @@ export interface Fixture {
   previews: Array<{ id: number; uuid: string; application: number; pull_request_id: number; pull_request_html_url: string; git_type: string | null; fqdn: string | null; docker_registry_image_tag: string | null; status: string; created_at: string }>;
   /** DP-90: the teams' cloud provider tokens (the token in plain text; each side stores it encrypted). */
   cloudTokens: Array<{ id: number; uuid: string; team: number; provider: string; token: string; name: string; description: string | null }>;
+  /** DP-104: the teams' integration tokens (the token in plain text; each side stores it encrypted) and the Cloudflare tokens' zones. */
+  integrationTokens: Array<{ id: number; uuid: string; team: number; provider: string; name: string; token: string; capabilities: string[]; metadata: Record<string, unknown> | null; created_at: string }>;
+  dnsZones: Array<{ id: number; uuid: string; token: number; provider_zone_id: string; name: string; account_id: string | null; account_name: string | null; created_at: string }>;
 }
 
 /** DP-90: one answer of an outside HTTP API (emit.php's Http::fake()): the first whose `match` fits "METHOD URL". */
@@ -110,12 +113,17 @@ export interface HttpAnswer {
   body?: unknown;
   raw?: string;
   headers?: Record<string, string>;
+  /** DP-104: a transfer that fails (Http::failedConnection(): Laravel's ConnectionException). */
+  failedConnection?: boolean;
 }
 /** DP-90: a request the API sent to the outside API, as emit.php records it. */
 export interface HttpRequestRecord {
   method: string;
   url: string;
   authorization?: string;
+  /** DP-104: a Vault token and namespace, in their own headers. */
+  "x-vault-token"?: string;
+  "x-vault-namespace"?: string;
   body?: unknown;
 }
 
@@ -166,6 +174,8 @@ const FIXTURE_UUIDS = new Set<string>([
   ...CASES.fixture.dockerCleanupExecutions.map((x) => x.uuid),
   ...CASES.fixture.previews.map((p) => p.uuid),
   ...CASES.fixture.cloudTokens.map((t) => t.uuid),
+  ...CASES.fixture.integrationTokens.map((t) => t.uuid),
+  ...CASES.fixture.dnsZones.map((z) => z.uuid),
 ]);
 
 const LARAVEL_DATE = /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{6}Z$/;

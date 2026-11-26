@@ -109,6 +109,13 @@ const CT_DO = "c2paritycloudocean000002";
 const CT_VULTR = "c3paritycloudvultr000003";
 const CT_HOSTINGER = "c4paritycloudhostinger04";
 const CT_OTHER = "c5paritycloudother000005";
+// DP-104: the integration tokens and the DNS zones of the Cloudflare ones
+const IT_CF = "i1paritycloudflaredns001";
+const IT_CF_TUNNEL = "i2paritycloudflaretun002";
+const IT_DOPPLER = "i3paritydoppler000000003";
+const IT_INFISICAL = "i4parityinfisical0000004";
+const IT_VAULT = "i5parityvault00000000005";
+const IT_OTHER = "i6othercloudflare0000006";
 
 const fixture = {
   teams: [
@@ -295,6 +302,22 @@ const fixture = {
     { id: 3, uuid: CT_VULTR, team: T1, provider: "vultr", token: "vu-team1-token", name: "Parity Vultr", description: null },
     { id: 4, uuid: CT_HOSTINGER, team: T1, provider: "hostinger", token: "ho-team1-token", name: "Parity Hostinger", description: null },
     { id: 5, uuid: CT_OTHER, team: T2, provider: "hetzner", token: "hz-team2-token", name: "Other Hetzner", description: null },
+  ],
+  // DP-104: integration tokens, one per provider for team 1 (two Cloudflare ones) and a Cloudflare token of team 2 (the token
+  // encrypted on each side), and the DNS zones of the Cloudflare tokens.
+  integrationTokens: [
+    { id: 1, uuid: IT_CF, team: T1, provider: "cloudflare", name: "Parity Cloudflare", token: "cf-team1-token", capabilities: ["dns"], metadata: { zones_synced_at: "2025-12-30T00:00:00+00:00" }, created_at: "2025-12-20 00:00:00" },
+    { id: 2, uuid: IT_CF_TUNNEL, team: T1, provider: "cloudflare", name: "Parity Tunnel", token: "cf-team1-tunnel", capabilities: ["dns", "tunnel"], metadata: { automatic_dns: false, proxied_dns: true }, created_at: "2025-12-21 00:00:00" },
+    { id: 3, uuid: IT_DOPPLER, team: T1, provider: "doppler", name: "Parity Doppler", token: "dp.st.team1token", capabilities: ["secrets"], metadata: null, created_at: "2025-12-22 00:00:00" },
+    { id: 4, uuid: IT_INFISICAL, team: T1, provider: "infisical", name: "Parity Infisical", token: "inf-team1-secret", capabilities: ["secrets"], metadata: { base_url: "https://app.infisical.com", client_id: "client-team1" }, created_at: "2025-12-23 00:00:00" },
+    { id: 5, uuid: IT_VAULT, team: T1, provider: "vault", name: "Parity Vault", token: "hvs.team1token", capabilities: ["secrets"], metadata: { base_url: "https://vault.example.com:8200", namespace: "admin/team-a", timeout: 15 }, created_at: "2025-12-24 00:00:00" },
+    { id: 6, uuid: IT_OTHER, team: T2, provider: "cloudflare", name: "Other Cloudflare", token: "cf-team2-token", capabilities: ["dns"], metadata: null, created_at: "2025-12-25 00:00:00" },
+  ],
+  dnsZones: [
+    { id: 1, uuid: "z1parityzoneexamplecom01", token: 1, provider_zone_id: "zone-com", name: "example.com", account_id: "acc-1", account_name: "Parity Account", created_at: "2025-12-20 00:00:00" },
+    { id: 2, uuid: "z2parityzoneexampleorg02", token: 1, provider_zone_id: "zone-org", name: "example.org", account_id: "acc-1", account_name: "Parity Account", created_at: "2025-12-20 00:00:00" },
+    { id: 3, uuid: "z3parityzoneexamplenet03", token: 2, provider_zone_id: "zone-net", name: "example.net", account_id: "acc-1", account_name: null, created_at: "2025-12-21 00:00:00" },
+    { id: 4, uuid: "z4otherzoneotherexample4", token: 6, provider_zone_id: "zone-other", name: "other.example", account_id: "acc-9", account_name: "Other Account", created_at: "2025-12-25 00:00:00" },
   ],
   // secret: what follows "<id>|" in the bearer token (Sanctum's 40 random characters and crc32b).
   tokens: [
@@ -2793,6 +2816,153 @@ add({ name: "server via Hostinger: create, not JSON", token: "write", method: "P
 add({ name: "server via Hostinger: create with a read token", token: "read", method: "POST", path: HOS, body: HOS_BODY });
 add({ name: "server via Hostinger: create, a member", token: "memberRead", method: "POST", path: HOS, body: HOS_BODY });
 denial("server via Hostinger: create", "memberWrite", WRITE_DELETE, WRITER);
+
+// ── DP-104: integration tokens (IntegrationTokensController) ────────────────
+// The providers' APIs are Http::fake() (`http`): Cloudflare's token verification, zones, DNS records and tunnels, Doppler's
+// /v3/me, Infisical's universal-auth login and Vault's lookup-self. A Cloudflare token's zones are read again when it is
+// stored (syncZones()); `failedConnection` is a transfer that fails (Laravel's ConnectionException).
+const IT = "/api/v1/security/integration-tokens";
+const IT_AFTER = {
+  tokens: `select case when id <= 6 then id end as fixture_id, provider, name, capabilities::jsonb::text as capabilities, (metadata::jsonb - 'zones_synced_at')::text as metadata, (metadata::jsonb->>'zones_synced_at') is not null as zones_synced, token is not null as has_token from integration_tokens where uuid <> '${IT_OTHER}' order by id`,
+  zones: `select case when z.id <= 4 then z.id end as fixture_id, z.integration_token_id <= 6 as fixture_token, z.provider_zone_id, z.name, z.account_id, z.account_name from dns_provider_zones z join integration_tokens t on t.id = z.integration_token_id where t.uuid <> '${IT_OTHER}' order by z.provider_zone_id, z.id`,
+};
+const CF = "https://api\\.cloudflare\\.com/client/v4";
+const cfZone = (id, name, account = { id: "acc-1", name: "Parity Account" }) => ({ id, name, status: "active", account });
+const CF_VERIFY = (status = "active", code = 200) => answer(`^GET ${CF}/user/tokens/verify$`, code === 200 ? { success: true, result: { id: "tok-1", status } } : { success: false, errors: [{ code: 1000, message: "Invalid API Token" }] }, code);
+const CF_ZONE_PROBE = (zones = [cfZone("zone-com", "example.com")], code = 200) => answer(`^GET ${CF}/zones\\?per_page=1$`, { success: code === 200, result: zones }, code);
+const CF_RECORDS = (zone = "zone-com", code = 200) => answer(`^GET ${CF}/zones/${zone}/dns_records\\?per_page=1$`, { success: code === 200, result: [] }, code);
+const CF_TUNNELS = (account = "acc-1", code = 200) => answer(`^GET ${CF}/accounts/${account}/cfd_tunnel\\?per_page=1&is_deleted=false$`, { success: code === 200, result: [] }, code);
+const CF_ZONES = (page, zones, totalPages = 1, code = 200, success = code === 200) => answer(`^GET ${CF}/zones\\?page=${page}&per_page=50$`, { success, result: zones, result_info: { page, per_page: 50, total_pages: totalPages, count: zones.length } }, code);
+const CF_OK = (zones = [cfZone("zone-com", "Example.com"), cfZone("zone-new", "new.example", { id: "acc-2", name: null })]) => [CF_VERIFY(), CF_ZONE_PROBE(), CF_RECORDS(), CF_ZONES(1, zones)];
+const DOPPLER_ME = (code = 200) => answer("^GET https://api\\.doppler\\.com/v3/me$", code === 200 ? { workplace: { name: "Parity" }, type: "service_token" } : { messages: ["Invalid Auth token"], success: false }, code);
+const INFISICAL_LOGIN = (base = "https://app\\.infisical\\.com", code = 200) => answer(`^POST ${base}/api/v1/auth/universal-auth/login$`, code === 200 ? { accessToken: "inf-access-token", expiresIn: 7200, tokenType: "Bearer" } : { message: "Invalid credentials" }, code);
+const VAULT_LOOKUP = (base = "https://vault\\.example\\.com:8200", code = 200) => answer(`^GET ${base}/v1/auth/token/lookup-self$`, code === 200 ? { data: { policies: ["default"] } } : { errors: ["permission denied"] }, code);
+const FAILED = (match) => ({ match, failedConnection: true });
+/** A secret manager link of the Doppler token (Coolify's table has no team), a managed record in a zone of the first Cloudflare token (each side's tenancy column). */
+const SECRET_LINK = (tenancy) => `insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, ${tenancy ? `${tenancy[0]}, ` : ""}created_at, updated_at) values ('l1paritysecretlink000001', 'App\\Models\\Application', 1, 3, null, ${tenancy ? `${tenancy[1]}, ` : ""}'2025-12-30 00:00:00', '2025-12-30 00:00:00')`;
+const MANAGED_RECORD = (tenancy, zone = 1) => `insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, ${tenancy[0]}, created_at, updated_at) values ('m1paritymanagedrecord001', 1, ${zone}, 'rec-1', 'A', 'app.example.org', '203.0.113.10', true, ${tenancy[1]}, '2025-12-30 00:00:00', '2025-12-30 00:00:00')`;
+const COOLIFY_TENANCY = ["team_id", T1];
+const FREEPLOY_TENANCY = ["org_id", "deploy.current_org()"];
+const WITH_LINK = { setupCoolify: [SECRET_LINK(null)], setupFreeploy: [SECRET_LINK(FREEPLOY_TENANCY)] };
+const WITH_RECORD = (zone = 1) => ({ setupCoolify: [MANAGED_RECORD(COOLIFY_TENANCY, zone)], setupFreeploy: [MANAGED_RECORD(FREEPLOY_TENANCY, zone)] });
+
+// list and show
+add({ name: "integration tokens: list", token: "read", method: "GET", path: IT });
+add({ name: "integration tokens: list, read:sensitive", token: "sensitive", method: "GET", path: IT });
+add({ name: "integration tokens: list by a member", token: "memberRead", method: "GET", path: IT });
+add({ name: "integration tokens: show a cloudflare token", token: "read", method: "GET", path: `${IT}/${IT_CF}` });
+add({ name: "integration tokens: show a cloudflare token without automatic DNS", token: "read", method: "GET", path: `${IT}/${IT_CF_TUNNEL}` });
+add({ name: "integration tokens: show a doppler token", token: "read", method: "GET", path: `${IT}/${IT_DOPPLER}` });
+add({ name: "integration tokens: show a vault token", token: "sensitive", method: "GET", path: `${IT}/${IT_VAULT}` });
+add({ name: "integration tokens: show unknown", token: "read", method: "GET", path: `${IT}/nonexistentuuid` });
+add({ name: "integration tokens: show another team's", token: "read", method: "GET", path: `${IT}/${IT_OTHER}` });
+add({ name: "integration tokens: show by a member", token: "memberRead", method: "GET", path: `${IT}/${IT_CF}` });
+add({ name: "integration tokens: show unknown by a member", token: "memberRead", method: "GET", path: `${IT}/nonexistentuuid` });
+
+// create: Cloudflare
+add({ name: "integration tokens: create a cloudflare token", token: "write", method: "POST", path: IT, body: { provider: "cloudflare", name: "New Cloudflare", token: "cf-new-token", capabilities: ["dns"] }, http: CF_OK(), after: IT_AFTER });
+add({ name: "integration tokens: create a cloudflare token, the default capability", token: "write", method: "POST", path: IT, body: { provider: "cloudflare", name: "Default DNS", token: "cf-new-token" }, http: CF_OK(), after: IT_AFTER });
+add({ name: "integration tokens: create a cloudflare token with a tunnel, no automatic DNS, proxied", token: "write", method: "POST", path: IT, body: { provider: "cloudflare", name: "With tunnel", token: "cf-tunnel-token", capabilities: ["tunnel", "dns", "dns"], automatic_dns: false, proxied_dns: true }, http: [...CF_OK(), CF_TUNNELS()], after: IT_AFTER });
+add({ name: "integration tokens: create a cloudflare token, zones on two pages", token: "write", method: "POST", path: IT, body: { provider: "cloudflare", name: "Two pages", token: "cf-new-token" }, http: [CF_VERIFY(), CF_ZONE_PROBE(), CF_RECORDS(), CF_ZONES(1, [cfZone("zone-a", "A.example")], 2), CF_ZONES(2, [cfZone("zone-b", "b.example", null)], 2)], after: IT_AFTER });
+add({ name: "integration tokens: create a cloudflare token, not active", token: "write", method: "POST", path: IT, body: { provider: "cloudflare", name: "Disabled", token: "cf-disabled" }, http: [CF_VERIFY("disabled")], after: IT_AFTER });
+add({ name: "integration tokens: create a cloudflare token, refused", token: "write", method: "POST", path: IT, body: { provider: "cloudflare", name: "Refused", token: "cf-bad" }, http: [CF_VERIFY("active", 401)], after: IT_AFTER });
+add({ name: "integration tokens: create a cloudflare token, no zone", token: "write", method: "POST", path: IT, body: { provider: "cloudflare", name: "No zone", token: "cf-new-token" }, http: [CF_VERIFY(), CF_ZONE_PROBE([])], after: IT_AFTER });
+add({ name: "integration tokens: create a cloudflare token, no DNS access", token: "write", method: "POST", path: IT, body: { provider: "cloudflare", name: "No records", token: "cf-new-token" }, http: [CF_VERIFY(), CF_ZONE_PROBE(), CF_RECORDS("zone-com", 403)], after: IT_AFTER });
+add({ name: "integration tokens: create a cloudflare token, no tunnel access", token: "write", method: "POST", path: IT, body: { provider: "cloudflare", name: "No tunnel", token: "cf-new-token", capabilities: ["dns", "tunnel"] }, http: [CF_VERIFY(), CF_ZONE_PROBE(), CF_RECORDS(), CF_TUNNELS("acc-1", 403)], after: IT_AFTER });
+add({ name: "integration tokens: create a cloudflare token, a tunnel and a zone without an account", token: "write", method: "POST", path: IT, body: { provider: "cloudflare", name: "No account", token: "cf-new-token", capabilities: ["dns", "tunnel"] }, http: [CF_VERIFY(), CF_ZONE_PROBE([cfZone("zone-com", "example.com", null)]), CF_RECORDS()], after: IT_AFTER });
+add({ name: "integration tokens: create a cloudflare token, the zones refused", token: "write", method: "POST", path: IT, body: { provider: "cloudflare", name: "Zones refused", token: "cf-new-token" }, http: [CF_VERIFY(), CF_ZONE_PROBE(), CF_RECORDS(), CF_ZONES(1, [], 1, 403)], after: IT_AFTER });
+add({ name: "integration tokens: create a cloudflare token, the zones not synchronized", token: "write", method: "POST", path: IT, body: { provider: "cloudflare", name: "Zones failed", token: "cf-new-token" }, http: [CF_VERIFY(), CF_ZONE_PROBE(), CF_RECORDS(), CF_ZONES(1, [], 1, 200, false)], after: IT_AFTER });
+add({ name: "integration tokens: create a cloudflare token, Cloudflare unreachable", token: "write", method: "POST", path: IT, body: { provider: "cloudflare", name: "Offline", token: "cf-new-token" }, http: [FAILED(`^GET ${CF}/user/tokens/verify$`)], after: IT_AFTER });
+add({ name: "integration tokens: create a cloudflare token, a tunnel without DNS", token: "write", method: "POST", path: IT, body: { provider: "cloudflare", name: "Tunnel only", token: "cf-new-token", capabilities: ["tunnel"] }, http: [] });
+add({ name: "integration tokens: create a cloudflare token, the secrets capability and metadata", token: "write", method: "POST", path: IT, body: { provider: "cloudflare", name: "Wrong", token: "cf-new-token", capabilities: ["dns", "secrets", 7], metadata: { base_url: "https://x.example" }, automatic_dns: "maybe" }, http: [] });
+add({ name: "integration tokens: create a cloudflare token, no capabilities", token: "write", method: "POST", path: IT, body: { provider: "cloudflare", name: "None", token: "cf-new-token", capabilities: [] }, http: [] });
+add({ name: "integration tokens: create a cloudflare token, capabilities not a list", token: "write", method: "POST", path: IT, body: { provider: "cloudflare", name: "String", token: "cf-new-token", capabilities: "dns", proxied_dns: 2 }, http: [] });
+// create: the secret managers
+add({ name: "integration tokens: create a doppler token", token: "write", method: "POST", path: IT, body: { provider: "doppler", name: "New Doppler", token: "dp.sa.newtoken" }, http: [DOPPLER_ME()], after: IT_AFTER });
+add({ name: "integration tokens: create a doppler token, refused", token: "write", method: "POST", path: IT, body: { provider: "doppler", name: "Refused", token: "dp.st.bad" }, http: [DOPPLER_ME(401)], after: IT_AFTER });
+add({ name: "integration tokens: create a doppler token, Doppler unreachable", token: "write", method: "POST", path: IT, body: { provider: "doppler", name: "Offline", token: "dp.st.offline" }, http: [FAILED("^GET https://api\\.doppler\\.com/v3/me$")], after: IT_AFTER });
+add({ name: "integration tokens: create a doppler token, not a service token", token: "write", method: "POST", path: IT, body: { provider: "doppler", name: "Personal", token: "dp.pt.personal", automatic_dns: true, capabilities: ["dns"] }, http: [] });
+add({ name: "integration tokens: create an infisical token", token: "write", method: "POST", path: IT, body: { provider: "infisical", name: "New Infisical", token: "inf-new-secret", metadata: { base_url: "https://app.infisical.com/", client_id: "client-new", timeout: 30, extra: "" } }, http: [INFISICAL_LOGIN()], after: IT_AFTER });
+add({ name: "integration tokens: create an infisical token, the login refused", token: "write", method: "POST", path: IT, body: { provider: "infisical", name: "Refused", token: "inf-bad", metadata: { base_url: "https://app.infisical.com", client_id: "client-bad" } }, http: [INFISICAL_LOGIN("https://app\\.infisical\\.com", 401)], after: IT_AFTER });
+add({ name: "integration tokens: create an infisical token, no access token", token: "write", method: "POST", path: IT, body: { provider: "infisical", name: "No token", token: "inf-x", metadata: { base_url: "https://app.infisical.com", client_id: "client-x" } }, http: [answer("^POST https://app\\.infisical\\.com/api/v1/auth/universal-auth/login$", { accessToken: "" })], after: IT_AFTER });
+add({ name: "integration tokens: create an infisical token, no settings", token: "write", method: "POST", path: IT, body: { provider: "infisical", name: "Missing", token: "inf-x" }, http: [] });
+add({ name: "integration tokens: create an infisical token, invalid settings", token: "write", method: "POST", path: IT, body: { provider: "infisical", name: "Invalid", token: "inf-x", metadata: { base_url: "ftp://files.example.com", client_id: 12, timeout: 0 } }, http: [] });
+add({ name: "integration tokens: create an infisical token, a timeout too long", token: "write", method: "POST", path: IT, body: { provider: "infisical", name: "Slow", token: "inf-x", metadata: { base_url: "https://app.infisical.com", client_id: "c", timeout: "abc" } }, http: [] });
+add({ name: "integration tokens: create an infisical token, a private address", token: "write", method: "POST", path: IT, body: { provider: "infisical", name: "Private", token: "inf-x", metadata: { base_url: "https://private.example", client_id: "c" } }, http: [], after: IT_AFTER });
+add({ name: "integration tokens: create an infisical token, an unresolvable host", token: "write", method: "POST", path: IT, body: { provider: "infisical", name: "Nowhere", token: "inf-x", metadata: { base_url: "https://unresolvable.example", client_id: "c" } }, http: [] });
+add({ name: "integration tokens: create a vault token", token: "write", method: "POST", path: IT, body: { provider: "vault", name: "New Vault", token: "hvs.newtoken", capabilities: ["secrets"], metadata: { base_url: "https://vault.example.com:8200", namespace: "admin/new", timeout: "20" } }, http: [VAULT_LOOKUP()], after: IT_AFTER });
+add({ name: "integration tokens: create a vault token without a namespace", token: "write", method: "POST", path: IT, body: { provider: "vault", name: "Plain Vault", token: "hvs.plain", metadata: { base_url: "https://vault.example.com:8200" } }, http: [VAULT_LOOKUP()], after: IT_AFTER });
+add({ name: "integration tokens: create a vault token, refused", token: "write", method: "POST", path: IT, body: { provider: "vault", name: "Refused", token: "hvs.bad", metadata: { base_url: "https://vault.example.com:8200" } }, http: [VAULT_LOOKUP("https://vault\\.example\\.com:8200", 403)], after: IT_AFTER });
+add({ name: "integration tokens: create a vault token, metadata not an object", token: "write", method: "POST", path: IT, body: { provider: "vault", name: "Bad", token: "hvs.x", metadata: "https://vault.example.com" }, http: [] });
+// create: the request
+add({ name: "integration tokens: create, invalid", token: "write", method: "POST", path: IT, body: { provider: "aws", name: "x".repeat(256), token: 5, description: "not allowed", capabilities: ["secrets"] }, http: [] });
+add({ name: "integration tokens: create, nothing required", token: "write", method: "POST", path: IT, body: { other: 1 }, http: [] });
+add({ name: "integration tokens: create, a provider that is not a string", token: "write", method: "POST", path: IT, body: { provider: ["cloudflare"], name: "n", token: "t" }, http: [] });
+add({ name: "integration tokens: create, not JSON", token: "write", method: "POST", path: IT, raw: "provider=doppler", contentType: "application/x-www-form-urlencoded", http: [] });
+add({ name: "integration tokens: create, empty JSON", token: "write", method: "POST", path: IT, raw: "{}", http: [] });
+add({ name: "integration tokens: create with a read token", token: "read", method: "POST", path: IT, body: { provider: "doppler", name: "n", token: "dp.st.x" }, http: [] });
+
+// update
+add({ name: "integration tokens: update, a new name", token: "write", method: "PATCH", path: `${IT}/${IT_CF}`, body: { name: "Renamed Cloudflare" }, http: [], after: IT_AFTER });
+add({ name: "integration tokens: update, the same name", token: "write", method: "PATCH", path: `${IT}/${IT_CF}`, body: { name: "Parity Cloudflare" }, http: [], after: { ...IT_AFTER, touched: "select updated_at = created_at as untouched from integration_tokens where id = 1" } });
+add({ name: "integration tokens: update, automatic DNS off", token: "write", method: "PATCH", path: `${IT}/${IT_CF}`, body: { automatic_dns: false, proxied_dns: true }, http: [CF_VERIFY(), CF_ZONE_PROBE(), CF_RECORDS()], after: IT_AFTER });
+add({ name: "integration tokens: update, the flags as they are", token: "write", method: "PATCH", path: `${IT}/${IT_CF_TUNNEL}`, body: { automatic_dns: false, proxied_dns: 1 }, http: [], after: IT_AFTER });
+add({ name: "integration tokens: update, a new cloudflare token", token: "write", method: "PATCH", path: `${IT}/${IT_CF}`, body: { token: "cf-rotated" }, http: [CF_VERIFY(), CF_ZONE_PROBE(), CF_RECORDS(), CF_ZONES(1, [cfZone("zone-com", "EXAMPLE.com", { id: "acc-1", name: "Renamed Account" }), cfZone("zone-io", "example.io")])], after: IT_AFTER });
+add({ name: "integration tokens: update, a new cloudflare token, a zone with a managed record kept", token: "write", method: "PATCH", path: `${IT}/${IT_CF}`, body: { token: "cf-rotated" }, ...WITH_RECORD(2), http: [CF_VERIFY(), CF_ZONE_PROBE(), CF_RECORDS(), CF_ZONES(1, [cfZone("zone-com", "example.com")])], after: IT_AFTER });
+add({ name: "integration tokens: update, the tunnel capability", token: "write", method: "PATCH", path: `${IT}/${IT_CF}`, body: { capabilities: ["dns", "tunnel"] }, http: [CF_VERIFY(), CF_ZONE_PROBE(), CF_RECORDS(), CF_TUNNELS(), CF_ZONES(1, [cfZone("zone-com", "example.com")])], after: IT_AFTER });
+add({ name: "integration tokens: update, the capabilities in another order", token: "write", method: "PATCH", path: `${IT}/${IT_CF_TUNNEL}`, body: { capabilities: ["tunnel", "dns"] }, http: [], after: IT_AFTER });
+add({ name: "integration tokens: update, the new cloudflare token refused", token: "write", method: "PATCH", path: `${IT}/${IT_CF}`, body: { token: "cf-bad", name: "Never saved" }, http: [CF_VERIFY("expired")], after: IT_AFTER });
+add({ name: "integration tokens: update, the zones refused", token: "write", method: "PATCH", path: `${IT}/${IT_CF}`, body: { token: "cf-rotated", name: "Never saved" }, http: [CF_VERIFY(), CF_ZONE_PROBE(), CF_RECORDS(), CF_ZONES(1, [], 1, 403)], after: IT_AFTER });
+add({ name: "integration tokens: update, Cloudflare unreachable", token: "write", method: "PATCH", path: `${IT}/${IT_CF}`, body: { token: "cf-rotated" }, http: [CF_VERIFY(), FAILED(`^GET ${CF}/zones\\?per_page=1$`)], after: IT_AFTER });
+add({ name: "integration tokens: update a cloudflare token, invalid", token: "write", method: "PATCH", path: `${IT}/${IT_CF}`, body: { name: 7, capabilities: ["tunnel"], metadata: { a: 1 }, automatic_dns: "x", provider: "doppler" }, http: [] });
+add({ name: "integration tokens: update a cloudflare token, no capabilities", token: "write", method: "PATCH", path: `${IT}/${IT_CF}`, body: { capabilities: [], name: "" }, http: [] });
+add({ name: "integration tokens: update a doppler token, a new name", token: "write", method: "PATCH", path: `${IT}/${IT_DOPPLER}`, body: { name: "Renamed Doppler", metadata: {} }, http: [], after: IT_AFTER });
+add({ name: "integration tokens: update a doppler token, a new token", token: "write", method: "PATCH", path: `${IT}/${IT_DOPPLER}`, body: { token: "dp.sa.rotated" }, http: [DOPPLER_ME()], after: IT_AFTER });
+add({ name: "integration tokens: update a doppler token, not a service token", token: "write", method: "PATCH", path: `${IT}/${IT_DOPPLER}`, body: { token: "dp.pt.personal", automatic_dns: true }, http: [] });
+add({ name: "integration tokens: update an infisical token, the base URL without the secret", token: "write", method: "PATCH", path: `${IT}/${IT_INFISICAL}`, body: { metadata: { base_url: "https://infisical.example.com" } }, http: [], after: IT_AFTER });
+add({ name: "integration tokens: update an infisical token, the base URL with the secret", token: "write", method: "PATCH", path: `${IT}/${IT_INFISICAL}`, body: { token: "inf-rotated", metadata: { base_url: "https://infisical.example.com" } }, http: [INFISICAL_LOGIN("https://infisical\\.example\\.com")], after: IT_AFTER });
+add({ name: "integration tokens: update an infisical token, a timeout", token: "write", method: "PATCH", path: `${IT}/${IT_INFISICAL}`, body: { metadata: { timeout: 45 } }, http: [INFISICAL_LOGIN()], after: IT_AFTER });
+add({ name: "integration tokens: update an infisical token, the timeout removed", token: "write", method: "PATCH", path: `${IT}/${IT_INFISICAL}`, body: { metadata: { timeout: "" } }, http: [], after: IT_AFTER });
+add({ name: "integration tokens: update an infisical token, the client ID removed", token: "write", method: "PATCH", path: `${IT}/${IT_INFISICAL}`, body: { metadata: { client_id: "" } }, http: [] });
+add({ name: "integration tokens: update an infisical token, the login refused", token: "write", method: "PATCH", path: `${IT}/${IT_INFISICAL}`, body: { metadata: { timeout: 5 } }, http: [INFISICAL_LOGIN("https://app\\.infisical\\.com", 401)], after: IT_AFTER });
+add({ name: "integration tokens: update a vault token, the namespace without the token", token: "write", method: "PATCH", path: `${IT}/${IT_VAULT}`, body: { metadata: { namespace: "admin/team-b" } }, http: [] });
+add({ name: "integration tokens: update a vault token, a private address", token: "write", method: "PATCH", path: `${IT}/${IT_VAULT}`, body: { token: "hvs.rotated", metadata: { base_url: "https://private.example" } }, http: [], after: IT_AFTER });
+add({ name: "integration tokens: update a vault token, a new token", token: "write", method: "PATCH", path: `${IT}/${IT_VAULT}`, body: { token: "hvs.rotated", name: "Rotated Vault" }, http: [VAULT_LOOKUP()], after: IT_AFTER });
+add({ name: "integration tokens: update a vault token, the namespace removed", token: "write", method: "PATCH", path: `${IT}/${IT_VAULT}`, body: { token: "hvs.rotated", metadata: { namespace: null } }, http: [VAULT_LOOKUP()], after: IT_AFTER });
+add({ name: "integration tokens: update, not JSON", token: "write", method: "PATCH", path: `${IT}/${IT_CF}`, raw: "name=x", contentType: "application/x-www-form-urlencoded", http: [] });
+add({ name: "integration tokens: update, empty JSON", token: "write", method: "PATCH", path: `${IT}/${IT_CF}`, raw: "{}", http: [] });
+add({ name: "integration tokens: update unknown", token: "write", method: "PATCH", path: `${IT}/nonexistentuuid`, body: { name: "x" }, http: [] });
+add({ name: "integration tokens: update another team's", token: "write", method: "PATCH", path: `${IT}/${IT_OTHER}`, body: { name: "x" }, http: [] });
+
+// delete
+add({ name: "integration tokens: delete a doppler token", token: "delete", method: "DELETE", path: `${IT}/${IT_DOPPLER}`, after: IT_AFTER });
+add({ name: "integration tokens: delete a cloudflare token and its zones", token: "delete", method: "DELETE", path: `${IT}/${IT_CF}`, after: IT_AFTER });
+add({ name: "integration tokens: delete, a secret manager source", token: "delete", method: "DELETE", path: `${IT}/${IT_DOPPLER}`, ...WITH_LINK, after: IT_AFTER });
+add({ name: "integration tokens: delete, it manages DNS records", token: "delete", method: "DELETE", path: `${IT}/${IT_CF}`, ...WITH_RECORD(), after: IT_AFTER });
+add({ name: "integration tokens: delete unknown", token: "delete", method: "DELETE", path: `${IT}/nonexistentuuid` });
+add({ name: "integration tokens: delete another team's", token: "delete", method: "DELETE", path: `${IT}/${IT_OTHER}` });
+add({ name: "integration tokens: delete with a write token", token: "write", method: "DELETE", path: `${IT}/${IT_DOPPLER}` });
+
+// sync zones
+const SZ = (uuid) => `${IT}/${uuid}/sync-zones`;
+add({ name: "integration tokens: sync zones", token: "write", method: "POST", path: SZ(IT_CF), http: [CF_ZONES(1, [cfZone("zone-com", "example.com"), cfZone("zone-dev", "Example.DEV", { id: "acc-3", name: "Dev" })])], after: IT_AFTER });
+add({ name: "integration tokens: sync zones, a zone with a managed record kept", token: "write", method: "POST", path: SZ(IT_CF), ...WITH_RECORD(2), http: [CF_ZONES(1, [])], after: IT_AFTER });
+add({ name: "integration tokens: sync zones, three pages", token: "write", method: "POST", path: SZ(IT_CF_TUNNEL), http: [CF_ZONES(1, [cfZone("zone-net", "example.net")], 3), CF_ZONES(2, [cfZone("zone-p2", "p2.example")], 3), CF_ZONES(3, [cfZone("zone-p3", "p3.example")], 3)], after: IT_AFTER });
+add({ name: "integration tokens: sync zones, refused", token: "write", method: "POST", path: SZ(IT_CF), http: [CF_ZONES(1, [], 1, 403)], after: IT_AFTER });
+add({ name: "integration tokens: sync zones, Cloudflare fails", token: "write", method: "POST", path: SZ(IT_CF), http: [CF_ZONES(1, [], 1, 500)], after: IT_AFTER });
+add({ name: "integration tokens: sync zones, Cloudflare unreachable", token: "write", method: "POST", path: SZ(IT_CF), http: [FAILED(`^GET ${CF}/zones`)], after: IT_AFTER });
+add({ name: "integration tokens: sync zones of a doppler token", token: "write", method: "POST", path: SZ(IT_DOPPLER), http: [] });
+add({ name: "integration tokens: sync zones, unknown", token: "write", method: "POST", path: SZ("nonexistentuuid"), http: [] });
+add({ name: "integration tokens: sync zones, another team's", token: "write", method: "POST", path: SZ(IT_OTHER), http: [] });
+add({ name: "integration tokens: sync zones with a read token", token: "read", method: "POST", path: SZ(IT_CF), http: [] });
+add({ name: "integration tokens: GET sync zones", token: "write", method: "GET", path: SZ(IT_CF) });
+
+// a member with write and delete levels: IntegrationTokenPolicy wants a team admin
+denial("integration tokens: create a doppler token", "memberWrite", WRITE_DELETE, WRITER);
+denial("integration tokens: update, a new name", "memberWrite", WRITE_DELETE, WRITER);
+denial("integration tokens: delete a doppler token", "memberDelete", WRITE_DELETE, WRITER);
+denial("integration tokens: sync zones", "memberWrite", WRITE_DELETE, WRITER);
+denial("integration tokens: list", "memberWrite", WRITE_DELETE, WRITER);
 
 /** The tables whose column order emit.php writes into the goldens (`columns`): what a nested relation serializes in. */
 const columnsOf = ["servers", "server_settings", "standalone_dockers", "application_settings", "applications", "environment_variables", "application_deployment_queues", "scheduled_database_backups", "scheduled_database_backup_executions", "services", "service_applications", "service_databases", "projects", "environments", "standalone_postgresqls", "standalone_redis", "standalone_mongodbs", "standalone_mysqls", "standalone_mariadbs", "standalone_keydbs", "standalone_dragonflies", "standalone_clickhouses", "local_persistent_volumes", "local_file_volumes", "github_apps"];
