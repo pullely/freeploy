@@ -143,6 +143,11 @@ export interface NormalizedSubscriptionEvent extends NormalizedEventBase {
   productId: string | null;
   currentPeriodStart: string | null;
   currentPeriodEnd: string | null;
+  /**
+   * When a subscription that still has access is scheduled to end (cancel at
+   * period end), else null — null also clears an earlier schedule (uncanceled).
+   */
+  cancelAt: string | null;
 }
 
 export interface NormalizedInvoiceEvent extends NormalizedEventBase {
