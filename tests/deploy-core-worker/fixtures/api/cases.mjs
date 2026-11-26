@@ -3472,7 +3472,6 @@ add({ name: "dns service: release, no record", token: "delete", method: "DELETE"
 denial("dns zones: list", "memberRead", null, MEMBER);
 denial("dns application: release, deleted", "memberDelete", DEPLOY_DELETE, DEPLOYER);
 denial("dns service: release, deleted", "memberDelete", DEPLOY_DELETE, DEPLOYER);
-
 // ── DP-108: POST /services/{uuid}/clone (clone_service()) ───────────────────
 // The clone is the service's row replicated, its tags, scheduled tasks, variables and secret manager link copied, then
 // Service::parse() on it (its applications, databases, volumes and files made again), and the backup schedules of its
@@ -3530,6 +3529,210 @@ add({ name: "service clone: another team's service", token: "write", method: "PO
 add({ name: "service clone: unknown service, empty JSON", token: "write", method: "POST", path: SVC_CLONE("nonexistentuuid"), raw: "{}" });
 add({ name: "service clone: unknown service, validation first", token: "write", method: "POST", path: SVC_CLONE("nonexistentuuid"), body: { name: "x" } });
 add({ name: "service clone: with a read token", token: "read", method: "POST", path: SVC_CLONE(), body: { destination_uuid: D_MAIN } });
+
+// ── DP-107: the instance's API and MCP switches (OtherController), the token's team (TeamController::update_current_team)
+// and a server's update (ServersController::update_server) ──
+// POST /disable, /mcp/enable and /mcp/disable are routes/api.php's first group: api.ip.allowed, auth:sanctum, api.token.team
+// and api.ability:write, without ApiAllowed and api.sensitive. Each asks for a root-team token of the instance admin
+// (DP-106's `rootTeamToken`: the platform operator in Freeploy); `after` reads row 0 of instance_settings.
+const INSTANCE_AFTER = { settings: "select is_api_enabled, is_mcp_server_enabled from instance_settings where id = 0" };
+const MCP_ON = "update instance_settings set is_mcp_server_enabled = true where id = 0";
+add({ name: "instance: disable the API, a team token", token: "root", method: "POST", path: "/api/v1/disable", after: INSTANCE_AFTER });
+add({ name: "instance: disable the API, a root-team token", method: "POST", path: "/api/v1/disable", ...AS_ROOT_TEAM("root"), after: INSTANCE_AFTER });
+add({ name: "instance: disable the API, a root-team write token", method: "POST", path: "/api/v1/disable", ...AS_ROOT_TEAM("write"), after: INSTANCE_AFTER });
+add({ name: "instance: disable the API, a root-team read token", method: "POST", path: "/api/v1/disable", ...AS_ROOT_TEAM("read"), after: INSTANCE_AFTER });
+add({ name: "instance: disable the API, a team write token", token: "write", method: "POST", path: "/api/v1/disable", after: INSTANCE_AFTER });
+add({ name: "instance: disable the API while it is disabled", token: "root", instance: { is_api_enabled: false }, method: "POST", path: "/api/v1/disable" });
+add({ name: "instance: disable the API with GET", token: "root", method: "GET", path: "/api/v1/disable" });
+add({ name: "instance: disable the API with GET, a read token", token: "read", method: "GET", path: "/api/v1/disable" });
+add({ name: "instance: disable the API, no token", method: "POST", path: "/api/v1/disable" });
+add({ name: "allowed: the instance routes refuse an address not allowed", token: "root", instance: { allowed_ips: "198.51.100.1" }, method: "POST", path: "/api/v1/mcp/enable" });
+add({ name: "allowed: the instance routes refuse an address not allowed, no token", instance: { allowed_ips: "198.51.100.1" }, method: "POST", path: "/api/v1/mcp/enable" });
+add({ name: "allowed: the instance routes refuse an address not allowed, a read token", token: "read", instance: { allowed_ips: "198.51.100.1" }, method: "POST", path: "/api/v1/mcp/enable" });
+add({ name: "allowed: the instance routes take an allowed address", token: "root", ip: "198.51.100.1", instance: { allowed_ips: "198.51.100.1" }, method: "POST", path: "/api/v1/mcp/enable" });
+add({ name: "instance: enable the MCP server, a root-team token", method: "POST", path: "/api/v1/mcp/enable", ...AS_ROOT_TEAM("root"), after: INSTANCE_AFTER });
+add({ name: "instance: enable the MCP server, a root-team write token", method: "POST", path: "/api/v1/mcp/enable", ...AS_ROOT_TEAM("write"), after: INSTANCE_AFTER });
+add({ name: "instance: enable the MCP server, a root-team read token", method: "POST", path: "/api/v1/mcp/enable", ...AS_ROOT_TEAM("read"), after: INSTANCE_AFTER });
+add({ name: "instance: enable the MCP server, a team token", token: "root", method: "POST", path: "/api/v1/mcp/enable", after: INSTANCE_AFTER });
+add({ name: "instance: enable the MCP server while the API is disabled", instance: { is_api_enabled: false }, method: "POST", path: "/api/v1/mcp/enable", ...AS_ROOT_TEAM("root"), after: INSTANCE_AFTER });
+add({ name: "instance: enable the MCP server, already enabled", method: "POST", path: "/api/v1/mcp/enable", ...AS_ROOT_TEAM("root"), setupCoolify: [...ROOT_TEAM_SETUP, MCP_ON], after: INSTANCE_AFTER });
+add({ name: "instance: disable the MCP server, a root-team token", method: "POST", path: "/api/v1/mcp/disable", ...AS_ROOT_TEAM("root"), setupCoolify: [...ROOT_TEAM_SETUP, MCP_ON], after: INSTANCE_AFTER });
+add({ name: "instance: disable the MCP server, already disabled", method: "POST", path: "/api/v1/mcp/disable", ...AS_ROOT_TEAM("write"), after: INSTANCE_AFTER });
+add({ name: "instance: disable the MCP server, a team token", token: "root", method: "POST", path: "/api/v1/mcp/disable", setupCoolify: [MCP_ON], after: INSTANCE_AFTER });
+add({ name: "instance: disable the MCP server, a member", token: "memberRead", method: "POST", path: "/api/v1/mcp/disable" });
+add({ name: "instance: enable the MCP server with GET", token: "root", method: "GET", path: "/api/v1/mcp/enable" });
+add({ name: "instance: enable the MCP server with a body", method: "POST", path: "/api/v1/mcp/enable", ...AS_ROOT_TEAM("root"), body: { enabled: false }, after: INSTANCE_AFTER });
+
+// PATCH /team: the token's team's two settings (Freeploy: the org's, membership-worker's). `after` reads team 1.
+const TEAM_AFTER = { team: "select name, description, is_build_server_fallback_enabled, scan_images_on_new_servers from teams where id = 1" };
+add({ name: "team: update both settings", token: "write", method: "PATCH", path: "/api/v1/team", body: { is_build_server_fallback_enabled: false, scan_images_on_new_servers: true }, after: TEAM_AFTER });
+add({ name: "team: update the build server fallback", token: "root", method: "PATCH", path: "/api/v1/team", body: { is_build_server_fallback_enabled: "0" }, after: TEAM_AFTER });
+add({ name: "team: update image scanning of new servers", token: "write", method: "PATCH", path: "/api/v1/team", body: { scan_images_on_new_servers: 1 }, after: TEAM_AFTER });
+add({ name: "team: update, the same values", token: "write", method: "PATCH", path: "/api/v1/team", body: { is_build_server_fallback_enabled: true, scan_images_on_new_servers: false }, after: TEAM_AFTER });
+add({ name: "team: update, nothing", token: "write", method: "PATCH", path: "/api/v1/team", raw: "{}", after: TEAM_AFTER });
+add({ name: "team: update, no body", token: "write", method: "PATCH", path: "/api/v1/team", after: TEAM_AFTER });
+add({ name: "team: update, values that are not booleans", token: "write", method: "PATCH", path: "/api/v1/team", body: { is_build_server_fallback_enabled: "yes", scan_images_on_new_servers: 2 }, after: TEAM_AFTER });
+add({ name: "team: update, null values", token: "write", method: "PATCH", path: "/api/v1/team", body: { is_build_server_fallback_enabled: null, scan_images_on_new_servers: null }, after: TEAM_AFTER });
+add({ name: "team: update, one null value", token: "write", method: "PATCH", path: "/api/v1/team", body: { is_build_server_fallback_enabled: null, scan_images_on_new_servers: true }, after: TEAM_AFTER });
+add({ name: "team: update, the name and description", token: "write", method: "PATCH", path: "/api/v1/team", body: { name: "Renamed", description: "New", scan_images_on_new_servers: true }, after: TEAM_AFTER });
+add({ name: "team: update, only fields that are not allowed", token: "write", method: "PATCH", path: "/api/v1/team", body: { name: "Renamed" }, after: TEAM_AFTER });
+add({ name: "team: update, a field in the query", token: "write", method: "PATCH", path: "/api/v1/team?scan_images_on_new_servers=1", body: { is_build_server_fallback_enabled: false }, after: TEAM_AFTER });
+add({ name: "team: update with a read token", token: "read", method: "PATCH", path: "/api/v1/team", body: { scan_images_on_new_servers: true } });
+add({
+  name: "team: update, then show",
+  token: "write",
+  method: "PATCH",
+  path: "/api/v1/team",
+  sequence: [
+    { token: "write", method: "PATCH", path: "/api/v1/team", body: { is_build_server_fallback_enabled: false, scan_images_on_new_servers: true } },
+    { token: "read", method: "GET", path: "/api/v1/team" },
+  ],
+});
+
+// PATCH /servers/{uuid}: the fixture's server of team 1 (203.0.113.10:22, root, key 1). `after` reads its row and settings.
+const SERVER_UPDATE_AFTER = {
+  server: "select name, description, ip, ip_previous, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status from servers where id = 1",
+  settings:
+    "select server_role, is_build_server, is_terminal_enabled, concurrent_builds, dynamic_timeout, deployment_queue_limit, server_disk_usage_notification_threshold, server_disk_usage_check_frequency, server_disk_usage_notification_interval_hours, connection_timeout, server_timezone, backup_compression_cpu_percentage, wildcard_domain, public_ipv4, public_ipv6, ssh_host_key, ssh_host_key_source, ssh_host_key_trusted_at is not null as host_key_trusted from server_settings where server_id = 1",
+};
+const SU = (uuid = S_MAIN) => `/api/v1/servers/${uuid}`;
+const TRUSTED_KEY = `update server_settings set ssh_host_key = '${HOST_KEY}', ssh_host_key_source = 'api', ssh_host_key_trusted_at = '2025-12-31 00:00:00' where server_id = 1`;
+const BUILD_ONLY = "update server_settings set server_role = 'build', is_build_server = true where server_id = 1";
+add({ name: "servers: update, the name and description", token: "write", method: "PATCH", path: SU(), body: { name: "renamed-server", description: "Renamed" }, after: SERVER_UPDATE_AFTER });
+add({ name: "servers: update, the connection", token: "write", method: "PATCH", path: SU(), setup: [TRUSTED_KEY], body: { ip: "203.0.113.40", port: 2222, user: "deploy", private_key_uuid: K_FREE }, after: SERVER_UPDATE_AFTER });
+add({ name: "servers: update, the same connection", token: "write", method: "PATCH", path: SU(), setup: [TRUSTED_KEY], body: { ip: "203.0.113.10", port: "22", user: "root", private_key_uuid: K_MAIN }, after: SERVER_UPDATE_AFTER });
+add({ name: "servers: update, the user only", token: "write", method: "PATCH", path: SU(), setup: [TRUSTED_KEY], body: { user: " admin " }, after: SERVER_UPDATE_AFTER });
+add({
+  name: "servers: update, every setting",
+  token: "write",
+  method: "PATCH",
+  path: SU(),
+  body: {
+    concurrent_builds: 4,
+    dynamic_timeout: "7200",
+    deployment_queue_limit: 10,
+    server_disk_usage_notification_threshold: 90,
+    server_disk_usage_check_frequency: "0 * * * *",
+    server_disk_usage_notification_interval_hours: 24,
+    connection_timeout: 30,
+    server_timezone: "Europe/Berlin",
+    backup_compression_cpu_percentage: 50,
+    is_terminal_enabled: false,
+    wildcard_domain: "https://apps.example.com",
+    public_ipv4: "203.0.113.11",
+    public_ipv6: "2001:db8::11",
+  },
+  after: SERVER_UPDATE_AFTER,
+});
+add({ name: "servers: update, a human frequency", token: "write", method: "PATCH", path: SU(), body: { server_disk_usage_check_frequency: "daily", is_terminal_enabled: "1" }, after: SERVER_UPDATE_AFTER });
+add({ name: "servers: update, settings cleared", token: "write", method: "PATCH", path: SU(), setup: ["update server_settings set wildcard_domain = 'https://old.example.com', public_ipv4 = '203.0.113.11' where server_id = 1"], body: { wildcard_domain: null, public_ipv4: null, public_ipv6: null, is_terminal_enabled: null, concurrent_builds: null, description: null }, after: SERVER_UPDATE_AFTER });
+add({
+  name: "servers: update, invalid fields",
+  token: "write",
+  method: "PATCH",
+  path: SU(),
+  body: {
+    name: "a\nb",
+    description: "<bad>",
+    ip: "not an ip!",
+    port: 70000,
+    user: "-root",
+    private_key_uuid: 5,
+    server_role: "worker",
+    is_build_server: "yes",
+    instant_validate: "no",
+    proxy_type: 3,
+    concurrent_builds: 0,
+    dynamic_timeout: "x",
+    deployment_queue_limit: 0,
+    server_disk_usage_notification_threshold: 101,
+    server_disk_usage_check_frequency: 5,
+    server_disk_usage_notification_interval_hours: 721,
+    connection_timeout: 301,
+    is_terminal_enabled: "maybe",
+    wildcard_domain: "not a url",
+    public_ipv4: "1.2.3",
+    public_ipv6: "zz::1",
+    server_timezone: "Mars/Base",
+    backup_compression_cpu_percentage: 30,
+    ssh_host_key: "x",
+    extra: 1,
+  },
+  after: SERVER_UPDATE_AFTER,
+});
+add({ name: "servers: update, a short name and a port that is not a number", token: "write", method: "PATCH", path: SU(), body: { name: "ab", port: "ssh", public_ipv4: "2001:db8::1", public_ipv6: "203.0.113.11", backup_compression_cpu_percentage: "abc" } });
+add({ name: "servers: update, an empty timezone", token: "write", method: "PATCH", path: SU(), body: { server_timezone: "" } });
+add({ name: "servers: update, a timezone that is not a string", token: "write", method: "PATCH", path: SU(), body: { server_timezone: 5 } });
+add({ name: "servers: update, a null timezone", token: "write", method: "PATCH", path: SU(), body: { server_timezone: null } });
+add({ name: "servers: update, an empty name", token: "write", method: "PATCH", path: SU(), body: { name: "", user: "" }, after: SERVER_UPDATE_AFTER });
+add({ name: "servers: update, an invalid frequency", token: "write", method: "PATCH", path: SU(), body: { server_disk_usage_check_frequency: "every now and then", name: "kept-out" }, after: SERVER_UPDATE_AFTER });
+add({ name: "servers: update, unknown", token: "write", method: "PATCH", path: SU("nonexistentuuid"), body: { name: "renamed-server" } });
+add({ name: "servers: update, unknown and invalid", token: "write", method: "PATCH", path: SU("nonexistentuuid"), body: { port: 0 } });
+add({ name: "servers: update another team's", token: "root", method: "PATCH", path: SU(S_OTHER), body: { name: "mine-now" } });
+add({ name: "servers: update, an endpoint in use", token: "write", method: "PATCH", path: SU(), ...SECOND, body: { ip: "203.0.113.30" }, after: SERVER_UPDATE_AFTER });
+add({ name: "servers: update, the endpoint in use on another port", token: "write", method: "PATCH", path: SU(), ...SECOND, body: { ip: "203.0.113.30", port: 2200 }, after: SERVER_UPDATE_AFTER });
+add({ name: "servers: update, an invalid proxy type", token: "write", method: "PATCH", path: SU(), body: { proxy_type: "apache", name: "kept-out" }, after: SERVER_UPDATE_AFTER });
+add({ name: "servers: update, an unknown private key", token: "write", method: "PATCH", path: SU(), body: { private_key_uuid: "nonexistentuuid" } });
+add({ name: "servers: update, another team's private key", token: "write", method: "PATCH", path: SU(), body: { private_key_uuid: K_OTHER } });
+add({ name: "servers: update, the legacy flag against the role", token: "write", method: "PATCH", path: SU(), body: { is_build_server: true, server_role: "both" } });
+add({ name: "servers: update, build only with resources", token: "write", method: "PATCH", path: SU(), body: { server_role: "build" }, after: SERVER_UPDATE_AFTER });
+add({ name: "servers: update, build only with the legacy flag and resources", token: "write", method: "PATCH", path: SU(), body: { is_build_server: true } });
+add({ name: "servers: update, build only", token: "write", method: "PATCH", path: SU(), setup: RESOURCES_GONE, body: { server_role: "build" }, after: SERVER_UPDATE_AFTER });
+add({ name: "servers: update, a build server back with the legacy flag", token: "write", method: "PATCH", path: SU(), setup: [...RESOURCES_GONE, BUILD_ONLY], body: { is_build_server: false }, after: SERVER_UPDATE_AFTER });
+add({ name: "servers: update, the legacy flag off on a regular server", token: "write", method: "PATCH", path: SU(), body: { is_build_server: false }, after: SERVER_UPDATE_AFTER });
+add({ name: "servers: update, deployments only without a build server", token: "write", method: "PATCH", path: SU(), body: { server_role: "deployment" }, after: SERVER_UPDATE_AFTER });
+add({ name: "servers: update, the same role", token: "write", method: "PATCH", path: SU(), body: { server_role: "both" }, after: SERVER_UPDATE_AFTER });
+add({ name: "servers: update, the proxy type without deploy", token: "write", method: "PATCH", path: SU(), body: { proxy_type: "caddy", name: "kept-out" }, after: SERVER_UPDATE_AFTER });
+add({ name: "servers: update, the proxy type", token: "root", method: "PATCH", path: SU(), body: { proxy_type: "caddy" }, after: SERVER_UPDATE_AFTER });
+add({ name: "servers: update, the same proxy type", token: "write", method: "PATCH", path: SU(), body: { proxy_type: "Traefik" }, after: SERVER_UPDATE_AFTER });
+add({ name: "servers: update, validating at once", token: "write", method: "PATCH", path: SU(), body: { instant_validate: true, name: "kept-out" }, after: SERVER_UPDATE_AFTER });
+add({ name: "servers: update, not validating", token: "write", method: "PATCH", path: SU(), body: { instant_validate: false, name: "validated-later" }, after: SERVER_UPDATE_AFTER });
+add({ name: "servers: update, a transferred server's connection", token: "write", method: "PATCH", path: SU(), setup: [TRANSFERRED], body: { ip: "203.0.113.40", user: "root", port: 2222, private_key_uuid: K_FREE }, after: SERVER_UPDATE_AFTER });
+add({ name: "servers: update, a transferred server's name", token: "write", method: "PATCH", path: SU(), setup: [TRANSFERRED], body: { name: "renamed-server", ip: "203.0.113.10" }, after: SERVER_UPDATE_AFTER });
+add({ name: "servers: update, nothing", token: "write", method: "PATCH", path: SU(), raw: "{}", after: SERVER_UPDATE_AFTER });
+add({ name: "servers: update, not JSON", token: "write", method: "PATCH", path: SU(), raw: "name=renamed", contentType: "application/x-www-form-urlencoded" });
+add({ name: "servers: update with a read token", token: "read", method: "PATCH", path: SU(), body: { name: "renamed-server" } });
+// A member with write may not update a server (ServerPolicy::update is a team admin's).
+denial("servers: update, the name and description", "memberWrite", WRITE_DELETE, WRITER);
+// GET /audit-events: the team's audit events (AuditEventsController), a team admin's. The fixture has none (a case's
+// transaction is rolled back, so no request leaves one: AuditEvent writes after the commit), so `setupCoolify` makes them —
+// three of team 1 that Freeploy records too (the team renamed, an invitation, a role changed: DP-75's TEAM_EVENTS), one of
+// team 2 and one of the instance (team_id null) — and the Freeploy test gives events-worker the same three entries.
+const AUDIT_ROWS = [
+  "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (1, 1, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team', null, 'Parity Team', 'Parity Team Updated', '2025-12-20 10:00:00')",
+  "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (2, 1, 'ui.team_invitation.created', 'ui', 'created', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team_invitation', null, null, 'Team Invitation Created', '2025-12-21 10:00:00')",
+  "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (3, 1, 'ui.team_member.role_updated', 'ui', 'role_updated', 'info', 'user', 4, 'Parity Admin', 'admin@example.com', 'team_member', null, 'Parity Member', 'Parity Member Role Updated', '2025-12-22 10:00:00')",
+  "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (4, 2, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 3, 'Other Owner', 'other@example.com', 'team', null, 'Other Team', 'Other Team Updated', '2025-12-23 10:00:00')",
+  "insert into audit_events (id, team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) values (5, null, 'system.instance.updated', 'system', 'updated', 'info', 'system', null, null, null, 'instance', null, null, 'Instance Updated', '2025-12-24 10:00:00')",
+];
+const AE = "/api/v1/audit-events";
+const AUDITED = { setupCoolify: AUDIT_ROWS };
+add({ name: "audit events: list", token: "root", method: "GET", path: AE, ...AUDITED });
+add({ name: "audit events: list with a read token", token: "read", method: "GET", path: AE, ...AUDITED });
+add({ name: "audit events: list with read:sensitive", token: "sensitive", method: "GET", path: AE, ...AUDITED });
+add({ name: "audit events: none", token: "read", method: "GET", path: AE });
+add({ name: "audit events: a page", token: "read", method: "GET", path: `${AE}?per_page=1&page=2`, ...AUDITED });
+add({ name: "audit events: the last page", token: "read", method: "GET", path: `${AE}?per_page=2&page=2`, ...AUDITED });
+add({ name: "audit events: past the last page", token: "read", method: "GET", path: `${AE}?page=9`, ...AUDITED });
+add({ name: "audit events: searched", token: "read", method: "GET", path: `${AE}?search=Member`, ...AUDITED });
+add({ name: "audit events: searched by email, without read:sensitive", token: "read", method: "GET", path: `${AE}?search=admin%40example.com`, ...AUDITED });
+add({ name: "audit events: searched by email", token: "root", method: "GET", path: `${AE}?search=admin%40example.com`, ...AUDITED });
+add({ name: "audit events: searched, case-sensitive", token: "read", method: "GET", path: `${AE}?search=member`, ...AUDITED });
+add({ name: "audit events: an empty search", token: "read", method: "GET", path: `${AE}?search=&action=&source=`, ...AUDITED });
+add({ name: "audit events: by action", token: "read", method: "GET", path: `${AE}?action=created`, ...AUDITED });
+add({ name: "audit events: by source", token: "read", method: "GET", path: `${AE}?source=api`, ...AUDITED });
+add({ name: "audit events: by every source", token: "read", method: "GET", path: `${AE}?source=all&action=all`, ...AUDITED });
+add({ name: "audit events: invalid parameters", token: "read", method: "GET", path: `${AE}?per_page=0&page=abc&source=cli&search=${"s".repeat(256)}&action=${"a".repeat(256)}` });
+add({ name: "audit events: too many a page", token: "read", method: "GET", path: `${AE}?per_page=101&page=0` });
+add({ name: "audit events: a page that is not a number", token: "read", method: "GET", path: `${AE}?per_page=ten` });
+add({ name: "audit events: a member", token: "memberRead", method: "GET", path: AE, ...AUDITED });
+add({ name: "audit events with a write-only token", token: "writeOnly", method: "GET", path: AE });
+add({ name: "audit events: POST", token: "root", method: "POST", path: AE, body: { x: 1 } });
+// Forty events of team 1 (a minute apart), two a page: Laravel's UrlWindow puts '...' between the pages.
+const MANY_AUDIT_ROWS = [
+  "insert into audit_events (team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) select 1, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team', null, 'Parity Team', 'Parity Team Updated', timestamp '2025-12-01 00:00:00' + make_interval(mins => g) from generate_series(0, 39) g",
+];
+for (const page of [1, 10, 18, 25]) add({ name: `audit events: many pages, page ${page}`, token: "read", method: "GET", path: `${AE}?per_page=2&page=${page}`, setupCoolify: MANY_AUDIT_ROWS });
 
 /** The tables whose column order emit.php writes into the goldens (`columns`): what a nested relation serializes in. */
 const columnsOf = ["servers", "server_settings", "standalone_dockers", "application_settings", "applications", "environment_variables", "application_deployment_queues", "scheduled_database_backups", "scheduled_database_backup_executions", "services", "service_applications", "service_databases", "projects", "environments", "standalone_postgresqls", "standalone_redis", "standalone_mongodbs", "standalone_mysqls", "standalone_mariadbs", "standalone_keydbs", "standalone_dragonflies", "standalone_clickhouses", "local_persistent_volumes", "local_file_volumes", "github_apps"];

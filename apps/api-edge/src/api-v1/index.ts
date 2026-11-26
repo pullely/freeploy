@@ -14,9 +14,11 @@
 //   4. auth:sanctum: the bearer token ("<id>|<plain text>", or the plain text) — identity-worker resolves it
 //      (once, before the throttle needs its user).
 //   5. api.token.team: the token's user still belongs to its team, and the token has no more access than them.
-//   6. ApiAllowed: API_ENABLED (Coolify's instance setting is_api_enabled) and API_ALLOWED_IPS (allowed_ips).
+//   6. ApiAllowed: API_ENABLED (Coolify's instance setting is_api_enabled) and API_ALLOWED_IPS (allowed_ips). The
+//      instance routes (/disable, /mcp/*: DP-107) have ApiIpAllowed instead, before api.token.team, and no ApiAllowed.
 //   7. api.sensitive, then api.ability:<ability> (root passes).
-//   8. The worker that answers: identity-worker (teams), deploy-core-worker (the rest), or the edge (version).
+//   8. The worker that answers: identity-worker (teams), events-worker (audit events, DP-107), deploy-core-worker (the
+//      rest), or the edge (version).
 //
 // The answers are Coolify's bodies byte for byte, never Freeploy's {error:{…}} envelope.
 import type { Env } from "../env.js";
@@ -94,11 +96,16 @@ async function resolveToken(request: Request, env: Env, requestId: string): Prom
 
 const SERVICE_UNAVAILABLE: CoolifyAnswer = { status: 503, body: '{"message":"Service Unavailable"}', headers: { "content-type": "application/json" } };
 
-async function forward(request: Request, env: Env, requestId: string, target: "identity" | "deploy", path: string, token: Extract<Resolved, { status: "ok" }>): Promise<Response> {
-  const worker = target === "identity" ? env.IDENTITY_WORKER : env.DEPLOY_CORE_WORKER;
+async function forward(request: Request, env: Env, requestId: string, target: "identity" | "deploy" | "events", path: string, token: Extract<Resolved, { status: "ok" }>): Promise<Response> {
+  const worker = target === "identity" ? env.IDENTITY_WORKER : target === "events" ? env.EVENTS_WORKER : env.DEPLOY_CORE_WORKER;
   if (!worker) return toResponse(SERVICE_UNAVAILABLE);
   const url = new URL(request.url);
-  const internal = target === "identity" ? `https://identity.internal/v1/internal/api-v1${path}` : `https://deploy-core.internal/v1/internal/api-v1/${token.orgId}${path}`;
+  const internal =
+    target === "identity"
+      ? `https://identity.internal/v1/internal/api-v1${path}`
+      : target === "events"
+        ? `https://events.internal/v1/internal/api-v1/${token.orgId}${path}`
+        : `https://deploy-core.internal/v1/internal/api-v1/${token.orgId}${path}`;
   const headers = new Headers({
     "x-request-id": requestId,
     "x-actor-subject-id": token.userId,
@@ -109,6 +116,8 @@ async function forward(request: Request, env: Env, requestId: string, target: "i
     [API_V1_HEADERS.canReadSensitive]: token.canReadSensitive ? "1" : "0",
     [API_V1_HEADERS.tokenNumber]: String(token.tokenNumber),
   });
+  // DP-107: the public URL the request came to (Laravel's url()->current(): a paginator's links name it).
+  if (target === "events") headers.set("x-api-v1-url", `${url.origin}${url.pathname}`);
   const contentType = request.headers.get("content-type");
   if (contentType) headers.set("content-type", contentType);
   const init: RequestInit = { method: request.method, headers };
@@ -149,12 +158,15 @@ async function handleRoute(request: Request, env: Env, requestId: string, limite
   // OtherController::healthcheck, outside the authenticated groups.
   if (health) return toResponse(coolifyText("OK"), rl);
   if (!route || token.status === "unauthenticated") return toResponse(COOLIFY_API.notFound(), rl);
+  // DP-107: api.ip.allowed (ApiIpAllowed) of the instance routes' group, before api.token.team (the same body as ApiAllowed's).
+  if (route.instance && !ipAllowed(ip, env.API_ALLOWED_IPS)) return toResponse(COOLIFY_API.ipNotAllowed(), rl);
   // api.token.team
   if (token.status === "invalid_token") return toResponse(COOLIFY_API.invalidTokenTeam(), rl);
   if (token.status === "exceeds_access") return toResponse(COOLIFY_API.exceedsAccess(), rl);
-  // ApiAllowed (Freeploy is one hosted instance: the operator's variables are Coolify's instance settings).
-  if (env.API_ENABLED === "false") return toResponse(COOLIFY_API.apiDisabled(), rl);
-  if (!ipAllowed(ip, env.API_ALLOWED_IPS)) return toResponse(COOLIFY_API.ipNotAllowed(), rl);
+  // ApiAllowed (Freeploy is one hosted instance: the operator's variables are Coolify's instance settings); the instance
+  // routes' group has none (DP-107).
+  if (!route.instance && env.API_ENABLED === "false") return toResponse(COOLIFY_API.apiDisabled(), rl);
+  if (!route.instance && !ipAllowed(ip, env.API_ALLOWED_IPS)) return toResponse(COOLIFY_API.ipNotAllowed(), rl);
   // api.ability: root passes; else any one of the route's abilities.
   if (!token.abilities.includes("root") && !route.abilities.some((a) => token.abilities.includes(a) || token.abilities.includes("*"))) {
     return toResponse(COOLIFY_API.missingAbilities(route.abilities), rl);

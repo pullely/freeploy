@@ -39,6 +39,8 @@ export const PLATFORM_SETTINGS_MORE_COLUMNS = {
   ],
   /** SettingsOauth's Registration. */
   oauth: ["disable_registration_when_oauth_enabled"],
+  /** DP-107: POST /api/v1/mcp/enable and /mcp/disable (OtherController): the instance's MCP server switch, stored only (Freeploy has no /mcp). */
+  mcp: ["is_mcp_server_enabled"],
 } as const;
 export type PlatformSettingsMoreSection = keyof typeof PLATFORM_SETTINGS_MORE_COLUMNS;
 

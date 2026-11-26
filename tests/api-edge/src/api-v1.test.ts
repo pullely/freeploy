@@ -70,6 +70,7 @@ function harness(c: Case) {
     ENVIRONMENT: "test",
     IDENTITY_WORKER: fetcher((req) => (new URL(req.url).pathname === "/v1/internal/api-tokens/resolve" ? Response.json({ data: resolveFixtureToken(req.headers.get("authorization"), c.rootTeamToken) }) : workerAnswer(req))),
     DEPLOY_CORE_WORKER: fetcher(workerAnswer),
+    EVENTS_WORKER: fetcher(workerAnswer),
     ...(c.config?.rate_limit !== undefined && { API_RATE_LIMIT: String(c.config.rate_limit) }),
     ...(c.config?.failed_request_rate_limit !== undefined && { API_FAILED_REQUEST_RATE_LIMIT: String(c.config.failed_request_rate_limit) }),
     ...(c.instance?.is_api_enabled === false && { API_ENABLED: "false" }),
@@ -179,6 +180,31 @@ describe("what the edge sends a worker", () => {
     expect(new URL(h.forwarded[0]!.url).pathname).toBe("/v1/internal/api-v1/team/members");
   });
 
+  it("sends the audit events to events-worker with the public URL, and a team update to identity-worker (DP-107)", async () => {
+    const c = CASES.cases.find((x) => x.name === "audit events: a page")!;
+    const h = harness(c);
+    await h.send(c, golden(c.name));
+    const req = h.forwarded[0]!;
+    expect(`${new URL(req.url).pathname}${new URL(req.url).search}`).toBe(`/v1/internal/api-v1/${ORG}/audit-events?per_page=1&page=2`);
+    expect(req.headers.get("x-api-v1-url")).toBe("https://api.freeploy.dev/api/v1/audit-events");
+    const t = CASES.cases.find((x) => x.name === "team: update both settings")!;
+    const ht = harness(t);
+    await ht.send(t, golden(t.name));
+    expect(ht.forwarded[0]!.method).toBe("PATCH");
+    expect(new URL(ht.forwarded[0]!.url).pathname).toBe("/v1/internal/api-v1/team");
+  });
+
+  it("answers the instance routes while the API is disabled, and checks their IP before the token's team (DP-107)", async () => {
+    const off = CASES.cases.find((x) => x.name === "instance: disable the API while it is disabled")!;
+    const h = harness(off);
+    expect((await h.send(off, golden(off.name))).status).toBe(403);
+    expect(h.forwarded).toHaveLength(1);
+    const ip = CASES.cases.find((x) => x.name === "allowed: the instance routes refuse an address not allowed")!;
+    const hi = harness(ip);
+    await hi.send(ip, golden(ip.name));
+    expect(hi.forwarded).toEqual([]);
+  });
+
   it("is mounted on the edge for /api/ and never for Freeploy's routes", async () => {
     expect(isApiV1Route("/api/v1/projects")).toBe(true);
     expect(isApiV1Route("/v1/organizations")).toBe(false);
@@ -189,12 +215,14 @@ describe("what the edge sends a worker", () => {
 });
 
 describe("the routes", () => {
-  it("are the 309 ported operations of openapi.json (health, the deprecated team aliases and the GET answers of start, restart and stop aside)", () => {
+  it("are the 315 ported operations of openapi.json (health, the deprecated team aliases and the GET answers of start, restart and stop aside)", () => {
     const openapi = JSON.parse(readFileSync(resolve(FIXTURES, "../../../../specs/epics/freeploy-coolify-parity/parity/openapi.operations.json"), "utf8")) as { rows: Array<{ method: string; path: string }> };
     const ops = new Set(openapi.rows.map((r) => `${r.method} ${r.path}`));
     const routes = API_V1_ROUTES.map((r) => `${r.method} /api/v1${r.path}`);
     const inOpenapi = routes.filter((r) => ops.has(r));
     expect(routes.filter((r) => !ops.has(r))).toEqual([
+      // OtherController::post_required (DP-107)
+      "GET /api/v1/disable",
       "GET /api/v1/teams/current",
       "GET /api/v1/teams/current/members",
       // OtherController::post_required (DP-71)
@@ -215,7 +243,7 @@ describe("the routes", () => {
       "GET /api/v1/services/{uuid}/restart",
       "GET /api/v1/services/{uuid}/stop",
     ]);
-    expect(inOpenapi.length + 1 /* GET /api/v1/health */).toBe(309);
+    expect(inOpenapi.length + 1 /* GET /api/v1/health */).toBe(315);
   });
 
   it("take the first match in routes/api.php's order and ignore a trailing slash", () => {
@@ -251,7 +279,11 @@ describe("the routes", () => {
     expect(matchApiRoute("GET", "/hetzner/volumes")).toBeNull();
     expect(matchApiRoute("POST", "/servers/s1/transfer/complete")).toBeNull();
     expect(matchApiRoute("PATCH", "/team/envs/10")?.target).toBe("deploy");
-    expect(matchApiRoute("PATCH", "/team")).toBeNull();
+    // DP-107: the team's settings (identity-worker) and the instance routes' group.
+    expect(matchApiRoute("PATCH", "/team")?.target).toBe("identity");
+    expect(matchApiRoute("POST", "/mcp/enable")?.instance).toBe(true);
+    expect(matchApiRoute("GET", "/mcp/enable")).toBeNull();
+    expect(matchApiRoute("POST", "/servers/import")).toBeNull();
     expect(matchApiRoute("GET", "/deployments/applications/a1")?.path).toBe("/deployments/applications/{uuid}");
     // DP-78
     expect(matchApiRoute("GET", "/deployments/q1")?.path).toBe("/deployments/{uuid}");
@@ -266,7 +298,7 @@ describe("the routes", () => {
     expect(matchApiRoute("GET", "/tags/t1")).toBeNull();
     expect(matchApiRoute("GET", "/servers/s1/resources")?.path).toBe("/servers/{uuid}/resources");
     expect(matchApiRoute("DELETE", "/servers/s1")?.abilities).toEqual(["delete"]);
-    expect(matchApiRoute("PATCH", "/servers/s1")).toBeNull();
+    expect(matchApiRoute("PATCH", "/servers/s1")?.abilities).toEqual(["write"]);
     // DP-106: the secret-manager group's resource types (->whereIn()), and the instance's email settings.
     expect(matchApiRoute("GET", "/services/f1/secret-manager")?.path).toBe("/{resource_type}/{uuid}/secret-manager");
     expect(matchApiRoute("PATCH", "/applications/a1/secret-manager")?.path).toBe("/applications/{uuid}/secret-manager");

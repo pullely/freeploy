@@ -30,6 +30,9 @@ export interface Organization {
   parentOrgId: string | null;
   createdAt: Date;
   updatedAt: Date;
+  /** DP-107 (migration 730): Coolify's team settings; absent where the row was read without them. */
+  isBuildServerFallbackEnabled?: boolean;
+  scanImagesOnNewServers?: boolean;
 }
 
 export interface OrganizationMember {

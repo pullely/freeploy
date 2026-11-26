@@ -1,0 +1,28 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-107
+  title: "DP9/DP10: the team's settings (PATCH /api/v1/team), the team's audit events, the instance's API and MCP switches and a server's update on /api/v1"
+spec:
+  goal: On DP-70's pipeline, six of the seven operations still planned in DP9 and DP10 are ported and held to goldens emitted by Coolify's PHP — PATCH /team (the two team settings, stored on membership.organizations by migration 730 and answered by GET /team too), GET /audit-events (events-worker's audit entries of the team audit log page, as Laravel's LengthAwarePaginator writes a page), POST /disable, POST /mcp/enable and POST /mcp/disable (routes/api.php's first group — api.ip.allowed, no ApiAllowed — and the platform operator as Coolify's root-team instance admin; the MCP switch stored in row 0 of deploy.instance_settings, disabling the API a 501 since API access is api-edge's API_ENABLED) and PATCH /servers/{uuid} (every rule and refusal of update_server, then the server's columns and settings, a validation or a proxy start a 501); 6 more of openapi.json's 330 operations are ported (315 in all, with DP-108's). POST /servers/import stays planned (its bundle validator and dry run are not ported; a real import needs the SSH executor). identity-worker asks membership-worker for the team (an existing binding), api-edge forwards the audit events to events-worker (an existing binding); no binding is added.
+  affects:
+    - apps/api-edge/**
+    - apps/deploy-core-worker/**
+    - apps/identity-worker/**
+    - apps/membership-worker/**
+    - apps/events-worker/**
+    - packages/contracts/**
+    - packages/db/**
+    - tests/api-edge/**
+    - tests/deploy-core-worker/**
+    - tests/identity-worker/**
+    - tests/membership-worker/**
+    - tests/events-worker/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - every DP-107 case of tests/deploy-core-worker/fixtures/api/cases.json replays byte-equal to goldens.json — the switches and the server's update against deploy-core-worker's handler with the rows of the writes (tests/deploy-core-worker/src/api-v1-instance-servers.test.ts), the team's settings against identity-worker's (tests/identity-worker/src/api-v1-team-update.test.ts), the audit events against events-worker's (tests/events-worker/src/api-v1-audit-events.test.ts), the middleware's answers at the edge — and the member denial (46 in all) answers as Coolify's exception handler does
+    - the departures (disabling the API, validating a server at once) answer 501 and store nothing
+    - specs/epics/freeploy-coolify-parity/parity/openapi.operations.json marks the 6 operations ported with taskKey DP-107 (315 ported of 330 with DP-108's), tests/api-edge/src/api-v1.test.ts counts 315, and node tools/parity/inventory.ts --check passes
+    - on stage, PATCH /api/v1/team with a team owner's write token changes the team's settings and GET /api/v1/team answers them; GET /api/v1/audit-events lists the team's recent events; PATCH /api/v1/servers/{uuid} renames a server
+  gates: []

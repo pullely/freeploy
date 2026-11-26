@@ -1,4 +1,4 @@
-# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85, DP-86, DP-87, DP-88, DP-90, DP-93, DP-103, DP-104, DP-105, DP-106, DP-108)
+# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85, DP-86, DP-87, DP-88, DP-90, DP-93, DP-103, DP-104, DP-105, DP-106, DP-107, DP-108)
 
 What Coolify's real API answers, so that Freeploy's `/api/v1` (api-edge's middleware and limiters,
 identity-worker's teams and tokens, deploy-core-worker's projects, environments, private keys and servers —
@@ -21,7 +21,8 @@ application from a private repository through a GitHub App and a Hostinger serve
 and a Cloudflare token's zones — DP-104 — and the GitLab Apps, the Gitea Apps, an application from a private repository
 through a Gitea App and an application's source changed to one — DP-103 — and the team's Cloudflare zones and the managed DNS
 records of an application's and a service's domains — DP-105 — and a resource's secret manager source and the
-instance's email settings — DP-106 — and cloning a service — DP-108) can be replayed against it byte for byte.
+instance's email settings — DP-106 — and the team's two settings, the team's audit events, the instance's API and MCP
+switches and a server's update — DP-107 — and cloning a service — DP-108) can be replayed against it byte for byte.
 
 | File | What it is |
 |---|---|
@@ -195,6 +196,21 @@ a host path, magic variables), a database backup schedule of its database, or DP
 file's labels as `<part-uuid>` (regexp_replace), the encrypted values as whether they are set, and the services of team 1
 counted (`uuid <> …other team's`). Only the new entries were inserted into goldens.json, after DP-105's; the committed ones
 are kept byte for byte. No masking is added.
+
+DP-107's replays are three: `src/api-v1-instance-servers.test.ts` (POST /disable, /mcp/enable, /mcp/disable, and PATCH
+/servers/{uuid}, on Freeploy's database as DP-106's are), `tests/identity-worker/src/api-v1-team-update.test.ts` (PATCH /team:
+identity-worker's answer, membership-worker faked by the fixture's team, whose settings are compared with the `after` row of
+team 1) and `tests/events-worker/src/api-v1-audit-events.test.ts` (GET /audit-events). No fixture rows are added. The instance
+switches use DP-106's root-team tokens (`rootTeamToken`, Freeploy's platform operator); `after` reads row 0's is_api_enabled and
+is_mcp_server_enabled, which the test reads as the operator after setting is_api_enabled as emit.php does per case (Freeploy's
+API switch is api-edge's API_ENABLED, never that column). Coolify's fixture has no audit events — a case is a transaction
+that is rolled back, and AuditEvent writes after the commit — so the audit cases make them in `setupCoolify` (three of team 1
+that Freeploy records too, one of team 2, one of the instance; forty for the pages of Laravel's UrlWindow), and the events-worker
+test gives the same actions as Freeploy's audit entries; its masking of the ids (an event's, its team's and its actor's:
+Coolify's integers, Freeploy's text ids) is that test's own, as tests/identity-worker's masks the team's id. Two cases send a
+raw `{}`: emit.php writes an empty JSON object body as `[]` (json_encode() of the decoded case), which validateIncomingRequest()
+calls invalid where `{}` is empty. One member denial is added (46 in all). Only the new entries were inserted into
+goldens.json, after DP-108's; the committed ones are kept byte for byte. No masking is added to `src/api-v1-goldens.ts`.
 
 ## How the goldens are made
 

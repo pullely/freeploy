@@ -24,7 +24,7 @@ export interface TeamAuditLogDeps {
   now(): Date;
 }
 
-function liveDeps(env: Env, actor: ActorContext, requestId: string): TeamAuditLogDeps | null {
+export function liveTeamAuditDeps(env: Env, actor: ActorContext, requestId: string): TeamAuditLogDeps | null {
   if (!env.PLATFORM_DB || !env.MEMBERSHIP_WORKER || !env.POLICY_WORKER) return null;
   const membership = env.MEMBERSHIP_WORKER;
   const policy = env.POLICY_WORKER;
@@ -48,7 +48,7 @@ function liveDeps(env: Env, actor: ActorContext, requestId: string): TeamAuditLo
 }
 
 export async function handleTeamAuditLog(request: Request, env: Env, requestId: string, actor: ActorContext, orgId: string, injected?: TeamAuditLogDeps): Promise<Response> {
-  const deps = injected ?? liveDeps(env, actor, requestId);
+  const deps = injected ?? liveTeamAuditDeps(env, actor, requestId);
   if (!deps) return errorResponse("internal_error", "Service unavailable", 503, requestId);
   try {
     // Deny by default: nothing is read before the decision.

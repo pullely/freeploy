@@ -76973,6 +76973,2553 @@
             "body": {
                 "json": "{\"message\":\"Missing required permissions: write\"}"
             }
+        },
+        {
+            "name": "instance: disable the API, a team token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"You are not allowed to disable the API.\"}"
+            },
+            "after": {
+                "settings": [
+                    {
+                        "is_api_enabled": true,
+                        "is_mcp_server_enabled": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "instance: disable the API, a root-team token",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"API disabled.\"}"
+            },
+            "after": {
+                "settings": [
+                    {
+                        "is_api_enabled": false,
+                        "is_mcp_server_enabled": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "instance: disable the API, a root-team write token",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"API disabled.\"}"
+            },
+            "after": {
+                "settings": [
+                    {
+                        "is_api_enabled": false,
+                        "is_mcp_server_enabled": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "instance: disable the API, a root-team read token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: write\"}"
+            },
+            "after": {
+                "settings": [
+                    {
+                        "is_api_enabled": true,
+                        "is_mcp_server_enabled": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "instance: disable the API, a team write token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"You are not allowed to disable the API.\"}"
+            },
+            "after": {
+                "settings": [
+                    {
+                        "is_api_enabled": true,
+                        "is_mcp_server_enabled": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "instance: disable the API while it is disabled",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"You are not allowed to disable the API.\"}"
+            }
+        },
+        {
+            "name": "instance: disable the API with GET",
+            "status": 405,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"This endpoint has changed to a POST request.\"}"
+            }
+        },
+        {
+            "name": "instance: disable the API with GET, a read token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: write\"}"
+            }
+        },
+        {
+            "name": "instance: disable the API, no token",
+            "status": 401,
+            "headers": {
+                "content-type": "application/json"
+            },
+            "body": {
+                "json": "{\"message\":\"Unauthenticated.\"}"
+            }
+        },
+        {
+            "name": "allowed: the instance routes refuse an address not allowed",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"success\":false,\"message\":\"You are not allowed to access the API.\"}"
+            }
+        },
+        {
+            "name": "allowed: the instance routes refuse an address not allowed, no token",
+            "status": 401,
+            "headers": {
+                "content-type": "application/json"
+            },
+            "body": {
+                "json": "{\"message\":\"Unauthenticated.\"}"
+            }
+        },
+        {
+            "name": "allowed: the instance routes refuse an address not allowed, a read token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"success\":false,\"message\":\"You are not allowed to access the API.\"}"
+            }
+        },
+        {
+            "name": "allowed: the instance routes take an allowed address",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"You are not allowed to enable the MCP server.\"}"
+            }
+        },
+        {
+            "name": "instance: enable the MCP server, a root-team token",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"MCP server enabled.\"}"
+            },
+            "after": {
+                "settings": [
+                    {
+                        "is_api_enabled": true,
+                        "is_mcp_server_enabled": true
+                    }
+                ]
+            }
+        },
+        {
+            "name": "instance: enable the MCP server, a root-team write token",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"MCP server enabled.\"}"
+            },
+            "after": {
+                "settings": [
+                    {
+                        "is_api_enabled": true,
+                        "is_mcp_server_enabled": true
+                    }
+                ]
+            }
+        },
+        {
+            "name": "instance: enable the MCP server, a root-team read token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: write\"}"
+            },
+            "after": {
+                "settings": [
+                    {
+                        "is_api_enabled": true,
+                        "is_mcp_server_enabled": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "instance: enable the MCP server, a team token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"You are not allowed to enable the MCP server.\"}"
+            },
+            "after": {
+                "settings": [
+                    {
+                        "is_api_enabled": true,
+                        "is_mcp_server_enabled": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "instance: enable the MCP server while the API is disabled",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"MCP server enabled.\"}"
+            },
+            "after": {
+                "settings": [
+                    {
+                        "is_api_enabled": false,
+                        "is_mcp_server_enabled": true
+                    }
+                ]
+            }
+        },
+        {
+            "name": "instance: enable the MCP server, already enabled",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"MCP server enabled.\"}"
+            },
+            "after": {
+                "settings": [
+                    {
+                        "is_api_enabled": true,
+                        "is_mcp_server_enabled": true
+                    }
+                ]
+            }
+        },
+        {
+            "name": "instance: disable the MCP server, a root-team token",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"MCP server disabled.\"}"
+            },
+            "after": {
+                "settings": [
+                    {
+                        "is_api_enabled": true,
+                        "is_mcp_server_enabled": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "instance: disable the MCP server, already disabled",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"MCP server disabled.\"}"
+            },
+            "after": {
+                "settings": [
+                    {
+                        "is_api_enabled": true,
+                        "is_mcp_server_enabled": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "instance: disable the MCP server, a team token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"You are not allowed to disable the MCP server.\"}"
+            },
+            "after": {
+                "settings": [
+                    {
+                        "is_api_enabled": true,
+                        "is_mcp_server_enabled": true
+                    }
+                ]
+            }
+        },
+        {
+            "name": "instance: disable the MCP server, a member",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: write\"}"
+            }
+        },
+        {
+            "name": "instance: enable the MCP server with GET",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Not found.\",\"docs\":\"https:\\/\\/coolify.io\\/docs\"}"
+            }
+        },
+        {
+            "name": "instance: enable the MCP server with a body",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"MCP server enabled.\"}"
+            },
+            "after": {
+                "settings": [
+                    {
+                        "is_api_enabled": true,
+                        "is_mcp_server_enabled": true
+                    }
+                ]
+            }
+        },
+        {
+            "name": "team: update both settings",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"id\":1,\"name\":\"Parity Team\",\"avatar_path\":null,\"avatar_s3_storage_id\":null,\"avatar_storage_type\":null,\"description\":null,\"is_build_server_fallback_enabled\":false,\"is_mcp_server_enabled\":true,\"is_two_factor_required\":false,\"personal_team\":false,\"scan_images_on_new_servers\":true,\"show_boarding\":false,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}"
+            },
+            "after": {
+                "team": [
+                    {
+                        "name": "Parity Team",
+                        "description": null,
+                        "is_build_server_fallback_enabled": false,
+                        "scan_images_on_new_servers": true
+                    }
+                ]
+            }
+        },
+        {
+            "name": "team: update the build server fallback",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"id\":1,\"name\":\"Parity Team\",\"avatar_path\":null,\"avatar_s3_storage_id\":null,\"avatar_storage_type\":null,\"description\":null,\"is_build_server_fallback_enabled\":false,\"is_mcp_server_enabled\":true,\"is_two_factor_required\":false,\"personal_team\":false,\"scan_images_on_new_servers\":false,\"show_boarding\":false,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}"
+            },
+            "after": {
+                "team": [
+                    {
+                        "name": "Parity Team",
+                        "description": null,
+                        "is_build_server_fallback_enabled": false,
+                        "scan_images_on_new_servers": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "team: update image scanning of new servers",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"id\":1,\"name\":\"Parity Team\",\"avatar_path\":null,\"avatar_s3_storage_id\":null,\"avatar_storage_type\":null,\"description\":null,\"is_build_server_fallback_enabled\":true,\"is_mcp_server_enabled\":true,\"is_two_factor_required\":false,\"personal_team\":false,\"scan_images_on_new_servers\":true,\"show_boarding\":false,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}"
+            },
+            "after": {
+                "team": [
+                    {
+                        "name": "Parity Team",
+                        "description": null,
+                        "is_build_server_fallback_enabled": true,
+                        "scan_images_on_new_servers": true
+                    }
+                ]
+            }
+        },
+        {
+            "name": "team: update, the same values",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"id\":1,\"name\":\"Parity Team\",\"avatar_path\":null,\"avatar_s3_storage_id\":null,\"avatar_storage_type\":null,\"description\":null,\"is_build_server_fallback_enabled\":true,\"is_mcp_server_enabled\":true,\"is_two_factor_required\":false,\"personal_team\":false,\"scan_images_on_new_servers\":false,\"show_boarding\":false,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}"
+            },
+            "after": {
+                "team": [
+                    {
+                        "name": "Parity Team",
+                        "description": null,
+                        "is_build_server_fallback_enabled": true,
+                        "scan_images_on_new_servers": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "team: update, nothing",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"is_build_server_fallback_enabled\":[\"The is build server fallback enabled field is required when scan images on new servers is not present.\"],\"scan_images_on_new_servers\":[\"The scan images on new servers field is required when is build server fallback enabled is not present.\"]}}"
+            },
+            "after": {
+                "team": [
+                    {
+                        "name": "Parity Team",
+                        "description": null,
+                        "is_build_server_fallback_enabled": true,
+                        "scan_images_on_new_servers": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "team: update, no body",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"is_build_server_fallback_enabled\":[\"The is build server fallback enabled field is required when scan images on new servers is not present.\"],\"scan_images_on_new_servers\":[\"The scan images on new servers field is required when is build server fallback enabled is not present.\"]}}"
+            },
+            "after": {
+                "team": [
+                    {
+                        "name": "Parity Team",
+                        "description": null,
+                        "is_build_server_fallback_enabled": true,
+                        "scan_images_on_new_servers": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "team: update, values that are not booleans",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"is_build_server_fallback_enabled\":[\"The is build server fallback enabled field must be true or false.\"],\"scan_images_on_new_servers\":[\"The scan images on new servers field must be true or false.\"]}}"
+            },
+            "after": {
+                "team": [
+                    {
+                        "name": "Parity Team",
+                        "description": null,
+                        "is_build_server_fallback_enabled": true,
+                        "scan_images_on_new_servers": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "team: update, null values",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"is_build_server_fallback_enabled\":[\"The is build server fallback enabled field is required when scan images on new servers is not present.\"],\"scan_images_on_new_servers\":[\"The scan images on new servers field is required when is build server fallback enabled is not present.\"]}}"
+            },
+            "after": {
+                "team": [
+                    {
+                        "name": "Parity Team",
+                        "description": null,
+                        "is_build_server_fallback_enabled": true,
+                        "scan_images_on_new_servers": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "team: update, one null value",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"is_build_server_fallback_enabled\":[\"The is build server fallback enabled field must be true or false.\"]}}"
+            },
+            "after": {
+                "team": [
+                    {
+                        "name": "Parity Team",
+                        "description": null,
+                        "is_build_server_fallback_enabled": true,
+                        "scan_images_on_new_servers": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "team: update, the name and description",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"name\":[\"This field is not allowed.\"],\"description\":[\"This field is not allowed.\"]}}"
+            },
+            "after": {
+                "team": [
+                    {
+                        "name": "Parity Team",
+                        "description": null,
+                        "is_build_server_fallback_enabled": true,
+                        "scan_images_on_new_servers": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "team: update, only fields that are not allowed",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"is_build_server_fallback_enabled\":[\"The is build server fallback enabled field is required when scan images on new servers is not present.\"],\"scan_images_on_new_servers\":[\"The scan images on new servers field is required when is build server fallback enabled is not present.\"],\"name\":[\"This field is not allowed.\"]}}"
+            },
+            "after": {
+                "team": [
+                    {
+                        "name": "Parity Team",
+                        "description": null,
+                        "is_build_server_fallback_enabled": true,
+                        "scan_images_on_new_servers": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "team: update, a field in the query",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"id\":1,\"name\":\"Parity Team\",\"avatar_path\":null,\"avatar_s3_storage_id\":null,\"avatar_storage_type\":null,\"description\":null,\"is_build_server_fallback_enabled\":false,\"is_mcp_server_enabled\":true,\"is_two_factor_required\":false,\"personal_team\":false,\"scan_images_on_new_servers\":true,\"show_boarding\":false,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}"
+            },
+            "after": {
+                "team": [
+                    {
+                        "name": "Parity Team",
+                        "description": null,
+                        "is_build_server_fallback_enabled": false,
+                        "scan_images_on_new_servers": true
+                    }
+                ]
+            }
+        },
+        {
+            "name": "team: update with a read token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: write\"}"
+            }
+        },
+        {
+            "name": "team: update, then show",
+            "steps": [
+                {
+                    "status": 200,
+                    "headers": {
+                        "content-type": "application/json",
+                        "x-ratelimit-limit": "200",
+                        "x-ratelimit-remaining": "199"
+                    },
+                    "body": {
+                        "json": "{\"id\":1,\"name\":\"Parity Team\",\"avatar_path\":null,\"avatar_s3_storage_id\":null,\"avatar_storage_type\":null,\"description\":null,\"is_build_server_fallback_enabled\":false,\"is_mcp_server_enabled\":true,\"is_two_factor_required\":false,\"personal_team\":false,\"scan_images_on_new_servers\":true,\"show_boarding\":false,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}"
+                    }
+                },
+                {
+                    "status": 200,
+                    "headers": {
+                        "content-type": "application/json",
+                        "x-ratelimit-limit": "200",
+                        "x-ratelimit-remaining": "198"
+                    },
+                    "body": {
+                        "json": "{\"id\":1,\"name\":\"Parity Team\",\"avatar_path\":null,\"avatar_s3_storage_id\":null,\"avatar_storage_type\":null,\"description\":null,\"is_build_server_fallback_enabled\":false,\"is_mcp_server_enabled\":true,\"is_two_factor_required\":false,\"personal_team\":false,\"scan_images_on_new_servers\":true,\"show_boarding\":false,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "servers: update, the name and description",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"s1parityserveruuid000001\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "renamed-server",
+                        "description": "Renamed",
+                        "ip": "203.0.113.10",
+                        "ip_previous": null,
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "proxy_type": null,
+                        "proxy_status": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false,
+                        "is_terminal_enabled": true,
+                        "concurrent_builds": 2,
+                        "dynamic_timeout": 3600,
+                        "deployment_queue_limit": 25,
+                        "server_disk_usage_notification_threshold": 80,
+                        "server_disk_usage_check_frequency": "0 23 * * *",
+                        "server_disk_usage_notification_interval_hours": 24,
+                        "connection_timeout": 10,
+                        "server_timezone": "UTC",
+                        "backup_compression_cpu_percentage": 25,
+                        "wildcard_domain": null,
+                        "public_ipv4": null,
+                        "public_ipv6": null,
+                        "ssh_host_key": null,
+                        "ssh_host_key_source": null,
+                        "host_key_trusted": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "servers: update, the connection",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"s1parityserveruuid000001\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "parity-server",
+                        "description": "The fixture server",
+                        "ip": "203.0.113.40",
+                        "ip_previous": "203.0.113.10",
+                        "port": 2222,
+                        "user": "deploy",
+                        "private_key_id": 2,
+                        "proxy_type": null,
+                        "proxy_status": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false,
+                        "is_terminal_enabled": true,
+                        "concurrent_builds": 2,
+                        "dynamic_timeout": 3600,
+                        "deployment_queue_limit": 25,
+                        "server_disk_usage_notification_threshold": 80,
+                        "server_disk_usage_check_frequency": "0 23 * * *",
+                        "server_disk_usage_notification_interval_hours": 24,
+                        "connection_timeout": 10,
+                        "server_timezone": "UTC",
+                        "backup_compression_cpu_percentage": 25,
+                        "wildcard_domain": null,
+                        "public_ipv4": null,
+                        "public_ipv6": null,
+                        "ssh_host_key": null,
+                        "ssh_host_key_source": null,
+                        "host_key_trusted": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "servers: update, the same connection",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"s1parityserveruuid000001\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "parity-server",
+                        "description": "The fixture server",
+                        "ip": "203.0.113.10",
+                        "ip_previous": null,
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "proxy_type": null,
+                        "proxy_status": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false,
+                        "is_terminal_enabled": true,
+                        "concurrent_builds": 2,
+                        "dynamic_timeout": 3600,
+                        "deployment_queue_limit": 25,
+                        "server_disk_usage_notification_threshold": 80,
+                        "server_disk_usage_check_frequency": "0 23 * * *",
+                        "server_disk_usage_notification_interval_hours": 24,
+                        "connection_timeout": 10,
+                        "server_timezone": "UTC",
+                        "backup_compression_cpu_percentage": 25,
+                        "wildcard_domain": null,
+                        "public_ipv4": null,
+                        "public_ipv6": null,
+                        "ssh_host_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl",
+                        "ssh_host_key_source": "api",
+                        "host_key_trusted": true
+                    }
+                ]
+            }
+        },
+        {
+            "name": "servers: update, the user only",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"s1parityserveruuid000001\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "parity-server",
+                        "description": "The fixture server",
+                        "ip": "203.0.113.10",
+                        "ip_previous": null,
+                        "port": 22,
+                        "user": "admin",
+                        "private_key_id": 1,
+                        "proxy_type": null,
+                        "proxy_status": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false,
+                        "is_terminal_enabled": true,
+                        "concurrent_builds": 2,
+                        "dynamic_timeout": 3600,
+                        "deployment_queue_limit": 25,
+                        "server_disk_usage_notification_threshold": 80,
+                        "server_disk_usage_check_frequency": "0 23 * * *",
+                        "server_disk_usage_notification_interval_hours": 24,
+                        "connection_timeout": 10,
+                        "server_timezone": "UTC",
+                        "backup_compression_cpu_percentage": 25,
+                        "wildcard_domain": null,
+                        "public_ipv4": null,
+                        "public_ipv6": null,
+                        "ssh_host_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl",
+                        "ssh_host_key_source": "api",
+                        "host_key_trusted": true
+                    }
+                ]
+            }
+        },
+        {
+            "name": "servers: update, every setting",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"s1parityserveruuid000001\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "parity-server",
+                        "description": "The fixture server",
+                        "ip": "203.0.113.10",
+                        "ip_previous": null,
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "proxy_type": null,
+                        "proxy_status": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false,
+                        "is_terminal_enabled": false,
+                        "concurrent_builds": 4,
+                        "dynamic_timeout": 7200,
+                        "deployment_queue_limit": 10,
+                        "server_disk_usage_notification_threshold": 90,
+                        "server_disk_usage_check_frequency": "0 * * * *",
+                        "server_disk_usage_notification_interval_hours": 24,
+                        "connection_timeout": 30,
+                        "server_timezone": "Europe/Berlin",
+                        "backup_compression_cpu_percentage": 50,
+                        "wildcard_domain": "https://apps.example.com",
+                        "public_ipv4": "203.0.113.11",
+                        "public_ipv6": "2001:db8::11",
+                        "ssh_host_key": null,
+                        "ssh_host_key_source": null,
+                        "host_key_trusted": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "servers: update, a human frequency",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"s1parityserveruuid000001\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "parity-server",
+                        "description": "The fixture server",
+                        "ip": "203.0.113.10",
+                        "ip_previous": null,
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "proxy_type": null,
+                        "proxy_status": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false,
+                        "is_terminal_enabled": true,
+                        "concurrent_builds": 2,
+                        "dynamic_timeout": 3600,
+                        "deployment_queue_limit": 25,
+                        "server_disk_usage_notification_threshold": 80,
+                        "server_disk_usage_check_frequency": "daily",
+                        "server_disk_usage_notification_interval_hours": 24,
+                        "connection_timeout": 10,
+                        "server_timezone": "UTC",
+                        "backup_compression_cpu_percentage": 25,
+                        "wildcard_domain": null,
+                        "public_ipv4": null,
+                        "public_ipv6": null,
+                        "ssh_host_key": null,
+                        "ssh_host_key_source": null,
+                        "host_key_trusted": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "servers: update, settings cleared",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"concurrent_builds\":[\"The concurrent builds field must be an integer.\",\"The concurrent builds field must be at least 1.\"]}}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "parity-server",
+                        "description": "The fixture server",
+                        "ip": "203.0.113.10",
+                        "ip_previous": null,
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "proxy_type": null,
+                        "proxy_status": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false,
+                        "is_terminal_enabled": true,
+                        "concurrent_builds": 2,
+                        "dynamic_timeout": 3600,
+                        "deployment_queue_limit": 25,
+                        "server_disk_usage_notification_threshold": 80,
+                        "server_disk_usage_check_frequency": "0 23 * * *",
+                        "server_disk_usage_notification_interval_hours": 24,
+                        "connection_timeout": 10,
+                        "server_timezone": "UTC",
+                        "backup_compression_cpu_percentage": 25,
+                        "wildcard_domain": "https://old.example.com",
+                        "public_ipv4": "203.0.113.11",
+                        "public_ipv6": null,
+                        "ssh_host_key": null,
+                        "ssh_host_key_source": null,
+                        "host_key_trusted": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "servers: update, invalid fields",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"name\":[\"The name must not contain control characters such as new lines.\"],\"description\":[\"The description may only contain letters (including Unicode), numbers, spaces, and common punctuation: - _ . , ! ? ( ) ' \\\" + = * \\/ @ &\"],\"ip\":[\"The ip must be a valid IPv4 address, IPv6 address, or hostname.\"],\"port\":[\"The port field must be between 1 and 65535.\"],\"private_key_uuid\":[\"The private key uuid field must be a string.\"],\"user\":[\"The User may only contain letters, numbers, dots, hyphens, and underscores.\"],\"server_role\":[\"The selected server role is invalid.\"],\"is_build_server\":[\"The is build server field must be true or false.\"],\"instant_validate\":[\"The instant validate field must be true or false.\"],\"proxy_type\":[\"The proxy type field must be a string.\"],\"concurrent_builds\":[\"The concurrent builds field must be at least 1.\"],\"dynamic_timeout\":[\"The dynamic timeout field must be an integer.\"],\"deployment_queue_limit\":[\"The deployment queue limit field must be at least 1.\"],\"server_disk_usage_notification_threshold\":[\"The server disk usage notification threshold field must not be greater than 100.\"],\"server_disk_usage_check_frequency\":[\"The server disk usage check frequency field must be a string.\"],\"server_disk_usage_notification_interval_hours\":[\"The server disk usage notification interval hours field must not be greater than 720.\"],\"connection_timeout\":[\"The connection timeout field must not be greater than 300.\"],\"is_terminal_enabled\":[\"The is terminal enabled field must be true or false.\"],\"wildcard_domain\":[\"The wildcard domain field must be a valid URL.\"],\"public_ipv4\":[\"The public ipv4 field must be a valid IPv4 address.\"],\"public_ipv6\":[\"The public ipv6 field must be a valid IPv6 address.\"],\"server_timezone\":[\"The server_timezone must be a valid timezone.\"],\"backup_compression_cpu_percentage\":[\"The selected backup compression cpu percentage is invalid.\"],\"ssh_host_key\":[\"This field is not allowed.\"],\"extra\":[\"This field is not allowed.\"]}}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "parity-server",
+                        "description": "The fixture server",
+                        "ip": "203.0.113.10",
+                        "ip_previous": null,
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "proxy_type": null,
+                        "proxy_status": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false,
+                        "is_terminal_enabled": true,
+                        "concurrent_builds": 2,
+                        "dynamic_timeout": 3600,
+                        "deployment_queue_limit": 25,
+                        "server_disk_usage_notification_threshold": 80,
+                        "server_disk_usage_check_frequency": "0 23 * * *",
+                        "server_disk_usage_notification_interval_hours": 24,
+                        "connection_timeout": 10,
+                        "server_timezone": "UTC",
+                        "backup_compression_cpu_percentage": 25,
+                        "wildcard_domain": null,
+                        "public_ipv4": null,
+                        "public_ipv6": null,
+                        "ssh_host_key": null,
+                        "ssh_host_key_source": null,
+                        "host_key_trusted": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "servers: update, a short name and a port that is not a number",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"name\":[\"The name must be at least 3 characters.\"],\"port\":[\"The port field must be an integer.\"],\"public_ipv4\":[\"The public ipv4 field must be a valid IPv4 address.\"],\"public_ipv6\":[\"The public ipv6 field must be a valid IPv6 address.\"],\"backup_compression_cpu_percentage\":[\"The backup compression cpu percentage field must be an integer.\",\"The selected backup compression cpu percentage is invalid.\"]}}"
+            }
+        },
+        {
+            "name": "servers: update, an empty timezone",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"server_timezone\":[\"The server timezone field must have a value.\"]}}"
+            }
+        },
+        {
+            "name": "servers: update, a timezone that is not a string",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"server_timezone\":[\"The server timezone field must be a string.\"]}}"
+            }
+        },
+        {
+            "name": "servers: update, a null timezone",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"server_timezone\":[\"The server timezone field must have a value.\"]}}"
+            }
+        },
+        {
+            "name": "servers: update, an empty name",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"name\":[\"The name must not contain control characters such as new lines.\",\"The name field must be a string.\",\"The name must be at least 3 characters.\",\"The name may only contain letters (including Unicode), numbers, spaces, and these characters: - _ . \\/ @ & ( ) # , : +\"]}}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "parity-server",
+                        "description": "The fixture server",
+                        "ip": "203.0.113.10",
+                        "ip_previous": null,
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "proxy_type": null,
+                        "proxy_status": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false,
+                        "is_terminal_enabled": true,
+                        "concurrent_builds": 2,
+                        "dynamic_timeout": 3600,
+                        "deployment_queue_limit": 25,
+                        "server_disk_usage_notification_threshold": 80,
+                        "server_disk_usage_check_frequency": "0 23 * * *",
+                        "server_disk_usage_notification_interval_hours": 24,
+                        "connection_timeout": 10,
+                        "server_timezone": "UTC",
+                        "backup_compression_cpu_percentage": 25,
+                        "wildcard_domain": null,
+                        "public_ipv4": null,
+                        "public_ipv6": null,
+                        "ssh_host_key": null,
+                        "ssh_host_key_source": null,
+                        "host_key_trusted": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "servers: update, an invalid frequency",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"server_disk_usage_check_frequency\":[\"Invalid Cron \\/ Human expression for Disk Usage Check Frequency.\"]}}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "parity-server",
+                        "description": "The fixture server",
+                        "ip": "203.0.113.10",
+                        "ip_previous": null,
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "proxy_type": null,
+                        "proxy_status": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false,
+                        "is_terminal_enabled": true,
+                        "concurrent_builds": 2,
+                        "dynamic_timeout": 3600,
+                        "deployment_queue_limit": 25,
+                        "server_disk_usage_notification_threshold": 80,
+                        "server_disk_usage_check_frequency": "0 23 * * *",
+                        "server_disk_usage_notification_interval_hours": 24,
+                        "connection_timeout": 10,
+                        "server_timezone": "UTC",
+                        "backup_compression_cpu_percentage": 25,
+                        "wildcard_domain": null,
+                        "public_ipv4": null,
+                        "public_ipv6": null,
+                        "ssh_host_key": null,
+                        "ssh_host_key_source": null,
+                        "host_key_trusted": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "servers: update, unknown",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Server not found.\"}"
+            }
+        },
+        {
+            "name": "servers: update, unknown and invalid",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"port\":[\"The port field must be between 1 and 65535.\"]}}"
+            }
+        },
+        {
+            "name": "servers: update another team's",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Server not found.\"}"
+            }
+        },
+        {
+            "name": "servers: update, an endpoint in use",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"A server with this IP\\/Domain and SSH port is already in use.\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "parity-server",
+                        "description": "The fixture server",
+                        "ip": "203.0.113.10",
+                        "ip_previous": null,
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "proxy_type": null,
+                        "proxy_status": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false,
+                        "is_terminal_enabled": true,
+                        "concurrent_builds": 2,
+                        "dynamic_timeout": 3600,
+                        "deployment_queue_limit": 25,
+                        "server_disk_usage_notification_threshold": 80,
+                        "server_disk_usage_check_frequency": "0 23 * * *",
+                        "server_disk_usage_notification_interval_hours": 24,
+                        "connection_timeout": 10,
+                        "server_timezone": "UTC",
+                        "backup_compression_cpu_percentage": 25,
+                        "wildcard_domain": null,
+                        "public_ipv4": null,
+                        "public_ipv6": null,
+                        "ssh_host_key": null,
+                        "ssh_host_key_source": null,
+                        "host_key_trusted": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "servers: update, the endpoint in use on another port",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"s1parityserveruuid000001\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "parity-server",
+                        "description": "The fixture server",
+                        "ip": "203.0.113.30",
+                        "ip_previous": "203.0.113.10",
+                        "port": 2200,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "proxy_type": null,
+                        "proxy_status": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false,
+                        "is_terminal_enabled": true,
+                        "concurrent_builds": 2,
+                        "dynamic_timeout": 3600,
+                        "deployment_queue_limit": 25,
+                        "server_disk_usage_notification_threshold": 80,
+                        "server_disk_usage_check_frequency": "0 23 * * *",
+                        "server_disk_usage_notification_interval_hours": 24,
+                        "connection_timeout": 10,
+                        "server_timezone": "UTC",
+                        "backup_compression_cpu_percentage": 25,
+                        "wildcard_domain": null,
+                        "public_ipv4": null,
+                        "public_ipv6": null,
+                        "ssh_host_key": null,
+                        "ssh_host_key_source": null,
+                        "host_key_trusted": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "servers: update, an invalid proxy type",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Invalid proxy type.\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "parity-server",
+                        "description": "The fixture server",
+                        "ip": "203.0.113.10",
+                        "ip_previous": null,
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "proxy_type": null,
+                        "proxy_status": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false,
+                        "is_terminal_enabled": true,
+                        "concurrent_builds": 2,
+                        "dynamic_timeout": 3600,
+                        "deployment_queue_limit": 25,
+                        "server_disk_usage_notification_threshold": 80,
+                        "server_disk_usage_check_frequency": "0 23 * * *",
+                        "server_disk_usage_notification_interval_hours": 24,
+                        "connection_timeout": 10,
+                        "server_timezone": "UTC",
+                        "backup_compression_cpu_percentage": 25,
+                        "wildcard_domain": null,
+                        "public_ipv4": null,
+                        "public_ipv6": null,
+                        "ssh_host_key": null,
+                        "ssh_host_key_source": null,
+                        "host_key_trusted": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "servers: update, an unknown private key",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Private key not found.\"}"
+            }
+        },
+        {
+            "name": "servers: update, another team's private key",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Private key not found.\"}"
+            }
+        },
+        {
+            "name": "servers: update, the legacy flag against the role",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"is_build_server\":[\"is_build_server is deprecated and conflicts with server_role. Send only server_role.\"]}}"
+            }
+        },
+        {
+            "name": "servers: update, build only with resources",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"server_role\":[\"A server with existing resources cannot be configured as build only.\"]}}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "parity-server",
+                        "description": "The fixture server",
+                        "ip": "203.0.113.10",
+                        "ip_previous": null,
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "proxy_type": null,
+                        "proxy_status": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false,
+                        "is_terminal_enabled": true,
+                        "concurrent_builds": 2,
+                        "dynamic_timeout": 3600,
+                        "deployment_queue_limit": 25,
+                        "server_disk_usage_notification_threshold": 80,
+                        "server_disk_usage_check_frequency": "0 23 * * *",
+                        "server_disk_usage_notification_interval_hours": 24,
+                        "connection_timeout": 10,
+                        "server_timezone": "UTC",
+                        "backup_compression_cpu_percentage": 25,
+                        "wildcard_domain": null,
+                        "public_ipv4": null,
+                        "public_ipv6": null,
+                        "ssh_host_key": null,
+                        "ssh_host_key_source": null,
+                        "host_key_trusted": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "servers: update, build only with the legacy flag and resources",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"server_role\":[\"A server with existing resources cannot be configured as build only.\"]}}"
+            }
+        },
+        {
+            "name": "servers: update, build only",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"s1parityserveruuid000001\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "parity-server",
+                        "description": "The fixture server",
+                        "ip": "203.0.113.10",
+                        "ip_previous": null,
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "proxy_type": null,
+                        "proxy_status": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "build",
+                        "is_build_server": true,
+                        "is_terminal_enabled": true,
+                        "concurrent_builds": 2,
+                        "dynamic_timeout": 3600,
+                        "deployment_queue_limit": 25,
+                        "server_disk_usage_notification_threshold": 80,
+                        "server_disk_usage_check_frequency": "0 23 * * *",
+                        "server_disk_usage_notification_interval_hours": 24,
+                        "connection_timeout": 10,
+                        "server_timezone": "UTC",
+                        "backup_compression_cpu_percentage": 25,
+                        "wildcard_domain": null,
+                        "public_ipv4": null,
+                        "public_ipv6": null,
+                        "ssh_host_key": null,
+                        "ssh_host_key_source": null,
+                        "host_key_trusted": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "servers: update, a build server back with the legacy flag",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"s1parityserveruuid000001\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "parity-server",
+                        "description": "The fixture server",
+                        "ip": "203.0.113.10",
+                        "ip_previous": null,
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "proxy_type": null,
+                        "proxy_status": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false,
+                        "is_terminal_enabled": true,
+                        "concurrent_builds": 2,
+                        "dynamic_timeout": 3600,
+                        "deployment_queue_limit": 25,
+                        "server_disk_usage_notification_threshold": 80,
+                        "server_disk_usage_check_frequency": "0 23 * * *",
+                        "server_disk_usage_notification_interval_hours": 24,
+                        "connection_timeout": 10,
+                        "server_timezone": "UTC",
+                        "backup_compression_cpu_percentage": 25,
+                        "wildcard_domain": null,
+                        "public_ipv4": null,
+                        "public_ipv6": null,
+                        "ssh_host_key": null,
+                        "ssh_host_key_source": null,
+                        "host_key_trusted": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "servers: update, the legacy flag off on a regular server",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"s1parityserveruuid000001\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "parity-server",
+                        "description": "The fixture server",
+                        "ip": "203.0.113.10",
+                        "ip_previous": null,
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "proxy_type": null,
+                        "proxy_status": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false,
+                        "is_terminal_enabled": true,
+                        "concurrent_builds": 2,
+                        "dynamic_timeout": 3600,
+                        "deployment_queue_limit": 25,
+                        "server_disk_usage_notification_threshold": 80,
+                        "server_disk_usage_check_frequency": "0 23 * * *",
+                        "server_disk_usage_notification_interval_hours": 24,
+                        "connection_timeout": 10,
+                        "server_timezone": "UTC",
+                        "backup_compression_cpu_percentage": 25,
+                        "wildcard_domain": null,
+                        "public_ipv4": null,
+                        "public_ipv6": null,
+                        "ssh_host_key": null,
+                        "ssh_host_key_source": null,
+                        "host_key_trusted": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "servers: update, deployments only without a build server",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"server_role\":[\"Add a usable build server before you set this server to deployments only.\"]}}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "parity-server",
+                        "description": "The fixture server",
+                        "ip": "203.0.113.10",
+                        "ip_previous": null,
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "proxy_type": null,
+                        "proxy_status": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false,
+                        "is_terminal_enabled": true,
+                        "concurrent_builds": 2,
+                        "dynamic_timeout": 3600,
+                        "deployment_queue_limit": 25,
+                        "server_disk_usage_notification_threshold": 80,
+                        "server_disk_usage_check_frequency": "0 23 * * *",
+                        "server_disk_usage_notification_interval_hours": 24,
+                        "connection_timeout": 10,
+                        "server_timezone": "UTC",
+                        "backup_compression_cpu_percentage": 25,
+                        "wildcard_domain": null,
+                        "public_ipv4": null,
+                        "public_ipv6": null,
+                        "ssh_host_key": null,
+                        "ssh_host_key_source": null,
+                        "host_key_trusted": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "servers: update, the same role",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"s1parityserveruuid000001\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "parity-server",
+                        "description": "The fixture server",
+                        "ip": "203.0.113.10",
+                        "ip_previous": null,
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "proxy_type": null,
+                        "proxy_status": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false,
+                        "is_terminal_enabled": true,
+                        "concurrent_builds": 2,
+                        "dynamic_timeout": 3600,
+                        "deployment_queue_limit": 25,
+                        "server_disk_usage_notification_threshold": 80,
+                        "server_disk_usage_check_frequency": "0 23 * * *",
+                        "server_disk_usage_notification_interval_hours": 24,
+                        "connection_timeout": 10,
+                        "server_timezone": "UTC",
+                        "backup_compression_cpu_percentage": 25,
+                        "wildcard_domain": null,
+                        "public_ipv4": null,
+                        "public_ipv6": null,
+                        "ssh_host_key": null,
+                        "ssh_host_key_source": null,
+                        "host_key_trusted": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "servers: update, the proxy type without deploy",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: deploy. Changing the proxy type starts the new proxy on the server, so it needs a token with the deploy permission.\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "parity-server",
+                        "description": "The fixture server",
+                        "ip": "203.0.113.10",
+                        "ip_previous": null,
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "proxy_type": null,
+                        "proxy_status": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false,
+                        "is_terminal_enabled": true,
+                        "concurrent_builds": 2,
+                        "dynamic_timeout": 3600,
+                        "deployment_queue_limit": 25,
+                        "server_disk_usage_notification_threshold": 80,
+                        "server_disk_usage_check_frequency": "0 23 * * *",
+                        "server_disk_usage_notification_interval_hours": 24,
+                        "connection_timeout": 10,
+                        "server_timezone": "UTC",
+                        "backup_compression_cpu_percentage": 25,
+                        "wildcard_domain": null,
+                        "public_ipv4": null,
+                        "public_ipv6": null,
+                        "ssh_host_key": null,
+                        "ssh_host_key_source": null,
+                        "host_key_trusted": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "servers: update, the proxy type",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"s1parityserveruuid000001\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "parity-server",
+                        "description": "The fixture server",
+                        "ip": "203.0.113.10",
+                        "ip_previous": null,
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "proxy_type": "CADDY",
+                        "proxy_status": "exited"
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false,
+                        "is_terminal_enabled": true,
+                        "concurrent_builds": 2,
+                        "dynamic_timeout": 3600,
+                        "deployment_queue_limit": 25,
+                        "server_disk_usage_notification_threshold": 80,
+                        "server_disk_usage_check_frequency": "0 23 * * *",
+                        "server_disk_usage_notification_interval_hours": 24,
+                        "connection_timeout": 10,
+                        "server_timezone": "UTC",
+                        "backup_compression_cpu_percentage": 25,
+                        "wildcard_domain": null,
+                        "public_ipv4": null,
+                        "public_ipv6": null,
+                        "ssh_host_key": null,
+                        "ssh_host_key_source": null,
+                        "host_key_trusted": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "servers: update, the same proxy type",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: deploy. Changing the proxy type starts the new proxy on the server, so it needs a token with the deploy permission.\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "parity-server",
+                        "description": "The fixture server",
+                        "ip": "203.0.113.10",
+                        "ip_previous": null,
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "proxy_type": null,
+                        "proxy_status": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false,
+                        "is_terminal_enabled": true,
+                        "concurrent_builds": 2,
+                        "dynamic_timeout": 3600,
+                        "deployment_queue_limit": 25,
+                        "server_disk_usage_notification_threshold": 80,
+                        "server_disk_usage_check_frequency": "0 23 * * *",
+                        "server_disk_usage_notification_interval_hours": 24,
+                        "connection_timeout": 10,
+                        "server_timezone": "UTC",
+                        "backup_compression_cpu_percentage": 25,
+                        "wildcard_domain": null,
+                        "public_ipv4": null,
+                        "public_ipv6": null,
+                        "ssh_host_key": null,
+                        "ssh_host_key_source": null,
+                        "host_key_trusted": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "servers: update, validating at once",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"s1parityserveruuid000001\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "kept-out",
+                        "description": "The fixture server",
+                        "ip": "203.0.113.10",
+                        "ip_previous": null,
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "proxy_type": null,
+                        "proxy_status": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false,
+                        "is_terminal_enabled": true,
+                        "concurrent_builds": 2,
+                        "dynamic_timeout": 3600,
+                        "deployment_queue_limit": 25,
+                        "server_disk_usage_notification_threshold": 80,
+                        "server_disk_usage_check_frequency": "0 23 * * *",
+                        "server_disk_usage_notification_interval_hours": 24,
+                        "connection_timeout": 10,
+                        "server_timezone": "UTC",
+                        "backup_compression_cpu_percentage": 25,
+                        "wildcard_domain": null,
+                        "public_ipv4": null,
+                        "public_ipv6": null,
+                        "ssh_host_key": null,
+                        "ssh_host_key_source": null,
+                        "host_key_trusted": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "servers: update, not validating",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"s1parityserveruuid000001\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "validated-later",
+                        "description": "The fixture server",
+                        "ip": "203.0.113.10",
+                        "ip_previous": null,
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "proxy_type": null,
+                        "proxy_status": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false,
+                        "is_terminal_enabled": true,
+                        "concurrent_builds": 2,
+                        "dynamic_timeout": 3600,
+                        "deployment_queue_limit": 25,
+                        "server_disk_usage_notification_threshold": 80,
+                        "server_disk_usage_check_frequency": "0 23 * * *",
+                        "server_disk_usage_notification_interval_hours": 24,
+                        "connection_timeout": 10,
+                        "server_timezone": "UTC",
+                        "backup_compression_cpu_percentage": 25,
+                        "wildcard_domain": null,
+                        "public_ipv4": null,
+                        "public_ipv6": null,
+                        "ssh_host_key": null,
+                        "ssh_host_key_source": null,
+                        "host_key_trusted": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "servers: update, a transferred server's connection",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"ip\":[\"This field cannot be changed on a transferred server.\"],\"port\":[\"This field cannot be changed on a transferred server.\"],\"private_key_uuid\":[\"This field cannot be changed on a transferred server.\"]}}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "parity-server",
+                        "description": "The fixture server",
+                        "ip": "203.0.113.10",
+                        "ip_previous": null,
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "proxy_type": null,
+                        "proxy_status": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false,
+                        "is_terminal_enabled": true,
+                        "concurrent_builds": 2,
+                        "dynamic_timeout": 3600,
+                        "deployment_queue_limit": 25,
+                        "server_disk_usage_notification_threshold": 80,
+                        "server_disk_usage_check_frequency": "0 23 * * *",
+                        "server_disk_usage_notification_interval_hours": 24,
+                        "connection_timeout": 10,
+                        "server_timezone": "UTC",
+                        "backup_compression_cpu_percentage": 25,
+                        "wildcard_domain": null,
+                        "public_ipv4": null,
+                        "public_ipv6": null,
+                        "ssh_host_key": null,
+                        "ssh_host_key_source": null,
+                        "host_key_trusted": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "servers: update, a transferred server's name",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"s1parityserveruuid000001\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "renamed-server",
+                        "description": "The fixture server",
+                        "ip": "203.0.113.10",
+                        "ip_previous": null,
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "proxy_type": null,
+                        "proxy_status": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false,
+                        "is_terminal_enabled": true,
+                        "concurrent_builds": 2,
+                        "dynamic_timeout": 3600,
+                        "deployment_queue_limit": 25,
+                        "server_disk_usage_notification_threshold": 80,
+                        "server_disk_usage_check_frequency": "0 23 * * *",
+                        "server_disk_usage_notification_interval_hours": 24,
+                        "connection_timeout": 10,
+                        "server_timezone": "UTC",
+                        "backup_compression_cpu_percentage": 25,
+                        "wildcard_domain": null,
+                        "public_ipv4": null,
+                        "public_ipv6": null,
+                        "ssh_host_key": null,
+                        "ssh_host_key_source": null,
+                        "host_key_trusted": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "servers: update, nothing",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Invalid request.\",\"error\":\"Empty JSON.\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "parity-server",
+                        "description": "The fixture server",
+                        "ip": "203.0.113.10",
+                        "ip_previous": null,
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "proxy_type": null,
+                        "proxy_status": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false,
+                        "is_terminal_enabled": true,
+                        "concurrent_builds": 2,
+                        "dynamic_timeout": 3600,
+                        "deployment_queue_limit": 25,
+                        "server_disk_usage_notification_threshold": 80,
+                        "server_disk_usage_check_frequency": "0 23 * * *",
+                        "server_disk_usage_notification_interval_hours": 24,
+                        "connection_timeout": 10,
+                        "server_timezone": "UTC",
+                        "backup_compression_cpu_percentage": 25,
+                        "wildcard_domain": null,
+                        "public_ipv4": null,
+                        "public_ipv6": null,
+                        "ssh_host_key": null,
+                        "ssh_host_key_source": null,
+                        "host_key_trusted": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "servers: update, not JSON",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Invalid request.\",\"error\":\"Content-Type must be application\\/json.\"}"
+            }
+        },
+        {
+            "name": "servers: update with a read token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: write\"}"
+            }
+        },
+        {
+            "name": "denied: servers: update, the name and description, a member with write and delete",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"You are not authorized to perform this action.\",\"error\":\"Unauthorized\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "parity-server",
+                        "description": "The fixture server",
+                        "ip": "203.0.113.10",
+                        "ip_previous": null,
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "proxy_type": null,
+                        "proxy_status": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false,
+                        "is_terminal_enabled": true,
+                        "concurrent_builds": 2,
+                        "dynamic_timeout": 3600,
+                        "deployment_queue_limit": 25,
+                        "server_disk_usage_notification_threshold": 80,
+                        "server_disk_usage_check_frequency": "0 23 * * *",
+                        "server_disk_usage_notification_interval_hours": 24,
+                        "connection_timeout": 10,
+                        "server_timezone": "UTC",
+                        "backup_compression_cpu_percentage": 25,
+                        "wildcard_domain": null,
+                        "public_ipv4": null,
+                        "public_ipv6": null,
+                        "ssh_host_key": null,
+                        "ssh_host_key_source": null,
+                        "host_key_trusted": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "audit events: list",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"current_page\":1,\"data\":[{\"id\":3,\"team_id\":1,\"event\":\"ui.team_member.role_updated\",\"source\":\"ui\",\"action\":\"role_updated\",\"level\":\"info\",\"actor_type\":\"user\",\"actor_id\":4,\"actor_name\":\"Parity Admin\",\"resource_type\":\"team_member\",\"resource_uuid\":null,\"resource_name\":\"Parity Member\",\"description\":\"Parity Member Role Updated\",\"created_at\":\"2025-12-22T10:00:00.000000Z\",\"actor_email\":\"admin@example.com\",\"actor_token_id\":null,\"actor_token_name\":null,\"metadata\":null,\"changes\":null,\"ip_address\":null,\"user_agent\":null},{\"id\":2,\"team_id\":1,\"event\":\"ui.team_invitation.created\",\"source\":\"ui\",\"action\":\"created\",\"level\":\"info\",\"actor_type\":\"user\",\"actor_id\":1,\"actor_name\":\"Parity Owner\",\"resource_type\":\"team_invitation\",\"resource_uuid\":null,\"resource_name\":null,\"description\":\"Team Invitation Created\",\"created_at\":\"2025-12-21T10:00:00.000000Z\",\"actor_email\":\"owner@example.com\",\"actor_token_id\":null,\"actor_token_name\":null,\"metadata\":null,\"changes\":null,\"ip_address\":null,\"user_agent\":null},{\"id\":1,\"team_id\":1,\"event\":\"ui.team.updated\",\"source\":\"ui\",\"action\":\"updated\",\"level\":\"info\",\"actor_type\":\"user\",\"actor_id\":1,\"actor_name\":\"Parity Owner\",\"resource_type\":\"team\",\"resource_uuid\":null,\"resource_name\":\"Parity Team\",\"description\":\"Parity Team Updated\",\"created_at\":\"2025-12-20T10:00:00.000000Z\",\"actor_email\":\"owner@example.com\",\"actor_token_id\":null,\"actor_token_name\":null,\"metadata\":null,\"changes\":null,\"ip_address\":null,\"user_agent\":null}],\"first_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"from\":1,\"last_page\":1,\"last_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"links\":[{\"url\":null,\"label\":\"&laquo; Previous\",\"page\":null,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"label\":\"1\",\"page\":1,\"active\":true},{\"url\":null,\"label\":\"Next &raquo;\",\"page\":null,\"active\":false}],\"next_page_url\":null,\"path\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events\",\"per_page\":25,\"prev_page_url\":null,\"to\":3,\"total\":3}"
+            }
+        },
+        {
+            "name": "audit events: list with a read token",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"current_page\":1,\"data\":[{\"id\":3,\"team_id\":1,\"event\":\"ui.team_member.role_updated\",\"source\":\"ui\",\"action\":\"role_updated\",\"level\":\"info\",\"actor_type\":\"user\",\"actor_id\":4,\"actor_name\":\"Parity Admin\",\"resource_type\":\"team_member\",\"resource_uuid\":null,\"resource_name\":\"Parity Member\",\"description\":\"Parity Member Role Updated\",\"created_at\":\"2025-12-22T10:00:00.000000Z\"},{\"id\":2,\"team_id\":1,\"event\":\"ui.team_invitation.created\",\"source\":\"ui\",\"action\":\"created\",\"level\":\"info\",\"actor_type\":\"user\",\"actor_id\":1,\"actor_name\":\"Parity Owner\",\"resource_type\":\"team_invitation\",\"resource_uuid\":null,\"resource_name\":null,\"description\":\"Team Invitation Created\",\"created_at\":\"2025-12-21T10:00:00.000000Z\"},{\"id\":1,\"team_id\":1,\"event\":\"ui.team.updated\",\"source\":\"ui\",\"action\":\"updated\",\"level\":\"info\",\"actor_type\":\"user\",\"actor_id\":1,\"actor_name\":\"Parity Owner\",\"resource_type\":\"team\",\"resource_uuid\":null,\"resource_name\":\"Parity Team\",\"description\":\"Parity Team Updated\",\"created_at\":\"2025-12-20T10:00:00.000000Z\"}],\"first_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"from\":1,\"last_page\":1,\"last_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"links\":[{\"url\":null,\"label\":\"&laquo; Previous\",\"page\":null,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"label\":\"1\",\"page\":1,\"active\":true},{\"url\":null,\"label\":\"Next &raquo;\",\"page\":null,\"active\":false}],\"next_page_url\":null,\"path\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events\",\"per_page\":25,\"prev_page_url\":null,\"to\":3,\"total\":3}"
+            }
+        },
+        {
+            "name": "audit events: list with read:sensitive",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"current_page\":1,\"data\":[{\"id\":3,\"team_id\":1,\"event\":\"ui.team_member.role_updated\",\"source\":\"ui\",\"action\":\"role_updated\",\"level\":\"info\",\"actor_type\":\"user\",\"actor_id\":4,\"actor_name\":\"Parity Admin\",\"resource_type\":\"team_member\",\"resource_uuid\":null,\"resource_name\":\"Parity Member\",\"description\":\"Parity Member Role Updated\",\"created_at\":\"2025-12-22T10:00:00.000000Z\",\"actor_email\":\"admin@example.com\",\"actor_token_id\":null,\"actor_token_name\":null,\"metadata\":null,\"changes\":null,\"ip_address\":null,\"user_agent\":null},{\"id\":2,\"team_id\":1,\"event\":\"ui.team_invitation.created\",\"source\":\"ui\",\"action\":\"created\",\"level\":\"info\",\"actor_type\":\"user\",\"actor_id\":1,\"actor_name\":\"Parity Owner\",\"resource_type\":\"team_invitation\",\"resource_uuid\":null,\"resource_name\":null,\"description\":\"Team Invitation Created\",\"created_at\":\"2025-12-21T10:00:00.000000Z\",\"actor_email\":\"owner@example.com\",\"actor_token_id\":null,\"actor_token_name\":null,\"metadata\":null,\"changes\":null,\"ip_address\":null,\"user_agent\":null},{\"id\":1,\"team_id\":1,\"event\":\"ui.team.updated\",\"source\":\"ui\",\"action\":\"updated\",\"level\":\"info\",\"actor_type\":\"user\",\"actor_id\":1,\"actor_name\":\"Parity Owner\",\"resource_type\":\"team\",\"resource_uuid\":null,\"resource_name\":\"Parity Team\",\"description\":\"Parity Team Updated\",\"created_at\":\"2025-12-20T10:00:00.000000Z\",\"actor_email\":\"owner@example.com\",\"actor_token_id\":null,\"actor_token_name\":null,\"metadata\":null,\"changes\":null,\"ip_address\":null,\"user_agent\":null}],\"first_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"from\":1,\"last_page\":1,\"last_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"links\":[{\"url\":null,\"label\":\"&laquo; Previous\",\"page\":null,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"label\":\"1\",\"page\":1,\"active\":true},{\"url\":null,\"label\":\"Next &raquo;\",\"page\":null,\"active\":false}],\"next_page_url\":null,\"path\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events\",\"per_page\":25,\"prev_page_url\":null,\"to\":3,\"total\":3}"
+            }
+        },
+        {
+            "name": "audit events: none",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"current_page\":1,\"data\":[],\"first_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"from\":null,\"last_page\":1,\"last_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"links\":[{\"url\":null,\"label\":\"&laquo; Previous\",\"page\":null,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"label\":\"1\",\"page\":1,\"active\":true},{\"url\":null,\"label\":\"Next &raquo;\",\"page\":null,\"active\":false}],\"next_page_url\":null,\"path\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events\",\"per_page\":25,\"prev_page_url\":null,\"to\":null,\"total\":0}"
+            }
+        },
+        {
+            "name": "audit events: a page",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"current_page\":2,\"data\":[{\"id\":2,\"team_id\":1,\"event\":\"ui.team_invitation.created\",\"source\":\"ui\",\"action\":\"created\",\"level\":\"info\",\"actor_type\":\"user\",\"actor_id\":1,\"actor_name\":\"Parity Owner\",\"resource_type\":\"team_invitation\",\"resource_uuid\":null,\"resource_name\":null,\"description\":\"Team Invitation Created\",\"created_at\":\"2025-12-21T10:00:00.000000Z\"}],\"first_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"from\":2,\"last_page\":3,\"last_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=3\",\"links\":[{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"label\":\"&laquo; Previous\",\"page\":1,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"label\":\"1\",\"page\":1,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=2\",\"label\":\"2\",\"page\":2,\"active\":true},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=3\",\"label\":\"3\",\"page\":3,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=3\",\"label\":\"Next &raquo;\",\"page\":3,\"active\":false}],\"next_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=3\",\"path\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events\",\"per_page\":1,\"prev_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"to\":2,\"total\":3}"
+            }
+        },
+        {
+            "name": "audit events: the last page",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"current_page\":2,\"data\":[{\"id\":1,\"team_id\":1,\"event\":\"ui.team.updated\",\"source\":\"ui\",\"action\":\"updated\",\"level\":\"info\",\"actor_type\":\"user\",\"actor_id\":1,\"actor_name\":\"Parity Owner\",\"resource_type\":\"team\",\"resource_uuid\":null,\"resource_name\":\"Parity Team\",\"description\":\"Parity Team Updated\",\"created_at\":\"2025-12-20T10:00:00.000000Z\"}],\"first_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"from\":3,\"last_page\":2,\"last_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=2\",\"links\":[{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"label\":\"&laquo; Previous\",\"page\":1,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"label\":\"1\",\"page\":1,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=2\",\"label\":\"2\",\"page\":2,\"active\":true},{\"url\":null,\"label\":\"Next &raquo;\",\"page\":null,\"active\":false}],\"next_page_url\":null,\"path\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events\",\"per_page\":2,\"prev_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"to\":3,\"total\":3}"
+            }
+        },
+        {
+            "name": "audit events: past the last page",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"current_page\":9,\"data\":[],\"first_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"from\":null,\"last_page\":1,\"last_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"links\":[{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=8\",\"label\":\"&laquo; Previous\",\"page\":8,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"label\":\"1\",\"page\":1,\"active\":false},{\"url\":null,\"label\":\"Next &raquo;\",\"page\":null,\"active\":false}],\"next_page_url\":null,\"path\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events\",\"per_page\":25,\"prev_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=8\",\"to\":null,\"total\":3}"
+            }
+        },
+        {
+            "name": "audit events: searched",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"current_page\":1,\"data\":[{\"id\":3,\"team_id\":1,\"event\":\"ui.team_member.role_updated\",\"source\":\"ui\",\"action\":\"role_updated\",\"level\":\"info\",\"actor_type\":\"user\",\"actor_id\":4,\"actor_name\":\"Parity Admin\",\"resource_type\":\"team_member\",\"resource_uuid\":null,\"resource_name\":\"Parity Member\",\"description\":\"Parity Member Role Updated\",\"created_at\":\"2025-12-22T10:00:00.000000Z\"}],\"first_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"from\":1,\"last_page\":1,\"last_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"links\":[{\"url\":null,\"label\":\"&laquo; Previous\",\"page\":null,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"label\":\"1\",\"page\":1,\"active\":true},{\"url\":null,\"label\":\"Next &raquo;\",\"page\":null,\"active\":false}],\"next_page_url\":null,\"path\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events\",\"per_page\":25,\"prev_page_url\":null,\"to\":1,\"total\":1}"
+            }
+        },
+        {
+            "name": "audit events: searched by email, without read:sensitive",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"current_page\":1,\"data\":[],\"first_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"from\":null,\"last_page\":1,\"last_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"links\":[{\"url\":null,\"label\":\"&laquo; Previous\",\"page\":null,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"label\":\"1\",\"page\":1,\"active\":true},{\"url\":null,\"label\":\"Next &raquo;\",\"page\":null,\"active\":false}],\"next_page_url\":null,\"path\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events\",\"per_page\":25,\"prev_page_url\":null,\"to\":null,\"total\":0}"
+            }
+        },
+        {
+            "name": "audit events: searched by email",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"current_page\":1,\"data\":[{\"id\":3,\"team_id\":1,\"event\":\"ui.team_member.role_updated\",\"source\":\"ui\",\"action\":\"role_updated\",\"level\":\"info\",\"actor_type\":\"user\",\"actor_id\":4,\"actor_name\":\"Parity Admin\",\"resource_type\":\"team_member\",\"resource_uuid\":null,\"resource_name\":\"Parity Member\",\"description\":\"Parity Member Role Updated\",\"created_at\":\"2025-12-22T10:00:00.000000Z\",\"actor_email\":\"admin@example.com\",\"actor_token_id\":null,\"actor_token_name\":null,\"metadata\":null,\"changes\":null,\"ip_address\":null,\"user_agent\":null}],\"first_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"from\":1,\"last_page\":1,\"last_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"links\":[{\"url\":null,\"label\":\"&laquo; Previous\",\"page\":null,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"label\":\"1\",\"page\":1,\"active\":true},{\"url\":null,\"label\":\"Next &raquo;\",\"page\":null,\"active\":false}],\"next_page_url\":null,\"path\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events\",\"per_page\":25,\"prev_page_url\":null,\"to\":1,\"total\":1}"
+            }
+        },
+        {
+            "name": "audit events: searched, case-sensitive",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"current_page\":1,\"data\":[{\"id\":3,\"team_id\":1,\"event\":\"ui.team_member.role_updated\",\"source\":\"ui\",\"action\":\"role_updated\",\"level\":\"info\",\"actor_type\":\"user\",\"actor_id\":4,\"actor_name\":\"Parity Admin\",\"resource_type\":\"team_member\",\"resource_uuid\":null,\"resource_name\":\"Parity Member\",\"description\":\"Parity Member Role Updated\",\"created_at\":\"2025-12-22T10:00:00.000000Z\"}],\"first_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"from\":1,\"last_page\":1,\"last_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"links\":[{\"url\":null,\"label\":\"&laquo; Previous\",\"page\":null,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"label\":\"1\",\"page\":1,\"active\":true},{\"url\":null,\"label\":\"Next &raquo;\",\"page\":null,\"active\":false}],\"next_page_url\":null,\"path\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events\",\"per_page\":25,\"prev_page_url\":null,\"to\":1,\"total\":1}"
+            }
+        },
+        {
+            "name": "audit events: an empty search",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"current_page\":1,\"data\":[{\"id\":3,\"team_id\":1,\"event\":\"ui.team_member.role_updated\",\"source\":\"ui\",\"action\":\"role_updated\",\"level\":\"info\",\"actor_type\":\"user\",\"actor_id\":4,\"actor_name\":\"Parity Admin\",\"resource_type\":\"team_member\",\"resource_uuid\":null,\"resource_name\":\"Parity Member\",\"description\":\"Parity Member Role Updated\",\"created_at\":\"2025-12-22T10:00:00.000000Z\"},{\"id\":2,\"team_id\":1,\"event\":\"ui.team_invitation.created\",\"source\":\"ui\",\"action\":\"created\",\"level\":\"info\",\"actor_type\":\"user\",\"actor_id\":1,\"actor_name\":\"Parity Owner\",\"resource_type\":\"team_invitation\",\"resource_uuid\":null,\"resource_name\":null,\"description\":\"Team Invitation Created\",\"created_at\":\"2025-12-21T10:00:00.000000Z\"},{\"id\":1,\"team_id\":1,\"event\":\"ui.team.updated\",\"source\":\"ui\",\"action\":\"updated\",\"level\":\"info\",\"actor_type\":\"user\",\"actor_id\":1,\"actor_name\":\"Parity Owner\",\"resource_type\":\"team\",\"resource_uuid\":null,\"resource_name\":\"Parity Team\",\"description\":\"Parity Team Updated\",\"created_at\":\"2025-12-20T10:00:00.000000Z\"}],\"first_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"from\":1,\"last_page\":1,\"last_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"links\":[{\"url\":null,\"label\":\"&laquo; Previous\",\"page\":null,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"label\":\"1\",\"page\":1,\"active\":true},{\"url\":null,\"label\":\"Next &raquo;\",\"page\":null,\"active\":false}],\"next_page_url\":null,\"path\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events\",\"per_page\":25,\"prev_page_url\":null,\"to\":3,\"total\":3}"
+            }
+        },
+        {
+            "name": "audit events: by action",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"current_page\":1,\"data\":[{\"id\":2,\"team_id\":1,\"event\":\"ui.team_invitation.created\",\"source\":\"ui\",\"action\":\"created\",\"level\":\"info\",\"actor_type\":\"user\",\"actor_id\":1,\"actor_name\":\"Parity Owner\",\"resource_type\":\"team_invitation\",\"resource_uuid\":null,\"resource_name\":null,\"description\":\"Team Invitation Created\",\"created_at\":\"2025-12-21T10:00:00.000000Z\"}],\"first_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"from\":1,\"last_page\":1,\"last_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"links\":[{\"url\":null,\"label\":\"&laquo; Previous\",\"page\":null,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"label\":\"1\",\"page\":1,\"active\":true},{\"url\":null,\"label\":\"Next &raquo;\",\"page\":null,\"active\":false}],\"next_page_url\":null,\"path\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events\",\"per_page\":25,\"prev_page_url\":null,\"to\":1,\"total\":1}"
+            }
+        },
+        {
+            "name": "audit events: by source",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"current_page\":1,\"data\":[],\"first_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"from\":null,\"last_page\":1,\"last_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"links\":[{\"url\":null,\"label\":\"&laquo; Previous\",\"page\":null,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"label\":\"1\",\"page\":1,\"active\":true},{\"url\":null,\"label\":\"Next &raquo;\",\"page\":null,\"active\":false}],\"next_page_url\":null,\"path\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events\",\"per_page\":25,\"prev_page_url\":null,\"to\":null,\"total\":0}"
+            }
+        },
+        {
+            "name": "audit events: by every source",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"current_page\":1,\"data\":[{\"id\":3,\"team_id\":1,\"event\":\"ui.team_member.role_updated\",\"source\":\"ui\",\"action\":\"role_updated\",\"level\":\"info\",\"actor_type\":\"user\",\"actor_id\":4,\"actor_name\":\"Parity Admin\",\"resource_type\":\"team_member\",\"resource_uuid\":null,\"resource_name\":\"Parity Member\",\"description\":\"Parity Member Role Updated\",\"created_at\":\"2025-12-22T10:00:00.000000Z\"},{\"id\":2,\"team_id\":1,\"event\":\"ui.team_invitation.created\",\"source\":\"ui\",\"action\":\"created\",\"level\":\"info\",\"actor_type\":\"user\",\"actor_id\":1,\"actor_name\":\"Parity Owner\",\"resource_type\":\"team_invitation\",\"resource_uuid\":null,\"resource_name\":null,\"description\":\"Team Invitation Created\",\"created_at\":\"2025-12-21T10:00:00.000000Z\"},{\"id\":1,\"team_id\":1,\"event\":\"ui.team.updated\",\"source\":\"ui\",\"action\":\"updated\",\"level\":\"info\",\"actor_type\":\"user\",\"actor_id\":1,\"actor_name\":\"Parity Owner\",\"resource_type\":\"team\",\"resource_uuid\":null,\"resource_name\":\"Parity Team\",\"description\":\"Parity Team Updated\",\"created_at\":\"2025-12-20T10:00:00.000000Z\"}],\"first_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"from\":1,\"last_page\":1,\"last_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"links\":[{\"url\":null,\"label\":\"&laquo; Previous\",\"page\":null,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"label\":\"1\",\"page\":1,\"active\":true},{\"url\":null,\"label\":\"Next &raquo;\",\"page\":null,\"active\":false}],\"next_page_url\":null,\"path\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events\",\"per_page\":25,\"prev_page_url\":null,\"to\":3,\"total\":3}"
+            }
+        },
+        {
+            "name": "audit events: invalid parameters",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"per_page\":[\"The per page field must be at least 1.\"],\"page\":[\"The page field must be an integer.\"],\"search\":[\"The search field must not be greater than 255 characters.\"],\"action\":[\"The action field must not be greater than 255 characters.\"],\"source\":[\"The selected source is invalid.\"]}}"
+            }
+        },
+        {
+            "name": "audit events: too many a page",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"per_page\":[\"The per page field must not be greater than 100.\"],\"page\":[\"The page field must be at least 1.\"]}}"
+            }
+        },
+        {
+            "name": "audit events: a page that is not a number",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"per_page\":[\"The per page field must be an integer.\"]}}"
+            }
+        },
+        {
+            "name": "audit events: a member",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Only team admins and owners can view audit logs.\"}"
+            }
+        },
+        {
+            "name": "audit events with a write-only token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: read\"}"
+            }
+        },
+        {
+            "name": "audit events: POST",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Not found.\",\"docs\":\"https:\\/\\/coolify.io\\/docs\"}"
+            }
+        },
+        {
+            "name": "audit events: many pages, page 1",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"current_page\":1,\"data\":[{\"id\":40,\"team_id\":1,\"event\":\"ui.team.updated\",\"source\":\"ui\",\"action\":\"updated\",\"level\":\"info\",\"actor_type\":\"user\",\"actor_id\":1,\"actor_name\":\"Parity Owner\",\"resource_type\":\"team\",\"resource_uuid\":null,\"resource_name\":\"Parity Team\",\"description\":\"Parity Team Updated\",\"created_at\":\"2025-12-01T00:39:00.000000Z\"},{\"id\":39,\"team_id\":1,\"event\":\"ui.team.updated\",\"source\":\"ui\",\"action\":\"updated\",\"level\":\"info\",\"actor_type\":\"user\",\"actor_id\":1,\"actor_name\":\"Parity Owner\",\"resource_type\":\"team\",\"resource_uuid\":null,\"resource_name\":\"Parity Team\",\"description\":\"Parity Team Updated\",\"created_at\":\"2025-12-01T00:38:00.000000Z\"}],\"first_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"from\":1,\"last_page\":20,\"last_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=20\",\"links\":[{\"url\":null,\"label\":\"&laquo; Previous\",\"page\":null,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"label\":\"1\",\"page\":1,\"active\":true},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=2\",\"label\":\"2\",\"page\":2,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=3\",\"label\":\"3\",\"page\":3,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=4\",\"label\":\"4\",\"page\":4,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=5\",\"label\":\"5\",\"page\":5,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=6\",\"label\":\"6\",\"page\":6,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=7\",\"label\":\"7\",\"page\":7,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=8\",\"label\":\"8\",\"page\":8,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=9\",\"label\":\"9\",\"page\":9,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=10\",\"label\":\"10\",\"page\":10,\"active\":false},{\"url\":null,\"label\":\"...\",\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=19\",\"label\":\"19\",\"page\":19,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=20\",\"label\":\"20\",\"page\":20,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=2\",\"label\":\"Next &raquo;\",\"page\":2,\"active\":false}],\"next_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=2\",\"path\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events\",\"per_page\":2,\"prev_page_url\":null,\"to\":2,\"total\":40}"
+            }
+        },
+        {
+            "name": "audit events: many pages, page 10",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"current_page\":10,\"data\":[{\"id\":62,\"team_id\":1,\"event\":\"ui.team.updated\",\"source\":\"ui\",\"action\":\"updated\",\"level\":\"info\",\"actor_type\":\"user\",\"actor_id\":1,\"actor_name\":\"Parity Owner\",\"resource_type\":\"team\",\"resource_uuid\":null,\"resource_name\":\"Parity Team\",\"description\":\"Parity Team Updated\",\"created_at\":\"2025-12-01T00:21:00.000000Z\"},{\"id\":61,\"team_id\":1,\"event\":\"ui.team.updated\",\"source\":\"ui\",\"action\":\"updated\",\"level\":\"info\",\"actor_type\":\"user\",\"actor_id\":1,\"actor_name\":\"Parity Owner\",\"resource_type\":\"team\",\"resource_uuid\":null,\"resource_name\":\"Parity Team\",\"description\":\"Parity Team Updated\",\"created_at\":\"2025-12-01T00:20:00.000000Z\"}],\"first_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"from\":19,\"last_page\":20,\"last_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=20\",\"links\":[{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=9\",\"label\":\"&laquo; Previous\",\"page\":9,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"label\":\"1\",\"page\":1,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=2\",\"label\":\"2\",\"page\":2,\"active\":false},{\"url\":null,\"label\":\"...\",\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=7\",\"label\":\"7\",\"page\":7,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=8\",\"label\":\"8\",\"page\":8,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=9\",\"label\":\"9\",\"page\":9,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=10\",\"label\":\"10\",\"page\":10,\"active\":true},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=11\",\"label\":\"11\",\"page\":11,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=12\",\"label\":\"12\",\"page\":12,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=13\",\"label\":\"13\",\"page\":13,\"active\":false},{\"url\":null,\"label\":\"...\",\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=19\",\"label\":\"19\",\"page\":19,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=20\",\"label\":\"20\",\"page\":20,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=11\",\"label\":\"Next &raquo;\",\"page\":11,\"active\":false}],\"next_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=11\",\"path\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events\",\"per_page\":2,\"prev_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=9\",\"to\":20,\"total\":40}"
+            }
+        },
+        {
+            "name": "audit events: many pages, page 18",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"current_page\":18,\"data\":[{\"id\":86,\"team_id\":1,\"event\":\"ui.team.updated\",\"source\":\"ui\",\"action\":\"updated\",\"level\":\"info\",\"actor_type\":\"user\",\"actor_id\":1,\"actor_name\":\"Parity Owner\",\"resource_type\":\"team\",\"resource_uuid\":null,\"resource_name\":\"Parity Team\",\"description\":\"Parity Team Updated\",\"created_at\":\"2025-12-01T00:05:00.000000Z\"},{\"id\":85,\"team_id\":1,\"event\":\"ui.team.updated\",\"source\":\"ui\",\"action\":\"updated\",\"level\":\"info\",\"actor_type\":\"user\",\"actor_id\":1,\"actor_name\":\"Parity Owner\",\"resource_type\":\"team\",\"resource_uuid\":null,\"resource_name\":\"Parity Team\",\"description\":\"Parity Team Updated\",\"created_at\":\"2025-12-01T00:04:00.000000Z\"}],\"first_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"from\":35,\"last_page\":20,\"last_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=20\",\"links\":[{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=17\",\"label\":\"&laquo; Previous\",\"page\":17,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"label\":\"1\",\"page\":1,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=2\",\"label\":\"2\",\"page\":2,\"active\":false},{\"url\":null,\"label\":\"...\",\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=11\",\"label\":\"11\",\"page\":11,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=12\",\"label\":\"12\",\"page\":12,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=13\",\"label\":\"13\",\"page\":13,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=14\",\"label\":\"14\",\"page\":14,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=15\",\"label\":\"15\",\"page\":15,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=16\",\"label\":\"16\",\"page\":16,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=17\",\"label\":\"17\",\"page\":17,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=18\",\"label\":\"18\",\"page\":18,\"active\":true},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=19\",\"label\":\"19\",\"page\":19,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=20\",\"label\":\"20\",\"page\":20,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=19\",\"label\":\"Next &raquo;\",\"page\":19,\"active\":false}],\"next_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=19\",\"path\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events\",\"per_page\":2,\"prev_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=17\",\"to\":36,\"total\":40}"
+            }
+        },
+        {
+            "name": "audit events: many pages, page 25",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"current_page\":25,\"data\":[],\"first_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"from\":null,\"last_page\":20,\"last_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=20\",\"links\":[{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=24\",\"label\":\"&laquo; Previous\",\"page\":24,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"label\":\"1\",\"page\":1,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=2\",\"label\":\"2\",\"page\":2,\"active\":false},{\"url\":null,\"label\":\"...\",\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=11\",\"label\":\"11\",\"page\":11,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=12\",\"label\":\"12\",\"page\":12,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=13\",\"label\":\"13\",\"page\":13,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=14\",\"label\":\"14\",\"page\":14,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=15\",\"label\":\"15\",\"page\":15,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=16\",\"label\":\"16\",\"page\":16,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=17\",\"label\":\"17\",\"page\":17,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=18\",\"label\":\"18\",\"page\":18,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=19\",\"label\":\"19\",\"page\":19,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=20\",\"label\":\"20\",\"page\":20,\"active\":false},{\"url\":null,\"label\":\"Next &raquo;\",\"page\":null,\"active\":false}],\"next_page_url\":null,\"path\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events\",\"per_page\":2,\"prev_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=24\",\"to\":null,\"total\":40}"
+            }
         }
     ]
 }

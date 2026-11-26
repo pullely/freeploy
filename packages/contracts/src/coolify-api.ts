@@ -249,12 +249,17 @@ export interface CoolifyTeamFacts {
   id: string;
   name: string;
   createdAt: string;
+  /** DP-107: the org's last change (updated_at); its creation when not given. */
+  updatedAt?: string;
+  /** DP-107: the team's two settings PATCH /api/v1/team writes (membership.organizations); Coolify's defaults when not given. */
+  isBuildServerFallbackEnabled?: boolean;
+  scanImagesOnNewServers?: boolean;
 }
 
 /**
  * A team as Eloquent's toArray() gives it (Team: no $hidden, its boolean casts), in Coolify's column order: a
- * Freeploy org's name and dates, and Coolify's defaults for a new team for the columns Freeploy's orgs do not
- * have (the description is not in membership-worker's organization answer).
+ * Freeploy org's name and dates and its two settings (DP-107), and Coolify's defaults for a new team for the columns
+ * Freeploy's orgs do not have (the description is not in membership-worker's organization answer).
  */
 export function coolifyTeam(org: CoolifyTeamFacts): PhpObject {
   return obj({
@@ -263,15 +268,15 @@ export function coolifyTeam(org: CoolifyTeamFacts): PhpObject {
     description: null,
     personal_team: false,
     created_at: laravelDate(org.createdAt),
-    updated_at: laravelDate(org.createdAt),
+    updated_at: laravelDate(org.updatedAt ?? org.createdAt),
     show_boarding: false,
     custom_server_limit: null,
     is_mcp_server_enabled: true,
-    is_build_server_fallback_enabled: true,
+    is_build_server_fallback_enabled: org.isBuildServerFallbackEnabled ?? true,
     avatar_path: null,
     avatar_storage_type: null,
     avatar_s3_storage_id: null,
     is_two_factor_required: false,
-    scan_images_on_new_servers: false,
+    scan_images_on_new_servers: org.scanImagesOnNewServers ?? false,
   });
 }

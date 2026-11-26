@@ -2,6 +2,7 @@ import type { Env } from "./env.js";
 import { handleHealth } from "./handlers/health.js";
 import { handleListAudit } from "./handlers/list-audit.js";
 import { handleTeamAuditLog } from "./handlers/team-audit-log.js";
+import { API_V1_AUDIT_EVENTS_RE, handleApiV1AuditEvents } from "./handlers/api-v1-audit-events.js";
 import { errorResponse, notFound, methodNotAllowed } from "./http.js";
 import { generateRequestId, parseOrgPublicId } from "./ids.js";
 
@@ -36,6 +37,15 @@ export async function route(request: Request, env: Env): Promise<Response> {
   try {
     if (url.pathname === "/health" && request.method === "GET") {
       return handleHealth(env, requestId);
+    }
+
+    // DP-107: Coolify's GET /api/v1/audit-events, forwarded by api-edge once it has resolved the token.
+    const apiV1Match = url.pathname.match(API_V1_AUDIT_EVENTS_RE);
+    if (apiV1Match) {
+      const orgUuid = parseOrgPublicId(apiV1Match[1]!);
+      const actor = resolveActor(request);
+      if (!orgUuid || !actor || request.method !== "GET") return notFound(requestId, url.pathname);
+      return handleApiV1AuditEvents(request, env, requestId, actor, apiV1Match[1]!, orgUuid);
     }
 
     const teamLogMatch = url.pathname.match(ORG_TEAM_LOG_RE);

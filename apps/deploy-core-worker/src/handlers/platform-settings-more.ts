@@ -59,6 +59,8 @@ export interface PlatformMoreStore {
   updates: UpdatesStore;
   email: EmailStore;
   oauth: OauthStore;
+  /** DP-107: the MCP server switch of row 0 (is_mcp_server_enabled). */
+  mcp: { load(): Promise<SettingsRow>; save(changes: Props): Promise<SettingsRow> };
 }
 
 /** Runs fn with the platform's stores, in one transaction as the platform operator. */
@@ -90,6 +92,7 @@ export function sqlPlatformMoreStore(tx: SqlExecutor, secret: string | undefined
   return {
     updates: section("updates"),
     email: section("email"),
+    mcp: section("mcp"),
     oauth: {
       list: async () => Promise.all((await listPlatformOauthSettings(tx)).map(oauthRow)),
       save: async (provider, changes) => {

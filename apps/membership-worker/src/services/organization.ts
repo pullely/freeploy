@@ -20,7 +20,21 @@ export interface OrganizationServiceDeps {
 }
 
 export type GetOrgResult =
-  | { ok: true; value: { organization: { id: string; name: string; slug: string; createdAt: string } } }
+  | {
+      ok: true;
+      value: {
+        organization: {
+          id: string;
+          name: string;
+          slug: string;
+          createdAt: string;
+          /** DP-107: the org's last change and Coolify's two team settings (GET|PATCH /api/v1/team). */
+          updatedAt: string;
+          isBuildServerFallbackEnabled: boolean;
+          scanImagesOnNewServers: boolean;
+        };
+      };
+    }
   | { ok: false; code: string; message: string; status: number };
 
 export function createOrganizationService(deps: OrganizationServiceDeps) {
@@ -59,6 +73,9 @@ export function createOrganizationService(deps: OrganizationServiceDeps) {
             name: org.name,
             slug: org.slug,
             createdAt: org.createdAt.toISOString(),
+            updatedAt: org.updatedAt.toISOString(),
+            isBuildServerFallbackEnabled: org.isBuildServerFallbackEnabled ?? true,
+            scanImagesOnNewServers: org.scanImagesOnNewServers ?? false,
           },
         },
       };

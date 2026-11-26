@@ -99,7 +99,7 @@ const DENIALS = CASES.cases.filter((c) => c.name.startsWith("denied: "));
 
 describe("the denial goldens (DP-93)", () => {
   it("are Coolify's exception handler answering a policy, for a member, on a route of every group that has one", () => {
-    expect(DENIALS.length).toBe(45);
+    expect(DENIALS.length).toBe(46);
     for (const c of DENIALS) {
       expect(roleOf(tokenOf(c.token!).user)).toBe("member");
       const g = golden(c.name);

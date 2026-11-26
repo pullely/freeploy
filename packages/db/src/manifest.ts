@@ -318,5 +318,14 @@ export const manifest: MigrationManifest = {
       description:
         "API tokens (freeploy-coolify-parity DP9) — Coolify's Sanctum personal access tokens as identity API keys: api_keys.abilities and api_keys.token_number (the id clients send as \"<id>|<plain text>\")",
     },
+    {
+      id: "730_membership_org_team_settings",
+      context: "membership",
+      path: "730_membership_org_team_settings/up.sql",
+      checksum:
+        "65c08ff0e0b13b30a72510852fd8b1c5a918f78dbcf221a7aa2e50b54e3cb46c",
+      description:
+        "A team's build server fallback and image scanning of new servers (freeploy-coolify-parity DP10, DP-107) — organizations.is_build_server_fallback_enabled and scan_images_on_new_servers with Coolify's defaults, for PATCH /api/v1/team",
+    },
   ],
 };
