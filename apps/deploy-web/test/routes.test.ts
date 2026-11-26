@@ -118,7 +118,7 @@ test("an application's configuration routes map to General, Domains, Advanced, H
   // Every other entry of the configuration menu.
   for (const page of [
     "swarm", "logs", "terminal", "files", "metrics", "analytics",
-    "vulnerabilities", "preview-deployments", "backups", "maintenance",
+    "vulnerabilities", "maintenance", // (Preview Deployments and Backups are ported by DP-99.)
   ]) {
     assert.equal(pageFor(`${application}/${page}`), "not-ported", page);
   }
@@ -298,10 +298,11 @@ test("a service's configuration route maps to General, its shared pages to their
   assert.equal(pageFor(`${service}/sub000000000000000000001`), "project.service.index");
   assert.equal(pageFor(`${service}/sub000000000000000000001/`), "project.service.index");
   // (Scheduled Tasks, Webhooks and Resource Operations are ported by DP-97: see below.)
-  for (const notPorted of ["domains", "maintenance", "logs", "analytics", "vulnerabilities", "storage-backups", "terminal", "files", "import-backup"]) {
+  for (const notPorted of ["domains", "maintenance", "logs", "analytics", "vulnerabilities", "terminal", "files"]) {
     assert.equal(pageFor(`${service}/${notPorted}`), "not-ported", notPorted);
   }
-  assert.equal(pageFor(`${service}/sub000000000000000000001/backups`), "not-ported");
+  // (Storage backups, the import links and a database's …/backups are ported by DP-99.)
+  assert.equal(pageFor(`${service}/sub000000000000000000001/backups`), "project.service.database.backups");
   assert.equal(pageFor(`${service}/environment-variables/more`), "not-ported");
 });
 
@@ -407,7 +408,8 @@ test("DP-97: a service's Scheduled Tasks, Webhooks, Resource Operations and a pa
   assert.equal(pageFor(`${service}/sub000000000000000000001/advanced`), "project.service.index.advanced");
   assert.equal(pageFor(`${service}/sub000000000000000000001/advanced/`), "project.service.index.advanced");
   // A route of the service is no part.
-  assert.equal(pageFor(`${service}/storage-backups/advanced`), "not-ported");
+  // (DP-99: routes/web.php registers …/storage-backups/{backup_uuid} first, so "advanced" is a schedule's uuid there.)
+  assert.equal(pageFor(`${service}/storage-backups/advanced`), "project.service.volume-backups.show");
   assert.equal(pageFor(`${service}/tasks/advanced`), "project.service.scheduled-tasks");
   for (const page of ["scheduled-tasks/x", "webhooks/x", "resource-operations/clone", "tasks", "sub000000000000000000001/advanced/more"]) assert.equal(pageFor(`${service}/${page}`), "not-ported", page);
 

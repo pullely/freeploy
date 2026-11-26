@@ -11,7 +11,7 @@
 // 501 in Coolify's envelope. POST …/backups/run queues VolumeBackupJob (docker run on the server): 501 after Coolify's
 // checks, and nothing is stored.
 import type { SqlExecutor } from "@saas/db/hyperdrive";
-import { FILE_VOLUME_MORPH_CLASS, PERSISTENT_VOLUME_MORPH_CLASS, type ApiRow } from "@saas/db/deploy";
+import { FILE_VOLUME_MORPH_CLASS, PERSISTENT_VOLUME_MORPH_CLASS, deleteVolumeBackupSchedule, volumeBackupArchives, volumeBackupBusy, type ApiRow } from "@saas/db/deploy";
 import { COOLIFY_API, POLICY_DENIALS, coolifyJson, obj, type CoolifyAnswer, type PhpValue } from "@saas/contracts/coolify-api";
 import { needsExecutor } from "../applications/resources.js";
 import { validateCronExpression } from "../servers/settings-validation.js";
@@ -307,18 +307,12 @@ async function destroy(c: ApiV1Context, kind: StorageKind, uuid: string, storage
     if (isAnswer(found)) return found;
     const backup = await scheduleOf(tx, found.storage);
     if (!backup) return message("Storage backup schedule not found.", 404);
-    // DeleteScheduledVolumeBackup
-    const busy = await tx.execute("SELECT 1 FROM deploy.scheduled_volume_backup_executions WHERE scheduled_volume_backup_id = $1 AND (status = 'running' OR stop_recovery_pending OR s3_cleanup_pending) LIMIT 1", [backup.id]);
-    if (busy.rows.length) return message(VOLUME_BACKUPS_API_MESSAGES.runningBackup, 409);
-    const archives = await tx.execute(
-      "SELECT 1 FROM deploy.scheduled_volume_backup_executions WHERE scheduled_volume_backup_id = $1 AND ((local_storage_deleted = false AND filename IS NOT NULL AND filename <> '') OR (s3_uploaded = true AND s3_storage_deleted = false)) LIMIT 1",
-      [backup.id],
-    );
-    if (archives.rows.length) return unavailable(VOLUME_BACKUPS_API_MESSAGES.deleteArchivesUnavailable);
+    // DeleteScheduledVolumeBackup (the queries are shared with the console's schedule pages, DP-99)
+    if (await volumeBackupBusy(tx, backup.id)) return message(VOLUME_BACKUPS_API_MESSAGES.runningBackup, 409);
+    const archives = await volumeBackupArchives(tx, backup.id);
+    if (archives.local + archives.s3 > 0) return unavailable(VOLUME_BACKUPS_API_MESSAGES.deleteArchivesUnavailable);
     // $backup->delete(): its executions and S3 storages go with it (the foreign keys' cascade in Coolify's schema).
-    await tx.execute("DELETE FROM deploy.scheduled_volume_backup_s3_storage WHERE scheduled_volume_backup_id = $1", [backup.id]);
-    await tx.execute("DELETE FROM deploy.scheduled_volume_backup_executions WHERE scheduled_volume_backup_id = $1", [backup.id]);
-    await tx.execute("DELETE FROM deploy.scheduled_volume_backups WHERE id = $1", [backup.id]);
+    await deleteVolumeBackupSchedule(tx, backup.id);
     return message("Storage backup schedule and archives deleted.", 200);
   });
 }
