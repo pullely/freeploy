@@ -110,8 +110,8 @@
    "milestone": "DP11",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
    "parityTest": "parity/svelte/canvas-environment-add-section",
-   "taskKey": null,
-   "status": "planned",
+   "taskKey": "DP-98",
+   "status": "ported",
    "lines": 41
   },
   {
@@ -130,8 +130,8 @@
    "milestone": "DP11",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
    "parityTest": "parity/svelte/canvas-environment-deployments",
-   "taskKey": null,
-   "status": "planned",
+   "taskKey": "DP-98",
+   "status": "ported",
    "lines": 88
   },
   {
@@ -140,8 +140,8 @@
    "milestone": "DP11",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
    "parityTest": "parity/svelte/canvas-environment-empty-card",
-   "taskKey": null,
-   "status": "planned",
+   "taskKey": "DP-98",
+   "status": "ported",
    "lines": 25
   },
   {
@@ -150,8 +150,8 @@
    "milestone": "DP11",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
    "parityTest": "parity/svelte/canvas-environment-environment-canvas",
-   "taskKey": "DP-92",
-   "status": "in_progress",
+   "taskKey": "DP-98",
+   "status": "ported",
    "lines": 1141
   },
   {
@@ -180,8 +180,8 @@
    "milestone": "DP11",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
    "parityTest": "parity/svelte/canvas-environment-panel",
-   "taskKey": "DP-92",
-   "status": "in_progress",
+   "taskKey": "DP-98",
+   "status": "ported",
    "lines": 317
   },
   {
@@ -190,8 +190,8 @@
    "milestone": "DP11",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
    "parityTest": "parity/svelte/canvas-environment-select",
-   "taskKey": null,
-   "status": "planned",
+   "taskKey": "DP-98",
+   "status": "ported",
    "lines": 77
   },
   {
@@ -210,8 +210,8 @@
    "milestone": "DP11",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
    "parityTest": "parity/svelte/canvas-environment-toolbar",
-   "taskKey": "DP-92",
-   "status": "in_progress",
+   "taskKey": "DP-98",
+   "status": "ported",
    "lines": 39
   },
   {

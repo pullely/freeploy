@@ -86,7 +86,8 @@ export interface CanvasNode {
   link: string;
   logo: CanvasLogo | null;
   security: null;
-  saved: null;
+  /** The card's position saved on its environment canvas (the server, project and connect canvases, DP-98), or null. */
+  saved: { x: number; y: number } | null;
 }
 
 export interface CanvasLinkPayload {
@@ -179,7 +180,7 @@ interface ServerFacts {
 }
 
 /** EnvironmentCanvas::zone() */
-const zoneOf = (row: ServerFacts & { server_uuid: string }): CanvasZone => ({
+export const zoneOf = (row: ServerFacts & { server_uuid: string }): CanvasZone => ({
   id: row.server_uuid,
   name: row.server_name ?? "",
   ip: null,
@@ -207,7 +208,8 @@ interface ServicePart {
  * engine by engine, each as the store lists them), and one zone per server they run on, in the order the cards first name it.
  */
 export function canvasGraph(
-  base: string,
+  /** The environment page the links start from, or (DP-98, cards of several environments) the one of each row. */
+  base: string | ((row: object) => string),
   applications: readonly DeployApplicationRow[],
   services: readonly DeployEnvironmentServiceCanvasRow[],
   databases: readonly DeployDatabaseRow[],
@@ -218,6 +220,7 @@ export function canvasGraph(
     if (!zones.has(row.server_uuid)) zones.set(row.server_uuid, zoneOf({ ...row, server_uuid: row.server_uuid }));
     return row.server_uuid;
   };
+  const baseOf = (row: object) => (typeof base === "string" ? base : base(row));
   const nodes: CanvasNode[] = [];
   for (const app of applications) {
     const detail = app.build_pack === "dockerimage" ? [app.docker_registry_image_name, app.docker_registry_image_tag].filter(Boolean).join(":") : app.git_branch;
@@ -232,7 +235,7 @@ export function canvasGraph(
       kind: app.build_pack,
       subtitle: subtitle([BUILD_PACK_NAMES[app.build_pack] ?? headline(app.build_pack), detail]),
       children: [],
-      link: `${base}/application/${app.uuid}`,
+      link: `${baseOf(app)}/application/${app.uuid}`,
       logo: applicationLogo(app.build_pack),
       security: null,
       saved: null,
@@ -252,7 +255,7 @@ export function canvasGraph(
       kind: null,
       subtitle: subtitle(["Service", `${children.length} ${children.length === 1 ? "container" : "containers"}`]),
       children,
-      link: `${base}/service/${service.uuid}`,
+      link: `${baseOf(service)}/service/${service.uuid}`,
       // A service template's logo: Freeploy ships none yet, so the type icon.
       logo: null,
       security: null,
@@ -271,7 +274,7 @@ export function canvasGraph(
       kind: database.engine,
       subtitle: subtitle([DATABASE_ENGINE_NAMES[database.engine] ?? headline(database.engine), database.image]),
       children: [],
-      link: `${base}/database/${database.uuid}`,
+      link: `${baseOf(database)}/database/${database.uuid}`,
       logo: databaseLogo(database.engine),
       security: null,
       saved: null,
@@ -377,19 +380,19 @@ export async function environmentCanvas(ctx: ApplicationContext, projectUuid: st
 /** What a save action answers: its data, or Coolify's message (and the field errors of a 422, the `error` of a 400). */
 export type CanvasAnswer =
   | { ok: true; status: 200 | 201; data: unknown }
-  | { ok: false; status: 400 | 404 | 422; message: string; errors?: Errors; error?: string };
+  | { ok: false; status: 400 | 404 | 422 | 501; message: string; errors?: Errors; error?: string };
 
-const failed = (status: 400 | 404 | 422, message: string, extra: { errors?: Errors; error?: string } = {}): CanvasAnswer => ({ ok: false, status, message, ...extra });
-const validationFailed = (errors: Errors) => failed(422, "Validation failed.", { errors });
+export const failed = (status: 400 | 404 | 422 | 501, message: string, extra: { errors?: Errors; error?: string } = {}): CanvasAnswer => ({ ok: false, status, message, ...extra });
+export const validationFailed = (errors: Errors) => failed(422, "Validation failed.", { errors });
 /** validateIncomingRequest(): "Invalid request." with what is wrong with the body. */
-function incoming(body: ApiBody): CanvasAnswer | null {
+export function incoming(body: ApiBody): CanvasAnswer | null {
   if (!body.incomingError) return null;
   const parsed = JSON.parse(body.incomingError.body) as { message: string; error: string };
   return failed(400, parsed.message, { error: parsed.error });
 }
 
 /** EnvironmentCanvasController::validationFailedResponse(): the rules' errors, then "This field is not allowed." per extra field. */
-async function rulesFailed(all: Record<string, unknown>, rules: Rules, allowed: readonly string[]): Promise<CanvasAnswer | null> {
+export async function rulesFailed(all: Record<string, unknown>, rules: Rules, allowed: readonly string[]): Promise<CanvasAnswer | null> {
   const errors: Errors = [];
   await validateRules(errors, all, rules, { laravelMessages: true });
   extraFields(errors, all, allowed);

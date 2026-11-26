@@ -1,16 +1,20 @@
 // Derived from coollabsio/coolify@91b7e3e:resources/js/canvas/environment/Panel.svelte (Apache-2.0), modified.
-// Side panel of the selected card or link. Ported: a card and a diagram link, with the link's
-// label field (saved on blur and Enter, Escape restores it) and "Remove link" for those who may
-// edit (DP-92). Not ported: the connect view's source, resource and source → resource panels (and
-// AddSection.svelte), which only the shared variable and tag canvases show.
+// Side panel of the selected card or link. Connect view (shared variables, tags): a source card,
+// a resource with its sources, or a source → resource link (DP-98); other views: a card or a
+// diagram link, with the link's label field (saved on blur and Enter, Escape restores it) and
+// "Remove link" for those who may edit (DP-92).
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { NO_SERVER, statusLabel, TYPE_LABELS, type CanvasGraph, type CanvasLink, type CanvasNode } from "../../../lib/environment-canvas";
+import { isSource, NO_SERVER, statusLabel, TYPE_LABELS, type CanvasGraph, type CanvasLink, type CanvasNode, type ConnectText } from "../../../lib/environment-canvas";
+import { AddSection } from "./AddSection";
 import { CanvasIcon } from "./Icon";
 import { NodeIcon } from "./NodeIcon";
 import { StatusDot } from "./StatusDot";
 
 export type Selection = { kind: "node" | "link"; id: string } | null;
 
+const ROW_BUTTON = "flex min-w-0 flex-1 items-center gap-2 rounded-md px-1.5 py-1 text-left text-[12px] transition-colors hover:bg-neutral-100 dark:hover:bg-white/[0.06]";
+const smallButton = (danger: boolean) => `button h-6! shrink-0 px-2! text-[11px]! ${danger ? "button-error" : ""}`.trimEnd();
+const TITLE_LINK = "[&[href]]:cursor-pointer [&[href]]:underline-offset-2 [&[href]]:hover:underline";
 const LIST_BUTTON = "flex w-full items-center gap-2 rounded-md px-1.5 py-1 text-left text-[12px] transition-colors hover:bg-neutral-100 dark:hover:bg-white/[0.06]";
 const FAINT = "text-[12px] text-neutral-400 dark:text-fg-faint";
 const STATUS_PILL = "inline-flex h-6 items-center gap-1.5 text-[13px] text-neutral-700 dark:text-fg";
@@ -69,6 +73,11 @@ export function Panel(props: {
   /** Saves a link's label; false when it was not saved. */
   onLabel?: (link: CanvasLink, value: string) => Promise<boolean>;
   onDelete?: (link: CanvasLink) => Promise<void>;
+  /** Connect view (shared variables, tags): its wording, and adding or removing a source on a resource. */
+  connectView?: boolean;
+  text?: ConnectText;
+  onCreate?: (source: string, target: string) => Promise<void>;
+  onRemove?: (link: CanvasLink) => Promise<void>;
 }) {
   const { graph, node, link, nodeById, onSelect } = props;
   // Requests in flight, per link id: their buttons stay disabled until the request ends.
@@ -104,6 +113,175 @@ export function Panel(props: {
     if (value === saved.current) return;
     saved.current = value;
     if (!(await props.onLabel(link, value))) saved.current = link.label || "";
+  }
+  const links = graph.links;
+  const text = props.text;
+  const removeTitle = (l: CanvasLink) => (l.keys?.length ? `Delete ${l.keys.join(", ")} from ${nodeById(l.target)?.name}` : `Remove ${nodeById(l.source)?.name} from ${nodeById(l.target)?.name}`);
+  const removeHint = (l: CanvasLink) => `${(l.keys ?? []).join(", ")} uses ${nodeById(l.source)?.reference || "the variable"} inside a longer value. Edit it on the resource.`;
+  const removeButton = (l: CanvasLink) =>
+    props.canEdit ? (
+      <button type="button" className={smallButton(true)} title={l.removable ? removeTitle(l) : removeHint(l)} disabled={!l.removable || !!busy[l.id]} onClick={() => void run(l.id, () => props.onRemove?.(l) ?? Promise.resolve())}>
+        Remove
+      </button>
+    ) : null;
+  const meta = (n: CanvasNode) => (
+    <div className="flex flex-wrap items-center gap-2 px-4 pb-3">
+      <span className="text-[12px] text-neutral-500 dark:text-fg-faint">{TYPE_LABELS[n.type] || n.type}</span>
+      <span className={STATUS_PILL}>
+        <StatusDot status={n.status} size="size-1.5" />
+        {statusLabel(n.status)}
+      </span>
+    </div>
+  );
+  const openButton = (n: CanvasNode, cls: string, label: string) => (
+    <a className={`button ${cls} w-full`.replace("  ", " ")} href={n.link ?? undefined}>
+      {label}
+    </a>
+  );
+
+  if (props.connectView && text && node && isSource(node)) {
+    const usedBy = links.filter((l) => l.source === node.id);
+    const linked = new Set(usedBy.map((l) => l.target));
+    return (
+      <Shell title={node.name} icon={node} top={props.top} onClose={props.onClose} footer={node.link ? openButton(node, "", `Open ${(TYPE_LABELS[node.type] ?? "").toLowerCase()}`) : undefined}>
+        <div className="flex flex-wrap items-center gap-2 px-4 pb-3">
+          {node.reference ? (
+            <code className="rounded border border-neutral-200 bg-neutral-50 px-1.5 py-0.5 font-mono text-[11px] text-neutral-600 dark:border-white/[0.1] dark:bg-white/[0.05] dark:text-fg-dim">{node.reference}</code>
+          ) : null}
+          {node.missing ? (
+            <span className="rounded-full border border-red-200 bg-red-50 px-2 py-0.5 text-[11px] font-medium text-red-600 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400">Deleted</span>
+          ) : null}
+        </div>
+        {node.missing ? (
+          <Note>{`This shared variable was deleted. The resources below still reference it and get the text ${node.reference} instead of a value. Add the variable again, or remove the reference.`}</Note>
+        ) : node.subtitle ? (
+          <Section title="Description">
+            <p className="text-[12px] break-words">{node.subtitle}</p>
+          </Section>
+        ) : null}
+        <Section title={`${text.usedBy} (${usedBy.length})`}>
+          <ul className="flex flex-col gap-1.5">
+            {!usedBy.length ? <li className={FAINT}>{text.noTargets}</li> : null}
+            {usedBy.map((l) => {
+              const resource = nodeById(l.target);
+              return (
+                <li key={l.id} className="flex items-center gap-1">
+                  <button type="button" className={ROW_BUTTON} title={resource?.context || ""} onClick={() => onSelect({ kind: "link", id: l.id })}>
+                    <StatusDot status={resource?.status} size="size-1.5" />
+                    <span className="min-w-0 flex-1 truncate">{resource?.name || "Unknown"}</span>
+                    {l.label ? <span className="max-w-24 truncate font-mono text-[11px] text-neutral-400 dark:text-fg-faint">{l.label}</span> : null}
+                  </button>
+                  {removeButton(l)}
+                </li>
+              );
+            })}
+          </ul>
+        </Section>
+        {props.canEdit && !node.missing ? (
+          <AddSection
+            title="Add to resources"
+            placeholder="Search resources"
+            empty={text.allTargets}
+            candidates={graph.nodes.filter((n) => !isSource(n) && !linked.has(n.id))}
+            describe={(resource) => ({ title: `Add ${node.name} to ${resource.name}`, sub: resource.context || "" })}
+            onAdd={(resource) => props.onCreate?.(node.id, resource.id) ?? Promise.resolve()}
+          />
+        ) : null}
+        {!node.missing ? <Note>{props.canEdit ? text.note(node) : text.viewOnly}</Note> : null}
+      </Shell>
+    );
+  }
+  if (props.connectView && text && node) {
+    const sources = links.filter((l) => l.target === node.id);
+    const linked = new Set(sources.map((l) => l.source));
+    return (
+      <Shell title={node.name} icon={node} top={props.top} onClose={props.onClose} footer={node.link ? openButton(node, "button-highlighted", "Open") : undefined}>
+        {meta(node)}
+        {node.context ? (
+          <Section title="Project / environment">
+            <a className={`text-[12px] hover:underline ${TITLE_LINK}`} href={node.context_link || undefined} draggable="false">
+              {node.context}
+            </a>
+          </Section>
+        ) : null}
+        <Section title={`${text.sources} (${sources.length})`}>
+          <ul className="flex flex-col gap-1.5">
+            {!sources.length ? <li className={FAINT}>{text.noSources}</li> : null}
+            {sources.map((l) => {
+              const source = nodeById(l.source);
+              return (
+                <li key={l.id} className="flex items-center gap-1">
+                  <button type="button" className={ROW_BUTTON} onClick={() => onSelect({ kind: "node", id: l.source })}>
+                    <CanvasIcon name={source?.type || "variable"} className={`size-3.5 ${l.missing ? "text-red-500" : "text-neutral-400 dark:text-fg-faint"}`} />
+                    <span className={`min-w-0 flex-1 truncate ${source?.type === "variable" ? "font-mono" : ""}`.trimEnd()}>{source?.name || "Unknown"}</span>
+                    {l.missing ? <span className="text-[11px] text-red-500">Deleted</span> : null}
+                  </button>
+                  {removeButton(l)}
+                </li>
+              );
+            })}
+          </ul>
+        </Section>
+        {props.canEdit ? (
+          <AddSection
+            title={text.addSources}
+            placeholder={text.searchSources}
+            empty={text.noMoreSources}
+            candidates={graph.nodes.filter((n) => isSource(n) && !n.missing && !linked.has(n.id))}
+            describe={(source) => ({ title: `Add ${source.name} to ${node.name}`, sub: source.type === "variable" ? source.subtitle || "" : "" })}
+            onAdd={(source) => props.onCreate?.(source.id, node.id) ?? Promise.resolve()}
+          />
+        ) : null}
+      </Shell>
+    );
+  }
+  if (props.connectView && text && link) {
+    const variable = nodeById(link.source);
+    const resource = nodeById(link.target);
+    return (
+      <Shell
+        title={`${variable?.name || text.source} → ${resource?.name || "Resource"}`}
+        icon="link"
+        top={props.top}
+        onClose={props.onClose}
+        footer={
+          props.canEdit ? (
+            <button type="button" className="button button-error w-full" title={link.removable ? removeTitle(link) : removeHint(link)} disabled={!link.removable || !!busy[link.id]} onClick={() => void run(link.id, () => props.onRemove?.(link) ?? Promise.resolve())}>
+              Remove
+            </button>
+          ) : undefined
+        }
+      >
+        <Section title="Ends">
+          <div className="flex flex-col gap-1">
+            {(
+              [
+                [text.source, variable],
+                ["Resource", resource],
+              ] as const
+            ).map(([endLabel, end]) => (
+              <button key={endLabel} type="button" className={ROW_BUTTON} onClick={() => end && onSelect({ kind: "node", id: end.id })}>
+                <span className="w-14 text-[11px] text-neutral-400 dark:text-fg-faint">{endLabel}</span>
+                <span className={`min-w-0 flex-1 truncate ${end?.type === "variable" ? "font-mono" : ""}`.trimEnd()}>{end?.name || "Unknown"}</span>
+              </button>
+            ))}
+          </div>
+        </Section>
+        {link.keys?.length ? (
+          <Section title={`Variables on ${resource?.name || "the resource"}`}>
+            <div className="flex flex-wrap gap-1">
+              {link.keys.map((key) => (
+                <code key={key} className="rounded border border-neutral-200 bg-neutral-50 px-1.5 py-0.5 font-mono text-[11px] dark:border-white/[0.1] dark:bg-white/[0.05]">
+                  {key}
+                </code>
+              ))}
+            </div>
+          </Section>
+        ) : null}
+        {link.missing ? <Note>{`The shared variable was deleted. ${resource?.name} gets the text ${variable?.reference} instead of a value.`}</Note> : null}
+        {props.canEdit && !link.removable ? <Note>{removeHint(link)}</Note> : null}
+      </Shell>
+    );
   }
   if (node) {
     const servers = props.zoneNames(node);

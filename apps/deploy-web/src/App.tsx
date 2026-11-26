@@ -20,6 +20,14 @@ const ProjectEditPage = lazy(() => import("./pages/ProjectEdit").then((m) => ({ 
 const EnvironmentResourcesPage = lazy(() => import("./pages/EnvironmentResources").then((m) => ({ default: m.EnvironmentResourcesPage })));
 const EnvironmentCanvasPage = lazy(() => import("./pages/EnvironmentCanvas").then((m) => ({ default: m.EnvironmentCanvasPage })));
 const DeployCanvasPage = lazy(() => import("./pages/DeployCanvas").then((m) => ({ default: m.DeployCanvasPage })));
+// DP-98: the canvases that reuse the environment canvas's view.
+const ProjectsCanvasPage = lazy(() => import("./pages/CanvasViews").then((m) => ({ default: m.ProjectsCanvasPage })));
+const ProjectCanvasPage = lazy(() => import("./pages/CanvasViews").then((m) => ({ default: m.ProjectCanvasPage })));
+const ServersCanvasPage = lazy(() => import("./pages/CanvasViews").then((m) => ({ default: m.ServersCanvasPage })));
+const ServerCanvasPage = lazy(() => import("./pages/CanvasViews").then((m) => ({ default: m.ServerCanvasPage })));
+const DashboardCanvasPage = lazy(() => import("./pages/CanvasViews").then((m) => ({ default: m.DashboardCanvasPage })));
+const SharedVariablesCanvasPage = lazy(() => import("./pages/CanvasViews").then((m) => ({ default: m.SharedVariablesCanvasPage })));
+const TagsCanvasPage = lazy(() => import("./pages/CanvasViews").then((m) => ({ default: m.TagsCanvasPage })));
 const ResourceCreatePage = lazy(() => import("./pages/ResourceCreate").then((m) => ({ default: m.ResourceCreatePage })));
 const ServiceShowPage = lazy(() => import("./pages/ServiceShow").then((m) => ({ default: m.ServiceShowPage })));
 const ServicePartPage = lazy(() => import("./pages/ServicePart").then((m) => ({ default: m.ServicePartPage })));
@@ -193,6 +201,51 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <DeployCanvasPage />
+        </Suspense>
+      );
+    case "project.canvas.index":
+      return (
+        <Suspense fallback={null}>
+          <ProjectsCanvasPage />
+        </Suspense>
+      );
+    case "project.canvas":
+      return (
+        <Suspense fallback={null}>
+          <ProjectCanvasPage />
+        </Suspense>
+      );
+    case "server.canvas.index":
+      return (
+        <Suspense fallback={null}>
+          <ServersCanvasPage />
+        </Suspense>
+      );
+    case "server.canvas":
+      return (
+        <Suspense fallback={null}>
+          <ServerCanvasPage />
+        </Suspense>
+      );
+    case "dashboard.canvas":
+      return (
+        <Suspense fallback={null}>
+          <DashboardCanvasPage />
+        </Suspense>
+      );
+    case "shared-variables.team.canvas":
+    case "shared-variables.project.canvas":
+    case "shared-variables.environment.canvas":
+    case "shared-variables.server.canvas":
+      return (
+        <Suspense fallback={null}>
+          <SharedVariablesCanvasPage />
+        </Suspense>
+      );
+    case "tags.canvas":
+      return (
+        <Suspense fallback={null}>
+          <TagsCanvasPage />
         </Suspense>
       );
     case "project.environment.edit":

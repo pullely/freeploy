@@ -6,9 +6,8 @@
 // /shared-variables (the overview), /shared-variables/projects,
 // /shared-variables/environments and /shared-variables/servers: where the
 // scopes' variables are found. The overview's variables link to their scope's
-// canvas, as Coolify's do; the canvas is not ported, so those links lead to
-// the not-ported notice. Project icons are not ported either: every project
-// shows the default glyph.
+// canvas, as Coolify's do (the canvases are DP-98's). Project icons are not
+// ported: every project shows the default glyph.
 import { useEffect, useState } from "react";
 import { useSignedIn } from "../layout/Layout";
 import { getJson } from "../lib/api";

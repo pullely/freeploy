@@ -250,6 +250,16 @@ export async function listEnvironmentDatabases(tx: SqlExecutor, environmentId: s
   return r.rows;
 }
 
+/**
+ * ServerCanvas::loadResources()'s standalone databases (DP-98): every database of the org (row-level security), in the
+ * engines' order and oldest first within one, with the columns the engines share only.
+ */
+export async function listOrgDatabases(tx: SqlExecutor): Promise<DeployDatabaseRow[]> {
+  const parts = DATABASE_ENGINES.map((engine, i) => `SELECT ${i} AS engine_order, q.* FROM (${selectDatabase(engine, true)} WHERE d.deleted_at IS NULL) q`);
+  const r = await tx.execute<DeployDatabaseRow>(`SELECT * FROM (${parts.join(" UNION ALL ")}) u ORDER BY u.engine_order, u.id`);
+  return r.rows;
+}
+
 /** A value of a database column as it is bound: text, number, boolean or null (a JSON column takes its text). */
 export type DatabaseColumnValue = string | number | boolean | null;
 

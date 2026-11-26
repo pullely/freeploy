@@ -190,6 +190,7 @@ export {
 export {
   findApplicationByUuid,
   listEnvironmentApplications,
+  listOrgApplications,
   insertDockerImageApplication,
   updateApplicationGeneral,
   listApplicationDomains,
@@ -445,6 +446,7 @@ export {
   findDatabaseEngineByUuid,
   findDatabaseByUuid,
   listEnvironmentDatabases,
+  listOrgDatabases,
   insertDatabase,
   updateDatabase,
   findDatabaseVariable,
@@ -632,8 +634,10 @@ export {
   listDomainOwners,
   listEnvironmentServiceResources,
   listEnvironmentServiceCanvasRows,
+  listOrgServiceCanvasRows,
   type DeployEnvironmentServiceRow,
   type DeployEnvironmentServiceCanvasRow,
+  type DeployOrgServiceCanvasRow,
   type DeployServiceConfigurationRow,
   type DeployServicePartFullRow,
   type DeployServiceVariableRow,
@@ -651,3 +655,5 @@ export * from "./platform-settings.js";
 export * from "./api-applications.js";
 // DP-92: the environment canvas's stored layout (card positions, visual-only resource links).
 export * from "./canvas.js";
+// DP-98: the projects, servers, dashboard, shared variable and tag canvases.
+export * from "./canvas-views.js";

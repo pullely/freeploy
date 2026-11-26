@@ -46,11 +46,11 @@ test("a tag's active deployments: in id order, or by a column as strcasecmp() th
   assert.equal(plural("tag", 2), "tags");
 });
 
-test("DP-97: /tags/{tagName?} is tags.show; the tags canvas is not ported", () => {
+test("DP-97: /tags/{tagName?} is tags.show; the tags canvas is /canvas/tags (DP-98)", () => {
   assert.equal(pageFor("/tags"), "tags.show");
   assert.equal(pageFor("/tags/"), "tags.show");
   assert.equal(pageFor("/tags/production"), "tags.show");
   assert.equal(pageFor("/tags/a%20b/"), "tags.show");
   assert.equal(pageFor("/tags/production/more"), "not-ported");
-  assert.equal(pageFor("/canvas/tags"), "not-ported");
+  assert.equal(pageFor("/canvas/tags"), "tags.canvas");
 });

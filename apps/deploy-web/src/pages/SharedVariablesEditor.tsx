@@ -11,9 +11,8 @@
 // variables. The normal view is the table with its search, sort, "Add
 // variable" and each row's edit dialog (rename, value, lock, delete); the
 // developer view is the KEY=value text. A value is fetched only when a dialog
-// or the copy button asks for it, as Coolify decrypts it only then. The canvas
-// is not ported: the Canvas switch and the "Connect to resources" links lead
-// to the not-ported notice.
+// or the copy button asks for it, as Coolify decrypts it only then. The Canvas
+// switch and the "Connect to resources" links open the scope's canvas (DP-98).
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { useSignedIn } from "../layout/Layout";
 import { getJson, postJson, summarize } from "../lib/api";
@@ -134,7 +133,7 @@ function EnvVarInput(props: { id: string; label: string; value: string; onChange
 }
 
 /** add.blade.php with :shared="true": Livewire's Add component, saved by the scope's saveKey(). */
-function AddVariable({ base, onDone }: { base: string; onDone: () => void }) {
+export function AddVariable({ base, onDone }: { base: string; onDone: () => void }) {
   const [key, setKey] = useState("");
   const [comment, setComment] = useState("");
   const [value, setValue] = useState("");

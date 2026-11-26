@@ -109,7 +109,7 @@ export function Card(props: {
               // Dashboard canvas: the running or queued deployment of the application.
               <a
                 className="relative mt-0.5 inline-flex shrink-0 items-center gap-1 rounded-full border border-neutral-200 bg-neutral-50 px-1.5 text-[10px] leading-4 font-medium text-neutral-600 hover:border-neutral-300 hover:text-black dark:border-white/[0.1] dark:bg-white/[0.05] dark:text-fg-dim dark:hover:border-white/[0.2] dark:hover:text-fg"
-                href={node.deployment.link}
+                href={node.deployment.link ?? undefined}
                 title={node.deployment.pull_request_id ? `Pull request #${node.deployment.pull_request_id}` : "Open the deployment"}
                 onPointerDown={stop}
                 onClick={stop}

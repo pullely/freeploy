@@ -7,11 +7,13 @@
 // GET …/projects/{uuid}/environments/{env_uuid}/canvas answers in
 // EnvironmentCanvas::payload()'s shape. DOM-free, so `node --test` imports it.
 //
-// Only what the environment canvas uses is ported: the server, project, dashboard,
-// shared variable and tag canvases (layoutServerView, layoutConnectView, the filters,
-// the group frames and drags) are not. DP-92 adds what moves cards and draws links:
-// canvas-core.js' freeSpot, dragRules (without the server view's groups), canConnect
-// (without the connect and server views' rules) and ApiError's message.
+// DP-92 adds what moves cards and draws links: canvas-core.js' freeSpot, dragRules,
+// canConnect and ApiError's message. DP-98 adds what the projects, servers, dashboard,
+// shared variable and tag canvases use: the server view (layoutBlock, layoutServerView,
+// the project / environment groups, their frames and drag rules, the zones' saved
+// places), the connect view (layoutConnectView, groupByUse, CONNECT_TEXT), the filters
+// (filterOptions, filterGraph), canConnect's server and connect rules, and
+// environment-order.js' compareEnvironmentNames.
 
 export const MIN_ZOOM = 0.25;
 export const MAX_ZOOM = 2;
@@ -32,6 +34,8 @@ export const MAX_CHILDREN = 5;
 /** Auto placement wraps a type into another column after this many cards. */
 export const MAX_ROWS = 6;
 export const NO_SERVER = "No server";
+export const SOURCES_ZONE = "sources";
+export const CONNECTED_ZONE = "connected";
 export const DOUBLE_CLICK_MS = 400;
 export const READABLE_ZOOM = 0.6;
 const FIT_PAD = 48;
@@ -67,6 +71,8 @@ export interface CanvasZone {
   link?: string | null;
   icon?: string | null;
   details?: ZoneDetails | null;
+  /** Projects, servers and dashboard canvases: the place the zone was moved to (its top-left), or null. */
+  position?: Point | null;
 }
 
 export interface CanvasChild {
@@ -90,8 +96,16 @@ export interface CanvasNode {
   logo?: CanvasLogo | null;
   security?: { text?: string; label?: string; tooltip?: string; status?: string } | null;
   missing?: boolean;
-  context?: string;
-  deployment?: { status: string; link: string; pull_request_id?: number | null } | null;
+  /** Server and connect views: the project / environment group of the card. */
+  context?: string | null;
+  context_link?: string | null;
+  project?: { uuid: string; name: string } | null;
+  environment?: { uuid: string; name: string } | null;
+  /** The position saved on the card's environment canvas (server and project views). */
+  saved?: Point | null;
+  /** Connect view: a shared variable's {{scope.KEY}}. */
+  reference?: string | null;
+  deployment?: { status: string; link: string | null; pull_request_id?: number | null } | null;
 }
 
 export interface CanvasLink {
@@ -100,6 +114,23 @@ export interface CanvasLink {
   target: string;
   label?: string | null;
   missing?: boolean;
+  /** Connect view: the shared variable's key (or tag's name), the resource's variables that use it, and whether it can be removed here. */
+  key?: string;
+  keys?: string[];
+  removable?: boolean;
+}
+
+/** Dashboard canvas: a running, queued or recent deployment. */
+export interface CanvasDeployment {
+  id: string;
+  application: string | null;
+  name: string | null;
+  server: string | null;
+  created_at: string | null;
+  finished_at: string | null;
+  status: string;
+  link: string | null;
+  pull_request_id: number | null;
 }
 
 export interface Point {
@@ -110,8 +141,17 @@ export interface Point {
 export interface CanvasGraph {
   project?: { uuid: string; name: string; link: string };
   environment?: { uuid: string; name: string; link: string };
+  title?: string;
+  title_link?: string | null;
   can_edit?: boolean;
+  /** Server and connect views: false, the cards keep their environment canvas arrangement. */
+  can_move?: boolean;
+  can_move_groups?: boolean;
+  can_move_zones?: boolean;
   layout?: string;
+  scope?: string;
+  containers_endpoint?: string | null;
+  deployments?: CanvasDeployment[];
   zones: CanvasZone[];
   nodes: CanvasNode[];
   links: CanvasLink[];
@@ -232,6 +272,8 @@ function placeGrid(nodes: CanvasNode[], originX: number, top: number, out: Recor
  * databases right. Zones without stored cards stack below everything else.
  */
 export function layoutGraph(graph: CanvasGraph): Record<string, Point> {
+  if (graph.layout === "server") return layoutServerView(graph);
+  if (graph.layout === "connect") return layoutConnectView(graph);
   const stored = graph.positions;
   const out: Record<string, Point> = {};
   const placedBottom: number[] = [];
@@ -261,6 +303,343 @@ export function layoutGraph(graph: CanvasGraph): Record<string, Point> {
   return out;
 }
 
+// ── Server view: project / environment groups, linked cards side by side ──
+
+export const GROUP_PADDING = 16;
+export const GROUP_HEADER = 32;
+export const GROUP_GAP = 32;
+export const GROUPS_PER_ROW = 3;
+export const SINGLE_COLUMNS = 3;
+
+const ENVIRONMENT_ORDER = ["production", "staging", "development"];
+const environmentRank = (name: string) => {
+  const index = ENVIRONMENT_ORDER.indexOf(String(name).toLowerCase());
+  return index === -1 ? ENVIRONMENT_ORDER.length : index;
+};
+/**
+ * environment-order.js: production, staging, and development first, then the others by name
+ * (Environment::compareNames() has the same order for the project page).
+ */
+export const compareEnvironmentNames = (a: string, b: string) => environmentRank(a) - environmentRank(b) || String(a).localeCompare(String(b));
+
+/** Cards by project / environment group, the unmanaged containers first, then by project and environment order. */
+function contextGroups(nodes: readonly CanvasNode[]): Array<[string, CanvasNode[]]> {
+  const groups = new Map<string, CanvasNode[]>();
+  for (const n of nodes) {
+    const key = n.context || "";
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push(n);
+  }
+  // Server view: the unmanaged containers group comes first, so it is not lost below many projects.
+  const unmanaged = ([, members]: [string, CanvasNode[]]) => (members[0]?.type === "container" ? 0 : 1);
+  // Then by project, then production, staging, and development before the other environments.
+  const project = ([name, members]: [string, CanvasNode[]]) => members[0]?.project?.name ?? name;
+  const environment = ([name, members]: [string, CanvasNode[]]) => members[0]?.environment?.name ?? name;
+  return [...groups.entries()].sort((a, b) => unmanaged(a) - unmanaged(b) || project(a).localeCompare(project(b)) || compareEnvironmentNames(environment(a), environment(b)));
+}
+const byTypeAndName = (a: CanvasNode, b: CanvasNode) => columnOf(a) - columnOf(b) || String(a.name).localeCompare(String(b.name));
+
+/**
+ * Card positions inside one group, from (0, 0). Cards with a position saved on their environment
+ * canvas (node.saved) keep that arrangement; the other cards follow below them in the grid the environment
+ * canvas uses, so both canvases show the group the same way. Otherwise linked
+ * cards form chains from left to right (source before target, one column per step); every chain
+ * gets its own rows. Cards without links follow in a grid of SINGLE_COLUMNS.
+ */
+export function layoutBlock(nodes: readonly CanvasNode[], links: readonly CanvasLink[] = []): { positions: Record<string, Point>; width: number; height: number } {
+  const saved = nodes.filter((n) => isPoint(n.saved));
+  if (saved.length) {
+    const left = Math.min(...saved.map((n) => Number(n.saved!.x)));
+    const top = Math.min(...saved.map((n) => Number(n.saved!.y)));
+    const out: Record<string, Point> = {};
+    for (const n of saved) out[n.id] = { x: Number(n.saved!.x) - left, y: Number(n.saved!.y) - top };
+    const width = Math.max(...saved.map((n) => out[n.id]!.x)) + CARD_WIDTH;
+    const bottom = Math.max(...saved.map((n) => out[n.id]!.y + estimateNodeHeight(n)));
+    const rest = nodes.filter((n) => !out[n.id]);
+    if (!rest.length) return { positions: out, width, height: bottom };
+    // Same grid as the environment canvas (layoutGraph) puts below the saved cards, so both canvases match.
+    const height = placeGrid(rest, 0, bottom + ROW_GAP, out);
+    return { positions: out, width: Math.max(...Object.values(out).map((p) => p.x)) + CARD_WIDTH, height };
+  }
+  const ids = new Set(nodes.map((n) => n.id));
+  const inside = links.filter((l) => ids.has(l.source) && ids.has(l.target) && l.source !== l.target);
+  const parent = new Map(nodes.map((n) => [n.id, n.id]));
+  const find = (id: string): string => (parent.get(id) === id ? id : find(parent.get(id)!));
+  for (const l of inside) parent.set(find(l.source), find(l.target));
+  const order = [...nodes].sort(byTypeAndName);
+  const components = new Map<string, CanvasNode[]>();
+  for (const n of order) {
+    const root = find(n.id);
+    if (!components.has(root)) components.set(root, []);
+    components.get(root)!.push(n);
+  }
+
+  const out: Record<string, Point> = {};
+  const step = CARD_WIDTH + COLUMN_GAP;
+  let top = 0;
+  let columns = 0;
+  const singles: CanvasNode[] = [];
+  for (const members of components.values()) {
+    if (members.length === 1) {
+      singles.push(members[0]!);
+      continue;
+    }
+    // Depth: the longest path from a card without incoming links (cycles stop at the size of the chain).
+    const own = new Set(members.map((n) => n.id));
+    const edges = inside.filter((l) => own.has(l.source));
+    const depth = new Map(members.filter((n) => !edges.some((l) => l.target === n.id)).map((n) => [n.id, 0]));
+    if (!depth.size) depth.set(members[0]!.id, 0);
+    for (let changed = true, rounds = 0; changed && rounds < members.length; rounds++) {
+      changed = false;
+      for (const l of edges) {
+        const next = (depth.get(l.source) ?? -1) + 1;
+        if (next > 0 && next > (depth.get(l.target) ?? -1)) {
+          depth.set(l.target, next);
+          changed = true;
+        }
+      }
+    }
+    const nextY: number[] = [];
+    for (const n of members) {
+      const d = depth.get(n.id) ?? 0;
+      nextY[d] ??= top;
+      out[n.id] = { x: d * step, y: nextY[d] };
+      nextY[d] += estimateNodeHeight(n) + ROW_GAP;
+    }
+    columns = Math.max(columns, nextY.length);
+    top = Math.max(...nextY.filter((v) => v !== undefined)) + ROW_GAP;
+  }
+  let rowHeight = 0;
+  singles.forEach((n, i) => {
+    const column = i % SINGLE_COLUMNS;
+    if (column === 0 && i > 0) {
+      top += rowHeight + ROW_GAP;
+      rowHeight = 0;
+    }
+    out[n.id] = { x: column * step, y: top };
+    rowHeight = Math.max(rowHeight, estimateNodeHeight(n));
+  });
+  if (singles.length) columns = Math.max(columns, Math.min(singles.length, SINGLE_COLUMNS));
+  const bottom = singles.length ? top + rowHeight : Math.max(0, top - ROW_GAP);
+  return { positions: out, width: columns * step - COLUMN_GAP, height: bottom };
+}
+
+/**
+ * Server view: key of a project / environment group on one server ("<environment uuid>:<zone id>").
+ * Groups of an empty environment (placeholder card) have none, so they cannot be moved.
+ */
+export const groupKey = (nodes: readonly CanvasNode[], zoneId: string | null | undefined): string | null => {
+  const environment = nodes.find((n) => n.type !== "empty" && n.environment?.uuid)?.environment?.uuid;
+  return environment && zoneId ? `${environment}:${zoneId}` : null;
+};
+
+/** Server view: per group key, its frame top-left, the zone's inner top-left, and environment canvas position = server view position - shift. */
+export interface GroupMeta {
+  x: number;
+  y: number;
+  inner: Point;
+  shift: Point;
+}
+
+/**
+ * Server view: zones stack downwards; a zone with a saved place (zone.position: projects, servers and dashboard canvases) sits there and the
+ * stacked zones keep clear of it. A group with cards saved on its environment canvas (node.saved) sits where
+ * those cards are, so the server canvas and the environment canvas share one position (a group that would
+ * leave the zone or cover another group moves to the nearest free spot). Other groups follow below,
+ * GROUPS_PER_ROW per row. When `groups` is given, it gets per group key its frame top-left, the zone's inner
+ * top-left, and `shift`. When `zones` is given, it gets per zone id the zone's top-left (the place that zone.position saves).
+ */
+export function layoutServerView(
+  graph: Pick<CanvasGraph, "zones" | "nodes"> & { links?: CanvasLink[] },
+  groups: Record<string, GroupMeta> | null = null,
+  { compact = false, zones = null }: { compact?: boolean; zones?: Record<string, Point> | null } = {},
+): Record<string, Point> {
+  const out: Record<string, Point> = {};
+  const laid = zoneGroups({ ...graph, links: graph.links ?? [], positions: {} }).map((zone) => ({ zone, ...layoutServerZone(zone, graph.links ?? [], compact) }));
+  // Saved zones first, so the stacked zones can keep clear of them.
+  const taken: Box[] = [];
+  const put = (l: (typeof laid)[number], origin: Point) => {
+    for (const [id, p] of Object.entries(l.positions)) out[id] = { x: origin.x + p.x, y: origin.y + p.y };
+    for (const [key, g] of Object.entries(groups ? l.groups : {})) {
+      groups![key] = {
+        x: origin.x + g.x,
+        y: origin.y + g.y,
+        inner: { x: origin.x + g.inner.x, y: origin.y + g.inner.y },
+        shift: { x: origin.x + g.shift.x, y: origin.y + g.shift.y },
+      };
+    }
+    if (zones && l.zone.id != null) zones[l.zone.id] = { ...origin };
+    taken.push({ x: origin.x - ZONE_PADDING, y: origin.y, w: l.width + ZONE_PADDING * 2, h: l.height });
+  };
+  const savedPlace = (l: (typeof laid)[number]): Point | null => (isPoint(l.zone.zone?.position) ? { x: Number(l.zone.zone!.position!.x), y: Number(l.zone.zone!.position!.y) } : null);
+  for (const l of laid.filter(savedPlace)) put(l, savedPlace(l)!);
+  const pinned = taken.slice();
+  let y = 0;
+  for (const l of laid.filter((l) => !savedPlace(l))) {
+    const wanted = { x: -ZONE_PADDING, y, w: l.width + ZONE_PADDING * 2, h: l.height };
+    const spot = (pinned.length && freeSpot(wanted, pinned, ZONE_GAP, (b) => b.x === wanted.x && b.y >= y)) || wanted;
+    put(l, { x: 0, y: spot.y });
+    y = spot.y + l.height + ZONE_GAP;
+  }
+  return out;
+}
+
+/** One zone of the server view laid out at the origin (see layoutServerView). */
+function layoutServerZone(zone: ZoneGroup, links: readonly CanvasLink[], compact: boolean) {
+  const out: Record<string, Point> = {};
+  const groups: Record<string, GroupMeta> = {};
+  const inner = { x: 0, y: zoneHeader(zone.zone) + ZONE_PADDING };
+  const blocks = contextGroups(zone.nodes).map(([, nodes]) => {
+    const saved = nodes.filter((n) => isPoint(n.saved));
+    const block = layoutBlock(nodes, links);
+    return {
+      key: groupKey(nodes, zone.id),
+      nodes,
+      block,
+      size: { w: block.width + GROUP_PADDING * 2, h: GROUP_HEADER + GROUP_PADDING * 2 + block.height },
+      at: saved.length ? { x: Math.min(...saved.map((n) => Number(n.saved!.x))), y: Math.min(...saved.map((n) => Number(n.saved!.y))) } : null,
+    };
+  });
+  type Block = (typeof blocks)[number];
+  // Empty environments (placeholder cards only) go next to the other groups after these are placed.
+  const isEmpty = (b: Block) => b.nodes.every((n) => n.type === "empty");
+  const pinned = blocks.filter((b) => b.at).sort((a, b) => a.at!.y - b.at!.y || a.at!.x - b.at!.x);
+  // The environment canvas puts its first cards below a zone header; those land at the zone's top-left here.
+  const shift = { x: inner.x + GROUP_PADDING, y: inner.y + GROUP_HEADER + GROUP_PADDING - ZONE_HEADER - ZONE_PADDING };
+  const frames: Array<{ x: number; y: number; w: number }> = [];
+  const place = ({ key, block, size }: Block, left: number, top: number) => {
+    frames.push({ x: left, y: top, w: size.w });
+    for (const [id, p] of Object.entries(block.positions)) {
+      out[id] = { x: left + GROUP_PADDING + p.x, y: top + GROUP_HEADER + GROUP_PADDING + p.y };
+    }
+    if (key) groups[key] = { x: left, y: top, inner, shift };
+    return top + size.h;
+  };
+  const taken: Array<Box & { project?: string | undefined }> = [];
+  const inside = (b: Box) => b.x >= inner.x && b.y >= inner.y;
+  let bottom = inner.y;
+  for (const b of pinned) {
+    // Environment canvas positions can be left of or above the zone (negative coordinates): keep the group inside.
+    const wanted = {
+      x: Math.max(inner.x, b.at!.x + shift.x - GROUP_PADDING),
+      y: Math.max(inner.y, b.at!.y + shift.y - GROUP_HEADER - GROUP_PADDING),
+      ...b.size,
+    };
+    const spot = freeSpot(wanted, taken, GROUP_GAP, inside) || wanted;
+    taken.push({ ...spot, project: b.nodes[0]?.project?.uuid });
+    bottom = Math.max(bottom, place(b, spot.x, spot.y));
+  }
+  let x = 0;
+  let rowTop = pinned.length ? bottom + GROUP_GAP : inner.y;
+  let rowBottom = rowTop;
+  blocks
+    .filter((b) => !b.at && !isEmpty(b))
+    .forEach((b, i) => {
+      if (i > 0 && i % GROUPS_PER_ROW === 0) {
+        x = 0;
+        rowTop = rowBottom + GROUP_GAP;
+      }
+      taken.push({ x, y: rowTop, ...b.size, project: b.nodes[0]?.project?.uuid });
+      rowBottom = Math.max(rowBottom, place(b, x, rowTop));
+      x += b.size.w + GROUP_GAP;
+    });
+  bottom = Math.max(bottom, rowBottom);
+  // Right of the last group of the same project (or of the zone), at the nearest free spot.
+  for (const b of blocks.filter((b) => !b.at && isEmpty(b))) {
+    const project = b.nodes[0]?.project?.uuid;
+    const anchor = taken.filter((t) => t.project === project).at(-1) || taken.at(-1);
+    const wanted = anchor ? { x: anchor.x + anchor.w + GROUP_GAP, y: anchor.y, ...b.size } : { ...inner, ...b.size };
+    const spot = freeSpot(wanted, taken, GROUP_GAP, inside) || wanted;
+    taken.push({ ...spot, project });
+    bottom = Math.max(bottom, place(b, spot.x, spot.y));
+  }
+  if (compact && frames.length) {
+    // The groups keep their arrangement, but start at the zone's top-left (no empty space from saved positions).
+    const dx = inner.x - Math.min(...frames.map((f) => f.x));
+    const dy = inner.y - Math.min(...frames.map((f) => f.y));
+    for (const n of zone.nodes) if (out[n.id]) out[n.id] = { x: out[n.id]!.x + dx, y: out[n.id]!.y + dy };
+    for (const f of frames) f.x += dx;
+    bottom += dy;
+  }
+  const width = Math.max(0, ...frames.map((f) => f.x + f.w), zone.zone?.details ? SERVER_ZONE_MIN_WIDTH - ZONE_PADDING * 2 : 0);
+  return { positions: out, groups, width, height: bottom + ZONE_PADDING };
+}
+
+/**
+ * Shared variables view: variable cards in one column on the left (by name). Resources that use a
+ * variable sit next to them in one column, grouped by project / environment, so every link runs
+ * straight from left to right. Other resources follow below in the server view grid.
+ */
+export function layoutConnectView(graph: CanvasGraph): Record<string, Point> {
+  const out: Record<string, Point> = {};
+  const groups = zoneGroups(graph);
+  const variables = groups.find((g) => g.id === SOURCES_ZONE);
+  const connected = groups.find((g) => g.id === CONNECTED_ZONE);
+  let y = ZONE_HEADER + ZONE_PADDING;
+  for (const n of [...(variables?.nodes ?? [])].sort((a, b) => String(a.name).localeCompare(String(b.name)))) {
+    out[n.id] = { x: 0, y };
+    y += estimateNodeHeight(n) + ROW_GAP;
+  }
+  const offset = variables ? CARD_WIDTH + ZONE_PADDING * 2 + ZONE_GAP * 2 : 0;
+  let top = 0;
+  if (connected) {
+    y = ZONE_HEADER + ZONE_PADDING;
+    for (const [, nodes] of contextGroups(connected.nodes)) {
+      y += GROUP_HEADER + GROUP_PADDING;
+      for (const n of [...nodes].sort(byTypeAndName)) {
+        out[n.id] = { x: offset + GROUP_PADDING, y };
+        y += estimateNodeHeight(n) + ROW_GAP;
+      }
+      y += GROUP_PADDING - ROW_GAP + GROUP_GAP;
+    }
+    top = y - GROUP_GAP + ZONE_PADDING + ZONE_GAP;
+  }
+  const others = groups.filter((g) => g.id !== SOURCES_ZONE && g.id !== CONNECTED_ZONE);
+  // Compact: groups cannot be moved here, so positions saved on the environment canvas must not leave gaps.
+  const placed = layoutServerView({ zones: others.map((g) => g.zone || ({ id: g.id, name: g.name } as CanvasZone)), nodes: others.flatMap((g) => g.nodes) }, null, { compact: true });
+  for (const [id, p] of Object.entries(placed)) out[id] = { x: p.x + offset, y: p.y + top };
+  return out;
+}
+
+/**
+ * Shared variables view: moves the resources that use a shown variable into the "connected" zone,
+ * so they show apart from the other resources. Runs after filterGraph and after every link change.
+ */
+export function groupByUse(graph: CanvasGraph): CanvasGraph {
+  if (graph.layout !== "connect") return graph;
+  const used = new Set(graph.links.map((l) => l.target));
+  return { ...graph, nodes: graph.nodes.map((n) => (!isSource(n) && used.has(n.id) ? { ...n, zone: CONNECTED_ZONE } : n)) };
+}
+
+export interface GroupFrame extends Rect {
+  name: string;
+  key: string | null;
+  zone: string | null | undefined;
+  link: string | null | undefined;
+}
+
+/** Frames of the project / environment groups of the given cards (server view). */
+export function groupFrames(nodes: readonly CanvasNode[], positions: Record<string, Point>, sizes: Record<string, Size> = {}): GroupFrame[] {
+  const frames: GroupFrame[] = [];
+  for (const [name, members] of contextGroups(nodes)) {
+    const rects = members.map((n) => cardRect(n, positions, sizes)).filter((r): r is Rect => !!r);
+    if (!rects.length) continue;
+    const minX = Math.min(...rects.map((r) => r.x));
+    const minY = Math.min(...rects.map((r) => r.y));
+    frames.push({
+      name,
+      key: groupKey(members, members[0]!.zone),
+      zone: members[0]!.zone,
+      link: members[0]!.context_link,
+      x: minX - GROUP_PADDING,
+      y: minY - GROUP_PADDING - GROUP_HEADER,
+      width: Math.max(...rects.map((r) => r.x + r.width)) - minX + GROUP_PADDING * 2,
+      height: Math.max(...rects.map((r) => r.y + r.height)) - minY + GROUP_PADDING * 2 + GROUP_HEADER,
+    });
+  }
+  return frames;
+}
+
 /** Card rect from positions and measured sizes (falls back to the estimate). */
 export function cardRect(node: CanvasNode, positions: Record<string, Point>, sizes: Record<string, Size> = {}): Rect | null {
   const p = positions[node.id];
@@ -275,11 +654,11 @@ export interface ZoneBox extends Rect {
   nodes: string[];
 }
 
-/** Frame per zone: bbox of its cards + padding, with room for the header on top. */
+/** Frame per zone: bbox of its cards (or of its group frames) + padding, with room for the header on top. */
 export function zoneBoxes(graph: CanvasGraph, positions: Record<string, Point>, sizes: Record<string, Size> = {}): ZoneBox[] {
   const boxes: ZoneBox[] = [];
   for (const group of zoneGroups(graph)) {
-    const rects = group.nodes.map((n) => cardRect(n, positions, sizes)).filter((r): r is Rect => !!r);
+    const rects: Rect[] = group.nodes.some((n) => n.context) ? groupFrames(group.nodes, positions, sizes) : group.nodes.map((n) => cardRect(n, positions, sizes)).filter((r): r is Rect => !!r);
     if (!rects.length) continue;
     const minX = Math.min(...rects.map((r) => r.x));
     const minY = Math.min(...rects.map((r) => r.y));
@@ -313,45 +692,67 @@ const crowding = (a: Box, b: Box, gap: number) =>
   Math.max(0, Math.min(a.x + a.w + gap, b.x + b.w) - Math.max(a.x - gap, b.x)) * Math.max(0, Math.min(a.y + a.h + gap, b.y + b.h) - Math.max(a.y - gap, b.y));
 
 /**
- * What a dragged card must keep clear of, for freeSpot(): `others` are the other cards and the other
- * zone frames, grown by the room the card's own zone frame takes around it. `fits` checks the card's
- * zone frame, which also spans its other cards, against those frames: it must not come closer to them
- * than at the start of the drag. Frames that are already too close (the layout uses estimated card
- * heights) do not lock the cards in place. The server view's project / environment groups are not
- * ported: the environment canvas has none.
+ * What a dragged card must keep clear of, for freeSpot(): `others` are the
+ * other cards and the other zone frames (and, server view, the other project /
+ * environment frames in its zone), grown by the room the card's own frames
+ * take around it. `fits` checks the card's own frames, which also span its
+ * other cards, against those frames: they must not come closer to them than
+ * at the start of the drag. Frames that are already too close (the layout
+ * uses estimated card heights) do not lock the cards in place.
  */
 export function dragRules(graph: CanvasGraph, positions: Record<string, Point>, sizes: Record<string, Size>, id: string): { others: Box[]; fits: (box: Box) => boolean } {
   const node = graph.nodes.find((n) => n.id === id);
   const own = zoneGroups(graph).find((z) => z.nodes.some((n) => n.id === id));
+  const grouped = !!own?.nodes.some((n) => n.context);
+  const context = (n: CanvasNode | undefined) => n?.context || "";
   const rects = (nodes: readonly CanvasNode[]) =>
     nodes
       .filter((n) => n.id !== id)
       .map((n) => cardRect(n, positions, sizes))
       .filter((r): r is Rect => !!r)
       .map(toBox);
-  const side = ZONE_PADDING;
-  const top = ZONE_PADDING + zoneHeader(own?.zone);
+  const groupSide = grouped ? GROUP_PADDING : 0;
+  const groupTop = grouped ? GROUP_PADDING + GROUP_HEADER : 0;
+  const side = ZONE_PADDING + groupSide;
+  const top = ZONE_PADDING + zoneHeader(own?.zone) + groupTop;
   const zones = zoneBoxes(graph, positions, sizes)
     .filter((z) => !z.nodes.includes(id))
     .map(toBox);
+  const groups = grouped ? groupFrames(own!.nodes.filter((n) => context(n) !== context(node)), positions, sizes).map(toBox) : [];
   const zoneMates = rects(own?.nodes ?? []);
+  const groupMates = grouped ? rects(own!.nodes.filter((n) => context(n) === context(node))) : [];
   // The other box must keep the frame's room on the side that faces the card.
   const room = (b: Box, s: number, t: number): Box => ({ x: b.x - s, y: b.y - s, w: b.w + s * 2, h: b.h + s + t });
   const at = node ? cardRect(node, positions, sizes) : null;
-  const start = at ? frameAround([...zoneMates, toBox(at)], side, top) : null;
-  const zoneFits = (box: Box) => {
-    const moved = frameAround([...zoneMates, box], side, top);
-    return zones.every((b) => crowding(moved, b, BOX_GAP) <= (start ? crowding(start, b, BOX_GAP) : 0));
+  const notCloser = (frame: (box: Box) => Box, boxes: readonly Box[], gap: number) => {
+    const start = at ? frame(toBox(at)) : null;
+    return (box: Box) => {
+      const moved = frame(box);
+      return boxes.every((b) => crowding(moved, b, gap) <= (start ? crowding(start, b, gap) : 0));
+    };
   };
+  const zoneFits = notCloser((box) => frameAround([...zoneMates, box], side, top), zones, BOX_GAP);
+  // Same gap between groups as layoutServerView, so a reload does not move the group.
+  const groupFits = grouped ? notCloser((box) => frameAround([...groupMates, box], groupSide, groupTop), groups, GROUP_GAP) : () => true;
   return {
-    others: [...rects(graph.nodes), ...zones.map((z) => room(z, side, top))],
-    fits: zoneFits,
+    others: [...rects(graph.nodes), ...zones.map((z) => room(z, side, top)), ...groups.map((g) => room(g, groupSide, groupTop))],
+    fits: (box) => zoneFits(box) && groupFits(box),
   };
 }
 
-/** A link may be drawn from a card to another card (the connect and server views' rules are not ported). */
+/**
+ * Connect view: links go from a shared variable (not a deleted one) or a tag to a resource.
+ * Server view: links are saved on an environment canvas, so both cards must be in the same environment.
+ */
 export function canConnect(graph: CanvasGraph | null, source: string, target: string): boolean {
-  return !!graph && !!source && !!target && source !== target;
+  if (graph?.layout === "server") {
+    const environment = graph.nodes.find((n) => n.id === source)?.environment?.uuid;
+    return !!environment && source !== target && graph.nodes.find((n) => n.id === target)?.environment?.uuid === environment;
+  }
+  if (graph?.layout !== "connect") return !!graph && !!source && !!target && source !== target;
+  const from = graph.nodes.find((n) => n.id === source);
+  const to = graph.nodes.find((n) => n.id === target);
+  return isSource(from) && !from!.missing && !!to && !isSource(to);
 }
 
 export interface LinkPath {
@@ -460,6 +861,42 @@ export function unreachableZones(graph: CanvasGraph | null): Set<string> {
   return new Set((graph?.zones ?? []).filter((z) => !z.icon && z.is_reachable === false).map((z) => z.id));
 }
 
+export interface FilterProject {
+  uuid: string;
+  name: string;
+  environments: Array<{ uuid: string; name: string }>;
+}
+
+/** Connect and server views: projects of the resources sorted by name, each with its environments in environment order. */
+export function filterOptions(graph: CanvasGraph | null): FilterProject[] {
+  const projects = new Map<string, { uuid: string; name: string; environments: Map<string, { uuid: string; name: string }> }>();
+  for (const n of graph?.nodes ?? []) {
+    if (!n.project || !n.environment) continue;
+    if (!projects.has(n.project.uuid)) projects.set(n.project.uuid, { ...n.project, environments: new Map() });
+    projects.get(n.project.uuid)!.environments.set(n.environment.uuid, n.environment);
+  }
+  return [...projects.values()]
+    .map((p) => ({ uuid: p.uuid, name: p.name, environments: [...p.environments.values()].sort((a, b) => compareEnvironmentNames(a.name, b.name)) }))
+    .sort((a, b) => String(a.name).localeCompare(String(b.name)));
+}
+
+export interface CanvasFilter {
+  project?: string;
+  environment?: string;
+}
+
+/**
+ * Connect and server views: only the resources of the chosen project / environment and their links.
+ * Variables always stay, so they can be added to the shown resources.
+ */
+export function filterGraph(graph: CanvasGraph, filter: CanvasFilter = {}): CanvasGraph {
+  if (!filter.project && !filter.environment) return graph;
+  const keep = (n: CanvasNode) => isSource(n) || ((!filter.project || n.project?.uuid === filter.project) && (!filter.environment || n.environment?.uuid === filter.environment));
+  const nodes = graph.nodes.filter(keep);
+  const ids = new Set(nodes.map((n) => n.id));
+  return { ...graph, nodes, links: graph.links.filter((l) => ids.has(l.source) && ids.has(l.target)) };
+}
+
 /** 1007820800 → "1 GB", 17179869184 → "16 GB". */
 export function formatMemory(bytes: number | null | undefined): string | null {
   if (!bytes) return null;
@@ -552,6 +989,90 @@ export const TYPE_LABELS: Partial<Record<NodeType, string>> = {
   variable: "Shared variable",
   tag: "Tag",
 };
+/** Wording of the connect view, per mode (shared variables or tags). */
+export interface ConnectText {
+  source: string;
+  added: (source: string, target: string) => string;
+  removed: (source: string, target: string) => string;
+  already: (source: string, target: string) => string;
+  usedBy: string;
+  noTargets: string;
+  allTargets: string;
+  port: string;
+  noSources: string;
+  sources: string;
+  addSources: string;
+  searchSources: string;
+  noMoreSources: string;
+  note: (node: CanvasNode) => string;
+  viewOnly: string;
+  empty: string;
+}
+export const CONNECT_TEXT: Record<"variables" | "tags", ConnectText> = {
+  variables: {
+    source: "Variable",
+    added: (source, target) => `Added ${source} to ${target}. Redeploy it to use the variable.`,
+    removed: (source, target) => `Removed ${source} from ${target}. Redeploy it to apply.`,
+    already: (source, target) => `${target} already uses ${source}.`,
+    usedBy: "Used by",
+    noTargets: "No resource uses this variable.",
+    allTargets: "Every resource already uses this variable.",
+    port: "Drag to a resource to add this variable to it",
+    noSources: "This resource uses no shared variable of this scope.",
+    sources: "Shared variables",
+    addSources: "Add shared variables",
+    searchSources: "Search variables",
+    noMoreSources: "No other shared variable to add.",
+    note: (node) => `Adding creates a ${node.name} variable with the value ${node.reference} on the resource. Redeploy or restart the resource to apply changes.`,
+    viewOnly: "You can look around. Only team admins can add shared variables to resources.",
+    empty: "No shared variables or resources yet",
+  },
+  tags: {
+    source: "Tag",
+    added: (source, target) => `Tagged ${target} with ${source}.`,
+    removed: (source, target) => `Removed the ${source} tag from ${target}.`,
+    already: (source, target) => `${target} already has the ${source} tag.`,
+    usedBy: "Tagged",
+    noTargets: "No resource has this tag.",
+    allTargets: "Every resource already has this tag.",
+    port: "Drag to a resource to tag it",
+    noSources: "This resource has no tag.",
+    sources: "Tags",
+    addSources: "Add tags",
+    searchSources: "Search tags",
+    noMoreSources: "No other tag to add. Create tags on the Tags page.",
+    note: () => "The deploy webhook of a tag deploys every tagged application and service.",
+    viewOnly: "You can look around. Only team admins can tag resources.",
+    empty: "No tags or resources yet",
+  },
+};
+// ── The dashboard's deployments (Deployments.svelte) ─────────────────
+
+const STATUS: Record<string, [string, Tone]> = {
+  in_progress: ["In progress", "busy"],
+  queued: ["Queued", "busy"],
+  finished: ["Success", "ok"],
+  failed: ["Failed", "bad"],
+  "cancelled-by-user": ["Cancelled", "idle"],
+  skipped: ["Skipped", "idle"],
+};
+/** A deployment status's label and tone. */
+export const deploymentStatus = (value: string | null | undefined): [string, Tone] => STATUS[String(value)] ?? [String(value || "Unknown").replace(/[-_]/g, " "), "idle"];
+
+// "3m ago"; re-rendered with each canvas reload.
+const UNITS: Array<[string, number]> = [
+  ["d", 86400],
+  ["h", 3600],
+  ["m", 60],
+];
+export function ago(iso: string, now = Date.now()): string {
+  const seconds = Math.max(0, (now - new Date(iso).getTime()) / 1000);
+  for (const [unit, size] of UNITS) {
+    if (seconds >= size) return `${Math.floor(seconds / size)}${unit} ago`;
+  }
+  return "just now";
+}
+
 export const TONE_DOT: Record<Tone, string> = {
   ok: "bg-emerald-500",
   warn: "bg-warning",

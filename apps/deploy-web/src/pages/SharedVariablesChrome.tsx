@@ -17,7 +17,7 @@ export const projectVariablesPath = (projectUuid: string) => `/shared-variables/
 export const environmentVariablesPath = (projectUuid: string, environmentUuid: string) => `/shared-variables/environments/project/${projectUuid}/environment/${environmentUuid}`;
 export const serverVariablesPath = (serverUuid: string) => `/shared-variables/server/${serverUuid}`;
 
-/** A scope's page, or its canvas (which is not ported: the link leads to the not-ported notice). */
+/** A scope's page (its canvas is the page's path and /canvas, DP-98). */
 export function scopePath(scope: SharedVariableScope, ownerUuid: string | null, projectUuid: string | null): string | null {
   if (scope === "team") return "/shared-variables/team";
   if (!ownerUuid) return null;
