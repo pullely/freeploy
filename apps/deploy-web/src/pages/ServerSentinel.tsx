@@ -50,7 +50,7 @@ function ServerSentinelContent() {
   const { server, settings, canUpdate } = data;
 
   return (
-    <ServerWorkspace server={server} orgId={me.team?.id} active="sentinel" canUpdate={canUpdate}>
+    <ServerWorkspace server={server} orgId={me.team?.id} active="sentinel" activeSub="configuration" canUpdate={canUpdate}>
       {server.isFunctional && settings ? (
         <div className="w-full">
           <SentinelForm

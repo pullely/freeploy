@@ -75,6 +75,14 @@ const ServerSwarmPage = lazy(() => import("./pages/ServerSwarm").then((m) => ({ 
 const ServerSentinelPage = lazy(() => import("./pages/ServerSentinel").then((m) => ({ default: m.ServerSentinelPage })));
 const ServerDestinationsPage = lazy(() => import("./pages/ServerDestinations").then((m) => ({ default: m.ServerDestinationsPage })));
 const ServerRegistriesPage = lazy(() => import("./pages/ServerRegistries").then((m) => ({ default: m.ServerRegistriesPage })));
+// DP-96
+const ServerProxyPage = lazy(() => import("./pages/ServerProxy").then((m) => ({ default: m.ServerProxyPage })));
+const ServerSecurityPage = lazy(() => import("./pages/ServerSecurity").then((m) => ({ default: m.ServerSecurityPage })));
+const ServerCloudflareTunnelPage = lazy(() => import("./pages/ServerCloudflareTunnel").then((m) => ({ default: m.ServerCloudflareTunnelPage })));
+const ServerSentinelLogsPage = lazy(() => import("./pages/ServerSentinelLogs").then((m) => ({ default: m.ServerSentinelLogsPage })));
+const ServerTransferPage = lazy(() => import("./pages/ServerTransfer").then((m) => ({ default: m.ServerTransferPage })));
+const ServerResourcesPage = lazy(() => import("./pages/ServerResources").then((m) => ({ default: m.ServerResourcesPage })));
+const ServerImagesPage = lazy(() => import("./pages/ServerImages").then((m) => ({ default: m.ServerImagesPage })));
 const RegistriesPage = lazy(() => import("./pages/Registries").then((m) => ({ default: m.RegistriesPage })));
 const SharedVariablesPage = lazy(() => import("./pages/SharedVariables").then((m) => ({ default: m.SharedVariablesPage })));
 const DestinationsPage = lazy(() => import("./pages/Destinations").then((m) => ({ default: m.DestinationsPage })));
@@ -541,6 +549,55 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <ServerRegistriesPage />
+        </Suspense>
+      );
+    // DP-96
+    case "server.proxy":
+    case "server.proxy.dynamic-confs":
+    case "server.proxy.certificates":
+    case "server.proxy.logs": {
+      const proxyPages = { "server.proxy": "configuration", "server.proxy.dynamic-confs": "dynamic-confs", "server.proxy.certificates": "certificates", "server.proxy.logs": "logs" } as const;
+      return (
+        <Suspense fallback={null}>
+          <ServerProxyPage page={proxyPages[pageFor(window.location.pathname) as keyof typeof proxyPages]} />
+        </Suspense>
+      );
+    }
+    case "server.security":
+    case "server.security.patches":
+      return (
+        <Suspense fallback={null}>
+          <ServerSecurityPage page={pageFor(window.location.pathname) === "server.security.patches" ? "patches" : "overview"} />
+        </Suspense>
+      );
+    case "server.cloudflare-tunnel":
+      return (
+        <Suspense fallback={null}>
+          <ServerCloudflareTunnelPage />
+        </Suspense>
+      );
+    case "server.sentinel.logs":
+      return (
+        <Suspense fallback={null}>
+          <ServerSentinelLogsPage />
+        </Suspense>
+      );
+    case "server.transfer":
+      return (
+        <Suspense fallback={null}>
+          <ServerTransferPage />
+        </Suspense>
+      );
+    case "server.resources":
+      return (
+        <Suspense fallback={null}>
+          <ServerResourcesPage />
+        </Suspense>
+      );
+    case "server.docker-images":
+      return (
+        <Suspense fallback={null}>
+          <ServerImagesPage />
         </Suspense>
       );
     case "shared-variables.index":

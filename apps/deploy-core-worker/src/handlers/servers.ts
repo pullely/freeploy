@@ -26,6 +26,8 @@
 //   …      /servers/{uuid}/destinations[/scan] the server's destinations (DP-44): see destinations.ts
 //   …      /servers/{uuid}/registries[/{registry}[/check]]
 //                                            the Registries page (DP-47): handleServerRegistries in registries.ts
+//   …      /servers/{uuid}/{proxy,security,cloudflare-tunnel,sentinel/logs,transfer,resources,images}[/…]
+//                                            the pages of DP-96: handleServerPages in server-pages.ts
 //
 // Coolify's policy: view = team member, create/update/delete = team admin.
 // Here: deploy.resource.read and deploy.resource.write, asked of policy-worker
@@ -63,6 +65,7 @@ import type { KeyCipher } from "../private-keys/service.js";
 import { columnCipher, handleServerCloudToken } from "./cloud-tokens.js";
 import { handleServerRegistries } from "./registries.js";
 import { handleServerCaCertificate } from "./ca-certificate.js";
+import { handleServerPages, isServerPageRoute } from "./server-pages.js";
 import { SERVER_MESSAGES, SERVER_ROLES, validateCreateServer, validateUpdateServer, type ServerRole } from "../servers/validation.js";
 import {
   changeServerRole,
@@ -180,6 +183,10 @@ export async function handleServers(
   // The CA Certificate page routes and authorizes itself too (DP-48).
   if (segments.length >= 2 && segments[1] === "ca-certificate" && UUID_RE.test(segments[0]!)) {
     return handleServerCaCertificate(env, requestId, actor, orgId, segments[0]!, segments.slice(2), request);
+  }
+  // The proxy, security, Cloudflare Tunnel, Sentinel logs, transfer, resources and images pages (DP-96).
+  if (segments.length >= 2 && UUID_RE.test(segments[0]!) && isServerPageRoute(segments.slice(1))) {
+    return handleServerPages(env, requestId, actor, orgId, segments[0]!, segments.slice(1), request);
   }
   const [first, second, third] = segments;
   const section = SETTINGS_SECTIONS.includes(second as SettingsSection) ? (second as SettingsSection) : null;

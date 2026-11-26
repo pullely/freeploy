@@ -445,7 +445,8 @@ describe("servers", () => {
     expect((await t.call("PUT")).status).toBe(405);
     expect((await t.call("POST", "abc")).status).toBe(405);
     expect((await t.call("GET", "abc/validate")).status).toBe(405);
-    expect((await t.call("GET", "abc/proxy")).status).toBe(404);
+    // /proxy is a page since DP-96 (server-pages.test.ts); GitHub Runners is not ported.
+    expect((await t.call("GET", "abc/github-runners")).status).toBe(404);
   });
 });
 

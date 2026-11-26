@@ -49,13 +49,13 @@ test("routes/web.php paths map to ported pages; the rest are not ported", () => 
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/ca-certificate/"), "server.ca-certificate");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/ca-certificate/regenerate"), "not-ported");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/danger"), "server.delete");
-  assert.equal(pageFor("/server/abc123def456ghi789jkl012/proxy"), "not-ported");
+  assert.equal(pageFor("/server/abc123def456ghi789jkl012/proxy"), "server.proxy");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/advanced"), "server.advanced");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/docker-cleanup"), "server.docker-cleanup");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/log-drains/"), "server.log-drains");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/swarm"), "server.swarm");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/sentinel"), "server.sentinel");
-  assert.equal(pageFor("/server/abc123def456ghi789jkl012/sentinel/logs"), "not-ported");
+  assert.equal(pageFor("/server/abc123def456ghi789jkl012/sentinel/logs"), "server.sentinel.logs");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/destinations"), "server.destinations");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/destinations/new"), "not-ported");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/registries"), "server.registries");
@@ -362,4 +362,32 @@ test("the platform operator's pages (DP-79): General and Advanced settings, Admi
   for (const other of ["/settings/updates", "/settings/image-scanning", "/settings/backup", "/settings/email", "/settings/oauth", "/settings/oauth/github", "/settings/x/y", "/admin/x"]) {
     assert.equal(pageFor(other), "not-ported", other);
   }
+});
+
+test("a server's proxy, security, Cloudflare Tunnel, Sentinel logs, transfer, resources and images pages (DP-96)", () => {
+  const server = "/server/abc123def456ghi789jkl012";
+  const pages: Array<[string, string]> = [
+    ["/proxy", "server.proxy"],
+    ["/proxy/dynamic", "server.proxy.dynamic-confs"],
+    ["/proxy/certificates", "server.proxy.certificates"],
+    ["/proxy/logs", "server.proxy.logs"],
+    ["/security", "server.security"],
+    ["/security/patches", "server.security.patches"],
+    ["/cloudflare-tunnel", "server.cloudflare-tunnel"],
+    ["/sentinel/logs", "server.sentinel.logs"],
+    ["/transfer", "server.transfer"],
+    ["/resources", "server.resources"],
+    ["/images", "server.docker-images"],
+  ];
+  for (const [path, key] of pages) {
+    assert.equal(pageFor(server + path), key);
+    assert.equal(pageFor(`${server + path}/`), key);
+  }
+  // Not ported: the image scan page, its old redirect and the other old security sub pages, GitHub runners, the canvas.
+  for (const path of ["/security/vulnerabilities", "/security/image-scanning", "/security/terminal-access", "/security/host-key", "/github-runners", "/canvas", "/proxy/dynamic/new", "/sentinel/logs/x"]) {
+    assert.equal(pageFor(server + path), "not-ported", path);
+  }
+  // The pages before DP-96 keep their keys.
+  assert.equal(pageFor(`${server}/sentinel`), "server.sentinel");
+  assert.equal(pageFor(`${server}/registries`), "server.registries");
 });

@@ -10,7 +10,8 @@ import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { useSignedIn } from "../layout/Layout";
 import { getJson, postJson, summarize } from "../lib/api";
-import { notify } from "../lib/toast";
+import { notify, toast } from "../lib/toast";
+import { Empty, SettingsSection } from "../components/Coolify";
 import { Reicon } from "../components/Reicon";
 
 /** GET /servers/{uuid}: Show's data. */
@@ -52,7 +53,16 @@ export const SERVER_ROLE_OPTIONS = [
   { value: "both", label: "Deployments and builds", description: "Builds and runs your resources on this server. Can also run GitHub Actions runners." },
 ];
 
-export type ServerMenu = "general" | "advanced" | "private-key" | "cloud-provider-token" | "ca-certificate" | "sentinel" | "destinations" | "swarm" | "docker-cleanup" | "registries" | "log-drains" | "danger";
+export type ServerMenu = "general" | "advanced" | "private-key" | "cloud-provider-token" | "ca-certificate" | "sentinel" | "destinations" | "swarm" | "docker-cleanup" | "registries" | "log-drains" | "danger" | "security" | "cloudflare-tunnel" | "proxy" | "resources" | "docker-images" | "transfer";
+
+/** The sidebar's activeSubMenu (DP-96): the child of the active item that is current. */
+export type ServerSubMenu = "configuration" | "dynamic-confs" | "certificates" | "logs" | "overview" | "patches" | "vulnerabilities";
+
+/** What the proxy submenu shows (Server::proxySet(), proxyType()), from GET /servers/{uuid}/proxy. */
+export interface ServerProxyMenu {
+  type: string | null;
+  proxySet: boolean;
+}
 
 /** data_get_str(…)->limit($n): the first n characters and "...". */
 export function limit(value: string, n: number): string {
@@ -193,6 +203,14 @@ export function ServerNavbar({ server, orgId }: { server: ServerInfo; orgId: str
   );
 }
 
+interface MenuChild {
+  label: string;
+  path: string;
+  icon: string;
+  active?: boolean;
+  visible?: boolean;
+}
+
 interface MenuItem {
   label: string;
   path: string;
@@ -203,10 +221,11 @@ interface MenuItem {
   disabled?: boolean;
   warning?: boolean;
   beta?: boolean;
+  children?: MenuChild[];
 }
 
 /** <x-server.sidebar>: the server's settings menu, grouped. */
-export function ServerSidebar({ server, active, canUpdate }: { server: ServerInfo; active: ServerMenu; canUpdate: boolean }) {
+export function ServerSidebar({ server, active, activeSub, canUpdate, proxy }: { server: ServerInfo; active: ServerMenu; activeSub?: ServerSubMenu | undefined; canUpdate: boolean; proxy?: ServerProxyMenu | undefined }) {
   const off = !server.isFunctional;
   const canHostResources = server.serverRole !== "build";
   const isSwarm = server.isSwarmManager || server.isSwarmWorker;
@@ -216,22 +235,61 @@ export function ServerSidebar({ server, active, canUpdate }: { server: ServerInf
     { label: "Private Key", path: "/private-key", icon: "keys", group: "Settings", active: active === "private-key" },
     { label: "Cloud Token", path: "/cloud-provider-token", icon: "subscription", group: "Settings", active: active === "cloud-provider-token", visible: server.hasCloudProvider },
     { label: "CA Certificate", path: "/ca-certificate", icon: "file", group: "Settings", active: active === "ca-certificate", disabled: off },
-    { label: "Security", path: "/security", icon: "shield-alert", group: "Security", visible: canUpdate, warning: server.sshHostKeyPending },
-    { label: "Cloudflare Tunnel", path: "/cloudflare-tunnel", icon: "cloudflare", group: "Networking", visible: !server.isLocalhost },
-    { label: "Proxy", path: "/proxy", icon: "network", group: "Platform", visible: !server.isSwarmWorker && canHostResources, disabled: off },
-    { label: "Sentinel", path: "/sentinel", icon: "shield-star", group: "Platform", active: active === "sentinel", visible: !isSwarm && canHostResources && canUpdate, disabled: off },
-    { label: "Resources", path: "/resources", icon: "projects", group: "Platform", disabled: off },
+    {
+      label: "Security",
+      path: "/security",
+      icon: "shield-alert",
+      group: "Security",
+      active: active === "security",
+      visible: canUpdate,
+      warning: server.sshHostKeyPending,
+      children: [
+        { label: "General", path: "/security", icon: "settings", active: activeSub === "overview" },
+        { label: "Patching", path: "/security/patches", icon: "refresh", active: activeSub === "patches", visible: server.isFunctional },
+        { label: "Vulnerabilities", path: "/security/vulnerabilities", icon: "shield-alert", active: activeSub === "vulnerabilities", visible: server.isFunctional },
+      ],
+    },
+    { label: "Cloudflare Tunnel", path: "/cloudflare-tunnel", icon: "cloudflare", group: "Networking", active: active === "cloudflare-tunnel", visible: !server.isLocalhost },
+    {
+      label: "Proxy",
+      path: "/proxy",
+      icon: "network",
+      group: "Platform",
+      active: active === "proxy",
+      visible: !server.isSwarmWorker && canHostResources,
+      disabled: off,
+      children: [
+        { label: "Configuration", path: "/proxy", icon: "settings", active: activeSub === "configuration" },
+        { label: "Dynamic Configurations", path: "/proxy/dynamic", icon: "sliders", active: activeSub === "dynamic-confs", visible: proxy?.proxySet ?? false },
+        { label: "TLS Certificates", path: "/proxy/certificates", icon: "shield-star", active: activeSub === "certificates", visible: proxy?.type === "TRAEFIK" },
+        { label: "Logs", path: "/proxy/logs", icon: "file-content", active: activeSub === "logs", visible: proxy?.proxySet ?? false },
+      ],
+    },
+    {
+      label: "Sentinel",
+      path: "/sentinel",
+      icon: "shield-star",
+      group: "Platform",
+      active: active === "sentinel",
+      visible: !isSwarm && canHostResources && canUpdate,
+      disabled: off,
+      children: [
+        { label: "Configuration", path: "/sentinel", icon: "settings", active: activeSub === "configuration" },
+        { label: "Logs", path: "/sentinel/logs", icon: "file-content", active: activeSub === "logs" },
+      ],
+    },
+    { label: "Resources", path: "/resources", icon: "projects", group: "Platform", active: active === "resources", disabled: off },
     { label: "Terminal", path: "/terminal", icon: "browser-terminal", group: "Operations", visible: canUpdate, disabled: off },
     { label: "Destinations", path: "/destinations", icon: "destinations", group: "Networking", active: active === "destinations", disabled: off },
     { label: "Swarm", path: "/swarm", icon: "layers", group: "Networking", active: active === "swarm", visible: server.usesSwarm && server.serverRole !== "build" && !server.isCloudflareTunnel },
-    { label: "Images", path: "/images", icon: "layers", group: "Operations", disabled: off },
+    { label: "Images", path: "/images", icon: "layers", group: "Operations", active: active === "docker-images", disabled: off },
     { label: "Docker Cleanup", path: "/docker-cleanup", icon: "broom", group: "Operations", active: active === "docker-cleanup", disabled: off },
     { label: "GitHub Runners", path: "/github-runners", icon: "play-circle", group: "Operations", visible: !server.isLocalhost, beta: true, disabled: off },
     { label: "Registries", path: "/registries", icon: "layers", group: "Operations", active: active === "registries", visible: canUpdate, disabled: off },
     { label: "Log Drains", path: "/log-drains", icon: "notifications", group: "Operations", active: active === "log-drains", disabled: off },
     { label: "Metrics", path: "/metrics", icon: "graph", group: "Operations", disabled: off },
     { label: "Analytics", path: "/analytics", icon: "analytics", group: "Operations", visible: !isSwarm && server.serverRole !== "build", disabled: off },
-    { label: "Transfer", path: "/transfer", icon: "arrow-right", group: "Operations", visible: !server.isLocalhost && canUpdate, beta: true, disabled: off },
+    { label: "Transfer", path: "/transfer", icon: "arrow-right", group: "Operations", active: active === "transfer", visible: !server.isLocalhost && canUpdate, beta: true, disabled: off },
     { label: "Danger Zone", path: "/danger", icon: "danger", group: "Danger Zone", active: active === "danger" },
   ];
   // groupBy('group'): groups in the order of their first item.
@@ -258,6 +316,21 @@ export function ServerSidebar({ server, active, canUpdate }: { server: ServerInf
           </a>
         ),
       );
+      // The active item's children (DP-96), as the sidebar shows them below it.
+      if (!item.disabled && item.active && item.children) {
+        entries.push(
+          <div key={`${item.label}-children`} className="col-span-full grid grid-cols-1 gap-0.5 border-l border-neutral-200 pl-2 dark:border-white/[0.08]">
+            {item.children
+              .filter((c) => c.visible ?? true)
+              .map((child) => (
+                <a key={child.label} className={child.active ? "menu-item menu-item-active" : "menu-item"} href={base + child.path}>
+                  <Reicon name={child.icon} className="menu-item-icon" />
+                  <span className="menu-item-label">{child.label}</span>
+                </a>
+              ))}
+          </div>,
+        );
+      }
     }
   }
   return (
@@ -270,12 +343,28 @@ export function ServerSidebar({ server, active, canUpdate }: { server: ServerInf
 }
 
 /** The server page frame: navbar, then the settings workspace (menu and content). */
-export function ServerWorkspace({ server, orgId, active, canUpdate, children }: { server: ServerInfo; orgId: string | undefined; active: ServerMenu; canUpdate: boolean; children: ReactNode }) {
+export function ServerWorkspace({
+  server,
+  orgId,
+  active,
+  activeSub,
+  canUpdate,
+  proxy,
+  children,
+}: {
+  server: ServerInfo;
+  orgId: string | undefined;
+  active: ServerMenu;
+  activeSub?: ServerSubMenu;
+  canUpdate: boolean;
+  proxy?: ServerProxyMenu;
+  children: ReactNode;
+}) {
   return (
     <div>
       <ServerNavbar server={server} orgId={orgId} />
       <div className="server-settings-workspace application-settings-workspace mt-4 grid w-full max-w-none min-w-0 gap-8 lg:mt-0 xl:grid-cols-[210px_minmax(0,1fr)] xl:gap-8">
-        <ServerSidebar server={server} active={active} canUpdate={canUpdate} />
+        <ServerSidebar server={server} active={active} activeSub={activeSub} canUpdate={canUpdate} proxy={proxy} />
         {children}
       </div>
     </div>
@@ -353,3 +442,61 @@ export function useServerSection<T, Extra extends object = object>(section: stri
 
 /** A boolean listbox's value. */
 export const yesNo = (v: boolean): string => (v ? "true" : "false");
+
+/** What every DP-96 page's GET answers: the server for the chrome, and whether the caller may change it. */
+export interface ServerPageData {
+  server: ServerInfo;
+  canUpdate: boolean;
+}
+
+/**
+ * A DP-96 server page: its data from /servers/{uuid}/{path} and its <x-slot:title>. A server of another team (or
+ * none, or a page the caller may not open) redirects to the server list, as mount() does.
+ */
+export function useServerPage<T extends ServerPageData>(path: string, title: (serverName: string) => string) {
+  const { me } = useSignedIn();
+  const uuid = serverUuidFromPath();
+  const base = `/v1/organizations/${me.team?.id ?? ""}/deploy/servers/${encodeURIComponent(uuid)}`;
+  const [data, setData] = useState<T | null>(null);
+  const reload = useCallback(async () => {
+    const r = await getJson<T>(`${base}/${path}`);
+    if (!r.data) {
+      if (r.status === 404) window.location.replace("/servers");
+      return;
+    }
+    setData(r.data);
+  }, [base, path]);
+  useEffect(() => {
+    void reload();
+  }, [reload]);
+  useEffect(() => {
+    if (data) document.title = title(data.server.name);
+  }, [data, title]);
+
+  /** A Livewire action: Coolify's message as a toast, a refusal (or what needs the SSH executor) as an error toast. */
+  const act = useCallback(
+    async <R extends object>(action: string, body: unknown = {}, method: "POST" | "PATCH" = "POST"): Promise<R | null> => {
+      const r = await postJson<R & { message?: string; level?: "success" | "warning"; unavailable?: string | null }>(`${base}/${action}`, body, method);
+      if (!r.ok) {
+        notify.error(summarize(r.error.messages));
+        return null;
+      }
+      if (r.data.message) toast(r.data.message, { type: r.data.level === "warning" ? "warning" : "success" });
+      if (r.data.unavailable) notify.error(r.data.unavailable);
+      return r.data;
+    },
+    [base],
+  );
+  return { me, uuid, base, data, setData, reload, act };
+}
+
+/** <x-empty> in a settings section: what a page shows for a server that is not validated. */
+export function ValidationRequired({ title, helper, description, iconName }: { title: string; helper?: string; description: string; iconName: string }) {
+  return (
+    <div className="application-settings-form w-full">
+      <SettingsSection title={title} {...(helper ? { helper } : {})}>
+        <Empty size="sm" title="Server validation required" description={description} iconName={iconName} />
+      </SettingsSection>
+    </div>
+  );
+}

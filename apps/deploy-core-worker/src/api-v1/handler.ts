@@ -658,7 +658,7 @@ export async function handleApiV1(request: Request, env: Env, requestId: string,
 }
 
 /** ServerSetting::sshHostKeyFingerprints(): "SHA256:<base64 of the blob's SHA-256, unpadded> (<type>)" per key line. */
-async function sshFingerprints(keys: unknown): Promise<PhpValue> {
+export async function sshFingerprints(keys: unknown): Promise<PhpValue> {
   const out: string[] = [];
   for (const line of String(keys ?? "").split("\n").filter(Boolean)) {
     const sp = line.indexOf(" ");
