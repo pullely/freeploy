@@ -7,13 +7,16 @@
 export type Target = "edge" | "identity" | "deploy";
 
 export interface ApiRoute {
-  method: "GET" | "POST" | "PATCH" | "DELETE";
+  method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
   /** The path after /api/v1, with Coolify's {parameters}. */
   path: string;
   /** api.ability:… — any one of them (CheckForAnyAbility); root passes every check. */
   abilities: readonly string[];
   target: Target;
-  /** A path this route does not take: an earlier route of routes/api.php Freeploy has not ported takes it (DP-78). */
+  /**
+   * A path this route does not take: an earlier route of routes/api.php Freeploy has not ported takes it (DP-78), or the
+   * route's parameter constraint refuses it (->whereNumber(), DP-88).
+   */
   except?: RegExp;
   /** The abilities of the route's further api.ability middlewares, each needed in turn (DP-85). */
   alsoAbilities?: readonly string[];
@@ -73,6 +76,12 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("PATCH", "/security/keys/{uuid}", "write", "deploy"),
   r("DELETE", "/security/keys/{uuid}", "delete", "deploy"),
 
+  // DP-88: GitHub Apps (their repositories and branches are not ported: they ask GitHub)
+  r("GET", "/github-apps", "read", "deploy"),
+  r("POST", "/github-apps", "write", "deploy"),
+  r("PATCH", "/github-apps/{github_app_id}", "write", "deploy"),
+  r("DELETE", "/github-apps/{github_app_id}", "delete", "deploy"),
+
   // DP-81: S3 storages
   r("GET", "/s3-storages", "read", "deploy"),
   r("POST", "/s3-storages", "write", "deploy"),
@@ -92,6 +101,30 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("PATCH", "/servers/{uuid}/docker-cleanup", "write", "deploy"),
   { ...r("POST", "/servers/{uuid}/docker-cleanup/run", "write", "deploy"), alsoAbilities: ["deploy"] },
   r("GET", "/servers/{uuid}/docker-cleanup/executions", "read", "deploy"),
+  // DP-88: a server's log drains, Sentinel, image scanning, Cloudflare Tunnel, host key, registries, proxy and transfer
+  // (PUT …/proxy/configuration, POST /servers/import and POST …/transfer/complete are not ported)
+  r("GET", "/servers/{uuid}/log-drains", "read", "deploy"),
+  { ...r("PATCH", "/servers/{uuid}/log-drains", "write", "deploy"), alsoAbilities: ["deploy"] },
+  r("GET", "/servers/{uuid}/sentinel", "read", "deploy"),
+  { ...r("PATCH", "/servers/{uuid}/sentinel", "write", "deploy"), alsoAbilities: ["deploy"] },
+  r("GET", "/servers/{uuid}/image-scanning", "read", "deploy"),
+  r("PATCH", "/servers/{uuid}/image-scanning", "write", "deploy"),
+  r("GET", "/servers/{uuid}/cloudflare-tunnel", "read", "deploy"),
+  r("PATCH", "/servers/{uuid}/cloudflare-tunnel", "write", "deploy"),
+  r("POST", "/servers/{uuid}/cloudflare-tunnel/enable", "write", "deploy"),
+  r("POST", "/servers/{uuid}/cloudflare-tunnel/disable", "write", "deploy"),
+  r("POST", "/servers/{uuid}/host-key/reset", "write", "deploy"),
+  r("GET", "/servers/{uuid}/registries", "read:sensitive", "deploy"),
+  { ...r("POST", "/servers/{uuid}/registries", "write", "deploy"), alsoAbilities: ["deploy"] },
+  { ...r("POST", "/servers/{uuid}/registries/{registry}/check", "write", "deploy"), alsoAbilities: ["deploy"] },
+  r("DELETE", "/servers/{uuid}/registries/{registry}", "delete", "deploy"),
+  r("GET", "/servers/{uuid}/proxy", "read", "deploy"),
+  r("PATCH", "/servers/{uuid}/proxy", "write", "deploy"),
+  r("POST", "/servers/{uuid}/proxy/restart", "deploy", "deploy"),
+  { ...r("GET", "/servers/import/check", "write", "deploy"), alsoAbilities: ["deploy"] },
+  // api.ability:read,write — either one.
+  { method: "GET", path: "/servers/{uuid}/transfer", abilities: ["read", "write"], target: "deploy" },
+  r("POST", "/servers/{uuid}/migrate", "write", "deploy"),
   // DP-85: destinations (in routes/api.php after the servers' settings routes; no route here matches both)
   r("GET", "/destinations", "read", "deploy"),
   r("GET", "/destinations/{uuid}", "read", "deploy"),
@@ -126,12 +159,15 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("GET", "/applications/{uuid}/logs", "read:sensitive", "deploy"),
   // DP-86: a preview's container logs (logs_by_uuid with a pull request)
   r("GET", "/applications/{uuid}/previews/{pull_request_id}/logs", "read:sensitive", "deploy"),
-  // DP-84: an application's storages (PUT and DELETE …/storages/{storage_uuid}/backups and POST …/backups/run are not
-  // ported: a volume backup runs on the server)
+  // DP-84: an application's storages
   r("GET", "/applications/{uuid}/storages", "read", "deploy"),
   r("POST", "/applications/{uuid}/storages", "write", "deploy"),
   r("PATCH", "/applications/{uuid}/storages", "write", "deploy"),
   r("DELETE", "/applications/{uuid}/storages/{storage_uuid}", "delete", "deploy"),
+  // DP-88: a storage's backup schedule (run needs write and deploy)
+  r("PUT", "/applications/{uuid}/storages/{storage_uuid}/backups", "write", "deploy"),
+  { ...r("POST", "/applications/{uuid}/storages/{storage_uuid}/backups/run", "write", "deploy"), alsoAbilities: ["deploy"] },
+  r("DELETE", "/applications/{uuid}/storages/{storage_uuid}/backups", "delete", "deploy"),
   // OtherController::post_required: "This endpoint has changed to a POST request."
   r("GET", "/applications/{uuid}/start", "deploy", "deploy"),
   r("GET", "/applications/{uuid}/restart", "deploy", "deploy"),
@@ -149,11 +185,13 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("GET", "/applications/{uuid}/tags", "read", "deploy"),
   r("POST", "/applications/{uuid}/tags", "write", "deploy"),
   r("DELETE", "/applications/{uuid}/tags/{tag_uuid}", "delete", "deploy"),
-  // DP-86: move, migrate and clone; the additional destinations (rollback-images and rollback are not ported: they read
-  // the server's images)
+  // DP-86: move, migrate and clone; the additional destinations
   r("POST", "/applications/{uuid}/move", "write", "deploy"),
   r("POST", "/applications/{uuid}/migrate", "write", "deploy"),
   r("POST", "/applications/{uuid}/clone", "write", "deploy"),
+  // DP-88: the rollback images and a rollback
+  r("GET", "/applications/{uuid}/rollback-images", "read", "deploy"),
+  r("POST", "/applications/{uuid}/rollback", "deploy", "deploy"),
   r("GET", "/applications/{uuid}/destinations", "read", "deploy"),
   r("POST", "/applications/{uuid}/destinations", "write", "deploy"),
   r("DELETE", "/applications/{uuid}/destinations/{destination_uuid}", "delete", "deploy"),
@@ -178,11 +216,20 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("DELETE", "/databases/{uuid}", "delete", "deploy"),
   r("DELETE", "/databases/{uuid}/backups/{scheduled_backup_uuid}", "delete", "deploy"),
   r("DELETE", "/databases/{uuid}/backups/{scheduled_backup_uuid}/executions/{execution_uuid}", "delete", "deploy"),
+  // DP-88: a database's imports (an import's status: ->whereNumber('activity_id')) and its container logs
+  r("POST", "/databases/{uuid}/imports/uploads", "write", "deploy"),
+  r("POST", "/databases/{uuid}/imports", "write", "deploy"),
+  { ...r("GET", "/databases/{uuid}/imports/{activity_id}", "read", "deploy"), except: /\/imports\/(?!\d+$)[^/]+$/ },
+  r("GET", "/databases/{uuid}/logs", "read:sensitive", "deploy"),
   // DP-84: a database's storages and environment variables
   r("GET", "/databases/{uuid}/storages", "read", "deploy"),
   r("POST", "/databases/{uuid}/storages", "write", "deploy"),
   r("PATCH", "/databases/{uuid}/storages", "write", "deploy"),
   r("DELETE", "/databases/{uuid}/storages/{storage_uuid}", "delete", "deploy"),
+  // DP-88
+  r("PUT", "/databases/{uuid}/storages/{storage_uuid}/backups", "write", "deploy"),
+  { ...r("POST", "/databases/{uuid}/storages/{storage_uuid}/backups/run", "write", "deploy"), alsoAbilities: ["deploy"] },
+  r("DELETE", "/databases/{uuid}/storages/{storage_uuid}/backups", "delete", "deploy"),
   r("GET", "/databases/{uuid}/envs", "read", "deploy"),
   r("POST", "/databases/{uuid}/envs", "write", "deploy"),
   r("PATCH", "/databases/{uuid}/envs/bulk", "write", "deploy"),
@@ -225,12 +272,16 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("POST", "/services/{uuid}/storages", "write", "deploy"),
   r("PATCH", "/services/{uuid}/storages", "write", "deploy"),
   r("DELETE", "/services/{uuid}/storages/{storage_uuid}", "delete", "deploy"),
+  // DP-88
+  r("PUT", "/services/{uuid}/storages/{storage_uuid}/backups", "write", "deploy"),
+  { ...r("POST", "/services/{uuid}/storages/{storage_uuid}/backups/run", "write", "deploy"), alsoAbilities: ["deploy"] },
+  r("DELETE", "/services/{uuid}/storages/{storage_uuid}/backups", "delete", "deploy"),
   r("GET", "/services/{uuid}/envs", "read", "deploy"),
   r("POST", "/services/{uuid}/envs", "write", "deploy"),
   r("PATCH", "/services/{uuid}/envs/bulk", "write", "deploy"),
   r("PATCH", "/services/{uuid}/envs", "write", "deploy"),
   r("DELETE", "/services/{uuid}/envs/{env_uuid}", "delete", "deploy"),
-  // DP-85: a service's applications and databases (the database imports are not ported: they run on the server)
+  // DP-85: a service's applications and databases (DP-88: and a service database's imports)
   r("GET", "/services/{uuid}/applications", "read", "deploy"),
   r("GET", "/services/{uuid}/applications/{app_uuid}", "read", "deploy"),
   r("PATCH", "/services/{uuid}/applications/{app_uuid}", "write", "deploy"),
@@ -246,6 +297,10 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("GET", "/services/{uuid}/databases", "read", "deploy"),
   r("GET", "/services/{uuid}/databases/{database_uuid}", "read", "deploy"),
   r("PATCH", "/services/{uuid}/databases/{database_uuid}", "write", "deploy"),
+  // DP-88
+  r("POST", "/services/{uuid}/databases/{database_uuid}/imports/uploads", "write", "deploy"),
+  r("POST", "/services/{uuid}/databases/{database_uuid}/imports", "write", "deploy"),
+  { ...r("GET", "/services/{uuid}/databases/{database_uuid}/imports/{activity_id}", "read", "deploy"), except: /\/imports\/(?!\d+$)[^/]+$/ },
   r("GET", "/services/{uuid}/databases/{database_uuid}/logs", "read:sensitive", "deploy"),
   r("POST", "/services/{uuid}/databases/{database_uuid}/start", "deploy", "deploy"),
   r("POST", "/services/{uuid}/databases/{database_uuid}/restart", "deploy", "deploy"),
@@ -264,19 +319,22 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   // DP-86: move and migrate (clone is not ported: clone_service() has no port yet)
   r("POST", "/services/{uuid}/move", "write", "deploy"),
   r("POST", "/services/{uuid}/migrate", "write", "deploy"),
+  // DP-88: a service's container logs
+  r("GET", "/services/{uuid}/logs", "read:sensitive", "deploy"),
 
-  // DP-84: the scheduled tasks of an application and of a service (POST …/{task_uuid}/execute is not ported: it runs the
-  // command on the server)
+  // DP-84: the scheduled tasks of an application and of a service (DP-88: and executing one now)
   r("GET", "/applications/{uuid}/scheduled-tasks", "read", "deploy"),
   r("POST", "/applications/{uuid}/scheduled-tasks", "write", "deploy"),
   r("PATCH", "/applications/{uuid}/scheduled-tasks/{task_uuid}", "write", "deploy"),
   r("DELETE", "/applications/{uuid}/scheduled-tasks/{task_uuid}", "delete", "deploy"),
   r("GET", "/applications/{uuid}/scheduled-tasks/{task_uuid}/executions", "read", "deploy"),
+  r("POST", "/applications/{uuid}/scheduled-tasks/{task_uuid}/execute", "deploy", "deploy"),
   r("GET", "/services/{uuid}/scheduled-tasks", "read", "deploy"),
   r("POST", "/services/{uuid}/scheduled-tasks", "write", "deploy"),
   r("PATCH", "/services/{uuid}/scheduled-tasks/{task_uuid}", "write", "deploy"),
   r("DELETE", "/services/{uuid}/scheduled-tasks/{task_uuid}", "delete", "deploy"),
   r("GET", "/services/{uuid}/scheduled-tasks/{task_uuid}/executions", "read", "deploy"),
+  r("POST", "/services/{uuid}/scheduled-tasks/{task_uuid}/execute", "deploy", "deploy"),
 ];
 
 /** Laravel's route parameters match one segment ([^/]+). */

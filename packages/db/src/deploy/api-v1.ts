@@ -57,6 +57,8 @@ const TABLES = [
   "webhook_notification_settings",
   // DP-86: an application's previews
   "application_previews",
+  // DP-88: GitHub Apps
+  "github_apps",
 ] as const;
 export type ApiTable = (typeof TABLES)[number];
 

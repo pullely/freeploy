@@ -1,4 +1,4 @@
-# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85, DP-86, DP-87)
+# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85, DP-86, DP-87, DP-88)
 
 What Coolify's real API answers, so that Freeploy's `/api/v1` (api-edge's middleware and limiters,
 identity-worker's teams and tokens, deploy-core-worker's projects, environments, private keys and servers —
@@ -12,7 +12,10 @@ application and of a service, a database's environment variables and the team's 
 team's notification channels, a service's applications and databases, destinations, a server's shared variables and
 its Docker cleanup — DP-85 — and an application's previews and additional destinations, and moving, migrating and cloning
 applications, databases and services — DP-86 — and creating an application from a Docker image, a Dockerfile, a public
-repository and a repository with a deploy key, and updating one — DP-87) can be replayed against it byte for byte.
+repository and a repository with a deploy key, and updating one — DP-87 — and a database's and a service's logs, an
+application's rollback images and rollback, executing a scheduled task, a storage's backup schedule, a server's proxy,
+Sentinel, log drains, image scanning, Cloudflare Tunnel, host key, registries and transfer, database imports and GitHub
+Apps — DP-88) can be replayed against it byte for byte.
 
 | File | What it is |
 |---|---|
@@ -92,6 +95,17 @@ applications of team 1. A public github.com repository needs Coolify's public Gi
 seeder makes and emit.php's fixture leaves out): those cases make it with `setupCoolify` (Freeploy's is the
 `PUBLIC_GITHUB_SOURCE` constant). One masking is added: a uuid the request made where `generateUrl()` names a created
 application after it (`http://<uuid>.<host>` of the answer's `domains`) as `://<new-uuid>.`.
+DP-88's replay (`src/api-v1-logs-backups-servers.test.ts`) adds no fixture rows: what a case needs is made by its
+`setup` (on both sides) or its `setupCoolify` and `setupFreeploy` (a row with the tenancy column of each side) — the
+Git application's finished deployments (ids 6–9) and its registry image, a backup schedule of a storage (`v…parityschedule…`)
+with its S3 storage and a running execution, the PostgreSQL's data volume given a fixed uuid, a proxy configuration, two
+GitHub Apps of team 1. The `after` queries read a server's proxy as the model reads it (Server's retrieved hook gives
+`redirect_enabled` true when it is missing, and Freeploy stores it), the log drain keys, the GeoIP key and a GitHub App's
+secrets as whether they are set (`has_…`: Freeploy encrypts the log drain keys), a created schedule's or App's id or
+uuid as null. The GitHub App cases run as Coolify Cloud (`config.self_hosted` false: no App is system-wide, a git
+source may not point to a private network), as Freeploy does; `columns` gains `github_apps` (an updated App is answered
+unsorted). Coolify's absolute links and its private-target message name its APP_URL (`http://localhost`), which the test
+gives as Freeploy's console URL. No masking is added.
 
 ## How the goldens are made
 
