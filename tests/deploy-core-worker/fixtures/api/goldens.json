@@ -67639,6 +67639,2355 @@
             "body": {
                 "json": "{\"message\":\"You are not authorized to perform this action.\",\"error\":\"Unauthorized\"}"
             }
+        },
+        {
+            "name": "gitlab apps: list",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[{\"id\":1,\"uuid\":\"y1paritygitlabapp0000001\",\"name\":\"Parity GitLab\",\"api_url\":\"https:\\/\\/gitlab.com\\/api\\/v4\",\"app_id\":null,\"client_id\":\"gl-client-1\",\"custom_port\":22,\"custom_user\":\"git\",\"deploy_key_id\":null,\"expires_at\":2145916800,\"group_name\":\"parity-group\",\"html_url\":\"https:\\/\\/gitlab.com\",\"is_public\":false,\"is_system_wide\":false,\"oauth_id\":null,\"organization\":null,\"private_key_id\":null,\"public_key\":null,\"redirect_uri\":\"http:\\/\\/localhost\\/webhooks\\/source\\/gitlab\\/redirect\",\"team_id\":1,\"created_at\":\"2025-12-05T00:00:00.000000Z\",\"updated_at\":\"2025-12-05T00:00:00.000000Z\"},{\"id\":2,\"uuid\":\"y2paritygitlabapp0000002\",\"name\":\"Self-hosted GitLab\",\"api_url\":\"https:\\/\\/gitlab.acme.test\\/api\\/v4\",\"app_id\":null,\"client_id\":null,\"custom_port\":2222,\"custom_user\":\"git\",\"deploy_key_id\":null,\"expires_at\":null,\"group_name\":null,\"html_url\":\"https:\\/\\/gitlab.acme.test\",\"is_public\":false,\"is_system_wide\":false,\"oauth_id\":null,\"organization\":null,\"private_key_id\":null,\"public_key\":null,\"redirect_uri\":null,\"team_id\":1,\"created_at\":\"2025-12-06T00:00:00.000000Z\",\"updated_at\":\"2025-12-06T00:00:00.000000Z\"}]"
+            }
+        },
+        {
+            "name": "gitlab apps: list, read:sensitive",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[{\"id\":1,\"uuid\":\"y1paritygitlabapp0000001\",\"name\":\"Parity GitLab\",\"access_token\":\"gl-access-1\",\"api_url\":\"https:\\/\\/gitlab.com\\/api\\/v4\",\"app_id\":null,\"client_id\":\"gl-client-1\",\"client_secret\":\"gl-secret-1\",\"custom_port\":22,\"custom_user\":\"git\",\"deploy_key_id\":null,\"expires_at\":2145916800,\"group_name\":\"parity-group\",\"html_url\":\"https:\\/\\/gitlab.com\",\"is_public\":false,\"is_system_wide\":false,\"oauth_id\":null,\"organization\":null,\"private_key_id\":null,\"public_key\":null,\"redirect_uri\":\"http:\\/\\/localhost\\/webhooks\\/source\\/gitlab\\/redirect\",\"refresh_token\":\"gl-refresh-1\",\"team_id\":1,\"webhook_token\":\"gl-webhook-token-1\",\"created_at\":\"2025-12-05T00:00:00.000000Z\",\"updated_at\":\"2025-12-05T00:00:00.000000Z\"},{\"id\":2,\"uuid\":\"y2paritygitlabapp0000002\",\"name\":\"Self-hosted GitLab\",\"access_token\":null,\"api_url\":\"https:\\/\\/gitlab.acme.test\\/api\\/v4\",\"app_id\":null,\"client_id\":null,\"client_secret\":null,\"custom_port\":2222,\"custom_user\":\"git\",\"deploy_key_id\":null,\"expires_at\":null,\"group_name\":null,\"html_url\":\"https:\\/\\/gitlab.acme.test\",\"is_public\":false,\"is_system_wide\":false,\"oauth_id\":null,\"organization\":null,\"private_key_id\":null,\"public_key\":null,\"redirect_uri\":null,\"refresh_token\":null,\"team_id\":1,\"webhook_token\":\"gl-webhook-token-2\",\"created_at\":\"2025-12-06T00:00:00.000000Z\",\"updated_at\":\"2025-12-06T00:00:00.000000Z\"}]"
+            }
+        },
+        {
+            "name": "gitlab apps: list by a member",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[{\"id\":1,\"uuid\":\"y1paritygitlabapp0000001\",\"name\":\"Parity GitLab\",\"api_url\":\"https:\\/\\/gitlab.com\\/api\\/v4\",\"app_id\":null,\"client_id\":\"gl-client-1\",\"custom_port\":22,\"custom_user\":\"git\",\"deploy_key_id\":null,\"expires_at\":2145916800,\"group_name\":\"parity-group\",\"html_url\":\"https:\\/\\/gitlab.com\",\"is_public\":false,\"is_system_wide\":false,\"oauth_id\":null,\"organization\":null,\"private_key_id\":null,\"public_key\":null,\"redirect_uri\":\"http:\\/\\/localhost\\/webhooks\\/source\\/gitlab\\/redirect\",\"team_id\":1,\"created_at\":\"2025-12-05T00:00:00.000000Z\",\"updated_at\":\"2025-12-05T00:00:00.000000Z\"},{\"id\":2,\"uuid\":\"y2paritygitlabapp0000002\",\"name\":\"Self-hosted GitLab\",\"api_url\":\"https:\\/\\/gitlab.acme.test\\/api\\/v4\",\"app_id\":null,\"client_id\":null,\"custom_port\":2222,\"custom_user\":\"git\",\"deploy_key_id\":null,\"expires_at\":null,\"group_name\":null,\"html_url\":\"https:\\/\\/gitlab.acme.test\",\"is_public\":false,\"is_system_wide\":false,\"oauth_id\":null,\"organization\":null,\"private_key_id\":null,\"public_key\":null,\"redirect_uri\":null,\"team_id\":1,\"created_at\":\"2025-12-06T00:00:00.000000Z\",\"updated_at\":\"2025-12-06T00:00:00.000000Z\"}]"
+            }
+        },
+        {
+            "name": "gitlab apps: list, a member with read:sensitive",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"This API token has more access than you have in this team. Revoke it and create a new token.\"}"
+            }
+        },
+        {
+            "name": "gitlab apps: list, none",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[]"
+            }
+        },
+        {
+            "name": "gitlab apps: create",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"id\":4,\"uuid\":\"rn1divqxqyt3swpogk9ehb6d\",\"name\":\"New GitLab\",\"api_url\":\"https:\\/\\/gitlab.acme.test\\/api\\/v4\",\"app_id\":null,\"client_id\":\"gl-new-client\",\"custom_port\":22,\"custom_user\":\"git\",\"deploy_key_id\":null,\"expires_at\":null,\"group_name\":\"acme,acme\\/platform\",\"html_url\":\"https:\\/\\/gitlab.acme.test\",\"is_public\":false,\"is_system_wide\":false,\"oauth_id\":null,\"organization\":null,\"private_key_id\":null,\"public_key\":null,\"redirect_uri\":\"https:\\/\\/app.example.test\\/webhooks\\/source\\/gitlab\\/redirect\",\"team_id\":1,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}"
+            },
+            "after": {
+                "apps": [
+                    {
+                        "fixture_id": 1,
+                        "name": "Parity GitLab",
+                        "organization": null,
+                        "api_url": "https://gitlab.com/api/v4",
+                        "html_url": "https://gitlab.com",
+                        "custom_user": "git",
+                        "custom_port": 22,
+                        "group_name": "parity-group",
+                        "client_id": "gl-client-1",
+                        "has_client_secret": true,
+                        "has_webhook_token": true,
+                        "has_access_token": true,
+                        "has_refresh_token": true,
+                        "expires_at": 2145916800,
+                        "redirect_uri": "http://localhost/webhooks/source/gitlab/redirect",
+                        "private_key_id": null,
+                        "is_system_wide": false,
+                        "is_public": false
+                    },
+                    {
+                        "fixture_id": 2,
+                        "name": "Self-hosted GitLab",
+                        "organization": null,
+                        "api_url": "https://gitlab.acme.test/api/v4",
+                        "html_url": "https://gitlab.acme.test",
+                        "custom_user": "git",
+                        "custom_port": 2222,
+                        "group_name": null,
+                        "client_id": null,
+                        "has_client_secret": false,
+                        "has_webhook_token": true,
+                        "has_access_token": false,
+                        "has_refresh_token": false,
+                        "expires_at": null,
+                        "redirect_uri": null,
+                        "private_key_id": null,
+                        "is_system_wide": false,
+                        "is_public": false
+                    },
+                    {
+                        "fixture_id": null,
+                        "name": "New GitLab",
+                        "organization": null,
+                        "api_url": "https://gitlab.acme.test/api/v4",
+                        "html_url": "https://gitlab.acme.test",
+                        "custom_user": "git",
+                        "custom_port": 22,
+                        "group_name": "acme,acme/platform",
+                        "client_id": "gl-new-client",
+                        "has_client_secret": true,
+                        "has_webhook_token": true,
+                        "has_access_token": false,
+                        "has_refresh_token": false,
+                        "expires_at": null,
+                        "redirect_uri": "https://app.example.test/webhooks/source/gitlab/redirect",
+                        "private_key_id": null,
+                        "is_system_wide": false,
+                        "is_public": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "gitlab apps: create, the defaults",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"id\":5,\"uuid\":\"xi9b7smlbnj6okcziyh0htbi\",\"name\":\"Plain GitLab\",\"api_url\":\"https:\\/\\/gitlab.com\\/api\\/v4\",\"app_id\":null,\"client_id\":null,\"custom_port\":22,\"custom_user\":\"git\",\"deploy_key_id\":null,\"expires_at\":null,\"group_name\":null,\"html_url\":\"https:\\/\\/gitlab.com\",\"is_public\":false,\"is_system_wide\":false,\"oauth_id\":null,\"organization\":null,\"private_key_id\":null,\"public_key\":null,\"redirect_uri\":null,\"team_id\":1,\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}"
+            },
+            "after": {
+                "apps": [
+                    {
+                        "fixture_id": 1,
+                        "name": "Parity GitLab",
+                        "organization": null,
+                        "api_url": "https://gitlab.com/api/v4",
+                        "html_url": "https://gitlab.com",
+                        "custom_user": "git",
+                        "custom_port": 22,
+                        "group_name": "parity-group",
+                        "client_id": "gl-client-1",
+                        "has_client_secret": true,
+                        "has_webhook_token": true,
+                        "has_access_token": true,
+                        "has_refresh_token": true,
+                        "expires_at": 2145916800,
+                        "redirect_uri": "http://localhost/webhooks/source/gitlab/redirect",
+                        "private_key_id": null,
+                        "is_system_wide": false,
+                        "is_public": false
+                    },
+                    {
+                        "fixture_id": 2,
+                        "name": "Self-hosted GitLab",
+                        "organization": null,
+                        "api_url": "https://gitlab.acme.test/api/v4",
+                        "html_url": "https://gitlab.acme.test",
+                        "custom_user": "git",
+                        "custom_port": 2222,
+                        "group_name": null,
+                        "client_id": null,
+                        "has_client_secret": false,
+                        "has_webhook_token": true,
+                        "has_access_token": false,
+                        "has_refresh_token": false,
+                        "expires_at": null,
+                        "redirect_uri": null,
+                        "private_key_id": null,
+                        "is_system_wide": false,
+                        "is_public": false
+                    },
+                    {
+                        "fixture_id": null,
+                        "name": "Plain GitLab",
+                        "organization": null,
+                        "api_url": "https://gitlab.com/api/v4",
+                        "html_url": "https://gitlab.com",
+                        "custom_user": "git",
+                        "custom_port": 22,
+                        "group_name": null,
+                        "client_id": null,
+                        "has_client_secret": false,
+                        "has_webhook_token": true,
+                        "has_access_token": false,
+                        "has_refresh_token": false,
+                        "expires_at": null,
+                        "redirect_uri": null,
+                        "private_key_id": null,
+                        "is_system_wide": false,
+                        "is_public": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "gitlab apps: create, every field, read:sensitive",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"id\":6,\"uuid\":\"9dmhskqz7qyef9ey4t9k3ok8\",\"name\":\"New GitLab\",\"access_token\":null,\"api_url\":\"https:\\/\\/gitlab.acme.test\\/api\\/v4\",\"app_id\":null,\"client_id\":\"gl-new-client\",\"client_secret\":\"gl-new-secret\",\"custom_port\":2222,\"custom_user\":\"deploy\",\"deploy_key_id\":null,\"expires_at\":null,\"group_name\":\"acme,acme\\/platform\",\"html_url\":\"https:\\/\\/gitlab.acme.test\",\"is_public\":false,\"is_system_wide\":false,\"oauth_id\":null,\"organization\":null,\"private_key_id\":null,\"public_key\":null,\"redirect_uri\":\"https:\\/\\/app.example.test\\/webhooks\\/source\\/gitlab\\/redirect\",\"refresh_token\":null,\"team_id\":1,\"webhook_token\":\"gl-given-webhook-token\",\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}"
+            },
+            "after": {
+                "apps": [
+                    {
+                        "fixture_id": 1,
+                        "name": "Parity GitLab",
+                        "organization": null,
+                        "api_url": "https://gitlab.com/api/v4",
+                        "html_url": "https://gitlab.com",
+                        "custom_user": "git",
+                        "custom_port": 22,
+                        "group_name": "parity-group",
+                        "client_id": "gl-client-1",
+                        "has_client_secret": true,
+                        "has_webhook_token": true,
+                        "has_access_token": true,
+                        "has_refresh_token": true,
+                        "expires_at": 2145916800,
+                        "redirect_uri": "http://localhost/webhooks/source/gitlab/redirect",
+                        "private_key_id": null,
+                        "is_system_wide": false,
+                        "is_public": false
+                    },
+                    {
+                        "fixture_id": 2,
+                        "name": "Self-hosted GitLab",
+                        "organization": null,
+                        "api_url": "https://gitlab.acme.test/api/v4",
+                        "html_url": "https://gitlab.acme.test",
+                        "custom_user": "git",
+                        "custom_port": 2222,
+                        "group_name": null,
+                        "client_id": null,
+                        "has_client_secret": false,
+                        "has_webhook_token": true,
+                        "has_access_token": false,
+                        "has_refresh_token": false,
+                        "expires_at": null,
+                        "redirect_uri": null,
+                        "private_key_id": null,
+                        "is_system_wide": false,
+                        "is_public": false
+                    },
+                    {
+                        "fixture_id": null,
+                        "name": "New GitLab",
+                        "organization": null,
+                        "api_url": "https://gitlab.acme.test/api/v4",
+                        "html_url": "https://gitlab.acme.test",
+                        "custom_user": "deploy",
+                        "custom_port": 2222,
+                        "group_name": "acme,acme/platform",
+                        "client_id": "gl-new-client",
+                        "has_client_secret": true,
+                        "has_webhook_token": true,
+                        "has_access_token": false,
+                        "has_refresh_token": false,
+                        "expires_at": null,
+                        "redirect_uri": "https://app.example.test/webhooks/source/gitlab/redirect",
+                        "private_key_id": null,
+                        "is_system_wide": false,
+                        "is_public": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "gitlab apps: create, invalid",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"name\":[\"This field is required.\"],\"html_url\":[\"The html url must use the http or https scheme.\"],\"api_url\":[\"The api url field must be a valid URL.\",\"The api url must be a valid URL.\"],\"custom_user\":[\"The custom user field must be a string.\"],\"custom_port\":[\"The custom port field must not be greater than 65535.\"],\"group_name\":[\"The group name field must be a string.\"],\"client_id\":[\"The client id field must be a string.\"],\"client_secret\":[\"The client secret field must be a string.\"],\"webhook_token\":[\"The webhook token field must be a string.\"],\"redirect_uri\":[\"The redirect uri field must be a valid URL.\"],\"is_system_wide\":[\"The is system wide field must be true or false.\"],\"extra\":[\"This field is not allowed.\"]}}"
+            }
+        },
+        {
+            "name": "gitlab apps: create, a private host",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"html_url\":[\"The html_url points to a local or private address that is not allowed. Configure allowed internal targets: http:\\/\\/localhost\\/settings\\/advanced#endpoint-section\"]}}"
+            }
+        },
+        {
+            "name": "gitlab apps: create, a private API URL and a private redirect",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"api_url\":[\"The api_url points to a local or private address that is not allowed. Configure allowed internal targets: http:\\/\\/localhost\\/settings\\/advanced#endpoint-section\"]}}"
+            },
+            "after": {
+                "apps": [
+                    {
+                        "fixture_id": 1,
+                        "name": "Parity GitLab",
+                        "organization": null,
+                        "api_url": "https://gitlab.com/api/v4",
+                        "html_url": "https://gitlab.com",
+                        "custom_user": "git",
+                        "custom_port": 22,
+                        "group_name": "parity-group",
+                        "client_id": "gl-client-1",
+                        "has_client_secret": true,
+                        "has_webhook_token": true,
+                        "has_access_token": true,
+                        "has_refresh_token": true,
+                        "expires_at": 2145916800,
+                        "redirect_uri": "http://localhost/webhooks/source/gitlab/redirect",
+                        "private_key_id": null,
+                        "is_system_wide": false,
+                        "is_public": false
+                    },
+                    {
+                        "fixture_id": 2,
+                        "name": "Self-hosted GitLab",
+                        "organization": null,
+                        "api_url": "https://gitlab.acme.test/api/v4",
+                        "html_url": "https://gitlab.acme.test",
+                        "custom_user": "git",
+                        "custom_port": 2222,
+                        "group_name": null,
+                        "client_id": null,
+                        "has_client_secret": false,
+                        "has_webhook_token": true,
+                        "has_access_token": false,
+                        "has_refresh_token": false,
+                        "expires_at": null,
+                        "redirect_uri": null,
+                        "private_key_id": null,
+                        "is_system_wide": false,
+                        "is_public": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "gitlab apps: create, not JSON",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Invalid request.\",\"error\":\"Content-Type must be application\\/json.\"}"
+            }
+        },
+        {
+            "name": "gitlab apps: create, empty JSON",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Invalid request.\",\"error\":\"Empty JSON.\"}"
+            }
+        },
+        {
+            "name": "gitlab apps: create with a read token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: write\"}"
+            }
+        },
+        {
+            "name": "gitlab apps: update",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"GitLab app updated successfully\",\"data\":{\"id\":1,\"uuid\":\"y1paritygitlabapp0000001\",\"name\":\"Renamed GitLab\",\"api_url\":\"https:\\/\\/gitlab.com\\/api\\/v4\",\"app_id\":null,\"client_id\":\"gl-client-1\",\"custom_port\":2200,\"custom_user\":\"git\",\"deploy_key_id\":null,\"expires_at\":2145916800,\"group_name\":null,\"html_url\":\"https:\\/\\/gitlab.com\",\"is_public\":false,\"is_system_wide\":false,\"oauth_id\":null,\"organization\":null,\"private_key_id\":null,\"public_key\":null,\"redirect_uri\":\"https:\\/\\/app.example.test\\/webhooks\\/source\\/gitlab\\/redirect\",\"team_id\":1,\"created_at\":\"2025-12-05T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}}"
+            },
+            "after": {
+                "apps": [
+                    {
+                        "fixture_id": 1,
+                        "name": "Renamed GitLab",
+                        "organization": null,
+                        "api_url": "https://gitlab.com/api/v4",
+                        "html_url": "https://gitlab.com",
+                        "custom_user": "git",
+                        "custom_port": 2200,
+                        "group_name": null,
+                        "client_id": "gl-client-1",
+                        "has_client_secret": true,
+                        "has_webhook_token": true,
+                        "has_access_token": true,
+                        "has_refresh_token": true,
+                        "expires_at": 2145916800,
+                        "redirect_uri": "https://app.example.test/webhooks/source/gitlab/redirect",
+                        "private_key_id": null,
+                        "is_system_wide": false,
+                        "is_public": false
+                    },
+                    {
+                        "fixture_id": 2,
+                        "name": "Self-hosted GitLab",
+                        "organization": null,
+                        "api_url": "https://gitlab.acme.test/api/v4",
+                        "html_url": "https://gitlab.acme.test",
+                        "custom_user": "git",
+                        "custom_port": 2222,
+                        "group_name": null,
+                        "client_id": null,
+                        "has_client_secret": false,
+                        "has_webhook_token": true,
+                        "has_access_token": false,
+                        "has_refresh_token": false,
+                        "expires_at": null,
+                        "redirect_uri": null,
+                        "private_key_id": null,
+                        "is_system_wide": false,
+                        "is_public": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "gitlab apps: update the HTML URL",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"GitLab app updated successfully\",\"data\":{\"id\":2,\"uuid\":\"y2paritygitlabapp0000002\",\"name\":\"Self-hosted GitLab\",\"api_url\":\"https:\\/\\/git.acme.test\\/api\\/v4\",\"app_id\":null,\"client_id\":null,\"custom_port\":2222,\"custom_user\":\"git\",\"deploy_key_id\":null,\"expires_at\":null,\"group_name\":null,\"html_url\":\"https:\\/\\/git.acme.test\",\"is_public\":false,\"is_system_wide\":false,\"oauth_id\":null,\"organization\":null,\"private_key_id\":null,\"public_key\":null,\"redirect_uri\":null,\"team_id\":1,\"created_at\":\"2025-12-06T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}}"
+            },
+            "after": {
+                "apps": [
+                    {
+                        "fixture_id": 1,
+                        "name": "Parity GitLab",
+                        "organization": null,
+                        "api_url": "https://gitlab.com/api/v4",
+                        "html_url": "https://gitlab.com",
+                        "custom_user": "git",
+                        "custom_port": 22,
+                        "group_name": "parity-group",
+                        "client_id": "gl-client-1",
+                        "has_client_secret": true,
+                        "has_webhook_token": true,
+                        "has_access_token": true,
+                        "has_refresh_token": true,
+                        "expires_at": 2145916800,
+                        "redirect_uri": "http://localhost/webhooks/source/gitlab/redirect",
+                        "private_key_id": null,
+                        "is_system_wide": false,
+                        "is_public": false
+                    },
+                    {
+                        "fixture_id": 2,
+                        "name": "Self-hosted GitLab",
+                        "organization": null,
+                        "api_url": "https://git.acme.test/api/v4",
+                        "html_url": "https://git.acme.test",
+                        "custom_user": "git",
+                        "custom_port": 2222,
+                        "group_name": null,
+                        "client_id": null,
+                        "has_client_secret": false,
+                        "has_webhook_token": true,
+                        "has_access_token": false,
+                        "has_refresh_token": false,
+                        "expires_at": null,
+                        "redirect_uri": null,
+                        "private_key_id": null,
+                        "is_system_wide": false,
+                        "is_public": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "gitlab apps: update the HTML and API URLs",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"GitLab app updated successfully\",\"data\":{\"id\":2,\"uuid\":\"y2paritygitlabapp0000002\",\"name\":\"Self-hosted GitLab\",\"api_url\":\"https:\\/\\/git.acme.test\\/api\\/v4\",\"app_id\":null,\"client_id\":null,\"custom_port\":2222,\"custom_user\":\"git\",\"deploy_key_id\":null,\"expires_at\":null,\"group_name\":null,\"html_url\":\"https:\\/\\/git.acme.test\",\"is_public\":false,\"is_system_wide\":false,\"oauth_id\":null,\"organization\":null,\"private_key_id\":null,\"public_key\":null,\"redirect_uri\":null,\"team_id\":1,\"created_at\":\"2025-12-06T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}}"
+            },
+            "after": {
+                "apps": [
+                    {
+                        "fixture_id": 1,
+                        "name": "Parity GitLab",
+                        "organization": null,
+                        "api_url": "https://gitlab.com/api/v4",
+                        "html_url": "https://gitlab.com",
+                        "custom_user": "git",
+                        "custom_port": 22,
+                        "group_name": "parity-group",
+                        "client_id": "gl-client-1",
+                        "has_client_secret": true,
+                        "has_webhook_token": true,
+                        "has_access_token": true,
+                        "has_refresh_token": true,
+                        "expires_at": 2145916800,
+                        "redirect_uri": "http://localhost/webhooks/source/gitlab/redirect",
+                        "private_key_id": null,
+                        "is_system_wide": false,
+                        "is_public": false
+                    },
+                    {
+                        "fixture_id": 2,
+                        "name": "Self-hosted GitLab",
+                        "organization": null,
+                        "api_url": "https://git.acme.test/api/v4",
+                        "html_url": "https://git.acme.test",
+                        "custom_user": "git",
+                        "custom_port": 2222,
+                        "group_name": null,
+                        "client_id": null,
+                        "has_client_secret": false,
+                        "has_webhook_token": true,
+                        "has_access_token": false,
+                        "has_refresh_token": false,
+                        "expires_at": null,
+                        "redirect_uri": null,
+                        "private_key_id": null,
+                        "is_system_wide": false,
+                        "is_public": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "gitlab apps: update, nothing",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"GitLab app updated successfully\",\"data\":{\"id\":1,\"uuid\":\"y1paritygitlabapp0000001\",\"name\":\"Parity GitLab\",\"api_url\":\"https:\\/\\/gitlab.com\\/api\\/v4\",\"app_id\":null,\"client_id\":\"gl-client-1\",\"custom_port\":22,\"custom_user\":\"git\",\"deploy_key_id\":null,\"expires_at\":2145916800,\"group_name\":\"parity-group\",\"html_url\":\"https:\\/\\/gitlab.com\",\"is_public\":false,\"is_system_wide\":false,\"oauth_id\":null,\"organization\":null,\"private_key_id\":null,\"public_key\":null,\"redirect_uri\":\"http:\\/\\/localhost\\/webhooks\\/source\\/gitlab\\/redirect\",\"team_id\":1,\"created_at\":\"2025-12-05T00:00:00.000000Z\",\"updated_at\":\"2025-12-05T00:00:00.000000Z\"}}"
+            },
+            "after": {
+                "apps": [
+                    {
+                        "fixture_id": 1,
+                        "name": "Parity GitLab",
+                        "organization": null,
+                        "api_url": "https://gitlab.com/api/v4",
+                        "html_url": "https://gitlab.com",
+                        "custom_user": "git",
+                        "custom_port": 22,
+                        "group_name": "parity-group",
+                        "client_id": "gl-client-1",
+                        "has_client_secret": true,
+                        "has_webhook_token": true,
+                        "has_access_token": true,
+                        "has_refresh_token": true,
+                        "expires_at": 2145916800,
+                        "redirect_uri": "http://localhost/webhooks/source/gitlab/redirect",
+                        "private_key_id": null,
+                        "is_system_wide": false,
+                        "is_public": false
+                    },
+                    {
+                        "fixture_id": 2,
+                        "name": "Self-hosted GitLab",
+                        "organization": null,
+                        "api_url": "https://gitlab.acme.test/api/v4",
+                        "html_url": "https://gitlab.acme.test",
+                        "custom_user": "git",
+                        "custom_port": 2222,
+                        "group_name": null,
+                        "client_id": null,
+                        "has_client_secret": false,
+                        "has_webhook_token": true,
+                        "has_access_token": false,
+                        "has_refresh_token": false,
+                        "expires_at": null,
+                        "redirect_uri": null,
+                        "private_key_id": null,
+                        "is_system_wide": false,
+                        "is_public": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "gitlab apps: update, clearing the secrets, read:sensitive",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"GitLab app updated successfully\",\"data\":{\"id\":1,\"uuid\":\"y1paritygitlabapp0000001\",\"name\":\"Parity GitLab\",\"access_token\":\"gl-access-1\",\"api_url\":\"https:\\/\\/gitlab.com\\/api\\/v4\",\"app_id\":null,\"client_id\":null,\"client_secret\":null,\"custom_port\":22,\"custom_user\":\"git\",\"deploy_key_id\":null,\"expires_at\":2145916800,\"group_name\":\"parity-group\",\"html_url\":\"https:\\/\\/gitlab.com\",\"is_public\":false,\"is_system_wide\":false,\"oauth_id\":null,\"organization\":null,\"private_key_id\":null,\"public_key\":null,\"redirect_uri\":\"http:\\/\\/localhost\\/webhooks\\/source\\/gitlab\\/redirect\",\"refresh_token\":\"gl-refresh-1\",\"team_id\":1,\"webhook_token\":null,\"created_at\":\"2025-12-05T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}}"
+            },
+            "after": {
+                "apps": [
+                    {
+                        "fixture_id": 1,
+                        "name": "Parity GitLab",
+                        "organization": null,
+                        "api_url": "https://gitlab.com/api/v4",
+                        "html_url": "https://gitlab.com",
+                        "custom_user": "git",
+                        "custom_port": 22,
+                        "group_name": "parity-group",
+                        "client_id": null,
+                        "has_client_secret": false,
+                        "has_webhook_token": false,
+                        "has_access_token": true,
+                        "has_refresh_token": true,
+                        "expires_at": 2145916800,
+                        "redirect_uri": "http://localhost/webhooks/source/gitlab/redirect",
+                        "private_key_id": null,
+                        "is_system_wide": false,
+                        "is_public": false
+                    },
+                    {
+                        "fixture_id": 2,
+                        "name": "Self-hosted GitLab",
+                        "organization": null,
+                        "api_url": "https://gitlab.acme.test/api/v4",
+                        "html_url": "https://gitlab.acme.test",
+                        "custom_user": "git",
+                        "custom_port": 2222,
+                        "group_name": null,
+                        "client_id": null,
+                        "has_client_secret": false,
+                        "has_webhook_token": true,
+                        "has_access_token": false,
+                        "has_refresh_token": false,
+                        "expires_at": null,
+                        "redirect_uri": null,
+                        "private_key_id": null,
+                        "is_system_wide": false,
+                        "is_public": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "gitlab apps: update, invalid",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation error\",\"errors\":{\"name\":[\"The name field must be a string.\"],\"html_url\":[\"The html url field must be a valid URL.\",\"The html url must be a valid URL.\"],\"api_url\":[\"The api url must use the http or https scheme.\"],\"custom_user\":[\"The custom user field must be a string.\"],\"custom_port\":[\"The custom port field must be at least 1.\"],\"group_name\":[\"The group name field must be a string.\"],\"client_id\":[\"The client id field must be a string.\"],\"client_secret\":[\"The client secret field must be a string.\"],\"redirect_uri\":[\"The redirect uri field must be a valid URL.\"]}}"
+            }
+        },
+        {
+            "name": "gitlab apps: update, a private host",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation error\",\"errors\":{\"api_url\":[\"The api_url points to a local or private address that is not allowed. Configure allowed internal targets: http:\\/\\/localhost\\/settings\\/advanced#endpoint-section\"]}}"
+            }
+        },
+        {
+            "name": "gitlab apps: update unknown",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"GitLab app not found\"}"
+            }
+        },
+        {
+            "name": "gitlab apps: update another team's",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"GitLab app not found\"}"
+            }
+        },
+        {
+            "name": "gitlab apps: update with a read token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: write\"}"
+            }
+        },
+        {
+            "name": "gitlab apps: delete",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"GitLab app deleted successfully\"}"
+            },
+            "after": {
+                "apps": [
+                    {
+                        "fixture_id": 1,
+                        "name": "Parity GitLab",
+                        "organization": null,
+                        "api_url": "https://gitlab.com/api/v4",
+                        "html_url": "https://gitlab.com",
+                        "custom_user": "git",
+                        "custom_port": 22,
+                        "group_name": "parity-group",
+                        "client_id": "gl-client-1",
+                        "has_client_secret": true,
+                        "has_webhook_token": true,
+                        "has_access_token": true,
+                        "has_refresh_token": true,
+                        "expires_at": 2145916800,
+                        "redirect_uri": "http://localhost/webhooks/source/gitlab/redirect",
+                        "private_key_id": null,
+                        "is_system_wide": false,
+                        "is_public": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "gitlab apps: delete, in use",
+            "status": 409,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"This GitLab app is being used by 1 application(s). Please delete all applications first.\"}"
+            },
+            "after": {
+                "apps": [
+                    {
+                        "fixture_id": 1,
+                        "name": "Parity GitLab",
+                        "organization": null,
+                        "api_url": "https://gitlab.com/api/v4",
+                        "html_url": "https://gitlab.com",
+                        "custom_user": "git",
+                        "custom_port": 22,
+                        "group_name": "parity-group",
+                        "client_id": "gl-client-1",
+                        "has_client_secret": true,
+                        "has_webhook_token": true,
+                        "has_access_token": true,
+                        "has_refresh_token": true,
+                        "expires_at": 2145916800,
+                        "redirect_uri": "http://localhost/webhooks/source/gitlab/redirect",
+                        "private_key_id": null,
+                        "is_system_wide": false,
+                        "is_public": false
+                    },
+                    {
+                        "fixture_id": 2,
+                        "name": "Self-hosted GitLab",
+                        "organization": null,
+                        "api_url": "https://gitlab.acme.test/api/v4",
+                        "html_url": "https://gitlab.acme.test",
+                        "custom_user": "git",
+                        "custom_port": 2222,
+                        "group_name": null,
+                        "client_id": null,
+                        "has_client_secret": false,
+                        "has_webhook_token": true,
+                        "has_access_token": false,
+                        "has_refresh_token": false,
+                        "expires_at": null,
+                        "redirect_uri": null,
+                        "private_key_id": null,
+                        "is_system_wide": false,
+                        "is_public": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "gitlab apps: delete unknown",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"GitLab app not found\"}"
+            }
+        },
+        {
+            "name": "gitlab apps: delete another team's",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"GitLab app not found\"}"
+            }
+        },
+        {
+            "name": "gitlab apps: delete with a write token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: delete\"}"
+            }
+        },
+        {
+            "name": "gitea apps: list",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[{\"id\":1,\"uuid\":\"z1paritygiteaapp00000001\",\"name\":\"Parity Gitea\",\"api_url\":\"https:\\/\\/gitea.com\\/api\\/v1\",\"client_id\":\"gt-client-1\",\"custom_port\":22,\"custom_user\":\"git\",\"expires_at\":2145916800,\"html_url\":\"https:\\/\\/gitea.com\",\"is_public\":false,\"is_system_wide\":false,\"organization\":\"acme, Parity\",\"private_key_id\":null,\"redirect_uri\":\"http:\\/\\/localhost\\/webhooks\\/source\\/gitea\\/redirect\",\"team_id\":1,\"created_at\":\"2025-12-05T00:00:00.000000Z\",\"updated_at\":\"2025-12-05T00:00:00.000000Z\",\"is_connected\":true},{\"id\":2,\"uuid\":\"z2paritygiteaapp00000002\",\"name\":\"Codeberg\",\"api_url\":\"https:\\/\\/codeberg.org\\/api\\/v1\",\"client_id\":\"gt-client-2\",\"custom_port\":22,\"custom_user\":\"git\",\"expires_at\":null,\"html_url\":\"https:\\/\\/codeberg.org\",\"is_public\":false,\"is_system_wide\":false,\"organization\":null,\"private_key_id\":null,\"redirect_uri\":null,\"team_id\":1,\"created_at\":\"2025-12-06T00:00:00.000000Z\",\"updated_at\":\"2025-12-06T00:00:00.000000Z\",\"is_connected\":false}]"
+            }
+        },
+        {
+            "name": "gitea apps: list, read:sensitive",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[{\"id\":1,\"uuid\":\"z1paritygiteaapp00000001\",\"name\":\"Parity Gitea\",\"access_token\":\"gt-access-1\",\"api_url\":\"https:\\/\\/gitea.com\\/api\\/v1\",\"client_id\":\"gt-client-1\",\"client_secret\":\"gt-secret-1\",\"custom_port\":22,\"custom_user\":\"git\",\"expires_at\":2145916800,\"html_url\":\"https:\\/\\/gitea.com\",\"is_public\":false,\"is_system_wide\":false,\"organization\":\"acme, Parity\",\"private_key_id\":null,\"redirect_uri\":\"http:\\/\\/localhost\\/webhooks\\/source\\/gitea\\/redirect\",\"refresh_token\":\"gt-refresh-1\",\"team_id\":1,\"webhook_secret\":\"gt-webhook-secret-1\",\"created_at\":\"2025-12-05T00:00:00.000000Z\",\"updated_at\":\"2025-12-05T00:00:00.000000Z\",\"is_connected\":true},{\"id\":2,\"uuid\":\"z2paritygiteaapp00000002\",\"name\":\"Codeberg\",\"access_token\":null,\"api_url\":\"https:\\/\\/codeberg.org\\/api\\/v1\",\"client_id\":\"gt-client-2\",\"client_secret\":null,\"custom_port\":22,\"custom_user\":\"git\",\"expires_at\":null,\"html_url\":\"https:\\/\\/codeberg.org\",\"is_public\":false,\"is_system_wide\":false,\"organization\":null,\"private_key_id\":null,\"redirect_uri\":null,\"refresh_token\":null,\"team_id\":1,\"webhook_secret\":\"gt-webhook-secret-2\",\"created_at\":\"2025-12-06T00:00:00.000000Z\",\"updated_at\":\"2025-12-06T00:00:00.000000Z\",\"is_connected\":false}]"
+            }
+        },
+        {
+            "name": "gitea apps: list by a member",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[{\"id\":1,\"uuid\":\"z1paritygiteaapp00000001\",\"name\":\"Parity Gitea\",\"api_url\":\"https:\\/\\/gitea.com\\/api\\/v1\",\"client_id\":\"gt-client-1\",\"custom_port\":22,\"custom_user\":\"git\",\"expires_at\":2145916800,\"html_url\":\"https:\\/\\/gitea.com\",\"is_public\":false,\"is_system_wide\":false,\"organization\":\"acme, Parity\",\"private_key_id\":null,\"redirect_uri\":\"http:\\/\\/localhost\\/webhooks\\/source\\/gitea\\/redirect\",\"team_id\":1,\"created_at\":\"2025-12-05T00:00:00.000000Z\",\"updated_at\":\"2025-12-05T00:00:00.000000Z\",\"is_connected\":true},{\"id\":2,\"uuid\":\"z2paritygiteaapp00000002\",\"name\":\"Codeberg\",\"api_url\":\"https:\\/\\/codeberg.org\\/api\\/v1\",\"client_id\":\"gt-client-2\",\"custom_port\":22,\"custom_user\":\"git\",\"expires_at\":null,\"html_url\":\"https:\\/\\/codeberg.org\",\"is_public\":false,\"is_system_wide\":false,\"organization\":null,\"private_key_id\":null,\"redirect_uri\":null,\"team_id\":1,\"created_at\":\"2025-12-06T00:00:00.000000Z\",\"updated_at\":\"2025-12-06T00:00:00.000000Z\",\"is_connected\":false}]"
+            }
+        },
+        {
+            "name": "gitea apps: list, none",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[]"
+            }
+        },
+        {
+            "name": "gitea apps: list with a write-only token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: read\"}"
+            }
+        },
+        {
+            "name": "gitea app create: a Gitea App",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"bx0ziizjilhniksjnm3u22x6\",\"domains\":\"http:\\/\\/bx0ziizjilhniksjnm3u22x6.203.0.113.10.sslip.io\"}"
+            },
+            "after": {
+                "application": [
+                    {
+                        "name": "private:main-<random>",
+                        "description": null,
+                        "fqdn": "http://<uuid>.203.0.113.10.sslip.io",
+                        "domain_port_overrides": null,
+                        "noindex_domains": null,
+                        "git_repository": "acme/private",
+                        "git_branch": "main",
+                        "git_commit_sha": "HEAD",
+                        "build_pack": "nixpacks",
+                        "static_image": "nginx:alpine",
+                        "install_command": null,
+                        "build_command": null,
+                        "start_command": null,
+                        "ports_exposes": "3000",
+                        "ports_mappings": null,
+                        "base_directory": "/",
+                        "publish_directory": null,
+                        "docker_registry_image_name": null,
+                        "docker_registry_image_tag": null,
+                        "dockerfile": null,
+                        "dockerfile_location": null,
+                        "dockerfile_target_build": null,
+                        "docker_compose_location": "/docker-compose.yaml",
+                        "docker_compose_raw": null,
+                        "docker_compose_domains": null,
+                        "health_check_enabled": false,
+                        "health_check_path": "/",
+                        "health_check_port": null,
+                        "health_check_type": "http",
+                        "health_check_interval": 5,
+                        "health_check_retries": 10,
+                        "limits_memory": "0",
+                        "limits_cpus": "0",
+                        "status": "exited",
+                        "environment_id": 1,
+                        "destination_id": 1,
+                        "destination_type": "App\\Models\\StandaloneDocker",
+                        "source_id": 1,
+                        "source_type": "App\\Models\\GiteaApp",
+                        "repository_project_id": 5151,
+                        "private_key_id": null,
+                        "redirect": "both",
+                        "custom_labels": "traefik.enable=true\ntraefik.http.middlewares.gzip-no-media.compress.excludedcontenttypes=text/event-stream,video/mp4,video/webm,video/ogg,video/quicktime,video/x-matroska,video/x-msvideo,video/mpeg,video/mp2t,video/3gpp,video/x-m4v,video/x-flv,audio/mpeg,audio/mp4,audio/aac,audio/ogg,audio/opus,audio/webm,audio/wav,audio/x-wav,audio/flac,audio/x-m4a,image/jpeg,image/png,image/gif,image/webp,image/avif,application/pdf,application/octet-stream,application/zip,application/gzip,application/x-gzip,application/zstd,application/x-7z-compressed,application/x-rar-compressed,application/x-bzip2,application/x-xz,application/x-tar\ntraefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https\ntraefik.http.routers.http-0-<uuid>.entryPoints=http\ntraefik.http.routers.http-0-<uuid>.middlewares=gzip-no-media\ntraefik.http.routers.http-0-<uuid>.rule=Host(`<uuid>.203.0.113.10.sslip.io`) && PathPrefix(`/`)\ntraefik.http.routers.http-0-<uuid>.service=http-0-<uuid>\ntraefik.http.services.http-0-<uuid>.loadbalancer.server.port=3000\ncaddy_0.encode=zstd gzip\ncaddy_0.handle_path.0_reverse_proxy.stream_close_delay=24h\ncaddy_0.handle_path.0_reverse_proxy={{upstreams 3000}}\ncaddy_0.handle_path=/*\ncaddy_0.header=-Server\ncaddy_0.try_files={path} /index.html /index.php\ncaddy_0=http://<uuid>.203.0.113.10.sslip.io\ncaddy_ingress_network=coolify",
+                        "custom_docker_run_options": null,
+                        "custom_nginx_configuration": null,
+                        "custom_network_aliases": null,
+                        "watch_paths": null,
+                        "preview_url_template": "{{pr_id}}.{{domain}}",
+                        "max_restart_count": 0,
+                        "compose_parsing_version": "5",
+                        "is_http_basic_auth_enabled": false,
+                        "http_basic_auth_username": null,
+                        "has_basic_auth_password": false,
+                        "http_basic_auth_hash_algorithm": "bcrypt",
+                        "http_basic_auth_bcrypt_cost": 10,
+                        "git_https_username": null,
+                        "has_git_https_password": false,
+                        "has_webhook_secrets": true,
+                        "custom_healthcheck_found": false,
+                        "post_deployment_command": null,
+                        "pre_deployment_command_container": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "is_static": false,
+                        "is_spa": false,
+                        "is_git_submodules_enabled": true,
+                        "is_git_lfs_enabled": true,
+                        "is_git_shallow_clone_enabled": true,
+                        "is_auto_deploy_enabled": true,
+                        "is_force_https_enabled": true,
+                        "is_preview_deployments_enabled": false,
+                        "is_pr_deployments_public_enabled": false,
+                        "is_build_server_enabled": false,
+                        "use_build_secrets": false,
+                        "connect_to_docker_network": false,
+                        "is_container_label_escape_enabled": true,
+                        "is_container_label_readonly_enabled": true,
+                        "is_preserve_repository_enabled": false,
+                        "is_consistent_container_name_enabled": false,
+                        "custom_internal_name": null,
+                        "custom_container_name_prefix": null,
+                        "is_gzip_enabled": true,
+                        "is_stripprefix_enabled": true,
+                        "is_permanent_redirect_enabled": false,
+                        "traefik_certificate_resolver": null,
+                        "is_raw_compose_deployment_enabled": false,
+                        "is_log_drain_enabled": false,
+                        "is_gpu_enabled": false,
+                        "gpu_driver": "nvidia",
+                        "gpu_count": null,
+                        "gpu_device_ids": null,
+                        "gpu_options": null,
+                        "is_env_sorting_enabled": false,
+                        "redact_all_env_values_in_logs": true,
+                        "include_coolify_default_variables": true,
+                        "disable_build_cache": false,
+                        "inject_build_args_to_dockerfile": true,
+                        "include_source_commit_in_build": false,
+                        "include_network_hosts_in_build": true,
+                        "stop_grace_period": null,
+                        "rolling_update_drain_seconds": 5,
+                        "docker_images_to_keep": 2,
+                        "is_image_scan_enabled": true,
+                        "is_auto_cancel_queued_deployments_enabled": true,
+                        "is_auto_cancel_building_deployments_enabled": false
+                    }
+                ],
+                "variables": [
+                    {
+                        "key": "NIXPACKS_NODE_VERSION",
+                        "is_preview": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": false,
+                        "is_buildtime": true
+                    },
+                    {
+                        "key": "NIXPACKS_NODE_VERSION",
+                        "is_preview": true,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": false,
+                        "is_buildtime": true
+                    }
+                ],
+                "tags": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://gitea.com/api/v1/repos/acme/private",
+                    "authorization": "Bearer gt-access-1"
+                }
+            ]
+        },
+        {
+            "name": "gitea app create: a Gitea App, a repository URL",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"ha9z90vpflbpr24chfd6lzzh\",\"domains\":\"https:\\/\\/gt.acme.test\"}"
+            },
+            "after": {
+                "application": [
+                    {
+                        "name": "from-gitea",
+                        "description": null,
+                        "fqdn": "https://gt.acme.test",
+                        "domain_port_overrides": null,
+                        "noindex_domains": null,
+                        "git_repository": "acme/private",
+                        "git_branch": "main",
+                        "git_commit_sha": "HEAD",
+                        "build_pack": "dockerfile",
+                        "static_image": "nginx:alpine",
+                        "install_command": null,
+                        "build_command": null,
+                        "start_command": null,
+                        "ports_exposes": "3000",
+                        "ports_mappings": null,
+                        "base_directory": "/",
+                        "publish_directory": null,
+                        "docker_registry_image_name": null,
+                        "docker_registry_image_tag": null,
+                        "dockerfile": null,
+                        "dockerfile_location": null,
+                        "dockerfile_target_build": null,
+                        "docker_compose_location": "/docker-compose.yaml",
+                        "docker_compose_raw": null,
+                        "docker_compose_domains": null,
+                        "health_check_enabled": false,
+                        "health_check_path": "/",
+                        "health_check_port": null,
+                        "health_check_type": "http",
+                        "health_check_interval": 5,
+                        "health_check_retries": 10,
+                        "limits_memory": "0",
+                        "limits_cpus": "0",
+                        "status": "exited",
+                        "environment_id": 1,
+                        "destination_id": 1,
+                        "destination_type": "App\\Models\\StandaloneDocker",
+                        "source_id": 1,
+                        "source_type": "App\\Models\\GiteaApp",
+                        "repository_project_id": 5151,
+                        "private_key_id": null,
+                        "redirect": "both",
+                        "custom_labels": "traefik.enable=true\ntraefik.http.middlewares.gzip-no-media.compress.excludedcontenttypes=text/event-stream,video/mp4,video/webm,video/ogg,video/quicktime,video/x-matroska,video/x-msvideo,video/mpeg,video/mp2t,video/3gpp,video/x-m4v,video/x-flv,audio/mpeg,audio/mp4,audio/aac,audio/ogg,audio/opus,audio/webm,audio/wav,audio/x-wav,audio/flac,audio/x-m4a,image/jpeg,image/png,image/gif,image/webp,image/avif,application/pdf,application/octet-stream,application/zip,application/gzip,application/x-gzip,application/zstd,application/x-7z-compressed,application/x-rar-compressed,application/x-bzip2,application/x-xz,application/x-tar\ntraefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https\ntraefik.http.routers.http-0-<uuid>.entryPoints=http\ntraefik.http.routers.http-0-<uuid>.middlewares=redirect-to-https\ntraefik.http.routers.http-0-<uuid>.rule=Host(`gt.acme.test`) && PathPrefix(`/`)\ntraefik.http.routers.http-0-<uuid>.service=http-0-<uuid>\ntraefik.http.routers.https-0-<uuid>.entryPoints=https\ntraefik.http.routers.https-0-<uuid>.middlewares=gzip-no-media\ntraefik.http.routers.https-0-<uuid>.rule=Host(`gt.acme.test`) && PathPrefix(`/`)\ntraefik.http.routers.https-0-<uuid>.service=https-0-<uuid>\ntraefik.http.routers.https-0-<uuid>.tls.certresolver=letsencrypt\ntraefik.http.routers.https-0-<uuid>.tls=true\ntraefik.http.services.http-0-<uuid>.loadbalancer.server.port=3000\ntraefik.http.services.https-0-<uuid>.loadbalancer.server.port=3000\ncaddy_0.encode=zstd gzip\ncaddy_0.handle_path.0_reverse_proxy.stream_close_delay=24h\ncaddy_0.handle_path.0_reverse_proxy={{upstreams 3000}}\ncaddy_0.handle_path=/*\ncaddy_0.header=-Server\ncaddy_0.try_files={path} /index.html /index.php\ncaddy_0=https://gt.acme.test\ncaddy_ingress_network=coolify",
+                        "custom_docker_run_options": null,
+                        "custom_nginx_configuration": null,
+                        "custom_network_aliases": null,
+                        "watch_paths": null,
+                        "preview_url_template": "{{pr_id}}.{{domain}}",
+                        "max_restart_count": 0,
+                        "compose_parsing_version": "5",
+                        "is_http_basic_auth_enabled": false,
+                        "http_basic_auth_username": null,
+                        "has_basic_auth_password": false,
+                        "http_basic_auth_hash_algorithm": "bcrypt",
+                        "http_basic_auth_bcrypt_cost": 10,
+                        "git_https_username": null,
+                        "has_git_https_password": false,
+                        "has_webhook_secrets": true,
+                        "custom_healthcheck_found": false,
+                        "post_deployment_command": null,
+                        "pre_deployment_command_container": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "is_static": false,
+                        "is_spa": false,
+                        "is_git_submodules_enabled": true,
+                        "is_git_lfs_enabled": true,
+                        "is_git_shallow_clone_enabled": true,
+                        "is_auto_deploy_enabled": true,
+                        "is_force_https_enabled": true,
+                        "is_preview_deployments_enabled": false,
+                        "is_pr_deployments_public_enabled": false,
+                        "is_build_server_enabled": false,
+                        "use_build_secrets": false,
+                        "connect_to_docker_network": false,
+                        "is_container_label_escape_enabled": true,
+                        "is_container_label_readonly_enabled": true,
+                        "is_preserve_repository_enabled": false,
+                        "is_consistent_container_name_enabled": false,
+                        "custom_internal_name": null,
+                        "custom_container_name_prefix": null,
+                        "is_gzip_enabled": true,
+                        "is_stripprefix_enabled": true,
+                        "is_permanent_redirect_enabled": false,
+                        "traefik_certificate_resolver": null,
+                        "is_raw_compose_deployment_enabled": false,
+                        "is_log_drain_enabled": false,
+                        "is_gpu_enabled": false,
+                        "gpu_driver": "nvidia",
+                        "gpu_count": null,
+                        "gpu_device_ids": null,
+                        "gpu_options": null,
+                        "is_env_sorting_enabled": false,
+                        "redact_all_env_values_in_logs": true,
+                        "include_coolify_default_variables": true,
+                        "disable_build_cache": false,
+                        "inject_build_args_to_dockerfile": true,
+                        "include_source_commit_in_build": false,
+                        "include_network_hosts_in_build": true,
+                        "stop_grace_period": null,
+                        "rolling_update_drain_seconds": 5,
+                        "docker_images_to_keep": 2,
+                        "is_image_scan_enabled": true,
+                        "is_auto_cancel_queued_deployments_enabled": true,
+                        "is_auto_cancel_building_deployments_enabled": false
+                    }
+                ],
+                "variables": [],
+                "tags": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://gitea.com/api/v1/repos/acme/private",
+                    "authorization": "Bearer gt-access-1"
+                }
+            ]
+        },
+        {
+            "name": "gitea app create: a Gitea App, an SSH URL",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"jp36hlpsxmlj1qpxdzkkf7hb\",\"domains\":\"http:\\/\\/jp36hlpsxmlj1qpxdzkkf7hb.203.0.113.10.sslip.io\"}"
+            },
+            "after": {
+                "application": [
+                    {
+                        "name": "private.git:main-<random>",
+                        "description": null,
+                        "fqdn": "http://<uuid>.203.0.113.10.sslip.io",
+                        "domain_port_overrides": null,
+                        "noindex_domains": null,
+                        "git_repository": "acme/private",
+                        "git_branch": "main",
+                        "git_commit_sha": "HEAD",
+                        "build_pack": "static",
+                        "static_image": "nginx:alpine",
+                        "install_command": null,
+                        "build_command": null,
+                        "start_command": null,
+                        "ports_exposes": "80",
+                        "ports_mappings": null,
+                        "base_directory": "/",
+                        "publish_directory": null,
+                        "docker_registry_image_name": null,
+                        "docker_registry_image_tag": null,
+                        "dockerfile": null,
+                        "dockerfile_location": null,
+                        "dockerfile_target_build": null,
+                        "docker_compose_location": "/docker-compose.yaml",
+                        "docker_compose_raw": null,
+                        "docker_compose_domains": null,
+                        "health_check_enabled": false,
+                        "health_check_path": "/",
+                        "health_check_port": null,
+                        "health_check_type": "http",
+                        "health_check_interval": 5,
+                        "health_check_retries": 10,
+                        "limits_memory": "0",
+                        "limits_cpus": "0",
+                        "status": "exited",
+                        "environment_id": 1,
+                        "destination_id": 1,
+                        "destination_type": "App\\Models\\StandaloneDocker",
+                        "source_id": 1,
+                        "source_type": "App\\Models\\GiteaApp",
+                        "repository_project_id": 5151,
+                        "private_key_id": null,
+                        "redirect": "both",
+                        "custom_labels": "traefik.enable=true\ntraefik.http.middlewares.gzip-no-media.compress.excludedcontenttypes=text/event-stream,video/mp4,video/webm,video/ogg,video/quicktime,video/x-matroska,video/x-msvideo,video/mpeg,video/mp2t,video/3gpp,video/x-m4v,video/x-flv,audio/mpeg,audio/mp4,audio/aac,audio/ogg,audio/opus,audio/webm,audio/wav,audio/x-wav,audio/flac,audio/x-m4a,image/jpeg,image/png,image/gif,image/webp,image/avif,application/pdf,application/octet-stream,application/zip,application/gzip,application/x-gzip,application/zstd,application/x-7z-compressed,application/x-rar-compressed,application/x-bzip2,application/x-xz,application/x-tar\ntraefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https\ntraefik.http.routers.http-0-<uuid>.entryPoints=http\ntraefik.http.routers.http-0-<uuid>.middlewares=gzip-no-media\ntraefik.http.routers.http-0-<uuid>.rule=Host(`<uuid>.203.0.113.10.sslip.io`) && PathPrefix(`/`)\ntraefik.http.routers.http-0-<uuid>.service=http-0-<uuid>\ntraefik.http.services.http-0-<uuid>.loadbalancer.server.port=80\ncaddy_0.encode=zstd gzip\ncaddy_0.handle_path.0_reverse_proxy.stream_close_delay=24h\ncaddy_0.handle_path.0_reverse_proxy={{upstreams 80}}\ncaddy_0.handle_path=/*\ncaddy_0.header=-Server\ncaddy_0.try_files={path} /index.html /index.php\ncaddy_0=http://<uuid>.203.0.113.10.sslip.io\ncaddy_ingress_network=coolify",
+                        "custom_docker_run_options": null,
+                        "custom_nginx_configuration": null,
+                        "custom_network_aliases": null,
+                        "watch_paths": null,
+                        "preview_url_template": "{{pr_id}}.{{domain}}",
+                        "max_restart_count": 0,
+                        "compose_parsing_version": "5",
+                        "is_http_basic_auth_enabled": false,
+                        "http_basic_auth_username": null,
+                        "has_basic_auth_password": false,
+                        "http_basic_auth_hash_algorithm": "bcrypt",
+                        "http_basic_auth_bcrypt_cost": 10,
+                        "git_https_username": null,
+                        "has_git_https_password": false,
+                        "has_webhook_secrets": true,
+                        "custom_healthcheck_found": false,
+                        "post_deployment_command": null,
+                        "pre_deployment_command_container": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "is_static": true,
+                        "is_spa": false,
+                        "is_git_submodules_enabled": true,
+                        "is_git_lfs_enabled": true,
+                        "is_git_shallow_clone_enabled": true,
+                        "is_auto_deploy_enabled": true,
+                        "is_force_https_enabled": true,
+                        "is_preview_deployments_enabled": false,
+                        "is_pr_deployments_public_enabled": false,
+                        "is_build_server_enabled": false,
+                        "use_build_secrets": false,
+                        "connect_to_docker_network": false,
+                        "is_container_label_escape_enabled": true,
+                        "is_container_label_readonly_enabled": true,
+                        "is_preserve_repository_enabled": false,
+                        "is_consistent_container_name_enabled": false,
+                        "custom_internal_name": null,
+                        "custom_container_name_prefix": null,
+                        "is_gzip_enabled": true,
+                        "is_stripprefix_enabled": true,
+                        "is_permanent_redirect_enabled": false,
+                        "traefik_certificate_resolver": null,
+                        "is_raw_compose_deployment_enabled": false,
+                        "is_log_drain_enabled": false,
+                        "is_gpu_enabled": false,
+                        "gpu_driver": "nvidia",
+                        "gpu_count": null,
+                        "gpu_device_ids": null,
+                        "gpu_options": null,
+                        "is_env_sorting_enabled": false,
+                        "redact_all_env_values_in_logs": true,
+                        "include_coolify_default_variables": true,
+                        "disable_build_cache": false,
+                        "inject_build_args_to_dockerfile": true,
+                        "include_source_commit_in_build": false,
+                        "include_network_hosts_in_build": true,
+                        "stop_grace_period": null,
+                        "rolling_update_drain_seconds": 5,
+                        "docker_images_to_keep": 2,
+                        "is_image_scan_enabled": true,
+                        "is_auto_cancel_queued_deployments_enabled": true,
+                        "is_auto_cancel_building_deployments_enabled": false
+                    }
+                ],
+                "variables": [],
+                "tags": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://gitea.com/api/v1/repos/acme/private",
+                    "authorization": "Bearer gt-access-1"
+                }
+            ]
+        },
+        {
+            "name": "gitea app create: a Gitea App, an owner of the organization field",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"3b7xsue9xof9sp7dg9w1ztim\",\"domains\":\"http:\\/\\/3b7xsue9xof9sp7dg9w1ztim.203.0.113.10.sslip.io\"}"
+            },
+            "after": {
+                "application": [
+                    {
+                        "name": "tools:main-<random>",
+                        "description": null,
+                        "fqdn": "http://<uuid>.203.0.113.10.sslip.io",
+                        "domain_port_overrides": null,
+                        "noindex_domains": null,
+                        "git_repository": "PARITY/tools",
+                        "git_branch": "main",
+                        "git_commit_sha": "HEAD",
+                        "build_pack": "nixpacks",
+                        "static_image": "nginx:alpine",
+                        "install_command": null,
+                        "build_command": null,
+                        "start_command": null,
+                        "ports_exposes": "3000",
+                        "ports_mappings": null,
+                        "base_directory": "/",
+                        "publish_directory": null,
+                        "docker_registry_image_name": null,
+                        "docker_registry_image_tag": null,
+                        "dockerfile": null,
+                        "dockerfile_location": null,
+                        "dockerfile_target_build": null,
+                        "docker_compose_location": "/docker-compose.yaml",
+                        "docker_compose_raw": null,
+                        "docker_compose_domains": null,
+                        "health_check_enabled": false,
+                        "health_check_path": "/",
+                        "health_check_port": null,
+                        "health_check_type": "http",
+                        "health_check_interval": 5,
+                        "health_check_retries": 10,
+                        "limits_memory": "0",
+                        "limits_cpus": "0",
+                        "status": "exited",
+                        "environment_id": 1,
+                        "destination_id": 1,
+                        "destination_type": "App\\Models\\StandaloneDocker",
+                        "source_id": 1,
+                        "source_type": "App\\Models\\GiteaApp",
+                        "repository_project_id": 5151,
+                        "private_key_id": null,
+                        "redirect": "both",
+                        "custom_labels": "traefik.enable=true\ntraefik.http.middlewares.gzip-no-media.compress.excludedcontenttypes=text/event-stream,video/mp4,video/webm,video/ogg,video/quicktime,video/x-matroska,video/x-msvideo,video/mpeg,video/mp2t,video/3gpp,video/x-m4v,video/x-flv,audio/mpeg,audio/mp4,audio/aac,audio/ogg,audio/opus,audio/webm,audio/wav,audio/x-wav,audio/flac,audio/x-m4a,image/jpeg,image/png,image/gif,image/webp,image/avif,application/pdf,application/octet-stream,application/zip,application/gzip,application/x-gzip,application/zstd,application/x-7z-compressed,application/x-rar-compressed,application/x-bzip2,application/x-xz,application/x-tar\ntraefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https\ntraefik.http.routers.http-0-<uuid>.entryPoints=http\ntraefik.http.routers.http-0-<uuid>.middlewares=gzip-no-media\ntraefik.http.routers.http-0-<uuid>.rule=Host(`<uuid>.203.0.113.10.sslip.io`) && PathPrefix(`/`)\ntraefik.http.routers.http-0-<uuid>.service=http-0-<uuid>\ntraefik.http.services.http-0-<uuid>.loadbalancer.server.port=3000\ncaddy_0.encode=zstd gzip\ncaddy_0.handle_path.0_reverse_proxy.stream_close_delay=24h\ncaddy_0.handle_path.0_reverse_proxy={{upstreams 3000}}\ncaddy_0.handle_path=/*\ncaddy_0.header=-Server\ncaddy_0.try_files={path} /index.html /index.php\ncaddy_0=http://<uuid>.203.0.113.10.sslip.io\ncaddy_ingress_network=coolify",
+                        "custom_docker_run_options": null,
+                        "custom_nginx_configuration": null,
+                        "custom_network_aliases": null,
+                        "watch_paths": null,
+                        "preview_url_template": "{{pr_id}}.{{domain}}",
+                        "max_restart_count": 0,
+                        "compose_parsing_version": "5",
+                        "is_http_basic_auth_enabled": false,
+                        "http_basic_auth_username": null,
+                        "has_basic_auth_password": false,
+                        "http_basic_auth_hash_algorithm": "bcrypt",
+                        "http_basic_auth_bcrypt_cost": 10,
+                        "git_https_username": null,
+                        "has_git_https_password": false,
+                        "has_webhook_secrets": true,
+                        "custom_healthcheck_found": false,
+                        "post_deployment_command": null,
+                        "pre_deployment_command_container": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "is_static": false,
+                        "is_spa": false,
+                        "is_git_submodules_enabled": true,
+                        "is_git_lfs_enabled": true,
+                        "is_git_shallow_clone_enabled": true,
+                        "is_auto_deploy_enabled": true,
+                        "is_force_https_enabled": true,
+                        "is_preview_deployments_enabled": false,
+                        "is_pr_deployments_public_enabled": false,
+                        "is_build_server_enabled": false,
+                        "use_build_secrets": false,
+                        "connect_to_docker_network": false,
+                        "is_container_label_escape_enabled": true,
+                        "is_container_label_readonly_enabled": true,
+                        "is_preserve_repository_enabled": false,
+                        "is_consistent_container_name_enabled": false,
+                        "custom_internal_name": null,
+                        "custom_container_name_prefix": null,
+                        "is_gzip_enabled": true,
+                        "is_stripprefix_enabled": true,
+                        "is_permanent_redirect_enabled": false,
+                        "traefik_certificate_resolver": null,
+                        "is_raw_compose_deployment_enabled": false,
+                        "is_log_drain_enabled": false,
+                        "is_gpu_enabled": false,
+                        "gpu_driver": "nvidia",
+                        "gpu_count": null,
+                        "gpu_device_ids": null,
+                        "gpu_options": null,
+                        "is_env_sorting_enabled": false,
+                        "redact_all_env_values_in_logs": true,
+                        "include_coolify_default_variables": true,
+                        "disable_build_cache": false,
+                        "inject_build_args_to_dockerfile": true,
+                        "include_source_commit_in_build": false,
+                        "include_network_hosts_in_build": true,
+                        "stop_grace_period": null,
+                        "rolling_update_drain_seconds": 5,
+                        "docker_images_to_keep": 2,
+                        "is_image_scan_enabled": true,
+                        "is_auto_cancel_queued_deployments_enabled": true,
+                        "is_auto_cancel_building_deployments_enabled": false
+                    }
+                ],
+                "variables": [
+                    {
+                        "key": "NIXPACKS_NODE_VERSION",
+                        "is_preview": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": false,
+                        "is_buildtime": true
+                    },
+                    {
+                        "key": "NIXPACKS_NODE_VERSION",
+                        "is_preview": true,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": false,
+                        "is_buildtime": true
+                    }
+                ],
+                "tags": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://gitea.com/api/v1/repos/PARITY/tools",
+                    "authorization": "Bearer gt-access-1"
+                }
+            ]
+        },
+        {
+            "name": "gitea app create: a Gitea App, another owner",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Repository not found or not accessible by the Gitea App.\"}"
+            },
+            "after": {
+                "applications": [
+                    {
+                        "created": 0
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://gitea.com/api/v1/repos/someone/private",
+                    "authorization": "Bearer gt-access-1"
+                }
+            ]
+        },
+        {
+            "name": "gitea app create: a Gitea App, another host's URL",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"git_repository\":\"The git_repository must be owner\\/name or a repository URL on the Gitea instance of the source.\"}}"
+            },
+            "after": {
+                "applications": [
+                    {
+                        "created": 0
+                    }
+                ]
+            },
+            "requests": []
+        },
+        {
+            "name": "gitea app create: a Gitea App, not a repository path",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"git_repository\":\"The git_repository must be owner\\/name or a repository URL on the Gitea instance of the source.\"}}"
+            },
+            "after": {
+                "applications": [
+                    {
+                        "created": 0
+                    }
+                ]
+            },
+            "requests": []
+        },
+        {
+            "name": "gitea app create: a Gitea App, the repository not accessible",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Repository not found or not accessible by the Gitea App.\"}"
+            },
+            "after": {
+                "applications": [
+                    {
+                        "created": 0
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://gitea.com/api/v1/repos/acme/private",
+                    "authorization": "Bearer gt-access-1"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://gitea.com/api/v1/repos/acme/private",
+                    "authorization": "Bearer gt-access-1"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://gitea.com/api/v1/repos/acme/private",
+                    "authorization": "Bearer gt-access-1"
+                }
+            ]
+        },
+        {
+            "name": "gitea app create: a Gitea App, the instance fails",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Failed to verify repository access: Unavailable\"}"
+            },
+            "after": {
+                "applications": [
+                    {
+                        "created": 0
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://gitea.com/api/v1/repos/acme/private",
+                    "authorization": "Bearer gt-access-1"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://gitea.com/api/v1/repos/acme/private",
+                    "authorization": "Bearer gt-access-1"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://gitea.com/api/v1/repos/acme/private",
+                    "authorization": "Bearer gt-access-1"
+                }
+            ]
+        },
+        {
+            "name": "gitea app create: a Gitea App, a failure without a message",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Failed to verify repository access: Unknown error\"}"
+            },
+            "after": {
+                "applications": [
+                    {
+                        "created": 0
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://gitea.com/api/v1/repos/acme/private",
+                    "authorization": "Bearer gt-access-1"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://gitea.com/api/v1/repos/acme/private",
+                    "authorization": "Bearer gt-access-1"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://gitea.com/api/v1/repos/acme/private",
+                    "authorization": "Bearer gt-access-1"
+                }
+            ]
+        },
+        {
+            "name": "gitea app create: a Gitea App, the token refreshed",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"nss761t0f7402bkk9go38bkm\",\"domains\":\"http:\\/\\/nss761t0f7402bkk9go38bkm.203.0.113.10.sslip.io\"}"
+            },
+            "after": {
+                "application": [
+                    {
+                        "name": "private:main-<random>",
+                        "description": null,
+                        "fqdn": "http://<uuid>.203.0.113.10.sslip.io",
+                        "domain_port_overrides": null,
+                        "noindex_domains": null,
+                        "git_repository": "acme/private",
+                        "git_branch": "main",
+                        "git_commit_sha": "HEAD",
+                        "build_pack": "nixpacks",
+                        "static_image": "nginx:alpine",
+                        "install_command": null,
+                        "build_command": null,
+                        "start_command": null,
+                        "ports_exposes": "3000",
+                        "ports_mappings": null,
+                        "base_directory": "/",
+                        "publish_directory": null,
+                        "docker_registry_image_name": null,
+                        "docker_registry_image_tag": null,
+                        "dockerfile": null,
+                        "dockerfile_location": null,
+                        "dockerfile_target_build": null,
+                        "docker_compose_location": "/docker-compose.yaml",
+                        "docker_compose_raw": null,
+                        "docker_compose_domains": null,
+                        "health_check_enabled": false,
+                        "health_check_path": "/",
+                        "health_check_port": null,
+                        "health_check_type": "http",
+                        "health_check_interval": 5,
+                        "health_check_retries": 10,
+                        "limits_memory": "0",
+                        "limits_cpus": "0",
+                        "status": "exited",
+                        "environment_id": 1,
+                        "destination_id": 1,
+                        "destination_type": "App\\Models\\StandaloneDocker",
+                        "source_id": 1,
+                        "source_type": "App\\Models\\GiteaApp",
+                        "repository_project_id": 5151,
+                        "private_key_id": null,
+                        "redirect": "both",
+                        "custom_labels": "traefik.enable=true\ntraefik.http.middlewares.gzip-no-media.compress.excludedcontenttypes=text/event-stream,video/mp4,video/webm,video/ogg,video/quicktime,video/x-matroska,video/x-msvideo,video/mpeg,video/mp2t,video/3gpp,video/x-m4v,video/x-flv,audio/mpeg,audio/mp4,audio/aac,audio/ogg,audio/opus,audio/webm,audio/wav,audio/x-wav,audio/flac,audio/x-m4a,image/jpeg,image/png,image/gif,image/webp,image/avif,application/pdf,application/octet-stream,application/zip,application/gzip,application/x-gzip,application/zstd,application/x-7z-compressed,application/x-rar-compressed,application/x-bzip2,application/x-xz,application/x-tar\ntraefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https\ntraefik.http.routers.http-0-<uuid>.entryPoints=http\ntraefik.http.routers.http-0-<uuid>.middlewares=gzip-no-media\ntraefik.http.routers.http-0-<uuid>.rule=Host(`<uuid>.203.0.113.10.sslip.io`) && PathPrefix(`/`)\ntraefik.http.routers.http-0-<uuid>.service=http-0-<uuid>\ntraefik.http.services.http-0-<uuid>.loadbalancer.server.port=3000\ncaddy_0.encode=zstd gzip\ncaddy_0.handle_path.0_reverse_proxy.stream_close_delay=24h\ncaddy_0.handle_path.0_reverse_proxy={{upstreams 3000}}\ncaddy_0.handle_path=/*\ncaddy_0.header=-Server\ncaddy_0.try_files={path} /index.html /index.php\ncaddy_0=http://<uuid>.203.0.113.10.sslip.io\ncaddy_ingress_network=coolify",
+                        "custom_docker_run_options": null,
+                        "custom_nginx_configuration": null,
+                        "custom_network_aliases": null,
+                        "watch_paths": null,
+                        "preview_url_template": "{{pr_id}}.{{domain}}",
+                        "max_restart_count": 0,
+                        "compose_parsing_version": "5",
+                        "is_http_basic_auth_enabled": false,
+                        "http_basic_auth_username": null,
+                        "has_basic_auth_password": false,
+                        "http_basic_auth_hash_algorithm": "bcrypt",
+                        "http_basic_auth_bcrypt_cost": 10,
+                        "git_https_username": null,
+                        "has_git_https_password": false,
+                        "has_webhook_secrets": true,
+                        "custom_healthcheck_found": false,
+                        "post_deployment_command": null,
+                        "pre_deployment_command_container": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "is_static": false,
+                        "is_spa": false,
+                        "is_git_submodules_enabled": true,
+                        "is_git_lfs_enabled": true,
+                        "is_git_shallow_clone_enabled": true,
+                        "is_auto_deploy_enabled": true,
+                        "is_force_https_enabled": true,
+                        "is_preview_deployments_enabled": false,
+                        "is_pr_deployments_public_enabled": false,
+                        "is_build_server_enabled": false,
+                        "use_build_secrets": false,
+                        "connect_to_docker_network": false,
+                        "is_container_label_escape_enabled": true,
+                        "is_container_label_readonly_enabled": true,
+                        "is_preserve_repository_enabled": false,
+                        "is_consistent_container_name_enabled": false,
+                        "custom_internal_name": null,
+                        "custom_container_name_prefix": null,
+                        "is_gzip_enabled": true,
+                        "is_stripprefix_enabled": true,
+                        "is_permanent_redirect_enabled": false,
+                        "traefik_certificate_resolver": null,
+                        "is_raw_compose_deployment_enabled": false,
+                        "is_log_drain_enabled": false,
+                        "is_gpu_enabled": false,
+                        "gpu_driver": "nvidia",
+                        "gpu_count": null,
+                        "gpu_device_ids": null,
+                        "gpu_options": null,
+                        "is_env_sorting_enabled": false,
+                        "redact_all_env_values_in_logs": true,
+                        "include_coolify_default_variables": true,
+                        "disable_build_cache": false,
+                        "inject_build_args_to_dockerfile": true,
+                        "include_source_commit_in_build": false,
+                        "include_network_hosts_in_build": true,
+                        "stop_grace_period": null,
+                        "rolling_update_drain_seconds": 5,
+                        "docker_images_to_keep": 2,
+                        "is_image_scan_enabled": true,
+                        "is_auto_cancel_queued_deployments_enabled": true,
+                        "is_auto_cancel_building_deployments_enabled": false
+                    }
+                ],
+                "variables": [
+                    {
+                        "key": "NIXPACKS_NODE_VERSION",
+                        "is_preview": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": false,
+                        "is_buildtime": true
+                    },
+                    {
+                        "key": "NIXPACKS_NODE_VERSION",
+                        "is_preview": true,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": false,
+                        "is_buildtime": true
+                    }
+                ],
+                "tags": [],
+                "source": [
+                    {
+                        "has_access_token": true,
+                        "has_refresh_token": true,
+                        "expires_later": true
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://gitea.com/login/oauth/access_token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://gitea.com/api/v1/repos/acme/private",
+                    "authorization": "Bearer gt-access-new"
+                }
+            ]
+        },
+        {
+            "name": "gitea app create: a Gitea App, the refresh refused",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Failed to refresh Gitea token: The refresh token is invalid.\"}"
+            },
+            "after": {
+                "applications": [
+                    {
+                        "created": 0
+                    }
+                ],
+                "source": [
+                    {
+                        "has_access_token": true,
+                        "has_refresh_token": true,
+                        "expires_later": false
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://gitea.com/login/oauth/access_token"
+                }
+            ]
+        },
+        {
+            "name": "gitea app create: a Gitea App, a source not connected",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Gitea App not found.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "gitea app create: a Gitea App, another team's source",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Gitea App not found.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "gitea app create: a Gitea App, unknown source",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Gitea App not found.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "gitea app create: a Gitea App, invalid",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"git_repository\":[\"The git repository field must be a string.\"],\"git_branch\":[\"The git branch contains invalid patterns.\"],\"build_pack\":[\"The selected build pack is invalid.\"],\"ports_exposes\":[\"The ports exposes field format is invalid.\"],\"docker_compose_domains\":[\"The docker compose domains field must be an array.\"],\"gitea_app_uuid\":[\"The gitea app uuid field is required.\"],\"watch_paths\":[\"The watch paths field must be a string.\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "gitea app create: a Gitea App, a domain in use",
+            "status": 409,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Domain conflicts detected. Use force_domain_override=true to proceed.\",\"conflicts\":[{\"domain\":\"https:\\/\\/image.example.com\",\"resource_name\":\"parity-image\",\"resource_uuid\":\"a1parityimageapp00000001\",\"resource_type\":\"application\",\"message\":\"Domain https:\\/\\/image.example.com is already in use by application 'parity-image'\"}],\"warning\":\"Using the same domain for multiple resources can cause routing conflicts and unpredictable behavior.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "gitea app create: a Gitea App, Docker Compose",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"oznipozav1sjh3kql1e3hnrl\",\"domains\":null}"
+            },
+            "after": {
+                "applications": [
+                    {
+                        "created": 1
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://gitea.com/api/v1/repos/acme/private",
+                    "authorization": "Bearer gt-access-1"
+                }
+            ]
+        },
+        {
+            "name": "gitea app create: a Gitea App, instant deploy",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"tcf0t6mlinxradnzz5od3zml\",\"domains\":\"http:\\/\\/tcf0t6mlinxradnzz5od3zml.203.0.113.10.sslip.io\"}"
+            },
+            "after": {
+                "applications": [
+                    {
+                        "created": 1
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://gitea.com/api/v1/repos/acme/private",
+                    "authorization": "Bearer gt-access-1"
+                }
+            ]
+        },
+        {
+            "name": "gitea app create: a Gitea App, with a read token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: write\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "gitea app create: a Gitea App, a member",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"This API token has more access than you have in this team. Revoke it and create a new token.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "gitea app update: a Gitea App as the source",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"a2paritygitapp0000000002\"}"
+            },
+            "after": {
+                "application": [
+                    {
+                        "git_repository": "acme/private",
+                        "source_type": "App\\Models\\GiteaApp",
+                        "source_id": 1,
+                        "repository_project_id": 5151
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://gitea.com/api/v1/repos/acme/private",
+                    "authorization": "Bearer gt-access-1"
+                }
+            ]
+        },
+        {
+            "name": "gitea app update: a Gitea App, the application's repository",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"a2paritygitapp0000000002\"}"
+            },
+            "after": {
+                "application": [
+                    {
+                        "git_repository": "acme/private",
+                        "source_type": "App\\Models\\GiteaApp",
+                        "source_id": 1,
+                        "repository_project_id": 5151
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://gitea.com/api/v1/repos/acme/private",
+                    "authorization": "Bearer gt-access-1"
+                }
+            ]
+        },
+        {
+            "name": "gitea app update: a Gitea App, the repository not accessible",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Repository not found or not accessible by the Gitea App.\"}"
+            },
+            "after": {
+                "application": [
+                    {
+                        "git_repository": "coollabsio/coolify-examples",
+                        "source_type": "App\\Models\\GithubApp",
+                        "source_id": 0,
+                        "repository_project_id": null
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://gitea.com/api/v1/repos/acme/private",
+                    "authorization": "Bearer gt-access-1"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://gitea.com/api/v1/repos/acme/private",
+                    "authorization": "Bearer gt-access-1"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://gitea.com/api/v1/repos/acme/private",
+                    "authorization": "Bearer gt-access-1"
+                }
+            ]
+        },
+        {
+            "name": "gitea app update: a Gitea App, not on its instance",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Repository not found or not accessible by the Gitea App.\"}"
+            },
+            "after": {
+                "application": [
+                    {
+                        "git_repository": "coollabsio/coolify-examples",
+                        "source_type": "App\\Models\\GithubApp",
+                        "source_id": 0,
+                        "repository_project_id": null
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://gitea.com/api/v1/repos/coollabsio/coolify-examples",
+                    "authorization": "Bearer gt-access-1"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://gitea.com/api/v1/repos/coollabsio/coolify-examples",
+                    "authorization": "Bearer gt-access-1"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://gitea.com/api/v1/repos/coollabsio/coolify-examples",
+                    "authorization": "Bearer gt-access-1"
+                }
+            ]
+        },
+        {
+            "name": "gitea app update: a Gitea App not connected",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Gitea App not found.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "gitea app update: a Gitea App for an image application",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"gitea_app_uuid\":\"The gitea_app_uuid can only be changed for applications deployed from a Git source or public repository.\"}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "denied: gitlab apps: create, a member with write and delete",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"You are not authorized to perform this action.\",\"error\":\"Unauthorized\"}"
+            },
+            "after": {
+                "apps": [
+                    {
+                        "fixture_id": 1,
+                        "name": "Parity GitLab",
+                        "organization": null,
+                        "api_url": "https://gitlab.com/api/v4",
+                        "html_url": "https://gitlab.com",
+                        "custom_user": "git",
+                        "custom_port": 22,
+                        "group_name": "parity-group",
+                        "client_id": "gl-client-1",
+                        "has_client_secret": true,
+                        "has_webhook_token": true,
+                        "has_access_token": true,
+                        "has_refresh_token": true,
+                        "expires_at": 2145916800,
+                        "redirect_uri": "http://localhost/webhooks/source/gitlab/redirect",
+                        "private_key_id": null,
+                        "is_system_wide": false,
+                        "is_public": false
+                    },
+                    {
+                        "fixture_id": 2,
+                        "name": "Self-hosted GitLab",
+                        "organization": null,
+                        "api_url": "https://gitlab.acme.test/api/v4",
+                        "html_url": "https://gitlab.acme.test",
+                        "custom_user": "git",
+                        "custom_port": 2222,
+                        "group_name": null,
+                        "client_id": null,
+                        "has_client_secret": false,
+                        "has_webhook_token": true,
+                        "has_access_token": false,
+                        "has_refresh_token": false,
+                        "expires_at": null,
+                        "redirect_uri": null,
+                        "private_key_id": null,
+                        "is_system_wide": false,
+                        "is_public": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "denied: gitlab apps: update, a member with write and delete",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"You are not authorized to perform this action.\",\"error\":\"Unauthorized\"}"
+            },
+            "after": {
+                "apps": [
+                    {
+                        "fixture_id": 1,
+                        "name": "Parity GitLab",
+                        "organization": null,
+                        "api_url": "https://gitlab.com/api/v4",
+                        "html_url": "https://gitlab.com",
+                        "custom_user": "git",
+                        "custom_port": 22,
+                        "group_name": "parity-group",
+                        "client_id": "gl-client-1",
+                        "has_client_secret": true,
+                        "has_webhook_token": true,
+                        "has_access_token": true,
+                        "has_refresh_token": true,
+                        "expires_at": 2145916800,
+                        "redirect_uri": "http://localhost/webhooks/source/gitlab/redirect",
+                        "private_key_id": null,
+                        "is_system_wide": false,
+                        "is_public": false
+                    },
+                    {
+                        "fixture_id": 2,
+                        "name": "Self-hosted GitLab",
+                        "organization": null,
+                        "api_url": "https://gitlab.acme.test/api/v4",
+                        "html_url": "https://gitlab.acme.test",
+                        "custom_user": "git",
+                        "custom_port": 2222,
+                        "group_name": null,
+                        "client_id": null,
+                        "has_client_secret": false,
+                        "has_webhook_token": true,
+                        "has_access_token": false,
+                        "has_refresh_token": false,
+                        "expires_at": null,
+                        "redirect_uri": null,
+                        "private_key_id": null,
+                        "is_system_wide": false,
+                        "is_public": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "denied: gitlab apps: delete, a member with write and delete",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"You are not authorized to perform this action.\",\"error\":\"Unauthorized\"}"
+            },
+            "after": {
+                "apps": [
+                    {
+                        "fixture_id": 1,
+                        "name": "Parity GitLab",
+                        "organization": null,
+                        "api_url": "https://gitlab.com/api/v4",
+                        "html_url": "https://gitlab.com",
+                        "custom_user": "git",
+                        "custom_port": 22,
+                        "group_name": "parity-group",
+                        "client_id": "gl-client-1",
+                        "has_client_secret": true,
+                        "has_webhook_token": true,
+                        "has_access_token": true,
+                        "has_refresh_token": true,
+                        "expires_at": 2145916800,
+                        "redirect_uri": "http://localhost/webhooks/source/gitlab/redirect",
+                        "private_key_id": null,
+                        "is_system_wide": false,
+                        "is_public": false
+                    },
+                    {
+                        "fixture_id": 2,
+                        "name": "Self-hosted GitLab",
+                        "organization": null,
+                        "api_url": "https://gitlab.acme.test/api/v4",
+                        "html_url": "https://gitlab.acme.test",
+                        "custom_user": "git",
+                        "custom_port": 2222,
+                        "group_name": null,
+                        "client_id": null,
+                        "has_client_secret": false,
+                        "has_webhook_token": true,
+                        "has_access_token": false,
+                        "has_refresh_token": false,
+                        "expires_at": null,
+                        "redirect_uri": null,
+                        "private_key_id": null,
+                        "is_system_wide": false,
+                        "is_public": false
+                    }
+                ]
+            }
         }
     ]
 }

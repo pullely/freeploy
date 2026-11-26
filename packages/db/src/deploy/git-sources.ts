@@ -276,12 +276,15 @@ export interface DeploySourceApplicationRow extends SqlRow {
   environment_name: string;
   fqdn: string | null;
   status: string;
+  /** The Resources table's "Repository" (git_repository:git_branch) of a GitLab or Gitea source (DP-103). */
+  git_repository: string | null;
+  git_branch: string | null;
 }
 
 /** $github_app->applications(): the applications whose source is this App (not soft-deleted). */
 export async function listSourceApplications(tx: SqlExecutor, sourceId: string | number, morphClass = GITHUB_APP_MORPH_CLASS): Promise<DeploySourceApplicationRow[]> {
   const r = await tx.execute<DeploySourceApplicationRow>(
-    `SELECT a.id, a.uuid, a.name, p.uuid AS project_uuid, p.name AS project_name, e.uuid AS environment_uuid, e.name AS environment_name, a.fqdn, a.status
+    `SELECT a.id, a.uuid, a.name, p.uuid AS project_uuid, p.name AS project_name, e.uuid AS environment_uuid, e.name AS environment_name, a.fqdn, a.status, a.git_repository, a.git_branch
        FROM deploy.applications a JOIN deploy.environments e ON e.id = a.environment_id JOIN deploy.projects p ON p.id = e.project_id
       WHERE a.source_id = $1 AND a.source_type = $2 AND a.deleted_at IS NULL ORDER BY a.id`,
     [sourceId, morphClass],

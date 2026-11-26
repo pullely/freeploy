@@ -61,6 +61,9 @@ const TABLES = [
   "github_apps",
   // DP-90: cloud provider tokens
   "cloud_provider_tokens",
+  // DP-103: GitLab and Gitea Apps
+  "gitlab_apps",
+  "gitea_apps",
 ] as const;
 export type ApiTable = (typeof TABLES)[number];
 

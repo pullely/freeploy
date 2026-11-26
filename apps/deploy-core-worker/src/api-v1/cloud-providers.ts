@@ -194,6 +194,8 @@ export interface ProviderRequest {
   query?: Array<[string, string | number]>;
   /** A POST's JSON body. */
   json?: unknown;
+  /** A POST's form body (asForm(), DP-103): application/x-www-form-urlencoded, in its order. */
+  form?: Array<[string, string]>;
   headers: Record<string, string>;
   timeoutMs: number;
   retry?: RetryPolicy;
@@ -208,7 +210,10 @@ async function sendOnce(net: ProviderNetwork, r: ProviderRequest): Promise<Provi
   const url = r.query && r.query.length ? `${r.url}${r.url.includes("?") ? "&" : "?"}${httpBuildQuery(r.query)}` : r.url;
   const headers: Record<string, string> = { ...r.headers };
   let body: string | undefined;
-  if (r.method !== "get" && r.json !== undefined) {
+  if (r.method !== "get" && r.form !== undefined) {
+    body = new URLSearchParams(r.form).toString();
+    headers["Content-Type"] = "application/x-www-form-urlencoded";
+  } else if (r.method !== "get" && r.json !== undefined) {
     body = JSON.stringify(r.json);
     headers["Content-Type"] = "application/json";
   }

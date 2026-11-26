@@ -343,7 +343,7 @@ test("the subscription pages (DP-82): subscription.show and subscription.index",
   }
 });
 
-test("the Sources pages, a GitHub App's tabs and the pages GitHub sends the browser back to (DP-72); GitLab's and Gitea's are not ported", () => {
+test("the Sources pages, a GitHub App's tabs and the pages GitHub sends the browser back to (DP-72)", () => {
   assert.equal(pageFor("/sources"), "source.all");
   assert.equal(pageFor("/sources/"), "source.all");
   const app = "/source/github/abc123def456ghi789jkl012";
@@ -354,7 +354,19 @@ test("the Sources pages, a GitHub App's tabs and the pages GitHub sends the brow
   assert.equal(pageFor(`${app}/danger`), "source.github.danger");
   assert.equal(pageFor("/webhooks/source/github/redirect"), "source.github.redirect");
   assert.equal(pageFor("/webhooks/source/github/install/"), "source.github.install");
-  for (const other of [`${app}/more`, "/source/gitlab/abc", "/source/gitea/abc", "/source/github", "/webhooks/source/github/events", "/sources/new"]) {
+  for (const other of [`${app}/more`, "/source/github", "/webhooks/source/github/events", "/sources/new"]) {
+    assert.equal(pageFor(other), "not-ported", other);
+  }
+});
+
+test("DP-103: a GitLab App's and a Gitea / Forgejo App's page, and the pages their OAuth sends the browser back to", () => {
+  assert.equal(pageFor("/source/gitlab/abc123def456ghi789jkl012"), "source.gitlab.show");
+  assert.equal(pageFor("/source/gitlab/abc123def456ghi789jkl012/"), "source.gitlab.show");
+  assert.equal(pageFor("/source/gitea/abc123def456ghi789jkl012"), "source.gitea.show");
+  assert.equal(pageFor("/webhooks/source/gitlab/redirect"), "source.gitlab.redirect");
+  assert.equal(pageFor("/webhooks/source/gitea/redirect/"), "source.gitea.redirect");
+  // Coolify has one page per source (no tabs); the webhooks are api-edge's, and Bitbucket has no source.
+  for (const other of ["/source/gitlab/abc/danger", "/source/gitea/abc/resources", "/source/gitlab", "/webhooks/source/gitlab/events", "/webhooks/source/gitea/events/manual", "/source/bitbucket/abc"]) {
     assert.equal(pageFor(other), "not-ported", other);
   }
 });

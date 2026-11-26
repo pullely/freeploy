@@ -243,6 +243,15 @@ foreach ($fixture['dnsZones'] ?? [] as $z) {
     \App\Models\DnsProviderZone::unguarded(fn () => \App\Models\DnsProviderZone::query()->forceCreate(['id' => $z['id'], 'uuid' => $z['uuid'], 'integration_token_id' => $z['token'], 'provider_zone_id' => $z['provider_zone_id'], 'name' => $z['name'], 'account_id' => $z['account_id'], 'account_name' => $z['account_name'], 'created_at' => $z['created_at'], 'updated_at' => $z['created_at']]));
 }
 DB::statement("SELECT setval(pg_get_serial_sequence('dns_provider_zones', 'id'), GREATEST((SELECT COALESCE(MAX(id), 0) FROM dns_provider_zones), 1))");
+// DP-103: the teams' GitLab and Gitea Apps, through the models (the encrypted casts, GitlabApp's webhookToken() mutator).
+foreach (['gitlabApps' => \App\Models\GitlabApp::class, 'giteaApps' => \App\Models\GiteaApp::class] as $key => $model) {
+    foreach ($fixture[$key] ?? [] as $g) {
+        $columns = array_diff_key($g, array_flip(['team', 'created_at']));
+        $model::unguarded(fn () => $model::query()->forceCreate($columns + ['team_id' => $g['team'], 'is_public' => false, 'created_at' => $g['created_at'], 'updated_at' => $g['created_at']]));
+    }
+    $table = (new $model)->getTable();
+    DB::statement("SELECT setval(pg_get_serial_sequence('{$table}', 'id'), GREATEST((SELECT COALESCE(MAX(id), 0) FROM {$table}), 1))");
+}
 // Not in $advanceSequences: the servers' created hook took the first ids from the sequence, which must not be moved before.
 DB::statement("SELECT setval(pg_get_serial_sequence('shared_environment_variables', 'id'), (SELECT MAX(id) FROM shared_environment_variables))");
 // Tokens: the fixture's plain text, hashed as Sanctum stores it; the client sends "<id>|<plain text>".

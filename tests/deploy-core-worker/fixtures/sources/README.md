@@ -79,7 +79,8 @@ was first written by a script and is edited as JSON since.
 
 ## Not covered
 
-GitLab, Gitea and Bitbucket sources and webhooks (Freeploy answers 501, "not available yet"); the
+GitLab and Gitea sources (DP-103 ports them, held by `src/sources-oauth.test.ts` and the /api/v1 goldens of
+`../api`, not by goldens of this emitter); GitLab, Gitea and Bitbucket webhooks (Freeploy answers 501, "not available yet"); the
 GitHub App OAuth login; Coolify's runner configurations for `workflow_job`; the failed-signature
 throttle (429); a Docker Compose application's preview domains; and GitHub Enterprise Server hosts
 (the emitter has no DNS).

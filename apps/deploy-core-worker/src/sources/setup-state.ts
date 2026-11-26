@@ -3,14 +3,16 @@
 // (consumeGithubAppSetupState) (Apache-2.0), modified.
 //
 // The `state` of GitHub's manifest and installation redirects: which App of which org started the setup, and
-// for what ('manifest' or 'install'), for 60 minutes. Coolify keeps a random state in its cache and pulls it
+// for what ('manifest' or 'install'), for 60 minutes — and, since DP-103, of a GitLab or Gitea source's OAuth
+// authorization ('gitlab' or 'gitea': Change::createOAuthState(), which Coolify also keeps for 60 minutes). Coolify keeps a random state in its cache and pulls it
 // once; deploy-core-worker has no cache, so the state carries its payload, signed with a key derived from
 // DEPLOY_ENCRYPTION_KEY (HMAC-SHA256), and expires on its own. It is not single-use: replaying a manifest
 // state finds the App's credentials already set (403, as Coolify), and replaying an install state asks
 // GitHub about the installation again. The payload is readable — the org it names is how deploy-web knows
 // which org to send the callback to — and holds no secret.
 
-export type SetupAction = "manifest" | "install";
+/** GitHub's manifest and installation redirects (DP-72), and the OAuth redirect of a GitLab or Gitea source (DP-103). */
+export type SetupAction = "manifest" | "install" | "gitlab" | "gitea";
 
 export interface SetupState {
   action: SetupAction;

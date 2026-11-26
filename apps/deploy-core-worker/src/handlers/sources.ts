@@ -20,6 +20,7 @@
 //   POST   /sources/github/install { installation_id, setup_action, state }  Github::install
 //   GET    /sources/github/{uuid}/repositories          GithubPrivateRepository::loadRepositories
 //   GET    /sources/github/{uuid}/repositories/{owner}/{repo}/branches?default_branch=  loadBranches
+//   …      /sources/gitlab/…, /sources/gitea/…           a GitLab or Gitea source: handlers/oauth-sources.ts (DP-103)
 //
 // Coolify's GithubAppPolicy: view for members, create/update/delete for admins (Coolify's member is a
 // Freeploy builder, read-only: DP-69). Here: deploy.resource.read for the reads, deploy.resource.write for
@@ -74,6 +75,7 @@ import {
   type SourceStore,
 } from "../sources/service.js";
 import { InstallationTokens, loadInstallationRepositories, loadRepositoryBranches, sortBranchesByPriority, type SourceHttp } from "../sources/github.js";
+import { handleOauthSources, runOauthSourcesInOrg, type OauthSourceRunner } from "./oauth-sources.js";
 
 const UUID_RE = /^[A-Za-z0-9-]{1,255}$/;
 /** A GitHub owner or repository name, as GitHub allows them. */
@@ -134,9 +136,11 @@ export interface SourceDeps {
   runner: SourceRunner;
   http: SourceHttp;
   resolve?: HostResolver;
+  /** The GitLab and Gitea sources' (DP-103): handlers/oauth-sources.ts. */
+  oauthRunner?: OauthSourceRunner;
 }
 
-const DEFAULT_DEPS: SourceDeps = { runner: runSourcesInOrg, http: sourceFetch };
+const DEFAULT_DEPS: SourceDeps = { runner: runSourcesInOrg, http: sourceFetch, oauthRunner: runOauthSourcesInOrg };
 
 function failure(e: unknown, requestId: string): Response {
   if (e instanceof SourceError) {
@@ -158,6 +162,10 @@ export async function handleSources(env: Env, requestId: string, actor: ActorCon
   type Op = { write: boolean; run: (canWrite: boolean) => Promise<Response> };
   let op: Op | null = null;
   const [kind, first, second, third, fourth, fifth] = segments;
+  // DP-103: a GitLab or Gitea source.
+  if (kind === "gitlab" || kind === "gitea") {
+    return handleOauthSources(env, requestId, actor, orgId, org, kind, segments.slice(1), request, { runner: deps.oauthRunner ?? runOauthSourcesInOrg, http: deps.http, ...(deps.resolve && { resolve: deps.resolve }) });
+  }
 
   if (segments.length === 0) {
     if (method === "GET") op = { write: false, run: (canWrite) => list(canWrite) };

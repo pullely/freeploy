@@ -116,6 +116,13 @@ const IT_DOPPLER = "i3paritydoppler000000003";
 const IT_INFISICAL = "i4parityinfisical0000004";
 const IT_VAULT = "i5parityvault00000000005";
 const IT_OTHER = "i6othercloudflare0000006";
+// DP-103: GitLab and Gitea Apps.
+const GL_MAIN = "y1paritygitlabapp0000001";
+const GL_SELF = "y2paritygitlabapp0000002";
+const GL_OTHER = "y3othergitlabapp00000003";
+const GT_MAIN = "z1paritygiteaapp00000001";
+const GT_CODEBERG = "z2paritygiteaapp00000002";
+const GT_OTHER = "z3othergiteaapp000000003";
 
 const fixture = {
   teams: [
@@ -318,6 +325,19 @@ const fixture = {
     { id: 2, uuid: "z2parityzoneexampleorg02", token: 1, provider_zone_id: "zone-org", name: "example.org", account_id: "acc-1", account_name: "Parity Account", created_at: "2025-12-20 00:00:00" },
     { id: 3, uuid: "z3parityzoneexamplenet03", token: 2, provider_zone_id: "zone-net", name: "example.net", account_id: "acc-1", account_name: null, created_at: "2025-12-21 00:00:00" },
     { id: 4, uuid: "z4otherzoneotherexample4", token: 6, provider_zone_id: "zone-other", name: "other.example", account_id: "acc-9", account_name: "Other Account", created_at: "2025-12-25 00:00:00" },
+  ],
+  // DP-103: GitLab and Gitea Apps, made through Coolify's models (the encrypted casts, GitLab's webhookToken() mutator) and
+  // stored encrypted with the org's key on Freeploy's side. The first of each is connected; its token expires in 2038
+  // (refreshGiteaToken() compares expires_at with PHP's time(), the real clock, which Carbon::setTestNow() does not fix).
+  gitlabApps: [
+    { id: 1, uuid: GL_MAIN, team: T1, name: "Parity GitLab", html_url: "https://gitlab.com", api_url: "https://gitlab.com/api/v4", custom_user: "git", custom_port: 22, group_name: "parity-group", client_id: "gl-client-1", client_secret: "gl-secret-1", webhook_token: "gl-webhook-token-1", access_token: "gl-access-1", refresh_token: "gl-refresh-1", expires_at: 2145916800, redirect_uri: "http://localhost/webhooks/source/gitlab/redirect", created_at: "2025-12-05 00:00:00" },
+    { id: 2, uuid: GL_SELF, team: T1, name: "Self-hosted GitLab", html_url: "https://gitlab.acme.test", api_url: "https://gitlab.acme.test/api/v4", custom_user: "git", custom_port: 2222, group_name: null, client_id: null, client_secret: null, webhook_token: "gl-webhook-token-2", access_token: null, refresh_token: null, expires_at: null, redirect_uri: null, created_at: "2025-12-06 00:00:00" },
+    { id: 3, uuid: GL_OTHER, team: T2, name: "Other GitLab", html_url: "https://gitlab.com", api_url: "https://gitlab.com/api/v4", custom_user: "git", custom_port: 22, group_name: null, client_id: "gl-client-3", client_secret: "gl-secret-3", webhook_token: "gl-webhook-token-3", access_token: "gl-access-3", refresh_token: "gl-refresh-3", expires_at: 2145916800, redirect_uri: null, created_at: "2025-12-07 00:00:00" },
+  ],
+  giteaApps: [
+    { id: 1, uuid: GT_MAIN, team: T1, name: "Parity Gitea", html_url: "https://gitea.com", api_url: "https://gitea.com/api/v1", custom_user: "git", custom_port: 22, organization: "acme, Parity", client_id: "gt-client-1", client_secret: "gt-secret-1", webhook_secret: "gt-webhook-secret-1", access_token: "gt-access-1", refresh_token: "gt-refresh-1", expires_at: 2145916800, redirect_uri: "http://localhost/webhooks/source/gitea/redirect", created_at: "2025-12-05 00:00:00" },
+    { id: 2, uuid: GT_CODEBERG, team: T1, name: "Codeberg", html_url: "https://codeberg.org", api_url: "https://codeberg.org/api/v1", custom_user: "git", custom_port: 22, organization: null, client_id: "gt-client-2", client_secret: null, webhook_secret: "gt-webhook-secret-2", access_token: null, refresh_token: null, expires_at: null, redirect_uri: null, created_at: "2025-12-06 00:00:00" },
+    { id: 3, uuid: GT_OTHER, team: T2, name: "Other Gitea", html_url: "https://gitea.com", api_url: "https://gitea.com/api/v1", custom_user: "git", custom_port: 22, organization: null, client_id: "gt-client-3", client_secret: "gt-secret-3", webhook_secret: "gt-webhook-secret-3", access_token: "gt-access-3", refresh_token: "gt-refresh-3", expires_at: 2145916800, redirect_uri: null, created_at: "2025-12-07 00:00:00" },
   ],
   // secret: what follows "<id>|" in the bearer token (Sanctum's 40 random characters and crc32b).
   tokens: [
@@ -2963,6 +2983,94 @@ denial("integration tokens: update, a new name", "memberWrite", WRITE_DELETE, WR
 denial("integration tokens: delete a doppler token", "memberDelete", WRITE_DELETE, WRITER);
 denial("integration tokens: sync zones", "memberWrite", WRITE_DELETE, WRITER);
 denial("integration tokens: list", "memberWrite", WRITE_DELETE, WRITER);
+// ── DP-103: GitLab Apps, Gitea Apps and POST /applications/private-gitea-app ──────────────────────────────────────
+// Freeploy is a hosted service: the cases run as Coolify Cloud (no system-wide source, private networks refused). The
+// fixture's sources are made through the models (encrypted secrets); a source a case makes is the one whose uuid is not
+// the fixture's.
+const GL = "/api/v1/gitlab-apps";
+const GL_APP = (id) => `${GL}/${id}`;
+const GL_AFTER = { apps: `select case when uuid like 'y%' then id end as fixture_id, name, organization, api_url, html_url, custom_user, custom_port, group_name, client_id, client_secret is not null as has_client_secret, webhook_token is not null as has_webhook_token, access_token is not null as has_access_token, refresh_token is not null as has_refresh_token, expires_at, redirect_uri, private_key_id, is_system_wide, is_public from gitlab_apps where uuid <> '${GL_OTHER}' order by fixture_id nulls last, name` };
+const GL_CREATE = { name: "New GitLab", html_url: "https://gitlab.acme.test/", group_name: "acme,acme/platform", client_id: "gl-new-client", client_secret: "gl-new-secret", redirect_uri: "https://app.example.test/webhooks/source/gitlab/redirect" };
+add({ name: "gitlab apps: list", token: "read", method: "GET", path: GL, config: CLOUD });
+add({ name: "gitlab apps: list, read:sensitive", token: "sensitive", method: "GET", path: GL, config: CLOUD });
+add({ name: "gitlab apps: list by a member", token: "memberRead", method: "GET", path: GL, config: CLOUD });
+add({ name: "gitlab apps: list, a member with read:sensitive", token: "memberSensitive", method: "GET", path: GL, config: CLOUD });
+add({ name: "gitlab apps: list, none", token: "read", method: "GET", path: GL, config: CLOUD, setup: ["delete from gitlab_apps where id in (1, 2)"] });
+add({ name: "gitlab apps: create", token: "write", method: "POST", path: GL, config: CLOUD, body: GL_CREATE, after: GL_AFTER });
+add({ name: "gitlab apps: create, the defaults", token: "write", method: "POST", path: GL, config: CLOUD, body: { name: "Plain GitLab", html_url: "https://gitlab.com" }, after: GL_AFTER });
+add({ name: "gitlab apps: create, every field, read:sensitive", token: "root", method: "POST", path: GL, config: CLOUD, body: { ...GL_CREATE, api_url: "https://gitlab.acme.test/api/v4/", custom_user: "deploy", custom_port: "2222", webhook_token: "gl-given-webhook-token", is_system_wide: true }, after: GL_AFTER });
+add({ name: "gitlab apps: create, invalid", token: "write", method: "POST", path: GL, config: CLOUD, body: { name: "", html_url: "ftp://x", api_url: "nope", custom_user: 5, custom_port: 70000, group_name: ["x"], client_id: 5, client_secret: 5, webhook_token: 5, redirect_uri: "nope", is_system_wide: "maybe", extra: 1 } });
+add({ name: "gitlab apps: create, a private host", token: "write", method: "POST", path: GL, config: CLOUD, body: { ...GL_CREATE, html_url: "https://private.example" } });
+add({ name: "gitlab apps: create, a private API URL and a private redirect", token: "write", method: "POST", path: GL, config: CLOUD, body: { ...GL_CREATE, api_url: "http://10.0.0.8/api/v4", redirect_uri: "http://10.0.0.9/webhooks/source/gitlab/redirect" }, after: GL_AFTER });
+add({ name: "gitlab apps: create, not JSON", token: "write", method: "POST", path: GL, config: CLOUD, raw: "name=x", contentType: "application/x-www-form-urlencoded" });
+add({ name: "gitlab apps: create, empty JSON", token: "write", method: "POST", path: GL, config: CLOUD, raw: "{}" });
+add({ name: "gitlab apps: create with a read token", token: "read", method: "POST", path: GL, config: CLOUD, body: GL_CREATE });
+add({ name: "gitlab apps: update", token: "write", method: "PATCH", path: GL_APP(1), config: CLOUD, body: { name: "Renamed GitLab", group_name: null, custom_port: "2200", client_secret: "gl-secret-2", webhook_token: "gl-webhook-token-new", redirect_uri: "https://app.example.test/webhooks/source/gitlab/redirect" }, after: GL_AFTER });
+add({ name: "gitlab apps: update the HTML URL", token: "write", method: "PATCH", path: GL_APP(2), config: CLOUD, body: { html_url: "https://git.acme.test/" }, after: GL_AFTER });
+add({ name: "gitlab apps: update the HTML and API URLs", token: "write", method: "PATCH", path: GL_APP(2), config: CLOUD, body: { html_url: "https://git.acme.test", api_url: "https://git.acme.test/api/v4/" }, after: GL_AFTER });
+add({ name: "gitlab apps: update, nothing", token: "write", method: "PATCH", path: GL_APP(1), config: CLOUD, body: { is_system_wide: true, other: 1 }, after: GL_AFTER });
+add({ name: "gitlab apps: update, clearing the secrets, read:sensitive", token: "root", method: "PATCH", path: GL_APP(1), config: CLOUD, body: { client_id: null, client_secret: null, webhook_token: null }, after: GL_AFTER });
+add({ name: "gitlab apps: update, invalid", token: "write", method: "PATCH", path: GL_APP(1), config: CLOUD, body: { name: 5, html_url: "nope", api_url: "ftp://x", custom_user: [], custom_port: 0, group_name: 7, client_id: ["x"], client_secret: 5, redirect_uri: "x" } });
+add({ name: "gitlab apps: update, a private host", token: "write", method: "PATCH", path: GL_APP(1), config: CLOUD, body: { api_url: "http://10.0.0.8/api/v4" } });
+add({ name: "gitlab apps: update unknown", token: "write", method: "PATCH", path: GL_APP(99), config: CLOUD, body: { name: "x" } });
+add({ name: "gitlab apps: update another team's", token: "write", method: "PATCH", path: GL_APP(3), config: CLOUD, body: { name: "x" } });
+add({ name: "gitlab apps: update with a read token", token: "read", method: "PATCH", path: GL_APP(1), config: CLOUD, body: { name: "x" } });
+add({ name: "gitlab apps: delete", token: "delete", method: "DELETE", path: GL_APP(2), config: CLOUD, after: GL_AFTER });
+add({ name: "gitlab apps: delete, in use", token: "delete", method: "DELETE", path: GL_APP(2), config: CLOUD, setup: ["update applications set source_type = 'App\\Models\\GitlabApp', source_id = 2 where id = 2"], after: GL_AFTER });
+add({ name: "gitlab apps: delete unknown", token: "delete", method: "DELETE", path: GL_APP(99), config: CLOUD });
+add({ name: "gitlab apps: delete another team's", token: "delete", method: "DELETE", path: GL_APP(3), config: CLOUD });
+add({ name: "gitlab apps: delete with a write token", token: "write", method: "DELETE", path: GL_APP(2), config: CLOUD });
+
+const GT = "/api/v1/gitea-apps";
+add({ name: "gitea apps: list", token: "read", method: "GET", path: GT, config: CLOUD });
+add({ name: "gitea apps: list, read:sensitive", token: "sensitive", method: "GET", path: GT, config: CLOUD });
+add({ name: "gitea apps: list by a member", token: "memberRead", method: "GET", path: GT, config: CLOUD });
+add({ name: "gitea apps: list, none", token: "read", method: "GET", path: GT, config: CLOUD, setup: ["delete from gitea_apps where id in (1, 2)"] });
+add({ name: "gitea apps: list with a write-only token", token: "writeOnly", method: "GET", path: GT, config: CLOUD });
+
+// POST /applications/private-gitea-app: create_application($request, 'private-gitea-app'). The Gitea instance is faked
+// (`http`): the repository, and the token's refresh where a case lets the fixture's token expire.
+const GTA = CREATE("private-gitea-app");
+const GTA_REPO = { ...IMAGE_ON, gitea_app_uuid: GT_MAIN, git_repository: "acme/private", git_branch: "main", build_pack: "nixpacks", ports_exposes: "3000" };
+const GITEA_REPO_URL = (slug) => `^GET https://gitea\\.com/api/v1/repos/${slug.replace(/\./g, "\\.")}$`;
+const giteaRepo = (owner, name) => ({ id: 5151, owner: { id: 9, login: owner, full_name: "" }, name, full_name: `${owner}/${name}`, private: true, html_url: `https://gitea.com/${owner}/${name}`, default_branch: "main" });
+const GITEA_REPO_OK = (owner = "acme", name = "private", slug = `${owner}/${name}`) => answer(GITEA_REPO_URL(slug), giteaRepo(owner, name));
+const GITEA_TOKEN_URL = "^POST https://gitea\\.com/login/oauth/access_token$";
+const GITEA_EXPIRED = ["update gitea_apps set expires_at = 1767225000 where id = 1"];
+// A refreshed token expires an hour after time() — the real clock on Coolify's side, emit.php's on Freeploy's: read as later.
+const GITEA_AFTER = { source: "select access_token is not null as has_access_token, refresh_token is not null as has_refresh_token, expires_at > 1767225000 as expires_later from gitea_apps where id = 1" };
+add({ name: "gitea app create: a Gitea App", token: "write", method: "POST", path: GTA, body: GTA_REPO, http: [GITEA_REPO_OK()], after: CREATED_AFTER });
+add({ name: "gitea app create: a Gitea App, a repository URL", token: "write", method: "POST", path: GTA, body: { ...GTA_REPO, git_repository: "https://gitea.com/acme/private.git", build_pack: "dockerfile", name: "from-gitea", domains: "https://gt.acme.test" }, http: [GITEA_REPO_OK()], after: CREATED_AFTER });
+add({ name: "gitea app create: a Gitea App, an SSH URL", token: "write", method: "POST", path: GTA, body: { ...GTA_REPO, git_repository: "git@gitea.com:acme/private.git", build_pack: "static", is_static: true }, http: [GITEA_REPO_OK()], after: CREATED_AFTER });
+add({ name: "gitea app create: a Gitea App, an owner of the organization field", token: "write", method: "POST", path: GTA, body: { ...GTA_REPO, git_repository: "PARITY/tools" }, http: [GITEA_REPO_OK("parity", "tools", "PARITY/tools")], after: CREATED_AFTER });
+add({ name: "gitea app create: a Gitea App, another owner", token: "write", method: "POST", path: GTA, body: { ...GTA_REPO, git_repository: "someone/private" }, http: [GITEA_REPO_OK("someone", "private")], after: NOTHING_CREATED });
+add({ name: "gitea app create: a Gitea App, another host's URL", token: "write", method: "POST", path: GTA, body: { ...GTA_REPO, git_repository: "https://github.com/acme/private" }, http: [GITEA_REPO_OK()], after: NOTHING_CREATED });
+add({ name: "gitea app create: a Gitea App, not a repository path", token: "write", method: "POST", path: GTA, body: { ...GTA_REPO, git_repository: "acme/.." }, http: [GITEA_REPO_OK()], after: NOTHING_CREATED });
+add({ name: "gitea app create: a Gitea App, the repository not accessible", token: "write", method: "POST", path: GTA, body: GTA_REPO, http: [answer(GITEA_REPO_URL("acme/private"), { message: "Not Found" }, 404)], after: NOTHING_CREATED });
+add({ name: "gitea app create: a Gitea App, the instance fails", token: "write", method: "POST", path: GTA, body: GTA_REPO, http: [answer(GITEA_REPO_URL("acme/private"), { message: "Unavailable" }, 503)], after: NOTHING_CREATED });
+add({ name: "gitea app create: a Gitea App, a failure without a message", token: "write", method: "POST", path: GTA, body: GTA_REPO, http: [answer(GITEA_REPO_URL("acme/private"), { error: "nope" }, 500)], after: NOTHING_CREATED });
+add({ name: "gitea app create: a Gitea App, the token refreshed", token: "write", method: "POST", path: GTA, setup: GITEA_EXPIRED, body: GTA_REPO, http: [answer(GITEA_TOKEN_URL, { access_token: "gt-access-new", token_type: "bearer", expires_in: 3600, refresh_token: "gt-refresh-new" }), GITEA_REPO_OK()], after: { ...CREATED_AFTER, ...GITEA_AFTER } });
+add({ name: "gitea app create: a Gitea App, the refresh refused", token: "write", method: "POST", path: GTA, setup: GITEA_EXPIRED, body: GTA_REPO, http: [answer(GITEA_TOKEN_URL, { error: "invalid_grant", error_description: "The refresh token is invalid." }, 400), GITEA_REPO_OK()], after: { ...NOTHING_CREATED, ...GITEA_AFTER } });
+add({ name: "gitea app create: a Gitea App, a source not connected", token: "write", method: "POST", path: GTA, body: { ...GTA_REPO, gitea_app_uuid: GT_CODEBERG }, http: [GITEA_REPO_OK()] });
+add({ name: "gitea app create: a Gitea App, another team's source", token: "write", method: "POST", path: GTA, body: { ...GTA_REPO, gitea_app_uuid: GT_OTHER }, http: [GITEA_REPO_OK()] });
+add({ name: "gitea app create: a Gitea App, unknown source", token: "write", method: "POST", path: GTA, body: { ...GTA_REPO, gitea_app_uuid: "nonexistentuuid" }, http: [GITEA_REPO_OK()] });
+add({ name: "gitea app create: a Gitea App, invalid", token: "write", method: "POST", path: GTA, body: { ...IMAGE_ON, git_repository: 5, git_branch: "a..b", build_pack: "heroku", ports_exposes: "80,x", watch_paths: [], docker_compose_domains: "x" }, http: [GITEA_REPO_OK()] });
+add({ name: "gitea app create: a Gitea App, a domain in use", token: "write", method: "POST", path: GTA, body: { ...GTA_REPO, domains: "https://image.example.com" }, http: [GITEA_REPO_OK()] });
+add({ name: "gitea app create: a Gitea App, Docker Compose", token: "write", method: "POST", path: GTA, body: { ...GTA_REPO, build_pack: "dockercompose", docker_compose_location: "/compose.yaml" }, http: [GITEA_REPO_OK()], after: NOTHING_CREATED });
+add({ name: "gitea app create: a Gitea App, instant deploy", token: "root", method: "POST", path: GTA, body: { ...GTA_REPO, instant_deploy: true }, http: [GITEA_REPO_OK()], after: NOTHING_CREATED });
+add({ name: "gitea app create: a Gitea App, with a read token", token: "read", method: "POST", path: GTA, body: GTA_REPO, http: [GITEA_REPO_OK()] });
+add({ name: "gitea app create: a Gitea App, a member", token: "memberWrite", method: "POST", path: GTA, body: GTA_REPO, http: [GITEA_REPO_OK()] });
+// PATCH /applications/{uuid} with gitea_app_uuid: the source changed, the repository checked with the instance.
+const GITEA_UPDATE_AFTER = { application: "select git_repository, source_type, source_id, repository_project_id from applications where id = 2" };
+add({ name: "gitea app update: a Gitea App as the source", token: "write", method: "PATCH", path: PATCH_APP(A_GIT), body: { gitea_app_uuid: GT_MAIN, git_repository: "https://gitea.com/acme/private.git" }, http: [GITEA_REPO_OK()], after: GITEA_UPDATE_AFTER });
+add({ name: "gitea app update: a Gitea App, the application's repository", token: "write", method: "PATCH", path: PATCH_APP(A_GIT), setup: ["update applications set git_repository = 'acme/private' where id = 2"], body: { gitea_app_uuid: GT_MAIN }, http: [GITEA_REPO_OK()], after: GITEA_UPDATE_AFTER });
+add({ name: "gitea app update: a Gitea App, the repository not accessible", token: "write", method: "PATCH", path: PATCH_APP(A_GIT), body: { gitea_app_uuid: GT_MAIN, git_repository: "acme/private" }, http: [answer(GITEA_REPO_URL("acme/private"), { message: "Not Found" }, 404)], after: GITEA_UPDATE_AFTER });
+add({ name: "gitea app update: a Gitea App, not on its instance", token: "write", method: "PATCH", path: PATCH_APP(A_GIT), body: { gitea_app_uuid: GT_MAIN }, http: [GITEA_REPO_OK()], after: GITEA_UPDATE_AFTER });
+add({ name: "gitea app update: a Gitea App not connected", token: "write", method: "PATCH", path: PATCH_APP(A_GIT), body: { gitea_app_uuid: GT_CODEBERG, git_repository: "acme/private" }, http: [GITEA_REPO_OK()] });
+add({ name: "gitea app update: a Gitea App for an image application", token: "write", method: "PATCH", path: PATCH_APP(A_IMAGE), body: { gitea_app_uuid: GT_MAIN }, http: [GITEA_REPO_OK()] });
+denial("gitlab apps: create", "memberWrite", WRITE_DELETE, WRITER);
+denial("gitlab apps: update", "memberWrite", WRITE_DELETE, WRITER);
+denial("gitlab apps: delete", "memberDelete", WRITE_DELETE, WRITER);
 
 /** The tables whose column order emit.php writes into the goldens (`columns`): what a nested relation serializes in. */
 const columnsOf = ["servers", "server_settings", "standalone_dockers", "application_settings", "applications", "environment_variables", "application_deployment_queues", "scheduled_database_backups", "scheduled_database_backup_executions", "services", "service_applications", "service_databases", "projects", "environments", "standalone_postgresqls", "standalone_redis", "standalone_mongodbs", "standalone_mysqls", "standalone_mariadbs", "standalone_keydbs", "standalone_dragonflies", "standalone_clickhouses", "local_persistent_volumes", "local_file_volumes", "github_apps"];
