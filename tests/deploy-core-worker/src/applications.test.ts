@@ -1018,8 +1018,8 @@ describe("routing and authorization", () => {
     expect((await route(new Request(`${BASE}/applications/app1`, { method: "PUT", headers }), bare)).status).toBe(405);
     expect((await route(new Request(`${BASE}/applications`, { method: "DELETE", headers }), bare)).status).toBe(405);
     expect((await route(new Request(`${BASE}/projects/prj1/environments/env1/new`, { method: "POST", headers }), bare)).status).toBe(405);
-    // Another fourth segment is still the projects handler's 404.
-    expect((await route(new Request(`${BASE}/projects/prj1/environments/env1/clone`, { headers }), bare)).status).toBe(404);
+    // Another fourth segment is still the projects handler's 404 (…/clone is the Clone page's since DP-100).
+    expect((await route(new Request(`${BASE}/projects/prj1/environments/env1/other`, { headers }), bare)).status).toBe(404);
     expect((await route(new Request(`${BASE}/projects/prj1/other/env1/new`, { headers }), bare)).status).toBe(404);
   });
 });

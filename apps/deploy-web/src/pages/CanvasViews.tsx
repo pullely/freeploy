@@ -264,7 +264,8 @@ function DashboardCanvasContent() {
   // The canvas moves this group into its toolbar.
   const views = (
     <div data-ec-views="" className="flex items-center gap-2 max-lg:flex-wrap">
-      <CanvasListLink listUrl="/dashboard" view="list" />
+      {/* route('dashboard') is / (DP-100). */}
+      <CanvasListLink listUrl="/" view="list" />
     </div>
   );
   return (
@@ -279,7 +280,7 @@ function DashboardCanvasContent() {
 
 export function DashboardCanvasPage() {
   return (
-    <Layout title="Dashboard" href="/dashboard" documentTitle="Canvas" fullBleed>
+    <Layout title="Dashboard" href="/" documentTitle="Canvas" fullBleed>
       <DashboardCanvasContent />
     </Layout>
   );

@@ -22,6 +22,8 @@ import { PLATFORM_RE, handlePlatform } from "./handlers/platform.js";
 import { ORG_DEPLOY_CANVAS_RE, handleDeployCanvas } from "./handlers/deploy-canvas.js";
 import { handleCanvasViews } from "./handlers/canvas-views.js";
 import { ORG_DEPLOY_TAGS_RE, handleTagPages } from "./handlers/tag-pages.js";
+import { ORG_DEPLOY_DASHBOARD_RE, handleDashboard } from "./handlers/dashboard.js";
+import { handleEnvironmentClone } from "./handlers/environment-clone.js";
 
 const REQUEST_ID_RE = /^[\w-]{1,128}$/;
 
@@ -128,6 +130,10 @@ export async function route(request: Request, env: Env): Promise<Response> {
       // …/projects/{uuid}/environments/{env_uuid}/{new,resources}: the New Resource page and the environment's resources.
       if (segments.length === 4 && segments[1] === "environments" && ENVIRONMENT_RESOURCE_PAGES.includes(segments[3]!)) {
         return handleEnvironmentResources(env, requestId, actor, orgId, { projectUuid: segments[0]!, environmentUuid: segments[2]!, page: segments[3]! }, request);
+      }
+      // …/projects/{uuid}/environments/{env_uuid}/clone: the environment's Clone page (DP-100).
+      if (segments.length === 4 && segments[1] === "environments" && segments[3] === "clone") {
+        return handleEnvironmentClone(env, requestId, actor, orgId, { projectUuid: segments[0]!, environmentUuid: segments[2]! }, request);
       }
       // …/projects/{uuid}/environments/{env_uuid}/canvas/{positions,links[/{link_uuid}]}: the canvas's save actions (DP-92).
       if (segments.length > 4 && segments[1] === "environments" && segments[3] === "canvas") {
@@ -242,6 +248,17 @@ export async function route(request: Request, env: Env): Promise<Response> {
       if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
       const segments = (notifications[2] ?? "").split("/").filter(Boolean);
       return handleNotifications(env, requestId, actor, orgId, segments, request);
+    }
+
+    // The dashboard at / (DP-100).
+    const dashboard = url.pathname.match(ORG_DEPLOY_DASHBOARD_RE);
+    if (dashboard) {
+      const orgId = parseOrgPublicId(dashboard[1]!);
+      if (!orgId) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
+      const segments = (dashboard[2] ?? "").split("/").filter(Boolean);
+      return handleDashboard(env, requestId, actor, orgId, segments, request);
     }
 
     // The team's Tags page (DP-97): a tag is named in the path, so each segment is decoded.

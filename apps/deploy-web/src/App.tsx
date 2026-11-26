@@ -129,6 +129,9 @@ const ServiceStorageBackupsPage = lazy(() => import("./pages/VolumeBackups").the
 const ServiceStorageBackupRedirectPage = lazy(() => import("./pages/VolumeBackups").then((m) => ({ default: m.ServiceStorageBackupRedirectPage })));
 const ServiceDatabaseBackupsRedirectPage = lazy(() => import("./pages/VolumeBackups").then((m) => ({ default: m.ServiceDatabaseBackupsRedirectPage })));
 const ApplicationPreviewsPage = lazy(() => import("./pages/ApplicationPreviews").then((m) => ({ default: m.ApplicationPreviewsPage })));
+// DP-100: the dashboard and an environment's Clone page.
+const DashboardPage = lazy(() => import("./pages/Dashboard").then((m) => ({ default: m.DashboardPage })));
+const EnvironmentClonePage = lazy(() => import("./pages/EnvironmentClone").then((m) => ({ default: m.EnvironmentClonePage })));
 
 /** routes/web.php: security.private-key.show is redirect()->route('security.private-key.index'). */
 function RedirectTo({ path }: { path: string }) {
@@ -894,6 +897,21 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <ApplicationPreviewsPage />
+        </Suspense>
+      );
+    // DP-100: the dashboard (/dashboard is Coolify's catch-all, which sends a signed-in user home), and Clone.
+    case "dashboard":
+      return (
+        <Suspense fallback={null}>
+          <DashboardPage />
+        </Suspense>
+      );
+    case "dashboard.fallback":
+      return <RedirectTo path="/" />;
+    case "project.clone-me":
+      return (
+        <Suspense fallback={null}>
+          <EnvironmentClonePage />
         </Suspense>
       );
     default:
