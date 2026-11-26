@@ -1,6 +1,7 @@
 // Derived from coollabsio/coolify@91b7e3e:app/Livewire/Project/Shared/ResourceOperations.php (mount, moveTo,
 // findResourceTeamEnvironment), bootstrap/helpers/applications.php (clone_application: what it replicates and
-// what it fills in), app/Models/Application.php (the creating and saving hooks a replica passes through),
+// what it fills in), bootstrap/helpers/services.php (clone_service, DP-108), app/Traits/HasSecretManager.php
+// (cloneSecretManagerLinkTo), app/Models/Application.php (the creating and saving hooks a replica passes through),
 // app/Models/LocalPersistentVolume.php (the replicating hook), app/Models/Standalone*.php (the saving hook),
 // app/Traits/HasS3Destinations.php (copyS3StoragesTo) and app/Livewire/Project/Shared/ResourceLimits.php
 // (Apache-2.0), modified.
@@ -19,6 +20,7 @@ import { DESTINATION_MORPH_CLASS, type DestinationType } from "./destinations.js
 import { APPLICATION_MORPH_CLASS } from "./application-create.js";
 import { listEnvironmentVariables } from "./environment-variables.js";
 import { DATABASE_TABLES, type DatabaseEngine } from "./databases.js";
+import { SERVICE_MORPH_CLASS, SERVICE_PART_MORPH_CLASS } from "./services.js";
 
 /** Laravel's timestamps are UTC wall-clock times in TIMESTAMP(0) WITHOUT TIME ZONE columns. */
 const NOW = "date_trunc('second', timezone('UTC', now()))";
@@ -365,10 +367,107 @@ export async function replicateDatabaseBackupSchedule(
     database_type: DATABASE_TABLES[replica.engine].morphClass,
   });
   if (id === null) return;
+  await copyBackupS3Storages(tx, scheduleId, id);
+}
+
+// ---------------------------------------------------------------- services (DP-108)
+// clone_service(): the service's row, its tags, scheduled tasks, variables and secret manager link replicated, and
+// its databases' backup schedules copied to the parts Service::parse() made for the clone.
+
+/** What clone_service() fills in on the service's replica. */
+export interface ServiceReplica {
+  /** $overrides['uuid'] ?? new_public_id() */
+  uuid: string;
+  /** clone_resource_name(), or the caller's name */
+  name: string;
+  environmentId: string | number;
+  destinationId: string | number;
+  destinationType: DestinationType;
+  /** $destination->server_id */
+  serverId: string | number;
+}
+
+/**
+ * $source->replicate(['id', 'created_at', 'updated_at'])->fill([...])->save(): the service's row, column for column —
+ * its Compose files, settings and config hash — with a new uuid, name, environment, destination and server, and the
+ * creating hook's compose_parsing_version (Service::$parserVersion, '5'). Null when the source is gone.
+ */
+export async function replicateService(tx: SqlExecutor, sourceId: string | number, replica: ServiceReplica): Promise<string | number | null> {
+  const alive = await tx.execute("SELECT 1 FROM deploy.services WHERE id = $1 AND deleted_at IS NULL", [sourceId]);
+  if (!alive.rows.length) return null;
+  return replicate(tx, "services", sourceId, {
+    uuid: replica.uuid,
+    name: replica.name,
+    environment_id: replica.environmentId,
+    destination_id: replica.destinationId,
+    destination_type: DESTINATION_MORPH_CLASS[replica.destinationType],
+    server_id: replica.serverId,
+    compose_parsing_version: "5",
+  });
+}
+
+/** $source->scheduled_tasks()->get(): the ids of the service's scheduled tasks. */
+export async function listServiceScheduledTaskIds(tx: SqlExecutor, serviceId: string | number): Promise<Array<string | number>> {
+  const r = await tx.execute<{ id: string | number }>("SELECT id FROM deploy.scheduled_tasks WHERE service_id = $1 ORDER BY id", [serviceId]);
+  return r.rows.map((row) => row.id);
+}
+
+/** $task->replicate()->fill(['uuid' => new_public_id(), 'service_id' => …, 'team_id' => …]) */
+export async function replicateServiceScheduledTask(tx: SqlExecutor, taskId: string | number, replica: { uuid: string; serviceId: string | number }): Promise<void> {
+  await replicate(tx, "scheduled_tasks", taskId, { uuid: replica.uuid, service_id: replica.serviceId });
+}
+
+/** $source->environment_variables()->get(): the ids of the service's variables (no ORDER BY in Coolify; the ids' here). */
+export async function listServiceEnvironmentVariableIds(tx: SqlExecutor, serviceId: string | number): Promise<Array<string | number>> {
+  const r = await tx.execute<{ id: string | number }>("SELECT id FROM deploy.environment_variables WHERE resourceable_type = $1 AND resourceable_id = $2 ORDER BY id", [SERVICE_MORPH_CLASS, serviceId]);
+  return r.rows.map((row) => row.id);
+}
+
+/**
+ * $environmentVariable->replicate(['id', 'created_at', 'updated_at'])->fill([resourceable_id, resourceable_type])->save()
+ * for a service's variable: saved with its events, so the creating hook stamps the current version; the value is copied
+ * as stored. The copy gets its own uuid, because deploy.environment_variables.uuid is unique.
+ */
+export async function replicateServiceEnvironmentVariable(tx: SqlExecutor, variableId: string | number, replica: { uuid: string; serviceId: string | number; version: string }): Promise<void> {
+  await replicate(tx, "environment_variables", variableId, { uuid: replica.uuid, resourceable_id: replica.serviceId, resourceable_type: SERVICE_MORPH_CLASS, version: replica.version });
+}
+
+/**
+ * $source->cloneSecretManagerLinkTo($newService): the source's link (its token and settings) given to the clone. The
+ * token is the org's (row-level security), which is Coolify's check that it is the clone's team's.
+ */
+export async function cloneServiceSecretManagerLink(tx: SqlExecutor, sourceId: string | number, cloneId: string | number, uuid: string): Promise<void> {
+  await tx.execute(
+    `INSERT INTO deploy.secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at)
+     SELECT $3, l.resourceable_type, $2, l.integration_token_id, l.settings, l.org_id, ${NOW}, ${NOW}
+       FROM deploy.secret_manager_links l JOIN deploy.integration_tokens t ON t.id = l.integration_token_id
+      WHERE l.resourceable_type = $4 AND l.resourceable_id = $1
+      ORDER BY l.id LIMIT 1`,
+    [sourceId, cloneId, uuid, SERVICE_MORPH_CLASS],
+  );
+}
+
+/** $sourceDatabase->scheduledBackups()->get(): the ids of a service database's backup schedules. */
+export async function listServiceDatabaseBackupScheduleIds(tx: SqlExecutor, databaseId: string | number): Promise<Array<string | number>> {
+  const r = await tx.execute<{ id: string | number }>("SELECT id FROM deploy.scheduled_database_backups WHERE database_type = $1 AND database_id = $2 ORDER BY id", [
+    SERVICE_PART_MORPH_CLASS.database,
+    databaseId,
+  ]);
+  return r.rows.map((row) => row.id);
+}
+
+/** clone_service()'s $backup->replicate()->fill([uuid, database_id, database_type, team_id])->save(), then copyS3StoragesTo(). */
+export async function replicateServiceDatabaseBackupSchedule(tx: SqlExecutor, scheduleId: string | number, replica: { uuid: string; databaseId: string | number }): Promise<void> {
+  const id = await replicate(tx, "scheduled_database_backups", scheduleId, { uuid: replica.uuid, database_id: replica.databaseId, database_type: SERVICE_PART_MORPH_CLASS.database });
+  if (id === null) return;
+  await copyBackupS3Storages(tx, scheduleId, id);
+}
+
+async function copyBackupS3Storages(tx: SqlExecutor, fromId: string | number, toId: string | number): Promise<void> {
   await tx.execute(
     `INSERT INTO deploy.scheduled_database_backup_s3_storage (scheduled_database_backup_id, s3_storage_id, org_id, created_at, updated_at)
      SELECT $2, l.s3_storage_id, l.org_id, ${NOW}, ${NOW} FROM deploy.scheduled_database_backup_s3_storage l WHERE l.scheduled_database_backup_id = $1 ORDER BY l.id`,
-    [scheduleId, id],
+    [fromId, toId],
   );
 }
 

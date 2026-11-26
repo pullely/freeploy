@@ -9,8 +9,9 @@
 // the clone's page says so. "Migrate to another server" shows in Coolify's
 // development mode only and is not ported. The same component is a
 // database's Resource Operations page (kind "database"): after a clone or a
-// move it opens the database's page. And a service's (kind "service", DP-97): Move as Coolify's; Clone answers
-// Coolify's checks, then that it is not available yet (clone_service() is not ported).
+// move it opens the database's page. And a service's (kind "service", DP-97): Move as Coolify's; Clone is
+// clone_service() (DP-108) and opens the clone's page, or answers that a file mount or the volume data needs the
+// SSH executor (nothing is stored).
 import { useEffect, useState } from "react";
 import { servicePath } from "../lib/service-templates";
 import { Layout } from "../layout/Layout";

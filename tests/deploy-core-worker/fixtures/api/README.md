@@ -1,4 +1,4 @@
-# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85, DP-86, DP-87, DP-88, DP-90, DP-93, DP-103, DP-104, DP-105, DP-106)
+# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85, DP-86, DP-87, DP-88, DP-90, DP-93, DP-103, DP-104, DP-105, DP-106, DP-108)
 
 What Coolify's real API answers, so that Freeploy's `/api/v1` (api-edge's middleware and limiters,
 identity-worker's teams and tokens, deploy-core-worker's projects, environments, private keys and servers —
@@ -21,7 +21,7 @@ application from a private repository through a GitHub App and a Hostinger serve
 and a Cloudflare token's zones — DP-104 — and the GitLab Apps, the Gitea Apps, an application from a private repository
 through a Gitea App and an application's source changed to one — DP-103 — and the team's Cloudflare zones and the managed DNS
 records of an application's and a service's domains — DP-105 — and a resource's secret manager source and the
-instance's email settings — DP-106) can be replayed against it byte for byte.
+instance's email settings — DP-106 — and cloning a service — DP-108) can be replayed against it byte for byte.
 
 | File | What it is |
 |---|---|
@@ -186,6 +186,15 @@ with their token and zone, and the references by the record's name. Cloudflare i
 also makes DnsController again for each request: a route keeps the controller it made, and its CloudflareDnsProvider caches the
 team's zones, which a case's own zone would not reach. Three `denied:` cases are added (45 in all). Only the new entries were
 inserted into goldens.json, after DP-106's; the committed ones are kept byte for byte. One masking is added, of the requests.
+
+DP-108's replay (`src/api-v1-service-clone.test.ts`: POST /services/{uuid}/clone, clone_service()) adds no fixture rows: a
+case's `setup` gives the fixture's service another Compose file (named volumes, a bind mount inside the service's directory,
+a host path, magic variables), a database backup schedule of its database, or DP-106's secret manager link (`setupCoolify`,
+`setupFreeploy`). The `after` queries read the clone as the service whose uuid is not the fixture's: its random uuid as
+`<uuid>` inside its name, generated Compose file, domains and volume and file paths, its parts' random uuids in the Compose
+file's labels as `<part-uuid>` (regexp_replace), the encrypted values as whether they are set, and the services of team 1
+counted (`uuid <> …other team's`). Only the new entries were inserted into goldens.json, after DP-105's; the committed ones
+are kept byte for byte. No masking is added.
 
 ## How the goldens are made
 

@@ -3473,6 +3473,64 @@ denial("dns zones: list", "memberRead", null, MEMBER);
 denial("dns application: release, deleted", "memberDelete", DEPLOY_DELETE, DEPLOYER);
 denial("dns service: release, deleted", "memberDelete", DEPLOY_DELETE, DEPLOYER);
 
+// ── DP-108: POST /services/{uuid}/clone (clone_service()) ───────────────────
+// The clone is the service's row replicated, its tags, scheduled tasks, variables and secret manager link copied, then
+// Service::parse() on it (its applications, databases, volumes and files made again), and the backup schedules of its
+// databases. `after` reads the clone (the service whose uuid is not the fixture's), its random uuid as <uuid> inside its
+// name, its generated Compose file (its parts' random uuids as <part-uuid>), its parts' domains and its volume and file
+// paths.
+const FIXTURE_SERVICES = `'${SV_MAIN}', '${SV_OTHER}'`;
+const NEW_SERVICE = `(select id from services where uuid not in (${FIXTURE_SERVICES}))`;
+const NEW_SERVICE_UUID = `(select uuid from services where uuid not in (${FIXTURE_SERVICES}))`;
+const SERVICE_PART_IDS = (table) => `(select id from ${table} where service_id = ${NEW_SERVICE})`;
+const SERVICE_CLONE_AFTER = {
+  service: `select replace(name, uuid, '<uuid>') as name, description, docker_compose_raw, regexp_replace(replace(docker_compose, uuid, '<uuid>'), 'subUuid=[a-z0-9]+', 'subUuid=<part-uuid>', 'g') as docker_compose, environment_id, server_id, destination_id, destination_type, connect_to_docker_network, service_type, is_container_label_escape_enabled, compose_parsing_version, include_coolify_default_variables, redact_all_env_values_in_logs, config_hash from services where uuid not in (${FIXTURE_SERVICES})`,
+  applications: `select a.name, a.human_name, replace(a.fqdn, s.uuid, '<uuid>') as fqdn, a.image, a.status, a.exclude_from_status, a.is_log_drain_enabled, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_migrated, a.is_removed_from_compose, a.ports, a.redirect, a.is_force_https_enabled, a.uuid = '${SA_WEB}' as fixture_uuid from service_applications a join services s on s.id = a.service_id where s.uuid not in (${FIXTURE_SERVICES}) order by a.name`,
+  databases: `select d.name, d.human_name, d.image, d.status, d.exclude_from_status, d.is_log_drain_enabled, d.is_public, d.public_port, d.is_migrated, d.is_removed_from_compose, d.uuid = '${SD_DB}' as fixture_uuid from service_databases d join services s on s.id = d.service_id where s.uuid not in (${FIXTURE_SERVICES}) order by d.name`,
+  tags: `select tg.tag_id from taggables tg where tg.taggable_type = 'App\\Models\\Service' and tg.taggable_id = ${NEW_SERVICE} order by tg.tag_id`,
+  tasks: `select name, command, frequency, container, timeout, use_shell, enabled, uuid = '${ST_SERVICE}' as fixture_uuid from scheduled_tasks where service_id = ${NEW_SERVICE} order by name`,
+  variables: `select key, is_preview, is_required, is_shared, is_literal, is_multiline, is_shown_once, comment, version, value is not null as has_value from environment_variables where resourceable_type = 'App\\Models\\Service' and resourceable_id = ${NEW_SERVICE} order by key`,
+  volumes: `select replace(name, ${NEW_SERVICE_UUID}, '<uuid>') as name, mount_path, resource_type, uuid = '${PV_SERVICE}' as fixture_uuid from local_persistent_volumes where (resource_type = 'App\\Models\\ServiceApplication' and resource_id in ${SERVICE_PART_IDS("service_applications")}) or (resource_type = 'App\\Models\\ServiceDatabase' and resource_id in ${SERVICE_PART_IDS("service_databases")}) order by name`,
+  files: `select replace(fs_path, ${NEW_SERVICE_UUID}, '<uuid>') as fs_path, mount_path, is_directory, is_host_file, content is not null as has_content, resource_type from local_file_volumes where (resource_type = 'App\\Models\\ServiceApplication' and resource_id in ${SERVICE_PART_IDS("service_applications")}) or (resource_type = 'App\\Models\\ServiceDatabase' and resource_id in ${SERVICE_PART_IDS("service_databases")}) order by mount_path`,
+  backups: `select frequency, save_s3, enabled, databases_to_backup, (select count(*) from scheduled_database_backup_s3_storage p where p.scheduled_database_backup_id = b.id) as s3 from scheduled_database_backups b where database_type = 'App\\Models\\ServiceDatabase' and database_id in ${SERVICE_PART_IDS("service_databases")} order by frequency`,
+  links: `select resourceable_type, integration_token_id, settings::jsonb::text as settings from secret_manager_links where resourceable_type = 'App\\Models\\Service' and resourceable_id = ${NEW_SERVICE}`,
+  count: `select count(*) as services from services where uuid <> '${SV_OTHER}'`,
+};
+const SVC_CLONE = (uuid = SV_MAIN) => `/api/v1/services/${uuid}/clone`;
+const SVC_COMPOSE = (compose) => [`update services set docker_compose_raw = '${compose.replace(/'/g, "''")}' where id = 1`];
+const NAMED_VOLUME_COMPOSE = "services:\n  web:\n    image: 'nginx:alpine'\n    volumes:\n      - 'web-html:/usr/share/nginx/html'\n    environment:\n      - 'FOO=${FOO:-bar}'\n  db:\n    image: 'postgres:16-alpine'\n    volumes:\n      - 'db-data:/var/lib/postgresql/data'\n    environment:\n      - 'POSTGRES_PASSWORD=${DB_PASSWORD}'\n";
+const BIND_COMPOSE = "services:\n  web:\n    image: 'nginx:alpine'\n    volumes:\n      - './default.conf:/etc/nginx/conf.d/default.conf'\n    environment:\n      - 'FOO=${FOO:-bar}'\n";
+const HOST_COMPOSE = "services:\n  web:\n    image: 'nginx:alpine'\n    volumes:\n      - '/etc/timezone:/etc/timezone:ro'\n    environment:\n      - 'FOO=${FOO:-bar}'\n";
+const MAGIC_COMPOSE = "services:\n  web:\n    image: 'nginx:alpine'\n    environment:\n      - SERVICE_URL_WEB_80\n      - 'FOO=${FOO:-bar}'\n      - 'ADMIN_PASSWORD=${SERVICE_PASSWORD_ADMIN}'\n";
+const SERVICE_BACKUP = ["update scheduled_database_backups set database_type = 'App\\Models\\ServiceDatabase', database_id = 1 where id = 2"];
+add({ name: "service clone: clone", token: "write", method: "POST", path: SVC_CLONE(), body: { destination_uuid: D_MAIN }, after: SERVICE_CLONE_AFTER });
+add({ name: "service clone: with a name", token: "write", method: "POST", path: SVC_CLONE(), body: { destination_uuid: D_MAIN, name: "service-copy" }, after: SERVICE_CLONE_AFTER });
+add({ name: "service clone: a blank name", token: "write", method: "POST", path: SVC_CLONE(), body: { destination_uuid: D_MAIN, name: "   ", clone_volumes: false }, after: SERVICE_CLONE_AFTER });
+add({ name: "service clone: a clone of a clone", token: "write", method: "POST", path: SVC_CLONE(), setup: ["update services set name = 'parity-service-clone-abcdefgh1-clone-zyxwvut9' where id = 1"], body: { destination_uuid: D_MAIN }, after: SERVICE_CLONE_AFTER });
+add({ name: "service clone: a long name", token: "write", method: "POST", path: SVC_CLONE(), setup: [`update services set name = '${"s".repeat(250)}' where id = 1`], body: { destination_uuid: D_MAIN }, after: SERVICE_CLONE_AFTER });
+add({ name: "service clone: no volumes to copy", token: "root", method: "POST", path: SVC_CLONE(), body: { destination_uuid: D_MAIN, clone_volumes: true }, after: SERVICE_CLONE_AFTER });
+add({ name: "service clone: the volumes without deploy", token: "write", method: "POST", path: SVC_CLONE(), body: { destination_uuid: D_MAIN, clone_volumes: "1" }, after: { count: SERVICE_CLONE_AFTER.count } });
+add({ name: "service clone: named volumes", token: "write", method: "POST", path: SVC_CLONE(), setup: SVC_COMPOSE(NAMED_VOLUME_COMPOSE), body: { destination_uuid: D_MAIN }, after: SERVICE_CLONE_AFTER });
+add({ name: "service clone: named volumes, the volumes", token: "root", method: "POST", path: SVC_CLONE(), setup: SVC_COMPOSE(NAMED_VOLUME_COMPOSE), body: { destination_uuid: D_MAIN, clone_volumes: true }, after: SERVICE_CLONE_AFTER });
+add({ name: "service clone: a file mount", token: "write", method: "POST", path: SVC_CLONE(), setup: SVC_COMPOSE(BIND_COMPOSE), body: { destination_uuid: D_MAIN }, after: SERVICE_CLONE_AFTER });
+add({ name: "service clone: a host path", token: "write", method: "POST", path: SVC_CLONE(), setup: SVC_COMPOSE(HOST_COMPOSE), body: { destination_uuid: D_MAIN }, after: SERVICE_CLONE_AFTER });
+add({ name: "service clone: generated values", token: "write", method: "POST", path: SVC_CLONE(), setup: SVC_COMPOSE(MAGIC_COMPOSE), body: { destination_uuid: D_MAIN }, after: SERVICE_CLONE_AFTER });
+add({ name: "service clone: a database's backup schedule", token: "write", method: "POST", path: SVC_CLONE(), setup: SERVICE_BACKUP, body: { destination_uuid: D_MAIN }, after: SERVICE_CLONE_AFTER });
+add({ name: "service clone: its secret manager", token: "write", method: "POST", path: SVC_CLONE(), ...LINKED(INFISICAL_LINK), body: { destination_uuid: D_MAIN }, after: SERVICE_CLONE_AFTER });
+add({ name: "service clone: to another server", token: "write", method: "POST", path: SVC_CLONE(), ...SECOND, body: { destination_uuid: D_SECOND }, after: SERVICE_CLONE_AFTER });
+add({ name: "service clone: no body", token: "write", method: "POST", path: SVC_CLONE() });
+add({ name: "service clone: not JSON", token: "write", method: "POST", path: SVC_CLONE(), raw: "destination_uuid=x", contentType: "application/x-www-form-urlencoded" });
+add({ name: "service clone: validation", token: "write", method: "POST", path: SVC_CLONE(), body: { destination_uuid: 1, name: "x!", clone_volumes: "maybe", environment_uuid: E_STAGING } });
+add({ name: "service clone: a short name", token: "write", method: "POST", path: SVC_CLONE(), body: { destination_uuid: D_MAIN, name: "ab" } });
+add({ name: "service clone: unknown destination", token: "write", method: "POST", path: SVC_CLONE(), body: { destination_uuid: "nonexistentuuid" } });
+add({ name: "service clone: another team's destination", token: "write", method: "POST", path: SVC_CLONE(), body: { destination_uuid: D_OTHER } });
+add({ name: "service clone: a build server", token: "write", method: "POST", path: SVC_CLONE(), setup: ["update server_settings set server_role = 'build' where server_id = 1"], body: { destination_uuid: D_MAIN } });
+add({ name: "service clone: unknown service", token: "write", method: "POST", path: SVC_CLONE("nonexistentuuid"), body: { destination_uuid: D_MAIN } });
+add({ name: "service clone: another team's service", token: "write", method: "POST", path: SVC_CLONE(SV_OTHER), body: { destination_uuid: D_MAIN } });
+add({ name: "service clone: unknown service, empty JSON", token: "write", method: "POST", path: SVC_CLONE("nonexistentuuid"), raw: "{}" });
+add({ name: "service clone: unknown service, validation first", token: "write", method: "POST", path: SVC_CLONE("nonexistentuuid"), body: { name: "x" } });
+add({ name: "service clone: with a read token", token: "read", method: "POST", path: SVC_CLONE(), body: { destination_uuid: D_MAIN } });
+
 /** The tables whose column order emit.php writes into the goldens (`columns`): what a nested relation serializes in. */
 const columnsOf = ["servers", "server_settings", "standalone_dockers", "application_settings", "applications", "environment_variables", "application_deployment_queues", "scheduled_database_backups", "scheduled_database_backup_executions", "services", "service_applications", "service_databases", "projects", "environments", "standalone_postgresqls", "standalone_redis", "standalone_mongodbs", "standalone_mysqls", "standalone_mariadbs", "standalone_keydbs", "standalone_dragonflies", "standalone_clickhouses", "local_persistent_volumes", "local_file_volumes", "github_apps"];
 

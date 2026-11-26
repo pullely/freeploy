@@ -1,7 +1,8 @@
 // Services (DP-59) against a real Postgres with the deploy schema at head: the store functions of @saas/db/deploy inside withOrg() —
 // the rows a parsed one-click service is stored as (Coolify's hooks and the schema's defaults, column by
 // column), its applications, databases, variables and volumes with the ids they refer to each other by,
-// what a service's page reads back, and row-level security keeping each org's rows to itself.
+// what a service's page reads back, clone_service()'s replicas (DP-108), and row-level security keeping each org's rows to
+// itself.
 import type { PGlite } from "@electric-sql/pglite";
 import {
   withOrg,
@@ -19,6 +20,14 @@ import {
   findServiceServer,
   SERVICE_MORPH_CLASS,
   SERVICE_PART_MORPH_CLASS,
+  replicateService,
+  listServiceScheduledTaskIds,
+  replicateServiceScheduledTask,
+  listServiceEnvironmentVariableIds,
+  replicateServiceEnvironmentVariable,
+  cloneServiceSecretManagerLink,
+  listServiceDatabaseBackupScheduleIds,
+  replicateServiceDatabaseBackupSchedule,
   type DeployDestinationRow,
   type NewParsedService,
 } from "@saas/db/deploy";
@@ -219,5 +228,40 @@ describe("deploy.services and the rows a service is parsed into", () => {
     expect(await withOrg(ex, A, (tx) => listServiceDatabases(tx, bRow!.id))).toEqual([]);
     // A row written for another org is refused by the policy's WITH CHECK.
     await expect(withOrg(ex, A, (tx) => insertParsedService(tx, service(B, fx.a!, "svcx")))).rejects.toThrow();
+  });
+});
+
+describe("clone_service()'s rows (DP-108)", () => {
+  it("replicates the service with the clone's uuid and name, and copies its tasks, variables, secret manager link and backups", async () => {
+    const source = await withOrg(ex, A, (tx) => insertParsedService(tx, service(A, fx.a!, "svcsource")));
+    const [db1] = await raw("service_databases", "service_id = $1", [source]);
+    await withOrg(ex, A, async (tx) => {
+      await tx.execute("INSERT INTO deploy.scheduled_tasks (uuid, name, command, frequency, service_id, org_id) VALUES ('tasksrc', 'vacuum', 'vacuumdb', '@daily', $1, $2)", [source, A]);
+      const token = await tx.execute<{ id: string }>("INSERT INTO deploy.integration_tokens (uuid, provider, name, token, capabilities, org_id) VALUES ('tokclone', 'doppler', 'd', 'fp1:x', '[]', $1) RETURNING id", [A]);
+      await tx.execute(`INSERT INTO deploy.secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id) VALUES ('linksrc', $1, $2, $3, '{"project":"p"}', $4)`, [SERVICE_MORPH_CLASS, source, token.rows[0]!.id, A]);
+      await tx.execute("INSERT INTO deploy.scheduled_database_backups (uuid, frequency, database_type, database_id, org_id) VALUES ('bksrc', '@daily', $1, $2, $3)", [SERVICE_PART_MORPH_CLASS.database, db1!.id, A]);
+    });
+    const replica = { uuid: "svcclone", name: "svc-clone", environmentId: fx.a!.environmentId, destinationId: fx.a!.destination.id, destinationType: "standalone" as const, serverId: fx.a!.destination.server_id };
+    const clone = await withOrg(ex, A, async (tx) => {
+      const id = (await replicateService(tx, source, replica))!;
+      for (const task of await listServiceScheduledTaskIds(tx, source)) await replicateServiceScheduledTask(tx, task, { uuid: "taskclone", serviceId: id });
+      for (const v of await listServiceEnvironmentVariableIds(tx, source)) await replicateServiceEnvironmentVariable(tx, v, { uuid: `varclone${v}`, serviceId: id, version: "4.7.6" });
+      await cloneServiceSecretManagerLink(tx, source, id, "linkclone");
+      for (const b of await listServiceDatabaseBackupScheduleIds(tx, db1!.id as string)) await replicateServiceDatabaseBackupSchedule(tx, b, { uuid: "bkclone", databaseId: db1!.id as string });
+      return id;
+    });
+    const [row] = await raw("services", "id = $1", [clone]);
+    const [src] = await raw("services", "id = $1", [source]);
+    expect(row).toMatchObject({ uuid: "svcclone", name: "svc-clone", docker_compose_raw: src!.docker_compose_raw, docker_compose: src!.docker_compose, service_type: "umami", compose_parsing_version: "5", org_id: A });
+    expect((await raw("scheduled_tasks", "service_id = $1", [clone])).map((t) => [t.uuid, t.name, t.command])).toEqual([["taskclone", "vacuum", "vacuumdb"]]);
+    expect((await raw("environment_variables", "resourceable_type = $1 AND resourceable_id = $2", [SERVICE_MORPH_CLASS, clone])).map((v) => [v.key, v.value, v.version])).toEqual([
+      ["SERVICE_PASSWORD_POSTGRES", "fp1:secret", "4.7.6"],
+      ["POSTGRES_DB", null, "4.7.6"],
+    ]);
+    const [link] = await raw("secret_manager_links", "resourceable_id = $1 AND resourceable_type = $2", [clone, SERVICE_MORPH_CLASS]);
+    expect([link!.uuid, typeof link!.settings === "string" ? JSON.parse(link!.settings) : link!.settings]).toEqual(["linkclone", { project: "p" }]);
+    expect((await raw("scheduled_database_backups", "uuid = 'bkclone'", [])).map((b) => [b.frequency, b.database_type])).toEqual([["@daily", SERVICE_PART_MORPH_CLASS.database]]);
+    // Another org replicates nothing of it.
+    expect(await withOrg(ex, B, (tx) => replicateService(tx, source, { ...replica, uuid: "svcclone-b", environmentId: fx.b!.environmentId, destinationId: fx.b!.destination.id, serverId: fx.b!.destination.server_id }))).toBeNull();
   });
 });

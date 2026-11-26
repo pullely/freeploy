@@ -33,6 +33,7 @@ import { errorResponse, methodNotAllowed, successResponse, validationError } fro
 import { authorizeDeploy, readJson } from "./cloud-tokens.js";
 import { applicationResourcesContext } from "./application-resources.js";
 import { databaseResourcesContext } from "./database-resources.js";
+import { serviceResourcesContext } from "./service-configuration.js";
 import { SettingsFieldErrors } from "../applications/settings.js";
 import { CloneMeError, cloneEnvironment, showCloneMe, type CloneMeContext, type CloneMeStore } from "../projects/clone-me.js";
 
@@ -64,6 +65,7 @@ export function cloneMeContext(tx: SqlExecutor, orgId: string, secret: string | 
     store: cloneMeSqlStore(tx, orgId),
     application: applicationResourcesContext(tx, orgId, secret),
     database: (uuid) => databaseResourcesContext(tx, orgId, secret, uuid),
+    service: serviceResourcesContext(tx, orgId, secret),
   };
 }
 

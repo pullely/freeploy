@@ -240,9 +240,25 @@ function servicePages(db: MemoryDb): ServicePagesStore {
   };
 }
 
-function serviceCloneStore(): ServiceCloneStore {
+/** cloneTo()'s lookups; clone_service()'s rows are recorded only (the clone itself is service-clone.test.ts's, on PGlite). */
+function serviceCloneStore(replicas: unknown[] = []): ServiceCloneStore {
   const server = (uuid: string, role: string | null) => ({ id: uuid === "srv1" ? 100 : 101, uuid, name: uuid, ip: "203.0.113.10", server_role: role, is_build_server: role === "build" }) as unknown as DeployServerRow;
+  const unused = async (): Promise<never> => {
+    throw new Error("not reached: the replica is not stored in memory");
+  };
   return {
+    replicateService: async (sourceId, replica) => {
+      replicas.push([sourceId, replica]);
+      return null;
+    },
+    copyTags: unused,
+    scheduledTaskIds: unused,
+    replicateScheduledTask: unused,
+    environmentVariableIds: unused,
+    replicateEnvironmentVariable: unused,
+    cloneSecretManagerLink: unused,
+    backupScheduleIds: unused,
+    replicateBackupSchedule: unused,
     findDestination: async (uuid) => (uuid === "dst1" ? ({ id: 200, uuid: "dst1", name: "default", network: "coolify", type: "standalone", server_uuid: "srv1" } as unknown as DeployDestinationRow) : uuid === "dst-build" ? ({ id: 201, uuid: "dst-build", name: "build", network: "coolify", type: "standalone", server_uuid: "srv-build" } as unknown as DeployDestinationRow) : null),
     findServer: async (uuid) => (uuid === "srv1" ? server("srv1", null) : uuid === "srv-build" ? server("srv-build", "build") : null),
   };
@@ -252,6 +268,7 @@ const same = (a: Id, b: Id) => String(a) === String(b);
 
 function setup(opts: { write?: boolean; read?: boolean; template?: string } = {}) {
   const db = new MemoryDb(opts.template);
+  const replicas: unknown[] = [];
   const store = db;
   const env: Env = {
     ENVIRONMENT: "test",
@@ -270,7 +287,7 @@ function setup(opts: { write?: boolean; read?: boolean; template?: string } = {}
       content: cipher,
       deleteService: async () => (db.deleted = true),
       pages: servicePages(db),
-      clone: serviceCloneStore(),
+      clone: serviceCloneStore(replicas),
     });
   const variableTypes: string[] = [];
   const variablesRunner: EnvironmentVariableRunner = async (_env, _orgId, type) => {
@@ -286,7 +303,7 @@ function setup(opts: { write?: boolean; read?: boolean; template?: string } = {}
     const res = await handleServiceConfiguration(env, "req_1", actor, ORG_UUID, segments, new Request(`${BASE}/services/${path}`, init), runner, variablesRunner, deps);
     return { status: res.status, body: (await res.json()) as Body };
   };
-  return { db, env, call, variableTypes };
+  return { db, env, call, variableTypes, replicas };
 }
 
 const data = <T = Body>(r: { body: Body }) => r.body.data as T;
@@ -671,16 +688,20 @@ describe("a service's Webhooks and Resource Operations", () => {
     expect((await setup({ write: false }).call("POST", "svc1/resource-operations/move", { environment_uuid: "env2" })).status).toBe(404);
   });
 
-  it("Clone answers cloneTo()'s checks, then that cloning a service is not available yet; nothing is stored", async () => {
-    const { call, db } = setup();
+  it("Clone answers cloneTo()'s checks, then replicates the service onto the destination in the chosen environment", async () => {
+    const { call, db, replicas } = setup();
     const noEnvironment = await call("POST", "svc1/resource-operations/clone", { environment_uuid: "nope", destination_uuid: "dst1" });
     expect(error(noEnvironment).details?.fields).toEqual({ environment_id: ["Environment not found."] });
     for (const destination of [undefined, "", "nope", "dst-build"]) {
       const r = await call("POST", "svc1/resource-operations/clone", { destination_uuid: destination });
       expect([destination, r.status, error(r).details?.fields]).toEqual([destination, 422, { destination_id: ["Destination not found."] }]);
     }
+    expect(replicas).toEqual([]);
+    // clone_service() with the environment (DP-108): the replica's uuid, clone_resource_name(), the destination's server.
+    // The memory store keeps no replica, so the clone is the service-clone.test.ts's (PGlite) and this answers 404.
     const r = await call("POST", "svc1/resource-operations/clone", { destination_uuid: "dst1", environment_uuid: "env2", cloneVolumeData: false });
-    expect([r.status, error(r).message]).toEqual([501, "Cloning a service is not available yet."]);
+    expect(r.status).toBe(404);
+    expect(replicas).toEqual([[7, { uuid: "new1", name: expect.stringMatching(/-clone-new1$/), environmentId: 11, destinationId: 200, destinationType: "standalone", serverId: 100 }]]);
     expect(db.moves).toEqual([]);
     expect((await call("POST", "other/resource-operations/clone", { destination_uuid: "dst1" })).status).toBe(404);
   });

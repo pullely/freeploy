@@ -33,7 +33,8 @@
 //   GET    /resource-operations           ResourceOperations (DP-97)
 //   POST   /resource-operations/move      moveTo { environment_uuid }
 //   POST   /resource-operations/clone     cloneTo { destination_uuid, environment_uuid, cloneVolumeData }: Coolify's
-//                                         checks, then 501 (clone_service() is not ported, services/clone.ts)
+//                                         checks, then clone_service() (DP-108, services/clone.ts); a file mount to
+//                                         write or volume data to copy answers 501, the transaction rolled back
 //
 // Coolify's policy: view to read; update, manageEnvironment and delete to write. Here: deploy.resource.read
 // and deploy.resource.write; a denial answers 404 (never leaks).
@@ -69,12 +70,22 @@ import {
   moveService,
   findDestinationByUuid,
   findServerByUuid,
+  replicateService,
+  copyResourceTags,
+  listServiceScheduledTaskIds,
+  replicateServiceScheduledTask,
+  listServiceEnvironmentVariableIds,
+  replicateServiceEnvironmentVariable,
+  cloneServiceSecretManagerLink,
+  listServiceDatabaseBackupScheduleIds,
+  replicateServiceDatabaseBackupSchedule,
+  SERVICE_MORPH_CLASS,
   type ScheduledTaskOwner,
 } from "@saas/db/deploy";
 import { addHostTask, deleteHostTask, executeHostTask, showHostTask, showHostTasks, toggleHostTask, updateHostTask, type TaskHost } from "../applications/scheduled-tasks.js";
 import { showResourceOperations } from "../applications/resource-operations.js";
 import { moveServiceTo, serviceTaskHost, showServiceWebhooks, type ServicePagesStore } from "../services/resource-pages.js";
-import { cloneServiceTo } from "../services/clone.js";
+import { cloneServiceTo, type ServiceCloneStore } from "../services/clone.js";
 import { errorResponse, methodNotAllowed, successResponse } from "../http.js";
 import type { KeyCipher } from "../private-keys/service.js";
 import { authorizeDeploy, columnCipher, readJson } from "./cloud-tokens.js";
@@ -145,7 +156,25 @@ export function serviceResourcesContext(tx: SqlExecutor, orgId: string, secret: 
     content: cipher("local_file_volumes.content"),
     deleteService: (serviceId) => deleteService(tx, serviceId),
     pages: servicePagesSqlStore(tx, orgId),
-    clone: { findDestination: (uuid) => findDestinationByUuid(tx, uuid), findServer: (uuid) => findServerByUuid(tx, uuid) },
+    clone: serviceCloneSqlStore(tx),
+  };
+}
+
+/** clone_service()'s rows (DP-108) and cloneTo()'s destination lookups (DP-97). */
+function serviceCloneSqlStore(tx: SqlExecutor): ServiceCloneStore {
+  const service = (id: string | number) => ({ type: SERVICE_MORPH_CLASS, id });
+  return {
+    findDestination: (uuid) => findDestinationByUuid(tx, uuid),
+    findServer: (uuid) => findServerByUuid(tx, uuid),
+    replicateService: (sourceId, replica) => replicateService(tx, sourceId, replica),
+    copyTags: (sourceId, cloneId) => copyResourceTags(tx, service(sourceId), service(cloneId)),
+    scheduledTaskIds: (serviceId) => listServiceScheduledTaskIds(tx, serviceId),
+    replicateScheduledTask: (taskId, replica) => replicateServiceScheduledTask(tx, taskId, replica),
+    environmentVariableIds: (serviceId) => listServiceEnvironmentVariableIds(tx, serviceId),
+    replicateEnvironmentVariable: (variableId, replica) => replicateServiceEnvironmentVariable(tx, variableId, replica),
+    cloneSecretManagerLink: (sourceId, cloneId, uuid) => cloneServiceSecretManagerLink(tx, sourceId, cloneId, uuid),
+    backupScheduleIds: (databaseId) => listServiceDatabaseBackupScheduleIds(tx, databaseId),
+    replicateBackupSchedule: (scheduleId, replica) => replicateServiceDatabaseBackupSchedule(tx, scheduleId, replica),
   };
 }
 
