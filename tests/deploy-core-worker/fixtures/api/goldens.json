@@ -75056,6 +75056,1923 @@
                 ]
             },
             "requests": []
+        },
+        {
+            "name": "service clone: clone",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"57hbkwzc7ufor25tw36diffw\",\"message\":\"Service cloned.\"}"
+            },
+            "after": {
+                "service": [
+                    {
+                        "name": "parity-service-clone-<uuid>",
+                        "description": "The fixture's service",
+                        "docker_compose_raw": "services:\n  web:\n    image: 'nginx:alpine'\n    environment:\n      - 'FOO=${FOO:-bar}'\n  db:\n    image: 'postgres:16-alpine'\n    environment:\n      - 'POSTGRES_PASSWORD=${DB_PASSWORD}'\n",
+                        "docker_compose": "services:\n  web:\n    image: 'nginx:alpine'\n    environment:\n      FOO: '${FOO:-bar}'\n      COOLIFY_RESOURCE_UUID: <uuid>\n      COOLIFY_CONTAINER_NAME: web-<uuid>\n      COOLIFY_APP_NAME: parity-service-clone-<uuid>\n      COOLIFY_PROJECT_NAME: Alpha\n      COOLIFY_ENVIRONMENT_NAME: production\n      COOLIFY_SERVER_IP: 203.0.113.10\n      SERVICE_NAME_WEB: web\n      SERVICE_NAME_DB: db\n    container_name: web-<uuid>\n    restart: unless-stopped\n    labels:\n      - coolify.managed=true\n      - coolify.version=4.7.6\n      - coolify.serviceUuid=<uuid>\n      - coolify.type=service\n      - coolify.name=web-<uuid>\n      - coolify.resourceName=parity-service-clone-<uuid>\n      - coolify.projectName=alpha\n      - coolify.serviceName=web\n      - coolify.environmentName=production\n      - coolify.pullRequestId=0\n      - coolify.service.subUuid=<part-uuid>\n      - coolify.service.subType=application\n      - coolify.service.subName=web\n    networks:\n      <uuid>: null\n    env_file:\n      - .env\n  db:\n    image: 'postgres:16-alpine'\n    environment:\n      POSTGRES_PASSWORD: '${DB_PASSWORD}'\n      COOLIFY_RESOURCE_UUID: <uuid>\n      COOLIFY_CONTAINER_NAME: db-<uuid>\n      COOLIFY_APP_NAME: parity-service-clone-<uuid>\n      COOLIFY_PROJECT_NAME: Alpha\n      COOLIFY_ENVIRONMENT_NAME: production\n      COOLIFY_SERVER_IP: 203.0.113.10\n      SERVICE_NAME_WEB: web\n      SERVICE_NAME_DB: db\n    container_name: db-<uuid>\n    restart: unless-stopped\n    labels:\n      - coolify.managed=true\n      - coolify.version=4.7.6\n      - coolify.serviceUuid=<uuid>\n      - coolify.type=service\n      - coolify.name=db-<uuid>\n      - coolify.resourceName=parity-service-clone-<uuid>\n      - coolify.projectName=alpha\n      - coolify.serviceName=db\n      - coolify.environmentName=production\n      - coolify.pullRequestId=0\n      - coolify.service.subUuid=<part-uuid>\n      - coolify.service.subType=database\n      - coolify.service.subName=db\n    networks:\n      <uuid>: null\n    env_file:\n      - .env\nnetworks:\n  <uuid>:\n    name: <uuid>\n    external: true\n",
+                        "environment_id": 1,
+                        "server_id": 1,
+                        "destination_id": 1,
+                        "destination_type": "App\\Models\\StandaloneDocker",
+                        "connect_to_docker_network": false,
+                        "service_type": null,
+                        "is_container_label_escape_enabled": true,
+                        "compose_parsing_version": "5",
+                        "include_coolify_default_variables": true,
+                        "redact_all_env_values_in_logs": true,
+                        "config_hash": null
+                    }
+                ],
+                "applications": [
+                    {
+                        "name": "web",
+                        "human_name": null,
+                        "fqdn": null,
+                        "image": "nginx:alpine",
+                        "status": "exited",
+                        "exclude_from_status": false,
+                        "is_log_drain_enabled": false,
+                        "is_gzip_enabled": true,
+                        "is_stripprefix_enabled": true,
+                        "is_migrated": false,
+                        "is_removed_from_compose": false,
+                        "ports": "",
+                        "redirect": "both",
+                        "is_force_https_enabled": true,
+                        "fixture_uuid": false
+                    }
+                ],
+                "databases": [
+                    {
+                        "name": "db",
+                        "human_name": null,
+                        "image": "postgres:16-alpine",
+                        "status": "exited",
+                        "exclude_from_status": false,
+                        "is_log_drain_enabled": false,
+                        "is_public": false,
+                        "public_port": null,
+                        "is_migrated": false,
+                        "is_removed_from_compose": false,
+                        "fixture_uuid": false
+                    }
+                ],
+                "tags": [
+                    {
+                        "tag_id": 2
+                    }
+                ],
+                "tasks": [
+                    {
+                        "name": "vacuum",
+                        "command": "vacuumdb --all",
+                        "frequency": "*/30 * * * *",
+                        "container": "db",
+                        "timeout": 600,
+                        "use_shell": true,
+                        "enabled": true,
+                        "fixture_uuid": false
+                    }
+                ],
+                "variables": [
+                    {
+                        "key": "DB_PASSWORD",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": true,
+                        "comment": "Locked",
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "FOO",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "comment": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    }
+                ],
+                "volumes": [],
+                "files": [],
+                "backups": [],
+                "links": [],
+                "count": [
+                    {
+                        "services": 2
+                    }
+                ]
+            }
+        },
+        {
+            "name": "service clone: with a name",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"7j63ulgjpgyhcino731ercpc\",\"message\":\"Service cloned.\"}"
+            },
+            "after": {
+                "service": [
+                    {
+                        "name": "service-copy",
+                        "description": "The fixture's service",
+                        "docker_compose_raw": "services:\n  web:\n    image: 'nginx:alpine'\n    environment:\n      - 'FOO=${FOO:-bar}'\n  db:\n    image: 'postgres:16-alpine'\n    environment:\n      - 'POSTGRES_PASSWORD=${DB_PASSWORD}'\n",
+                        "docker_compose": "services:\n  web:\n    image: 'nginx:alpine'\n    environment:\n      FOO: '${FOO:-bar}'\n      COOLIFY_RESOURCE_UUID: <uuid>\n      COOLIFY_CONTAINER_NAME: web-<uuid>\n      COOLIFY_APP_NAME: service-copy\n      COOLIFY_PROJECT_NAME: Alpha\n      COOLIFY_ENVIRONMENT_NAME: production\n      COOLIFY_SERVER_IP: 203.0.113.10\n      SERVICE_NAME_WEB: web\n      SERVICE_NAME_DB: db\n    container_name: web-<uuid>\n    restart: unless-stopped\n    labels:\n      - coolify.managed=true\n      - coolify.version=4.7.6\n      - coolify.serviceUuid=<uuid>\n      - coolify.type=service\n      - coolify.name=web-<uuid>\n      - coolify.resourceName=service-copy\n      - coolify.projectName=alpha\n      - coolify.serviceName=web\n      - coolify.environmentName=production\n      - coolify.pullRequestId=0\n      - coolify.service.subUuid=<part-uuid>\n      - coolify.service.subType=application\n      - coolify.service.subName=web\n    networks:\n      <uuid>: null\n    env_file:\n      - .env\n  db:\n    image: 'postgres:16-alpine'\n    environment:\n      POSTGRES_PASSWORD: '${DB_PASSWORD}'\n      COOLIFY_RESOURCE_UUID: <uuid>\n      COOLIFY_CONTAINER_NAME: db-<uuid>\n      COOLIFY_APP_NAME: service-copy\n      COOLIFY_PROJECT_NAME: Alpha\n      COOLIFY_ENVIRONMENT_NAME: production\n      COOLIFY_SERVER_IP: 203.0.113.10\n      SERVICE_NAME_WEB: web\n      SERVICE_NAME_DB: db\n    container_name: db-<uuid>\n    restart: unless-stopped\n    labels:\n      - coolify.managed=true\n      - coolify.version=4.7.6\n      - coolify.serviceUuid=<uuid>\n      - coolify.type=service\n      - coolify.name=db-<uuid>\n      - coolify.resourceName=service-copy\n      - coolify.projectName=alpha\n      - coolify.serviceName=db\n      - coolify.environmentName=production\n      - coolify.pullRequestId=0\n      - coolify.service.subUuid=<part-uuid>\n      - coolify.service.subType=database\n      - coolify.service.subName=db\n    networks:\n      <uuid>: null\n    env_file:\n      - .env\nnetworks:\n  <uuid>:\n    name: <uuid>\n    external: true\n",
+                        "environment_id": 1,
+                        "server_id": 1,
+                        "destination_id": 1,
+                        "destination_type": "App\\Models\\StandaloneDocker",
+                        "connect_to_docker_network": false,
+                        "service_type": null,
+                        "is_container_label_escape_enabled": true,
+                        "compose_parsing_version": "5",
+                        "include_coolify_default_variables": true,
+                        "redact_all_env_values_in_logs": true,
+                        "config_hash": null
+                    }
+                ],
+                "applications": [
+                    {
+                        "name": "web",
+                        "human_name": null,
+                        "fqdn": null,
+                        "image": "nginx:alpine",
+                        "status": "exited",
+                        "exclude_from_status": false,
+                        "is_log_drain_enabled": false,
+                        "is_gzip_enabled": true,
+                        "is_stripprefix_enabled": true,
+                        "is_migrated": false,
+                        "is_removed_from_compose": false,
+                        "ports": "",
+                        "redirect": "both",
+                        "is_force_https_enabled": true,
+                        "fixture_uuid": false
+                    }
+                ],
+                "databases": [
+                    {
+                        "name": "db",
+                        "human_name": null,
+                        "image": "postgres:16-alpine",
+                        "status": "exited",
+                        "exclude_from_status": false,
+                        "is_log_drain_enabled": false,
+                        "is_public": false,
+                        "public_port": null,
+                        "is_migrated": false,
+                        "is_removed_from_compose": false,
+                        "fixture_uuid": false
+                    }
+                ],
+                "tags": [
+                    {
+                        "tag_id": 2
+                    }
+                ],
+                "tasks": [
+                    {
+                        "name": "vacuum",
+                        "command": "vacuumdb --all",
+                        "frequency": "*/30 * * * *",
+                        "container": "db",
+                        "timeout": 600,
+                        "use_shell": true,
+                        "enabled": true,
+                        "fixture_uuid": false
+                    }
+                ],
+                "variables": [
+                    {
+                        "key": "DB_PASSWORD",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": true,
+                        "comment": "Locked",
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "FOO",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "comment": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    }
+                ],
+                "volumes": [],
+                "files": [],
+                "backups": [],
+                "links": [],
+                "count": [
+                    {
+                        "services": 2
+                    }
+                ]
+            }
+        },
+        {
+            "name": "service clone: a blank name",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"o5jktceeioyikkr4ayn2bi2s\",\"message\":\"Service cloned.\"}"
+            },
+            "after": {
+                "service": [
+                    {
+                        "name": "parity-service-clone-<uuid>",
+                        "description": "The fixture's service",
+                        "docker_compose_raw": "services:\n  web:\n    image: 'nginx:alpine'\n    environment:\n      - 'FOO=${FOO:-bar}'\n  db:\n    image: 'postgres:16-alpine'\n    environment:\n      - 'POSTGRES_PASSWORD=${DB_PASSWORD}'\n",
+                        "docker_compose": "services:\n  web:\n    image: 'nginx:alpine'\n    environment:\n      FOO: '${FOO:-bar}'\n      COOLIFY_RESOURCE_UUID: <uuid>\n      COOLIFY_CONTAINER_NAME: web-<uuid>\n      COOLIFY_APP_NAME: parity-service-clone-<uuid>\n      COOLIFY_PROJECT_NAME: Alpha\n      COOLIFY_ENVIRONMENT_NAME: production\n      COOLIFY_SERVER_IP: 203.0.113.10\n      SERVICE_NAME_WEB: web\n      SERVICE_NAME_DB: db\n    container_name: web-<uuid>\n    restart: unless-stopped\n    labels:\n      - coolify.managed=true\n      - coolify.version=4.7.6\n      - coolify.serviceUuid=<uuid>\n      - coolify.type=service\n      - coolify.name=web-<uuid>\n      - coolify.resourceName=parity-service-clone-<uuid>\n      - coolify.projectName=alpha\n      - coolify.serviceName=web\n      - coolify.environmentName=production\n      - coolify.pullRequestId=0\n      - coolify.service.subUuid=<part-uuid>\n      - coolify.service.subType=application\n      - coolify.service.subName=web\n    networks:\n      <uuid>: null\n    env_file:\n      - .env\n  db:\n    image: 'postgres:16-alpine'\n    environment:\n      POSTGRES_PASSWORD: '${DB_PASSWORD}'\n      COOLIFY_RESOURCE_UUID: <uuid>\n      COOLIFY_CONTAINER_NAME: db-<uuid>\n      COOLIFY_APP_NAME: parity-service-clone-<uuid>\n      COOLIFY_PROJECT_NAME: Alpha\n      COOLIFY_ENVIRONMENT_NAME: production\n      COOLIFY_SERVER_IP: 203.0.113.10\n      SERVICE_NAME_WEB: web\n      SERVICE_NAME_DB: db\n    container_name: db-<uuid>\n    restart: unless-stopped\n    labels:\n      - coolify.managed=true\n      - coolify.version=4.7.6\n      - coolify.serviceUuid=<uuid>\n      - coolify.type=service\n      - coolify.name=db-<uuid>\n      - coolify.resourceName=parity-service-clone-<uuid>\n      - coolify.projectName=alpha\n      - coolify.serviceName=db\n      - coolify.environmentName=production\n      - coolify.pullRequestId=0\n      - coolify.service.subUuid=<part-uuid>\n      - coolify.service.subType=database\n      - coolify.service.subName=db\n    networks:\n      <uuid>: null\n    env_file:\n      - .env\nnetworks:\n  <uuid>:\n    name: <uuid>\n    external: true\n",
+                        "environment_id": 1,
+                        "server_id": 1,
+                        "destination_id": 1,
+                        "destination_type": "App\\Models\\StandaloneDocker",
+                        "connect_to_docker_network": false,
+                        "service_type": null,
+                        "is_container_label_escape_enabled": true,
+                        "compose_parsing_version": "5",
+                        "include_coolify_default_variables": true,
+                        "redact_all_env_values_in_logs": true,
+                        "config_hash": null
+                    }
+                ],
+                "applications": [
+                    {
+                        "name": "web",
+                        "human_name": null,
+                        "fqdn": null,
+                        "image": "nginx:alpine",
+                        "status": "exited",
+                        "exclude_from_status": false,
+                        "is_log_drain_enabled": false,
+                        "is_gzip_enabled": true,
+                        "is_stripprefix_enabled": true,
+                        "is_migrated": false,
+                        "is_removed_from_compose": false,
+                        "ports": "",
+                        "redirect": "both",
+                        "is_force_https_enabled": true,
+                        "fixture_uuid": false
+                    }
+                ],
+                "databases": [
+                    {
+                        "name": "db",
+                        "human_name": null,
+                        "image": "postgres:16-alpine",
+                        "status": "exited",
+                        "exclude_from_status": false,
+                        "is_log_drain_enabled": false,
+                        "is_public": false,
+                        "public_port": null,
+                        "is_migrated": false,
+                        "is_removed_from_compose": false,
+                        "fixture_uuid": false
+                    }
+                ],
+                "tags": [
+                    {
+                        "tag_id": 2
+                    }
+                ],
+                "tasks": [
+                    {
+                        "name": "vacuum",
+                        "command": "vacuumdb --all",
+                        "frequency": "*/30 * * * *",
+                        "container": "db",
+                        "timeout": 600,
+                        "use_shell": true,
+                        "enabled": true,
+                        "fixture_uuid": false
+                    }
+                ],
+                "variables": [
+                    {
+                        "key": "DB_PASSWORD",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": true,
+                        "comment": "Locked",
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "FOO",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "comment": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    }
+                ],
+                "volumes": [],
+                "files": [],
+                "backups": [],
+                "links": [],
+                "count": [
+                    {
+                        "services": 2
+                    }
+                ]
+            }
+        },
+        {
+            "name": "service clone: a clone of a clone",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"czydi3en3gmrdjrkupwt2fb0\",\"message\":\"Service cloned.\"}"
+            },
+            "after": {
+                "service": [
+                    {
+                        "name": "parity-service-clone-<uuid>",
+                        "description": "The fixture's service",
+                        "docker_compose_raw": "services:\n  web:\n    image: 'nginx:alpine'\n    environment:\n      - 'FOO=${FOO:-bar}'\n  db:\n    image: 'postgres:16-alpine'\n    environment:\n      - 'POSTGRES_PASSWORD=${DB_PASSWORD}'\n",
+                        "docker_compose": "services:\n  web:\n    image: 'nginx:alpine'\n    environment:\n      FOO: '${FOO:-bar}'\n      COOLIFY_RESOURCE_UUID: <uuid>\n      COOLIFY_CONTAINER_NAME: web-<uuid>\n      COOLIFY_APP_NAME: parity-service-clone-<uuid>\n      COOLIFY_PROJECT_NAME: Alpha\n      COOLIFY_ENVIRONMENT_NAME: production\n      COOLIFY_SERVER_IP: 203.0.113.10\n      SERVICE_NAME_WEB: web\n      SERVICE_NAME_DB: db\n    container_name: web-<uuid>\n    restart: unless-stopped\n    labels:\n      - coolify.managed=true\n      - coolify.version=4.7.6\n      - coolify.serviceUuid=<uuid>\n      - coolify.type=service\n      - coolify.name=web-<uuid>\n      - coolify.resourceName=parity-service-clone-<uuid>\n      - coolify.projectName=alpha\n      - coolify.serviceName=web\n      - coolify.environmentName=production\n      - coolify.pullRequestId=0\n      - coolify.service.subUuid=<part-uuid>\n      - coolify.service.subType=application\n      - coolify.service.subName=web\n    networks:\n      <uuid>: null\n    env_file:\n      - .env\n  db:\n    image: 'postgres:16-alpine'\n    environment:\n      POSTGRES_PASSWORD: '${DB_PASSWORD}'\n      COOLIFY_RESOURCE_UUID: <uuid>\n      COOLIFY_CONTAINER_NAME: db-<uuid>\n      COOLIFY_APP_NAME: parity-service-clone-<uuid>\n      COOLIFY_PROJECT_NAME: Alpha\n      COOLIFY_ENVIRONMENT_NAME: production\n      COOLIFY_SERVER_IP: 203.0.113.10\n      SERVICE_NAME_WEB: web\n      SERVICE_NAME_DB: db\n    container_name: db-<uuid>\n    restart: unless-stopped\n    labels:\n      - coolify.managed=true\n      - coolify.version=4.7.6\n      - coolify.serviceUuid=<uuid>\n      - coolify.type=service\n      - coolify.name=db-<uuid>\n      - coolify.resourceName=parity-service-clone-<uuid>\n      - coolify.projectName=alpha\n      - coolify.serviceName=db\n      - coolify.environmentName=production\n      - coolify.pullRequestId=0\n      - coolify.service.subUuid=<part-uuid>\n      - coolify.service.subType=database\n      - coolify.service.subName=db\n    networks:\n      <uuid>: null\n    env_file:\n      - .env\nnetworks:\n  <uuid>:\n    name: <uuid>\n    external: true\n",
+                        "environment_id": 1,
+                        "server_id": 1,
+                        "destination_id": 1,
+                        "destination_type": "App\\Models\\StandaloneDocker",
+                        "connect_to_docker_network": false,
+                        "service_type": null,
+                        "is_container_label_escape_enabled": true,
+                        "compose_parsing_version": "5",
+                        "include_coolify_default_variables": true,
+                        "redact_all_env_values_in_logs": true,
+                        "config_hash": null
+                    }
+                ],
+                "applications": [
+                    {
+                        "name": "web",
+                        "human_name": null,
+                        "fqdn": null,
+                        "image": "nginx:alpine",
+                        "status": "exited",
+                        "exclude_from_status": false,
+                        "is_log_drain_enabled": false,
+                        "is_gzip_enabled": true,
+                        "is_stripprefix_enabled": true,
+                        "is_migrated": false,
+                        "is_removed_from_compose": false,
+                        "ports": "",
+                        "redirect": "both",
+                        "is_force_https_enabled": true,
+                        "fixture_uuid": false
+                    }
+                ],
+                "databases": [
+                    {
+                        "name": "db",
+                        "human_name": null,
+                        "image": "postgres:16-alpine",
+                        "status": "exited",
+                        "exclude_from_status": false,
+                        "is_log_drain_enabled": false,
+                        "is_public": false,
+                        "public_port": null,
+                        "is_migrated": false,
+                        "is_removed_from_compose": false,
+                        "fixture_uuid": false
+                    }
+                ],
+                "tags": [
+                    {
+                        "tag_id": 2
+                    }
+                ],
+                "tasks": [
+                    {
+                        "name": "vacuum",
+                        "command": "vacuumdb --all",
+                        "frequency": "*/30 * * * *",
+                        "container": "db",
+                        "timeout": 600,
+                        "use_shell": true,
+                        "enabled": true,
+                        "fixture_uuid": false
+                    }
+                ],
+                "variables": [
+                    {
+                        "key": "DB_PASSWORD",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": true,
+                        "comment": "Locked",
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "FOO",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "comment": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    }
+                ],
+                "volumes": [],
+                "files": [],
+                "backups": [],
+                "links": [],
+                "count": [
+                    {
+                        "services": 2
+                    }
+                ]
+            }
+        },
+        {
+            "name": "service clone: a long name",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"nw6tq1trwup1uebqu2ia23fu\",\"message\":\"Service cloned.\"}"
+            },
+            "after": {
+                "service": [
+                    {
+                        "name": "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss-clone-<uuid>",
+                        "description": "The fixture's service",
+                        "docker_compose_raw": "services:\n  web:\n    image: 'nginx:alpine'\n    environment:\n      - 'FOO=${FOO:-bar}'\n  db:\n    image: 'postgres:16-alpine'\n    environment:\n      - 'POSTGRES_PASSWORD=${DB_PASSWORD}'\n",
+                        "docker_compose": "services:\n  web:\n    image: 'nginx:alpine'\n    environment:\n      FOO: '${FOO:-bar}'\n      COOLIFY_RESOURCE_UUID: <uuid>\n      COOLIFY_CONTAINER_NAME: web-<uuid>\n      COOLIFY_APP_NAME: ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss-clone-<uuid>\n      COOLIFY_PROJECT_NAME: Alpha\n      COOLIFY_ENVIRONMENT_NAME: production\n      COOLIFY_SERVER_IP: 203.0.113.10\n      SERVICE_NAME_WEB: web\n      SERVICE_NAME_DB: db\n    container_name: web-<uuid>\n    restart: unless-stopped\n    labels:\n      - coolify.managed=true\n      - coolify.version=4.7.6\n      - coolify.serviceUuid=<uuid>\n      - coolify.type=service\n      - coolify.name=web-<uuid>\n      - coolify.resourceName=ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss-clone-<uuid>\n      - coolify.projectName=alpha\n      - coolify.serviceName=web\n      - coolify.environmentName=production\n      - coolify.pullRequestId=0\n      - coolify.service.subUuid=<part-uuid>\n      - coolify.service.subType=application\n      - coolify.service.subName=web\n    networks:\n      <uuid>: null\n    env_file:\n      - .env\n  db:\n    image: 'postgres:16-alpine'\n    environment:\n      POSTGRES_PASSWORD: '${DB_PASSWORD}'\n      COOLIFY_RESOURCE_UUID: <uuid>\n      COOLIFY_CONTAINER_NAME: db-<uuid>\n      COOLIFY_APP_NAME: ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss-clone-<uuid>\n      COOLIFY_PROJECT_NAME: Alpha\n      COOLIFY_ENVIRONMENT_NAME: production\n      COOLIFY_SERVER_IP: 203.0.113.10\n      SERVICE_NAME_WEB: web\n      SERVICE_NAME_DB: db\n    container_name: db-<uuid>\n    restart: unless-stopped\n    labels:\n      - coolify.managed=true\n      - coolify.version=4.7.6\n      - coolify.serviceUuid=<uuid>\n      - coolify.type=service\n      - coolify.name=db-<uuid>\n      - coolify.resourceName=ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss-clone-<uuid>\n      - coolify.projectName=alpha\n      - coolify.serviceName=db\n      - coolify.environmentName=production\n      - coolify.pullRequestId=0\n      - coolify.service.subUuid=<part-uuid>\n      - coolify.service.subType=database\n      - coolify.service.subName=db\n    networks:\n      <uuid>: null\n    env_file:\n      - .env\nnetworks:\n  <uuid>:\n    name: <uuid>\n    external: true\n",
+                        "environment_id": 1,
+                        "server_id": 1,
+                        "destination_id": 1,
+                        "destination_type": "App\\Models\\StandaloneDocker",
+                        "connect_to_docker_network": false,
+                        "service_type": null,
+                        "is_container_label_escape_enabled": true,
+                        "compose_parsing_version": "5",
+                        "include_coolify_default_variables": true,
+                        "redact_all_env_values_in_logs": true,
+                        "config_hash": null
+                    }
+                ],
+                "applications": [
+                    {
+                        "name": "web",
+                        "human_name": null,
+                        "fqdn": null,
+                        "image": "nginx:alpine",
+                        "status": "exited",
+                        "exclude_from_status": false,
+                        "is_log_drain_enabled": false,
+                        "is_gzip_enabled": true,
+                        "is_stripprefix_enabled": true,
+                        "is_migrated": false,
+                        "is_removed_from_compose": false,
+                        "ports": "",
+                        "redirect": "both",
+                        "is_force_https_enabled": true,
+                        "fixture_uuid": false
+                    }
+                ],
+                "databases": [
+                    {
+                        "name": "db",
+                        "human_name": null,
+                        "image": "postgres:16-alpine",
+                        "status": "exited",
+                        "exclude_from_status": false,
+                        "is_log_drain_enabled": false,
+                        "is_public": false,
+                        "public_port": null,
+                        "is_migrated": false,
+                        "is_removed_from_compose": false,
+                        "fixture_uuid": false
+                    }
+                ],
+                "tags": [
+                    {
+                        "tag_id": 2
+                    }
+                ],
+                "tasks": [
+                    {
+                        "name": "vacuum",
+                        "command": "vacuumdb --all",
+                        "frequency": "*/30 * * * *",
+                        "container": "db",
+                        "timeout": 600,
+                        "use_shell": true,
+                        "enabled": true,
+                        "fixture_uuid": false
+                    }
+                ],
+                "variables": [
+                    {
+                        "key": "DB_PASSWORD",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": true,
+                        "comment": "Locked",
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "FOO",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "comment": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    }
+                ],
+                "volumes": [],
+                "files": [],
+                "backups": [],
+                "links": [],
+                "count": [
+                    {
+                        "services": 2
+                    }
+                ]
+            }
+        },
+        {
+            "name": "service clone: no volumes to copy",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"uibatvnj7lmu2axiqv1ityxk\",\"message\":\"Service cloned.\"}"
+            },
+            "after": {
+                "service": [
+                    {
+                        "name": "parity-service-clone-<uuid>",
+                        "description": "The fixture's service",
+                        "docker_compose_raw": "services:\n  web:\n    image: 'nginx:alpine'\n    environment:\n      - 'FOO=${FOO:-bar}'\n  db:\n    image: 'postgres:16-alpine'\n    environment:\n      - 'POSTGRES_PASSWORD=${DB_PASSWORD}'\n",
+                        "docker_compose": "services:\n  web:\n    image: 'nginx:alpine'\n    environment:\n      FOO: '${FOO:-bar}'\n      COOLIFY_RESOURCE_UUID: <uuid>\n      COOLIFY_CONTAINER_NAME: web-<uuid>\n      COOLIFY_APP_NAME: parity-service-clone-<uuid>\n      COOLIFY_PROJECT_NAME: Alpha\n      COOLIFY_ENVIRONMENT_NAME: production\n      COOLIFY_SERVER_IP: 203.0.113.10\n      SERVICE_NAME_WEB: web\n      SERVICE_NAME_DB: db\n    container_name: web-<uuid>\n    restart: unless-stopped\n    labels:\n      - coolify.managed=true\n      - coolify.version=4.7.6\n      - coolify.serviceUuid=<uuid>\n      - coolify.type=service\n      - coolify.name=web-<uuid>\n      - coolify.resourceName=parity-service-clone-<uuid>\n      - coolify.projectName=alpha\n      - coolify.serviceName=web\n      - coolify.environmentName=production\n      - coolify.pullRequestId=0\n      - coolify.service.subUuid=<part-uuid>\n      - coolify.service.subType=application\n      - coolify.service.subName=web\n    networks:\n      <uuid>: null\n    env_file:\n      - .env\n  db:\n    image: 'postgres:16-alpine'\n    environment:\n      POSTGRES_PASSWORD: '${DB_PASSWORD}'\n      COOLIFY_RESOURCE_UUID: <uuid>\n      COOLIFY_CONTAINER_NAME: db-<uuid>\n      COOLIFY_APP_NAME: parity-service-clone-<uuid>\n      COOLIFY_PROJECT_NAME: Alpha\n      COOLIFY_ENVIRONMENT_NAME: production\n      COOLIFY_SERVER_IP: 203.0.113.10\n      SERVICE_NAME_WEB: web\n      SERVICE_NAME_DB: db\n    container_name: db-<uuid>\n    restart: unless-stopped\n    labels:\n      - coolify.managed=true\n      - coolify.version=4.7.6\n      - coolify.serviceUuid=<uuid>\n      - coolify.type=service\n      - coolify.name=db-<uuid>\n      - coolify.resourceName=parity-service-clone-<uuid>\n      - coolify.projectName=alpha\n      - coolify.serviceName=db\n      - coolify.environmentName=production\n      - coolify.pullRequestId=0\n      - coolify.service.subUuid=<part-uuid>\n      - coolify.service.subType=database\n      - coolify.service.subName=db\n    networks:\n      <uuid>: null\n    env_file:\n      - .env\nnetworks:\n  <uuid>:\n    name: <uuid>\n    external: true\n",
+                        "environment_id": 1,
+                        "server_id": 1,
+                        "destination_id": 1,
+                        "destination_type": "App\\Models\\StandaloneDocker",
+                        "connect_to_docker_network": false,
+                        "service_type": null,
+                        "is_container_label_escape_enabled": true,
+                        "compose_parsing_version": "5",
+                        "include_coolify_default_variables": true,
+                        "redact_all_env_values_in_logs": true,
+                        "config_hash": null
+                    }
+                ],
+                "applications": [
+                    {
+                        "name": "web",
+                        "human_name": null,
+                        "fqdn": null,
+                        "image": "nginx:alpine",
+                        "status": "exited",
+                        "exclude_from_status": false,
+                        "is_log_drain_enabled": false,
+                        "is_gzip_enabled": true,
+                        "is_stripprefix_enabled": true,
+                        "is_migrated": false,
+                        "is_removed_from_compose": false,
+                        "ports": "",
+                        "redirect": "both",
+                        "is_force_https_enabled": true,
+                        "fixture_uuid": false
+                    }
+                ],
+                "databases": [
+                    {
+                        "name": "db",
+                        "human_name": null,
+                        "image": "postgres:16-alpine",
+                        "status": "exited",
+                        "exclude_from_status": false,
+                        "is_log_drain_enabled": false,
+                        "is_public": false,
+                        "public_port": null,
+                        "is_migrated": false,
+                        "is_removed_from_compose": false,
+                        "fixture_uuid": false
+                    }
+                ],
+                "tags": [
+                    {
+                        "tag_id": 2
+                    }
+                ],
+                "tasks": [
+                    {
+                        "name": "vacuum",
+                        "command": "vacuumdb --all",
+                        "frequency": "*/30 * * * *",
+                        "container": "db",
+                        "timeout": 600,
+                        "use_shell": true,
+                        "enabled": true,
+                        "fixture_uuid": false
+                    }
+                ],
+                "variables": [
+                    {
+                        "key": "DB_PASSWORD",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": true,
+                        "comment": "Locked",
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "FOO",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "comment": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    }
+                ],
+                "volumes": [],
+                "files": [],
+                "backups": [],
+                "links": [],
+                "count": [
+                    {
+                        "services": 2
+                    }
+                ]
+            }
+        },
+        {
+            "name": "service clone: the volumes without deploy",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: deploy. Cloning volume data stops and starts the source resource, so it needs a token with the deploy permission.\"}"
+            },
+            "after": {
+                "count": [
+                    {
+                        "services": 1
+                    }
+                ]
+            }
+        },
+        {
+            "name": "service clone: named volumes",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"mzhviu1pabhiahw2scosbbvs\",\"message\":\"Service cloned.\"}"
+            },
+            "after": {
+                "service": [
+                    {
+                        "name": "parity-service-clone-<uuid>",
+                        "description": "The fixture's service",
+                        "docker_compose_raw": "services:\n  web:\n    image: 'nginx:alpine'\n    volumes:\n      - 'web-html:/usr/share/nginx/html'\n    environment:\n      - 'FOO=${FOO:-bar}'\n  db:\n    image: 'postgres:16-alpine'\n    volumes:\n      - 'db-data:/var/lib/postgresql/data'\n    environment:\n      - 'POSTGRES_PASSWORD=${DB_PASSWORD}'\n",
+                        "docker_compose": "services:\n  web:\n    image: 'nginx:alpine'\n    volumes:\n      - '<uuid>_web-html:/usr/share/nginx/html'\n    environment:\n      FOO: '${FOO:-bar}'\n      COOLIFY_RESOURCE_UUID: <uuid>\n      COOLIFY_CONTAINER_NAME: web-<uuid>\n      COOLIFY_APP_NAME: parity-service-clone-<uuid>\n      COOLIFY_PROJECT_NAME: Alpha\n      COOLIFY_ENVIRONMENT_NAME: production\n      COOLIFY_SERVER_IP: 203.0.113.10\n      SERVICE_NAME_WEB: web\n      SERVICE_NAME_DB: db\n    container_name: web-<uuid>\n    restart: unless-stopped\n    labels:\n      - coolify.managed=true\n      - coolify.version=4.7.6\n      - coolify.serviceUuid=<uuid>\n      - coolify.type=service\n      - coolify.name=web-<uuid>\n      - coolify.resourceName=parity-service-clone-<uuid>\n      - coolify.projectName=alpha\n      - coolify.serviceName=web\n      - coolify.environmentName=production\n      - coolify.pullRequestId=0\n      - coolify.service.subUuid=<part-uuid>\n      - coolify.service.subType=application\n      - coolify.service.subName=web\n    networks:\n      <uuid>: null\n    env_file:\n      - .env\n  db:\n    image: 'postgres:16-alpine'\n    volumes:\n      - '<uuid>_db-data:/var/lib/postgresql/data'\n    environment:\n      POSTGRES_PASSWORD: '${DB_PASSWORD}'\n      COOLIFY_RESOURCE_UUID: <uuid>\n      COOLIFY_CONTAINER_NAME: db-<uuid>\n      COOLIFY_APP_NAME: parity-service-clone-<uuid>\n      COOLIFY_PROJECT_NAME: Alpha\n      COOLIFY_ENVIRONMENT_NAME: production\n      COOLIFY_SERVER_IP: 203.0.113.10\n      SERVICE_NAME_WEB: web\n      SERVICE_NAME_DB: db\n    container_name: db-<uuid>\n    restart: unless-stopped\n    labels:\n      - coolify.managed=true\n      - coolify.version=4.7.6\n      - coolify.serviceUuid=<uuid>\n      - coolify.type=service\n      - coolify.name=db-<uuid>\n      - coolify.resourceName=parity-service-clone-<uuid>\n      - coolify.projectName=alpha\n      - coolify.serviceName=db\n      - coolify.environmentName=production\n      - coolify.pullRequestId=0\n      - coolify.service.subUuid=<part-uuid>\n      - coolify.service.subType=database\n      - coolify.service.subName=db\n    networks:\n      <uuid>: null\n    env_file:\n      - .env\nvolumes:\n  <uuid>_web-html:\n    name: <uuid>_web-html\n  <uuid>_db-data:\n    name: <uuid>_db-data\nnetworks:\n  <uuid>:\n    name: <uuid>\n    external: true\n",
+                        "environment_id": 1,
+                        "server_id": 1,
+                        "destination_id": 1,
+                        "destination_type": "App\\Models\\StandaloneDocker",
+                        "connect_to_docker_network": false,
+                        "service_type": null,
+                        "is_container_label_escape_enabled": true,
+                        "compose_parsing_version": "5",
+                        "include_coolify_default_variables": true,
+                        "redact_all_env_values_in_logs": true,
+                        "config_hash": null
+                    }
+                ],
+                "applications": [
+                    {
+                        "name": "web",
+                        "human_name": null,
+                        "fqdn": null,
+                        "image": "nginx:alpine",
+                        "status": "exited",
+                        "exclude_from_status": false,
+                        "is_log_drain_enabled": false,
+                        "is_gzip_enabled": true,
+                        "is_stripprefix_enabled": true,
+                        "is_migrated": false,
+                        "is_removed_from_compose": false,
+                        "ports": "",
+                        "redirect": "both",
+                        "is_force_https_enabled": true,
+                        "fixture_uuid": false
+                    }
+                ],
+                "databases": [
+                    {
+                        "name": "db",
+                        "human_name": null,
+                        "image": "postgres:16-alpine",
+                        "status": "exited",
+                        "exclude_from_status": false,
+                        "is_log_drain_enabled": false,
+                        "is_public": false,
+                        "public_port": null,
+                        "is_migrated": false,
+                        "is_removed_from_compose": false,
+                        "fixture_uuid": false
+                    }
+                ],
+                "tags": [
+                    {
+                        "tag_id": 2
+                    }
+                ],
+                "tasks": [
+                    {
+                        "name": "vacuum",
+                        "command": "vacuumdb --all",
+                        "frequency": "*/30 * * * *",
+                        "container": "db",
+                        "timeout": 600,
+                        "use_shell": true,
+                        "enabled": true,
+                        "fixture_uuid": false
+                    }
+                ],
+                "variables": [
+                    {
+                        "key": "DB_PASSWORD",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": true,
+                        "comment": "Locked",
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "FOO",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "comment": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "<uuid>_db-data",
+                        "mount_path": "/var/lib/postgresql/data",
+                        "resource_type": "App\\Models\\ServiceDatabase",
+                        "fixture_uuid": false
+                    },
+                    {
+                        "name": "<uuid>_web-html",
+                        "mount_path": "/usr/share/nginx/html",
+                        "resource_type": "App\\Models\\ServiceApplication",
+                        "fixture_uuid": false
+                    }
+                ],
+                "files": [],
+                "backups": [],
+                "links": [],
+                "count": [
+                    {
+                        "services": 2
+                    }
+                ]
+            }
+        },
+        {
+            "name": "service clone: named volumes, the volumes",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"7stzlsohqjkowak37xbabehu\",\"message\":\"Service cloned.\"}"
+            },
+            "after": {
+                "service": [
+                    {
+                        "name": "parity-service-clone-<uuid>",
+                        "description": "The fixture's service",
+                        "docker_compose_raw": "services:\n  web:\n    image: 'nginx:alpine'\n    volumes:\n      - 'web-html:/usr/share/nginx/html'\n    environment:\n      - 'FOO=${FOO:-bar}'\n  db:\n    image: 'postgres:16-alpine'\n    volumes:\n      - 'db-data:/var/lib/postgresql/data'\n    environment:\n      - 'POSTGRES_PASSWORD=${DB_PASSWORD}'\n",
+                        "docker_compose": "services:\n  web:\n    image: 'nginx:alpine'\n    volumes:\n      - '<uuid>_web-html:/usr/share/nginx/html'\n    environment:\n      FOO: '${FOO:-bar}'\n      COOLIFY_RESOURCE_UUID: <uuid>\n      COOLIFY_CONTAINER_NAME: web-<uuid>\n      COOLIFY_APP_NAME: parity-service-clone-<uuid>\n      COOLIFY_PROJECT_NAME: Alpha\n      COOLIFY_ENVIRONMENT_NAME: production\n      COOLIFY_SERVER_IP: 203.0.113.10\n      SERVICE_NAME_WEB: web\n      SERVICE_NAME_DB: db\n    container_name: web-<uuid>\n    restart: unless-stopped\n    labels:\n      - coolify.managed=true\n      - coolify.version=4.7.6\n      - coolify.serviceUuid=<uuid>\n      - coolify.type=service\n      - coolify.name=web-<uuid>\n      - coolify.resourceName=parity-service-clone-<uuid>\n      - coolify.projectName=alpha\n      - coolify.serviceName=web\n      - coolify.environmentName=production\n      - coolify.pullRequestId=0\n      - coolify.service.subUuid=<part-uuid>\n      - coolify.service.subType=application\n      - coolify.service.subName=web\n    networks:\n      <uuid>: null\n    env_file:\n      - .env\n  db:\n    image: 'postgres:16-alpine'\n    volumes:\n      - '<uuid>_db-data:/var/lib/postgresql/data'\n    environment:\n      POSTGRES_PASSWORD: '${DB_PASSWORD}'\n      COOLIFY_RESOURCE_UUID: <uuid>\n      COOLIFY_CONTAINER_NAME: db-<uuid>\n      COOLIFY_APP_NAME: parity-service-clone-<uuid>\n      COOLIFY_PROJECT_NAME: Alpha\n      COOLIFY_ENVIRONMENT_NAME: production\n      COOLIFY_SERVER_IP: 203.0.113.10\n      SERVICE_NAME_WEB: web\n      SERVICE_NAME_DB: db\n    container_name: db-<uuid>\n    restart: unless-stopped\n    labels:\n      - coolify.managed=true\n      - coolify.version=4.7.6\n      - coolify.serviceUuid=<uuid>\n      - coolify.type=service\n      - coolify.name=db-<uuid>\n      - coolify.resourceName=parity-service-clone-<uuid>\n      - coolify.projectName=alpha\n      - coolify.serviceName=db\n      - coolify.environmentName=production\n      - coolify.pullRequestId=0\n      - coolify.service.subUuid=<part-uuid>\n      - coolify.service.subType=database\n      - coolify.service.subName=db\n    networks:\n      <uuid>: null\n    env_file:\n      - .env\nvolumes:\n  <uuid>_web-html:\n    name: <uuid>_web-html\n  <uuid>_db-data:\n    name: <uuid>_db-data\nnetworks:\n  <uuid>:\n    name: <uuid>\n    external: true\n",
+                        "environment_id": 1,
+                        "server_id": 1,
+                        "destination_id": 1,
+                        "destination_type": "App\\Models\\StandaloneDocker",
+                        "connect_to_docker_network": false,
+                        "service_type": null,
+                        "is_container_label_escape_enabled": true,
+                        "compose_parsing_version": "5",
+                        "include_coolify_default_variables": true,
+                        "redact_all_env_values_in_logs": true,
+                        "config_hash": null
+                    }
+                ],
+                "applications": [
+                    {
+                        "name": "web",
+                        "human_name": null,
+                        "fqdn": null,
+                        "image": "nginx:alpine",
+                        "status": "exited",
+                        "exclude_from_status": false,
+                        "is_log_drain_enabled": false,
+                        "is_gzip_enabled": true,
+                        "is_stripprefix_enabled": true,
+                        "is_migrated": false,
+                        "is_removed_from_compose": false,
+                        "ports": "",
+                        "redirect": "both",
+                        "is_force_https_enabled": true,
+                        "fixture_uuid": false
+                    }
+                ],
+                "databases": [
+                    {
+                        "name": "db",
+                        "human_name": null,
+                        "image": "postgres:16-alpine",
+                        "status": "exited",
+                        "exclude_from_status": false,
+                        "is_log_drain_enabled": false,
+                        "is_public": false,
+                        "public_port": null,
+                        "is_migrated": false,
+                        "is_removed_from_compose": false,
+                        "fixture_uuid": false
+                    }
+                ],
+                "tags": [
+                    {
+                        "tag_id": 2
+                    }
+                ],
+                "tasks": [
+                    {
+                        "name": "vacuum",
+                        "command": "vacuumdb --all",
+                        "frequency": "*/30 * * * *",
+                        "container": "db",
+                        "timeout": 600,
+                        "use_shell": true,
+                        "enabled": true,
+                        "fixture_uuid": false
+                    }
+                ],
+                "variables": [
+                    {
+                        "key": "DB_PASSWORD",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": true,
+                        "comment": "Locked",
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "FOO",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "comment": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "<uuid>_db-data",
+                        "mount_path": "/var/lib/postgresql/data",
+                        "resource_type": "App\\Models\\ServiceDatabase",
+                        "fixture_uuid": false
+                    },
+                    {
+                        "name": "<uuid>_web-html",
+                        "mount_path": "/usr/share/nginx/html",
+                        "resource_type": "App\\Models\\ServiceApplication",
+                        "fixture_uuid": false
+                    }
+                ],
+                "files": [],
+                "backups": [],
+                "links": [],
+                "count": [
+                    {
+                        "services": 2
+                    }
+                ]
+            }
+        },
+        {
+            "name": "service clone: a file mount",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"xta4nheuuhp9arjgil24a6gg\",\"message\":\"Service cloned.\"}"
+            },
+            "after": {
+                "service": [
+                    {
+                        "name": "parity-service-clone-<uuid>",
+                        "description": "The fixture's service",
+                        "docker_compose_raw": "services:\n  web:\n    image: 'nginx:alpine'\n    volumes:\n      - './default.conf:/etc/nginx/conf.d/default.conf'\n    environment:\n      - 'FOO=${FOO:-bar}'\n",
+                        "docker_compose": "services:\n  web:\n    image: 'nginx:alpine'\n    volumes:\n      - '/data/coolify/services/<uuid>/default.conf:/etc/nginx/conf.d/default.conf'\n    environment:\n      FOO: '${FOO:-bar}'\n      COOLIFY_RESOURCE_UUID: <uuid>\n      COOLIFY_CONTAINER_NAME: web-<uuid>\n      COOLIFY_APP_NAME: parity-service-clone-<uuid>\n      COOLIFY_PROJECT_NAME: Alpha\n      COOLIFY_ENVIRONMENT_NAME: production\n      COOLIFY_SERVER_IP: 203.0.113.10\n      SERVICE_NAME_WEB: web\n    container_name: web-<uuid>\n    restart: unless-stopped\n    labels:\n      - coolify.managed=true\n      - coolify.version=4.7.6\n      - coolify.serviceUuid=<uuid>\n      - coolify.type=service\n      - coolify.name=web-<uuid>\n      - coolify.resourceName=parity-service-clone-<uuid>\n      - coolify.projectName=alpha\n      - coolify.serviceName=web\n      - coolify.environmentName=production\n      - coolify.pullRequestId=0\n      - coolify.service.subUuid=<part-uuid>\n      - coolify.service.subType=application\n      - coolify.service.subName=web\n    networks:\n      <uuid>: null\n    env_file:\n      - .env\nnetworks:\n  <uuid>:\n    name: <uuid>\n    external: true\n",
+                        "environment_id": 1,
+                        "server_id": 1,
+                        "destination_id": 1,
+                        "destination_type": "App\\Models\\StandaloneDocker",
+                        "connect_to_docker_network": false,
+                        "service_type": null,
+                        "is_container_label_escape_enabled": true,
+                        "compose_parsing_version": "5",
+                        "include_coolify_default_variables": true,
+                        "redact_all_env_values_in_logs": true,
+                        "config_hash": null
+                    }
+                ],
+                "applications": [
+                    {
+                        "name": "web",
+                        "human_name": null,
+                        "fqdn": null,
+                        "image": "nginx:alpine",
+                        "status": "exited",
+                        "exclude_from_status": false,
+                        "is_log_drain_enabled": false,
+                        "is_gzip_enabled": true,
+                        "is_stripprefix_enabled": true,
+                        "is_migrated": false,
+                        "is_removed_from_compose": false,
+                        "ports": "",
+                        "redirect": "both",
+                        "is_force_https_enabled": true,
+                        "fixture_uuid": false
+                    }
+                ],
+                "databases": [],
+                "tags": [
+                    {
+                        "tag_id": 2
+                    }
+                ],
+                "tasks": [
+                    {
+                        "name": "vacuum",
+                        "command": "vacuumdb --all",
+                        "frequency": "*/30 * * * *",
+                        "container": "db",
+                        "timeout": 600,
+                        "use_shell": true,
+                        "enabled": true,
+                        "fixture_uuid": false
+                    }
+                ],
+                "variables": [
+                    {
+                        "key": "DB_PASSWORD",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": true,
+                        "comment": "Locked",
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "FOO",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "comment": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    }
+                ],
+                "volumes": [],
+                "files": [
+                    {
+                        "fs_path": "/data/coolify/services/<uuid>/default.conf",
+                        "mount_path": "/etc/nginx/conf.d/default.conf",
+                        "is_directory": true,
+                        "is_host_file": false,
+                        "has_content": false,
+                        "resource_type": "App\\Models\\ServiceApplication"
+                    }
+                ],
+                "backups": [],
+                "links": [],
+                "count": [
+                    {
+                        "services": 2
+                    }
+                ]
+            }
+        },
+        {
+            "name": "service clone: a host path",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"srtoqdp1q1evswwmgwilrgo0\",\"message\":\"Service cloned.\"}"
+            },
+            "after": {
+                "service": [
+                    {
+                        "name": "parity-service-clone-<uuid>",
+                        "description": "The fixture's service",
+                        "docker_compose_raw": "services:\n  web:\n    image: 'nginx:alpine'\n    volumes:\n      - '/etc/timezone:/etc/timezone:ro'\n    environment:\n      - 'FOO=${FOO:-bar}'\n",
+                        "docker_compose": "services:\n  web:\n    image: 'nginx:alpine'\n    volumes:\n      - '/etc/timezone:/etc/timezone:ro'\n    environment:\n      FOO: '${FOO:-bar}'\n      COOLIFY_RESOURCE_UUID: <uuid>\n      COOLIFY_CONTAINER_NAME: web-<uuid>\n      COOLIFY_APP_NAME: parity-service-clone-<uuid>\n      COOLIFY_PROJECT_NAME: Alpha\n      COOLIFY_ENVIRONMENT_NAME: production\n      COOLIFY_SERVER_IP: 203.0.113.10\n      SERVICE_NAME_WEB: web\n    container_name: web-<uuid>\n    restart: unless-stopped\n    labels:\n      - coolify.managed=true\n      - coolify.version=4.7.6\n      - coolify.serviceUuid=<uuid>\n      - coolify.type=service\n      - coolify.name=web-<uuid>\n      - coolify.resourceName=parity-service-clone-<uuid>\n      - coolify.projectName=alpha\n      - coolify.serviceName=web\n      - coolify.environmentName=production\n      - coolify.pullRequestId=0\n      - coolify.service.subUuid=<part-uuid>\n      - coolify.service.subType=application\n      - coolify.service.subName=web\n    networks:\n      <uuid>: null\n    env_file:\n      - .env\nnetworks:\n  <uuid>:\n    name: <uuid>\n    external: true\n",
+                        "environment_id": 1,
+                        "server_id": 1,
+                        "destination_id": 1,
+                        "destination_type": "App\\Models\\StandaloneDocker",
+                        "connect_to_docker_network": false,
+                        "service_type": null,
+                        "is_container_label_escape_enabled": true,
+                        "compose_parsing_version": "5",
+                        "include_coolify_default_variables": true,
+                        "redact_all_env_values_in_logs": true,
+                        "config_hash": null
+                    }
+                ],
+                "applications": [
+                    {
+                        "name": "web",
+                        "human_name": null,
+                        "fqdn": null,
+                        "image": "nginx:alpine",
+                        "status": "exited",
+                        "exclude_from_status": false,
+                        "is_log_drain_enabled": false,
+                        "is_gzip_enabled": true,
+                        "is_stripprefix_enabled": true,
+                        "is_migrated": false,
+                        "is_removed_from_compose": false,
+                        "ports": "",
+                        "redirect": "both",
+                        "is_force_https_enabled": true,
+                        "fixture_uuid": false
+                    }
+                ],
+                "databases": [],
+                "tags": [
+                    {
+                        "tag_id": 2
+                    }
+                ],
+                "tasks": [
+                    {
+                        "name": "vacuum",
+                        "command": "vacuumdb --all",
+                        "frequency": "*/30 * * * *",
+                        "container": "db",
+                        "timeout": 600,
+                        "use_shell": true,
+                        "enabled": true,
+                        "fixture_uuid": false
+                    }
+                ],
+                "variables": [
+                    {
+                        "key": "DB_PASSWORD",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": true,
+                        "comment": "Locked",
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "FOO",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "comment": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    }
+                ],
+                "volumes": [],
+                "files": [
+                    {
+                        "fs_path": "/etc/timezone",
+                        "mount_path": "/etc/timezone",
+                        "is_directory": true,
+                        "is_host_file": false,
+                        "has_content": false,
+                        "resource_type": "App\\Models\\ServiceApplication"
+                    }
+                ],
+                "backups": [],
+                "links": [],
+                "count": [
+                    {
+                        "services": 2
+                    }
+                ]
+            }
+        },
+        {
+            "name": "service clone: generated values",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"yejtgkdnzfsbkwnhxz5whhfd\",\"message\":\"Service cloned.\"}"
+            },
+            "after": {
+                "service": [
+                    {
+                        "name": "parity-service-clone-<uuid>",
+                        "description": "The fixture's service",
+                        "docker_compose_raw": "services:\n  web:\n    image: 'nginx:alpine'\n    environment:\n      - SERVICE_URL_WEB_80\n      - 'FOO=${FOO:-bar}'\n      - 'ADMIN_PASSWORD=${SERVICE_PASSWORD_ADMIN}'\n",
+                        "docker_compose": "services:\n  web:\n    image: 'nginx:alpine'\n    environment:\n      SERVICE_URL_WEB_80: 'http://web-<uuid>.203.0.113.10.sslip.io:80'\n      FOO: '${FOO:-bar}'\n      ADMIN_PASSWORD: '${SERVICE_PASSWORD_ADMIN}'\n      COOLIFY_RESOURCE_UUID: <uuid>\n      COOLIFY_CONTAINER_NAME: web-<uuid>\n      COOLIFY_FQDN: web-<uuid>.203.0.113.10.sslip.io\n      COOLIFY_URL: 'http://web-<uuid>.203.0.113.10.sslip.io'\n      COOLIFY_APP_NAME: parity-service-clone-<uuid>\n      COOLIFY_PROJECT_NAME: Alpha\n      COOLIFY_ENVIRONMENT_NAME: production\n      COOLIFY_SERVER_IP: 203.0.113.10\n      SERVICE_NAME_WEB: web\n    container_name: web-<uuid>\n    restart: unless-stopped\n    labels:\n      - coolify.managed=true\n      - coolify.version=4.7.6\n      - coolify.serviceUuid=<uuid>\n      - coolify.type=service\n      - coolify.name=web-<uuid>\n      - coolify.resourceName=parity-service-clone-<uuid>\n      - coolify.projectName=alpha\n      - coolify.serviceName=web\n      - coolify.environmentName=production\n      - coolify.pullRequestId=0\n      - coolify.service.subUuid=<part-uuid>\n      - coolify.service.subType=application\n      - coolify.service.subName=web\n      - traefik.docker.network=<uuid>\n      - traefik.enable=true\n      - 'traefik.http.middlewares.gzip-no-media.compress.excludedcontenttypes=text/event-stream,video/mp4,video/webm,video/ogg,video/quicktime,video/x-matroska,video/x-msvideo,video/mpeg,video/mp2t,video/3gpp,video/x-m4v,video/x-flv,audio/mpeg,audio/mp4,audio/aac,audio/ogg,audio/opus,audio/webm,audio/wav,audio/x-wav,audio/flac,audio/x-m4a,image/jpeg,image/png,image/gif,image/webp,image/avif,application/pdf,application/octet-stream,application/zip,application/gzip,application/x-gzip,application/zstd,application/x-7z-compressed,application/x-rar-compressed,application/x-bzip2,application/x-xz,application/x-tar'\n      - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https\n      - traefik.http.routers.http-0-<uuid>-web-2567.entryPoints=http\n      - traefik.http.routers.http-0-<uuid>-web-2567.middlewares=gzip-no-media\n      - 'traefik.http.routers.http-0-<uuid>-web-2567.rule=Host(`web-<uuid>.203.0.113.10.sslip.io`) && PathPrefix(`/`)'\n      - traefik.http.routers.http-0-<uuid>-web-2567.service=http-0-<uuid>-web-2567\n      - traefik.http.services.http-0-<uuid>-web-2567.loadbalancer.server.port=80\n      - 'caddy_0.encode=zstd gzip'\n      - caddy_0.handle_path.0_reverse_proxy.stream_close_delay=24h\n      - 'caddy_0.handle_path.0_reverse_proxy={{upstreams 80}}'\n      - 'caddy_0.handle_path=/*'\n      - caddy_0.header=-Server\n      - 'caddy_0.try_files={path} /index.html /index.php'\n      - 'caddy_0=http://web-<uuid>.203.0.113.10.sslip.io'\n      - caddy_ingress_network=<uuid>\n    networks:\n      <uuid>: null\n    env_file:\n      - .env\nnetworks:\n  <uuid>:\n    name: <uuid>\n    external: true\n",
+                        "environment_id": 1,
+                        "server_id": 1,
+                        "destination_id": 1,
+                        "destination_type": "App\\Models\\StandaloneDocker",
+                        "connect_to_docker_network": false,
+                        "service_type": null,
+                        "is_container_label_escape_enabled": true,
+                        "compose_parsing_version": "5",
+                        "include_coolify_default_variables": true,
+                        "redact_all_env_values_in_logs": true,
+                        "config_hash": null
+                    }
+                ],
+                "applications": [
+                    {
+                        "name": "web",
+                        "human_name": null,
+                        "fqdn": "http://web-<uuid>.203.0.113.10.sslip.io",
+                        "image": "nginx:alpine",
+                        "status": "exited",
+                        "exclude_from_status": false,
+                        "is_log_drain_enabled": false,
+                        "is_gzip_enabled": true,
+                        "is_stripprefix_enabled": true,
+                        "is_migrated": false,
+                        "is_removed_from_compose": false,
+                        "ports": "",
+                        "redirect": "both",
+                        "is_force_https_enabled": true,
+                        "fixture_uuid": false
+                    }
+                ],
+                "databases": [],
+                "tags": [
+                    {
+                        "tag_id": 2
+                    }
+                ],
+                "tasks": [
+                    {
+                        "name": "vacuum",
+                        "command": "vacuumdb --all",
+                        "frequency": "*/30 * * * *",
+                        "container": "db",
+                        "timeout": 600,
+                        "use_shell": true,
+                        "enabled": true,
+                        "fixture_uuid": false
+                    }
+                ],
+                "variables": [
+                    {
+                        "key": "ADMIN_PASSWORD",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "comment": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "DB_PASSWORD",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": true,
+                        "comment": "Locked",
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "FOO",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "comment": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "SERVICE_FQDN_WEB",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "comment": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "SERVICE_FQDN_WEB_80",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "comment": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "SERVICE_PASSWORD_ADMIN",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "comment": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "SERVICE_URL_WEB",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "comment": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "SERVICE_URL_WEB_80",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "comment": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    }
+                ],
+                "volumes": [],
+                "files": [],
+                "backups": [],
+                "links": [],
+                "count": [
+                    {
+                        "services": 2
+                    }
+                ]
+            }
+        },
+        {
+            "name": "service clone: a database's backup schedule",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"kdnzwlhp8qqxqji2swp9ddru\",\"message\":\"Service cloned.\"}"
+            },
+            "after": {
+                "service": [
+                    {
+                        "name": "parity-service-clone-<uuid>",
+                        "description": "The fixture's service",
+                        "docker_compose_raw": "services:\n  web:\n    image: 'nginx:alpine'\n    environment:\n      - 'FOO=${FOO:-bar}'\n  db:\n    image: 'postgres:16-alpine'\n    environment:\n      - 'POSTGRES_PASSWORD=${DB_PASSWORD}'\n",
+                        "docker_compose": "services:\n  web:\n    image: 'nginx:alpine'\n    environment:\n      FOO: '${FOO:-bar}'\n      COOLIFY_RESOURCE_UUID: <uuid>\n      COOLIFY_CONTAINER_NAME: web-<uuid>\n      COOLIFY_APP_NAME: parity-service-clone-<uuid>\n      COOLIFY_PROJECT_NAME: Alpha\n      COOLIFY_ENVIRONMENT_NAME: production\n      COOLIFY_SERVER_IP: 203.0.113.10\n      SERVICE_NAME_WEB: web\n      SERVICE_NAME_DB: db\n    container_name: web-<uuid>\n    restart: unless-stopped\n    labels:\n      - coolify.managed=true\n      - coolify.version=4.7.6\n      - coolify.serviceUuid=<uuid>\n      - coolify.type=service\n      - coolify.name=web-<uuid>\n      - coolify.resourceName=parity-service-clone-<uuid>\n      - coolify.projectName=alpha\n      - coolify.serviceName=web\n      - coolify.environmentName=production\n      - coolify.pullRequestId=0\n      - coolify.service.subUuid=<part-uuid>\n      - coolify.service.subType=application\n      - coolify.service.subName=web\n    networks:\n      <uuid>: null\n    env_file:\n      - .env\n  db:\n    image: 'postgres:16-alpine'\n    environment:\n      POSTGRES_PASSWORD: '${DB_PASSWORD}'\n      COOLIFY_RESOURCE_UUID: <uuid>\n      COOLIFY_CONTAINER_NAME: db-<uuid>\n      COOLIFY_APP_NAME: parity-service-clone-<uuid>\n      COOLIFY_PROJECT_NAME: Alpha\n      COOLIFY_ENVIRONMENT_NAME: production\n      COOLIFY_SERVER_IP: 203.0.113.10\n      SERVICE_NAME_WEB: web\n      SERVICE_NAME_DB: db\n    container_name: db-<uuid>\n    restart: unless-stopped\n    labels:\n      - coolify.managed=true\n      - coolify.version=4.7.6\n      - coolify.serviceUuid=<uuid>\n      - coolify.type=service\n      - coolify.name=db-<uuid>\n      - coolify.resourceName=parity-service-clone-<uuid>\n      - coolify.projectName=alpha\n      - coolify.serviceName=db\n      - coolify.environmentName=production\n      - coolify.pullRequestId=0\n      - coolify.service.subUuid=<part-uuid>\n      - coolify.service.subType=database\n      - coolify.service.subName=db\n    networks:\n      <uuid>: null\n    env_file:\n      - .env\nnetworks:\n  <uuid>:\n    name: <uuid>\n    external: true\n",
+                        "environment_id": 1,
+                        "server_id": 1,
+                        "destination_id": 1,
+                        "destination_type": "App\\Models\\StandaloneDocker",
+                        "connect_to_docker_network": false,
+                        "service_type": null,
+                        "is_container_label_escape_enabled": true,
+                        "compose_parsing_version": "5",
+                        "include_coolify_default_variables": true,
+                        "redact_all_env_values_in_logs": true,
+                        "config_hash": null
+                    }
+                ],
+                "applications": [
+                    {
+                        "name": "web",
+                        "human_name": null,
+                        "fqdn": null,
+                        "image": "nginx:alpine",
+                        "status": "exited",
+                        "exclude_from_status": false,
+                        "is_log_drain_enabled": false,
+                        "is_gzip_enabled": true,
+                        "is_stripprefix_enabled": true,
+                        "is_migrated": false,
+                        "is_removed_from_compose": false,
+                        "ports": "",
+                        "redirect": "both",
+                        "is_force_https_enabled": true,
+                        "fixture_uuid": false
+                    }
+                ],
+                "databases": [
+                    {
+                        "name": "db",
+                        "human_name": null,
+                        "image": "postgres:16-alpine",
+                        "status": "exited",
+                        "exclude_from_status": false,
+                        "is_log_drain_enabled": false,
+                        "is_public": false,
+                        "public_port": null,
+                        "is_migrated": false,
+                        "is_removed_from_compose": false,
+                        "fixture_uuid": false
+                    }
+                ],
+                "tags": [
+                    {
+                        "tag_id": 2
+                    }
+                ],
+                "tasks": [
+                    {
+                        "name": "vacuum",
+                        "command": "vacuumdb --all",
+                        "frequency": "*/30 * * * *",
+                        "container": "db",
+                        "timeout": 600,
+                        "use_shell": true,
+                        "enabled": true,
+                        "fixture_uuid": false
+                    }
+                ],
+                "variables": [
+                    {
+                        "key": "DB_PASSWORD",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": true,
+                        "comment": "Locked",
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "FOO",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "comment": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    }
+                ],
+                "volumes": [],
+                "files": [],
+                "backups": [
+                    {
+                        "frequency": "@weekly",
+                        "save_s3": true,
+                        "enabled": true,
+                        "databases_to_backup": null,
+                        "s3": 1
+                    }
+                ],
+                "links": [],
+                "count": [
+                    {
+                        "services": 2
+                    }
+                ]
+            }
+        },
+        {
+            "name": "service clone: its secret manager",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"fj9uwnhisnt0jqeuykdqpbdq\",\"message\":\"Service cloned.\"}"
+            },
+            "after": {
+                "service": [
+                    {
+                        "name": "parity-service-clone-<uuid>",
+                        "description": "The fixture's service",
+                        "docker_compose_raw": "services:\n  web:\n    image: 'nginx:alpine'\n    environment:\n      - 'FOO=${FOO:-bar}'\n  db:\n    image: 'postgres:16-alpine'\n    environment:\n      - 'POSTGRES_PASSWORD=${DB_PASSWORD}'\n",
+                        "docker_compose": "services:\n  web:\n    image: 'nginx:alpine'\n    environment:\n      FOO: '${FOO:-bar}'\n      COOLIFY_RESOURCE_UUID: <uuid>\n      COOLIFY_CONTAINER_NAME: web-<uuid>\n      COOLIFY_APP_NAME: parity-service-clone-<uuid>\n      COOLIFY_PROJECT_NAME: Alpha\n      COOLIFY_ENVIRONMENT_NAME: production\n      COOLIFY_SERVER_IP: 203.0.113.10\n      SERVICE_NAME_WEB: web\n      SERVICE_NAME_DB: db\n    container_name: web-<uuid>\n    restart: unless-stopped\n    labels:\n      - coolify.managed=true\n      - coolify.version=4.7.6\n      - coolify.serviceUuid=<uuid>\n      - coolify.type=service\n      - coolify.name=web-<uuid>\n      - coolify.resourceName=parity-service-clone-<uuid>\n      - coolify.projectName=alpha\n      - coolify.serviceName=web\n      - coolify.environmentName=production\n      - coolify.pullRequestId=0\n      - coolify.service.subUuid=<part-uuid>\n      - coolify.service.subType=application\n      - coolify.service.subName=web\n    networks:\n      <uuid>: null\n    env_file:\n      - .env\n  db:\n    image: 'postgres:16-alpine'\n    environment:\n      POSTGRES_PASSWORD: '${DB_PASSWORD}'\n      COOLIFY_RESOURCE_UUID: <uuid>\n      COOLIFY_CONTAINER_NAME: db-<uuid>\n      COOLIFY_APP_NAME: parity-service-clone-<uuid>\n      COOLIFY_PROJECT_NAME: Alpha\n      COOLIFY_ENVIRONMENT_NAME: production\n      COOLIFY_SERVER_IP: 203.0.113.10\n      SERVICE_NAME_WEB: web\n      SERVICE_NAME_DB: db\n    container_name: db-<uuid>\n    restart: unless-stopped\n    labels:\n      - coolify.managed=true\n      - coolify.version=4.7.6\n      - coolify.serviceUuid=<uuid>\n      - coolify.type=service\n      - coolify.name=db-<uuid>\n      - coolify.resourceName=parity-service-clone-<uuid>\n      - coolify.projectName=alpha\n      - coolify.serviceName=db\n      - coolify.environmentName=production\n      - coolify.pullRequestId=0\n      - coolify.service.subUuid=<part-uuid>\n      - coolify.service.subType=database\n      - coolify.service.subName=db\n    networks:\n      <uuid>: null\n    env_file:\n      - .env\nnetworks:\n  <uuid>:\n    name: <uuid>\n    external: true\n",
+                        "environment_id": 1,
+                        "server_id": 1,
+                        "destination_id": 1,
+                        "destination_type": "App\\Models\\StandaloneDocker",
+                        "connect_to_docker_network": false,
+                        "service_type": null,
+                        "is_container_label_escape_enabled": true,
+                        "compose_parsing_version": "5",
+                        "include_coolify_default_variables": true,
+                        "redact_all_env_values_in_logs": true,
+                        "config_hash": null
+                    }
+                ],
+                "applications": [
+                    {
+                        "name": "web",
+                        "human_name": null,
+                        "fqdn": null,
+                        "image": "nginx:alpine",
+                        "status": "exited",
+                        "exclude_from_status": false,
+                        "is_log_drain_enabled": false,
+                        "is_gzip_enabled": true,
+                        "is_stripprefix_enabled": true,
+                        "is_migrated": false,
+                        "is_removed_from_compose": false,
+                        "ports": "",
+                        "redirect": "both",
+                        "is_force_https_enabled": true,
+                        "fixture_uuid": false
+                    }
+                ],
+                "databases": [
+                    {
+                        "name": "db",
+                        "human_name": null,
+                        "image": "postgres:16-alpine",
+                        "status": "exited",
+                        "exclude_from_status": false,
+                        "is_log_drain_enabled": false,
+                        "is_public": false,
+                        "public_port": null,
+                        "is_migrated": false,
+                        "is_removed_from_compose": false,
+                        "fixture_uuid": false
+                    }
+                ],
+                "tags": [
+                    {
+                        "tag_id": 2
+                    }
+                ],
+                "tasks": [
+                    {
+                        "name": "vacuum",
+                        "command": "vacuumdb --all",
+                        "frequency": "*/30 * * * *",
+                        "container": "db",
+                        "timeout": 600,
+                        "use_shell": true,
+                        "enabled": true,
+                        "fixture_uuid": false
+                    }
+                ],
+                "variables": [
+                    {
+                        "key": "DB_PASSWORD",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": true,
+                        "comment": "Locked",
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "FOO",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "comment": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    }
+                ],
+                "volumes": [],
+                "files": [],
+                "backups": [],
+                "links": [
+                    {
+                        "resourceable_type": "App\\Models\\Service",
+                        "integration_token_id": 4,
+                        "settings": "{\"project_id\": \"proj-1\", \"environment\": \"prod\", \"secret_path\": \"/app\"}"
+                    }
+                ],
+                "count": [
+                    {
+                        "services": 2
+                    }
+                ]
+            }
+        },
+        {
+            "name": "service clone: to another server",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"65xbxr5gwi3thwezpa1diqyf\",\"message\":\"Service cloned.\"}"
+            },
+            "after": {
+                "service": [
+                    {
+                        "name": "parity-service-clone-<uuid>",
+                        "description": "The fixture's service",
+                        "docker_compose_raw": "services:\n  web:\n    image: 'nginx:alpine'\n    environment:\n      - 'FOO=${FOO:-bar}'\n  db:\n    image: 'postgres:16-alpine'\n    environment:\n      - 'POSTGRES_PASSWORD=${DB_PASSWORD}'\n",
+                        "docker_compose": "services:\n  web:\n    image: 'nginx:alpine'\n    environment:\n      FOO: '${FOO:-bar}'\n      COOLIFY_RESOURCE_UUID: <uuid>\n      COOLIFY_CONTAINER_NAME: web-<uuid>\n      COOLIFY_APP_NAME: parity-service-clone-<uuid>\n      COOLIFY_PROJECT_NAME: Alpha\n      COOLIFY_ENVIRONMENT_NAME: production\n      COOLIFY_SERVER_IP: 203.0.113.30\n      SERVICE_NAME_WEB: web\n      SERVICE_NAME_DB: db\n    container_name: web-<uuid>\n    restart: unless-stopped\n    labels:\n      - coolify.managed=true\n      - coolify.version=4.7.6\n      - coolify.serviceUuid=<uuid>\n      - coolify.type=service\n      - coolify.name=web-<uuid>\n      - coolify.resourceName=parity-service-clone-<uuid>\n      - coolify.projectName=alpha\n      - coolify.serviceName=web\n      - coolify.environmentName=production\n      - coolify.pullRequestId=0\n      - coolify.service.subUuid=<part-uuid>\n      - coolify.service.subType=application\n      - coolify.service.subName=web\n    networks:\n      <uuid>: null\n    env_file:\n      - .env\n  db:\n    image: 'postgres:16-alpine'\n    environment:\n      POSTGRES_PASSWORD: '${DB_PASSWORD}'\n      COOLIFY_RESOURCE_UUID: <uuid>\n      COOLIFY_CONTAINER_NAME: db-<uuid>\n      COOLIFY_APP_NAME: parity-service-clone-<uuid>\n      COOLIFY_PROJECT_NAME: Alpha\n      COOLIFY_ENVIRONMENT_NAME: production\n      COOLIFY_SERVER_IP: 203.0.113.30\n      SERVICE_NAME_WEB: web\n      SERVICE_NAME_DB: db\n    container_name: db-<uuid>\n    restart: unless-stopped\n    labels:\n      - coolify.managed=true\n      - coolify.version=4.7.6\n      - coolify.serviceUuid=<uuid>\n      - coolify.type=service\n      - coolify.name=db-<uuid>\n      - coolify.resourceName=parity-service-clone-<uuid>\n      - coolify.projectName=alpha\n      - coolify.serviceName=db\n      - coolify.environmentName=production\n      - coolify.pullRequestId=0\n      - coolify.service.subUuid=<part-uuid>\n      - coolify.service.subType=database\n      - coolify.service.subName=db\n    networks:\n      <uuid>: null\n    env_file:\n      - .env\nnetworks:\n  <uuid>:\n    name: <uuid>\n    external: true\n",
+                        "environment_id": 1,
+                        "server_id": 3,
+                        "destination_id": 3,
+                        "destination_type": "App\\Models\\StandaloneDocker",
+                        "connect_to_docker_network": false,
+                        "service_type": null,
+                        "is_container_label_escape_enabled": true,
+                        "compose_parsing_version": "5",
+                        "include_coolify_default_variables": true,
+                        "redact_all_env_values_in_logs": true,
+                        "config_hash": null
+                    }
+                ],
+                "applications": [
+                    {
+                        "name": "web",
+                        "human_name": null,
+                        "fqdn": null,
+                        "image": "nginx:alpine",
+                        "status": "exited",
+                        "exclude_from_status": false,
+                        "is_log_drain_enabled": false,
+                        "is_gzip_enabled": true,
+                        "is_stripprefix_enabled": true,
+                        "is_migrated": false,
+                        "is_removed_from_compose": false,
+                        "ports": "",
+                        "redirect": "both",
+                        "is_force_https_enabled": true,
+                        "fixture_uuid": false
+                    }
+                ],
+                "databases": [
+                    {
+                        "name": "db",
+                        "human_name": null,
+                        "image": "postgres:16-alpine",
+                        "status": "exited",
+                        "exclude_from_status": false,
+                        "is_log_drain_enabled": false,
+                        "is_public": false,
+                        "public_port": null,
+                        "is_migrated": false,
+                        "is_removed_from_compose": false,
+                        "fixture_uuid": false
+                    }
+                ],
+                "tags": [
+                    {
+                        "tag_id": 2
+                    }
+                ],
+                "tasks": [
+                    {
+                        "name": "vacuum",
+                        "command": "vacuumdb --all",
+                        "frequency": "*/30 * * * *",
+                        "container": "db",
+                        "timeout": 600,
+                        "use_shell": true,
+                        "enabled": true,
+                        "fixture_uuid": false
+                    }
+                ],
+                "variables": [
+                    {
+                        "key": "DB_PASSWORD",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": true,
+                        "comment": "Locked",
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "FOO",
+                        "is_preview": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "comment": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    }
+                ],
+                "volumes": [],
+                "files": [],
+                "backups": [],
+                "links": [],
+                "count": [
+                    {
+                        "services": 2
+                    }
+                ]
+            }
+        },
+        {
+            "name": "service clone: no body",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Invalid request.\",\"error\":\"Content-Type must be application\\/json.\"}"
+            }
+        },
+        {
+            "name": "service clone: not JSON",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Invalid request.\",\"error\":\"Content-Type must be application\\/json.\"}"
+            }
+        },
+        {
+            "name": "service clone: validation",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"destination_uuid\":[\"The destination uuid field must be a string.\"],\"name\":[\"The name must be at least 3 characters.\",\"The name may only contain letters (including Unicode), numbers, spaces, and these characters: - _ . \\/ @ & ( ) # , : +\"],\"clone_volumes\":[\"The clone volumes field must be true or false.\"],\"environment_uuid\":[\"This field is not allowed.\"]}}"
+            }
+        },
+        {
+            "name": "service clone: a short name",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"name\":[\"The name must be at least 3 characters.\"]}}"
+            }
+        },
+        {
+            "name": "service clone: unknown destination",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Destination not found.\"}"
+            }
+        },
+        {
+            "name": "service clone: another team's destination",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Destination not found.\"}"
+            }
+        },
+        {
+            "name": "service clone: a build server",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Destination not found.\"}"
+            }
+        },
+        {
+            "name": "service clone: unknown service",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Service not found.\"}"
+            }
+        },
+        {
+            "name": "service clone: another team's service",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Service not found.\"}"
+            }
+        },
+        {
+            "name": "service clone: unknown service, empty JSON",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Invalid request.\",\"error\":\"Empty JSON.\"}"
+            }
+        },
+        {
+            "name": "service clone: unknown service, validation first",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"destination_uuid\":[\"This field is required.\"],\"name\":[\"The name must be at least 3 characters.\"]}}"
+            }
+        },
+        {
+            "name": "service clone: with a read token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: write\"}"
+            }
         }
     ]
 }

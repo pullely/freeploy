@@ -17,13 +17,12 @@
 // source's name kept) and every service (clone_service()). Each failure is handleError()'s toast; the page then goes
 // to the new environment.
 //
-// What is not Coolify's: clone_service() is not ported (DP-97: Freeploy's parser is held to PHP for a service that
-// is created or saved, not a replicated one), so an environment with a service answers 501 "Cloning a service is not
-// available yet."; and what Coolify does on a server once the transaction commits — copying the volume data
-// (cloneVolumeData) and writing a managed file mount into a clone's directory — answers 501 "… needs the SSH
-// executor, which is not available yet.", the first in Coolify's order (resource by resource, applications then
-// databases). Either way the transaction is rolled back: nothing is stored. The audit log entry
-// (ui.project.clone_started) and the secret manager links are not written.
+// What is not Coolify's: what Coolify does on a server once the transaction commits — copying the volume data
+// (cloneVolumeData) and writing a managed file mount into a clone's directory — answers 501 "… needs the SSH executor,
+// which is not available yet.", the first in Coolify's order (resource by resource: applications, databases, then
+// services — DP-108's clone_service(), services/clone.ts, whose file mounts are written before its volume data is
+// copied); the transaction is rolled back: nothing is stored. The audit log entry (ui.project.clone_started) and the
+// secret manager links of applications and databases are not written.
 import type {
   DeployApplicationRow,
   DeployDatabaseRow,
@@ -43,7 +42,9 @@ import { SettingsError, SettingsFieldErrors } from "../applications/settings.js"
 import { cloneApplicationTo, RESOURCE_OPERATION_MESSAGES } from "../applications/resource-operations.js";
 import type { ApplicationResourcesContext } from "../applications/resources.js";
 import { cloneDatabaseTo, cloneResourceName, type DatabaseResourcesContext } from "../databases/resources.js";
-import { SERVICE_CLONE_MESSAGES } from "../services/clone.js";
+import { cloneService, findCloneDestination } from "../services/clone.js";
+import type { ServiceResourcesContext } from "../services/resources.js";
+import { ServiceConfigurationError } from "../services/configuration.js";
 import { customizeEnvironmentName } from "./service.js";
 
 type Body = Record<string, unknown>;
@@ -64,8 +65,6 @@ export const CLONE_ME_MESSAGES = {
   environmentExists: "Environment with the same name already exists.",
   /** handleError() for a UniqueConstraintViolationException. */
   duplicate: "Duplicate entry found. Please use a different name.",
-  /** Freeploy's: clone_service() is not ported. */
-  serviceUnavailable: SERVICE_CLONE_MESSAGES.cloneUnavailable,
   /** Freeploy's: the SSH executor is not deployed yet. */
   volumeDataUnavailable: RESOURCE_OPERATION_MESSAGES.volumeDataUnavailable,
   fileMountsUnavailable: RESOURCE_OPERATION_MESSAGES.fileMountsUnavailable,
@@ -105,6 +104,8 @@ export interface CloneMeContext {
   application: ApplicationResourcesContext;
   /** DP-64's database clone of one database, in this transaction. */
   database(uuid: string): Promise<DatabaseResourcesContext>;
+  /** DP-108's clone_service(), in this transaction. */
+  service: ServiceResourcesContext;
 }
 
 export interface CloneMeResource {
@@ -246,6 +247,8 @@ export async function cloneEnvironment(ctx: CloneMeContext, projectUuid: string,
     } catch (e) {
       // Two volumes of a source under one name in the clone: the unique index, handleError()'s toast.
       if (e instanceof SettingsError && e.status === 422) throw new CloneMeError(CLONE_ME_MESSAGES.duplicate);
+      // handleError(): the parser's message for a service whose Compose file does not parse.
+      if (e instanceof ServiceConfigurationError) throw new CloneMeError(e.message, e.status);
       throw e;
     }
   };
@@ -255,7 +258,16 @@ export async function cloneEnvironment(ctx: CloneMeContext, projectUuid: string,
   for (const database of await store.databases(environment.id)) {
     await clone(async () => cloneDatabaseTo(await ctx.database(database.uuid), database.uuid, into, { uuid: newPublicId(), name: database.name }));
   }
-  if ((await store.services(environment.id)).length > 0) throw new CloneMeError(CLONE_ME_MESSAGES.serviceUnavailable, 501);
+  // clone_service($service, $selectedDestination, ['name' => $service->name, 'environment_id' => …], $cloneVolumeData)
+  const services = await store.services(environment.id);
+  if (services.length > 0) {
+    const serviceDestination = await findCloneDestination(ctx.service, destination.uuid);
+    for (const service of services) {
+      const source = serviceDestination ? await ctx.service.configuration.store.find(service.uuid) : null;
+      if (!serviceDestination || !source) continue;
+      await clone(async () => cloneService(ctx.service, source, serviceDestination, { name: service.name, environmentId: target.environment.id }, cloneVolumeData));
+    }
+  }
   if (unavailable !== null) throw new CloneMeError(unavailable, 501);
   return { projectUuid: target.projectUuid, environmentUuid: target.environment.uuid };
 }

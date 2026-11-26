@@ -382,6 +382,16 @@ export {
   type DeployDatabaseHealthRow,
   type DatabaseHealthChanges,
   type DatabaseReplica,
+  // DP-108: clone_service()
+  replicateService,
+  listServiceScheduledTaskIds,
+  replicateServiceScheduledTask,
+  listServiceEnvironmentVariableIds,
+  replicateServiceEnvironmentVariable,
+  cloneServiceSecretManagerLink,
+  listServiceDatabaseBackupScheduleIds,
+  replicateServiceDatabaseBackupSchedule,
+  type ServiceReplica,
   type DeployDatabaseLimitsRow,
   type DatabaseLimitChanges,
 } from "./resource-operations.js";

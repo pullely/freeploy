@@ -371,9 +371,10 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("GET", "/services/{uuid}/tags", "read", "deploy"),
   r("POST", "/services/{uuid}/tags", "write", "deploy"),
   r("DELETE", "/services/{uuid}/tags/{tag_uuid}", "delete", "deploy"),
-  // DP-86: move and migrate (clone is not ported: clone_service() has no port yet)
+  // DP-86: move and migrate; DP-108: clone (clone_service())
   r("POST", "/services/{uuid}/move", "write", "deploy"),
   r("POST", "/services/{uuid}/migrate", "write", "deploy"),
+  r("POST", "/services/{uuid}/clone", "write", "deploy"),
   // DP-88: a service's container logs
   r("GET", "/services/{uuid}/logs", "read:sensitive", "deploy"),
 

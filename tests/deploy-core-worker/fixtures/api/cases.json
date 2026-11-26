@@ -35980,6 +35980,481 @@
     "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
     "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
    }
+  },
+  {
+   "name": "service clone: clone",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/clone",
+   "body": {
+    "destination_uuid": "d1paritydestination00001"
+   },
+   "after": {
+    "service": "select replace(name, uuid, '<uuid>') as name, description, docker_compose_raw, regexp_replace(replace(docker_compose, uuid, '<uuid>'), 'subUuid=[a-z0-9]+', 'subUuid=<part-uuid>', 'g') as docker_compose, environment_id, server_id, destination_id, destination_type, connect_to_docker_network, service_type, is_container_label_escape_enabled, compose_parsing_version, include_coolify_default_variables, redact_all_env_values_in_logs, config_hash from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')",
+    "applications": "select a.name, a.human_name, replace(a.fqdn, s.uuid, '<uuid>') as fqdn, a.image, a.status, a.exclude_from_status, a.is_log_drain_enabled, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_migrated, a.is_removed_from_compose, a.ports, a.redirect, a.is_force_https_enabled, a.uuid = 'g1paritywebapplication01' as fixture_uuid from service_applications a join services s on s.id = a.service_id where s.uuid not in ('f1parityservice000000001', 'f2otherservice0000000002') order by a.name",
+    "databases": "select d.name, d.human_name, d.image, d.status, d.exclude_from_status, d.is_log_drain_enabled, d.is_public, d.public_port, d.is_migrated, d.is_removed_from_compose, d.uuid = 'h1paritydatabase00000001' as fixture_uuid from service_databases d join services s on s.id = d.service_id where s.uuid not in ('f1parityservice000000001', 'f2otherservice0000000002') order by d.name",
+    "tags": "select tg.tag_id from taggables tg where tg.taggable_type = 'App\\Models\\Service' and tg.taggable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by tg.tag_id",
+    "tasks": "select name, command, frequency, container, timeout, use_shell, enabled, uuid = 'n3parityservicetask00003' as fixture_uuid from scheduled_tasks where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by name",
+    "variables": "select key, is_preview, is_required, is_shared, is_literal, is_multiline, is_shown_once, comment, version, value is not null as has_value from environment_variables where resourceable_type = 'App\\Models\\Service' and resourceable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by key",
+    "volumes": "select replace(name, (select uuid from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')), '<uuid>') as name, mount_path, resource_type, uuid = 'l2parityservicevolume002' as fixture_uuid from local_persistent_volumes where (resource_type = 'App\\Models\\ServiceApplication' and resource_id in (select id from service_applications where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) or (resource_type = 'App\\Models\\ServiceDatabase' and resource_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) order by name",
+    "files": "select replace(fs_path, (select uuid from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')), '<uuid>') as fs_path, mount_path, is_directory, is_host_file, content is not null as has_content, resource_type from local_file_volumes where (resource_type = 'App\\Models\\ServiceApplication' and resource_id in (select id from service_applications where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) or (resource_type = 'App\\Models\\ServiceDatabase' and resource_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) order by mount_path",
+    "backups": "select frequency, save_s3, enabled, databases_to_backup, (select count(*) from scheduled_database_backup_s3_storage p where p.scheduled_database_backup_id = b.id) as s3 from scheduled_database_backups b where database_type = 'App\\Models\\ServiceDatabase' and database_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002'))) order by frequency",
+    "links": "select resourceable_type, integration_token_id, settings::jsonb::text as settings from secret_manager_links where resourceable_type = 'App\\Models\\Service' and resourceable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002'))",
+    "count": "select count(*) as services from services where uuid <> 'f2otherservice0000000002'"
+   }
+  },
+  {
+   "name": "service clone: with a name",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/clone",
+   "body": {
+    "destination_uuid": "d1paritydestination00001",
+    "name": "service-copy"
+   },
+   "after": {
+    "service": "select replace(name, uuid, '<uuid>') as name, description, docker_compose_raw, regexp_replace(replace(docker_compose, uuid, '<uuid>'), 'subUuid=[a-z0-9]+', 'subUuid=<part-uuid>', 'g') as docker_compose, environment_id, server_id, destination_id, destination_type, connect_to_docker_network, service_type, is_container_label_escape_enabled, compose_parsing_version, include_coolify_default_variables, redact_all_env_values_in_logs, config_hash from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')",
+    "applications": "select a.name, a.human_name, replace(a.fqdn, s.uuid, '<uuid>') as fqdn, a.image, a.status, a.exclude_from_status, a.is_log_drain_enabled, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_migrated, a.is_removed_from_compose, a.ports, a.redirect, a.is_force_https_enabled, a.uuid = 'g1paritywebapplication01' as fixture_uuid from service_applications a join services s on s.id = a.service_id where s.uuid not in ('f1parityservice000000001', 'f2otherservice0000000002') order by a.name",
+    "databases": "select d.name, d.human_name, d.image, d.status, d.exclude_from_status, d.is_log_drain_enabled, d.is_public, d.public_port, d.is_migrated, d.is_removed_from_compose, d.uuid = 'h1paritydatabase00000001' as fixture_uuid from service_databases d join services s on s.id = d.service_id where s.uuid not in ('f1parityservice000000001', 'f2otherservice0000000002') order by d.name",
+    "tags": "select tg.tag_id from taggables tg where tg.taggable_type = 'App\\Models\\Service' and tg.taggable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by tg.tag_id",
+    "tasks": "select name, command, frequency, container, timeout, use_shell, enabled, uuid = 'n3parityservicetask00003' as fixture_uuid from scheduled_tasks where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by name",
+    "variables": "select key, is_preview, is_required, is_shared, is_literal, is_multiline, is_shown_once, comment, version, value is not null as has_value from environment_variables where resourceable_type = 'App\\Models\\Service' and resourceable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by key",
+    "volumes": "select replace(name, (select uuid from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')), '<uuid>') as name, mount_path, resource_type, uuid = 'l2parityservicevolume002' as fixture_uuid from local_persistent_volumes where (resource_type = 'App\\Models\\ServiceApplication' and resource_id in (select id from service_applications where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) or (resource_type = 'App\\Models\\ServiceDatabase' and resource_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) order by name",
+    "files": "select replace(fs_path, (select uuid from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')), '<uuid>') as fs_path, mount_path, is_directory, is_host_file, content is not null as has_content, resource_type from local_file_volumes where (resource_type = 'App\\Models\\ServiceApplication' and resource_id in (select id from service_applications where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) or (resource_type = 'App\\Models\\ServiceDatabase' and resource_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) order by mount_path",
+    "backups": "select frequency, save_s3, enabled, databases_to_backup, (select count(*) from scheduled_database_backup_s3_storage p where p.scheduled_database_backup_id = b.id) as s3 from scheduled_database_backups b where database_type = 'App\\Models\\ServiceDatabase' and database_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002'))) order by frequency",
+    "links": "select resourceable_type, integration_token_id, settings::jsonb::text as settings from secret_manager_links where resourceable_type = 'App\\Models\\Service' and resourceable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002'))",
+    "count": "select count(*) as services from services where uuid <> 'f2otherservice0000000002'"
+   }
+  },
+  {
+   "name": "service clone: a blank name",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/clone",
+   "body": {
+    "destination_uuid": "d1paritydestination00001",
+    "name": "   ",
+    "clone_volumes": false
+   },
+   "after": {
+    "service": "select replace(name, uuid, '<uuid>') as name, description, docker_compose_raw, regexp_replace(replace(docker_compose, uuid, '<uuid>'), 'subUuid=[a-z0-9]+', 'subUuid=<part-uuid>', 'g') as docker_compose, environment_id, server_id, destination_id, destination_type, connect_to_docker_network, service_type, is_container_label_escape_enabled, compose_parsing_version, include_coolify_default_variables, redact_all_env_values_in_logs, config_hash from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')",
+    "applications": "select a.name, a.human_name, replace(a.fqdn, s.uuid, '<uuid>') as fqdn, a.image, a.status, a.exclude_from_status, a.is_log_drain_enabled, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_migrated, a.is_removed_from_compose, a.ports, a.redirect, a.is_force_https_enabled, a.uuid = 'g1paritywebapplication01' as fixture_uuid from service_applications a join services s on s.id = a.service_id where s.uuid not in ('f1parityservice000000001', 'f2otherservice0000000002') order by a.name",
+    "databases": "select d.name, d.human_name, d.image, d.status, d.exclude_from_status, d.is_log_drain_enabled, d.is_public, d.public_port, d.is_migrated, d.is_removed_from_compose, d.uuid = 'h1paritydatabase00000001' as fixture_uuid from service_databases d join services s on s.id = d.service_id where s.uuid not in ('f1parityservice000000001', 'f2otherservice0000000002') order by d.name",
+    "tags": "select tg.tag_id from taggables tg where tg.taggable_type = 'App\\Models\\Service' and tg.taggable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by tg.tag_id",
+    "tasks": "select name, command, frequency, container, timeout, use_shell, enabled, uuid = 'n3parityservicetask00003' as fixture_uuid from scheduled_tasks where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by name",
+    "variables": "select key, is_preview, is_required, is_shared, is_literal, is_multiline, is_shown_once, comment, version, value is not null as has_value from environment_variables where resourceable_type = 'App\\Models\\Service' and resourceable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by key",
+    "volumes": "select replace(name, (select uuid from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')), '<uuid>') as name, mount_path, resource_type, uuid = 'l2parityservicevolume002' as fixture_uuid from local_persistent_volumes where (resource_type = 'App\\Models\\ServiceApplication' and resource_id in (select id from service_applications where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) or (resource_type = 'App\\Models\\ServiceDatabase' and resource_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) order by name",
+    "files": "select replace(fs_path, (select uuid from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')), '<uuid>') as fs_path, mount_path, is_directory, is_host_file, content is not null as has_content, resource_type from local_file_volumes where (resource_type = 'App\\Models\\ServiceApplication' and resource_id in (select id from service_applications where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) or (resource_type = 'App\\Models\\ServiceDatabase' and resource_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) order by mount_path",
+    "backups": "select frequency, save_s3, enabled, databases_to_backup, (select count(*) from scheduled_database_backup_s3_storage p where p.scheduled_database_backup_id = b.id) as s3 from scheduled_database_backups b where database_type = 'App\\Models\\ServiceDatabase' and database_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002'))) order by frequency",
+    "links": "select resourceable_type, integration_token_id, settings::jsonb::text as settings from secret_manager_links where resourceable_type = 'App\\Models\\Service' and resourceable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002'))",
+    "count": "select count(*) as services from services where uuid <> 'f2otherservice0000000002'"
+   }
+  },
+  {
+   "name": "service clone: a clone of a clone",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/clone",
+   "setup": [
+    "update services set name = 'parity-service-clone-abcdefgh1-clone-zyxwvut9' where id = 1"
+   ],
+   "body": {
+    "destination_uuid": "d1paritydestination00001"
+   },
+   "after": {
+    "service": "select replace(name, uuid, '<uuid>') as name, description, docker_compose_raw, regexp_replace(replace(docker_compose, uuid, '<uuid>'), 'subUuid=[a-z0-9]+', 'subUuid=<part-uuid>', 'g') as docker_compose, environment_id, server_id, destination_id, destination_type, connect_to_docker_network, service_type, is_container_label_escape_enabled, compose_parsing_version, include_coolify_default_variables, redact_all_env_values_in_logs, config_hash from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')",
+    "applications": "select a.name, a.human_name, replace(a.fqdn, s.uuid, '<uuid>') as fqdn, a.image, a.status, a.exclude_from_status, a.is_log_drain_enabled, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_migrated, a.is_removed_from_compose, a.ports, a.redirect, a.is_force_https_enabled, a.uuid = 'g1paritywebapplication01' as fixture_uuid from service_applications a join services s on s.id = a.service_id where s.uuid not in ('f1parityservice000000001', 'f2otherservice0000000002') order by a.name",
+    "databases": "select d.name, d.human_name, d.image, d.status, d.exclude_from_status, d.is_log_drain_enabled, d.is_public, d.public_port, d.is_migrated, d.is_removed_from_compose, d.uuid = 'h1paritydatabase00000001' as fixture_uuid from service_databases d join services s on s.id = d.service_id where s.uuid not in ('f1parityservice000000001', 'f2otherservice0000000002') order by d.name",
+    "tags": "select tg.tag_id from taggables tg where tg.taggable_type = 'App\\Models\\Service' and tg.taggable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by tg.tag_id",
+    "tasks": "select name, command, frequency, container, timeout, use_shell, enabled, uuid = 'n3parityservicetask00003' as fixture_uuid from scheduled_tasks where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by name",
+    "variables": "select key, is_preview, is_required, is_shared, is_literal, is_multiline, is_shown_once, comment, version, value is not null as has_value from environment_variables where resourceable_type = 'App\\Models\\Service' and resourceable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by key",
+    "volumes": "select replace(name, (select uuid from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')), '<uuid>') as name, mount_path, resource_type, uuid = 'l2parityservicevolume002' as fixture_uuid from local_persistent_volumes where (resource_type = 'App\\Models\\ServiceApplication' and resource_id in (select id from service_applications where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) or (resource_type = 'App\\Models\\ServiceDatabase' and resource_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) order by name",
+    "files": "select replace(fs_path, (select uuid from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')), '<uuid>') as fs_path, mount_path, is_directory, is_host_file, content is not null as has_content, resource_type from local_file_volumes where (resource_type = 'App\\Models\\ServiceApplication' and resource_id in (select id from service_applications where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) or (resource_type = 'App\\Models\\ServiceDatabase' and resource_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) order by mount_path",
+    "backups": "select frequency, save_s3, enabled, databases_to_backup, (select count(*) from scheduled_database_backup_s3_storage p where p.scheduled_database_backup_id = b.id) as s3 from scheduled_database_backups b where database_type = 'App\\Models\\ServiceDatabase' and database_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002'))) order by frequency",
+    "links": "select resourceable_type, integration_token_id, settings::jsonb::text as settings from secret_manager_links where resourceable_type = 'App\\Models\\Service' and resourceable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002'))",
+    "count": "select count(*) as services from services where uuid <> 'f2otherservice0000000002'"
+   }
+  },
+  {
+   "name": "service clone: a long name",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/clone",
+   "setup": [
+    "update services set name = 'ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss' where id = 1"
+   ],
+   "body": {
+    "destination_uuid": "d1paritydestination00001"
+   },
+   "after": {
+    "service": "select replace(name, uuid, '<uuid>') as name, description, docker_compose_raw, regexp_replace(replace(docker_compose, uuid, '<uuid>'), 'subUuid=[a-z0-9]+', 'subUuid=<part-uuid>', 'g') as docker_compose, environment_id, server_id, destination_id, destination_type, connect_to_docker_network, service_type, is_container_label_escape_enabled, compose_parsing_version, include_coolify_default_variables, redact_all_env_values_in_logs, config_hash from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')",
+    "applications": "select a.name, a.human_name, replace(a.fqdn, s.uuid, '<uuid>') as fqdn, a.image, a.status, a.exclude_from_status, a.is_log_drain_enabled, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_migrated, a.is_removed_from_compose, a.ports, a.redirect, a.is_force_https_enabled, a.uuid = 'g1paritywebapplication01' as fixture_uuid from service_applications a join services s on s.id = a.service_id where s.uuid not in ('f1parityservice000000001', 'f2otherservice0000000002') order by a.name",
+    "databases": "select d.name, d.human_name, d.image, d.status, d.exclude_from_status, d.is_log_drain_enabled, d.is_public, d.public_port, d.is_migrated, d.is_removed_from_compose, d.uuid = 'h1paritydatabase00000001' as fixture_uuid from service_databases d join services s on s.id = d.service_id where s.uuid not in ('f1parityservice000000001', 'f2otherservice0000000002') order by d.name",
+    "tags": "select tg.tag_id from taggables tg where tg.taggable_type = 'App\\Models\\Service' and tg.taggable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by tg.tag_id",
+    "tasks": "select name, command, frequency, container, timeout, use_shell, enabled, uuid = 'n3parityservicetask00003' as fixture_uuid from scheduled_tasks where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by name",
+    "variables": "select key, is_preview, is_required, is_shared, is_literal, is_multiline, is_shown_once, comment, version, value is not null as has_value from environment_variables where resourceable_type = 'App\\Models\\Service' and resourceable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by key",
+    "volumes": "select replace(name, (select uuid from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')), '<uuid>') as name, mount_path, resource_type, uuid = 'l2parityservicevolume002' as fixture_uuid from local_persistent_volumes where (resource_type = 'App\\Models\\ServiceApplication' and resource_id in (select id from service_applications where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) or (resource_type = 'App\\Models\\ServiceDatabase' and resource_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) order by name",
+    "files": "select replace(fs_path, (select uuid from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')), '<uuid>') as fs_path, mount_path, is_directory, is_host_file, content is not null as has_content, resource_type from local_file_volumes where (resource_type = 'App\\Models\\ServiceApplication' and resource_id in (select id from service_applications where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) or (resource_type = 'App\\Models\\ServiceDatabase' and resource_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) order by mount_path",
+    "backups": "select frequency, save_s3, enabled, databases_to_backup, (select count(*) from scheduled_database_backup_s3_storage p where p.scheduled_database_backup_id = b.id) as s3 from scheduled_database_backups b where database_type = 'App\\Models\\ServiceDatabase' and database_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002'))) order by frequency",
+    "links": "select resourceable_type, integration_token_id, settings::jsonb::text as settings from secret_manager_links where resourceable_type = 'App\\Models\\Service' and resourceable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002'))",
+    "count": "select count(*) as services from services where uuid <> 'f2otherservice0000000002'"
+   }
+  },
+  {
+   "name": "service clone: no volumes to copy",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/clone",
+   "body": {
+    "destination_uuid": "d1paritydestination00001",
+    "clone_volumes": true
+   },
+   "after": {
+    "service": "select replace(name, uuid, '<uuid>') as name, description, docker_compose_raw, regexp_replace(replace(docker_compose, uuid, '<uuid>'), 'subUuid=[a-z0-9]+', 'subUuid=<part-uuid>', 'g') as docker_compose, environment_id, server_id, destination_id, destination_type, connect_to_docker_network, service_type, is_container_label_escape_enabled, compose_parsing_version, include_coolify_default_variables, redact_all_env_values_in_logs, config_hash from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')",
+    "applications": "select a.name, a.human_name, replace(a.fqdn, s.uuid, '<uuid>') as fqdn, a.image, a.status, a.exclude_from_status, a.is_log_drain_enabled, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_migrated, a.is_removed_from_compose, a.ports, a.redirect, a.is_force_https_enabled, a.uuid = 'g1paritywebapplication01' as fixture_uuid from service_applications a join services s on s.id = a.service_id where s.uuid not in ('f1parityservice000000001', 'f2otherservice0000000002') order by a.name",
+    "databases": "select d.name, d.human_name, d.image, d.status, d.exclude_from_status, d.is_log_drain_enabled, d.is_public, d.public_port, d.is_migrated, d.is_removed_from_compose, d.uuid = 'h1paritydatabase00000001' as fixture_uuid from service_databases d join services s on s.id = d.service_id where s.uuid not in ('f1parityservice000000001', 'f2otherservice0000000002') order by d.name",
+    "tags": "select tg.tag_id from taggables tg where tg.taggable_type = 'App\\Models\\Service' and tg.taggable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by tg.tag_id",
+    "tasks": "select name, command, frequency, container, timeout, use_shell, enabled, uuid = 'n3parityservicetask00003' as fixture_uuid from scheduled_tasks where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by name",
+    "variables": "select key, is_preview, is_required, is_shared, is_literal, is_multiline, is_shown_once, comment, version, value is not null as has_value from environment_variables where resourceable_type = 'App\\Models\\Service' and resourceable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by key",
+    "volumes": "select replace(name, (select uuid from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')), '<uuid>') as name, mount_path, resource_type, uuid = 'l2parityservicevolume002' as fixture_uuid from local_persistent_volumes where (resource_type = 'App\\Models\\ServiceApplication' and resource_id in (select id from service_applications where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) or (resource_type = 'App\\Models\\ServiceDatabase' and resource_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) order by name",
+    "files": "select replace(fs_path, (select uuid from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')), '<uuid>') as fs_path, mount_path, is_directory, is_host_file, content is not null as has_content, resource_type from local_file_volumes where (resource_type = 'App\\Models\\ServiceApplication' and resource_id in (select id from service_applications where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) or (resource_type = 'App\\Models\\ServiceDatabase' and resource_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) order by mount_path",
+    "backups": "select frequency, save_s3, enabled, databases_to_backup, (select count(*) from scheduled_database_backup_s3_storage p where p.scheduled_database_backup_id = b.id) as s3 from scheduled_database_backups b where database_type = 'App\\Models\\ServiceDatabase' and database_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002'))) order by frequency",
+    "links": "select resourceable_type, integration_token_id, settings::jsonb::text as settings from secret_manager_links where resourceable_type = 'App\\Models\\Service' and resourceable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002'))",
+    "count": "select count(*) as services from services where uuid <> 'f2otherservice0000000002'"
+   }
+  },
+  {
+   "name": "service clone: the volumes without deploy",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/clone",
+   "body": {
+    "destination_uuid": "d1paritydestination00001",
+    "clone_volumes": "1"
+   },
+   "after": {
+    "count": "select count(*) as services from services where uuid <> 'f2otherservice0000000002'"
+   }
+  },
+  {
+   "name": "service clone: named volumes",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/clone",
+   "setup": [
+    "update services set docker_compose_raw = 'services:\n  web:\n    image: ''nginx:alpine''\n    volumes:\n      - ''web-html:/usr/share/nginx/html''\n    environment:\n      - ''FOO=${FOO:-bar}''\n  db:\n    image: ''postgres:16-alpine''\n    volumes:\n      - ''db-data:/var/lib/postgresql/data''\n    environment:\n      - ''POSTGRES_PASSWORD=${DB_PASSWORD}''\n' where id = 1"
+   ],
+   "body": {
+    "destination_uuid": "d1paritydestination00001"
+   },
+   "after": {
+    "service": "select replace(name, uuid, '<uuid>') as name, description, docker_compose_raw, regexp_replace(replace(docker_compose, uuid, '<uuid>'), 'subUuid=[a-z0-9]+', 'subUuid=<part-uuid>', 'g') as docker_compose, environment_id, server_id, destination_id, destination_type, connect_to_docker_network, service_type, is_container_label_escape_enabled, compose_parsing_version, include_coolify_default_variables, redact_all_env_values_in_logs, config_hash from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')",
+    "applications": "select a.name, a.human_name, replace(a.fqdn, s.uuid, '<uuid>') as fqdn, a.image, a.status, a.exclude_from_status, a.is_log_drain_enabled, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_migrated, a.is_removed_from_compose, a.ports, a.redirect, a.is_force_https_enabled, a.uuid = 'g1paritywebapplication01' as fixture_uuid from service_applications a join services s on s.id = a.service_id where s.uuid not in ('f1parityservice000000001', 'f2otherservice0000000002') order by a.name",
+    "databases": "select d.name, d.human_name, d.image, d.status, d.exclude_from_status, d.is_log_drain_enabled, d.is_public, d.public_port, d.is_migrated, d.is_removed_from_compose, d.uuid = 'h1paritydatabase00000001' as fixture_uuid from service_databases d join services s on s.id = d.service_id where s.uuid not in ('f1parityservice000000001', 'f2otherservice0000000002') order by d.name",
+    "tags": "select tg.tag_id from taggables tg where tg.taggable_type = 'App\\Models\\Service' and tg.taggable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by tg.tag_id",
+    "tasks": "select name, command, frequency, container, timeout, use_shell, enabled, uuid = 'n3parityservicetask00003' as fixture_uuid from scheduled_tasks where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by name",
+    "variables": "select key, is_preview, is_required, is_shared, is_literal, is_multiline, is_shown_once, comment, version, value is not null as has_value from environment_variables where resourceable_type = 'App\\Models\\Service' and resourceable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by key",
+    "volumes": "select replace(name, (select uuid from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')), '<uuid>') as name, mount_path, resource_type, uuid = 'l2parityservicevolume002' as fixture_uuid from local_persistent_volumes where (resource_type = 'App\\Models\\ServiceApplication' and resource_id in (select id from service_applications where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) or (resource_type = 'App\\Models\\ServiceDatabase' and resource_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) order by name",
+    "files": "select replace(fs_path, (select uuid from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')), '<uuid>') as fs_path, mount_path, is_directory, is_host_file, content is not null as has_content, resource_type from local_file_volumes where (resource_type = 'App\\Models\\ServiceApplication' and resource_id in (select id from service_applications where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) or (resource_type = 'App\\Models\\ServiceDatabase' and resource_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) order by mount_path",
+    "backups": "select frequency, save_s3, enabled, databases_to_backup, (select count(*) from scheduled_database_backup_s3_storage p where p.scheduled_database_backup_id = b.id) as s3 from scheduled_database_backups b where database_type = 'App\\Models\\ServiceDatabase' and database_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002'))) order by frequency",
+    "links": "select resourceable_type, integration_token_id, settings::jsonb::text as settings from secret_manager_links where resourceable_type = 'App\\Models\\Service' and resourceable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002'))",
+    "count": "select count(*) as services from services where uuid <> 'f2otherservice0000000002'"
+   }
+  },
+  {
+   "name": "service clone: named volumes, the volumes",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/clone",
+   "setup": [
+    "update services set docker_compose_raw = 'services:\n  web:\n    image: ''nginx:alpine''\n    volumes:\n      - ''web-html:/usr/share/nginx/html''\n    environment:\n      - ''FOO=${FOO:-bar}''\n  db:\n    image: ''postgres:16-alpine''\n    volumes:\n      - ''db-data:/var/lib/postgresql/data''\n    environment:\n      - ''POSTGRES_PASSWORD=${DB_PASSWORD}''\n' where id = 1"
+   ],
+   "body": {
+    "destination_uuid": "d1paritydestination00001",
+    "clone_volumes": true
+   },
+   "after": {
+    "service": "select replace(name, uuid, '<uuid>') as name, description, docker_compose_raw, regexp_replace(replace(docker_compose, uuid, '<uuid>'), 'subUuid=[a-z0-9]+', 'subUuid=<part-uuid>', 'g') as docker_compose, environment_id, server_id, destination_id, destination_type, connect_to_docker_network, service_type, is_container_label_escape_enabled, compose_parsing_version, include_coolify_default_variables, redact_all_env_values_in_logs, config_hash from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')",
+    "applications": "select a.name, a.human_name, replace(a.fqdn, s.uuid, '<uuid>') as fqdn, a.image, a.status, a.exclude_from_status, a.is_log_drain_enabled, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_migrated, a.is_removed_from_compose, a.ports, a.redirect, a.is_force_https_enabled, a.uuid = 'g1paritywebapplication01' as fixture_uuid from service_applications a join services s on s.id = a.service_id where s.uuid not in ('f1parityservice000000001', 'f2otherservice0000000002') order by a.name",
+    "databases": "select d.name, d.human_name, d.image, d.status, d.exclude_from_status, d.is_log_drain_enabled, d.is_public, d.public_port, d.is_migrated, d.is_removed_from_compose, d.uuid = 'h1paritydatabase00000001' as fixture_uuid from service_databases d join services s on s.id = d.service_id where s.uuid not in ('f1parityservice000000001', 'f2otherservice0000000002') order by d.name",
+    "tags": "select tg.tag_id from taggables tg where tg.taggable_type = 'App\\Models\\Service' and tg.taggable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by tg.tag_id",
+    "tasks": "select name, command, frequency, container, timeout, use_shell, enabled, uuid = 'n3parityservicetask00003' as fixture_uuid from scheduled_tasks where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by name",
+    "variables": "select key, is_preview, is_required, is_shared, is_literal, is_multiline, is_shown_once, comment, version, value is not null as has_value from environment_variables where resourceable_type = 'App\\Models\\Service' and resourceable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by key",
+    "volumes": "select replace(name, (select uuid from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')), '<uuid>') as name, mount_path, resource_type, uuid = 'l2parityservicevolume002' as fixture_uuid from local_persistent_volumes where (resource_type = 'App\\Models\\ServiceApplication' and resource_id in (select id from service_applications where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) or (resource_type = 'App\\Models\\ServiceDatabase' and resource_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) order by name",
+    "files": "select replace(fs_path, (select uuid from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')), '<uuid>') as fs_path, mount_path, is_directory, is_host_file, content is not null as has_content, resource_type from local_file_volumes where (resource_type = 'App\\Models\\ServiceApplication' and resource_id in (select id from service_applications where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) or (resource_type = 'App\\Models\\ServiceDatabase' and resource_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) order by mount_path",
+    "backups": "select frequency, save_s3, enabled, databases_to_backup, (select count(*) from scheduled_database_backup_s3_storage p where p.scheduled_database_backup_id = b.id) as s3 from scheduled_database_backups b where database_type = 'App\\Models\\ServiceDatabase' and database_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002'))) order by frequency",
+    "links": "select resourceable_type, integration_token_id, settings::jsonb::text as settings from secret_manager_links where resourceable_type = 'App\\Models\\Service' and resourceable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002'))",
+    "count": "select count(*) as services from services where uuid <> 'f2otherservice0000000002'"
+   }
+  },
+  {
+   "name": "service clone: a file mount",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/clone",
+   "setup": [
+    "update services set docker_compose_raw = 'services:\n  web:\n    image: ''nginx:alpine''\n    volumes:\n      - ''./default.conf:/etc/nginx/conf.d/default.conf''\n    environment:\n      - ''FOO=${FOO:-bar}''\n' where id = 1"
+   ],
+   "body": {
+    "destination_uuid": "d1paritydestination00001"
+   },
+   "after": {
+    "service": "select replace(name, uuid, '<uuid>') as name, description, docker_compose_raw, regexp_replace(replace(docker_compose, uuid, '<uuid>'), 'subUuid=[a-z0-9]+', 'subUuid=<part-uuid>', 'g') as docker_compose, environment_id, server_id, destination_id, destination_type, connect_to_docker_network, service_type, is_container_label_escape_enabled, compose_parsing_version, include_coolify_default_variables, redact_all_env_values_in_logs, config_hash from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')",
+    "applications": "select a.name, a.human_name, replace(a.fqdn, s.uuid, '<uuid>') as fqdn, a.image, a.status, a.exclude_from_status, a.is_log_drain_enabled, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_migrated, a.is_removed_from_compose, a.ports, a.redirect, a.is_force_https_enabled, a.uuid = 'g1paritywebapplication01' as fixture_uuid from service_applications a join services s on s.id = a.service_id where s.uuid not in ('f1parityservice000000001', 'f2otherservice0000000002') order by a.name",
+    "databases": "select d.name, d.human_name, d.image, d.status, d.exclude_from_status, d.is_log_drain_enabled, d.is_public, d.public_port, d.is_migrated, d.is_removed_from_compose, d.uuid = 'h1paritydatabase00000001' as fixture_uuid from service_databases d join services s on s.id = d.service_id where s.uuid not in ('f1parityservice000000001', 'f2otherservice0000000002') order by d.name",
+    "tags": "select tg.tag_id from taggables tg where tg.taggable_type = 'App\\Models\\Service' and tg.taggable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by tg.tag_id",
+    "tasks": "select name, command, frequency, container, timeout, use_shell, enabled, uuid = 'n3parityservicetask00003' as fixture_uuid from scheduled_tasks where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by name",
+    "variables": "select key, is_preview, is_required, is_shared, is_literal, is_multiline, is_shown_once, comment, version, value is not null as has_value from environment_variables where resourceable_type = 'App\\Models\\Service' and resourceable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by key",
+    "volumes": "select replace(name, (select uuid from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')), '<uuid>') as name, mount_path, resource_type, uuid = 'l2parityservicevolume002' as fixture_uuid from local_persistent_volumes where (resource_type = 'App\\Models\\ServiceApplication' and resource_id in (select id from service_applications where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) or (resource_type = 'App\\Models\\ServiceDatabase' and resource_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) order by name",
+    "files": "select replace(fs_path, (select uuid from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')), '<uuid>') as fs_path, mount_path, is_directory, is_host_file, content is not null as has_content, resource_type from local_file_volumes where (resource_type = 'App\\Models\\ServiceApplication' and resource_id in (select id from service_applications where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) or (resource_type = 'App\\Models\\ServiceDatabase' and resource_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) order by mount_path",
+    "backups": "select frequency, save_s3, enabled, databases_to_backup, (select count(*) from scheduled_database_backup_s3_storage p where p.scheduled_database_backup_id = b.id) as s3 from scheduled_database_backups b where database_type = 'App\\Models\\ServiceDatabase' and database_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002'))) order by frequency",
+    "links": "select resourceable_type, integration_token_id, settings::jsonb::text as settings from secret_manager_links where resourceable_type = 'App\\Models\\Service' and resourceable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002'))",
+    "count": "select count(*) as services from services where uuid <> 'f2otherservice0000000002'"
+   }
+  },
+  {
+   "name": "service clone: a host path",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/clone",
+   "setup": [
+    "update services set docker_compose_raw = 'services:\n  web:\n    image: ''nginx:alpine''\n    volumes:\n      - ''/etc/timezone:/etc/timezone:ro''\n    environment:\n      - ''FOO=${FOO:-bar}''\n' where id = 1"
+   ],
+   "body": {
+    "destination_uuid": "d1paritydestination00001"
+   },
+   "after": {
+    "service": "select replace(name, uuid, '<uuid>') as name, description, docker_compose_raw, regexp_replace(replace(docker_compose, uuid, '<uuid>'), 'subUuid=[a-z0-9]+', 'subUuid=<part-uuid>', 'g') as docker_compose, environment_id, server_id, destination_id, destination_type, connect_to_docker_network, service_type, is_container_label_escape_enabled, compose_parsing_version, include_coolify_default_variables, redact_all_env_values_in_logs, config_hash from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')",
+    "applications": "select a.name, a.human_name, replace(a.fqdn, s.uuid, '<uuid>') as fqdn, a.image, a.status, a.exclude_from_status, a.is_log_drain_enabled, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_migrated, a.is_removed_from_compose, a.ports, a.redirect, a.is_force_https_enabled, a.uuid = 'g1paritywebapplication01' as fixture_uuid from service_applications a join services s on s.id = a.service_id where s.uuid not in ('f1parityservice000000001', 'f2otherservice0000000002') order by a.name",
+    "databases": "select d.name, d.human_name, d.image, d.status, d.exclude_from_status, d.is_log_drain_enabled, d.is_public, d.public_port, d.is_migrated, d.is_removed_from_compose, d.uuid = 'h1paritydatabase00000001' as fixture_uuid from service_databases d join services s on s.id = d.service_id where s.uuid not in ('f1parityservice000000001', 'f2otherservice0000000002') order by d.name",
+    "tags": "select tg.tag_id from taggables tg where tg.taggable_type = 'App\\Models\\Service' and tg.taggable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by tg.tag_id",
+    "tasks": "select name, command, frequency, container, timeout, use_shell, enabled, uuid = 'n3parityservicetask00003' as fixture_uuid from scheduled_tasks where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by name",
+    "variables": "select key, is_preview, is_required, is_shared, is_literal, is_multiline, is_shown_once, comment, version, value is not null as has_value from environment_variables where resourceable_type = 'App\\Models\\Service' and resourceable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by key",
+    "volumes": "select replace(name, (select uuid from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')), '<uuid>') as name, mount_path, resource_type, uuid = 'l2parityservicevolume002' as fixture_uuid from local_persistent_volumes where (resource_type = 'App\\Models\\ServiceApplication' and resource_id in (select id from service_applications where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) or (resource_type = 'App\\Models\\ServiceDatabase' and resource_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) order by name",
+    "files": "select replace(fs_path, (select uuid from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')), '<uuid>') as fs_path, mount_path, is_directory, is_host_file, content is not null as has_content, resource_type from local_file_volumes where (resource_type = 'App\\Models\\ServiceApplication' and resource_id in (select id from service_applications where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) or (resource_type = 'App\\Models\\ServiceDatabase' and resource_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) order by mount_path",
+    "backups": "select frequency, save_s3, enabled, databases_to_backup, (select count(*) from scheduled_database_backup_s3_storage p where p.scheduled_database_backup_id = b.id) as s3 from scheduled_database_backups b where database_type = 'App\\Models\\ServiceDatabase' and database_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002'))) order by frequency",
+    "links": "select resourceable_type, integration_token_id, settings::jsonb::text as settings from secret_manager_links where resourceable_type = 'App\\Models\\Service' and resourceable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002'))",
+    "count": "select count(*) as services from services where uuid <> 'f2otherservice0000000002'"
+   }
+  },
+  {
+   "name": "service clone: generated values",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/clone",
+   "setup": [
+    "update services set docker_compose_raw = 'services:\n  web:\n    image: ''nginx:alpine''\n    environment:\n      - SERVICE_URL_WEB_80\n      - ''FOO=${FOO:-bar}''\n      - ''ADMIN_PASSWORD=${SERVICE_PASSWORD_ADMIN}''\n' where id = 1"
+   ],
+   "body": {
+    "destination_uuid": "d1paritydestination00001"
+   },
+   "after": {
+    "service": "select replace(name, uuid, '<uuid>') as name, description, docker_compose_raw, regexp_replace(replace(docker_compose, uuid, '<uuid>'), 'subUuid=[a-z0-9]+', 'subUuid=<part-uuid>', 'g') as docker_compose, environment_id, server_id, destination_id, destination_type, connect_to_docker_network, service_type, is_container_label_escape_enabled, compose_parsing_version, include_coolify_default_variables, redact_all_env_values_in_logs, config_hash from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')",
+    "applications": "select a.name, a.human_name, replace(a.fqdn, s.uuid, '<uuid>') as fqdn, a.image, a.status, a.exclude_from_status, a.is_log_drain_enabled, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_migrated, a.is_removed_from_compose, a.ports, a.redirect, a.is_force_https_enabled, a.uuid = 'g1paritywebapplication01' as fixture_uuid from service_applications a join services s on s.id = a.service_id where s.uuid not in ('f1parityservice000000001', 'f2otherservice0000000002') order by a.name",
+    "databases": "select d.name, d.human_name, d.image, d.status, d.exclude_from_status, d.is_log_drain_enabled, d.is_public, d.public_port, d.is_migrated, d.is_removed_from_compose, d.uuid = 'h1paritydatabase00000001' as fixture_uuid from service_databases d join services s on s.id = d.service_id where s.uuid not in ('f1parityservice000000001', 'f2otherservice0000000002') order by d.name",
+    "tags": "select tg.tag_id from taggables tg where tg.taggable_type = 'App\\Models\\Service' and tg.taggable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by tg.tag_id",
+    "tasks": "select name, command, frequency, container, timeout, use_shell, enabled, uuid = 'n3parityservicetask00003' as fixture_uuid from scheduled_tasks where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by name",
+    "variables": "select key, is_preview, is_required, is_shared, is_literal, is_multiline, is_shown_once, comment, version, value is not null as has_value from environment_variables where resourceable_type = 'App\\Models\\Service' and resourceable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by key",
+    "volumes": "select replace(name, (select uuid from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')), '<uuid>') as name, mount_path, resource_type, uuid = 'l2parityservicevolume002' as fixture_uuid from local_persistent_volumes where (resource_type = 'App\\Models\\ServiceApplication' and resource_id in (select id from service_applications where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) or (resource_type = 'App\\Models\\ServiceDatabase' and resource_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) order by name",
+    "files": "select replace(fs_path, (select uuid from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')), '<uuid>') as fs_path, mount_path, is_directory, is_host_file, content is not null as has_content, resource_type from local_file_volumes where (resource_type = 'App\\Models\\ServiceApplication' and resource_id in (select id from service_applications where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) or (resource_type = 'App\\Models\\ServiceDatabase' and resource_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) order by mount_path",
+    "backups": "select frequency, save_s3, enabled, databases_to_backup, (select count(*) from scheduled_database_backup_s3_storage p where p.scheduled_database_backup_id = b.id) as s3 from scheduled_database_backups b where database_type = 'App\\Models\\ServiceDatabase' and database_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002'))) order by frequency",
+    "links": "select resourceable_type, integration_token_id, settings::jsonb::text as settings from secret_manager_links where resourceable_type = 'App\\Models\\Service' and resourceable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002'))",
+    "count": "select count(*) as services from services where uuid <> 'f2otherservice0000000002'"
+   }
+  },
+  {
+   "name": "service clone: a database's backup schedule",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/clone",
+   "setup": [
+    "update scheduled_database_backups set database_type = 'App\\Models\\ServiceDatabase', database_id = 1 where id = 2"
+   ],
+   "body": {
+    "destination_uuid": "d1paritydestination00001"
+   },
+   "after": {
+    "service": "select replace(name, uuid, '<uuid>') as name, description, docker_compose_raw, regexp_replace(replace(docker_compose, uuid, '<uuid>'), 'subUuid=[a-z0-9]+', 'subUuid=<part-uuid>', 'g') as docker_compose, environment_id, server_id, destination_id, destination_type, connect_to_docker_network, service_type, is_container_label_escape_enabled, compose_parsing_version, include_coolify_default_variables, redact_all_env_values_in_logs, config_hash from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')",
+    "applications": "select a.name, a.human_name, replace(a.fqdn, s.uuid, '<uuid>') as fqdn, a.image, a.status, a.exclude_from_status, a.is_log_drain_enabled, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_migrated, a.is_removed_from_compose, a.ports, a.redirect, a.is_force_https_enabled, a.uuid = 'g1paritywebapplication01' as fixture_uuid from service_applications a join services s on s.id = a.service_id where s.uuid not in ('f1parityservice000000001', 'f2otherservice0000000002') order by a.name",
+    "databases": "select d.name, d.human_name, d.image, d.status, d.exclude_from_status, d.is_log_drain_enabled, d.is_public, d.public_port, d.is_migrated, d.is_removed_from_compose, d.uuid = 'h1paritydatabase00000001' as fixture_uuid from service_databases d join services s on s.id = d.service_id where s.uuid not in ('f1parityservice000000001', 'f2otherservice0000000002') order by d.name",
+    "tags": "select tg.tag_id from taggables tg where tg.taggable_type = 'App\\Models\\Service' and tg.taggable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by tg.tag_id",
+    "tasks": "select name, command, frequency, container, timeout, use_shell, enabled, uuid = 'n3parityservicetask00003' as fixture_uuid from scheduled_tasks where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by name",
+    "variables": "select key, is_preview, is_required, is_shared, is_literal, is_multiline, is_shown_once, comment, version, value is not null as has_value from environment_variables where resourceable_type = 'App\\Models\\Service' and resourceable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by key",
+    "volumes": "select replace(name, (select uuid from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')), '<uuid>') as name, mount_path, resource_type, uuid = 'l2parityservicevolume002' as fixture_uuid from local_persistent_volumes where (resource_type = 'App\\Models\\ServiceApplication' and resource_id in (select id from service_applications where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) or (resource_type = 'App\\Models\\ServiceDatabase' and resource_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) order by name",
+    "files": "select replace(fs_path, (select uuid from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')), '<uuid>') as fs_path, mount_path, is_directory, is_host_file, content is not null as has_content, resource_type from local_file_volumes where (resource_type = 'App\\Models\\ServiceApplication' and resource_id in (select id from service_applications where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) or (resource_type = 'App\\Models\\ServiceDatabase' and resource_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) order by mount_path",
+    "backups": "select frequency, save_s3, enabled, databases_to_backup, (select count(*) from scheduled_database_backup_s3_storage p where p.scheduled_database_backup_id = b.id) as s3 from scheduled_database_backups b where database_type = 'App\\Models\\ServiceDatabase' and database_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002'))) order by frequency",
+    "links": "select resourceable_type, integration_token_id, settings::jsonb::text as settings from secret_manager_links where resourceable_type = 'App\\Models\\Service' and resourceable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002'))",
+    "count": "select count(*) as services from services where uuid <> 'f2otherservice0000000002'"
+   }
+  },
+  {
+   "name": "service clone: its secret manager",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/clone",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"/app\"}', '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"/app\"}', deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "body": {
+    "destination_uuid": "d1paritydestination00001"
+   },
+   "after": {
+    "service": "select replace(name, uuid, '<uuid>') as name, description, docker_compose_raw, regexp_replace(replace(docker_compose, uuid, '<uuid>'), 'subUuid=[a-z0-9]+', 'subUuid=<part-uuid>', 'g') as docker_compose, environment_id, server_id, destination_id, destination_type, connect_to_docker_network, service_type, is_container_label_escape_enabled, compose_parsing_version, include_coolify_default_variables, redact_all_env_values_in_logs, config_hash from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')",
+    "applications": "select a.name, a.human_name, replace(a.fqdn, s.uuid, '<uuid>') as fqdn, a.image, a.status, a.exclude_from_status, a.is_log_drain_enabled, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_migrated, a.is_removed_from_compose, a.ports, a.redirect, a.is_force_https_enabled, a.uuid = 'g1paritywebapplication01' as fixture_uuid from service_applications a join services s on s.id = a.service_id where s.uuid not in ('f1parityservice000000001', 'f2otherservice0000000002') order by a.name",
+    "databases": "select d.name, d.human_name, d.image, d.status, d.exclude_from_status, d.is_log_drain_enabled, d.is_public, d.public_port, d.is_migrated, d.is_removed_from_compose, d.uuid = 'h1paritydatabase00000001' as fixture_uuid from service_databases d join services s on s.id = d.service_id where s.uuid not in ('f1parityservice000000001', 'f2otherservice0000000002') order by d.name",
+    "tags": "select tg.tag_id from taggables tg where tg.taggable_type = 'App\\Models\\Service' and tg.taggable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by tg.tag_id",
+    "tasks": "select name, command, frequency, container, timeout, use_shell, enabled, uuid = 'n3parityservicetask00003' as fixture_uuid from scheduled_tasks where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by name",
+    "variables": "select key, is_preview, is_required, is_shared, is_literal, is_multiline, is_shown_once, comment, version, value is not null as has_value from environment_variables where resourceable_type = 'App\\Models\\Service' and resourceable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by key",
+    "volumes": "select replace(name, (select uuid from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')), '<uuid>') as name, mount_path, resource_type, uuid = 'l2parityservicevolume002' as fixture_uuid from local_persistent_volumes where (resource_type = 'App\\Models\\ServiceApplication' and resource_id in (select id from service_applications where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) or (resource_type = 'App\\Models\\ServiceDatabase' and resource_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) order by name",
+    "files": "select replace(fs_path, (select uuid from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')), '<uuid>') as fs_path, mount_path, is_directory, is_host_file, content is not null as has_content, resource_type from local_file_volumes where (resource_type = 'App\\Models\\ServiceApplication' and resource_id in (select id from service_applications where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) or (resource_type = 'App\\Models\\ServiceDatabase' and resource_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) order by mount_path",
+    "backups": "select frequency, save_s3, enabled, databases_to_backup, (select count(*) from scheduled_database_backup_s3_storage p where p.scheduled_database_backup_id = b.id) as s3 from scheduled_database_backups b where database_type = 'App\\Models\\ServiceDatabase' and database_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002'))) order by frequency",
+    "links": "select resourceable_type, integration_token_id, settings::jsonb::text as settings from secret_manager_links where resourceable_type = 'App\\Models\\Service' and resourceable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002'))",
+    "count": "select count(*) as services from services where uuid <> 'f2otherservice0000000002'"
+   }
+  },
+  {
+   "name": "service clone: to another server",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/clone",
+   "setupCoolify": [
+    "insert into servers (id, uuid, name, ip, team_id, private_key_id, proxy, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, 1, '{\"redirect_enabled\":true}', now(), now())",
+    "insert into server_settings (server_id, created_at, updated_at) values (3, now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, now(), now())"
+   ],
+   "setupFreeploy": [
+    "insert into servers (id, uuid, name, ip, private_key_id, proxy, org_id, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, '{\"redirect_enabled\":true}', deploy.current_org(), now(), now())",
+    "insert into server_settings (server_id, server_role, org_id, created_at, updated_at) values (3, 'both', deploy.current_org(), now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, org_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, deploy.current_org(), now(), now())"
+   ],
+   "body": {
+    "destination_uuid": "d3seconddestination00003"
+   },
+   "after": {
+    "service": "select replace(name, uuid, '<uuid>') as name, description, docker_compose_raw, regexp_replace(replace(docker_compose, uuid, '<uuid>'), 'subUuid=[a-z0-9]+', 'subUuid=<part-uuid>', 'g') as docker_compose, environment_id, server_id, destination_id, destination_type, connect_to_docker_network, service_type, is_container_label_escape_enabled, compose_parsing_version, include_coolify_default_variables, redact_all_env_values_in_logs, config_hash from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')",
+    "applications": "select a.name, a.human_name, replace(a.fqdn, s.uuid, '<uuid>') as fqdn, a.image, a.status, a.exclude_from_status, a.is_log_drain_enabled, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_migrated, a.is_removed_from_compose, a.ports, a.redirect, a.is_force_https_enabled, a.uuid = 'g1paritywebapplication01' as fixture_uuid from service_applications a join services s on s.id = a.service_id where s.uuid not in ('f1parityservice000000001', 'f2otherservice0000000002') order by a.name",
+    "databases": "select d.name, d.human_name, d.image, d.status, d.exclude_from_status, d.is_log_drain_enabled, d.is_public, d.public_port, d.is_migrated, d.is_removed_from_compose, d.uuid = 'h1paritydatabase00000001' as fixture_uuid from service_databases d join services s on s.id = d.service_id where s.uuid not in ('f1parityservice000000001', 'f2otherservice0000000002') order by d.name",
+    "tags": "select tg.tag_id from taggables tg where tg.taggable_type = 'App\\Models\\Service' and tg.taggable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by tg.tag_id",
+    "tasks": "select name, command, frequency, container, timeout, use_shell, enabled, uuid = 'n3parityservicetask00003' as fixture_uuid from scheduled_tasks where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by name",
+    "variables": "select key, is_preview, is_required, is_shared, is_literal, is_multiline, is_shown_once, comment, version, value is not null as has_value from environment_variables where resourceable_type = 'App\\Models\\Service' and resourceable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')) order by key",
+    "volumes": "select replace(name, (select uuid from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')), '<uuid>') as name, mount_path, resource_type, uuid = 'l2parityservicevolume002' as fixture_uuid from local_persistent_volumes where (resource_type = 'App\\Models\\ServiceApplication' and resource_id in (select id from service_applications where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) or (resource_type = 'App\\Models\\ServiceDatabase' and resource_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) order by name",
+    "files": "select replace(fs_path, (select uuid from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')), '<uuid>') as fs_path, mount_path, is_directory, is_host_file, content is not null as has_content, resource_type from local_file_volumes where (resource_type = 'App\\Models\\ServiceApplication' and resource_id in (select id from service_applications where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) or (resource_type = 'App\\Models\\ServiceDatabase' and resource_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002')))) order by mount_path",
+    "backups": "select frequency, save_s3, enabled, databases_to_backup, (select count(*) from scheduled_database_backup_s3_storage p where p.scheduled_database_backup_id = b.id) as s3 from scheduled_database_backups b where database_type = 'App\\Models\\ServiceDatabase' and database_id in (select id from service_databases where service_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002'))) order by frequency",
+    "links": "select resourceable_type, integration_token_id, settings::jsonb::text as settings from secret_manager_links where resourceable_type = 'App\\Models\\Service' and resourceable_id = (select id from services where uuid not in ('f1parityservice000000001', 'f2otherservice0000000002'))",
+    "count": "select count(*) as services from services where uuid <> 'f2otherservice0000000002'"
+   }
+  },
+  {
+   "name": "service clone: no body",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/clone"
+  },
+  {
+   "name": "service clone: not JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/clone",
+   "raw": "destination_uuid=x",
+   "contentType": "application/x-www-form-urlencoded"
+  },
+  {
+   "name": "service clone: validation",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/clone",
+   "body": {
+    "destination_uuid": 1,
+    "name": "x!",
+    "clone_volumes": "maybe",
+    "environment_uuid": "e2alphastaging0000000002"
+   }
+  },
+  {
+   "name": "service clone: a short name",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/clone",
+   "body": {
+    "destination_uuid": "d1paritydestination00001",
+    "name": "ab"
+   }
+  },
+  {
+   "name": "service clone: unknown destination",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/clone",
+   "body": {
+    "destination_uuid": "nonexistentuuid"
+   }
+  },
+  {
+   "name": "service clone: another team's destination",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/clone",
+   "body": {
+    "destination_uuid": "d2otherdestination000002"
+   }
+  },
+  {
+   "name": "service clone: a build server",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/clone",
+   "setup": [
+    "update server_settings set server_role = 'build' where server_id = 1"
+   ],
+   "body": {
+    "destination_uuid": "d1paritydestination00001"
+   }
+  },
+  {
+   "name": "service clone: unknown service",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/nonexistentuuid/clone",
+   "body": {
+    "destination_uuid": "d1paritydestination00001"
+   }
+  },
+  {
+   "name": "service clone: another team's service",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f2otherservice0000000002/clone",
+   "body": {
+    "destination_uuid": "d1paritydestination00001"
+   }
+  },
+  {
+   "name": "service clone: unknown service, empty JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/nonexistentuuid/clone",
+   "raw": "{}"
+  },
+  {
+   "name": "service clone: unknown service, validation first",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/nonexistentuuid/clone",
+   "body": {
+    "name": "x"
+   }
+  },
+  {
+   "name": "service clone: with a read token",
+   "token": "read",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/clone",
+   "body": {
+    "destination_uuid": "d1paritydestination00001"
+   }
   }
  ]
 }

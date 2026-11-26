@@ -35,7 +35,7 @@ export interface ServiceResourcesContext {
   deleteService(serviceId: Id): Promise<boolean>;
   /** The rows of Scheduled Tasks and Resource Operations (DP-97, resource-pages.ts). */
   pages?: ServicePagesStore;
-  /** The destination lookups of Clone (DP-97, clone.ts). */
+  /** Clone: the destination lookups (DP-97) and clone_service()'s rows (DP-108, clone.ts). */
   clone?: ServiceCloneStore;
 }
 

@@ -1,7 +1,7 @@
 // An environment's Clone page (DP-100, CloneMe) through its handler, over the API goldens' fixture in PGlite
 // (api-v1-database.ts), each case rolled back: mount()'s page, clone()'s rules and messages in Coolify's order, the
-// clone into a new environment and into a new project, the 501s where Coolify clones a service or copies volume data
-// or writes a file mount on a server (nothing stored), authorization, org isolation and routing.
+// clone into a new environment and into a new project (a service by DP-108's clone_service()), the 501s where Coolify
+// copies volume data or writes a file mount on a server (nothing stored), authorization, org isolation and routing.
 import type { Env } from "@deploy-core-worker/env";
 import { route } from "@deploy-core-worker/router";
 import { cloneMeContext, handleEnvironmentClone } from "@deploy-core-worker/handlers/environment-clone";
@@ -185,6 +185,26 @@ describe("clone(): what is cloned", () => {
       expect(Number((await query("SELECT count(*)::int AS n FROM applications WHERE environment_id = 1"))[0]!.n)).toBe(2);
     }));
 
+  it("an environment with a service: clone_service() under the service's name, its parts parsed again (DP-108)", () =>
+    inCase(async (db) => {
+      const { send, query } = setup(db);
+      const r = await send("POST", PRODUCTION, body({ newName: "with-service" }));
+      expect(r.status).toBe(201);
+      const [env] = await query("SELECT id FROM environments WHERE uuid = $1", [r.body.data.environmentUuid]);
+      const services = await query("SELECT id, uuid, name, docker_compose FROM services WHERE environment_id = $1", [env!.id]);
+      expect(services.map((x) => x.name)).toEqual(["parity-service"]);
+      const clone = services[0]!;
+      expect(clone.uuid).not.toBe(SERVICE);
+      expect(clone.docker_compose).toContain(`container_name: web-${clone.uuid}`);
+      expect(clone.docker_compose).toContain("coolify.environmentName=with-service");
+      expect((await query("SELECT name FROM service_applications WHERE service_id = $1", [clone.id])).map((p) => p.name)).toEqual(["web"]);
+      expect((await query("SELECT name FROM service_databases WHERE service_id = $1", [clone.id])).map((p) => p.name)).toEqual(["db"]);
+      expect((await query("SELECT key FROM environment_variables WHERE resourceable_type = 'App\\Models\\Service' AND resourceable_id = $1 ORDER BY key", [clone.id])).map((v) => v.key)).toEqual(["DB_PASSWORD", "FOO"]);
+      expect((await query("SELECT name FROM scheduled_tasks WHERE service_id = $1", [clone.id])).map((t) => t.name)).toEqual(["vacuum"]);
+      // The source is untouched.
+      expect(Number((await query("SELECT count(*)::int AS n FROM services WHERE uuid = $1 AND environment_id = 1", [SERVICE]))[0]!.n)).toBe(1);
+    }));
+
   it("into a new project: its description gets ' (clone)', the source environment's name when it is not production, and the page opens it", () =>
     inCase(async (db) => {
       const { send, query, withoutService } = setup(db);
@@ -206,14 +226,15 @@ describe("clone(): what is cloned", () => {
 });
 
 describe("clone(): the 501s, after Coolify's checks, with nothing stored", () => {
-  it("an environment with a service: clone_service() is not ported", () =>
+  it("a service's file mount inside the clone's directory needs the SSH executor (DP-108's clone_service())", () =>
     inCase(async (db) => {
-      const { send, counts } = setup(db);
+      const { send, counts, query } = setup(db);
+      await query("UPDATE services SET docker_compose_raw = $1 WHERE uuid = $2", ["services:\n  web:\n    image: 'nginx:alpine'\n    volumes:\n      - './default.conf:/etc/nginx/conf.d/default.conf'\n", SERVICE]);
       const before = await counts();
       const r = await send("POST", PRODUCTION, body());
-      expect([r.status, r.body.error?.code, r.body.error?.message]).toEqual([501, "unsupported", "Cloning a service is not available yet."]);
-      // The service comes before the volume copy, which Coolify queues for after the commit.
-      expect((await send("POST", PRODUCTION, body({ cloneVolumeData: true }))).body.error?.message).toBe("Cloning a service is not available yet.");
+      expect([r.status, r.body.error?.code, r.body.error?.message]).toEqual([501, "unsupported", "Writing the clone's file mounts to the server needs the SSH executor, which is not available yet."]);
+      // The applications come first: their volume copy is the first that cannot be done.
+      expect((await send("POST", PRODUCTION, body({ cloneVolumeData: true }))).body.error?.message).toBe("Copying the volume data to the clone needs the SSH executor, which is not available yet.");
       expect(await counts()).toEqual(before);
     }));
 

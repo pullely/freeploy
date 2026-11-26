@@ -1,0 +1,24 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-108
+  title: "DP8: cloning a service — clone_service() ported, and POST /api/v1/services/{uuid}/clone, a service's Resource Operations → Clone and an environment's Clone page clone services (a file mount to write or volume data to copy answers 501)"
+spec:
+  goal: Coolify's clone_service() is ported — the service's row replicated onto a destination, its tags, scheduled tasks, variables and secret manager link copied, Service::parse() run on the clone, its databases' backup schedules copied — and the three call sites that answered 501 without it (DP-86's API route, DP-97's Resource Operations → Clone, DP-100's Clone page) clone services, held to goldens emitted by Coolify's PHP
+  affects:
+    - apps/api-edge/**
+    - apps/deploy-core-worker/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/api-edge/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - every DP-108 case of tests/deploy-core-worker/fixtures/api/cases.json replays against Freeploy's handler byte-equal to goldens.json (status, body, and the clone's rows — service, parts, generated Compose file, tags, task, variables, volumes, file mounts, backup schedules, secret manager link), except the two departures (a file mount inside the clone's directory, volume data to copy) that answer the SSH executor's 501 with nothing stored
+    - a service's Resource Operations → Clone and an environment's Clone page clone a service on PGlite (tests/deploy-core-worker/src/service-clone.test.ts, environment-clone.test.ts), the file mount and volume data 501s after Coolify's checks with the transaction rolled back, and DP-97's and DP-100's tests hold the new behaviour
+    - tests/db/src/deploy-services.test.ts runs the new queries on the schema at head, row-level security included
+    - specs/epics/freeploy-coolify-parity/parity/openapi.operations.json marks clone-service-by-uuid ported with taskKey DP-108 (309 ported of 330 in all), tests/api-edge/src/api-v1.test.ts counts 309, and node tools/parity/inventory.ts --check passes
+    - on stage, cloning a one-click service without bind mounts from its Resource Operations page opens the clone's page with its applications and databases
+  gates: []
