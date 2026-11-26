@@ -20,6 +20,7 @@ import { handleSources } from "./handlers/sources.js";
 import { GIT_WEBHOOK_INTERNAL_RE, handleGitWebhook } from "./handlers/git-webhooks.js";
 import { PLATFORM_RE, handlePlatform } from "./handlers/platform.js";
 import { ORG_DEPLOY_CANVAS_RE, handleDeployCanvas } from "./handlers/deploy-canvas.js";
+import { handleCanvasViews } from "./handlers/canvas-views.js";
 import { ORG_DEPLOY_TAGS_RE, handleTagPages } from "./handlers/tag-pages.js";
 
 const REQUEST_ID_RE = /^[\w-]{1,128}$/;
@@ -109,7 +110,10 @@ export async function route(request: Request, env: Env): Promise<Response> {
       if (!orgId) return errorResponse("not_found", "Not found", 404, requestId);
       const actor = resolveActor(request);
       if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
-      return await handleDeployCanvas(env, requestId, actor, orgId, deployCanvas[1]!, (deployCanvas[2] ?? "").split("/").filter(Boolean), request);
+      const below = (deployCanvas[2] ?? "").split("/").filter(Boolean);
+      // DP-98: /canvas/api/… — the projects, servers, dashboard, shared variable and tag canvases (Coolify's /canvas/api paths).
+      if (below[0] === "api") return await handleCanvasViews(env, requestId, actor, orgId, below.slice(1), request);
+      return await handleDeployCanvas(env, requestId, actor, orgId, deployCanvas[1]!, below, request);
     }
 
     const projects = url.pathname.match(ORG_DEPLOY_PROJECTS_RE);

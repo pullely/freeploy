@@ -41,7 +41,7 @@ test("routes/web.php paths map to ported pages; the rest are not ported", () => 
   assert.equal(pageFor("/servers/new"), "server.create");
   assert.equal(pageFor("/servers/new/manual"), "server.create.manual");
   assert.equal(pageFor("/servers/new/hetzner"), "not-ported");
-  assert.equal(pageFor("/servers/canvas"), "not-ported");
+  assert.equal(pageFor("/servers/canvas"), "server.canvas.index");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012"), "server.show");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/private-key"), "server.private-key");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/cloud-provider-token"), "server.cloud-provider-token");
@@ -72,16 +72,16 @@ test("routes/web.php paths map to ported pages; the rest are not ported", () => 
   assert.equal(pageFor("/destination/abc123def456ghi789jkl012/resources/more"), "not-ported");
 });
 
-test("the project and environment routes map to their pages; the environment canvas is ported, the other canvases and clone are not", () => {
+test("the project and environment routes map to their pages; the environment canvas is ported, and (DP-98) the projects' and a project's canvas; clone is not", () => {
   const project = "/project/abc123def456ghi789jkl012";
   const environment = `${project}/environment/mno345pqr678stu901vwx234`;
   assert.equal(pageFor("/projects"), "project.index");
   assert.equal(pageFor("/projects/"), "project.index");
-  assert.equal(pageFor("/projects/canvas"), "not-ported");
+  assert.equal(pageFor("/projects/canvas"), "project.canvas.index");
   assert.equal(pageFor(project), "project.show");
   assert.equal(pageFor(`${project}/`), "project.show");
   assert.equal(pageFor(`${project}/edit`), "project.edit");
-  assert.equal(pageFor(`${project}/canvas`), "not-ported");
+  assert.equal(pageFor(`${project}/canvas`), "project.canvas");
   assert.equal(pageFor(`${project}/icon`), "not-ported");
   assert.equal(pageFor(`${project}/environment`), "not-ported");
   assert.equal(pageFor(environment), "project.resource.index");
@@ -96,12 +96,12 @@ test("the project and environment routes map to their pages; the environment can
   assert.equal(pageFor(`${environment}/canvas/more`), "not-ported");
 });
 
-test("/canvas is the deploy canvas (DP-94), with or without its ?project=…&environment=…; the tags canvas is not ported", () => {
+test("/canvas is the deploy canvas (DP-94), with or without its ?project=…&environment=…; /canvas/tags is the tags canvas (DP-98)", () => {
   assert.equal(pageFor("/canvas"), "deploy-canvas");
   assert.equal(pageFor("/canvas/"), "deploy-canvas");
   // The query string is not part of the path the router sees.
   assert.equal(pageFor(new URL("https://x/canvas?project=abc&environment=def").pathname), "deploy-canvas");
-  assert.equal(pageFor("/canvas/tags"), "not-ported");
+  assert.equal(pageFor("/canvas/tags"), "tags.canvas");
   assert.equal(pageFor("/canvas/api/projects"), "not-ported");
   assert.equal(pageFor("/canvasx"), "not-ported");
 });
@@ -215,27 +215,27 @@ test("a new destination is named as Str::kebab names it", () => {
   assert.equal(kebab("buildBox-net"), "build-box-net");
 });
 
-test("the shared variable routes map to their pages; each scope's canvas is not ported", () => {
+test("the shared variable routes map to their pages, each scope's canvas too (DP-98)", () => {
   const project = "abc123def456ghi789jkl012";
   const environment = "mno345pqr678stu901vwx234";
   assert.equal(pageFor("/shared-variables"), "shared-variables.index");
   assert.equal(pageFor("/shared-variables/"), "shared-variables.index");
   assert.equal(pageFor("/shared-variables/team"), "shared-variables.team.index");
-  assert.equal(pageFor("/shared-variables/team/canvas"), "not-ported");
+  assert.equal(pageFor("/shared-variables/team/canvas"), "shared-variables.team.canvas");
   assert.equal(pageFor("/shared-variables/projects"), "shared-variables.project.index");
   assert.equal(pageFor("/shared-variables/projects/"), "shared-variables.project.index");
   assert.equal(pageFor("/shared-variables/project"), "not-ported");
   assert.equal(pageFor(`/shared-variables/project/${project}`), "shared-variables.project.show");
-  assert.equal(pageFor(`/shared-variables/project/${project}/canvas`), "not-ported");
+  assert.equal(pageFor(`/shared-variables/project/${project}/canvas`), "shared-variables.project.canvas");
   assert.equal(pageFor("/shared-variables/environments"), "shared-variables.environment.index");
   assert.equal(pageFor(`/shared-variables/environments/project/${project}/environment/${environment}`), "shared-variables.environment.show");
   assert.equal(pageFor(`/shared-variables/environments/project/${project}/environment/${environment}/`), "shared-variables.environment.show");
-  assert.equal(pageFor(`/shared-variables/environments/project/${project}/environment/${environment}/canvas`), "not-ported");
+  assert.equal(pageFor(`/shared-variables/environments/project/${project}/environment/${environment}/canvas`), "shared-variables.environment.canvas");
   assert.equal(pageFor(`/shared-variables/environments/project/${project}`), "not-ported");
   assert.equal(pageFor(`/shared-variables/environment/${environment}`), "not-ported");
   assert.equal(pageFor("/shared-variables/servers"), "shared-variables.server.index");
   assert.equal(pageFor(`/shared-variables/server/${project}`), "shared-variables.server.show");
-  assert.equal(pageFor(`/shared-variables/server/${project}/canvas`), "not-ported");
+  assert.equal(pageFor(`/shared-variables/server/${project}/canvas`), "shared-variables.server.canvas");
   assert.equal(pageFor("/shared-variables/nope"), "not-ported");
 });
 
@@ -385,10 +385,12 @@ test("a server's proxy, security, Cloudflare Tunnel, Sentinel logs, transfer, re
     assert.equal(pageFor(server + path), key);
     assert.equal(pageFor(`${server + path}/`), key);
   }
-  // Not ported: the image scan page, its old redirect and the other old security sub pages, GitHub runners, the canvas.
-  for (const path of ["/security/vulnerabilities", "/security/image-scanning", "/security/terminal-access", "/security/host-key", "/github-runners", "/canvas", "/proxy/dynamic/new", "/sentinel/logs/x"]) {
+  // Not ported: the image scan page, its old redirect and the other old security sub pages, GitHub runners. The canvas is DP-98's.
+  for (const path of ["/security/vulnerabilities", "/security/image-scanning", "/security/terminal-access", "/security/host-key", "/github-runners", "/proxy/dynamic/new", "/sentinel/logs/x"]) {
     assert.equal(pageFor(server + path), "not-ported", path);
   }
+  assert.equal(pageFor(`${server}/canvas`), "server.canvas");
+  assert.equal(pageFor(`${server}/canvas/more`), "not-ported");
   // The pages before DP-96 keep their keys.
   assert.equal(pageFor(`${server}/sentinel`), "server.sentinel");
   assert.equal(pageFor(`${server}/registries`), "server.registries");
@@ -426,4 +428,24 @@ test("DP-97: a database's Healthcheck and Servers", () => {
     assert.equal(pageFor(`${database}/${page}/`), `project.database.${page}`, page);
     assert.equal(pageFor(`${database}/${page}/more`), "not-ported", page);
   }
+});
+
+test("DP-98: the canvases that reuse the environment canvas's view map to their pages", () => {
+  const pages: Array<[string, string]> = [
+    ["/projects/canvas", "project.canvas.index"],
+    ["/project/abc/canvas/", "project.canvas"],
+    ["/servers/canvas/", "server.canvas.index"],
+    ["/server/abc/canvas", "server.canvas"],
+    ["/dashboard/canvas", "dashboard.canvas"],
+    ["/dashboard/canvas/", "dashboard.canvas"],
+    ["/shared-variables/team/canvas", "shared-variables.team.canvas"],
+    ["/shared-variables/project/abc/canvas", "shared-variables.project.canvas"],
+    ["/shared-variables/environments/project/abc/environment/def/canvas", "shared-variables.environment.canvas"],
+    ["/shared-variables/server/abc/canvas", "shared-variables.server.canvas"],
+    ["/canvas/tags/", "tags.canvas"],
+  ];
+  for (const [path, key] of pages) assert.equal(pageFor(path), key, path);
+  for (const path of ["/dashboard/canvas/x", "/shared-variables/canvas", "/shared-variables/environment/abc/canvas", "/tags/canvas/x", "/canvas/tags/x"]) assert.equal(pageFor(path), "not-ported", path);
+  // A tag named "canvas" is still its page, as in Coolify (routes/web.php has no /tags/canvas).
+  assert.equal(pageFor("/tags/canvas"), "tags.show");
 });

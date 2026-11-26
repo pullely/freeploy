@@ -13,32 +13,57 @@
 // cards move with it), the saves 400 ms after a move (and on leaving the page, with keepalive),
 // moves kept on the canvas until a load that started after their save returns them, drawing a
 // link from a card's drag dot onto another card, the link's label and "Remove link".
-// Not ported: the live status over Echo (Freeploy has no realtime channel yet: Refresh and the
-// tab's return load the latest status), and the server, project, dashboard, shared variable and
-// tag canvases that reuse this view (their filters, group frames and drags, zone saves, unmanaged
-// containers, usage, polling, recent deployments and placeholder cards).
+// DP-98: the server, project, dashboard, shared variable and tag canvases that reuse this view —
+// the server view (project / environment group frames, dragging a group or a card inside its zone,
+// both saved on the cards' environment canvas, zones moved and saved on the projects, servers and
+// dashboard canvases, the server's unmanaged containers and live usage loaded after the canvas
+// renders, polling, the dashboard's recent deployments, placeholder cards) and the connect view
+// (shared variables and tags: links that add a variable or a tag to a resource, the project /
+// environment filters, ?select=).
+// Not ported: the live status over Echo (Freeploy has no realtime channel yet: Refresh, the tab's
+// return and the dashboard's poll load the latest status).
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
-import { canvasApi } from "../../../lib/canvas-api";
+import { canvasApi, CanvasApiError } from "../../../lib/canvas-api";
 import { panZoom, type PanZoom } from "../../../lib/canvas-pan-zoom";
 import {
+  apart,
   BOX_GAP,
   canConnect,
   canLink,
   cardRect,
+  CONNECT_TEXT,
   DOUBLE_CLICK_MS,
   dragRules,
+  filterGraph,
+  filterOptions,
   fitView,
   freeSpot,
+  GROUP_GAP,
+  GROUP_HEADER,
+  GROUP_PADDING,
+  groupByUse,
+  groupFrames,
+  groupKey,
+  isSource,
   layoutGraph,
+  layoutServerView,
   linkPath,
   MOBILE_NOTICE_KEY,
   normalizeGraph,
   readView,
   toBox,
   unreachableZones,
+  ZONE_PADDING,
   zoneBoxes,
+  zoneGroups,
+  zoneHeader,
+  type Box,
+  type CanvasFilter,
   type CanvasGraph,
   type CanvasLink,
+  type CanvasNode,
+  type GroupFrame,
+  type GroupMeta,
   type Point,
   type Size,
   type View,
@@ -46,6 +71,8 @@ import {
 } from "../../../lib/environment-canvas";
 import { CanvasControls } from "../CanvasControls";
 import { Card } from "./Card";
+import { Deployments } from "./Deployments";
+import { EmptyCard } from "./EmptyCard";
 import { CanvasIcon } from "./Icon";
 import { Panel, type Selection } from "./Panel";
 import { BOXED_BAR, DOCKED_BAR, Toolbar } from "./Toolbar";
@@ -85,19 +112,48 @@ function capture(el: Element, pointerId: number) {
 }
 
 type Settling = Record<string, { at: Point; after: number }>;
+type Usage = Partial<Record<"cpu" | "memory" | "disk", number | null>>;
+const USAGE_POLL_MS = 30000;
 
 export function EnvironmentCanvas(props: {
-  /** The canvas endpoint (GET …/projects/{uuid}/environments/{env_uuid}/canvas); the save actions are below it. */
+  /** The canvas endpoint (GET …/canvas); the save actions are below it. */
   endpoint: string;
   /** The team of the page, so the saved view is kept per team and page. */
   team: string;
   /** The page's views (List view, Shared variables, Settings, New resource), moved into the toolbar. */
   views: ReactNode;
-  viewOnlyTitle: string;
+  /** The "View only" title; the server and connect views have their own (EnvironmentCanvas.svelte viewOnlyTitle). */
+  viewOnlyTitle?: string;
   /** "Add resource" in the empty state, for users who may create resources. */
-  newHref: string | null;
+  newHref?: string | null;
+  /** DP-98, data-endpoint: the server view (projects, servers, dashboard canvases); data-mode: the connect view (shared variables, tags). */
+  mode?: "variables" | "tags";
+  serverView?: boolean;
+  /** The canvas API the payload's paths (containers_endpoint, usage_endpoint) are under (Coolify's /canvas/api). */
+  apiRoot?: string;
+  /** Server view: the environment canvas endpoint of a card, where its moves and links are saved. */
+  environmentEndpoint?: (node: CanvasNode | undefined) => string;
+  /** data-empty: the empty state's title. */
+  emptyText?: string;
+  /** data-poll: reload every so many seconds while the page is visible (the dashboard's deployments). */
+  poll?: number;
+  /** Each loaded graph (the page's title and its @can actions read it). */
+  onLoad?: (graph: CanvasGraph) => void;
+  /** The first load answered 404: the owner is not the org's (mount()'s firstOrFail()). */
+  onNotFound?: () => void;
 }) {
   const base = props.endpoint;
+  const connectView = props.mode === "variables" || props.mode === "tags";
+  const text = CONNECT_TEXT[props.mode ?? "variables"];
+  const serverView = !!props.serverView && !connectView;
+  const filterView = connectView || serverView;
+  const viewOnlyTitle = connectView
+    ? text.viewOnly
+    : props.viewOnlyTitle
+      ? props.viewOnlyTitle
+      : serverView
+        ? "The server view is read-only. Move cards and edit links on an environment canvas."
+        : "You can look around. Only team admins can move cards and edit links.";
   const [graph, setGraphState] = useState<CanvasGraph | null>(null);
   const [positions, setPositionsState] = useState<Record<string, Point>>({});
   const [sizes, setSizes] = useState<Record<string, Size>>({});
@@ -114,6 +170,24 @@ export function EnvironmentCanvas(props: {
   const [showNotice, setShowNotice] = useState(noticeOpen);
   const [desktop, setDesktop] = useState(() => desktopQuery().matches);
   const [focusLabel, setFocusLabel] = useState(0);
+  const [usage, setUsage] = useState<Record<string, Usage>>({}); // server canvas: latest CPU, memory and disk usage per server zone
+  // Connect and server views: the project / environment filter, from and kept in the URL.
+  const [filter, setFilterState] = useState<CanvasFilter>(() => {
+    if (!filterView) return {};
+    const params = new URLSearchParams(window.location.search);
+    return { project: params.get("project") || "", environment: params.get("environment") || "" };
+  });
+  const filterRef = useRef(filter);
+  const [full, setFullState] = useState<CanvasGraph | null>(null); // the loaded graph; graph is it after the filter
+  const fullRef = useRef<CanvasGraph | null>(null);
+  const setFull = (next: CanvasGraph | null) => {
+    fullRef.current = next;
+    setFullState(next);
+  };
+  const groupMeta = useRef<Record<string, GroupMeta>>({}); // server view: frame top-left and zone inner top-left per group key
+  const zoneOrigins = useRef<Record<string, Point>>({}); // server view: top-left per zone id
+  const containers = useRef<CanvasNode[] | null>(null); // server canvas: unmanaged container cards, loaded after the canvas renders
+  const selectParam = useRef(connectView ? new URLSearchParams(window.location.search).get("select") : null);
 
   // Zoom and pan are kept per team and page, so a reload opens the canvas where it was.
   const viewKey = `coolify-canvas-view:${props.team}:${window.location.pathname}`;
@@ -140,7 +214,7 @@ export function EnvironmentCanvas(props: {
   const unsaved = useRef<Record<string, Point>>({});
   // Saved moves stay on the canvas until a load that started after the save returns them, so an older
   // response (a refresh during the drag or the request) cannot put the cards back for a moment.
-  const settling = useRef<Settling>({}); // id -> { at, after: load number the save finished at }
+  const settling = useRef<{ positions: Settling; saved: Settling; zones: Settling }>({ positions: {}, saved: {}, zones: {} }); // id -> { at, after: load number the save finished at }
   const loads = useRef(0);
 
   const setGraph = (next: CanvasGraph | null) => {
@@ -164,8 +238,21 @@ export function EnvironmentCanvas(props: {
   }, [sizes]);
 
   const canEdit = !!graph?.can_edit;
-  // Only the environment canvas has its own card positions (the server and project views save on it).
-  const canMove = canEdit;
+  // Only the environment canvas has its own card positions; server and project views save on it (canMoveGroups).
+  const canMove = canEdit && graph?.can_move !== false;
+  // Server canvas: admins drag whole project / environment groups and their cards; each environment saves them.
+  const canMoveGroups = canEdit && !!graph?.can_move_groups;
+  // Projects, servers and dashboard canvases: admins drag the zones; each project or server saves its top-left (zone.position).
+  const canMoveZones = canEdit && !!graph?.can_move_zones;
+  /** Server view: key of the card's group when the card can be moved there (it is saved on its environment canvas). */
+  const movableGroupOf = (node: CanvasNode | undefined) => (canMoveGroups && node ? groupKey([node], node.zone) : null);
+  /** Environment canvas endpoints of a card (the server view has no endpoints of its own for changes). */
+  const environmentBase = (node: CanvasNode | undefined) => (serverView && props.environmentEndpoint ? props.environmentEndpoint(node) : base);
+  const apiPath = (path: string) => `${props.apiRoot ?? ""}${path}`;
+  const onLoadRef = useRef(props.onLoad);
+  onLoadRef.current = props.onLoad;
+  const onNotFoundRef = useRef(props.onNotFound);
+  onNotFoundRef.current = props.onNotFound;
   const nodeById = useCallback((id: string) => graph?.nodes.find((n) => n.id === id), [graph]);
   const linkById = (id: string) => graph?.links.find((l) => l.id === id);
   const rectOf = (id: string) => {
@@ -284,20 +371,62 @@ export function EnvironmentCanvas(props: {
       return;
     }
     const next = normalizeGraph(loaded);
-    const kept = Object.fromEntries(Object.entries(settling.current).map(([id, s]) => [id, s.at]));
+    const kept = Object.fromEntries(Object.entries(settling.current.positions).map(([id, s]) => [id, s.at]));
     next.positions = { ...next.positions, ...kept, ...Object.fromEntries(Object.entries(unsaved.current).map(([id, p]) => [id, { x: p.x, y: p.y }])) };
-    setGraph(next);
-    setPositions(layoutGraph(next));
+    const saved = settling.current.saved;
+    if (Object.keys(saved).length) next.nodes = next.nodes.map((n) => (saved[n.id] ? { ...n, saved: saved[n.id]!.at } : n));
+    const zones = settling.current.zones;
+    if (Object.keys(zones).length) next.zones = next.zones.map((z) => (zones[z.id] ? { ...z, position: zones[z.id]!.at } : z));
+    setFull(next);
+    const shown = groupByUse(filterGraph(next, filterRef.current));
+    groupMeta.current = {};
+    zoneOrigins.current = {};
+    setGraph(shown);
+    setPositions(shown.layout === "server" ? layoutServerView(shown, groupMeta.current, { zones: zoneOrigins.current }) : layoutGraph(shown));
     setError(null);
-    setHover((h) => (h && next.nodes.some((n) => n.id === h) ? h : null));
+    setHover((h) => (h && shown.nodes.some((n) => n.id === h) ? h : null));
     const s = selectedRef.current;
-    if (s && !(s.kind === "node" ? next.nodes.some((n) => n.id === s.id) : next.links.some((l) => l.id === s.id))) select(null);
+    if (s && !(s.kind === "node" ? shown.nodes.some((n) => n.id === s.id) : shown.links.some((l) => l.id === s.id))) select(null);
   }, []);
 
   /** A load that started after the save returned the saved moves. */
   const dropSettled = (started: number) => {
-    for (const [id, entry] of Object.entries(settling.current)) if (entry.after < started) delete settling.current[id];
+    for (const map of Object.values(settling.current)) for (const [id, entry] of Object.entries(map)) if (entry.after < started) delete map[id];
   };
+
+  /** Server canvas: adds the unmanaged containers. This runs a command on the server, so the canvas does not wait for it. */
+  const loadContainers = useCallback(
+    async (path: string) => {
+      containers.current ||= []; // status refreshes during this request do not start another one
+      try {
+        const { nodes = [] } = (await canvasApi<{ nodes?: CanvasNode[] }>("GET", apiPath(path))) ?? {};
+        const current = fullRef.current;
+        if (destroyed.current || !current) return;
+        containers.current = nodes;
+        applyGraph({ ...current, nodes: [...current.nodes.filter((n) => n.type !== "container"), ...nodes] });
+      } catch {
+        // The server zone already shows when the server is not reachable.
+      }
+    },
+    // apiPath reads props only.
+    [applyGraph],
+  );
+  /** Server canvas: live usage per server, after the canvas renders (Sentinel answers through SSH). */
+  const loadUsage = useCallback(() => {
+    for (const zone of fullRef.current?.zones ?? []) {
+      const path = zone.details?.usage_endpoint;
+      if (!path) continue;
+      canvasApi<Usage>("GET", apiPath(path))
+        .then((data) => {
+          if (!destroyed.current && data) setUsage((u) => ({ ...u, [zone.id]: data }));
+        })
+        .catch(() => {
+          // Usage is optional; the header shows the other server details.
+        });
+    }
+  }, []);
+  const usageRef = useRef(usage);
+  usageRef.current = usage;
 
   const load = useCallback(
     async ({ quiet = false } = {}) => {
@@ -312,11 +441,17 @@ export function EnvironmentCanvas(props: {
       try {
         const next = await canvasApi<CanvasGraph>("GET", base);
         dropSettled(started);
+        if (next && containers.current) next.nodes = [...(next.nodes || []), ...containers.current];
         applyGraph(next);
+        if (next) onLoadRef.current?.(next);
         if (!quiet && fitted.current && next) toast("Canvas refreshed.");
+        // Status refreshes keep the containers; the first load and the Refresh button read them again.
+        if (next?.containers_endpoint && (!quiet || !containers.current)) void loadContainers(next.containers_endpoint);
+        if (!quiet || !Object.keys(usageRef.current).length) loadUsage();
       } catch (e) {
         if (destroyed.current) return;
         if (graphRef.current) toast(errorText(e), true);
+        else if (e instanceof CanvasApiError && e.status === 404 && onNotFoundRef.current) onNotFoundRef.current();
         else setError(errorText(e));
       } finally {
         loadingRef.current = false;
@@ -327,7 +462,7 @@ export function EnvironmentCanvas(props: {
         }
       }
     },
-    [base, toast, applyGraph],
+    [base, toast, applyGraph, loadContainers, loadUsage],
   );
 
   // Render the cards, then measure them, so frames, links and fit use their real sizes.
@@ -346,11 +481,15 @@ export function EnvironmentCanvas(props: {
     }
     if (!fitted.current) {
       fitted.current = true;
-      // The first load keeps a saved view.
+      // The first load keeps a saved view; later refits (filter changes) fit again.
       if (restored.current) {
         restored.current = null;
         pz.current?.apply();
       } else fit({ readable: true }, graph, positions, next);
+      // Connect view: ?select=<card id> (from a variable's or tag's connect button) opens that card.
+      const wanted = selectParam.current;
+      if (wanted && !selectedRef.current && graph.nodes.some((n) => n.id === wanted)) select({ kind: "node", id: wanted });
+      selectParam.current = null;
     }
   }, [graph, positions, sizes, fit]);
 
@@ -361,15 +500,15 @@ export function EnvironmentCanvas(props: {
 
   // ── Persistence ──
   /** Keeps moves that are being saved on the canvas (see settling). */
-  const hold = (moves: Record<string, Point>) => {
-    for (const [id, at] of Object.entries(moves)) settling.current[id] = { at, after: Infinity };
+  const hold = (map: Settling, moves: Record<string, Point>) => {
+    for (const [id, at] of Object.entries(moves)) map[id] = { at, after: Infinity };
   };
   /** The save is done: loads that start from now on return the moves, so they can replace them. */
-  const settle = (moves: Record<string, Point>) => {
-    for (const id of Object.keys(moves)) if (settling.current[id]?.at === moves[id]) settling.current[id]!.after = loads.current;
+  const settle = (map: Settling, moves: Record<string, Point>) => {
+    for (const id of Object.keys(moves)) if (map[id]?.at === moves[id]) map[id]!.after = loads.current;
   };
-  const release = (moves: Record<string, Point>) => {
-    for (const id of Object.keys(moves)) if (settling.current[id]?.at === moves[id]) delete settling.current[id];
+  const release = (map: Settling, moves: Record<string, Point>) => {
+    for (const id of Object.keys(moves)) if (map[id]?.at === moves[id]) delete map[id];
   };
 
   async function flushSave(options: { keepalive?: boolean } = {}) {
@@ -378,14 +517,14 @@ export function EnvironmentCanvas(props: {
     const ids = Object.keys(batch);
     if (!ids.length || !graphRef.current) return;
     const rounded = Object.fromEntries(ids.map((id) => [id, { x: Math.round(batch[id]!.x), y: Math.round(batch[id]!.y) }]));
-    hold(rounded);
+    hold(settling.current.positions, rounded);
     for (const id of ids) if (unsaved.current[id] === batch[id]) delete unsaved.current[id];
     try {
       await canvasApi("PATCH", `${base}/positions`, { positions: rounded }, options);
-      settle(rounded);
+      settle(settling.current.positions, rounded);
       if (graphRef.current && !destroyed.current) patchGraph({ positions: { ...(graphRef.current.positions || {}), ...rounded } });
     } catch (e) {
-      release(rounded);
+      release(settling.current.positions, rounded);
       if (destroyed.current) return;
       toast(errorText(e), true);
       void load({ quiet: true });
@@ -402,6 +541,13 @@ export function EnvironmentCanvas(props: {
   useEffect(() => {
     destroyed.current = false;
     void load({ quiet: true });
+    // data-poll (seconds): reload while the page is visible, for changes without a broadcast event (dashboard deployments).
+    const poll = props.poll && props.poll > 0 ? window.setInterval(() => {
+      if (document.visibilityState === "visible") void load({ quiet: true });
+    }, props.poll * 1000) : 0;
+    const usagePoll = window.setInterval(() => {
+      if (document.visibilityState === "visible") loadUsage();
+    }, USAGE_POLL_MS);
     const onVisibility = () => {
       if (document.visibilityState !== "visible") return;
       window.clearTimeout(timers.current.refresh);
@@ -422,6 +568,8 @@ export function EnvironmentCanvas(props: {
       saveView();
       if (Object.keys(unsaved.current).length) void flushRef.current({ keepalive: true });
       destroyed.current = true;
+      window.clearInterval(poll);
+      window.clearInterval(usagePoll);
       document.removeEventListener("visibilitychange", onVisibility);
       document.removeEventListener("keydown", onKeydown);
       window.removeEventListener("pagehide", onPageHide);
@@ -431,7 +579,7 @@ export function EnvironmentCanvas(props: {
       window.clearTimeout(t.save);
     };
     // saveView reads refs only.
-  }, [load]);
+  }, [load, loadUsage, props.poll]);
 
   function closeNotice() {
     try {
@@ -450,7 +598,7 @@ export function EnvironmentCanvas(props: {
 
   async function saveLabel(link: CanvasLink, value: string): Promise<boolean> {
     try {
-      const updated = await canvasApi<CanvasLink>("PATCH", `${base}/links/${encodeURIComponent(link.id)}`, { label: value || null });
+      const updated = await canvasApi<CanvasLink>("PATCH", `${environmentBase(graphRef.current?.nodes.find((n) => n.id === link.source))}/links/${encodeURIComponent(link.id)}`, { label: value || null });
       replaceLink({ ...link, ...(updated?.id ? updated : { label: value || null }) });
       toast("Label saved.");
       return true;
@@ -462,7 +610,7 @@ export function EnvironmentCanvas(props: {
 
   async function deleteLink(link: CanvasLink) {
     try {
-      await canvasApi("DELETE", `${base}/links/${encodeURIComponent(link.id)}`);
+      await canvasApi("DELETE", `${environmentBase(graphRef.current?.nodes.find((n) => n.id === link.source))}/links/${encodeURIComponent(link.id)}`);
       const g = graphRef.current;
       if (g) patchGraph({ links: g.links.filter((l) => l.id !== link.id) });
       select(null);
@@ -472,18 +620,53 @@ export function EnvironmentCanvas(props: {
     }
   }
 
+  /** Shared variables view: a link change moves its resource in or out of the connected zone right away. */
+  const setLinks = (links: CanvasLink[]) => {
+    const current = fullRef.current;
+    if (current) applyGraph({ ...current, links });
+  };
+
+  // Connect view: removes a variable from a resource, or a tag.
+  async function removeLink(link: CanvasLink) {
+    const nodes = graphRef.current?.nodes ?? [];
+    const variable = nodes.find((n) => n.id === link.source);
+    const resource = nodes.find((n) => n.id === link.target);
+    try {
+      await canvasApi("DELETE", `${base}/links/${encodeURIComponent(link.id)}`);
+      if (destroyed.current) return;
+      if (selectedRef.current?.kind === "link") select({ kind: "node", id: link.source });
+      setLinks((fullRef.current?.links ?? []).filter((l) => l.id !== link.id));
+      toast(text.removed(variable?.name ?? "", resource?.name ?? ""));
+      void load({ quiet: true });
+    } catch (e) {
+      toast(errorText(e), true);
+    }
+  }
+
   async function createLink(source: string, target: string) {
     const g = graphRef.current;
     if (!g) return;
+    const nameOf = (id: string) => g.nodes.find((n) => n.id === id)?.name ?? "";
     if (!canLink(g.links, source, target)) {
-      toast("These resources are already linked.", true);
+      toast(connectView ? text.already(nameOf(source), nameOf(target)) : "These resources are already linked.", true);
       return;
     }
     const entry = { source, target };
     setPending((p) => [...p, entry]);
     try {
-      const created = await canvasApi<CanvasLink>("POST", `${base}/links`, { source, target });
+      const created = await canvasApi<CanvasLink>("POST", `${environmentBase(g.nodes.find((n) => n.id === source))}/links`, { source, target });
       if (destroyed.current) return;
+      if (connectView) {
+        // Keep the panel of the card the user added from (either end); otherwise open the source.
+        const s = selectedRef.current;
+        const keep = s?.kind === "node" && (s.id === source || s.id === target);
+        if (!keep) select({ kind: "node", id: source });
+        if (created?.id) setLinks([...(fullRef.current?.links ?? []).filter((l) => l.id !== created.id), created]);
+        else if (fullRef.current) applyGraph(fullRef.current);
+        toast(text.added(nameOf(source), nameOf(target)));
+        void load({ quiet: true });
+        return;
+      }
       const current = graphRef.current;
       if (created?.id && current) {
         patchGraph({ links: [...current.links.filter((l) => l.id !== created.id), created] });
@@ -522,9 +705,13 @@ export function EnvironmentCanvas(props: {
     e.stopPropagation();
     const from = positionsRef.current[id];
     const start = { cx: e.clientX, cy: e.clientY, x: from?.x ?? 0, y: from?.y ?? 0 };
-    const movable = canMove;
+    const key = movableGroupOf(g.nodes.find((n) => n.id === id));
+    const meta = key ? groupMeta.current[key] : null;
+    const movable = canMove || !!meta;
     // The other cards and frames stay put during the drag, so measure them once.
     const rules = dragRules(g, positionsRef.current, sizesRef.current, id);
+    // Server view: the group frame stays inside its zone, below the zone header.
+    const fits = meta ? (b: Box) => b.x >= meta.inner.x + GROUP_PADDING && b.y >= meta.inner.y + GROUP_HEADER + GROUP_PADDING && rules.fits(b) : rules.fits;
     let moved = false;
     capture(card, e.pointerId);
     begin(`card:${id}`);
@@ -538,13 +725,15 @@ export function EnvironmentCanvas(props: {
         const z = view.current.z;
         const wanted = { x: start.x + (ev.clientX - start.cx) / z, y: start.y + (ev.clientY - start.cy) / z, w: rect.width, h: rect.height };
         // Cards cannot cover each other or another zone: stop at the edge of what is in the way.
-        const spot = freeSpot(wanted, rules.others, BOX_GAP, rules.fits);
+        const spot = freeSpot(wanted, rules.others, BOX_GAP, fits);
         if (!spot) return;
         moved = true;
         setPositions({ ...positionsRef.current, [id]: { x: spot.x, y: spot.y } });
       },
       () => {
-        if (moved) queueSave({ [id]: { ...positionsRef.current[id]! } });
+        // Server view: save the whole group, so its other cards keep the place they have here.
+        if (moved && meta) void saveGroup(g.nodes.filter((n) => groupKey([n], n.zone) === key).map((n) => n.id), meta.shift);
+        else if (moved) queueSave({ [id]: { ...positionsRef.current[id]! } });
         else select({ kind: "node", id });
         end(`card:${id}`);
       },
@@ -553,7 +742,7 @@ export function EnvironmentCanvas(props: {
 
   function startZoneDrag(box: ZoneBox, header: HTMLElement, e: ReactPointerEvent<HTMLDivElement>) {
     const g = graphRef.current;
-    if (!g || e.button !== 0 || !canMove || (e.target as Element).closest("a,button")) return;
+    if (!g || e.button !== 0 || !(canMove || canMoveZones) || (e.target as Element).closest("a,button")) return;
     e.stopPropagation();
     const ids = box.nodes.filter((id) => positionsRef.current[id]);
     const starts = Object.fromEntries(ids.map((id) => [id, { ...positionsRef.current[id]! }]));
@@ -580,10 +769,129 @@ export function EnvironmentCanvas(props: {
         setPositions(next);
       },
       () => {
-        if (moved) queueSave(Object.fromEntries(ids.map((id) => [id, { ...positionsRef.current[id]! }])));
+        if (moved && canMove) queueSave(Object.fromEntries(ids.map((id) => [id, { ...positionsRef.current[id]! }])));
+        else if (moved) void saveZones(box.id, moved);
         end("zone");
       },
     );
+  }
+
+  const isPlaced = (p: Point | null | undefined) => !!p && Number.isFinite(p.x) && Number.isFinite(p.y);
+  /**
+   * Projects, servers and dashboard canvases: saves the place of a moved zone. Zones that are still placed automatically are saved where they
+   * are too, so they do not move into the space the zone left.
+   */
+  async function saveZones(id: string | null, delta: Point) {
+    const current = fullRef.current;
+    if (!current) return;
+    const saved = Object.fromEntries(
+      Object.entries(zoneOrigins.current)
+        .filter(([zoneId]) => zoneId === id || !isPlaced(current.zones.find((z) => z.id === zoneId)?.position))
+        .map(([zoneId, at]): [string, Point] => [zoneId, zoneId === id ? { x: Math.round(at.x + delta.x), y: Math.round(at.y + delta.y) } : at]),
+    );
+    hold(settling.current.zones, saved);
+    try {
+      await canvasApi("PATCH", `${base}/positions`, { positions: saved });
+      settle(settling.current.zones, saved);
+    } catch (e) {
+      release(settling.current.zones, saved);
+      if (destroyed.current) return;
+      toast(errorText(e), true);
+      void load({ quiet: true });
+      return;
+    }
+    if (!destroyed.current && fullRef.current) applyGraph(fullRef.current);
+  }
+
+  /** Server view: drag a project / environment group inside its server zone; it cannot cover another group. */
+  function startGroupDrag(frame: GroupFrame, header: HTMLElement, e: ReactPointerEvent<HTMLDivElement>) {
+    const g = graphRef.current;
+    if (!g || e.button !== 0 || !canMoveGroups || !frame.key || !groupMeta.current[frame.key] || (e.target as Element).closest("a")) return;
+    e.stopPropagation();
+    const meta = groupMeta.current[frame.key]!;
+    const ids = g.nodes.filter((n) => groupKey([n], n.zone) === frame.key).map((n) => n.id);
+    const starts = Object.fromEntries(ids.map((id) => [id, { ...positionsRef.current[id]! }]));
+    const box = toBox(frame);
+    const others = frames.filter((f) => f !== frame && f.zone === frame.zone).map(toBox);
+    // Movable zones can sit anywhere, so the group's zone must not grow over another zone.
+    const otherZones = canMoveZones ? boxes.filter((z) => z.id !== frame.zone).map(toBox) : [];
+    const top = ZONE_PADDING + zoneHeader(boxes.find((z) => z.id === frame.zone)?.zone);
+    const zoneAround = (b: Box): Box => {
+      const all = [...others, b];
+      const x = Math.min(...all.map((f) => f.x));
+      const y = Math.min(...all.map((f) => f.y));
+      const w = Math.max(...all.map((f) => f.x + f.w)) - x;
+      const h = Math.max(...all.map((f) => f.y + f.h)) - y;
+      return { x: x - ZONE_PADDING, y: y - top, w: w + ZONE_PADDING * 2, h: h + ZONE_PADDING + top };
+    };
+    const fits = (b: Box) => b.x >= meta.inner.x && b.y >= meta.inner.y && otherZones.every((z) => apart(zoneAround(b), z, BOX_GAP));
+    const origin = { cx: e.clientX, cy: e.clientY };
+    let moved = false;
+    capture(header, e.pointerId);
+    begin("group");
+    track(
+      header,
+      (ev) => {
+        if (!moved && Math.hypot(ev.clientX - origin.cx, ev.clientY - origin.cy) < 4) return;
+        const z = view.current.z;
+        const wanted = { ...box, x: Math.max(meta.inner.x, box.x + (ev.clientX - origin.cx) / z), y: Math.max(meta.inner.y, box.y + (ev.clientY - origin.cy) / z) };
+        // Same gap as layoutServerView, so a reload does not move the group.
+        const spot = freeSpot(wanted, others, GROUP_GAP, fits);
+        if (!spot) return;
+        moved = true;
+        const next = { ...positionsRef.current };
+        for (const id of ids) next[id] = { x: starts[id]!.x + spot.x - box.x, y: starts[id]!.y + spot.y - box.y };
+        setPositions(next);
+      },
+      () => {
+        if (moved) void saveGroup(ids, meta.shift);
+        end("group");
+      },
+    );
+  }
+
+  /**
+   * Saves the cards of a moved group on their environment canvas (the server canvas has no positions of its own),
+   * so the group keeps its place here and moves by the same distance on the environment canvas.
+   */
+  async function saveGroup(ids: string[], shift: Point) {
+    const saved = Object.fromEntries(ids.map((id): [string, Point] => [id, { x: Math.round(positionsRef.current[id]!.x - shift.x), y: Math.round(positionsRef.current[id]!.y - shift.y) }]));
+    hold(settling.current.saved, saved);
+    try {
+      await canvasApi("PATCH", `${environmentBase(graphRef.current?.nodes.find((n) => n.id === ids[0]))}/positions`, { positions: saved });
+      settle(settling.current.saved, saved);
+      if (!destroyed.current && fullRef.current) applyGraph(fullRef.current);
+    } catch (e) {
+      release(settling.current.saved, saved);
+      if (destroyed.current) return;
+      toast(errorText(e), true);
+      void load({ quiet: true });
+    }
+  }
+
+  /** Dashboard deployment panel: centres the card at 100% and selects it. */
+  function showNode(id: string) {
+    const at = positionsRef.current[id];
+    const vp = viewport.current;
+    if (!at || !vp) return;
+    const size = sizesRef.current[id] || { width: 260, height: 100 };
+    const r = vp.getBoundingClientRect();
+    view.current = { z: 1, x: r.width / 2 - at.x - size.width / 2, y: r.height / 2 - at.y - size.height / 2 };
+    pz.current?.apply();
+    select({ kind: "node", id });
+  }
+
+  function setFilter(next: CanvasFilter) {
+    filterRef.current = next;
+    setFilterState(next);
+    const url = new URL(window.location.href);
+    for (const key of ["project", "environment"] as const) {
+      if (next[key]) url.searchParams.set(key, next[key]!);
+      else url.searchParams.delete(key);
+    }
+    window.history.replaceState(window.history.state, "", url);
+    fitted.current = false;
+    if (fullRef.current) applyGraph(fullRef.current);
   }
 
   function startConnect(id: string, port: HTMLElement, e: ReactPointerEvent<HTMLSpanElement>) {
@@ -637,6 +945,22 @@ export function EnvironmentCanvas(props: {
   // ── Derived view data ──
   const boxes = useMemo(() => (graph ? zoneBoxes(graph, positions, sizes) : []), [graph, positions, sizes]);
   const downZones = useMemo(() => unreachableZones(graph), [graph]);
+  const projects = useMemo(() => (filterView ? filterOptions(full) : []), [filterView, full]);
+  const environments = useMemo(
+    () => projects.filter((p) => !filter.project || p.uuid === filter.project).flatMap((p) => p.environments.map((e) => ({ uuid: e.uuid, name: filter.project ? e.name : `${p.name} / ${e.name}` }))),
+    [projects, filter.project],
+  );
+  // Server and connect views: project / environment frames inside the zones.
+  const frames = useMemo(
+    () => (graph && (graph.layout === "server" || graph.layout === "connect") ? zoneGroups(graph).flatMap((zone) => groupFrames(zone.nodes.filter((n) => n.context), positions, sizes)) : []),
+    [graph, positions, sizes],
+  );
+  // Connect view: links per source card (its "used by" badge).
+  const linkCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const l of graph?.links ?? []) counts[l.source] = (counts[l.source] || 0) + 1;
+    return counts;
+  }, [graph]);
   const shapes = useMemo(() => {
     const out = [];
     for (const link of graph?.links ?? []) {
@@ -661,11 +985,15 @@ export function EnvironmentCanvas(props: {
               : hover
                 ? "fill-none stroke-neutral-400 opacity-20 dark:stroke-white/40"
                 : "fill-none stroke-neutral-400 dark:stroke-white/35",
-        title: link.label ? `${link.label} (click to open)` : "Click to open this link",
+        title: connectView
+          ? `${sourceNode?.name || ""} → ${targetNode?.name || ""} (click to open)`
+          : link.label
+            ? `${link.label} (click to open)`
+            : "Click to open this link",
       });
     }
     return out;
-  }, [graph, positions, sizes, selected, hover]);
+  }, [graph, positions, sizes, selected, hover, connectView]);
   const pendingPaths = useMemo(() => {
     const rect = (id: string) => {
       const node = graph?.nodes.find((n) => n.id === id);
@@ -686,7 +1014,9 @@ export function EnvironmentCanvas(props: {
   const panelNode = selected?.kind === "node" ? (nodeById(selected.id) ?? null) : null;
   const panelLink = selected?.kind === "link" ? (linkById(selected.id) ?? null) : null;
   const empty = !!graph && !graph.nodes.length;
-  const toolbar = (className: string) => <Toolbar className={className} viewOnly={!!graph && !canEdit} viewOnlyTitle={props.viewOnlyTitle} views={props.views} />;
+  const toolbar = (className: string) => (
+    <Toolbar className={className} viewOnly={!!graph && !canEdit} viewOnlyTitle={viewOnlyTitle} views={props.views} filter={filter} projects={projects} environments={environments} onFilter={setFilter} />
+  );
 
   return (
     // Same look as the deploy canvas: a rounded top bar box on the backdrop.
@@ -713,8 +1043,37 @@ export function EnvironmentCanvas(props: {
           <div ref={world} className="absolute top-0 left-0 origin-top-left">
             <div className="absolute top-0 left-0">
               {boxes.map((box) => (
-                <Zone key={box.id ?? "__none"} box={box} movable={canMove} nodes={box.nodes.map((id) => nodeById(id)).filter((n) => !!n)} onPress={(e) => startZoneDrag(box, e.currentTarget, e)} />
+                <Zone
+                  key={box.id ?? "__none"}
+                  box={box}
+                  movable={canMove || canMoveZones}
+                  grabBody={canMoveZones}
+                  nodes={box.nodes.map((id) => nodeById(id)).filter((n) => !!n)}
+                  usage={(box.id ? usage[box.id] : null) ?? null}
+                  onPress={(e) => startZoneDrag(box, e.currentTarget, e)}
+                />
               ))}
+            </div>
+            {/* Server view: project / environment frames inside the server zones. */}
+            <div className="pointer-events-none absolute top-0 left-0">
+              {frames.map((frame, i) => {
+                const movableGroup = canMoveGroups && !!frame.key;
+                return (
+                  <div key={i} className="absolute rounded-xl border border-dashed border-neutral-300 dark:border-white/[0.12]" style={{ left: `${frame.x}px`, top: `${frame.y}px`, width: `${frame.width}px`, height: `${frame.height}px` }}>
+                    <div
+                      className={`flex h-8 items-center gap-1.5 px-3 text-[11px] font-medium text-neutral-500 dark:text-fg-dim ${movableGroup ? "pointer-events-auto cursor-grab active:cursor-grabbing" : ""}`.trimEnd()}
+                      data-ec-group-header=""
+                      title={movableGroup ? "Drag to move this group" : undefined}
+                      onPointerDown={(e) => startGroupDrag(frame, e.currentTarget, e)}
+                    >
+                      <CanvasIcon name="service" className="size-3 text-neutral-400 dark:text-fg-faint" />
+                      <a className="pointer-events-auto truncate hover:text-neutral-700 dark:hover:text-fg [&[href]]:cursor-pointer [&[href]]:underline-offset-2 [&[href]]:hover:underline" href={frame.link || undefined} draggable="false">
+                        {frame.name || "Other"}
+                      </a>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
             <svg className="pointer-events-none absolute top-0 left-0 overflow-visible" width="1" height="1">
               {shapes.map((shape) => (
@@ -764,23 +1123,29 @@ export function EnvironmentCanvas(props: {
                 ))}
             </div>
             <div className="absolute top-0 left-0">
-              {(graph?.nodes ?? []).map((node) => (
-                <Card
-                  key={node.id}
-                  node={node}
-                  position={positions[node.id]}
-                  selected={selected?.kind === "node" && selected.id === node.id}
-                  dropTarget={dropTarget === node.id}
-                  movable={canMove}
-                  port={canEdit ? "Drag to another card to draw a link" : null}
-                  zoneNames={zoneNames(node)}
-                  serverDown={!!node.zone && downZones.has(node.zone)}
-                  onPress={(e, card) => startCardDrag(node.id, card, e)}
-                  onConnect={(e, port) => startConnect(node.id, port, e)}
-                  onSelect={() => select({ kind: "node", id: node.id })}
-                  onHover={(on) => hoverCard(node.id, on)}
-                />
-              ))}
+              {(graph?.nodes ?? []).map((node) =>
+                node.type === "empty" ? (
+                  <EmptyCard key={node.id} node={node} position={positions[node.id]} />
+                ) : (
+                  <Card
+                    key={node.id}
+                    node={node}
+                    position={positions[node.id]}
+                    selected={selected?.kind === "node" && selected.id === node.id}
+                    dropTarget={dropTarget === node.id}
+                    movable={canMove || !!movableGroupOf(node)}
+                    port={canEdit && (connectView ? isSource(node) && !node.missing : !serverView || !!node.environment) ? (connectView ? text.port : "Drag to another card to draw a link") : null}
+                    linkCount={linkCounts[node.id] || 0}
+                    zoneNames={zoneNames(node)}
+                    serverDown={!!node.zone && downZones.has(node.zone)}
+                    statusText={graph?.layout === "server"}
+                    onPress={(e, card) => startCardDrag(node.id, card, e)}
+                    onConnect={(e, port) => startConnect(node.id, port, e)}
+                    onSelect={() => select({ kind: "node", id: node.id })}
+                    onHover={(on) => hoverCard(node.id, on)}
+                  />
+                ),
+              )}
             </div>
             {/* Link end dots sit above the cards, on their edges (like the deploy canvas ports). */}
             <div className="pointer-events-none absolute top-0 left-0">
@@ -813,7 +1178,9 @@ export function EnvironmentCanvas(props: {
                 </>
               ) : (
                 <>
-                  <p className="text-[13px] font-semibold text-black dark:text-fg">No resources in this environment yet</p>
+                  <p className="text-[13px] font-semibold text-black dark:text-fg">
+                    {connectView ? text.empty : props.emptyText ? props.emptyText : serverView ? "No resources on this server yet" : "No resources in this environment yet"}
+                  </p>
                   {props.newHref ? (
                     <a className="button button-highlighted mt-4" href={props.newHref}>
                       <CanvasIcon name="plus" />
@@ -826,9 +1193,10 @@ export function EnvironmentCanvas(props: {
           </div>
         ) : null}
 
-        {/* Bottom: the zoom controls in the center. On desktop, an open side panel shifts the center to the free area. */}
+        {/* Bottom: the dashboard's recent deployments on the left, the zoom controls in the center.
+            On desktop, an open side panel shifts the center to the free area. */}
         <div className={`pointer-events-none absolute bottom-3 left-3 right-3 z-20 grid grid-cols-[1fr_auto_1fr] items-end gap-2 *:pointer-events-auto ${panelNode || panelLink ? "lg:pr-[20.5rem]" : ""}`.trimEnd()} data-ec-dock="">
-          <div className="justify-self-start"></div>
+          <div className="justify-self-start">{graph?.deployments?.length ? <Deployments deployments={graph.deployments} nodeById={nodeById} onShow={showNode} /> : null}</div>
           <CanvasControls inline zoom={zoom} loading={loading} onZoom={(z) => pz.current?.zoomTo(z)} onFit={() => fit()} onRefresh={() => void load()}>
             {desktop ? toolbar(DOCKED_BAR) : null}
           </CanvasControls>
@@ -848,6 +1216,10 @@ export function EnvironmentCanvas(props: {
             onClose={() => select(null)}
             onLabel={saveLabel}
             onDelete={deleteLink}
+            connectView={connectView}
+            text={text}
+            onCreate={createLink}
+            onRemove={removeLink}
           />
         ) : null}
 

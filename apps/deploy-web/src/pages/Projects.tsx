@@ -2,9 +2,9 @@
 // and app/Livewire/Project/{Index,AddEmpty}.php (Apache-2.0), modified.
 //
 // /projects: the org's projects as a grid or a table, with search, sort and
-// paging, and the "New Project" dialog. The canvas view and project icons are
-// not ported: the Canvas link leads to the not-ported notice and every project
-// shows the default glyph.
+// paging, and the "New Project" dialog. The Canvas link opens the projects
+// canvas (DP-98); project icons are not ported: every project shows the
+// default glyph.
 import { useEffect, useState, type FormEvent } from "react";
 import { Layout, useSignedIn } from "../layout/Layout";
 import { getJson, postJson, summarize } from "../lib/api";
@@ -35,7 +35,7 @@ const ROW_ACTION =
   "flex size-7 items-center justify-center rounded-md text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-black dark:text-fg-faint dark:hover:bg-white/[0.06] dark:hover:text-fg";
 
 /** add-empty.blade.php: Livewire's AddEmpty component. The new project opens on its production environment. */
-function AddEmpty({ base }: { base: string }) {
+export function AddEmpty({ base }: { base: string }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});

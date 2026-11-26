@@ -540,3 +540,29 @@ export async function listEnvironmentServiceCanvasRows(tx: SqlExecutor, environm
   );
   return r.rows;
 }
+
+/** A service of the org as the server, project and connect canvases draw it (DP-98): the canvas row, its id and environment. */
+export interface DeployOrgServiceCanvasRow extends DeployEnvironmentServiceCanvasRow {
+  id: string | number;
+  environment_id: string | number;
+  /** services.server_id: the server {{server.KEY}} resolves against (Service::server()); the zone is the destination's server. */
+  server_id: string | number | null;
+}
+
+/** ServerCanvas::loadResources()'s services: every service of the org (row-level security), oldest first, as the canvas draws it. */
+export async function listOrgServiceCanvasRows(tx: SqlExecutor): Promise<DeployOrgServiceCanvasRow[]> {
+  const r = await tx.execute<DeployOrgServiceCanvasRow>(
+    `SELECT s.id, s.environment_id, s.server_id, s.uuid, s.name, sv.uuid AS server_uuid, sv.name AS server_name, sv.ip AS server_ip,
+            ss.is_reachable AS server_is_reachable, ss.is_usable AS server_is_usable,
+            COALESCE((SELECT json_agg(json_build_object('name', p.name, 'kind', p.kind, 'status', p.status, 'fqdn', p.fqdn, 'exclude_from_status', p.exclude_from_status, 'is_removed_from_compose', p.is_removed_from_compose) ORDER BY p.kind, p.id)
+                        FROM (SELECT 'application' AS kind, id, name, status, fqdn, exclude_from_status, is_removed_from_compose FROM deploy.service_applications WHERE service_id = s.id AND deleted_at IS NULL
+                              UNION ALL SELECT 'database', id, name, status, NULL, exclude_from_status, is_removed_from_compose FROM deploy.service_databases WHERE service_id = s.id AND deleted_at IS NULL) p), '[]'::json) AS parts
+       FROM deploy.services s
+       LEFT JOIN deploy.standalone_dockers sd ON sd.id = s.destination_id AND s.destination_type = E'${STANDALONE}'
+       LEFT JOIN deploy.swarm_dockers wd ON wd.id = s.destination_id AND s.destination_type = E'${SWARM}'
+       LEFT JOIN deploy.servers sv ON sv.id = COALESCE(sd.server_id, wd.server_id) AND sv.deleted_at IS NULL
+       LEFT JOIN deploy.server_settings ss ON ss.server_id = sv.id
+      WHERE s.deleted_at IS NULL ORDER BY s.id`,
+  );
+  return r.rows;
+}

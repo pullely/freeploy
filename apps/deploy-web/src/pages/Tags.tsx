@@ -6,7 +6,8 @@
 // "New tag"; with one, the tag's deploy webhook, its applications and services, its queued and running
 // deployments, "Delete" and "Redeploy all" (which needs the SSH executor once the tag has resources).
 // Not ported: "Connect to resources" (a resource's own Tags page attaches it) and "Connect in canvas" (the tags
-// canvas is not ported), and the canvas view Coolify opens instead of the list when it was the last one chosen.
+// canvas, /canvas/tags, is DP-98's; this page does not link to it yet), and the canvas view Coolify opens instead
+// of the list when it was the last one chosen.
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Layout, useSignedIn } from "../layout/Layout";
 import { edgeBase, getJson } from "../lib/api";
@@ -56,7 +57,7 @@ const CARD = "rounded-xl border border-neutral-200 bg-white p-3 dark:border-whit
 const TAG_ICON = "flex size-8 shrink-0 items-center justify-center rounded-lg border border-neutral-200 bg-neutral-50 text-neutral-500 dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-fg-dim";
 
 /** partials/new-tag-form.blade.php: CreatesTags::createTag(), then the new tag's page. */
-function NewTagForm({ orgId }: { orgId: string | undefined }) {
+export function NewTagForm({ orgId }: { orgId: string | undefined }) {
   const [name, setName] = useState("");
   const [error, setError] = useState<string | undefined>(undefined);
   async function submit(e: FormEvent<HTMLFormElement>) {

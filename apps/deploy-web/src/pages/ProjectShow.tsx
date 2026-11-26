@@ -3,8 +3,8 @@
 // app/Livewire/Project/Show.php and app/Livewire/Concerns/CreatesEnvironments.php (Apache-2.0), modified.
 //
 // /project/{uuid}: the project's environments as a grid or a table, with
-// search, sort and paging, and the "New Environment" dialog. The canvas view
-// is not ported: its link leads to the not-ported notice.
+// search, sort and paging, and the "New Environment" dialog. The Canvas link
+// opens the project's canvas (DP-98).
 import { useEffect, useState, type FormEvent } from "react";
 import { Layout, useSignedIn } from "../layout/Layout";
 import { getJson, postJson, summarize } from "../lib/api";
@@ -33,7 +33,7 @@ const iconLink = (size: string) =>
   `flex ${size} items-center justify-center rounded-md text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-black dark:text-fg-faint dark:hover:bg-white/[0.06] dark:hover:text-fg`;
 
 /** partials/new-environment-form.blade.php with CreatesEnvironments::submit(): the new environment opens. */
-function NewEnvironmentForm({ base, projectUuid }: { base: string; projectUuid: string }) {
+export function NewEnvironmentForm({ base, projectUuid }: { base: string; projectUuid: string }) {
   const [name, setName] = useState("");
   const [error, setError] = useState<string | undefined>();
 

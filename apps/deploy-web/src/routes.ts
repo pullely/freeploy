@@ -1,7 +1,23 @@
 // The URL structure is routes/web.php's, one to one (design §3.1). A route
 // whose page is not ported yet renders NotPorted, which the parity harness
 // reports as a failing (not missing) route once deploy-web is the target.
-export type PageKey = "login" | "register" | "forgot-password" | "reset-password" | "profile.appearance" | "profile" | "profile.passkeys.confirm" | "password.confirm" | "verify.email" | "two-factor.required" | "verify.verify" | "two-factor.login" | "security.private-key.index" | "security.private-key.show" | "security.cloud-tokens" | "security.cloud-tokens.show" | "security.cloud-init-scripts" | "security.cloud-init-scripts.show" | "server.index" | "server.create" | "server.create.manual" | "server.show" | "server.advanced" | "server.private-key" | "server.cloud-provider-token" | "server.ca-certificate" | "server.sentinel" | "server.swarm" | "server.docker-cleanup" | "server.log-drains" | "server.destinations" | "server.delete" | "server.registries" | "registries.index" | "project.index" | "project.show" | "project.edit" | "project.resource.index" | "project.environment.edit" | "project.environment.canvas" | "deploy-canvas" | "project.resource.create" | "project.application.configuration" | "project.application.environment-variables" | "project.application.domains" | "project.application.advanced" | "project.application.healthcheck" | "project.application.resource-limits" | "project.application.persistent-storage" | "project.application.tags" | "project.application.resource-operations" | "project.application.danger" | "project.database.configuration" | "project.application.source" | "project.application.servers" | "project.application.webhooks" | "project.application.scheduled-tasks" | "project.application.rollback" | "project.service.configuration" | "project.application.deployment.index" | "project.application.deployment.show" | "destination.index" | "destination.show" | "destination.danger" | "destination.resources" | "not-ported" | SharedVariablesPageKey | DatabaseSharedPageKey | StoragePageKey | NotificationsPageKey | ServicePageKey | TeamPageKey | ApiTokensPageKey | SourcesPageKey | BoardingPageKey | PlatformPageKey | SubscriptionPageKey | ServerMorePageKey | ResourcePagesKey;
+export type PageKey = "login" | "register" | "forgot-password" | "reset-password" | "profile.appearance" | "profile" | "profile.passkeys.confirm" | "password.confirm" | "verify.email" | "two-factor.required" | "verify.verify" | "two-factor.login" | "security.private-key.index" | "security.private-key.show" | "security.cloud-tokens" | "security.cloud-tokens.show" | "security.cloud-init-scripts" | "security.cloud-init-scripts.show" | "server.index" | "server.create" | "server.create.manual" | "server.show" | "server.advanced" | "server.private-key" | "server.cloud-provider-token" | "server.ca-certificate" | "server.sentinel" | "server.swarm" | "server.docker-cleanup" | "server.log-drains" | "server.destinations" | "server.delete" | "server.registries" | "registries.index" | "project.index" | "project.show" | "project.edit" | "project.resource.index" | "project.environment.edit" | "project.environment.canvas" | "deploy-canvas" | "project.resource.create" | "project.application.configuration" | "project.application.environment-variables" | "project.application.domains" | "project.application.advanced" | "project.application.healthcheck" | "project.application.resource-limits" | "project.application.persistent-storage" | "project.application.tags" | "project.application.resource-operations" | "project.application.danger" | "project.database.configuration" | "project.application.source" | "project.application.servers" | "project.application.webhooks" | "project.application.scheduled-tasks" | "project.application.rollback" | "project.service.configuration" | "project.application.deployment.index" | "project.application.deployment.show" | "destination.index" | "destination.show" | "destination.danger" | "destination.resources" | "not-ported" | SharedVariablesPageKey | DatabaseSharedPageKey | StoragePageKey | NotificationsPageKey | ServicePageKey | TeamPageKey | ApiTokensPageKey | SourcesPageKey | BoardingPageKey | PlatformPageKey | SubscriptionPageKey | ServerMorePageKey | ResourcePagesKey | CanvasViewsPageKey;
+
+/**
+ * The canvases that reuse the environment canvas's view (DP-98): the projects, project, servers, server and dashboard
+ * canvases, each scope's shared variable canvas, and the tags canvas.
+ */
+export type CanvasViewsPageKey =
+  | "project.canvas.index"
+  | "project.canvas"
+  | "server.canvas.index"
+  | "server.canvas"
+  | "dashboard.canvas"
+  | "shared-variables.team.canvas"
+  | "shared-variables.project.canvas"
+  | "shared-variables.environment.canvas"
+  | "shared-variables.server.canvas"
+  | "tags.canvas";
 
 /**
  * The resource pages of DP-97: a service's Scheduled Tasks (and its task links), Webhooks, Resource Operations
@@ -109,8 +125,20 @@ const ROUTES: Array<[RegExp, PageKey]> = [
   [/^\/two-factor-required\/?$/, "two-factor.required"],
   [/^\/email\/verify\/[^/]+\/[^/]+\/?$/, "verify.verify"],
   [/^\/two-factor-challenge\/?$/, "two-factor.login"],
-  // The deploy canvas (DP-94): routes/web.php's deploy-canvas. The tags canvas (/canvas/tags) is not ported.
+  // The deploy canvas (DP-94): routes/web.php's deploy-canvas.
   [/^\/canvas\/?$/, "deploy-canvas"],
+  // DP-98: the tags canvas, the projects' and a project's canvas, the servers' and a server's, and the dashboard's.
+  [/^\/canvas\/tags\/?$/, "tags.canvas"],
+  [/^\/projects\/canvas\/?$/, "project.canvas.index"],
+  [/^\/project\/[^/]+\/canvas\/?$/, "project.canvas"],
+  [/^\/servers\/canvas\/?$/, "server.canvas.index"],
+  [/^\/server\/[^/]+\/canvas\/?$/, "server.canvas"],
+  [/^\/dashboard\/canvas\/?$/, "dashboard.canvas"],
+  // DP-98: each scope's shared variable canvas.
+  [/^\/shared-variables\/team\/canvas\/?$/, "shared-variables.team.canvas"],
+  [/^\/shared-variables\/project\/[^/]+\/canvas\/?$/, "shared-variables.project.canvas"],
+  [/^\/shared-variables\/environments\/project\/[^/]+\/environment\/[^/]+\/canvas\/?$/, "shared-variables.environment.canvas"],
+  [/^\/shared-variables\/server\/[^/]+\/canvas\/?$/, "shared-variables.server.canvas"],
   // Projects and environments. An environment's canvas is ported (DP-91); the projects' and a project's canvas
   // (/projects/canvas, /project/{uuid}/canvas) and the clone page (…/clone) are not.
   [/^\/projects\/?$/, "project.index"],

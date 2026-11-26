@@ -125,6 +125,15 @@ export async function listEnvironmentApplications(tx: SqlExecutor, environmentId
   return r.rows;
 }
 
+/**
+ * ServerCanvas::loadResources()'s applications (DP-98): every application of the org (row-level security), oldest
+ * first, with its environment, project and server; the canvases keep the ones of the environments they show.
+ */
+export async function listOrgApplications(tx: SqlExecutor): Promise<DeployApplicationRow[]> {
+  const r = await tx.execute<DeployApplicationRow>(`${SELECT_APPLICATION} WHERE a.deleted_at IS NULL ORDER BY a.id`);
+  return r.rows;
+}
+
 /** What New\DockerImage::submit() stores, after the model's hooks. */
 export interface NewDockerImageApplication {
   orgId: string;
