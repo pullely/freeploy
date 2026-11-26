@@ -1,4 +1,4 @@
-// The deploy canvas's endpoints (DP-94): the page's data, the option lists and the "New project" rows, and the plan's run —
+// The deploy canvas's endpoints (DP-94; the Git step's GitHub app access, DP-95): the page's data, the option lists and the "New project" rows, and the plan's run —
 // its checks and messages (validate()), the order it creates in (runFlow()), the 501 its Deploy step meets, authorization
 // (deploy.resource.write, a denial 404 that runs nothing) and org isolation. Each /api/v1 call is answered by
 // deploy-core-worker's own /api/v1 handler over the API goldens' fixture in PGlite (api-v1-database.ts), each case rolled back.
@@ -38,9 +38,22 @@ afterAll(async () => fixture?.pg.close());
 type Json = any;
 type Answer = { status: number; body: { data?: Json; error?: { code: string; message: string; details?: Record<string, Json> } } };
 
+/** GitHub, faked: the first answer whose pattern fits "METHOD URL", else GitHub's 404. */
+type GithubAnswer = { match: RegExp; status?: number; body: unknown };
+
 /** One case over the fixture: the canvas's handler for an actor who may (or may not) write, in org A (or B). */
-function setup(db: TransactionalSqlExecutor, { write = true } = {}) {
+function setup(db: TransactionalSqlExecutor, { write = true, github = [] as GithubAnswer[] } = {}) {
   const asked: string[] = [];
+  /** What reached GitHub, through /api/v1's injectable fetch (ApiV1Context.providers). */
+  const githubRequests: Array<{ method: string; url: string; authorization: string | null }> = [];
+  const githubFetch: typeof fetch = async (input, init) => {
+    const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+    const method = (init?.method ?? "GET").toUpperCase();
+    githubRequests.push({ method, url, authorization: new Headers(init?.headers).get("authorization") });
+    const answer = github.find((a) => a.match.test(`${method} ${url}`));
+    if (answer) return json(answer.body, answer.status ?? 200);
+    return json({ message: "Not Found" }, 404);
+  };
   const env = {
     ENVIRONMENT: "test",
     DEPLOY_ENCRYPTION_KEY: TEST_KEK,
@@ -59,6 +72,7 @@ function setup(db: TransactionalSqlExecutor, { write = true } = {}) {
     projects: (_e, org, fn) => withOrg(db, org, (tx) => fn(projectStore(tx, org))),
     keys: (_e, org, fn) => withOrg(db, org, (tx) => fn({ store: keyStore(tx, org), cipher: keyCipher(tx, org, TEST_KEK) })),
     org: async () => ({ id: ORG_PUBLIC, name: "Parity Team", createdAt: "2026-01-01T00:00:00.000Z" }),
+    providers: { fetch: githubFetch, sleep: async () => undefined, now: () => new Date("2026-01-01T00:00:00Z") },
   };
   const send = async (method: string, segments: string[], body?: unknown, org = ORG_A): Promise<Answer> => {
     const init: RequestInit = { method, headers: { "content-type": "application/json" } };
@@ -72,7 +86,7 @@ function setup(db: TransactionalSqlExecutor, { write = true } = {}) {
       await tx.execute("SET LOCAL search_path TO deploy");
       return (await tx.execute(sql, params)).rows as Array<Record<string, unknown>>;
     });
-  return { send, asked, query };
+  return { send, asked, query, githubRequests };
 }
 
 const inCase = <T>(fn: (db: TransactionalSqlExecutor) => Promise<T>) => fixture.inCase(fn);
@@ -351,6 +365,136 @@ describe("the page's data, the option lists and the New project rows", () => {
   });
 });
 
+// ── The Git step's "GitHub app" access (DP-95) ───────────────────────────
+
+/** DP-93's goldens' GitHub App: team 1's App 3 (App ID 1003, installation 2003), signing with private key 4. */
+const GITHUB_APP = "j3parityrsaapp0000000003";
+const insertApp = (id: number, uuid: string, name: string, { isPublic = false, appId = "1003" as string | null } = {}) =>
+  `insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (${id}, '${uuid}', '${name}', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, ${appId ?? "null"}, 2003, 'Iv1.parity${id}', false, ${isPublic}, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')`;
+const TOKEN: GithubAnswer = { match: /^POST https:\/\/api\.github\.com\/app\/installations\/2003\/access_tokens$/, status: 201, body: { token: "ghs_paritytoken", expires_at: "2026-01-01T01:00:00Z" } };
+const repo = (id: number, owner: string, name: string) => ({ id, name, full_name: `${owner}/${name}`, private: true, owner: { login: owner, id: 77 }, default_branch: "main" });
+const PRIVATE_REPO: GithubAnswer = { match: /^GET https:\/\/api\.github\.com\/repos\/acme\/private$/, body: repo(4242, "acme", "private") };
+const githubStep = (data: Record<string, unknown> = {}) =>
+  step("gh", "git", { mode: "github", ghApp: `3|${GITHUB_APP}`, ghRepo: "acme/private", ghBranch: "main", buildPack: "nixpacks", ports: "3000", ...data });
+
+describe("the Git step's GitHub app access (DP-95)", () => {
+  it("lists the org's private GitHub Apps as id|uuid, leaving out public Apps and those without an App ID", async () => {
+    await inCase(async (db) => {
+      const t = setup(db);
+      await t.query(insertApp(3, GITHUB_APP, "RSA App"));
+      await t.query(insertApp(5, "j5paritypublicapp0000005", "Public App", { isPublic: true }));
+      await t.query(insertApp(6, "j6paritynoappid000000006", "Unfinished App", { appId: null }));
+      const r = await t.send("GET", ["options", "github-apps"]);
+      expect(r.status).toBe(200);
+      expect(r.body.data).toEqual([[`3|${GITHUB_APP}`, "RSA App"]]);
+      // Another org sees none of them.
+      expect((await t.send("GET", ["options", "github-apps"], undefined, ORG_B)).body.data).toEqual([]);
+      expect(t.githubRequests).toEqual([]);
+    });
+  });
+
+  it("an App's repositories through /api/v1's route: the installation token, every page, sorted by name, as [full_name, full_name]", async () => {
+    await inCase(async (db) => {
+      const t = setup(db, {
+        github: [
+          TOKEN,
+          { match: /^GET https:\/\/api\.github\.com\/installation\/repositories\?per_page=100&page=1$/, body: { total_count: 3, repositories: [repo(11, "acme", "zeta"), repo(12, "acme", "Alpha"), repo(13, "acme", "alpha")] } },
+          { match: /^GET https:\/\/api\.github\.com\/installation\/repositories\?per_page=100&page=2$/, body: { total_count: 3, repositories: [] } },
+        ],
+      });
+      await t.query(insertApp(3, GITHUB_APP, "RSA App"));
+      const r = await t.send("GET", ["options", "github-apps", "3", "repositories"]);
+      expect(r.status).toBe(200);
+      expect(r.body.data).toEqual([
+        ["acme/Alpha", "acme/Alpha"],
+        ["acme/alpha", "acme/alpha"],
+        ["acme/zeta", "acme/zeta"],
+      ]);
+      expect(t.githubRequests.map((q) => `${q.method} ${q.url}`)).toEqual([
+        "POST https://api.github.com/app/installations/2003/access_tokens",
+        "GET https://api.github.com/installation/repositories?per_page=100&page=1",
+        "GET https://api.github.com/installation/repositories?per_page=100&page=2",
+      ]);
+      // The token request carries the App's JWT; the listing, the installation token.
+      expect(t.githubRequests[0]!.authorization).toMatch(/^Bearer [\w-]+\.[\w-]+\.[\w-]+$/);
+      expect(t.githubRequests[1]!.authorization).toBe("Bearer ghs_paritytoken");
+    });
+  });
+
+  it("a repository's branches through /api/v1's route, as [name, name]; GitHub's failure is the API's message and status", async () => {
+    await inCase(async (db) => {
+      const branches = [
+        { name: "main", commit: { sha: "a".repeat(40) }, protected: true },
+        { name: "feature/x", commit: { sha: "b".repeat(40) }, protected: false },
+      ];
+      const t = setup(db, { github: [TOKEN, { match: /^GET https:\/\/api\.github\.com\/repos\/acme\/web\/branches$/, body: branches }] });
+      await t.query(insertApp(3, GITHUB_APP, "RSA App"));
+      const r = await t.send("GET", ["options", "github-apps", "3", "repositories", "acme", "web", "branches"]);
+      expect(r.status).toBe(200);
+      expect(r.body.data).toEqual([
+        ["main", "main"],
+        ["feature/x", "feature/x"],
+      ]);
+      expect(t.githubRequests.map((q) => `${q.method} ${q.url}`)).toEqual(["POST https://api.github.com/app/installations/2003/access_tokens", "GET https://api.github.com/repos/acme/web/branches"]);
+      // A repository GitHub does not know: load_branches()' message, with GitHub's status.
+      const missing = await t.send("GET", ["options", "github-apps", "3", "repositories", "acme", "gone", "branches"]);
+      expect(missing.status).toBe(404);
+      expect(missing.body.error!.message).toBe("Error loading branches from GitHub.");
+      // An App the org does not have.
+      const unknown = await t.send("GET", ["options", "github-apps", "9", "repositories"]);
+      expect(unknown.status).toBe(404);
+      expect(unknown.body.error!.message).toBe("GitHub app not found");
+    });
+  });
+
+  it("the run creates through POST /applications/private-github-app with Coolify's body: the App by uuid, the repository and branch picked", async () => {
+    await inCase(async (db) => {
+      const t = setup(db, { github: [TOKEN, PRIVATE_REPO] });
+      await t.query(insertApp(3, GITHUB_APP, "RSA App"));
+      const r = await t.send("POST", ["run"], { action: "save", plan: plan([{ source: githubStep(), settings: [step("vars", "env", { vars: "A=1" })] }]) });
+      expect(r.status).toBe(200);
+      expect(stepsOf(r)).toEqual([
+        ["start", "done", "Project and environment set."],
+        ["server", "done", "Server picked."],
+        ["gh", "done", "Application created."],
+        ["vars", "done", "1 variable saved."],
+        ["deploy", "done", "Saved 1 resource. Not deployed."],
+      ]);
+      const resources = r.body.data.resources as Array<{ source: string; kind: string; uuid: string; label: string }>;
+      expect(resources.map((x) => [x.source, x.kind, x.label])).toEqual([["gh", "application", "Git repository · acme/private"]]);
+      // githubAppRepository(): the installation token, then the repository GitHub answers.
+      expect(t.githubRequests.map((q) => `${q.method} ${q.url}`)).toEqual(["POST https://api.github.com/app/installations/2003/access_tokens", "GET https://api.github.com/repos/acme/private"]);
+      const [app] = await t.query(
+        "SELECT git_repository, git_branch, build_pack, ports_exposes, source_id, source_type, repository_project_id, private_key_id, environment_id FROM applications WHERE uuid = $1",
+        [resources[0]!.uuid],
+      );
+      expect(app).toMatchObject({ git_repository: "acme/private", git_branch: "main", build_pack: "nixpacks", ports_exposes: "3000", private_key_id: null, environment_id: 1 });
+      expect(Number(app!.source_id)).toBe(3);
+      expect(Number(app!.repository_project_id)).toBe(4242);
+      expect(String(app!.source_type)).toContain("GithubApp");
+    });
+  });
+
+  it("a repository the App cannot read fails the step with the API's message and creates nothing; an App left empty is validate()'s", async () => {
+    await inCase(async (db) => {
+      const t = setup(db, { github: [TOKEN] });
+      await t.query(insertApp(3, GITHUB_APP, "RSA App"));
+      const before = await t.query("SELECT count(*)::int AS n FROM applications");
+      const r = await t.send("POST", ["run"], { action: "deploy", plan: plan([{ source: githubStep() }]) });
+      expect(r.status).toBe(200);
+      expect(stepsOf(r).slice(2)).toEqual([
+        ["gh", "failed", "Repository not found or not accessible by the GitHub App."],
+        ["deploy", "", "Waiting"],
+      ]);
+      expect(await t.query("SELECT count(*)::int AS n FROM applications")).toEqual(before);
+      const empty = await t.send("POST", ["run"], { action: "save", plan: plan([{ source: step("gh", "git", { mode: "github", buildPack: "nixpacks" }) }]) });
+      expect(empty.status).toBe(422);
+      expect(empty.body.error!.details!.problems).toEqual(["Git repository: fill in GitHub app, Repository, Branch."]);
+      expect(empty.body.error!.details!.invalid).toEqual(["gh"]);
+    });
+  });
+});
+
 describe("authorization and org isolation", () => {
   it("every route asks deploy.resource.write first and answers a denial 404 that runs nothing", async () => {
     await inCase(async (db) => {
@@ -360,6 +504,9 @@ describe("authorization and org isolation", () => {
         ["GET", []],
         ["GET", ["options", "projects"]],
         ["GET", ["options", "security", "keys"]],
+        ["GET", ["options", "github-apps"]],
+        ["GET", ["options", "github-apps", "3", "repositories"]],
+        ["GET", ["options", "github-apps", "3", "repositories", "acme", "web", "branches"]],
         ["POST", ["projects"], { name: "Nope" }],
         ["POST", ["run"], { action: "save", plan: plan([{ source: image() }]) }],
       ] as Array<[string, string[], unknown?]>) {
@@ -368,6 +515,7 @@ describe("authorization and org isolation", () => {
         expect(r.body.error!.code).toBe("not_found");
       }
       expect(t.asked.every((a) => a === "deploy.resource.write")).toBe(true);
+      expect(t.githubRequests).toEqual([]);
       expect(await t.query("SELECT count(*)::int AS n FROM applications")).toEqual(before);
       expect(await t.query("SELECT count(*)::int AS n FROM projects WHERE name = 'Nope'")).toEqual([{ n: 0 }]);
     });
@@ -395,12 +543,16 @@ describe("routing", () => {
     await inCase(async (db) => {
       const t = setup(db);
       expect((await t.send("GET", ["nope"])).status).toBe(404);
-      expect((await t.send("GET", ["options", "github-apps"])).status).toBe(404);
+      expect((await t.send("GET", ["options", "github-apps", "3"])).status).toBe(404);
+      expect((await t.send("GET", ["options", "github-apps", "3", "repositories", "acme", "web"])).status).toBe(404);
+      expect((await t.send("GET", ["options", "github-apps", "3", "repositories", "ac me", "web", "branches"])).status).toBe(404);
       expect((await t.send("GET", ["run"])).status).toBe(405);
       expect((await t.send("POST", ["options", "projects"])).status).toBe(405);
       expect(t.asked).toEqual([]);
     });
     expect((await route(new Request(`${base}/run`, { method: "POST" }), env)).status).toBe(401);
+    // The branches list is seven segments deep (DP-95): routed to the canvas, which asks for an actor.
+    expect((await route(new Request(`${base}/options/github-apps/3/repositories/acme/web/branches`), env)).status).toBe(401);
     expect((await route(new Request(`https://x/v1/organizations/nope/deploy/canvas`), env)).status).toBe(404);
   });
 });

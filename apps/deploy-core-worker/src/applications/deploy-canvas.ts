@@ -12,8 +12,8 @@
 // statuses come back together. Deploying answers Freeploy's 501 (the SSH executor is not available yet),
 // so the Deploy step fails with that message, as Coolify shows a failed deployment.
 //
-// Cut: the Git repository step's "GitHub app" access (Freeploy's /api/v1 has no private-github-app create
-// and no GitHub App repositories or branches), and following a deployment's logs (no deployment starts).
+// The Git repository step's "GitHub app" access (DP-95) creates through POST /applications/private-github-app
+// (DP-93) with Coolify's body. Cut: following a deployment's logs (no deployment starts).
 
 /** An /api/v1 call: the answer's status and its JSON body (null when there is none). */
 export type CanvasCall = (method: "GET" | "POST" | "PATCH", path: string, body?: Record<string, unknown>) => Promise<{ status: number; body: unknown }>;
@@ -47,8 +47,11 @@ export const DEPLOY_CANVAS_TYPES: Record<string, StepType> = {
     kind: "application",
     required: [
       { key: "repository", label: "Repository URL", show: (d) => d.mode !== "github" },
+      { key: "ghApp", label: "GitHub app", show: (d) => d.mode === "github" },
+      { key: "ghRepo", label: "Repository", show: (d) => d.mode === "github" },
       { key: "key", label: "Deploy key", show: (d) => d.mode === "key" },
       { key: "branch", label: "Branch", show: (d) => d.mode !== "github" },
+      { key: "ghBranch", label: "Branch", show: (d) => d.mode === "github" },
       { key: "buildPack", label: "Build pack" },
     ],
   },
@@ -339,10 +342,13 @@ async function runStep(call: CanvasCall, ctx: RunContext, n: PlanNode): Promise<
     case "git": {
       ctx.applicationSource = true;
       const base = { ...common(ctx, d), build_pack: d.buildPack, ports_exposes: ports(d) };
+      // The GitHub App's option value is `${id}|${uuid}` (the canvas's github-apps list): the create names it by uuid.
       const res =
-        d.mode === "key"
-          ? await api(call, "POST", "/applications/private-deploy-key", { ...base, private_key_uuid: d.key, git_repository: d.repository, git_branch: d.branch })
-          : await api(call, "POST", "/applications/public", { ...base, git_repository: d.repository, git_branch: d.branch });
+        d.mode === "github"
+          ? await api(call, "POST", "/applications/private-github-app", { ...base, github_app_uuid: text(d.ghApp).split("|")[1], git_repository: d.ghRepo, git_branch: d.ghBranch })
+          : d.mode === "key"
+            ? await api(call, "POST", "/applications/private-deploy-key", { ...base, private_key_uuid: d.key, git_repository: d.repository, git_branch: d.branch })
+            : await api(call, "POST", "/applications/public", { ...base, git_repository: d.repository, git_branch: d.branch });
       ctx.resource = { kind: "application", uuid: createdUuid(res) };
       ctx.createdDomains = createdDomains(res);
       return "Application created.";

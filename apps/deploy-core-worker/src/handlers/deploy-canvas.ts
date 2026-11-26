@@ -19,6 +19,10 @@
 //   GET  …/deploy/canvas/options/servers                                                [uuid, name (unreachable)], not build-only
 //   GET  …/deploy/canvas/options/servers/{uuid}/destinations                            [uuid, "name · network"]
 //   GET  …/deploy/canvas/options/security/keys                                          [uuid, name]
+//   GET  …/deploy/canvas/options/github-apps                                            ["id|uuid", name], private Apps with an App ID (DP-95)
+//   GET  …/deploy/canvas/options/github-apps/{id}/repositories                          [full_name, full_name] (DP-93's route, GitHub through
+//                                                                                         the context's fetch)
+//   GET  …/deploy/canvas/options/github-apps/{id}/repositories/{owner}/{repo}/branches  [name, name] (DP-93's route)
 //   POST …/deploy/canvas/projects { name }                                              POST /projects → { uuid }
 //   POST …/deploy/canvas/projects/{uuid}/environments { name }                          POST /projects/{uuid}/environments → { uuid }
 //   POST …/deploy/canvas/run { action: save|deploy, plan }                              validate() and runFlow() (applications/deploy-canvas.ts)
@@ -35,7 +39,7 @@ import { headline } from "../services/catalogue-build.js";
 import { serviceLogoUrls } from "../services/service.js";
 import { DEPLOY_CANVAS_MESSAGES, apiErrorMessage, parsePlan, planFollows, runPlan, validatePlan, type CanvasCall } from "../applications/deploy-canvas.js";
 
-export const ORG_DEPLOY_CANVAS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/canvas((?:\/[^/]+){0,5})\/?$/;
+export const ORG_DEPLOY_CANVAS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/canvas((?:\/[^/]+){0,7})\/?$/;
 
 /** UseSessionTeamApiToken's abilities for an admin or owner, without read:sensitive. */
 export const DEPLOY_CANVAS_ABILITIES = ["read", "write", "deploy"] as const;
@@ -49,6 +53,8 @@ type Row = Record<string, unknown>;
 type Option = [string, string];
 
 const UUID_RE = /^[A-Za-z0-9_-]{1,255}$/;
+/** A GitHub owner or repository name (load_branches() checks the same characters). */
+const GITHUB_NAME_RE = /^[A-Za-z0-9_.-]{1,255}$/;
 const isObject = (v: unknown): v is Row => typeof v === "object" && v !== null && !Array.isArray(v);
 const rows = (body: unknown): Row[] => (Array.isArray(body) ? body.filter(isObject) : []);
 const text = (v: unknown) => (v === undefined || v === null ? "" : String(v));
@@ -95,6 +101,27 @@ const LISTS: Array<{ match: (s: string[]) => boolean; path: (s: string[]) => str
     options: (b) => rows(b).map((d) => [text(d.uuid), `${text(d.name)} · ${text(d.network)}`]),
   },
   { match: (s) => s.length === 2 && s[0] === "security" && s[1] === "keys", path: () => "/security/keys", options: (b) => rows(b).map((k) => [text(k.uuid), text(k.name)]) },
+  // DP-95: the Git step's "GitHub app" access. The App's value carries its id (the repositories and branches
+  // routes) and its uuid (POST /applications/private-github-app); public Apps and those without an App ID cannot
+  // be installed on a private repository.
+  {
+    match: (s) => s.length === 1 && s[0] === "github-apps",
+    path: () => "/github-apps",
+    options: (b) =>
+      rows(b)
+        .filter((a) => !a.is_public && a.app_id)
+        .map((a) => [`${text(a.id)}|${text(a.uuid)}`, text(a.name)]),
+  },
+  {
+    match: (s) => s.length === 3 && s[0] === "github-apps" && UUID_RE.test(s[1]!) && s[2] === "repositories",
+    path: (s) => `/github-apps/${encodeURIComponent(s[1]!)}/repositories`,
+    options: (b) => rows(isObject(b) ? b.repositories : null).map((r) => [text(r.full_name), text(r.full_name)]),
+  },
+  {
+    match: (s) => s.length === 6 && s[0] === "github-apps" && UUID_RE.test(s[1]!) && s[2] === "repositories" && GITHUB_NAME_RE.test(s[3]!) && GITHUB_NAME_RE.test(s[4]!) && s[5] === "branches",
+    path: (s) => `/github-apps/${encodeURIComponent(s[1]!)}/repositories/${encodeURIComponent(s[3]!)}/${encodeURIComponent(s[4]!)}/branches`,
+    options: (b) => rows(isObject(b) ? b.branches : null).map((r) => [text(r.name), text(r.name)]),
+  },
 ];
 
 /** An /api/v1 failure in Freeploy's envelope: its message, and its field errors as details.fields. */

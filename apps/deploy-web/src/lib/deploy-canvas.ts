@@ -9,9 +9,11 @@
 // /api/v1 handler as Coolify's /canvas/api does; a run sends the plan once (…/deploy/canvas/run), and the
 // server runs the steps Coolify's browser runs one by one (the `run` of each type is
 // apps/deploy-core-worker/src/applications/deploy-canvas.ts). The logos are Freeploy's own files
-// (/svgs/resources), not versioned URLs. Cut: the Git repository step's "GitHub app" access (Freeploy's
-// /api/v1 has no private-github-app create and no GitHub App repositories or branches), and following a
-// deployment's logs (deploying answers 501: the SSH executor is not available yet).
+// (/svgs/resources), not versioned URLs. The Git repository step's "GitHub app" access (DP-95) lists the
+// org's GitHub Apps, an App's repositories and a repository's branches through the same canvas endpoints
+// (…/options/github-apps[/{id}/repositories[/{owner}/{repo}/branches]]), which reach GitHub through /api/v1's
+// GitHub App routes (DP-93). Cut: following a deployment's logs (deploying answers 501: the SSH executor is
+// not available yet).
 
 // ── Settings ───────────────────────────────────────────────────────────
 export const STORE = "coolify-canvas"; // localStorage prefix (flow, view).
@@ -105,7 +107,16 @@ const fetchList = (path: string) => () => (calls ? calls.list(path) : Promise.re
 
 // The cache key a select loads from (to show its error).
 export function loaderKey(f: Field, d: StepData): string | undefined {
-  const map: Record<string, string> = { project: "projects", environment: `envs:${d.project}`, server: "servers", destination: `dest:${d.server}`, key: "keys" };
+  const map: Record<string, string> = {
+    project: "projects",
+    environment: `envs:${d.project}`,
+    server: "servers",
+    destination: `dest:${d.server}`,
+    ghApp: "gh",
+    ghRepo: `repos:${d.ghApp}`,
+    ghBranch: `br:${d.ghApp}:${d.ghRepo}`,
+    key: "keys",
+  };
   return map[f.key];
 }
 const LOADERS = {
@@ -114,6 +125,13 @@ const LOADERS = {
   // Build-only servers cannot run resources (as on the New resource page): the endpoint leaves them out.
   servers: () => options("servers", fetchList("/servers")),
   destinations: (server?: string) => (server ? options(`dest:${server}`, fetchList(`/servers/${encodeURIComponent(server)}/destinations`)) : undefined),
+  // The org's private GitHub Apps, as `${id}|${uuid}`: the id names the App in the repositories and branches
+  // routes, the uuid in the create call. The endpoint leaves out public Apps and those without an App ID.
+  ghApps: () => options("gh", fetchList("/github-apps")),
+  repos: (app?: string) => (app ? options(`repos:${app}`, fetchList(`/github-apps/${encodeURIComponent(app.split("|")[0]!)}/repositories`)) : undefined),
+  // The repository is GitHub's full name, "owner/name": two segments of the path.
+  branches: (app?: string, repo?: string) =>
+    app && repo ? options(`br:${app}:${repo}`, fetchList(`/github-apps/${encodeURIComponent(app.split("|")[0]!)}/repositories/${repo.split("/").map(encodeURIComponent).join("/")}/branches`)) : undefined,
   keys: () => options("keys", fetchList("/security/keys")),
 };
 
@@ -278,21 +296,24 @@ export const TYPES: Record<StepType, TypeDef> = {
     kind: "application",
     icon: ICONS.git,
     fields: [
-      // Coolify's third access, "GitHub app", is not ported (DP-94).
       {
         key: "mode",
         label: "Access",
         kind: "segmented",
         options: [
           ["public", "Public"],
+          ["github", "GitHub app"],
           ["key", "Deploy key"],
         ],
         rerender: true,
         value: "public",
       },
       { key: "repository", label: "Repository URL", kind: "text", placeholder: "https://github.com/coollabsio/coolify-examples", show: (d) => d.mode !== "github", required: true, secret: (v) => /^\w+:\/\/[^/]*@/.test(v) },
+      { key: "ghApp", label: "GitHub app", kind: "select", load: () => LOADERS.ghApps(), show: (d) => d.mode === "github", rerender: true, required: true },
+      { key: "ghRepo", label: "Repository", kind: "select", load: (d) => LOADERS.repos(d.ghApp), show: (d) => d.mode === "github", rerender: true, required: true },
       { key: "key", label: "Deploy key", kind: "select", load: () => LOADERS.keys(), show: (d) => d.mode === "key", required: true },
       { key: "branch", label: "Branch", kind: "text", placeholder: "main", value: "main", show: (d) => d.mode !== "github", required: true },
+      { key: "ghBranch", label: "Branch", kind: "select", load: (d) => LOADERS.branches(d.ghApp, d.ghRepo), show: (d) => d.mode === "github", required: true },
       { key: "buildPack", label: "Build pack", kind: "select", options: BUILD_PACKS, value: "railpack", required: true },
       { key: "ports", label: "Port", kind: "text", placeholder: "3000", value: "3000" },
       { key: "name", label: "Name", kind: "text", placeholder: "Optional" },

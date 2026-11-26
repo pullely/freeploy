@@ -1,4 +1,4 @@
-// The deploy canvas's model (DP-94): the step types, the flow rules (canFollow, the plan of each resource
+// The deploy canvas's model (DP-94, the Git step's GitHub app access DP-95): the step types, the flow rules (canFollow, the plan of each resource
 // line), what is stored and what is not, the environment that opened the canvas, the checks before a run
 // (validate()) and the plan sent to …/deploy/canvas/run, the option lists and the logos. The expectations
 // follow Coolify 91b7e3e's resources/js/deploy-canvas.test.js; splitImage, parseEnvVars and domainList
@@ -217,15 +217,79 @@ test("shows the logo of what a source step creates, like the rest of Freeploy", 
   setServiceCatalogue([], {});
 });
 
-test("offers every database engine of the New resource page; the Git step offers Public and Deploy key (GitHub app is not ported)", () => {
+test("offers every database engine of the New resource page; the Git step offers Public, GitHub app and Deploy key", () => {
   const engines = TYPES.database.fields.find((f) => f.key === "engine")!.options!.map(([value]) => value);
   assert.deepEqual(engines, ["postgresql", "mysql", "mariadb", "mongodb", "redis", "keydb", "dragonfly", "clickhouse", "sqlite"]);
-  const modes = TYPES.git.fields.find((f) => f.key === "mode")!.options!.map(([value]) => value);
-  assert.deepEqual(modes, ["public", "key"]);
-  assert.equal(
-    TYPES.git.fields.some((f) => f.key.startsWith("gh")),
-    false,
+  const modes = TYPES.git.fields.find((f) => f.key === "mode")!.options!;
+  assert.deepEqual(modes, [
+    ["public", "Public"],
+    ["github", "GitHub app"],
+    ["key", "Deploy key"],
+  ]);
+  // Coolify's fields, in its order; each mode shows its own.
+  assert.deepEqual(
+    TYPES.git.fields.map((f) => f.key),
+    ["mode", "repository", "ghApp", "ghRepo", "key", "branch", "ghBranch", "buildPack", "ports", "name"],
   );
+  const shown = (mode: string) => TYPES.git.fields.filter((f) => !f.show || f.show({ mode })).map((f) => f.key);
+  assert.deepEqual(shown("github"), ["mode", "ghApp", "ghRepo", "ghBranch", "buildPack", "ports", "name"]);
+  assert.deepEqual(shown("key"), ["mode", "repository", "key", "branch", "buildPack", "ports", "name"]);
+  assert.deepEqual(shown("public"), ["mode", "repository", "branch", "buildPack", "ports", "name"]);
+  // A GitHub App's card shows the GitHub App logo, its label the repository.
+  assert.equal(logoOf(node("g", "git", { mode: "github" }))?.src.endsWith("github-app.svg"), true);
+  assert.deepEqual([...uniqueLabels([node("g", "git", { mode: "github", ghRepo: "acme/web" })]).values()], ["Git repository · acme/web"]);
+});
+
+test("GitHub app access: validate() asks for the App, the repository and the branch; the plan carries them as picked", () => {
+  const flow = (data: Record<string, string>): Flow => ({
+    nodes: [node("start", "start", { project: "p", environment: "e" }), node("srv", "server", { server: "s" }), node("git", "git", { mode: "github", buildPack: "railpack", ...data }), node("dep", "deploy")],
+    edges: [
+      { from: "start", to: "srv" },
+      { from: "srv", to: "git" },
+    ],
+  });
+  assert.deepEqual(validate(planOf(flow({}))), { problems: ["Git repository: fill in GitHub app, Repository, Branch."], invalid: ["git"] });
+  assert.deepEqual(validate(planOf(flow({ ghApp: "3|j3", ghRepo: "acme/web" }))).problems, ["Git repository: fill in Branch."]);
+  const picked = { ghApp: "3|j3parityrsaapp0000000003", ghRepo: "acme/web", ghBranch: "main" };
+  assert.deepEqual(validate(planOf(flow(picked))), { problems: [], invalid: [] });
+  assert.deepEqual(planBody("deploy", planOf(flow(picked))).plan.lines[0]!.source, { id: "git", type: "git", data: { mode: "github", buildPack: "railpack", ...picked } });
+});
+
+test("GitHub app access: the Apps, an App's repositories and a repository's branches load through the canvas's calls", async () => {
+  const asked: string[] = [];
+  setDeployCanvasCalls({
+    list: async (path) => {
+      asked.push(path);
+      if (path === "/github-apps") return [["3|j3parityrsaapp0000000003", "RSA App"]];
+      if (path.endsWith("/branches")) return [["main", "main"]];
+      return [["acme/web", "acme/web"]];
+    },
+    create: async () => ({ uuid: "new" }),
+  });
+  const field = (key: string) => TYPES.git.fields.find((f) => f.key === key)!;
+  const [app, repo, branch] = [field("ghApp"), field("ghRepo"), field("ghBranch")];
+  const picked = { mode: "github", ghApp: "3|j3parityrsaapp0000000003", ghRepo: "acme/web" };
+  assert.equal(app.load!({ mode: "github" }), null);
+  // Each list waits for the field above it.
+  assert.equal(repo.load!({ mode: "github" }), undefined);
+  assert.equal(branch.load!({ mode: "github", ghApp: picked.ghApp }), undefined);
+  assert.equal(repo.load!(picked), null);
+  assert.equal(branch.load!(picked), null);
+  await new Promise((r) => setTimeout(r, 0));
+  // The App's id names it in the repositories and branches routes; the repository is two segments.
+  assert.deepEqual(asked, ["/github-apps", "/github-apps/3/repositories", "/github-apps/3/repositories/acme/web/branches"]);
+  assert.deepEqual(app.load!({}), [["3|j3parityrsaapp0000000003", "RSA App"]]);
+  assert.deepEqual(repo.load!(picked), [["acme/web", "acme/web"]]);
+  assert.deepEqual(branch.load!(picked), [["main", "main"]]);
+  assert.equal(loaderKey(app, picked), "gh");
+  assert.equal(loaderKey(repo, picked), "repos:3|j3parityrsaapp0000000003");
+  assert.equal(loaderKey(branch, picked), "br:3|j3parityrsaapp0000000003:acme/web");
+  // The App and the repository reload what follows them.
+  assert.equal(app.rerender, true);
+  assert.equal(repo.rerender, true);
+  setDeployCanvasCalls(null);
+  lists.cache = {};
+  lists.errors = {};
 });
 
 test("validate(): Coolify's problems in order, and the steps to mark", () => {
