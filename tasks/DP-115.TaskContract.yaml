@@ -1,0 +1,13 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-115
+  title: "IMPLEMENTATION-STATUS's milestone table brought up to #123: the PRs of DP-100..DP-113, DP9 at 330 of 330 /api/v1 operations, DP6/DP7/DP11/DP12's state"
+spec:
+  goal: specs/epics/freeploy-coolify-parity/IMPLEMENTATION-STATUS.md's milestone table lists every merged PR from #110 to #123 under its milestone, DP3's "DP-100 (this PR)" becomes its link, and the state column says what is now true — GitLab and Gitea sources (DP6), nine database engines with SQLite (DP7), all 330 of 330 /api/v1 operations with what runs on a server answering 501 until W3 (DP9), the security status engine (DP11) and the operator's Updates, Backup, Email and Authentication settings (DP12). Docs only.
+  affects:
+    - specs/epics/freeploy-coolify-parity/IMPLEMENTATION-STATUS.md
+    - tasks/**
+  doneWhen:
+    - the milestone table links #110..#123 and node tools/parity/inventory.ts --check passes
+  gates: []
