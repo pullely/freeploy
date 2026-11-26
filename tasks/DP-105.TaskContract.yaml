@@ -1,0 +1,23 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-105
+  title: "DP9: managed DNS — /api/v1/dns/zones and the DNS records of an application's and a service's domains (status, create, replace, release), Cloudflare asked as Coolify asks it"
+spec:
+  goal: On DP-70's pipeline, DnsController's nine operations are ported — GET /dns/zones, GET and POST /applications/{uuid}/dns and /services/{uuid}/dns, POST …/dns/replace and DELETE …/dns/{hostname} for both — and held to goldens emitted by Coolify's PHP with Cloudflare faked by Http::fake() (a failed connection included); 9 more of openapi.json's 330 operations are ported (308 in all, with DP-106's). ResourceDnsRecords, CloudflareDnsProvider's record operations, ManagedDnsRecordCleanup's release, ServerDnsAddresses and DnsRecordHints are ported as apps/deploy-core-worker/src/managed-dns/ (the hostnames of the fqdn and the Compose domains as parse_url() reads them, the zone that manages a hostname, the server's public addresses as PHP 8.3's filter judges them, the record adopted, created with the ownership comment, replaced, released and deleted at Cloudflare only while Freeploy owns it and it did not change), on DP-104's zones and tokens (the token decrypted with the org's key, Cloudflare asked through the injectable fetch outside the org's transaction). Listing the zones is a team admin's (deploy.resource.write); a resource's status is its view (deploy.resource.read), a change its update (deploy.resource.write, ApplicationPolicy's own message). No migration (deploy.managed_dns_records and deploy.managed_dns_record_references are in the head schema with row-level security); packages/db gains deploy/managed-dns.ts. The console's managed-DNS pieces of an application's and a service's Domains stay cut.
+  affects:
+    - apps/api-edge/**
+    - apps/deploy-core-worker/**
+    - packages/db/**
+    - tests/api-edge/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - every DP-105 case of tests/deploy-core-worker/fixtures/api/cases.json replays against Freeploy's handler byte-equal to goldens.json (status, body, the requests sent to Cloudflare with the ownership comment masked, and the rows of the writes), and the three member denials (45 in all) answer as Coolify's exception handler does
+    - tests/deploy-core-worker/src/api-v1-dns.test.ts also holds authorization (a denial asks Cloudflare nothing and writes nothing), org isolation, Freeploy's ownership comment and PHP's address and parse_url rules
+    - tests/db/src/deploy-managed-dns.test.ts runs the new queries on the schema at head, row-level security included
+    - specs/epics/freeploy-coolify-parity/parity/openapi.operations.json marks the 9 operations ported with taskKey DP-105 (308 ported of 330 in all with DP-106's), tests/api-edge/src/api-v1.test.ts counts 308, and node tools/parity/inventory.ts --check passes
+    - on stage, with a Cloudflare token whose zone holds an application's domain, the application's DNS status lists the zone, a record is created at Cloudflare with Freeploy's ownership comment, and releasing it after the domain is removed deletes it
+  gates: []

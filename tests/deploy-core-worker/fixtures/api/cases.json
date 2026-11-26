@@ -33856,6 +33856,2130 @@
      "authorization": "Bearer 53|rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f"
     }
    ]
+  },
+  {
+   "name": "dns zones: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/dns/zones"
+  },
+  {
+   "name": "dns zones: list with managed records",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/dns/zones",
+   "setupCoolify": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m2paritydnsimage00000002', 1, 1, 'rec-image', 'A', 'image.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm2paritydnsimage00000002'",
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'",
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m5paritydnsnet0000000005', 2, 3, 'rec-net', 'A', 'app.example.net', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m2paritydnsimage00000002', 1, 1, 'rec-image', 'A', 'image.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm2paritydnsimage00000002'",
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'",
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m5paritydnsnet0000000005', 2, 3, 'rec-net', 'A', 'app.example.net', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ]
+  },
+  {
+   "name": "dns zones: list, a token that is not Cloudflare's",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/dns/zones",
+   "setup": [
+    "update integration_tokens set provider = 'doppler' where id = 2"
+   ]
+  },
+  {
+   "name": "dns zones: list, none",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/dns/zones",
+   "setup": [
+    "delete from dns_provider_zones"
+   ]
+  },
+  {
+   "name": "dns zones: list with a write-only token",
+   "token": "writeOnly",
+   "method": "GET",
+   "path": "/api/v1/dns/zones"
+  },
+  {
+   "name": "dns application: status",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns"
+  },
+  {
+   "name": "dns application: status with several domains and records",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "setup": [
+    "update applications set fqdn = 'https://image.example.com/app,http://WWW.Image.example.com:8080,https://api.example.org,https://nozone.test,https://app.example.net,https://image.example.com:8443' where id = 1"
+   ],
+   "setupCoolify": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m2paritydnsimage00000002', 1, 1, 'rec-image', 'A', 'image.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm2paritydnsimage00000002'",
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m6paritydnswww0000000006', 1, 1, 'rec-www', 'A', 'www.image.example.com', '203.0.113.10', false, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m7paritydnsorg0000000007', 1, 2, 'rec-api', 'AAAA', 'api.example.org', '2606:4700::6810:84e5', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm7paritydnsorg0000000007'"
+   ],
+   "setupFreeploy": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m2paritydnsimage00000002', 1, 1, 'rec-image', 'A', 'image.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm2paritydnsimage00000002'",
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m6paritydnswww0000000006', 1, 1, 'rec-www', 'A', 'www.image.example.com', '203.0.113.10', false, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m7paritydnsorg0000000007', 1, 2, 'rec-api', 'AAAA', 'api.example.org', '2606:4700::6810:84e5', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm7paritydnsorg0000000007'"
+   ]
+  },
+  {
+   "name": "dns application: status, two tokens manage the zone",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "setupCoolify": [
+    "insert into dns_provider_zones (uuid, integration_token_id, provider_zone_id, name, account_id, account_name, created_at, updated_at) values ('z5paritydupexamplecom005', 2, 'zone-com-2', 'example.com', 'acc-1', 'Parity Account', '2025-12-29 00:00:00', '2025-12-29 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into dns_provider_zones (uuid, integration_token_id, provider_zone_id, name, account_id, account_name, org_id, created_at, updated_at) values ('z5paritydupexamplecom005', 2, 'zone-com-2', 'example.com', 'acc-1', 'Parity Account', deploy.current_org(), '2025-12-29 00:00:00', '2025-12-29 00:00:00')"
+   ]
+  },
+  {
+   "name": "dns application: status, the longest zone",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "setupCoolify": [
+    "insert into dns_provider_zones (uuid, integration_token_id, provider_zone_id, name, account_id, account_name, created_at, updated_at) values ('z6parityimageexample0006', 2, 'zone-image', 'image.example.com', 'acc-1', 'Parity Account', '2025-12-29 00:00:00', '2025-12-29 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into dns_provider_zones (uuid, integration_token_id, provider_zone_id, name, account_id, account_name, org_id, created_at, updated_at) values ('z6parityimageexample0006', 2, 'zone-image', 'image.example.com', 'acc-1', 'Parity Account', deploy.current_org(), '2025-12-29 00:00:00', '2025-12-29 00:00:00')"
+   ]
+  },
+  {
+   "name": "dns application: status, public IPv4 and IPv6",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "setup": [
+    "update server_settings set public_ipv4 = '93.184.216.34', public_ipv6 = '2606:4700::6810:84e5' where server_id = 1"
+   ]
+  },
+  {
+   "name": "dns application: status, a public IPv6 only",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "setup": [
+    "update server_settings set public_ipv4 = null, public_ipv6 = '2606:4700::6810:84e5' where server_id = 1"
+   ]
+  },
+  {
+   "name": "dns application: status, a private server",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "setup": [
+    "update servers set ip = '10.0.0.5' where id = 1"
+   ]
+  },
+  {
+   "name": "dns application: status, a CGNAT public IPv4",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "setup": [
+    "update server_settings set public_ipv4 = '100.64.0.1', public_ipv6 = null where server_id = 1"
+   ]
+  },
+  {
+   "name": "dns application: status, an IPv6 server",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "setup": [
+    "update servers set ip = '2606:4700::1' where id = 1"
+   ]
+  },
+  {
+   "name": "dns application: status, compose domains",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "setup": [
+    "update applications set fqdn = null, build_pack = 'dockercompose', docker_compose_domains = '{\"web\":{\"domain\":\"https://web.example.org,https://Image.example.com\"},\"api\":{\"domain\":\"\"},\"db\":\"x\"}' where id = 1"
+   ]
+  },
+  {
+   "name": "dns application: status, no domains",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/dns"
+  },
+  {
+   "name": "dns application: status, unknown",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/nonexistentuuid/dns"
+  },
+  {
+   "name": "dns application: status, another team's",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a3otherteamapp0000000003/dns"
+  },
+  {
+   "name": "dns service: status",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/services/f1parityservice000000001/dns"
+  },
+  {
+   "name": "dns service: status with several domains and a record",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/services/f1parityservice000000001/dns",
+   "setup": [
+    "update service_applications set fqdn = 'https://web.example.com:8080,https://web2.example.org' where id = 1"
+   ],
+   "setupCoolify": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m8paritydnsweb0000000008', 1, 1, 'rec-web', 'A', 'web.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\ServiceApplication', 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm8paritydnsweb0000000008'"
+   ],
+   "setupFreeploy": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m8paritydnsweb0000000008', 1, 1, 'rec-web', 'A', 'web.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\ServiceApplication', 1, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm8paritydnsweb0000000008'"
+   ]
+  },
+  {
+   "name": "dns service: status, a private server",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/services/f1parityservice000000001/dns",
+   "setup": [
+    "update servers set ip = '192.168.1.10' where id = 1"
+   ]
+  },
+  {
+   "name": "dns service: status, unknown",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/services/nonexistentuuid/dns"
+  },
+  {
+   "name": "dns service: status, another team's",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/services/f2otherservice0000000002/dns"
+  },
+  {
+   "name": "dns application: create a record",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "body": {
+    "hostname": "image.example.com"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?type=A&name=image\\.example\\.com&per_page=100$",
+     "body": {
+      "success": true,
+      "result": []
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "rec-new"
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: create a record, the hostname as written",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "body": {
+    "hostname": " IMAGE.Example.com.. "
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?type=A&name=image\\.example\\.com&per_page=100$",
+     "body": {
+      "success": true,
+      "result": []
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "rec-new"
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: create a proxied record",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "setup": [
+    "update applications set fqdn = 'https://app.example.net' where id = 1"
+   ],
+   "body": {
+    "hostname": "app.example.net"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-net/dns_records\\?type=A&name=app\\.example\\.net&per_page=100$",
+     "body": {
+      "success": true,
+      "result": []
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.cloudflare\\.com/client/v4/zones/zone-net/dns_records$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "rec-net-new"
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: create an AAAA record",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "setup": [
+    "update server_settings set public_ipv4 = '93.184.216.34', public_ipv6 = '2606:4700::6810:84e5' where server_id = 1"
+   ],
+   "body": {
+    "hostname": "image.example.com",
+    "address": "2606:4700:0::6810:84E5"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?type=AAAA&name=image\\.example\\.com&per_page=100$",
+     "body": {
+      "success": true,
+      "result": []
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "rec-v6"
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: create a record of the public IPv4",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "setup": [
+    "update server_settings set public_ipv4 = '93.184.216.34', public_ipv6 = null where server_id = 1"
+   ],
+   "body": {
+    "hostname": "image.example.com",
+    "address": "93.184.216.34",
+    "integration_token_uuid": "i1paritycloudflaredns001"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?type=A&name=image\\.example\\.com&per_page=100$",
+     "body": {
+      "success": true,
+      "result": []
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "rec-new"
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: create, a record of the address exists",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "body": {
+    "hostname": "image.example.com"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?type=A&name=image\\.example\\.com&per_page=100$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "rec-existing",
+        "type": "A",
+        "name": "Image.Example.com",
+        "content": "203.0.113.10",
+        "proxied": false,
+        "ttl": 1,
+        "comment": "made by hand"
+       }
+      ]
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: create, the tracked record",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "body": {
+    "hostname": "image.example.com"
+   },
+   "setupCoolify": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m2paritydnsimage00000002', 1, 1, 'rec-image', 'A', 'image.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m2paritydnsimage00000002', 1, 1, 'rec-image', 'A', 'image.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?type=A&name=image\\.example\\.com&per_page=100$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "rec-image",
+        "type": "A",
+        "name": "image.example.com",
+        "content": "203.0.113.10",
+        "proxied": false,
+        "ttl": 1,
+        "comment": "{{ownership:m2paritydnsimage00000002}}"
+       }
+      ]
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: create, the tracked record changed its comment",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "body": {
+    "hostname": "image.example.com"
+   },
+   "setupCoolify": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m2paritydnsimage00000002', 1, 1, 'rec-image', 'A', 'image.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm2paritydnsimage00000002'"
+   ],
+   "setupFreeploy": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m2paritydnsimage00000002', 1, 1, 'rec-image', 'A', 'image.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm2paritydnsimage00000002'"
+   ],
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?type=A&name=image\\.example\\.com&per_page=100$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "rec-image",
+        "type": "A",
+        "name": "image.example.com",
+        "content": "203.0.113.10",
+        "proxied": false,
+        "ttl": 1,
+        "comment": "edited"
+       }
+      ]
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: create, a conflict",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "body": {
+    "hostname": "image.example.com"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?type=A&name=image\\.example\\.com&per_page=100$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "rec-other",
+        "type": "A",
+        "name": "image.example.com",
+        "content": "198.51.100.7",
+        "proxied": false,
+        "ttl": 1,
+        "comment": null
+       }
+      ]
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: create, several records",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "body": {
+    "hostname": "image.example.com"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?type=A&name=image\\.example\\.com&per_page=100$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "rec-a",
+        "type": "A",
+        "name": "image.example.com",
+        "content": "198.51.100.7",
+        "proxied": false,
+        "ttl": 1,
+        "comment": null
+       },
+       {
+        "id": "rec-b",
+        "type": "A",
+        "name": "image.example.com",
+        "content": "198.51.100.8",
+        "proxied": false,
+        "ttl": 1,
+        "comment": null
+       }
+      ]
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "dns application: create, the matching record has no id",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "body": {
+    "hostname": "image.example.com"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?type=A&name=image\\.example\\.com&per_page=100$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "type": "A",
+        "name": "image.example.com",
+        "content": "203.0.113.10"
+       },
+       "not a record"
+      ]
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "dns application: create, no DNS permission",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "body": {
+    "hostname": "image.example.com"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?type=A&name=image\\.example\\.com&per_page=100$",
+     "body": {
+      "success": false,
+      "errors": [
+       {
+        "code": 10000,
+        "message": "Authentication error"
+       }
+      ]
+     },
+     "status": 403
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: create, the records not checked",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "body": {
+    "hostname": "image.example.com"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?type=A&name=image\\.example\\.com&per_page=100$",
+     "body": {
+      "success": false,
+      "errors": [
+       {
+        "code": 10000,
+        "message": "Authentication error"
+       }
+      ]
+     },
+     "status": 500
+    }
+   ]
+  },
+  {
+   "name": "dns application: create, Cloudflare unreachable",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "body": {
+    "hostname": "image.example.com"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records",
+     "failedConnection": true
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: create, the create refused",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "body": {
+    "hostname": "image.example.com"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?type=A&name=image\\.example\\.com&per_page=100$",
+     "body": {
+      "success": true,
+      "result": []
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records$",
+     "body": {
+      "success": false,
+      "errors": [
+       {
+        "code": 10000,
+        "message": "Authentication error"
+       }
+      ]
+     },
+     "status": 403
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: create, the create failed",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "body": {
+    "hostname": "image.example.com"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?type=A&name=image\\.example\\.com&per_page=100$",
+     "body": {
+      "success": true,
+      "result": []
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records$",
+     "body": {
+      "success": false,
+      "errors": [
+       {
+        "code": 10000,
+        "message": "Authentication error"
+       }
+      ]
+     },
+     "status": 500
+    }
+   ]
+  },
+  {
+   "name": "dns application: create, no record id",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "body": {
+    "hostname": "image.example.com"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?type=A&name=image\\.example\\.com&per_page=100$",
+     "body": {
+      "success": true,
+      "result": []
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": 7
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: create, not a domain of the application",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "body": {
+    "hostname": "other.example.com"
+   },
+   "http": []
+  },
+  {
+   "name": "dns application: create, the validation",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "body": {
+    "address": 7,
+    "integration_token_uuid": [
+     "x"
+    ],
+    "proxied": true,
+    "hostname": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   },
+   "http": []
+  },
+  {
+   "name": "dns application: create, no hostname",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "body": {
+    "address": null
+   },
+   "http": []
+  },
+  {
+   "name": "dns application: create, not JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "raw": "hostname=image.example.com",
+   "contentType": "application/x-www-form-urlencoded",
+   "http": []
+  },
+  {
+   "name": "dns application: create, an empty body",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "raw": "{}",
+   "http": []
+  },
+  {
+   "name": "dns application: create, a private server",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "setup": [
+    "update servers set ip = '10.0.0.5' where id = 1"
+   ],
+   "body": {
+    "hostname": "image.example.com"
+   },
+   "http": []
+  },
+  {
+   "name": "dns application: create, an address not of the server",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "setup": [
+    "update server_settings set public_ipv4 = '93.184.216.34', public_ipv6 = '2606:4700::6810:84e5' where server_id = 1"
+   ],
+   "body": {
+    "hostname": "image.example.com",
+    "address": "203.0.113.10"
+   },
+   "http": []
+  },
+  {
+   "name": "dns application: create, no zone",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "setup": [
+    "update applications set fqdn = 'https://nozone.test' where id = 1"
+   ],
+   "body": {
+    "hostname": "nozone.test"
+   },
+   "http": []
+  },
+  {
+   "name": "dns application: create, two tokens manage the zone",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "body": {
+    "hostname": "image.example.com"
+   },
+   "setupCoolify": [
+    "insert into dns_provider_zones (uuid, integration_token_id, provider_zone_id, name, account_id, account_name, created_at, updated_at) values ('z5paritydupexamplecom005', 2, 'zone-com-2', 'example.com', 'acc-1', 'Parity Account', '2025-12-29 00:00:00', '2025-12-29 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into dns_provider_zones (uuid, integration_token_id, provider_zone_id, name, account_id, account_name, org_id, created_at, updated_at) values ('z5paritydupexamplecom005', 2, 'zone-com-2', 'example.com', 'acc-1', 'Parity Account', deploy.current_org(), '2025-12-29 00:00:00', '2025-12-29 00:00:00')"
+   ],
+   "http": []
+  },
+  {
+   "name": "dns application: create, the token chosen",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "body": {
+    "hostname": "image.example.com",
+    "integration_token_uuid": "i2paritycloudflaretun002"
+   },
+   "setupCoolify": [
+    "insert into dns_provider_zones (uuid, integration_token_id, provider_zone_id, name, account_id, account_name, created_at, updated_at) values ('z5paritydupexamplecom005', 2, 'zone-com-2', 'example.com', 'acc-1', 'Parity Account', '2025-12-29 00:00:00', '2025-12-29 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into dns_provider_zones (uuid, integration_token_id, provider_zone_id, name, account_id, account_name, org_id, created_at, updated_at) values ('z5paritydupexamplecom005', 2, 'zone-com-2', 'example.com', 'acc-1', 'Parity Account', deploy.current_org(), '2025-12-29 00:00:00', '2025-12-29 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com-2/dns_records\\?type=A&name=image\\.example\\.com&per_page=100$",
+     "body": {
+      "success": true,
+      "result": []
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.cloudflare\\.com/client/v4/zones/zone-com-2/dns_records$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "rec-dup"
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: create, a token that does not manage it",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "body": {
+    "hostname": "image.example.com",
+    "integration_token_uuid": "i2paritycloudflaretun002"
+   },
+   "http": []
+  },
+  {
+   "name": "dns application: create, a transferred server",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "setup": [
+    "update servers set server_metadata = '{\"transfer\":{\"status\":\"transferred\"}}' where id = 1"
+   ],
+   "body": {
+    "hostname": "image.example.com"
+   },
+   "http": []
+  },
+  {
+   "name": "dns application: create, unknown",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/nonexistentuuid/dns",
+   "body": {
+    "hostname": "image.example.com"
+   }
+  },
+  {
+   "name": "dns application: create with a read token",
+   "token": "read",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns",
+   "body": {
+    "hostname": "image.example.com"
+   }
+  },
+  {
+   "name": "dns service: create a record",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/dns",
+   "body": {
+    "hostname": "web.example.com"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?type=A&name=web\\.example\\.com&per_page=100$",
+     "body": {
+      "success": true,
+      "result": []
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "rec-web"
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns service: create, not a domain of the service",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/dns",
+   "body": {
+    "hostname": "image.example.com"
+   },
+   "http": []
+  },
+  {
+   "name": "dns service: create, unknown",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/nonexistentuuid/dns",
+   "body": {
+    "hostname": "web.example.com"
+   }
+  },
+  {
+   "name": "dns application: replace a record",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns/replace",
+   "body": {
+    "hostname": "image.example.com",
+    "record_id": "rec-other",
+    "current": "198.51.100.7"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?type=A&name=image\\.example\\.com&per_page=100$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "rec-other",
+        "type": "A",
+        "name": "image.example.com",
+        "content": "198.51.100.7",
+        "proxied": false,
+        "ttl": 1,
+        "comment": null
+       }
+      ]
+     },
+     "status": 200
+    },
+    {
+     "match": "^PATCH https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records/rec-other$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "rec-other"
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: replace, the tracked record",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns/replace",
+   "body": {
+    "hostname": "image.example.com",
+    "record_id": "rec-other",
+    "current": "198.51.100.7"
+   },
+   "setupCoolify": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m2paritydnsimage00000002', 1, 1, 'rec-other', 'A', 'image.example.com', '198.51.100.7', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m2paritydnsimage00000002', 1, 1, 'rec-other', 'A', 'image.example.com', '198.51.100.7', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?type=A&name=image\\.example\\.com&per_page=100$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "rec-other",
+        "type": "A",
+        "name": "image.example.com",
+        "content": "198.51.100.7",
+        "proxied": false,
+        "ttl": 1,
+        "comment": "{{ownership:m2paritydnsimage00000002}}"
+       }
+      ]
+     },
+     "status": 200
+    },
+    {
+     "match": "^PATCH https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records/rec-other$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "rec-other"
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: replace, the conflict is gone",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns/replace",
+   "body": {
+    "hostname": "image.example.com",
+    "record_id": "rec-other",
+    "current": "198.51.100.7"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?type=A&name=image\\.example\\.com&per_page=100$",
+     "body": {
+      "success": true,
+      "result": []
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: replace, another record",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns/replace",
+   "body": {
+    "hostname": "image.example.com",
+    "record_id": "rec-x",
+    "current": "198.51.100.7"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?type=A&name=image\\.example\\.com&per_page=100$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "rec-other",
+        "type": "A",
+        "name": "image.example.com",
+        "content": "198.51.100.7",
+        "proxied": false,
+        "ttl": 1,
+        "comment": null
+       }
+      ]
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "dns application: replace, the record changed",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns/replace",
+   "body": {
+    "hostname": "image.example.com",
+    "record_id": "rec-other",
+    "current": "198.51.100.9"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?type=A&name=image\\.example\\.com&per_page=100$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "rec-other",
+        "type": "A",
+        "name": "image.example.com",
+        "content": "198.51.100.7",
+        "proxied": false,
+        "ttl": 1,
+        "comment": null
+       }
+      ]
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "dns application: replace, several records",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns/replace",
+   "body": {
+    "hostname": "image.example.com",
+    "record_id": "rec-other",
+    "current": "198.51.100.7"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?type=A&name=image\\.example\\.com&per_page=100$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "rec-other",
+        "type": "A",
+        "name": "image.example.com",
+        "content": "198.51.100.7",
+        "proxied": false,
+        "ttl": 1,
+        "comment": null
+       },
+       {
+        "id": "rec-b",
+        "type": "A",
+        "name": "image.example.com",
+        "content": "198.51.100.8",
+        "proxied": false,
+        "ttl": 1,
+        "comment": null
+       }
+      ]
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "dns application: replace, refused",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns/replace",
+   "body": {
+    "hostname": "image.example.com",
+    "record_id": "rec-other",
+    "current": "198.51.100.7"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?type=A&name=image\\.example\\.com&per_page=100$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "rec-other",
+        "type": "A",
+        "name": "image.example.com",
+        "content": "198.51.100.7",
+        "proxied": false,
+        "ttl": 1,
+        "comment": null
+       }
+      ]
+     },
+     "status": 200
+    },
+    {
+     "match": "^PATCH https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records/rec-other$",
+     "body": {
+      "success": false,
+      "errors": [
+       {
+        "code": 10000,
+        "message": "Authentication error"
+       }
+      ]
+     },
+     "status": 403
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: replace, failed",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns/replace",
+   "body": {
+    "hostname": "image.example.com",
+    "record_id": "rec-other",
+    "current": "198.51.100.7"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?type=A&name=image\\.example\\.com&per_page=100$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "rec-other",
+        "type": "A",
+        "name": "image.example.com",
+        "content": "198.51.100.7",
+        "proxied": false,
+        "ttl": 1,
+        "comment": null
+       }
+      ]
+     },
+     "status": 200
+    },
+    {
+     "match": "^PATCH https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records/rec-other$",
+     "body": {
+      "success": false,
+      "errors": [
+       {
+        "code": 10000,
+        "message": "Authentication error"
+       }
+      ]
+     },
+     "status": 500
+    }
+   ]
+  },
+  {
+   "name": "dns application: replace, the validation",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns/replace",
+   "body": {
+    "hostname": "image.example.com",
+    "current": 5,
+    "extra": 1
+   },
+   "http": []
+  },
+  {
+   "name": "dns application: replace, not a domain of the application",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns/replace",
+   "body": {
+    "hostname": "nope.example.com",
+    "record_id": "rec-other",
+    "current": "198.51.100.7"
+   },
+   "http": []
+  },
+  {
+   "name": "dns service: replace a record",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/dns/replace",
+   "body": {
+    "hostname": "web.example.com",
+    "record_id": "rec-w",
+    "current": "198.51.100.7"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records\\?type=A&name=web\\.example\\.com&per_page=100$",
+     "body": {
+      "success": true,
+      "result": [
+       {
+        "id": "rec-w",
+        "type": "A",
+        "name": "web.example.com",
+        "content": "198.51.100.7",
+        "proxied": false,
+        "ttl": 1,
+        "comment": null
+       }
+      ]
+     },
+     "status": 200
+    },
+    {
+     "match": "^PATCH https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records/rec-w$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "rec-w"
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: release, deleted",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns/old.example.com",
+   "setupCoolify": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "setupFreeploy": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records/rec-old$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "rec-old",
+       "type": "A",
+       "name": "old.example.com",
+       "content": "203.0.113.10",
+       "proxied": false,
+       "ttl": 1,
+       "comment": "{{ownership:m3paritydnsold0000000003}}"
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^DELETE https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records/rec-old$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "rec-old"
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: release, the hostname as written",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns/OLD.Example.com.",
+   "setupCoolify": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "setupFreeploy": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records/rec-old$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "rec-old",
+       "type": "A",
+       "name": "old.example.com",
+       "content": "203.0.113.10",
+       "proxied": false,
+       "ttl": 1,
+       "comment": "{{ownership:m3paritydnsold0000000003}}"
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^DELETE https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records/rec-old$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "rec-old"
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: release, already gone",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns/old.example.com",
+   "setupCoolify": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "setupFreeploy": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records/rec-old$",
+     "body": {
+      "success": false,
+      "errors": [
+       {
+        "code": 10000,
+        "message": "Authentication error"
+       }
+      ]
+     },
+     "status": 404
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: release, gone while deleting",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns/old.example.com",
+   "setupCoolify": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "setupFreeploy": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records/rec-old$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "rec-old",
+       "type": "A",
+       "name": "old.example.com",
+       "content": "203.0.113.10",
+       "proxied": false,
+       "ttl": 1,
+       "comment": "{{ownership:m3paritydnsold0000000003}}"
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^DELETE https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records/rec-old$",
+     "body": {
+      "success": false,
+      "errors": [
+       {
+        "code": 10000,
+        "message": "Authentication error"
+       }
+      ]
+     },
+     "status": 404
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: release, changed outside",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns/old.example.com",
+   "setupCoolify": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "setupFreeploy": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records/rec-old$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "rec-old",
+       "type": "A",
+       "name": "old.example.com",
+       "content": "198.51.100.7",
+       "proxied": false,
+       "ttl": 1,
+       "comment": "{{ownership:m3paritydnsold0000000003}}"
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: release, another comment",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns/old.example.com",
+   "setupCoolify": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "setupFreeploy": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records/rec-old$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "rec-old",
+       "type": "A",
+       "name": "OLD.example.com",
+       "content": "203.0.113.10",
+       "proxied": false,
+       "ttl": 1,
+       "comment": "{{ownership:m2paritydnsimage00000002}}"
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: release, Cloudflare failed",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns/old.example.com",
+   "setupCoolify": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "setupFreeploy": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records/rec-old$",
+     "body": {
+      "success": false,
+      "errors": [
+       {
+        "code": 10000,
+        "message": "Authentication error"
+       }
+      ]
+     },
+     "status": 500
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: release, the delete failed",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns/old.example.com",
+   "setupCoolify": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "setupFreeploy": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records/rec-old$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "rec-old",
+       "type": "A",
+       "name": "old.example.com",
+       "content": "203.0.113.10",
+       "proxied": false,
+       "ttl": 1,
+       "comment": "{{ownership:m3paritydnsold0000000003}}"
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^DELETE https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records/rec-old$",
+     "body": {
+      "success": false,
+      "errors": [
+       {
+        "code": 10000,
+        "message": "Authentication error"
+       }
+      ]
+     },
+     "status": 500
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: release, Cloudflare unreachable",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns/old.example.com",
+   "setupCoolify": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "setupFreeploy": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records/rec-old$",
+     "failedConnection": true
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: release, not owned",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns/old.example.com",
+   "setupCoolify": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', false, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "setupFreeploy": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', false, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "http": [],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: release, kept on request",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns/old.example.com?delete_record=false",
+   "setupCoolify": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "setupFreeploy": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "http": [],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: release, another application references it",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns/old.example.com",
+   "setupCoolify": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\Application', 2, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "setupFreeploy": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\Application', 2, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "http": [],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: release, a dead reference",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns/old.example.com",
+   "setupCoolify": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\ApplicationPreview', 99, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "setupFreeploy": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\ApplicationPreview', 99, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records/rec-old$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "rec-old",
+       "type": "A",
+       "name": "old.example.com",
+       "content": "203.0.113.10",
+       "proxied": false,
+       "ttl": 1,
+       "comment": "{{ownership:m3paritydnsold0000000003}}"
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^DELETE https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records/rec-old$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "rec-old"
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: release, another application uses the hostname",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns/old.example.com",
+   "setup": [
+    "update applications set fqdn = 'https://old.example.com:3000' where id = 2"
+   ],
+   "setupCoolify": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "setupFreeploy": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "http": [],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: release, a preview uses the hostname",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns/old.example.com",
+   "setup": [
+    "update application_previews set fqdn = 'http://OLD.example.com' where id = 3"
+   ],
+   "setupCoolify": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "setupFreeploy": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "http": [],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: release, still a domain",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns/Image.example.com",
+   "setupCoolify": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m2paritydnsimage00000002', 1, 1, 'rec-image', 'A', 'image.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm2paritydnsimage00000002'"
+   ],
+   "setupFreeploy": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m2paritydnsimage00000002', 1, 1, 'rec-image', 'A', 'image.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm2paritydnsimage00000002'"
+   ],
+   "http": [],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: release, no record",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns/Nothing.example.com",
+   "http": []
+  },
+  {
+   "name": "dns application: release, a record of another resource",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns/old.example.com",
+   "setupCoolify": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\Application', 2, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "setupFreeploy": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\Application', 2, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "http": [],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns application: release, unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/nonexistentuuid/dns/old.example.com"
+  },
+  {
+   "name": "dns application: release with a write token",
+   "token": "write",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns/old.example.com"
+  },
+  {
+   "name": "dns service: release, deleted",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/services/f1parityservice000000001/dns/old-web.example.com",
+   "setupCoolify": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m4paritydnsoldweb0000004', 1, 1, 'rec-oldweb', 'A', 'old-web.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\ServiceApplication', 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm4paritydnsoldweb0000004'"
+   ],
+   "setupFreeploy": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m4paritydnsoldweb0000004', 1, 1, 'rec-oldweb', 'A', 'old-web.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\ServiceApplication', 1, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm4paritydnsoldweb0000004'"
+   ],
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records/rec-oldweb$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "rec-oldweb",
+       "type": "A",
+       "name": "old-web.example.com",
+       "content": "203.0.113.10",
+       "proxied": false,
+       "ttl": 1,
+       "comment": "{{ownership:m4paritydnsoldweb0000004}}"
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^DELETE https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records/rec-oldweb$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "rec-oldweb"
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "dns service: release, still a domain",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/services/f1parityservice000000001/dns/web.example.com",
+   "http": []
+  },
+  {
+   "name": "dns service: release, no record",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/services/f1parityservice000000001/dns/old-web.example.com",
+   "http": []
+  },
+  {
+   "name": "denied: dns zones: list, a member",
+   "token": "memberRead",
+   "method": "GET",
+   "path": "/api/v1/dns/zones"
+  },
+  {
+   "name": "denied: dns application: release, deleted, a member with read:sensitive, deploy and delete",
+   "token": "memberDelete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/dns/old.example.com",
+   "setupCoolify": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'",
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"read:sensitive\",\"deploy\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ],
+   "setupFreeploy": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m3paritydnsold0000000003', 1, 1, 'rec-old', 'A', 'old.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\Application', 1, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm3paritydnsold0000000003'"
+   ],
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records/rec-old$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "rec-old",
+       "type": "A",
+       "name": "old.example.com",
+       "content": "203.0.113.10",
+       "proxied": false,
+       "ttl": 1,
+       "comment": "{{ownership:m3paritydnsold0000000003}}"
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^DELETE https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records/rec-old$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "rec-old"
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
+  },
+  {
+   "name": "denied: dns service: release, deleted, a member with read:sensitive, deploy and delete",
+   "token": "memberDelete",
+   "method": "DELETE",
+   "path": "/api/v1/services/f1parityservice000000001/dns/old-web.example.com",
+   "setupCoolify": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, team_id, created_at, updated_at) values ('m4paritydnsoldweb0000004', 1, 1, 'rec-oldweb', 'A', 'old-web.example.com', '203.0.113.10', true, 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, created_at, updated_at) select id, 'App\\Models\\ServiceApplication', 1, '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm4paritydnsoldweb0000004'",
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"read:sensitive\",\"deploy\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ],
+   "setupFreeploy": [
+    "insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, org_id, created_at, updated_at) values ('m4paritydnsoldweb0000004', 1, 1, 'rec-oldweb', 'A', 'old-web.example.com', '203.0.113.10', true, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, org_id, created_at, updated_at) select id, 'App\\Models\\ServiceApplication', 1, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = 'm4paritydnsoldweb0000004'"
+   ],
+   "http": [
+    {
+     "match": "^GET https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records/rec-oldweb$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "rec-oldweb",
+       "type": "A",
+       "name": "old-web.example.com",
+       "content": "203.0.113.10",
+       "proxied": false,
+       "ttl": 1,
+       "comment": "{{ownership:m4paritydnsoldweb0000004}}"
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^DELETE https://api\\.cloudflare\\.com/client/v4/zones/zone-com/dns_records/rec-oldweb$",
+     "body": {
+      "success": true,
+      "result": {
+       "id": "rec-oldweb"
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "records": "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+    "references": "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id"
+   }
   }
  ]
 }

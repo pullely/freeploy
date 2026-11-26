@@ -260,6 +260,28 @@ export function mask(value: PhpValue, context: { teamIdKey?: boolean } = {}, par
   return value;
 }
 
+/** DP-105: a managed DNS record's ownership comment, Coolify's ("managed-by: coolify <app.id>/<uuid>") or Freeploy's. */
+const OWNERSHIP_COMMENT = /^managed-by: (?:coolify|freeploy) [^/\s]+\/([a-z0-9]{24})$/;
+/** DP-105: uuids a case's setup gives (its managed DNS records): they compare as they are. */
+const SETUP_UUID = /^m\dparitydns[a-z0-9]+$/;
+
+/**
+ * The requests sent to an outside API, masked (DP-105): the ownership comment of a managed DNS record that the request
+ * made (its uuid random) as `managed-by: <instance>/<new-uuid>`, of a record of the case's setup with its uuid. The
+ * brand and the instance differ by design (Coolify's app.id, Freeploy's environment).
+ */
+export function maskRequests(requests: readonly HttpRequestRecord[]): HttpRequestRecord[] {
+  return requests.map((r) => {
+    const body = r.body;
+    if (body === null || typeof body !== "object" || Array.isArray(body)) return r;
+    const comment = (body as Record<string, unknown>).comment;
+    const m = typeof comment === "string" ? OWNERSHIP_COMMENT.exec(comment) : null;
+    if (!m) return r;
+    const uuid = FIXTURE_UUIDS.has(m[1]!) || SETUP_UUID.test(m[1]!) ? m[1]! : "<new-uuid>";
+    return { ...r, body: { ...(body as Record<string, unknown>), comment: `managed-by: <instance>/${uuid}` } };
+  });
+}
+
 /** A JSON body, masked and written again as PHP writes it. */
 export function maskedJson(text: string, context: { teamIdKey?: boolean } = {}): string {
   return phpJsonEncode(mask(fromJs(JSON.parse(text)), context));

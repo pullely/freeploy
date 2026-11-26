@@ -188,7 +188,8 @@ export interface RetryPolicy {
 }
 
 export interface ProviderRequest {
-  method: "get" | "post" | "delete";
+  /** DP-105: a Cloudflare DNS record's replacement is a PATCH. */
+  method: "get" | "post" | "patch" | "delete";
   url: string;
   /** A GET's query (http_build_query of the data, in its order). */
   query?: Array<[string, string | number]>;

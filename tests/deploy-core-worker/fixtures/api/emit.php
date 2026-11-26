@@ -302,6 +302,13 @@ $send = function (array $step) use ($kernel, $tokens, $app): array {
     // loaded (Server's request-scoped identity map is static: in one PHP process it would outlive the request, DP-71).
     $app['auth']->forgetGuards();
     \App\Models\Server::flushIdentityMap();
+    // DP-105: a route keeps the controller it made, and DnsController's CloudflareDnsProvider caches the team's zones
+    // (zonesForTeam()): a new controller for each request, as each request of a PHP process has.
+    foreach ($app['router']->getRoutes()->getRoutes() as $route) {
+        if (str_starts_with((string) ($route->getAction('controller') ?? ''), \App\Http\Controllers\Api\DnsController::class.'@')) {
+            $route->controller = null;
+        }
+    }
     $response = $kernel->handle($request);
     $kernel->terminate($request, $response);
     $text = $response->getContent();
@@ -363,7 +370,17 @@ foreach ($cases['cases'] as $case) {
                     if (! empty($answer['failedConnection'])) {
                         return Http::failedConnection();
                     }
-                    return Http::response(array_key_exists('raw', $answer) ? $answer['raw'] : ($answer['body'] ?? []), $answer['status'] ?? 200, $answer['headers'] ?? []);
+                    // DP-105: a string "{{ownership:<uuid>}}" of the body is the ownership comment Coolify writes for that managed record.
+                    $body = $answer['body'] ?? [];
+                    if (is_array($body)) {
+                        array_walk_recursive($body, function (&$value): void {
+                            if (is_string($value) && preg_match('/^\{\{ownership:([a-z0-9]+)\}\}$/', $value, $m) === 1) {
+                                $value = \App\Models\ManagedDnsRecord::ownershipCommentFor($m[1]);
+                            }
+                        });
+                    }
+
+                    return Http::response(array_key_exists('raw', $answer) ? $answer['raw'] : $body, $answer['status'] ?? 200, $answer['headers'] ?? []);
                 }
             }
 

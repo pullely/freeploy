@@ -44,6 +44,7 @@
 //   /v1/internal/api-v1/{org}/github-apps[/{github_app_id}]                                                    github-apps.ts (DP-88)
 //   /v1/internal/api-v1/{org}/cloud-tokens[/{uuid}[/validate]]                                                 cloud-provider-tokens.ts (DP-90)
 //   /v1/internal/api-v1/{org}/security/integration-tokens[/{uuid}[/sync-zones]]                                integration-tokens.ts (DP-104)
+//   GET /v1/internal/api-v1/{org}/dns/zones, /{applications,services}/{uuid}/dns[/replace|/{hostname}]         dns.ts (DP-105)
 //   /v1/internal/api-v1/{org}/{hetzner,digitalocean,vultr,hostinger}/{catalog}                                 cloud-catalogs.ts (DP-90)
 //   PUT /v1/internal/api-v1/{org}/servers/{uuid}/proxy/configuration                                           proxy-configuration.ts (DP-90)
 //   GET /v1/internal/api-v1/{org}/github-apps/{id}/repositories[/{owner}/{repo}/branches]                        github-repositories.ts (DP-93)
@@ -125,6 +126,7 @@ import { integrationTokensApi } from "./integration-tokens.js";
 import { SECRET_MANAGER_RESOURCE_TYPES, secretManagerApi, type SecretManagerResourceType } from "./secret-manager.js";
 import { instanceEmailApi } from "./instance-email.js";
 import { runPlatformMoreAsAdmin, type PlatformMoreRunner } from "../handlers/platform-settings-more.js";
+import { dnsZones, resourceDnsApi } from "./dns.js";
 import { cloudCatalogsApi } from "./cloud-catalogs.js";
 import type { ProviderNetwork } from "./cloud-providers.js";
 import { saveProxyConfiguration } from "./proxy-configuration.js";
@@ -242,6 +244,11 @@ export async function handleApiV1(request: Request, env: Env, requestId: string,
     // DP-104: the org's integration tokens (Cloudflare, Doppler, Infisical, Vault).
     if (first === "security" && second === "integration-tokens") return send((await integrationTokensApi(context, segments.slice(2))) ?? COOLIFY_API.notFound());
     if (first === "security" && second === "keys") return send(await keys(third, fourth));
+    // DP-105: the org's Cloudflare zones, and the managed DNS records of an application's or a service's domains.
+    if (first === "dns" && second === "zones" && third === undefined) return send(method === "GET" ? await dnsZones(context) : COOLIFY_API.notFound());
+    if ((first === "applications" || first === "services") && second !== undefined && third === "dns") {
+      return send((await resourceDnsApi(context, first === "applications" ? "application" : "service", second, segments.slice(3))) ?? COOLIFY_API.notFound());
+    }
     // DP-85: destinations, a server's destinations, shared variables and Docker cleanup.
     if (first === "servers" && second !== undefined && third === "docker-cleanup") return send((await dockerCleanupApi(context, second, segments.slice(3))) ?? COOLIFY_API.notFound());
     if (first === "destinations") return send((await destinationsApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
