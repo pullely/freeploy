@@ -270,7 +270,6 @@ function SubscriptionActions({ summary, base }: { summary: BillingSummary; base:
                   actions={[
                     "Your subscription will remain active at Polar until the end of the current billing period.",
                     "No further charges will be made after the current period.",
-                    "Your team moves to the Free plan's limits once Freeploy records the cancellation.",
                     "You can resubscribe at any time.",
                   ]}
                   confirmationText={teamName}

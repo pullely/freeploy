@@ -67,6 +67,7 @@ function fakeRepo(state: State): RepoSlice {
         provider: i.provider ?? null,
         providerSubscriptionId: i.providerSubscriptionId ?? null,
         currentPeriodEnd: i.currentPeriodEnd ?? null,
+        cancelAt: i.cancelAt ?? null,
       } as Subscription;
       state.subscriptions.push(sub);
       return { ok: true, value: sub };
@@ -76,6 +77,7 @@ function fakeRepo(state: State): RepoSlice {
       if (patch.status) s.status = patch.status;
       if (patch.provider !== undefined) s.provider = patch.provider;
       if (patch.providerSubscriptionId !== undefined) s.providerSubscriptionId = patch.providerSubscriptionId;
+      if (patch.cancelAt !== undefined) s.cancelAt = patch.cancelAt;
       return { ok: true, value: s };
     },
     upsertEntitlement: async (i): Promise<BillingResult<Entitlement>> => {
@@ -133,6 +135,7 @@ const subEvent = (over: Partial<NormalizedEvent> = {}): VerifyWebhookResult => (
     productId: "prod_b",
     currentPeriodStart: null,
     currentPeriodEnd: null,
+    cancelAt: null,
     ...over,
   } as NormalizedEvent,
 });
@@ -208,6 +211,41 @@ describe("handleWebhookIntake", () => {
     const body = (await res.json()) as { data: { handled: string } };
     expect(body.data.handled).toBe("assigned:free");
     expect(state.subscriptions[0]!.planId).toBe("plan_free");
+  });
+
+  it("keeps the plan and records cancel_at when a cancellation is scheduled for the period's end", async () => {
+    // Polar's subscription.canceled with cancelAtPeriodEnd maps to an update carrying cancelAt:
+    // the team keeps its plan until access ends, and no child is frozen.
+    const state: State = {
+      subscriptions: [
+        { id: "sub_paid", orgId: ORG_HEX, planId: "plan_business", status: "active", provider: "polar", providerSubscriptionId: "sub_1", cancelAt: null } as Subscription,
+      ],
+      entitlements: [],
+    };
+    const calls: Array<{ org: string; mode: string }> = [];
+    const d = {
+      ...deps(subEvent({ type: "subscription.updated", cancelAt: "2026-07-01T00:00:00.000Z" }), state),
+      syncChildren: async (org: string, mode: "refanout" | "freeze") => { calls.push({ org, mode }); },
+    };
+    const res = await handleWebhookIntake(intakeReq(), env, "req_t", d);
+    const body = (await res.json()) as { data: { handled: string } };
+    expect(body.data.handled).toBe("assigned:business");
+    const active = state.subscriptions.filter((x) => x.status === "active");
+    expect(active).toHaveLength(1);
+    expect(active[0]!.planId).toBe("plan_business");
+    expect(active[0]!.cancelAt?.toISOString()).toBe("2026-07-01T00:00:00.000Z");
+    expect(calls.some((c) => c.mode === "freeze")).toBe(false);
+  });
+
+  it("clears cancel_at when the cancellation is withdrawn (uncanceled)", async () => {
+    const state: State = {
+      subscriptions: [
+        { id: "sub_paid", orgId: ORG_HEX, planId: "plan_business", status: "active", provider: "polar", providerSubscriptionId: "sub_1", cancelAt: new Date("2026-07-01T00:00:00Z") } as Subscription,
+      ],
+      entitlements: [],
+    };
+    await handleWebhookIntake(intakeReq(), env, "req_t", deps(subEvent({ type: "subscription.updated", cancelAt: null }), state));
+    expect(state.subscriptions.find((x) => x.id === "sub_paid")!.cancelAt).toBeNull();
   });
 
   it("no-ops on an unmapped product id", async () => {

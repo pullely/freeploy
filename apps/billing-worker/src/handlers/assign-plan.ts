@@ -58,6 +58,8 @@ export interface ProviderLink {
   subscriptionId?: string | null;
   currentPeriodStart?: Date | null;
   currentPeriodEnd?: Date | null;
+  /** The scheduled end of a subscription cancelled at period end; null clears it, undefined leaves it. */
+  cancelAt?: Date | null;
 }
 
 export function parseAssignPlanBody(body: unknown): ParsedAssign | { error: string } {
@@ -182,6 +184,7 @@ export async function assignPlanWithRepos(
         providerSubscriptionId: provider.subscriptionId ?? null,
         ...(provider.currentPeriodStart ? { currentPeriodStart: provider.currentPeriodStart } : {}),
         ...(provider.currentPeriodEnd ? { currentPeriodEnd: provider.currentPeriodEnd } : {}),
+        ...(provider.cancelAt !== undefined ? { cancelAt: provider.cancelAt } : {}),
       });
       if (upd.ok) subscription = upd.value;
       else if (upd.error.kind === "internal") return { kind: "repo_error" };
@@ -208,6 +211,7 @@ export async function assignPlanWithRepos(
             provider: provider.id,
             providerSubscriptionId: provider.subscriptionId ?? null,
             currentPeriodEnd: provider.currentPeriodEnd ?? null,
+            ...(provider.cancelAt ? { cancelAt: provider.cancelAt } : {}),
           }
         : {}),
     });

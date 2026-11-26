@@ -26,8 +26,13 @@ import type { NormalizedEvent } from "../billing-provider/types.js";
  *
  *   - subscription.activated / .updated → assign the plan mapped from the
  *     provider product id (`POLAR_PRODUCT_MAP`) to the billing-parent org.
+ *     A subscription cancelled at period end stays on its plan with its
+ *     scheduled end recorded (`cancel_at`): Polar's `subscription.canceled`
+ *     only requests the cancellation, and access lasts until the period ends.
  *   - subscription.canceled            → downgrade the org to the free plan
- *     (D4: least-destructive; existing children are handled by MO3 fan-out).
+ *     once access has ended (Polar's `subscription.revoked`, or a subscription
+ *     that has ended) (D4: least-destructive; existing children are handled
+ *     by MO3 fan-out).
  *   - invoice.* / ignored              → acknowledged with no state change
  *     (invoice persistence is a follow-up).
  *
@@ -117,6 +122,7 @@ async function applyEvent(
         subscriptionId: event.providerSubscriptionId,
         currentPeriodStart: parseDate(event.currentPeriodStart),
         currentPeriodEnd: parseDate(event.currentPeriodEnd),
+        cancelAt: parseDate(event.cancelAt),
       };
       const result = await assignFor(env, event.orgId, planCode, deps, requestId, provider);
       // Plan changed on the (billing parent) org → propagate to its children.

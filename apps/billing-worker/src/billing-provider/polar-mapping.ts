@@ -109,12 +109,19 @@ export function mapPolarEventToNormalized(
   switch (event.type) {
     case "subscription.created":
     case "subscription.active":
+      if (hasEnded(data)) return { ...base, type: "subscription.canceled", ...subscriptionFields(data) };
       return { ...base, type: "subscription.activated", ...subscriptionFields(data) };
     case "subscription.updated":
     case "subscription.uncanceled":
     case "subscription.past_due":
-      return { ...base, type: "subscription.updated", ...subscriptionFields(data) };
     case "subscription.canceled":
+      // Polar sends `subscription.canceled` when a cancellation is *requested*:
+      // with cancel-at-period-end the customer keeps access until the period
+      // ends, and only `subscription.revoked` (or a subscription that has
+      // ended) takes it away. So the plan is kept and the scheduled end is
+      // recorded as `cancelAt`; the downgrade happens when access ends.
+      if (hasEnded(data)) return { ...base, type: "subscription.canceled", ...subscriptionFields(data) };
+      return { ...base, type: "subscription.updated", ...subscriptionFields(data) };
     case "subscription.revoked":
       return { ...base, type: "subscription.canceled", ...subscriptionFields(data) };
     case "order.created":
@@ -138,6 +145,24 @@ export function mapPolarEventToNormalized(
   }
 }
 
+/**
+ * Whether the subscription's access has already ended: Polar sets `endedAt`
+ * when it ends, and its status is then `canceled` (or `unpaid` once payment
+ * retries are exhausted). A subscription scheduled to cancel at the period's
+ * end is still `active` with `endedAt` null.
+ */
+function hasEnded(data: Data): boolean {
+  if (iso(data.endedAt)) return true;
+  const status = str(data.status);
+  return status === "canceled" || status === "unpaid" || status === "incomplete_expired";
+}
+
+/** When the subscription is scheduled to end (cancel at period end), else null. */
+function scheduledCancelAt(data: Data): string | null {
+  if (data.cancelAtPeriodEnd !== true || hasEnded(data)) return null;
+  return iso(data.endsAt) ?? iso(data.currentPeriodEnd);
+}
+
 function subscriptionFields(data: Data) {
   return {
     orgId: externalId(data),
@@ -146,6 +171,7 @@ function subscriptionFields(data: Data) {
     productId: str(data.productId),
     currentPeriodStart: iso(data.currentPeriodStart),
     currentPeriodEnd: iso(data.currentPeriodEnd),
+    cancelAt: scheduledCancelAt(data),
   };
 }
 

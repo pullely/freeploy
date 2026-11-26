@@ -1,0 +1,19 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-83
+  title: "Billing fix: a cancellation at period end keeps the plan until access ends"
+spec:
+  goal: Polar sends subscription.canceled when a cancellation is requested — with cancel-at-period-end the customer keeps access until the period ends — and subscription.revoked when access ends. billing-worker mapped both to an immediate downgrade to Free and never wrote cancel_at. Map a scheduled cancellation to an update that keeps the plan and records cancel_at (endsAt, else the period's end), clear it on uncanceled, and downgrade only when access has ended (revoked, or a subscription that has ended or is unpaid).
+  affects:
+    - apps/billing-worker/**
+    - tests/billing-worker/**
+    - apps/deploy-web/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - tests/billing-worker's polar-mapping test maps subscription.canceled with cancelAtPeriodEnd to subscription.updated with cancelAt, an ended cancellation and subscription.revoked to subscription.canceled, and uncanceled to cancelAt null
+    - tests/billing-worker's webhook-intake test keeps the paid plan with cancel_at recorded and freezes no child on a scheduled cancellation, and clears cancel_at on uncanceled
+    - on stage with Polar (sandbox), "Cancel at Period End" leaves the team on its plan with /subscription showing "Cancelling at end of period" and the end date
+    - apps/billing-worker, tests/billing-worker and apps/deploy-web pass typecheck, lint and test
+  gates: []

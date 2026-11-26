@@ -93,6 +93,7 @@ describe("mapPolarEventToNormalized", () => {
         productId: "prod_b",
         currentPeriodStart: "2026-06-01T00:00:00.000Z",
         currentPeriodEnd: "2026-07-01T00:00:00.000Z",
+        cancelAt: null,
       });
     }
   });
@@ -104,11 +105,40 @@ describe("mapPolarEventToNormalized", () => {
     }
   });
 
-  it("maps canceled/revoked → subscription.canceled", () => {
-    for (const type of ["subscription.canceled", "subscription.revoked"]) {
-      const ev = mapPolarEventToNormalized("e", { type, data: sub });
-      expect(ev.type).toBe("subscription.canceled");
+  // Polar: `subscription.canceled` — "Customers might still have access until the end of the current
+  // period"; `subscription.revoked` — "the user loses access immediately" (@polar-sh/sdk's webhook payloads).
+  const scheduled = { ...sub, status: "active", cancelAtPeriodEnd: true, endsAt: new Date("2026-07-01T00:00:00Z"), endedAt: null };
+  const ended = { ...sub, status: "canceled", cancelAtPeriodEnd: false, endsAt: new Date("2026-06-15T00:00:00Z"), endedAt: new Date("2026-06-15T00:00:00Z") };
+
+  it("maps a cancellation scheduled for the period's end to an update that keeps the plan and carries cancelAt", () => {
+    const ev = mapPolarEventToNormalized("e", { type: "subscription.canceled", data: scheduled });
+    expect(ev).toMatchObject({ type: "subscription.updated", productId: "prod_b", cancelAt: "2026-07-01T00:00:00.000Z" });
+  });
+
+  it("falls back to the period's end for cancelAt when endsAt is absent", () => {
+    const ev = mapPolarEventToNormalized("e", { type: "subscription.canceled", data: { ...scheduled, endsAt: null } });
+    expect(ev).toMatchObject({ type: "subscription.updated", cancelAt: "2026-07-01T00:00:00.000Z" });
+  });
+
+  it("maps a cancellation that has already ended to subscription.canceled", () => {
+    const ev = mapPolarEventToNormalized("e", { type: "subscription.canceled", data: ended });
+    expect(ev).toMatchObject({ type: "subscription.canceled", cancelAt: null });
+  });
+
+  it("maps revoked → subscription.canceled, whatever the schedule", () => {
+    for (const data of [sub, scheduled, ended]) {
+      expect(mapPolarEventToNormalized("e", { type: "subscription.revoked", data }).type).toBe("subscription.canceled");
     }
+  });
+
+  it("maps an update to an ended or unpaid subscription to subscription.canceled", () => {
+    expect(mapPolarEventToNormalized("e", { type: "subscription.updated", data: ended }).type).toBe("subscription.canceled");
+    expect(mapPolarEventToNormalized("e", { type: "subscription.updated", data: { ...sub, status: "unpaid" } }).type).toBe("subscription.canceled");
+  });
+
+  it("clears cancelAt on uncanceled", () => {
+    const ev = mapPolarEventToNormalized("e", { type: "subscription.uncanceled", data: { ...scheduled, cancelAtPeriodEnd: false } });
+    expect(ev).toMatchObject({ type: "subscription.updated", cancelAt: null });
   });
 
   it("maps order.created → invoice.recorded (due set, paid 0)", () => {
