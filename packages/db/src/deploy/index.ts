@@ -120,6 +120,28 @@ export {
   type DeployTransferServerRow,
 } from "./server-transfer.js";
 export {
+  findImageScanResource,
+  listImageScanDeployments,
+  listImageScanIgnores,
+  listImageScanPolicies,
+  listImageScanResources,
+  listImageScans,
+  listImageScanServers,
+  listImageScanVariables,
+  listLatestFinishedCommits,
+  saveImageScanSummary,
+  type ImageScanApplicationRow,
+  type ImageScanDatabaseRow,
+  type ImageScanDeploymentRow,
+  type ImageScanIgnoreRow,
+  type ImageScanPolicyRow,
+  type ImageScanResources,
+  type ImageScanServerRow,
+  type ImageScanServicePartRow,
+  type ImageScanServiceRow,
+  type ImageScanStoredRow,
+} from "./image-scans.js";
+export {
   listUsableServers,
   listUsableServerDestinations,
   listServerDestinations,

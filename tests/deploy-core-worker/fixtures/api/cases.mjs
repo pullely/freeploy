@@ -4261,6 +4261,384 @@ add({ name: "sqlite: clone", token: "write", method: "POST", path: `${SQLITE_PAT
 add({ name: "sqlite: tags", token: "read", method: "GET", path: `${SQLITE_PATH}/tags`, ...WITH_SQLITE() });
 denial("sqlite: start", "memberDeploy", DEPLOY_DELETE, DEPLOYER);
 
+// ── DP-113: the vulnerabilities of the team and of a resource (VulnerabilitiesController) ──
+// What Coolify's security status engine answers from stored image scans. A case's scans are `imageScans`: emit.php makes
+// each through the model (the JSON casts) and writes its summary as the scanner does — ResourceScans::refreshSummaries():
+// summaryFor() and SecurityStatus::store(), one scan after the other, so a scan's stored status sees the scans, ignores,
+// policies and deployments before it (`stored: false` keeps the summary given, as a row stored before the status was).
+// The test inserts the same rows and writes the summaries with the port. The ignores and the policies are rows of
+// setupCoolify (team_id; the policies have no team) and setupFreeploy (org_id). The clock is the fixture's
+// (2026-01-01T00:00:00Z): "the last check was 4 days ago" is fixed by it.
+const VULNS = "/api/v1/vulnerabilities";
+const APP_VULNS = (uuid) => `/api/v1/applications/${uuid}/vulnerabilities`;
+const SVC_VULNS = (uuid) => `/api/v1/services/${uuid}/vulnerabilities`;
+const DB_VULNS = (uuid) => `/api/v1/databases/${uuid}/vulnerabilities`;
+const SCANNING_ON = "update server_settings set is_image_scan_enabled = true where server_id = 1";
+const SCANNING_ON_OTHER = "update server_settings set is_image_scan_enabled = true where server_id = 2";
+/** One Grype finding as the scanner stores it (Finding::toArray()). */
+const finding = (id, f) => ({
+  id,
+  aliases: f.aliases ?? [],
+  severity: f.severity ?? "high",
+  package: f.package ?? "openssl",
+  version: f.version ?? "3.0.1",
+  type: f.type ?? "deb",
+  artifactId: f.artifactId ?? `art-${id.toLowerCase()}`,
+  fixedIn: f.fixedIn ?? null,
+  fixState: f.fixState ?? (f.fixedIn ? "fixed" : "not-fixed"),
+  kev: f.kev ?? false,
+  epss: f.epss ?? null,
+  risk: f.risk ?? null,
+  summary: f.summary ?? "",
+  layer: "app",
+  cvssScore: f.cvssScore ?? null,
+  title: f.title ?? "",
+  displayId: f.displayId ?? "",
+  namespace: f.namespace ?? "debian:distro:debian:12",
+  matchType: f.matchType ?? "exact-direct-match",
+});
+const DIGEST = (n) => `sha256:${String(n).padStart(64, "0")}`;
+/** A scan row: `owner` is the resource kind emit.php maps to its model (application, serviceApplication, serviceDatabase, postgresql, …). */
+const scan = (uuid, owner, ownerId, image, s = {}) => ({
+  uuid,
+  server_id: s.server_id ?? 1,
+  image_id: s.image_id ?? DIGEST(uuid.slice(1, 3) + "1"),
+  repo_digest: s.repo_digest ?? null,
+  owner,
+  resource_id: ownerId,
+  image_ref: image,
+  deployment_queue_id: s.deployment ?? null,
+  status: s.status ?? "completed",
+  error_code: s.error_code ?? null,
+  error_context: s.error_context ?? null,
+  findings: s.findings ?? [],
+  candidates: s.candidates ?? null,
+  base_image_ref: s.base ?? null,
+  builds_image: s.builds_image ?? false,
+  is_baseline: true,
+  grype_db_built_at: s.db ?? "2025-12-30 06:00:00",
+  scanned_at: s.scanned_at === undefined ? "2025-12-31 12:00:00" : s.scanned_at,
+  eol_distro: s.eol ?? null,
+  truncated: s.truncated ?? false,
+  ...(s.stored === false && { stored: false, summary: s.summary ?? { ignored: 0, eol_distro: null, truncated: false } }),
+});
+const checked = (entries, status = "ok") => ({ status, checked_at: "2025-12-31T12:30:00+00:00", entries });
+const line = (ref, fixed, extra = {}) => ({ kind: "line", better: true, ref, fixed_ids: fixed, scanned_at: "2025-12-31T12:20:00+00:00", ...extra });
+const sameTag = (ref, fixed, extra = {}) => ({ kind: "same_tag", better: true, ref, digest: DIGEST(99), fixed_ids: fixed, scanned_at: "2025-12-31T12:25:00+00:00", ...extra });
+
+// The fleet: a scan (or two) of most resources of team 1, each a branch of the status rules.
+const F_KEV = finding("CVE-2025-1001", { severity: "critical", package: "openssl", version: "3.0.1", fixedIn: "3.0.2", kev: true, epss: 0.92, risk: 88.5, cvssScore: 9.8, title: "OpenSSL allows remote code execution through a crafted certificate." });
+const F_HIGH_FIXED = finding("CVE-2025-1002", { severity: "high", package: "libxml2", version: "2.9.14", fixedIn: "2.9.15", epss: 0.02, risk: 3.1, cvssScore: 7.5, title: "Summary: libxml2 reads out of bounds." });
+const F_MEDIUM_LIKELY = finding("CVE-2025-1003", { severity: "medium", package: "zlib", version: "1.2.13", epss: 0.15, risk: 6.2, cvssScore: 5.3, title: "[1.2.13-1] - zlib heap overflow" });
+const F_LOW = finding("GHSA-aaaa-bbbb-cccc", { severity: "low", package: "lodash", version: "4.17.10", type: "npm", fixedIn: "4.17.21", aliases: ["CVE-2025-1004"], namespace: "github:language:javascript", epss: 0.01, cvssScore: 3.7 });
+const F_CPE_ONLY = finding("CVE-2025-1005", { severity: "high", package: "curl", version: "7.88.1", fixedIn: "7.88.2", namespace: "nvd:cpe", matchType: "cpe-match", epss: 0.6, cvssScore: 8.8 });
+const F_LIKELY_UNFIXED = finding("CVE-2025-1006", { severity: "critical", package: "glibc", version: "2.36", epss: 0.41, risk: 37.3, cvssScore: 9.1, title: "glibc: a buffer overflow in the resolver lets an attacker run code." });
+const F_HIGH_UNFIXED = finding("CVE-2025-1007", { severity: "high", package: "perl", version: "5.36.0", epss: 0.03, cvssScore: 7.8 });
+const F_REDIS_LIKELY = finding("CVE-2025-2001", { severity: "critical", package: "redis", version: "7.2.4", type: "binary", epss: 0.33, risk: 30.1, cvssScore: 9.4, title: "Redis Lua scripts can escape the sandbox." });
+const F_MYSQL_KEV = finding("CVE-2025-3001", { severity: "high", package: "mysql-server", version: "8.0.36", type: "rpm", fixedIn: "8.0.40", kev: true, epss: 0.75, risk: 60.4, cvssScore: 8.1, namespace: "oracle:distro:oraclelinux:9" });
+const F_DRAGONFLY_MEDIUM = finding("CVE-2025-4001", { severity: "medium", package: "libgcrypt", version: "1.10.1", fixedIn: "1.10.2", epss: 0.004, cvssScore: 5.9 });
+const F_DRAGONFLY_MEDIUM_2 = finding("CVE-2025-4002", { severity: "medium", package: "libgcrypt", version: "1.10.1", epss: 0.002, cvssScore: 4.4 });
+const F_SVC_HIGH = finding("CVE-2025-5001", { severity: "high", package: "nginx", version: "1.25.3", type: "apk", fixedIn: "1.25.4", epss: 0.05, risk: 4.4, cvssScore: 8.2, namespace: "alpine:distro:alpine:3.19" });
+const F_GIT_KEV = finding("CVE-2025-6001", { severity: "high", package: "libssl3", version: "3.0.11", fixedIn: "3.0.15", kev: true, epss: 0.81, risk: 66.3, cvssScore: 8.6 });
+const F_OLD_KEV = finding("CVE-2024-9001", { severity: "critical", package: "bash", version: "5.1", fixedIn: "5.2", kev: true, epss: 0.97, cvssScore: 9.9 });
+
+const IGNORE = (id, uuid, vulnerability, pkg, reason, resource, created, expires) => ({
+  coolify: `insert into image_scan_ignores (id, uuid, team_id, resource_type, resource_id, vulnerability_id, package, reason, expires_at, created_by, created_at, updated_at) values (${id}, '${uuid}', ${T1}, ${resource ? `'${resource[0]}'` : "null"}, ${resource ? resource[1] : "null"}, ${vulnerability ? `'${vulnerability}'` : "null"}, ${pkg ? `'${pkg}'` : "null"}, '${reason}', ${expires ? `'${expires}'` : "null"}, null, '${created}', '${created}')`,
+  freeploy: `insert into image_scan_ignores (id, uuid, org_id, resource_type, resource_id, vulnerability_id, package, reason, expires_at, created_by, created_at, updated_at) values (${id}, '${uuid}', deploy.current_org(), ${resource ? `'${resource[0]}'` : "null"}, ${resource ? resource[1] : "null"}, ${vulnerability ? `'${vulnerability}'` : "null"}, ${pkg ? `'${pkg}'` : "null"}, '${reason}', ${expires ? `'${expires}'` : "null"}, null, '${created}', '${created}')`,
+});
+const POLICY = (id, uuid, scopeType, scopeId, countMedium) => ({
+  coolify: `insert into image_scan_policies (id, uuid, scope_type, scope_id, gate_mode, on_scan_error, count_medium, created_at, updated_at) values (${id}, '${uuid}', '${scopeType}', ${scopeId}, null, null, ${countMedium}, '2025-12-01 00:00:00', '2025-12-01 00:00:00')`,
+  freeploy: `insert into image_scan_policies (id, uuid, org_id, scope_type, scope_id, gate_mode, on_scan_error, count_medium, created_at, updated_at) values (${id}, '${uuid}', deploy.current_org(), '${scopeType}', ${scopeId}, null, null, ${countMedium}, '2025-12-01 00:00:00', '2025-12-01 00:00:00')`,
+});
+const DEPLOYMENT = (id, app, uuid, pr, force, commit, status, at) => {
+  const cols = "id, application_id, deployment_uuid, pull_request_id, force_rebuild, commit, status, is_webhook, server_id, destination_id, application_name, server_name, rollback";
+  const values = `${id}, '${app}', '${uuid}', ${pr}, ${force}, '${commit}', '${status}', false, 1, '1', 'parity-app', 'parity-server', false`;
+  return {
+    coolify: `insert into application_deployment_queues (${cols}, created_at, updated_at) values (${values}, '${at}', '${at}')`,
+    freeploy: `insert into application_deployment_queues (${cols}, org_id, created_at, updated_at) values (${values}, deploy.current_org(), '${at}', '${at}')`,
+  };
+};
+/** setupCoolify and setupFreeploy of rows written for each side. */
+const rows = (...list) => ({ setupCoolify: list.map((r) => r.coolify), setupFreeploy: list.map((r) => r.freeploy) });
+const merge = (...parts) => {
+  const out = {};
+  for (const p of parts) for (const [k, v] of Object.entries(p)) out[k] = Array.isArray(v) ? [...(out[k] ?? []), ...v] : v;
+  return out;
+};
+const MORPH_TEAM = "App\\Models\\Team";
+const MORPH_SERVER = "App\\Models\\Server";
+const MORPH_APP = "App\\Models\\Application";
+
+const FLEET_IGNORES = rows(
+  // Team-wide, of a problem without an exploit signal: it applies.
+  IGNORE(1, "n1parityignorehigh000001", "CVE-2025-1002", null, "Not reachable from outside", null, "2025-12-01 00:00:00", null),
+  // Of the KEV problem, made more than 90 days ago: an ignore of an exploit signal ends after 90 days.
+  IGNORE(2, "n2parityignorekevold0002", "cve-2025-1001", null, "Old decision", null, "2025-09-01 00:00:00", null),
+  // Expired.
+  IGNORE(3, "n3parityignoreexpired003", "CVE-2025-1003", null, "Expired", null, "2025-11-01 00:00:00", "2025-12-15 00:00:00"),
+  // A package of the image application, until February.
+  IGNORE(4, "n4parityignorepackage004", null, "perl", "Only used at build time", [MORPH_APP, 1], "2025-12-20 00:00:00", "2026-02-01 00:00:00"),
+  // A package of another resource: not the image application's.
+  IGNORE(5, "n5parityignoreotherres05", null, "openssl", "Another resource", [MORPH_APP, 2], "2025-12-20 00:00:00", null),
+);
+const FLEET_POLICIES = rows(
+  // The team counts medium problems; the server does not override it.
+  POLICY(11, "u1paritypolicyteam000001", MORPH_TEAM, T1, true),
+  POLICY(12, "u2paritypolicyserver00002", MORPH_SERVER, 1, null),
+);
+const FLEET_SCANS = [
+  // The image application (nginx:alpine, pulled): update_now. Its newer tag fixes the KEV problem and the high one; a newer
+  // build of the tag fixes the medium one with an EPSS signal; the CPE-only match does not count; glibc has no fix.
+  scan("r1parityscanimageapp0001", "application", 1, "nginx:alpine", {
+    findings: [F_LOW, F_HIGH_FIXED, F_KEV, F_MEDIUM_LIKELY, F_CPE_ONLY, F_LIKELY_UNFIXED, F_HIGH_UNFIXED],
+    candidates: checked([line("nginx:1.27.4-alpine", ["CVE-2025-1001", "cve-2025-1002"], { added: 2 }), sameTag("nginx:alpine", ["CVE-2025-1003"])]),
+  }),
+  // The Git application (Nixpacks): no_fix, a builder image — every problem with a signal is an OS package with a fix.
+  scan("r2parityscangitapp000002", "application", 2, "a2paritygitapp0000000002:a1b2c3d", {
+    deployment: 5,
+    builds_image: true,
+    findings: [F_GIT_KEV],
+  }),
+  // PostgreSQL: an older scan with a KEV problem, then the current one: ok (a high problem with no fix and no signal).
+  scan("r3parityscanpgold000003", "postgresql", 1, "postgres:16-alpine", { image_id: DIGEST(31), scanned_at: "2025-12-20 10:00:00", findings: [F_OLD_KEV], candidates: checked([], "no_better") }),
+  scan("r4parityscanpgnew000004", "postgresql", 1, "postgres:16-alpine", { image_id: DIGEST(32), findings: [F_HIGH_UNFIXED], candidates: checked([], "no_better") }),
+  // Redis: no_fix (a likely problem without a fix).
+  scan("r5parityscanredis000005", "redis", 1, "redis:7.2", { findings: [F_REDIS_LIKELY], candidates: checked([{ kind: "major", better: false, ref: "redis:8.0", fixes_problems: false, fixed_ids: [] }]) }),
+  // MongoDB: scanned four days ago, check_needed (stale).
+  scan("r6parityscanmongo000006", "mongodb", 1, "mongo:7", { scanned_at: "2025-12-28 00:00:00", db: "2025-12-27 06:00:00", candidates: checked([], "no_better") }),
+  // MySQL: the vulnerability database was eleven days old, check_needed (db_outdated), over an update_now.
+  scan("r7parityscanmysql000007", "mysql", 1, "mysql:8", { db: "2025-12-20 06:00:00", findings: [F_MYSQL_KEV], candidates: checked([line("mysql:8.4", ["CVE-2025-3001"])]) }),
+  // MariaDB: the report was cut, check_needed (truncated).
+  scan("r8parityscanmariadb00008", "mariadb", 1, "mariadb:11", { truncated: true, candidates: checked([], "no_better") }),
+  // KeyDB: the scanned image is not the configured one, check_needed (image_changed).
+  scan("r9parityscankeydb000009", "keydb", 1, "eqalpha/keydb:6.3", { candidates: checked([], "no_better") }),
+  // Dragonfly: two medium problems, counted by the team's policy; a newer build fixes one: update_available.
+  scan("s1parityscandragonfly001", "dragonfly", 1, "docker.dragonflydb.io/dragonflydb/dragonfly", {
+    findings: [F_DRAGONFLY_MEDIUM, F_DRAGONFLY_MEDIUM_2],
+    candidates: checked([sameTag("docker.dragonflydb.io/dragonflydb/dragonfly:latest", ["CVE-2025-4001"])]),
+  }),
+  // ClickHouse: a failed and a queued scan only — no current scan: not_checked.
+  scan("s2parityscanclickfail002", "clickhouse", 1, "clickhouse/clickhouse-server:25.11", { image_id: DIGEST(41), status: "failed", error_code: "pull_failed", scanned_at: null }),
+  scan("s3parityscanclickqueue03", "clickhouse", 1, "clickhouse/clickhouse-server:25.11", { image_id: DIGEST(42), status: "queued", scanned_at: null }),
+  // The service's web application: a newer tag fixes a high problem (update_available); its database has no scan:
+  // check_needed (1 of 2 images were checked).
+  scan("s4parityscanserviceweb04", "serviceApplication", 1, "nginx:alpine", { findings: [F_SVC_HIGH], candidates: checked([line("nginx:1.27.4-alpine", ["CVE-2025-5001"])]) }),
+  // The other team's application: never shown.
+  scan("s5parityscanotherteam005", "application", 3, "redis:7", { server_id: 2, findings: [F_KEV], candidates: checked([line("redis:7.4", ["CVE-2025-1001"])]) }),
+];
+const FLEET = merge({ setup: [SCANNING_ON, SCANNING_ON_OTHER] }, FLEET_IGNORES, FLEET_POLICIES, { imageScans: FLEET_SCANS });
+/** The fleet's rows with only the scans of these owners ("<owner>:<id>"), for a resource page's cases. */
+const FLEET_OF = (...owners) => merge({ setup: [SCANNING_ON, SCANNING_ON_OTHER] }, FLEET_IGNORES, FLEET_POLICIES, { imageScans: FLEET_SCANS.filter((s) => owners.includes(`${s.owner}:${s.resource_id}`)) });
+const APP1 = FLEET_OF("application:1");
+const SUMMARIES = { scans: "select uuid, summary::jsonb::text as summary from image_scans where server_id = 1 order by id" };
+const WITH_FLEET = { ...FLEET, after: SUMMARIES };
+
+// GET /vulnerabilities
+add({ name: "vulnerabilities: list, scanning off", token: "read", method: "GET", path: VULNS });
+add({ name: "vulnerabilities: list, nothing scanned", token: "read", method: "GET", path: VULNS, setup: [SCANNING_ON] });
+add({ name: "vulnerabilities: list", token: "read", method: "GET", path: VULNS, ...WITH_FLEET });
+add({ name: "vulnerabilities: list, a member", token: "memberRead", method: "GET", path: VULNS, ...APP1 });
+add({ name: "vulnerabilities: list with a root token", token: "root", method: "GET", path: VULNS, ...APP1 });
+add({ name: "vulnerabilities: list with a write-only token", token: "writeOnly", method: "GET", path: VULNS, setup: [SCANNING_ON] });
+add({ name: "vulnerabilities: list by status", token: "read", method: "GET", path: `${VULNS}?status=update_now,no_fix`, ...FLEET });
+add({ name: "vulnerabilities: list by status, upper case and spaces", token: "read", method: "GET", path: `${VULNS}?status=%20OK%20,,CHECK_NEEDED`, ...FLEET });
+add({ name: "vulnerabilities: list by status, repeated", token: "read", method: "GET", path: `${VULNS}?status=not_checked,not_checked`, ...FLEET });
+add({ name: "vulnerabilities: list by status, empty", token: "read", method: "GET", path: `${VULNS}?status=`, ...FLEET });
+add({ name: "vulnerabilities: list by an unknown status", token: "read", method: "GET", path: `${VULNS}?status=update_now,broken`, setup: [SCANNING_ON] });
+add({ name: "vulnerabilities: list by status as an array", token: "read", method: "GET", path: `${VULNS}?status[]=ok`, setup: [SCANNING_ON] });
+add({ name: "vulnerabilities: list, the image application's scanning off", token: "read", method: "GET", path: VULNS, ...merge(FLEET, { setup: ["update application_settings set is_image_scan_enabled = false where application_id = 1"] }) });
+add({ name: "vulnerabilities: list, a summary stored before the status", token: "read", method: "GET", path: VULNS, setup: [SCANNING_ON], imageScans: [
+  scan("s6parityscanunstored0006", "redis", 1, "redis:7.2", { stored: false, findings: [F_REDIS_LIKELY], candidates: checked([]) }),
+  scan("s7parityscanstoredpg0007", "postgresql", 1, "postgres:16-alpine", { findings: [F_KEV], candidates: checked([line("postgres:16.6-alpine", ["CVE-2025-1001"])]) }),
+] });
+
+// GET /applications/{uuid}/vulnerabilities
+add({ name: "vulnerabilities: application", token: "read", method: "GET", path: APP_VULNS(A_IMAGE), ...WITH_FLEET });
+add({ name: "vulnerabilities: application, a member", token: "memberRead", method: "GET", path: APP_VULNS(A_IMAGE), ...APP1 });
+add({ name: "vulnerabilities: application, scanning off", token: "read", method: "GET", path: APP_VULNS(A_IMAGE) });
+add({ name: "vulnerabilities: application, its scanning off", token: "read", method: "GET", path: APP_VULNS(A_IMAGE), ...merge(APP1, { setup: ["update application_settings set is_image_scan_enabled = false where application_id = 1"] }) });
+add({ name: "vulnerabilities: application, never scanned", token: "read", method: "GET", path: APP_VULNS(A_IMAGE), setup: [SCANNING_ON] });
+add({ name: "vulnerabilities: application, a builder image", token: "read", method: "GET", path: APP_VULNS(A_GIT), ...FLEET_OF("application:2") });
+add({ name: "vulnerabilities: application, fixed only", token: "read", method: "GET", path: `${APP_VULNS(A_IMAGE)}?state=fixed`, ...APP1 });
+add({ name: "vulnerabilities: application, no fix and ignored", token: "read", method: "GET", path: `${APP_VULNS(A_IMAGE)}?state=NO_FIX,ignored`, ...APP1 });
+add({ name: "vulnerabilities: application, critical and high", token: "read", method: "GET", path: `${APP_VULNS(A_IMAGE)}?severity=critical,high`, ...APP1 });
+add({ name: "vulnerabilities: application, by image", token: "read", method: "GET", path: `${APP_VULNS(A_IMAGE)}?image=nginx:alpine`, ...APP1 });
+add({ name: "vulnerabilities: application, by another image", token: "read", method: "GET", path: `${APP_VULNS(A_IMAGE)}?image=nginx:latest`, ...APP1 });
+add({ name: "vulnerabilities: application, a search", token: "read", method: "GET", path: `${APP_VULNS(A_IMAGE)}?search=%20LIBXML%20`, ...APP1 });
+add({ name: "vulnerabilities: application, a search of an alias", token: "read", method: "GET", path: `${APP_VULNS(A_IMAGE)}?search=cve-2025-1004`, ...APP1 });
+add({ name: "vulnerabilities: application, a search of a version", token: "read", method: "GET", path: `${APP_VULNS(A_IMAGE)}?search=2.36`, ...APP1 });
+add({ name: "vulnerabilities: application, a page", token: "read", method: "GET", path: `${APP_VULNS(A_IMAGE)}?page=2&per_page=3`, ...APP1 });
+add({ name: "vulnerabilities: application, past the last page", token: "read", method: "GET", path: `${APP_VULNS(A_IMAGE)}?page=9&per_page=200`, ...APP1 });
+add({ name: "vulnerabilities: application, page zero", token: "read", method: "GET", path: `${APP_VULNS(A_IMAGE)}?page=0`, ...APP1 });
+add({ name: "vulnerabilities: application, a page that is not a number", token: "read", method: "GET", path: `${APP_VULNS(A_IMAGE)}?page=two&per_page=1.5`, ...APP1 });
+add({ name: "vulnerabilities: application, too many per page", token: "read", method: "GET", path: `${APP_VULNS(A_IMAGE)}?per_page=201`, ...APP1 });
+add({ name: "vulnerabilities: application, an unknown state", token: "read", method: "GET", path: `${APP_VULNS(A_IMAGE)}?state=fixed,open&severity=urgent`, ...APP1 });
+add({ name: "vulnerabilities: application, an unknown severity", token: "read", method: "GET", path: `${APP_VULNS(A_IMAGE)}?severity=urgent`, ...APP1 });
+add({ name: "vulnerabilities: application, a state as an array", token: "read", method: "GET", path: `${APP_VULNS(A_IMAGE)}?state[]=fixed&search=${"x".repeat(201)}`, ...APP1 });
+add({ name: "vulnerabilities: application, an image too long", token: "read", method: "GET", path: `${APP_VULNS(A_IMAGE)}?image=${"n".repeat(1001)}`, ...APP1 });
+add({ name: "vulnerabilities: application, unknown", token: "read", method: "GET", path: APP_VULNS("nonexistentuuid"), ...APP1 });
+add({ name: "vulnerabilities: application, another team's", token: "read", method: "GET", path: APP_VULNS(A_OTHER), ...APP1 });
+add({ name: "vulnerabilities: application, a database's uuid", token: "read", method: "GET", path: APP_VULNS(DB_PG), ...APP1 });
+add({ name: "vulnerabilities: application with a write-only token", token: "writeOnly", method: "GET", path: APP_VULNS(A_IMAGE), ...APP1 });
+
+// GET /services/{uuid}/vulnerabilities
+add({ name: "vulnerabilities: service", token: "read", method: "GET", path: SVC_VULNS(SV_MAIN), ...FLEET_OF("serviceApplication:1", "serviceDatabase:1") });
+add({ name: "vulnerabilities: service, scanning off", token: "read", method: "GET", path: SVC_VULNS(SV_MAIN) });
+add({ name: "vulnerabilities: service, never scanned", token: "read", method: "GET", path: SVC_VULNS(SV_MAIN), setup: [SCANNING_ON] });
+add({ name: "vulnerabilities: service, its database excluded", token: "read", method: "GET", path: SVC_VULNS(SV_MAIN), ...merge(FLEET, { setup: ["update service_databases set exclude_from_status = true where id = 1"] }) });
+add({ name: "vulnerabilities: service, unknown", token: "read", method: "GET", path: SVC_VULNS("nonexistentuuid"), ...APP1 });
+add({ name: "vulnerabilities: service, another team's", token: "read", method: "GET", path: SVC_VULNS(SV_OTHER), ...APP1 });
+
+// GET /databases/{uuid}/vulnerabilities
+for (const [label, uuid, owner] of [["PostgreSQL", DB_PG, "postgresql"], ["Redis", DB_REDIS, "redis"], ["MongoDB", DB_MONGO, "mongodb"], ["MySQL", DB_MYSQL, "mysql"], ["MariaDB", DB_MARIA, "mariadb"], ["KeyDB", DB_KEYDB, "keydb"], ["Dragonfly", DB_DRAGONFLY, "dragonfly"], ["ClickHouse", DB_CLICKHOUSE, "clickhouse"]]) {
+  add({ name: `vulnerabilities: database, ${label}`, token: "read", method: "GET", path: DB_VULNS(uuid), ...FLEET_OF(`${owner}:1`) });
+}
+add({ name: "vulnerabilities: database, scanning off", token: "read", method: "GET", path: DB_VULNS(DB_PG) });
+add({ name: "vulnerabilities: database, Dragonfly without the team's policy", token: "read", method: "GET", path: DB_VULNS(DB_DRAGONFLY), ...merge({ setup: [SCANNING_ON] }, { imageScans: FLEET_SCANS.filter((s) => s.owner === "dragonfly") }) });
+add({ name: "vulnerabilities: database, Dragonfly with the server's policy off", token: "read", method: "GET", path: DB_VULNS(DB_DRAGONFLY), ...merge({ setup: [SCANNING_ON] }, rows(POLICY(11, "u1paritypolicyteam000001", MORPH_TEAM, T1, true), POLICY(12, "u2paritypolicyserver00002", MORPH_SERVER, 1, false)), { imageScans: FLEET_SCANS.filter((s) => s.owner === "dragonfly"), after: SUMMARIES }) });
+add({ name: "vulnerabilities: database, unknown", token: "read", method: "GET", path: DB_VULNS("nonexistentuuid"), ...APP1 });
+add({ name: "vulnerabilities: database, another team's", token: "read", method: "GET", path: DB_VULNS(DB_OTHER), ...APP1 });
+add({ name: "vulnerabilities: database, an application's uuid", token: "read", method: "GET", path: DB_VULNS(A_IMAGE), ...APP1 });
+
+// The current scan of a resource: its latest finished deployment that is not a preview decides, not the scan time; the
+// other images of that deployment are current too, a scan of a preview never is (and stores no status).
+const CURRENT = merge(
+  { setup: [SCANNING_ON, "update application_deployment_queues set status = 'finished' where id = 2"] },
+  rows(DEPLOYMENT(11, 1, "q11parityimagepr00000011", 7, false, "HEAD", "finished", "2025-12-31 13:00:00")),
+  {
+    imageScans: [
+      scan("s8parityscandeploy00008", "application", 1, "nginx:alpine", { image_id: DIGEST(81), deployment: 3, scanned_at: "2025-12-30 10:00:00", findings: [F_HIGH_FIXED], candidates: checked([line("nginx:1.27.4-alpine", ["CVE-2025-1002"])]) }),
+      scan("s9parityscandeploy00009", "application", 1, "nginx:alpine", { image_id: DIGEST(82), deployment: 3, scanned_at: "2025-12-30 10:05:00", findings: [F_SVC_HIGH], candidates: checked([sameTag("nginx:alpine", ["CVE-2025-5001"])]) }),
+      scan("t1parityscannodeploy0001", "application", 1, "nginx:alpine", { image_id: DIGEST(83), scanned_at: "2025-12-31 15:00:00", findings: [F_KEV], candidates: checked([line("nginx:1.27.4-alpine", ["CVE-2025-1001"])]) }),
+      scan("t2parityscanpreview00002", "application", 1, "nginx:alpine", { image_id: DIGEST(84), deployment: 11, scanned_at: "2025-12-31 16:00:00", findings: [F_KEV], candidates: checked([]) }),
+      scan("t3parityscanoldfinish003", "application", 1, "nginx:alpine", { image_id: DIGEST(85), deployment: 2, scanned_at: "2025-12-31 17:00:00", findings: [F_MEDIUM_LIKELY], candidates: checked([]) }),
+    ],
+    after: SUMMARIES,
+  },
+);
+add({ name: "vulnerabilities: application, the current deployment's scans", token: "read", method: "GET", path: APP_VULNS(A_IMAGE), ...CURRENT });
+add({ name: "vulnerabilities: list, the current deployment's scans", token: "read", method: "GET", path: VULNS, ...CURRENT });
+
+// A service whose images run the same tag and update to the same tag: one action for both ("Update web and db to …").
+const SAME_TAG_SERVICE = merge({ setup: [SCANNING_ON, "update service_databases set image = 'nginx:alpine', human_name = 'Database' where id = 1"] }, {
+  imageScans: [
+    scan("t4parityscanserviceweb04", "serviceApplication", 1, "nginx:alpine", { findings: [F_KEV], candidates: checked([line("nginx:1.27.4-alpine", ["CVE-2025-1001"])]) }),
+    scan("t5parityscanservicedb005", "serviceDatabase", 1, "nginx:alpine", { findings: [F_SVC_HIGH, F_LIKELY_UNFIXED], candidates: checked([line("nginx:1.27.4-alpine", ["CVE-2025-5001"])]) }),
+  ],
+  after: SUMMARIES,
+});
+add({ name: "vulnerabilities: service, both images updated by one tag", token: "read", method: "GET", path: SVC_VULNS(SV_MAIN), ...SAME_TAG_SERVICE });
+add({ name: "vulnerabilities: list, both images of a service updated by one tag", token: "read", method: "GET", path: VULNS, ...SAME_TAG_SERVICE });
+// An image set by a service variable (`${WEB_IMAGE}` resolved through the service's environment variable).
+add({ name: "vulnerabilities: service, an image set by a variable", token: "read", method: "GET", path: SVC_VULNS(SV_MAIN), ...merge(
+  { setup: [SCANNING_ON, "update service_applications set image = '${WEB_IMAGE:-nginx:1.25}' where id = 1"] },
+  {
+    serviceVariables: [{ service: 1, key: "WEB_IMAGE", value: "nginx:alpine" }],
+    imageScans: [
+      scan("t6parityscanvariable0006", "serviceApplication", 1, "nginx:alpine", { findings: [F_SVC_HIGH], candidates: checked([line("nginx:1.27.4-alpine", ["CVE-2025-5001"])]) }),
+      scan("t7parityscanvariabledb07", "serviceDatabase", 1, "postgres:16-alpine", { findings: [], candidates: checked([], "no_better") }),
+    ],
+    after: SUMMARIES,
+  },
+) });
+
+// A Dockerfile application: a newer base image, a rebuild without cache, a package upgrade, and what a rebuild without
+// cache did not fix (upgrade it in the Dockerfile).
+const F_BASE_FIXED = finding("CVE-2025-7001", { severity: "critical", package: "libc6", version: "2.36-9", fixedIn: "2.36-9+deb12u9", epss: 0.12, cvssScore: 9.3, kev: true, risk: 70.2 });
+const F_BASE_STAYS = finding("CVE-2025-7002", { severity: "high", package: "libexpat1", version: "2.5.0-1", fixedIn: "2.5.0-1+deb12u2", epss: 0.21, cvssScore: 8.1, risk: 12.6 });
+const F_OWN_OS = finding("CVE-2025-7003", { severity: "high", package: "imagemagick", version: "6.9.11", fixedIn: "6.9.12", epss: 0.01, cvssScore: 7.1 });
+const F_SURVIVOR = finding("CVE-2025-7004", { severity: "high", package: "libssl3", version: "3.0.11-1", fixedIn: "3.0.15-1", epss: 0.02, cvssScore: 7.4 });
+const F_NPM_A = finding("GHSA-1111-2222-3333", { severity: "high", package: "lodash", version: "3.10.1", type: "npm", fixedIn: "4.17.20", aliases: ["CVE-2025-7005"], namespace: "github:language:javascript", epss: 0.03, cvssScore: 7.2 });
+const F_NPM_B = finding("GHSA-4444-5555-6666", { severity: "critical", package: "lodash", version: "3.10.1", type: "npm", fixedIn: "v4.17.21", namespace: "github:language:javascript", epss: 0.06, cvssScore: 9.1 });
+const DOCKERFILE = merge(
+  { setup: [SCANNING_ON, "update applications set build_pack = 'dockerfile', dockerfile = null where id = 2"] },
+  rows(
+    DEPLOYMENT(12, 2, "q12paritygitfirst0000012", 0, false, "c0ffee1", "finished", "2025-12-29 09:00:00"),
+    DEPLOYMENT(13, 2, "q13paritygitnocache00013", 0, true, "c0ffee2", "finished", "2025-12-30 09:00:00"),
+    DEPLOYMENT(14, 2, "q14paritygitlatest000014", 0, false, "c0ffee3", "finished", "2025-12-31 09:00:00"),
+  ),
+  {
+    imageScans: [
+      scan("t8parityscandockerfile08", "application", 2, "a2paritygitapp0000000002:c0ffee1", { image_id: DIGEST(91), deployment: 12, builds_image: true, base: "node:20-bookworm", scanned_at: "2025-12-29 09:10:00", findings: [F_SURVIVOR, F_OWN_OS] }),
+      scan("t9parityscandockerfile09", "application", 2, "a2paritygitapp0000000002:c0ffee2", { image_id: DIGEST(92), deployment: 13, builds_image: true, base: "node:20-bookworm", scanned_at: "2025-12-30 09:10:00", findings: [F_SURVIVOR] }),
+      scan("u1parityscandockerfile10", "application", 2, "a2paritygitapp0000000002:c0ffee3", {
+        image_id: DIGEST(93),
+        deployment: 14,
+        builds_image: true,
+        base: "node:20-bookworm",
+        findings: [F_BASE_FIXED, F_BASE_STAYS, F_OWN_OS, F_SURVIVOR, F_NPM_A, F_NPM_B],
+        candidates: { status: "ok", checked_at: "2025-12-31T12:30:00+00:00", entries: [], base: { image: "node:20-bookworm", status: "ok", attributable: 2, attributable_ids: ["CVE-2025-7001", "CVE-2025-7002"], entries: [line("node:20.18-bookworm", ["CVE-2025-7001"])] } },
+      }),
+    ],
+    after: SUMMARIES,
+  },
+);
+add({ name: "vulnerabilities: application, a Dockerfile build", token: "read", method: "GET", path: APP_VULNS(A_GIT), ...DOCKERFILE });
+add({ name: "vulnerabilities: list, a Dockerfile build", token: "read", method: "GET", path: VULNS, ...DOCKERFILE });
+add({ name: "vulnerabilities: application, a Dockerfile build without its base check", token: "read", method: "GET", path: APP_VULNS(A_GIT), ...merge(
+  { setup: [SCANNING_ON, "update applications set build_pack = 'dockerfile' where id = 2"] },
+  rows(DEPLOYMENT(14, 2, "q14paritygitlatest000014", 0, false, "c0ffee3", "finished", "2025-12-31 09:00:00")),
+  { imageScans: [scan("u2parityscandockerfile11", "application", 2, "a2paritygitapp0000000002:c0ffee3", { deployment: 14, builds_image: true, base: "node:20-bookworm", findings: [F_BASE_FIXED, F_NPM_A] })], after: SUMMARIES },
+) });
+add({ name: "vulnerabilities: application, a Dockerfile build of another commit", token: "read", method: "GET", path: APP_VULNS(A_GIT), ...merge(
+  { setup: [SCANNING_ON, "update applications set build_pack = 'dockerfile' where id = 2"] },
+  rows(DEPLOYMENT(14, 2, "q14paritygitlatest000014", 0, false, "c0ffee3", "finished", "2025-12-31 09:00:00"), DEPLOYMENT(15, 2, "q15paritygitnewer0000015", 0, false, "d00d000", "finished", "2025-12-31 18:00:00")),
+  { imageScans: [scan("u3parityscandockerfile12", "application", 2, "a2paritygitapp0000000002:c0ffee3", { deployment: 14, builds_image: true, findings: [F_OWN_OS] })], after: SUMMARIES },
+) });
+
+// An image the team builds in its CI (a Docker image application whose scan says it builds the image), an end-of-life OS
+// that a newer tag leaves, and the version check that has not run.
+add({ name: "vulnerabilities: application, built in CI", token: "read", method: "GET", path: APP_VULNS(A_IMAGE), setup: [SCANNING_ON], imageScans: [
+  scan("u4parityscanbuiltinci014", "application", 1, "nginx:alpine", { builds_image: true, findings: [F_OWN_OS, F_NPM_A, F_KEV], candidates: checked([line("nginx:1.27.4-alpine", ["CVE-2025-1001"])]) }),
+], after: SUMMARIES });
+add({ name: "vulnerabilities: application, an end-of-life OS", token: "read", method: "GET", path: APP_VULNS(A_IMAGE), setup: [SCANNING_ON], imageScans: [
+  scan("u5parityscaneol000000015", "application", 1, "nginx:alpine", { eol: { name: "alpine", version: "3.16" }, findings: [F_HIGH_UNFIXED], candidates: checked([line("nginx:1.27.4-alpine", []), sameTag("nginx:alpine", [], { eol: true })]) }),
+], after: SUMMARIES });
+add({ name: "vulnerabilities: list, an end-of-life OS", token: "read", method: "GET", path: VULNS, setup: [SCANNING_ON], imageScans: [
+  scan("u6parityscaneolpg0000016", "postgresql", 1, "postgres:16-alpine", { eol: { name: "alpine", version: "3.16" }, candidates: checked([line("postgres:16.6-alpine", [], { eol: true })]) }),
+  scan("u7parityscaneolredis0017", "redis", 1, "redis:7.2", { eol: { name: "debian", version: "10" }, candidates: checked([sameTag("redis:7.2", [])]) }),
+], after: SUMMARIES });
+add({ name: "vulnerabilities: application, versions not checked", token: "read", method: "GET", path: APP_VULNS(A_IMAGE), setup: [SCANNING_ON], imageScans: [
+  scan("u8parityscannoversions18", "application", 1, "nginx:alpine", { findings: [F_HIGH_UNFIXED] }),
+], after: SUMMARIES });
+add({ name: "vulnerabilities: list, version checks Coolify cannot finish", token: "read", method: "GET", path: VULNS, setup: [SCANNING_ON], imageScans: [
+  scan("u9parityscanauthneeded19", "postgresql", 1, "postgres:16-alpine", { findings: [F_HIGH_UNFIXED], candidates: { status: "auth_required", checked_at: "2025-12-31T12:30:00+00:00", entries: [] } }),
+  scan("v1parityscandailylimit20", "redis", 1, "redis:7.2", { findings: [F_HIGH_UNFIXED], candidates: { status: "failed", error: "daily_limit", checked_at: "2025-12-31T12:30:00+00:00", entries: [] } }),
+  scan("v2parityscanlockbusy0021", "mongodb", 1, "mongo:7", { findings: [F_HIGH_UNFIXED], candidates: { status: "failed", error: "lock_busy", checked_at: "2025-12-31T12:30:00+00:00", entries: [] } }),
+  scan("v3parityscanlegacylist22", "mysql", 1, "mysql:8", { findings: [F_MYSQL_KEV], candidates: [line("mysql:8.4", ["CVE-2025-3001"])] }),
+], after: SUMMARIES });
+
+// A Compose application: the images of its current deployment, one of them not finished, and an image of the Compose file
+// without a row; an image set by a variable is left out.
+const COMPOSE_FILE = "services:\n  web:\n    image: nginx:alpine\n  worker:\n    image: redis:7.2\n  cache:\n    image: ${CACHE_IMAGE}\n  api:\n    build: .\n";
+const COMPOSE = merge(
+  { setup: [SCANNING_ON, `update applications set build_pack = 'dockercompose', compose_parsing_version = '3', docker_compose_raw = '${COMPOSE_FILE}', docker_compose = '${COMPOSE_FILE}' where id = 2`] },
+  rows(DEPLOYMENT(16, 2, "q16paritycompose00000016", 0, false, "c0ffee9", "finished", "2025-12-31 09:00:00")),
+  {
+    imageScans: [
+      scan("v4parityscancomposeweb23", "application", 2, "nginx:alpine", { image_id: DIGEST(101), deployment: 16, findings: [F_KEV], candidates: checked([line("nginx:1.27.4-alpine", ["CVE-2025-1001"])]) }),
+      scan("v5parityscancomposewkr24", "application", 2, "redis:7.2", { image_id: DIGEST(102), deployment: 16, status: "failed", error_code: "timeout", error_context: { step: "grype" }, scanned_at: null }),
+    ],
+    after: SUMMARIES,
+  },
+);
+add({ name: "vulnerabilities: application, a Compose deployment", token: "read", method: "GET", path: APP_VULNS(A_GIT), ...COMPOSE });
+add({ name: "vulnerabilities: list, a Compose deployment", token: "read", method: "GET", path: VULNS, ...COMPOSE });
+add({ name: "vulnerabilities: application, a Compose file deployed as written", token: "read", method: "GET", path: APP_VULNS(A_GIT), ...merge(COMPOSE, { setup: ["update application_settings set is_raw_compose_deployment_enabled = true where application_id = 2"] }) });
+add({ name: "vulnerabilities: list, a Compose file with every image checked", token: "read", method: "GET", path: VULNS, ...merge(
+  { setup: [SCANNING_ON, `update applications set build_pack = 'dockercompose', compose_parsing_version = '3', docker_compose_raw = 'services:\n  web:\n    image: nginx:alpine\n', docker_compose = null where id = 2`] },
+  { imageScans: [scan("v6parityscancomposeone25", "application", 2, "nginx:alpine", { findings: [F_KEV], candidates: checked([sameTag("nginx:alpine", ["CVE-2025-1001"])]) })], after: SUMMARIES },
+) });
+
+// SQLite (DP-112's ninth engine): Coolify's engine scans it as it does every standalone database (HasImageScans).
+const SQLITE_SCANNED = merge({ setup: [SCANNING_ON] }, WITH_SQLITE(), {
+  imageScans: [scan("v7parityscansqlite000026", "sqlite", SQ_ID, SQLITE_IMAGE, { findings: [F_REDIS_LIKELY, F_HIGH_UNFIXED], candidates: checked([], "no_better") })],
+  after: SUMMARIES,
+});
+add({ name: "vulnerabilities: database, SQLite", token: "read", method: "GET", path: DB_VULNS(SQ), ...SQLITE_SCANNED });
+add({ name: "vulnerabilities: list, a SQLite database", token: "read", method: "GET", path: VULNS, ...SQLITE_SCANNED });
+add({ name: "vulnerabilities: database, SQLite never scanned", token: "read", method: "GET", path: DB_VULNS(SQ), ...merge({ setup: [SCANNING_ON] }, WITH_SQLITE()) });
+
 /** The tables whose column order emit.php writes into the goldens (`columns`): what a nested relation serializes in. */
 const columnsOf = ["servers", "server_settings", "standalone_dockers", "application_settings", "applications", "environment_variables", "application_deployment_queues", "scheduled_database_backups", "scheduled_database_backup_executions", "services", "service_applications", "service_databases", "projects", "environments", "standalone_postgresqls", "standalone_redis", "standalone_mongodbs", "standalone_mysqls", "standalone_mariadbs", "standalone_keydbs", "standalone_dragonflies", "standalone_clickhouses", "local_persistent_volumes", "local_file_volumes", "github_apps"];
 

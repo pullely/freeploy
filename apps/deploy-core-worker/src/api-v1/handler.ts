@@ -56,6 +56,7 @@
 //   /v1/internal/api-v1/{org}/cloud-init-scripts[/{uuid}]                                                      cloud-init-scripts.ts (DP-110)
 //   POST /v1/internal/api-v1/{org}/servers/{hetzner,vultr,digitalocean}                                         cloud-servers.ts (DP-110)
 //   POST /v1/internal/api-v1/{org}/servers/import, POST …/servers/{uuid}/transfer/complete                      server-transfer.ts (DP-111)
+//   GET /v1/internal/api-v1/{org}/vulnerabilities, GET …/{applications,services,databases}/{uuid}/vulnerabilities  vulnerabilities.ts (DP-113)
 //
 // $this->authorize(…) is policy-worker's deploy.resource.read (view) or deploy.resource.write (create,
 // update, delete) for the token's user; a denial is the exception handler's 403 (COOLIFY_API.unauthorized(), DP-93).
@@ -122,6 +123,7 @@ import { volumeBackupsApi } from "./volume-backups.js";
 import { serverSettingsApi } from "./server-settings.js";
 import { importCheck, serverRegistriesApi, serverTransferApi } from "./server-registries-transfer.js";
 import { completeServerTransfer, importServer } from "./server-transfer.js";
+import { listVulnerabilities, resourceVulnerabilities } from "./vulnerabilities.js";
 import { databaseImportsApi } from "./database-imports.js";
 import { githubAppsApi } from "./github-apps.js";
 import { giteaAppsApi, gitlabAppsApi } from "./oauth-source-apps.js";
@@ -182,6 +184,8 @@ export interface ApiV1Runners {
   operator?: (action: "platform.settings.read" | "platform.settings.update") => Promise<boolean>;
   /** The platform's settings stores in asPlatformAdmin() (DP-101, DP-106); replaceable for tests. */
   platform?: PlatformMoreRunner;
+  /** The request's clock (Carbon's now() of the security status engine, DP-113); replaceable for tests. */
+  now?: () => Date;
 }
 
 const PROVIDER_NETWORK: ProviderNetwork = { fetch: (input, init) => fetch(input, init), sleep: (ms) => new Promise((done) => setTimeout(done, ms)) };
@@ -231,6 +235,12 @@ export async function handleApiV1(request: Request, env: Env, requestId: string,
     if (first === "cloud-tokens") return send((await cloudProviderTokensApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
     // DP-110: the org's cloud-init scripts.
     if (first === "cloud-init-scripts") return send((await cloudInitScriptsApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
+    // DP-113: the stored image scan results of the org and of a resource (VulnerabilitiesController).
+    if (first === "vulnerabilities" && second === undefined) return send(method === "GET" ? await listVulnerabilities(context, (r.now ?? (() => new Date()))()) : COOLIFY_API.notFound());
+    if ((first === "applications" || first === "services" || first === "databases") && second !== undefined && third === "vulnerabilities" && fourth === undefined) {
+      const kind = ({ applications: "application", services: "service", databases: "database" } as const)[first];
+      return send(method === "GET" ? await resourceVulnerabilities(context, kind, second, (r.now ?? (() => new Date()))()) : COOLIFY_API.notFound());
+    }
     if (first === "hetzner" || first === "digitalocean" || first === "vultr" || first === "hostinger") return send((await cloudCatalogsApi(context, first, segments.slice(1))) ?? COOLIFY_API.notFound());
     // DP-81: the shared variables of a project (/projects/{uuid}/envs) and of an environment (…/environments/{env}/envs).
     if (first === "projects" && second !== undefined && third === "envs") return send((await sharedVariablesApi(context, second, undefined, segments.slice(3))) ?? COOLIFY_API.notFound());

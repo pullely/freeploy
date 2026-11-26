@@ -352,6 +352,21 @@ foreach ($cases['cases'] as $case) {
     foreach ($case['cloudInitScripts'] ?? [] as $s) {
         (new \App\Models\CloudInitScript)->forceFill(['uuid' => $s['uuid'], 'team_id' => $s['team'], 'name' => $s['name'], 'script' => $s['script'], 'created_at' => $s['created_at'], 'updated_at' => $s['created_at']])->saveQuietly();
     }
+    // DP-113: a case's service variables, through the model (the encrypted value; each side encrypts its own).
+    foreach ($case['serviceVariables'] ?? [] as $v) {
+        EnvironmentVariable::query()->create(['key' => $v['key'], 'value' => $v['value'], 'is_preview' => false, 'resourceable_type' => Service::class, 'resourceable_id' => $v['service']]);
+    }
+    // DP-113: a case's image scans, made through the model (the JSON casts), one after the other, each summary written as the
+    // scanner writes it — ResourceScans::refreshSummaries(): summaryFor() and SecurityStatus::store() — so a scan's stored
+    // status sees the rows before it; `stored: false` keeps the summary given (a row stored before the status was).
+    $scanOwners = ['application' => Application::class, 'serviceApplication' => ServiceApplication::class, 'serviceDatabase' => ServiceDatabase::class, 'postgresql' => \App\Models\StandalonePostgresql::class, 'redis' => \App\Models\StandaloneRedis::class, 'mongodb' => \App\Models\StandaloneMongodb::class, 'mysql' => \App\Models\StandaloneMysql::class, 'mariadb' => \App\Models\StandaloneMariadb::class, 'keydb' => \App\Models\StandaloneKeydb::class, 'dragonfly' => \App\Models\StandaloneDragonfly::class, 'clickhouse' => \App\Models\StandaloneClickhouse::class, 'sqlite' => \App\Models\StandaloneSqlite::class];
+    foreach ($case['imageScans'] ?? [] as $s) {
+        $imageScan = (new \App\Models\ImageScan)->forceFill(['uuid' => $s['uuid'], 'server_id' => $s['server_id'], 'image_id' => $s['image_id'], 'repo_digest' => $s['repo_digest'], 'resource_type' => $scanOwners[$s['owner']], 'resource_id' => $s['resource_id'], 'image_ref' => $s['image_ref'], 'deployment_queue_id' => $s['deployment_queue_id'], 'status' => $s['status'], 'error_code' => $s['error_code'], 'error_context' => $s['error_context'], 'summary' => $s['summary'] ?? ['ignored' => 0, 'eol_distro' => $s['eol_distro'], 'truncated' => $s['truncated']], 'findings' => $s['findings'], 'candidates' => $s['candidates'], 'base_image_ref' => $s['base_image_ref'], 'builds_image' => $s['builds_image'], 'is_baseline' => $s['is_baseline'], 'grype_db_built_at' => $s['grype_db_built_at'], 'scanned_at' => $s['scanned_at']]);
+        $imageScan->save();
+        if ($s['stored'] ?? true) {
+            \App\Services\ImageScan\ResourceScans::refreshSummaries(collect([$imageScan]));
+        }
+    }
     // DP-90: an outside HTTP API (a cloud provider's, GitHub's) is Http::fake(): the case's `http` answers, the first whose
     // `match` (a regex on "METHOD URL") fits; anything else is a 404. Every request Coolify sends is recorded (`requests`).
     $requests = [];

@@ -1,0 +1,3707 @@
+{
+    "coolify": "91b7e3e",
+    "statuses": [
+        {
+            "uuid": "r1parityscanimageapp0001",
+            "security": {
+                "eol": null,
+                "why": [
+                    {
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-1001",
+                        "score": 9.8,
+                        "title": "OpenSSL allows remote code execution through a crafted certificate.",
+                        "signal": "exploited",
+                        "package": "openssl",
+                        "version": "3.0.1",
+                        "severity": "critical",
+                        "display_id": "CVE-2025-1001"
+                    }
+                ],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 1,
+                        "high_fixed": 0,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 1,
+                        "signal_fixed": 1,
+                        "critical_fixed": 1,
+                        "relevant_fixed": 2,
+                        "signal_unfixed": 1,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [],
+                    "unfixed_why": [
+                        {
+                            "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-1006",
+                            "score": 9.1,
+                            "title": "glibc: a buffer overflow in the resolver lets an attacker run code.",
+                            "signal": "likely",
+                            "package": "glibc",
+                            "version": "2.36",
+                            "severity": "critical",
+                            "display_id": "CVE-2025-1006"
+                        }
+                    ],
+                    "action_stats": [
+                        {
+                            "eol": 0,
+                            "kev": 1,
+                            "why": [
+                                {
+                                    "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-1001",
+                                    "score": 9.8,
+                                    "title": "OpenSSL allows remote code execution through a crafted certificate.",
+                                    "signal": "exploited",
+                                    "package": "openssl",
+                                    "version": "3.0.1",
+                                    "severity": "critical",
+                                    "display_id": "CVE-2025-1001"
+                                }
+                            ],
+                            "high": 0,
+                            "owner": "parity-image",
+                            "medium": 0,
+                            "signal": 1,
+                            "critical": 1,
+                            "owner_id": 1,
+                            "relevant": 1,
+                            "owner_type": "App\\Models\\Application"
+                        },
+                        {
+                            "eol": 0,
+                            "kev": 0,
+                            "why": [
+                                {
+                                    "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-1003",
+                                    "score": 5.3,
+                                    "title": "zlib 1.2.13: medium vulnerability",
+                                    "signal": null,
+                                    "package": "zlib",
+                                    "version": "1.2.13",
+                                    "severity": "medium",
+                                    "display_id": "CVE-2025-1003"
+                                }
+                            ],
+                            "high": 0,
+                            "owner": "parity-image",
+                            "medium": 1,
+                            "signal": 0,
+                            "critical": 0,
+                            "owner_id": 1,
+                            "relevant": 1,
+                            "owner_type": "App\\Models\\Application"
+                        }
+                    ],
+                    "action_status": "update_now"
+                },
+                "status": "update_now",
+                "actions": [
+                    {
+                        "ref": "nginx:1.27.4-alpine",
+                        "copy": null,
+                        "type": "update_image",
+                        "image": "nginx:alpine",
+                        "parts": [],
+                        "button": true,
+                        "target": "1.27.4-alpine",
+                        "sentence": "Update to 1.27.4-alpine.",
+                        "fixed_ids": [
+                            "CVE-2025-1001"
+                        ]
+                    },
+                    {
+                        "ref": "nginx:alpine",
+                        "copy": null,
+                        "type": "pull_latest",
+                        "image": "nginx:alpine",
+                        "parts": [],
+                        "button": true,
+                        "target": "alpine",
+                        "sentence": "Pull the newer build of nginx:alpine and restart.",
+                        "fixed_ids": [
+                            "CVE-2025-1003"
+                        ]
+                    }
+                ],
+                "checked_at": "2025-12-31T12:00:00+00:00",
+                "high_count": 0,
+                "more_fixed": 0,
+                "check_reason": null,
+                "medium_count": 1,
+                "primary_high": 0,
+                "any_exploited": true,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 1,
+                "critical_count": 1,
+                "primary_medium": 0,
+                "exploited_count": 2,
+                "fixed_by_primary": 1,
+                "primary_critical": 1,
+                "exploited_without_fix": true
+            },
+            "headline": "This image has a security problem that attackers are using. Update to 1.27.4-alpine to fix it.",
+            "lines": [
+                "One more problem that attackers are likely to use has no fix yet."
+            ],
+            "badge": "Update now",
+            "image_sentence": "nginx:alpine has a security problem that attackers are using. Update to 1.27.4-alpine to fix it.",
+            "version_check_running": "Coolify is checking for newer versions of nginx:alpine.",
+            "attack_note": null,
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": "1.27.4-alpine is the newest 1.x release on Docker Hub. Coolify scanned it 11 hours ago: it fixes these problems and adds none that attackers use. It has 2 other problems that attackers are not known to use.",
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "Update now",
+            "action": {
+                "text": "Update to 1.27.4-alpine.",
+                "link": true,
+                "muted": false
+            },
+            "images_line": "1 of 2 images",
+            "marker": {
+                "status": "update_now",
+                "text": "Update now",
+                "label": "Security: update now. Update to 1.27.4-alpine.",
+                "tooltip": "Update to 1.27.4-alpine."
+            }
+        },
+        {
+            "uuid": "r2parityscangitapp000002",
+            "security": {
+                "eol": null,
+                "why": [
+                    {
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-6001",
+                        "score": 8.6,
+                        "title": "libssl3 3.0.11: high vulnerability",
+                        "signal": "exploited",
+                        "package": "libssl3",
+                        "version": "3.0.11",
+                        "severity": "high",
+                        "display_id": "CVE-2025-6001"
+                    }
+                ],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 0,
+                        "high_fixed": 0,
+                        "kev_unfixed": 1,
+                        "medium_fixed": 0,
+                        "signal_fixed": 0,
+                        "critical_fixed": 0,
+                        "relevant_fixed": 0,
+                        "signal_unfixed": 1,
+                        "builder_unfixed": 1
+                    },
+                    "reasons": [],
+                    "unfixed_why": [
+                        {
+                            "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-6001",
+                            "score": 8.6,
+                            "title": "libssl3 3.0.11: high vulnerability",
+                            "signal": "exploited",
+                            "package": "libssl3",
+                            "version": "3.0.11",
+                            "severity": "high",
+                            "display_id": "CVE-2025-6001"
+                        }
+                    ],
+                    "action_stats": [],
+                    "action_status": "no_fix"
+                },
+                "status": "no_fix",
+                "actions": [],
+                "checked_at": "2025-12-31T12:00:00+00:00",
+                "high_count": 0,
+                "more_fixed": 0,
+                "check_reason": null,
+                "medium_count": 0,
+                "primary_high": 0,
+                "any_exploited": true,
+                "builder_image": true,
+                "check_context": [],
+                "problem_count": 1,
+                "critical_count": 0,
+                "primary_medium": 0,
+                "exploited_count": 1,
+                "fixed_by_primary": 0,
+                "primary_critical": 0,
+                "exploited_without_fix": false
+            },
+            "headline": "This image has a security problem that attackers are using. A fix exists, but it reaches this app only with a builder update in a Coolify release. To choose the base image yourself, use the Dockerfile build pack.",
+            "lines": [],
+            "badge": "No fix yet",
+            "image_sentence": "a2paritygitapp0000000002:a1b2c3d has a security problem that attackers are using. A fix exists, but it reaches this app only with a builder update in a Coolify release. To choose the base image yourself, use the Dockerfile build pack.",
+            "version_check_running": "Coolify is checking for newer versions of a2paritygitapp0000000002:a1b2c3d.",
+            "attack_note": null,
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": null,
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "No fix yet",
+            "action": {
+                "text": "Needs a builder update in a Coolify release.",
+                "link": false,
+                "muted": true
+            },
+            "images_line": null,
+            "marker": {
+                "status": "no_fix",
+                "text": "No fix yet",
+                "label": "Security: no fix yet",
+                "tooltip": null
+            }
+        },
+        {
+            "uuid": "r3parityscanpgold000003",
+            "security": {
+                "eol": null,
+                "why": [
+                    {
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2024-9001",
+                        "score": 9.9,
+                        "title": "bash 5.1: critical vulnerability",
+                        "signal": "exploited",
+                        "package": "bash",
+                        "version": "5.1",
+                        "severity": "critical",
+                        "display_id": "CVE-2024-9001"
+                    }
+                ],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 0,
+                        "high_fixed": 0,
+                        "kev_unfixed": 1,
+                        "medium_fixed": 0,
+                        "signal_fixed": 0,
+                        "critical_fixed": 0,
+                        "relevant_fixed": 0,
+                        "signal_unfixed": 1,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [],
+                    "unfixed_why": [
+                        {
+                            "link": "https://nvd.nist.gov/vuln/detail/CVE-2024-9001",
+                            "score": 9.9,
+                            "title": "bash 5.1: critical vulnerability",
+                            "signal": "exploited",
+                            "package": "bash",
+                            "version": "5.1",
+                            "severity": "critical",
+                            "display_id": "CVE-2024-9001"
+                        }
+                    ],
+                    "action_stats": [],
+                    "action_status": "no_fix"
+                },
+                "status": "check_needed",
+                "actions": [],
+                "checked_at": "2025-12-20T10:00:00+00:00",
+                "high_count": 0,
+                "more_fixed": 0,
+                "check_reason": "stale",
+                "medium_count": 0,
+                "primary_high": 0,
+                "any_exploited": true,
+                "builder_image": false,
+                "check_context": {
+                    "time": "2025-12-20T10:00:00+00:00"
+                },
+                "problem_count": 1,
+                "critical_count": 0,
+                "primary_medium": 0,
+                "exploited_count": 1,
+                "fixed_by_primary": 0,
+                "primary_critical": 0,
+                "exploited_without_fix": false
+            },
+            "headline": "Coolify needs to check this image again: the last check was 1 week ago.",
+            "lines": [],
+            "badge": "Check needed",
+            "image_sentence": "postgres:16-alpine needs another check: the last check was 1 week ago.",
+            "version_check_running": "Coolify is checking for newer versions of postgres:16-alpine.",
+            "attack_note": null,
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": null,
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "Check needed",
+            "action": {
+                "text": "Check again: the last check was 1 week ago.",
+                "link": true,
+                "muted": true
+            },
+            "images_line": null,
+            "marker": null
+        },
+        {
+            "uuid": "r4parityscanpgnew000004",
+            "security": {
+                "eol": null,
+                "why": [],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 0,
+                        "high_fixed": 0,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 0,
+                        "critical_fixed": 0,
+                        "relevant_fixed": 0,
+                        "signal_unfixed": 0,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [],
+                    "unfixed_why": [],
+                    "action_stats": [],
+                    "action_status": "ok"
+                },
+                "status": "ok",
+                "actions": [],
+                "checked_at": "2025-12-31T12:00:00+00:00",
+                "high_count": 0,
+                "more_fixed": 0,
+                "check_reason": null,
+                "medium_count": 0,
+                "primary_high": 0,
+                "any_exploited": false,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 0,
+                "critical_count": 0,
+                "primary_medium": 0,
+                "exploited_count": 0,
+                "fixed_by_primary": 0,
+                "primary_critical": 0,
+                "exploited_without_fix": false
+            },
+            "headline": "No action needed.",
+            "lines": [],
+            "badge": null,
+            "image_sentence": "postgres:16-alpine needs no action.",
+            "version_check_running": "Coolify is checking for newer versions of postgres:16-alpine.",
+            "attack_note": null,
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": null,
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "No action needed",
+            "action": null,
+            "images_line": null,
+            "marker": null
+        },
+        {
+            "uuid": "r5parityscanredis000005",
+            "security": {
+                "eol": null,
+                "why": [
+                    {
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-2001",
+                        "score": 9.4,
+                        "title": "Redis Lua scripts can escape the sandbox.",
+                        "signal": "likely",
+                        "package": "redis",
+                        "version": "7.2.4",
+                        "severity": "critical",
+                        "display_id": "CVE-2025-2001"
+                    }
+                ],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 0,
+                        "high_fixed": 0,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 0,
+                        "critical_fixed": 0,
+                        "relevant_fixed": 0,
+                        "signal_unfixed": 1,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [],
+                    "unfixed_why": [
+                        {
+                            "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-2001",
+                            "score": 9.4,
+                            "title": "Redis Lua scripts can escape the sandbox.",
+                            "signal": "likely",
+                            "package": "redis",
+                            "version": "7.2.4",
+                            "severity": "critical",
+                            "display_id": "CVE-2025-2001"
+                        }
+                    ],
+                    "action_stats": [],
+                    "action_status": "no_fix"
+                },
+                "status": "no_fix",
+                "actions": [],
+                "checked_at": "2025-12-31T12:00:00+00:00",
+                "high_count": 0,
+                "more_fixed": 0,
+                "check_reason": null,
+                "medium_count": 0,
+                "primary_high": 0,
+                "any_exploited": false,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 1,
+                "critical_count": 0,
+                "primary_medium": 0,
+                "exploited_count": 1,
+                "fixed_by_primary": 0,
+                "primary_critical": 0,
+                "exploited_without_fix": false
+            },
+            "headline": "This image has a security problem that attackers are likely to use, and no fixed version exists yet. Coolify checks every day and tells you when a fix is out. Until then, limit who can reach this app, or ignore the problem if the affected part is not used.",
+            "lines": [],
+            "badge": "No fix yet",
+            "image_sentence": "redis:7.2 has a security problem that attackers are likely to use. No fixed version exists yet, and Coolify checks every day.",
+            "version_check_running": "Coolify is checking for newer versions of redis:7.2.",
+            "attack_note": null,
+            "no_fix_advice": "Until then, limit who can reach this database, or ignore the problem if the affected part is not used.",
+            "why_more": "",
+            "provenance": "Coolify checked Docker Hub 11 hours ago: you already run the newest 7.x version. The problem is in redis, and no fixed version of it exists yet. The newest major version, redis:8.0, is not better either.",
+            "provenance_none": "Coolify checked Docker Hub 11 hours ago: you already run the newest 7.x version. The problem is in redis, and no fixed version of it exists yet. The newest major version, redis:8.0, is not better either.",
+            "registry": "Docker Hub",
+            "status_label": "No fix yet",
+            "action": {
+                "text": "No fix released yet. Coolify checks daily.",
+                "link": false,
+                "muted": true
+            },
+            "images_line": null,
+            "marker": {
+                "status": "no_fix",
+                "text": "No fix yet",
+                "label": "Security: no fix yet",
+                "tooltip": null
+            }
+        },
+        {
+            "uuid": "r6parityscanmongo000006",
+            "security": {
+                "eol": null,
+                "why": [],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 0,
+                        "high_fixed": 0,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 0,
+                        "critical_fixed": 0,
+                        "relevant_fixed": 0,
+                        "signal_unfixed": 0,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [],
+                    "unfixed_why": [],
+                    "action_stats": [],
+                    "action_status": "ok"
+                },
+                "status": "check_needed",
+                "actions": [],
+                "checked_at": "2025-12-28T00:00:00+00:00",
+                "high_count": 0,
+                "more_fixed": 0,
+                "check_reason": "stale",
+                "medium_count": 0,
+                "primary_high": 0,
+                "any_exploited": false,
+                "builder_image": false,
+                "check_context": {
+                    "time": "2025-12-28T00:00:00+00:00"
+                },
+                "problem_count": 0,
+                "critical_count": 0,
+                "primary_medium": 0,
+                "exploited_count": 0,
+                "fixed_by_primary": 0,
+                "primary_critical": 0,
+                "exploited_without_fix": false
+            },
+            "headline": "Coolify needs to check this image again: the last check was 4 days ago.",
+            "lines": [],
+            "badge": "Check needed",
+            "image_sentence": "mongo:7 needs another check: the last check was 4 days ago.",
+            "version_check_running": "Coolify is checking for newer versions of mongo:7.",
+            "attack_note": null,
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": null,
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "Check needed",
+            "action": {
+                "text": "Check again: the last check was 4 days ago.",
+                "link": true,
+                "muted": true
+            },
+            "images_line": null,
+            "marker": null
+        },
+        {
+            "uuid": "r7parityscanmysql000007",
+            "security": {
+                "eol": null,
+                "why": [
+                    {
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-3001",
+                        "score": 8.1,
+                        "title": "mysql-server 8.0.36: high vulnerability",
+                        "signal": "exploited",
+                        "package": "mysql-server",
+                        "version": "8.0.36",
+                        "severity": "high",
+                        "display_id": "CVE-2025-3001"
+                    }
+                ],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 1,
+                        "high_fixed": 1,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 1,
+                        "critical_fixed": 0,
+                        "relevant_fixed": 1,
+                        "signal_unfixed": 0,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [
+                        "db_outdated"
+                    ],
+                    "unfixed_why": [],
+                    "action_stats": [
+                        {
+                            "eol": 0,
+                            "kev": 1,
+                            "why": [
+                                {
+                                    "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-3001",
+                                    "score": 8.1,
+                                    "title": "mysql-server 8.0.36: high vulnerability",
+                                    "signal": "exploited",
+                                    "package": "mysql-server",
+                                    "version": "8.0.36",
+                                    "severity": "high",
+                                    "display_id": "CVE-2025-3001"
+                                }
+                            ],
+                            "high": 1,
+                            "owner": "parity-mysql",
+                            "medium": 0,
+                            "signal": 1,
+                            "critical": 0,
+                            "owner_id": 1,
+                            "relevant": 1,
+                            "owner_type": "App\\Models\\StandaloneMysql"
+                        }
+                    ],
+                    "action_status": "update_now"
+                },
+                "status": "check_needed",
+                "actions": [
+                    {
+                        "ref": "mysql:8.4",
+                        "copy": null,
+                        "type": "update_image",
+                        "image": "mysql:8",
+                        "parts": [],
+                        "button": true,
+                        "target": "8.4",
+                        "sentence": "Update to 8.4.",
+                        "fixed_ids": [
+                            "CVE-2025-3001"
+                        ]
+                    }
+                ],
+                "checked_at": "2025-12-31T12:00:00+00:00",
+                "high_count": 1,
+                "more_fixed": 0,
+                "check_reason": "db_outdated",
+                "medium_count": 0,
+                "primary_high": 1,
+                "any_exploited": true,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 1,
+                "critical_count": 0,
+                "primary_medium": 0,
+                "exploited_count": 1,
+                "fixed_by_primary": 1,
+                "primary_critical": 0,
+                "exploited_without_fix": false
+            },
+            "headline": "Coolify needs to check this image again: the vulnerability database is out of date.",
+            "lines": [],
+            "badge": "Check needed",
+            "image_sentence": "mysql:8 needs another check: the vulnerability database is out of date.",
+            "version_check_running": "Coolify is checking for newer versions of mysql:8.",
+            "attack_note": null,
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": "8.4 is the newest 8.x release on Docker Hub. Coolify scanned it 11 hours ago: it fixes these problems and adds none that attackers use.",
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "Check needed",
+            "action": {
+                "text": "Check again: the vulnerability database is out of date.",
+                "link": true,
+                "muted": true
+            },
+            "images_line": null,
+            "marker": null
+        },
+        {
+            "uuid": "r8parityscanmariadb00008",
+            "security": {
+                "eol": null,
+                "why": [],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 0,
+                        "high_fixed": 0,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 0,
+                        "critical_fixed": 0,
+                        "relevant_fixed": 0,
+                        "signal_unfixed": 0,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [
+                        "truncated"
+                    ],
+                    "unfixed_why": [],
+                    "action_stats": [],
+                    "action_status": "ok"
+                },
+                "status": "check_needed",
+                "actions": [],
+                "checked_at": "2025-12-31T12:00:00+00:00",
+                "high_count": 0,
+                "more_fixed": 0,
+                "check_reason": "truncated",
+                "medium_count": 0,
+                "primary_high": 0,
+                "any_exploited": false,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 0,
+                "critical_count": 0,
+                "primary_medium": 0,
+                "exploited_count": 0,
+                "fixed_by_primary": 0,
+                "primary_critical": 0,
+                "exploited_without_fix": false
+            },
+            "headline": "Coolify needs to check this image again: the scan result was too large to read completely.",
+            "lines": [],
+            "badge": "Check needed",
+            "image_sentence": "mariadb:11 needs another check: the scan result was too large to read completely.",
+            "version_check_running": "Coolify is checking for newer versions of mariadb:11.",
+            "attack_note": null,
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": null,
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "Check needed",
+            "action": {
+                "text": "Check again: the scan result was too large to read completely.",
+                "link": true,
+                "muted": true
+            },
+            "images_line": null,
+            "marker": null
+        },
+        {
+            "uuid": "r9parityscankeydb000009",
+            "security": {
+                "eol": null,
+                "why": [],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 0,
+                        "high_fixed": 0,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 0,
+                        "critical_fixed": 0,
+                        "relevant_fixed": 0,
+                        "signal_unfixed": 0,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [
+                        "image_changed"
+                    ],
+                    "unfixed_why": [],
+                    "action_stats": [],
+                    "action_status": "ok"
+                },
+                "status": "check_needed",
+                "actions": [],
+                "checked_at": "2025-12-31T12:00:00+00:00",
+                "high_count": 0,
+                "more_fixed": 0,
+                "check_reason": "image_changed",
+                "medium_count": 0,
+                "primary_high": 0,
+                "any_exploited": false,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 0,
+                "critical_count": 0,
+                "primary_medium": 0,
+                "exploited_count": 0,
+                "fixed_by_primary": 0,
+                "primary_critical": 0,
+                "exploited_without_fix": false
+            },
+            "headline": "Coolify needs to check this image again: the running image is not the checked image.",
+            "lines": [],
+            "badge": "Check needed",
+            "image_sentence": "eqalpha/keydb:6.3 needs another check: the running image is not the checked image.",
+            "version_check_running": "Coolify is checking for newer versions of eqalpha/keydb:6.3.",
+            "attack_note": null,
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": null,
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "Check needed",
+            "action": {
+                "text": "Check again: the running image is not the checked image.",
+                "link": true,
+                "muted": true
+            },
+            "images_line": null,
+            "marker": null
+        },
+        {
+            "uuid": "s1parityscandragonfly001",
+            "security": {
+                "eol": null,
+                "why": [
+                    {
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-4001",
+                        "score": 5.9,
+                        "title": "libgcrypt 1.10.1: medium vulnerability",
+                        "signal": null,
+                        "package": "libgcrypt",
+                        "version": "1.10.1",
+                        "severity": "medium",
+                        "display_id": "CVE-2025-4001"
+                    }
+                ],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 0,
+                        "high_fixed": 0,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 1,
+                        "signal_fixed": 0,
+                        "critical_fixed": 0,
+                        "relevant_fixed": 1,
+                        "signal_unfixed": 0,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [],
+                    "unfixed_why": [],
+                    "action_stats": [
+                        {
+                            "eol": 0,
+                            "kev": 0,
+                            "why": [
+                                {
+                                    "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-4001",
+                                    "score": 5.9,
+                                    "title": "libgcrypt 1.10.1: medium vulnerability",
+                                    "signal": null,
+                                    "package": "libgcrypt",
+                                    "version": "1.10.1",
+                                    "severity": "medium",
+                                    "display_id": "CVE-2025-4001"
+                                }
+                            ],
+                            "high": 0,
+                            "owner": "parity-dragonfly",
+                            "medium": 1,
+                            "signal": 0,
+                            "critical": 0,
+                            "owner_id": 1,
+                            "relevant": 1,
+                            "owner_type": "App\\Models\\StandaloneDragonfly"
+                        }
+                    ],
+                    "action_status": "update_available"
+                },
+                "status": "update_available",
+                "actions": [
+                    {
+                        "ref": "docker.dragonflydb.io/dragonflydb/dragonfly:latest",
+                        "copy": null,
+                        "type": "pull_latest",
+                        "image": "docker.dragonflydb.io/dragonflydb/dragonfly",
+                        "parts": [],
+                        "button": true,
+                        "target": "latest",
+                        "sentence": "Pull the newer build of docker.dragonflydb.io/dragonflydb/dragonfly:latest and restart.",
+                        "fixed_ids": [
+                            "CVE-2025-4001"
+                        ]
+                    }
+                ],
+                "checked_at": "2025-12-31T12:00:00+00:00",
+                "high_count": 0,
+                "more_fixed": 0,
+                "check_reason": null,
+                "medium_count": 1,
+                "primary_high": 0,
+                "any_exploited": false,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 1,
+                "critical_count": 0,
+                "primary_medium": 1,
+                "exploited_count": 0,
+                "fixed_by_primary": 1,
+                "primary_critical": 0,
+                "exploited_without_fix": false
+            },
+            "headline": "A newer build of this image is available. Pull it and restart. This fixes 1 problem (1 medium). Attackers are not known to use it.",
+            "lines": [],
+            "badge": "Security update",
+            "image_sentence": "docker.dragonflydb.io/dragonflydb/dragonfly has a newer build that fixes a medium problem.",
+            "version_check_running": "Coolify is checking for newer versions of docker.dragonflydb.io/dragonflydb/dragonfly.",
+            "attack_note": "No known attacks on this problem.",
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": "docker.dragonflydb.io has a newer build of latest. Coolify scanned it 11 hours ago: it fixes these problems and adds none that attackers use.",
+            "provenance_none": null,
+            "registry": "docker.dragonflydb.io",
+            "status_label": "Security update",
+            "action": {
+                "text": "Pull the newer build of docker.dragonflydb.io/dragonflydb/dragonfly:latest and restart.",
+                "link": true,
+                "muted": false
+            },
+            "images_line": "1 of 2 images",
+            "marker": null
+        },
+        {
+            "uuid": "s4parityscanserviceweb04",
+            "security": {
+                "eol": null,
+                "why": [
+                    {
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-5001",
+                        "score": 8.2,
+                        "title": "nginx 1.25.3: high vulnerability",
+                        "signal": null,
+                        "package": "nginx",
+                        "version": "1.25.3",
+                        "severity": "high",
+                        "display_id": "CVE-2025-5001"
+                    }
+                ],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 0,
+                        "high_fixed": 1,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 0,
+                        "critical_fixed": 0,
+                        "relevant_fixed": 1,
+                        "signal_unfixed": 0,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [],
+                    "unfixed_why": [],
+                    "action_stats": [
+                        {
+                            "eol": 0,
+                            "kev": 0,
+                            "why": [
+                                {
+                                    "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-5001",
+                                    "score": 8.2,
+                                    "title": "nginx 1.25.3: high vulnerability",
+                                    "signal": null,
+                                    "package": "nginx",
+                                    "version": "1.25.3",
+                                    "severity": "high",
+                                    "display_id": "CVE-2025-5001"
+                                }
+                            ],
+                            "high": 1,
+                            "owner": "web",
+                            "medium": 0,
+                            "signal": 0,
+                            "critical": 0,
+                            "owner_id": 1,
+                            "relevant": 1,
+                            "owner_type": "App\\Models\\ServiceApplication"
+                        }
+                    ],
+                    "action_status": "update_available"
+                },
+                "status": "update_available",
+                "actions": [
+                    {
+                        "ref": "nginx:1.27.4-alpine",
+                        "copy": null,
+                        "type": "update_image",
+                        "image": "nginx:alpine",
+                        "parts": [],
+                        "button": true,
+                        "target": "1.27.4-alpine",
+                        "sentence": "Update to 1.27.4-alpine.",
+                        "fixed_ids": [
+                            "CVE-2025-5001"
+                        ]
+                    }
+                ],
+                "checked_at": "2025-12-31T12:00:00+00:00",
+                "high_count": 1,
+                "more_fixed": 0,
+                "check_reason": null,
+                "medium_count": 0,
+                "primary_high": 1,
+                "any_exploited": false,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 1,
+                "critical_count": 0,
+                "primary_medium": 0,
+                "exploited_count": 0,
+                "fixed_by_primary": 1,
+                "primary_critical": 0,
+                "exploited_without_fix": false
+            },
+            "headline": "Update to 1.27.4-alpine. This fixes 1 serious problem (1 high). Attackers are not known to use it.",
+            "lines": [],
+            "badge": "Security update",
+            "image_sentence": "nginx:alpine has a serious problem. Update to 1.27.4-alpine to fix it.",
+            "version_check_running": "Coolify is checking for newer versions of nginx:alpine.",
+            "attack_note": "No known attacks on this problem.",
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": "1.27.4-alpine is the newest 1.x release on Docker Hub. Coolify scanned it 11 hours ago: it fixes these problems and adds none that attackers use.",
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "Security update",
+            "action": {
+                "text": "Update to 1.27.4-alpine.",
+                "link": true,
+                "muted": false
+            },
+            "images_line": "1 of 2 images",
+            "marker": null
+        },
+        {
+            "uuid": "s1parityscandragonfly001",
+            "security": {
+                "eol": null,
+                "why": [],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 0,
+                        "high_fixed": 0,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 0,
+                        "critical_fixed": 0,
+                        "relevant_fixed": 0,
+                        "signal_unfixed": 0,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [],
+                    "unfixed_why": [],
+                    "action_stats": [],
+                    "action_status": "ok"
+                },
+                "status": "ok",
+                "actions": [],
+                "checked_at": "2025-12-31T12:00:00+00:00",
+                "high_count": 0,
+                "more_fixed": 0,
+                "check_reason": null,
+                "medium_count": 0,
+                "primary_high": 0,
+                "any_exploited": false,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 0,
+                "critical_count": 0,
+                "primary_medium": 0,
+                "exploited_count": 0,
+                "fixed_by_primary": 0,
+                "primary_critical": 0,
+                "exploited_without_fix": false
+            },
+            "headline": "No action needed.",
+            "lines": [],
+            "badge": null,
+            "image_sentence": "docker.dragonflydb.io/dragonflydb/dragonfly needs no action.",
+            "version_check_running": "Coolify is checking for newer versions of docker.dragonflydb.io/dragonflydb/dragonfly.",
+            "attack_note": null,
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": null,
+            "provenance_none": null,
+            "registry": "docker.dragonflydb.io",
+            "status_label": "No action needed",
+            "action": null,
+            "images_line": null,
+            "marker": null
+        },
+        {
+            "uuid": "s8parityscandeploy00008",
+            "security": {
+                "eol": null,
+                "why": [
+                    {
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-1002",
+                        "score": 7.5,
+                        "title": "Libxml2 reads out of bounds.",
+                        "signal": null,
+                        "package": "libxml2",
+                        "version": "2.9.14",
+                        "severity": "high",
+                        "display_id": "CVE-2025-1002"
+                    }
+                ],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 0,
+                        "high_fixed": 1,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 0,
+                        "critical_fixed": 0,
+                        "relevant_fixed": 1,
+                        "signal_unfixed": 0,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [],
+                    "unfixed_why": [],
+                    "action_stats": [
+                        {
+                            "eol": 0,
+                            "kev": 0,
+                            "why": [
+                                {
+                                    "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-1002",
+                                    "score": 7.5,
+                                    "title": "Libxml2 reads out of bounds.",
+                                    "signal": null,
+                                    "package": "libxml2",
+                                    "version": "2.9.14",
+                                    "severity": "high",
+                                    "display_id": "CVE-2025-1002"
+                                }
+                            ],
+                            "high": 1,
+                            "owner": "parity-image",
+                            "medium": 0,
+                            "signal": 0,
+                            "critical": 0,
+                            "owner_id": 1,
+                            "relevant": 1,
+                            "owner_type": "App\\Models\\Application"
+                        }
+                    ],
+                    "action_status": "update_available"
+                },
+                "status": "update_available",
+                "actions": [
+                    {
+                        "ref": "nginx:1.27.4-alpine",
+                        "copy": null,
+                        "type": "update_image",
+                        "image": "nginx:alpine",
+                        "parts": [],
+                        "button": true,
+                        "target": "1.27.4-alpine",
+                        "sentence": "Update to 1.27.4-alpine.",
+                        "fixed_ids": [
+                            "CVE-2025-1002"
+                        ]
+                    }
+                ],
+                "checked_at": "2025-12-30T10:00:00+00:00",
+                "high_count": 1,
+                "more_fixed": 0,
+                "check_reason": null,
+                "medium_count": 0,
+                "primary_high": 1,
+                "any_exploited": false,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 1,
+                "critical_count": 0,
+                "primary_medium": 0,
+                "exploited_count": 0,
+                "fixed_by_primary": 1,
+                "primary_critical": 0,
+                "exploited_without_fix": false
+            },
+            "headline": "Update to 1.27.4-alpine. This fixes 1 serious problem (1 high). Attackers are not known to use it.",
+            "lines": [],
+            "badge": "Security update",
+            "image_sentence": "nginx:alpine has a serious problem. Update to 1.27.4-alpine to fix it.",
+            "version_check_running": "Coolify is checking for newer versions of nginx:alpine.",
+            "attack_note": "No known attacks on this problem.",
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": "1.27.4-alpine is the newest 1.x release on Docker Hub. Coolify scanned it 11 hours ago: it fixes these problems and adds none that attackers use.",
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "Security update",
+            "action": {
+                "text": "Update to 1.27.4-alpine.",
+                "link": true,
+                "muted": false
+            },
+            "images_line": "1 of 2 images",
+            "marker": null
+        },
+        {
+            "uuid": "s9parityscandeploy00009",
+            "security": {
+                "eol": null,
+                "why": [
+                    {
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-5001",
+                        "score": 8.2,
+                        "title": "nginx 1.25.3: high vulnerability",
+                        "signal": null,
+                        "package": "nginx",
+                        "version": "1.25.3",
+                        "severity": "high",
+                        "display_id": "CVE-2025-5001"
+                    }
+                ],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 0,
+                        "high_fixed": 1,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 0,
+                        "critical_fixed": 0,
+                        "relevant_fixed": 1,
+                        "signal_unfixed": 0,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [],
+                    "unfixed_why": [],
+                    "action_stats": [
+                        {
+                            "eol": 0,
+                            "kev": 0,
+                            "why": [
+                                {
+                                    "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-5001",
+                                    "score": 8.2,
+                                    "title": "nginx 1.25.3: high vulnerability",
+                                    "signal": null,
+                                    "package": "nginx",
+                                    "version": "1.25.3",
+                                    "severity": "high",
+                                    "display_id": "CVE-2025-5001"
+                                }
+                            ],
+                            "high": 1,
+                            "owner": "parity-image",
+                            "medium": 0,
+                            "signal": 0,
+                            "critical": 0,
+                            "owner_id": 1,
+                            "relevant": 1,
+                            "owner_type": "App\\Models\\Application"
+                        }
+                    ],
+                    "action_status": "update_available"
+                },
+                "status": "update_available",
+                "actions": [
+                    {
+                        "ref": "nginx:alpine",
+                        "copy": null,
+                        "type": "pull_latest",
+                        "image": "nginx:alpine",
+                        "parts": [],
+                        "button": true,
+                        "target": "alpine",
+                        "sentence": "Pull the newer build of nginx:alpine and restart.",
+                        "fixed_ids": [
+                            "CVE-2025-5001"
+                        ]
+                    }
+                ],
+                "checked_at": "2025-12-30T10:05:00+00:00",
+                "high_count": 1,
+                "more_fixed": 0,
+                "check_reason": null,
+                "medium_count": 0,
+                "primary_high": 1,
+                "any_exploited": false,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 1,
+                "critical_count": 0,
+                "primary_medium": 0,
+                "exploited_count": 0,
+                "fixed_by_primary": 1,
+                "primary_critical": 0,
+                "exploited_without_fix": false
+            },
+            "headline": "A newer build of this image is available. Pull it and restart. This fixes 1 serious problem (1 high). Attackers are not known to use it.",
+            "lines": [],
+            "badge": "Security update",
+            "image_sentence": "nginx:alpine has a newer build that fixes a serious problem.",
+            "version_check_running": "Coolify is checking for newer versions of nginx:alpine.",
+            "attack_note": "No known attacks on this problem.",
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": "Docker Hub has a newer build of alpine. Coolify scanned it 11 hours ago: it fixes these problems and adds none that attackers use.",
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "Security update",
+            "action": {
+                "text": "Pull the newer build of nginx:alpine and restart.",
+                "link": true,
+                "muted": false
+            },
+            "images_line": "1 of 2 images",
+            "marker": null
+        },
+        {
+            "uuid": "t1parityscannodeploy0001",
+            "security": {
+                "eol": null,
+                "why": [
+                    {
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-1001",
+                        "score": 9.8,
+                        "title": "OpenSSL allows remote code execution through a crafted certificate.",
+                        "signal": "exploited",
+                        "package": "openssl",
+                        "version": "3.0.1",
+                        "severity": "critical",
+                        "display_id": "CVE-2025-1001"
+                    }
+                ],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 1,
+                        "high_fixed": 0,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 1,
+                        "critical_fixed": 1,
+                        "relevant_fixed": 1,
+                        "signal_unfixed": 0,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [],
+                    "unfixed_why": [],
+                    "action_stats": [
+                        {
+                            "eol": 0,
+                            "kev": 1,
+                            "why": [
+                                {
+                                    "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-1001",
+                                    "score": 9.8,
+                                    "title": "OpenSSL allows remote code execution through a crafted certificate.",
+                                    "signal": "exploited",
+                                    "package": "openssl",
+                                    "version": "3.0.1",
+                                    "severity": "critical",
+                                    "display_id": "CVE-2025-1001"
+                                }
+                            ],
+                            "high": 0,
+                            "owner": "parity-image",
+                            "medium": 0,
+                            "signal": 1,
+                            "critical": 1,
+                            "owner_id": 1,
+                            "relevant": 1,
+                            "owner_type": "App\\Models\\Application"
+                        }
+                    ],
+                    "action_status": "update_now"
+                },
+                "status": "update_now",
+                "actions": [
+                    {
+                        "ref": "nginx:1.27.4-alpine",
+                        "copy": null,
+                        "type": "update_image",
+                        "image": "nginx:alpine",
+                        "parts": [],
+                        "button": true,
+                        "target": "1.27.4-alpine",
+                        "sentence": "Update to 1.27.4-alpine.",
+                        "fixed_ids": [
+                            "CVE-2025-1001"
+                        ]
+                    }
+                ],
+                "checked_at": "2025-12-31T15:00:00+00:00",
+                "high_count": 0,
+                "more_fixed": 0,
+                "check_reason": null,
+                "medium_count": 0,
+                "primary_high": 0,
+                "any_exploited": true,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 1,
+                "critical_count": 1,
+                "primary_medium": 0,
+                "exploited_count": 1,
+                "fixed_by_primary": 1,
+                "primary_critical": 1,
+                "exploited_without_fix": false
+            },
+            "headline": "This image has a security problem that attackers are using. Update to 1.27.4-alpine to fix it.",
+            "lines": [],
+            "badge": "Update now",
+            "image_sentence": "nginx:alpine has a security problem that attackers are using. Update to 1.27.4-alpine to fix it.",
+            "version_check_running": "Coolify is checking for newer versions of nginx:alpine.",
+            "attack_note": null,
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": "1.27.4-alpine is the newest 1.x release on Docker Hub. Coolify scanned it 11 hours ago: it fixes these problems and adds none that attackers use.",
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "Update now",
+            "action": {
+                "text": "Update to 1.27.4-alpine.",
+                "link": true,
+                "muted": false
+            },
+            "images_line": "1 of 2 images",
+            "marker": {
+                "status": "update_now",
+                "text": "Update now",
+                "label": "Security: update now. Update to 1.27.4-alpine.",
+                "tooltip": "Update to 1.27.4-alpine."
+            }
+        },
+        {
+            "uuid": "t3parityscanoldfinish003",
+            "security": {
+                "eol": null,
+                "why": [],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 0,
+                        "high_fixed": 0,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 0,
+                        "critical_fixed": 0,
+                        "relevant_fixed": 0,
+                        "signal_unfixed": 0,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [],
+                    "unfixed_why": [],
+                    "action_stats": [],
+                    "action_status": "ok"
+                },
+                "status": "ok",
+                "actions": [],
+                "checked_at": "2025-12-31T17:00:00+00:00",
+                "high_count": 0,
+                "more_fixed": 0,
+                "check_reason": null,
+                "medium_count": 0,
+                "primary_high": 0,
+                "any_exploited": false,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 0,
+                "critical_count": 0,
+                "primary_medium": 0,
+                "exploited_count": 0,
+                "fixed_by_primary": 0,
+                "primary_critical": 0,
+                "exploited_without_fix": false
+            },
+            "headline": "No action needed.",
+            "lines": [],
+            "badge": null,
+            "image_sentence": "nginx:alpine needs no action.",
+            "version_check_running": "Coolify is checking for newer versions of nginx:alpine.",
+            "attack_note": null,
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": null,
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "No action needed",
+            "action": null,
+            "images_line": null,
+            "marker": null
+        },
+        {
+            "uuid": "t4parityscanserviceweb04",
+            "security": {
+                "eol": null,
+                "why": [
+                    {
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-1001",
+                        "score": 9.8,
+                        "title": "OpenSSL allows remote code execution through a crafted certificate.",
+                        "signal": "exploited",
+                        "package": "openssl",
+                        "version": "3.0.1",
+                        "severity": "critical",
+                        "display_id": "CVE-2025-1001"
+                    }
+                ],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 1,
+                        "high_fixed": 0,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 1,
+                        "critical_fixed": 1,
+                        "relevant_fixed": 1,
+                        "signal_unfixed": 0,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [],
+                    "unfixed_why": [],
+                    "action_stats": [
+                        {
+                            "eol": 0,
+                            "kev": 1,
+                            "why": [
+                                {
+                                    "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-1001",
+                                    "score": 9.8,
+                                    "title": "OpenSSL allows remote code execution through a crafted certificate.",
+                                    "signal": "exploited",
+                                    "package": "openssl",
+                                    "version": "3.0.1",
+                                    "severity": "critical",
+                                    "display_id": "CVE-2025-1001"
+                                }
+                            ],
+                            "high": 0,
+                            "owner": "web",
+                            "medium": 0,
+                            "signal": 1,
+                            "critical": 1,
+                            "owner_id": 1,
+                            "relevant": 1,
+                            "owner_type": "App\\Models\\ServiceApplication"
+                        }
+                    ],
+                    "action_status": "update_now"
+                },
+                "status": "update_now",
+                "actions": [
+                    {
+                        "ref": "nginx:1.27.4-alpine",
+                        "copy": null,
+                        "type": "update_image",
+                        "image": "nginx:alpine",
+                        "parts": [],
+                        "button": true,
+                        "target": "1.27.4-alpine",
+                        "sentence": "Update to 1.27.4-alpine.",
+                        "fixed_ids": [
+                            "CVE-2025-1001"
+                        ]
+                    }
+                ],
+                "checked_at": "2025-12-31T12:00:00+00:00",
+                "high_count": 0,
+                "more_fixed": 0,
+                "check_reason": null,
+                "medium_count": 0,
+                "primary_high": 0,
+                "any_exploited": true,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 1,
+                "critical_count": 1,
+                "primary_medium": 0,
+                "exploited_count": 1,
+                "fixed_by_primary": 1,
+                "primary_critical": 1,
+                "exploited_without_fix": false
+            },
+            "headline": "This image has a security problem that attackers are using. Update to 1.27.4-alpine to fix it.",
+            "lines": [],
+            "badge": "Update now",
+            "image_sentence": "nginx:alpine has a security problem that attackers are using. Update to 1.27.4-alpine to fix it.",
+            "version_check_running": "Coolify is checking for newer versions of nginx:alpine.",
+            "attack_note": null,
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": "1.27.4-alpine is the newest 1.x release on Docker Hub. Coolify scanned it 11 hours ago: it fixes these problems and adds none that attackers use.",
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "Update now",
+            "action": {
+                "text": "Update to 1.27.4-alpine.",
+                "link": true,
+                "muted": false
+            },
+            "images_line": "1 of 2 images",
+            "marker": {
+                "status": "update_now",
+                "text": "Update now",
+                "label": "Security: update now. Update to 1.27.4-alpine.",
+                "tooltip": "Update to 1.27.4-alpine."
+            }
+        },
+        {
+            "uuid": "t5parityscanservicedb005",
+            "security": {
+                "eol": null,
+                "why": [
+                    {
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-5001",
+                        "score": 8.2,
+                        "title": "nginx 1.25.3: high vulnerability",
+                        "signal": null,
+                        "package": "nginx",
+                        "version": "1.25.3",
+                        "severity": "high",
+                        "display_id": "CVE-2025-5001"
+                    }
+                ],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 0,
+                        "high_fixed": 1,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 0,
+                        "critical_fixed": 0,
+                        "relevant_fixed": 1,
+                        "signal_unfixed": 1,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [],
+                    "unfixed_why": [
+                        {
+                            "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-1006",
+                            "score": 9.1,
+                            "title": "glibc: a buffer overflow in the resolver lets an attacker run code.",
+                            "signal": "likely",
+                            "package": "glibc",
+                            "version": "2.36",
+                            "severity": "critical",
+                            "display_id": "CVE-2025-1006"
+                        }
+                    ],
+                    "action_stats": [
+                        {
+                            "eol": 0,
+                            "kev": 0,
+                            "why": [
+                                {
+                                    "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-5001",
+                                    "score": 8.2,
+                                    "title": "nginx 1.25.3: high vulnerability",
+                                    "signal": null,
+                                    "package": "nginx",
+                                    "version": "1.25.3",
+                                    "severity": "high",
+                                    "display_id": "CVE-2025-5001"
+                                }
+                            ],
+                            "high": 1,
+                            "owner": "Database",
+                            "medium": 0,
+                            "signal": 0,
+                            "critical": 0,
+                            "owner_id": 1,
+                            "relevant": 1,
+                            "owner_type": "App\\Models\\ServiceDatabase"
+                        }
+                    ],
+                    "action_status": "update_available"
+                },
+                "status": "update_available",
+                "actions": [
+                    {
+                        "ref": "nginx:1.27.4-alpine",
+                        "copy": null,
+                        "type": "update_image",
+                        "image": "nginx:alpine",
+                        "parts": [],
+                        "button": true,
+                        "target": "1.27.4-alpine",
+                        "sentence": "Update to 1.27.4-alpine.",
+                        "fixed_ids": [
+                            "CVE-2025-5001"
+                        ]
+                    }
+                ],
+                "checked_at": "2025-12-31T12:00:00+00:00",
+                "high_count": 1,
+                "more_fixed": 0,
+                "check_reason": null,
+                "medium_count": 0,
+                "primary_high": 1,
+                "any_exploited": false,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 1,
+                "critical_count": 0,
+                "primary_medium": 0,
+                "exploited_count": 1,
+                "fixed_by_primary": 1,
+                "primary_critical": 0,
+                "exploited_without_fix": true
+            },
+            "headline": "Update to 1.27.4-alpine. This fixes 1 serious problem (1 high).",
+            "lines": [
+                "One more problem that attackers are likely to use has no fix yet."
+            ],
+            "badge": "Security update",
+            "image_sentence": "nginx:alpine has a serious problem. Update to 1.27.4-alpine to fix it.",
+            "version_check_running": "Coolify is checking for newer versions of nginx:alpine.",
+            "attack_note": null,
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": "1.27.4-alpine is the newest 1.x release on Docker Hub. Coolify scanned it 11 hours ago: it fixes these problems and adds none that attackers use.",
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "Security update",
+            "action": {
+                "text": "Update to 1.27.4-alpine.",
+                "link": true,
+                "muted": false
+            },
+            "images_line": "1 of 2 images",
+            "marker": null
+        },
+        {
+            "uuid": "t6parityscanvariable0006",
+            "security": {
+                "eol": null,
+                "why": [
+                    {
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-5001",
+                        "score": 8.2,
+                        "title": "nginx 1.25.3: high vulnerability",
+                        "signal": null,
+                        "package": "nginx",
+                        "version": "1.25.3",
+                        "severity": "high",
+                        "display_id": "CVE-2025-5001"
+                    }
+                ],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 0,
+                        "high_fixed": 1,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 0,
+                        "critical_fixed": 0,
+                        "relevant_fixed": 1,
+                        "signal_unfixed": 0,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [],
+                    "unfixed_why": [],
+                    "action_stats": [
+                        {
+                            "eol": 0,
+                            "kev": 0,
+                            "why": [
+                                {
+                                    "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-5001",
+                                    "score": 8.2,
+                                    "title": "nginx 1.25.3: high vulnerability",
+                                    "signal": null,
+                                    "package": "nginx",
+                                    "version": "1.25.3",
+                                    "severity": "high",
+                                    "display_id": "CVE-2025-5001"
+                                }
+                            ],
+                            "high": 1,
+                            "owner": "web",
+                            "medium": 0,
+                            "signal": 0,
+                            "critical": 0,
+                            "owner_id": 1,
+                            "relevant": 1,
+                            "owner_type": "App\\Models\\ServiceApplication"
+                        }
+                    ],
+                    "action_status": "update_available"
+                },
+                "status": "update_available",
+                "actions": [
+                    {
+                        "ref": "nginx:1.27.4-alpine",
+                        "copy": null,
+                        "type": "update_image",
+                        "image": "nginx:alpine",
+                        "parts": [],
+                        "button": true,
+                        "target": "1.27.4-alpine",
+                        "sentence": "Update to 1.27.4-alpine.",
+                        "fixed_ids": [
+                            "CVE-2025-5001"
+                        ]
+                    }
+                ],
+                "checked_at": "2025-12-31T12:00:00+00:00",
+                "high_count": 1,
+                "more_fixed": 0,
+                "check_reason": null,
+                "medium_count": 0,
+                "primary_high": 1,
+                "any_exploited": false,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 1,
+                "critical_count": 0,
+                "primary_medium": 0,
+                "exploited_count": 0,
+                "fixed_by_primary": 1,
+                "primary_critical": 0,
+                "exploited_without_fix": false
+            },
+            "headline": "Update to 1.27.4-alpine. This fixes 1 serious problem (1 high). Attackers are not known to use it.",
+            "lines": [],
+            "badge": "Security update",
+            "image_sentence": "nginx:alpine has a serious problem. Update to 1.27.4-alpine to fix it.",
+            "version_check_running": "Coolify is checking for newer versions of nginx:alpine.",
+            "attack_note": "No known attacks on this problem.",
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": "1.27.4-alpine is the newest 1.x release on Docker Hub. Coolify scanned it 11 hours ago: it fixes these problems and adds none that attackers use.",
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "Security update",
+            "action": {
+                "text": "Update to 1.27.4-alpine.",
+                "link": true,
+                "muted": false
+            },
+            "images_line": "1 of 2 images",
+            "marker": null
+        },
+        {
+            "uuid": "t7parityscanvariabledb07",
+            "security": {
+                "eol": null,
+                "why": [],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 0,
+                        "high_fixed": 0,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 0,
+                        "critical_fixed": 0,
+                        "relevant_fixed": 0,
+                        "signal_unfixed": 0,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [],
+                    "unfixed_why": [],
+                    "action_stats": [],
+                    "action_status": "ok"
+                },
+                "status": "ok",
+                "actions": [],
+                "checked_at": "2025-12-31T12:00:00+00:00",
+                "high_count": 0,
+                "more_fixed": 0,
+                "check_reason": null,
+                "medium_count": 0,
+                "primary_high": 0,
+                "any_exploited": false,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 0,
+                "critical_count": 0,
+                "primary_medium": 0,
+                "exploited_count": 0,
+                "fixed_by_primary": 0,
+                "primary_critical": 0,
+                "exploited_without_fix": false
+            },
+            "headline": "No action needed.",
+            "lines": [],
+            "badge": null,
+            "image_sentence": "postgres:16-alpine needs no action.",
+            "version_check_running": "Coolify is checking for newer versions of postgres:16-alpine.",
+            "attack_note": null,
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": null,
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "No action needed",
+            "action": null,
+            "images_line": null,
+            "marker": null
+        },
+        {
+            "uuid": "t8parityscandockerfile08",
+            "security": {
+                "eol": null,
+                "why": [],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 0,
+                        "high_fixed": 0,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 0,
+                        "critical_fixed": 0,
+                        "relevant_fixed": 0,
+                        "signal_unfixed": 0,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [
+                        "image_changed",
+                        "versions_unchecked"
+                    ],
+                    "unfixed_why": [],
+                    "action_stats": [],
+                    "action_status": "ok"
+                },
+                "status": "check_needed",
+                "actions": [],
+                "checked_at": "2025-12-29T09:10:00+00:00",
+                "high_count": 0,
+                "more_fixed": 0,
+                "check_reason": "stale",
+                "medium_count": 0,
+                "primary_high": 0,
+                "any_exploited": false,
+                "builder_image": false,
+                "check_context": {
+                    "time": "2025-12-29T09:10:00+00:00"
+                },
+                "problem_count": 0,
+                "critical_count": 0,
+                "primary_medium": 0,
+                "exploited_count": 0,
+                "fixed_by_primary": 0,
+                "primary_critical": 0,
+                "exploited_without_fix": false
+            },
+            "headline": "Coolify needs to check this image again: the last check was 2 days ago.",
+            "lines": [],
+            "badge": "Check needed",
+            "image_sentence": "a2paritygitapp0000000002:c0ffee1 needs another check: the last check was 2 days ago.",
+            "version_check_running": "Coolify is checking for newer versions of a2paritygitapp0000000002:c0ffee1.",
+            "attack_note": null,
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": null,
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "Check needed",
+            "action": {
+                "text": "Check again: the last check was 2 days ago.",
+                "link": true,
+                "muted": true
+            },
+            "images_line": null,
+            "marker": null
+        },
+        {
+            "uuid": "t9parityscandockerfile09",
+            "security": {
+                "eol": null,
+                "why": [],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 0,
+                        "high_fixed": 0,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 0,
+                        "critical_fixed": 0,
+                        "relevant_fixed": 0,
+                        "signal_unfixed": 0,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [
+                        "image_changed",
+                        "versions_unchecked"
+                    ],
+                    "unfixed_why": [],
+                    "action_stats": [],
+                    "action_status": "ok"
+                },
+                "status": "check_needed",
+                "actions": [],
+                "checked_at": "2025-12-30T09:10:00+00:00",
+                "high_count": 0,
+                "more_fixed": 0,
+                "check_reason": "image_changed",
+                "medium_count": 0,
+                "primary_high": 0,
+                "any_exploited": false,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 0,
+                "critical_count": 0,
+                "primary_medium": 0,
+                "exploited_count": 0,
+                "fixed_by_primary": 0,
+                "primary_critical": 0,
+                "exploited_without_fix": false
+            },
+            "headline": "Coolify needs to check this image again: the running image is not the checked image.",
+            "lines": [],
+            "badge": "Check needed",
+            "image_sentence": "a2paritygitapp0000000002:c0ffee2 needs another check: the running image is not the checked image.",
+            "version_check_running": "Coolify is checking for newer versions of a2paritygitapp0000000002:c0ffee2.",
+            "attack_note": null,
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": null,
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "Check needed",
+            "action": {
+                "text": "Check again: the running image is not the checked image.",
+                "link": true,
+                "muted": true
+            },
+            "images_line": null,
+            "marker": null
+        },
+        {
+            "uuid": "u1parityscandockerfile10",
+            "security": {
+                "eol": null,
+                "why": [
+                    {
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-7001",
+                        "score": 9.3,
+                        "title": "libc6 2.36-9: critical vulnerability",
+                        "signal": "exploited",
+                        "package": "libc6",
+                        "version": "2.36-9",
+                        "severity": "critical",
+                        "display_id": "CVE-2025-7001"
+                    }
+                ],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 1,
+                        "high_fixed": 3,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 1,
+                        "critical_fixed": 2,
+                        "relevant_fixed": 5,
+                        "signal_unfixed": 1,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [],
+                    "unfixed_why": [
+                        {
+                            "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-7002",
+                            "score": 8.1,
+                            "title": "libexpat1 2.5.0-1: high vulnerability",
+                            "signal": "likely",
+                            "package": "libexpat1",
+                            "version": "2.5.0-1",
+                            "severity": "high",
+                            "display_id": "CVE-2025-7002"
+                        }
+                    ],
+                    "action_stats": [
+                        {
+                            "eol": 0,
+                            "kev": 1,
+                            "why": [
+                                {
+                                    "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-7001",
+                                    "score": 9.3,
+                                    "title": "libc6 2.36-9: critical vulnerability",
+                                    "signal": "exploited",
+                                    "package": "libc6",
+                                    "version": "2.36-9",
+                                    "severity": "critical",
+                                    "display_id": "CVE-2025-7001"
+                                }
+                            ],
+                            "high": 0,
+                            "owner": "parity-git",
+                            "medium": 0,
+                            "signal": 1,
+                            "critical": 1,
+                            "owner_id": 2,
+                            "relevant": 1,
+                            "owner_type": "App\\Models\\Application"
+                        },
+                        {
+                            "eol": 0,
+                            "kev": 0,
+                            "why": [
+                                {
+                                    "link": "https://github.com/advisories/GHSA-4444-5555-6666",
+                                    "score": 9.1,
+                                    "title": "lodash 3.10.1: critical vulnerability",
+                                    "signal": null,
+                                    "package": "lodash",
+                                    "version": "3.10.1",
+                                    "severity": "critical",
+                                    "display_id": "GHSA-4444-5555-6666"
+                                },
+                                {
+                                    "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-7005",
+                                    "score": 7.2,
+                                    "title": "lodash 3.10.1: high vulnerability",
+                                    "signal": null,
+                                    "package": "lodash",
+                                    "version": "3.10.1",
+                                    "severity": "high",
+                                    "display_id": "CVE-2025-7005"
+                                }
+                            ],
+                            "high": 1,
+                            "owner": "parity-git",
+                            "medium": 0,
+                            "signal": 0,
+                            "critical": 1,
+                            "owner_id": 2,
+                            "relevant": 2,
+                            "owner_type": "App\\Models\\Application"
+                        },
+                        {
+                            "eol": 0,
+                            "kev": 0,
+                            "why": [
+                                {
+                                    "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-7003",
+                                    "score": 7.1,
+                                    "title": "imagemagick 6.9.11: high vulnerability",
+                                    "signal": null,
+                                    "package": "imagemagick",
+                                    "version": "6.9.11",
+                                    "severity": "high",
+                                    "display_id": "CVE-2025-7003"
+                                }
+                            ],
+                            "high": 1,
+                            "owner": "parity-git",
+                            "medium": 0,
+                            "signal": 0,
+                            "critical": 0,
+                            "owner_id": 2,
+                            "relevant": 1,
+                            "owner_type": "App\\Models\\Application"
+                        },
+                        {
+                            "eol": 0,
+                            "kev": 0,
+                            "why": [
+                                {
+                                    "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-7004",
+                                    "score": 7.4,
+                                    "title": "libssl3 3.0.11-1: high vulnerability",
+                                    "signal": null,
+                                    "package": "libssl3",
+                                    "version": "3.0.11-1",
+                                    "severity": "high",
+                                    "display_id": "CVE-2025-7004"
+                                }
+                            ],
+                            "high": 1,
+                            "owner": "parity-git",
+                            "medium": 0,
+                            "signal": 0,
+                            "critical": 0,
+                            "owner_id": 2,
+                            "relevant": 1,
+                            "owner_type": "App\\Models\\Application"
+                        }
+                    ],
+                    "action_status": "update_now"
+                },
+                "status": "update_now",
+                "actions": [
+                    {
+                        "ref": null,
+                        "copy": "FROM node:20.18-bookworm",
+                        "type": "change_base",
+                        "image": "a2paritygitapp0000000002:c0ffee3",
+                        "parts": [],
+                        "button": false,
+                        "target": "node:20.18-bookworm",
+                        "sentence": "Change the base image to node:20.18-bookworm in your Dockerfile, then redeploy.",
+                        "fixed_ids": [
+                            "CVE-2025-7001"
+                        ]
+                    },
+                    {
+                        "ref": null,
+                        "copy": "lodash v4.17.21",
+                        "type": "upgrade_package",
+                        "image": "a2paritygitapp0000000002:c0ffee3",
+                        "parts": [],
+                        "button": false,
+                        "target": "lodash",
+                        "sentence": "Upgrade lodash to v4.17.21 or later, then redeploy. This is a major version change. Check for breaking changes.",
+                        "fixed_ids": [
+                            "GHSA-1111-2222-3333",
+                            "GHSA-4444-5555-6666"
+                        ]
+                    },
+                    {
+                        "ref": null,
+                        "copy": null,
+                        "type": "rebuild",
+                        "image": "a2paritygitapp0000000002:c0ffee3",
+                        "parts": [],
+                        "button": true,
+                        "target": null,
+                        "sentence": "Rebuild without cache to get the fixed system packages.",
+                        "fixed_ids": [
+                            "CVE-2025-7003"
+                        ]
+                    },
+                    {
+                        "ref": null,
+                        "copy": null,
+                        "type": "upgrade_in_dockerfile",
+                        "image": "a2paritygitapp0000000002:c0ffee3",
+                        "parts": [],
+                        "button": false,
+                        "target": "libssl3",
+                        "sentence": "Upgrade libssl3 to 3.0.15-1 or later in your Dockerfile.",
+                        "fixed_ids": [
+                            "CVE-2025-7004"
+                        ]
+                    }
+                ],
+                "checked_at": "2025-12-31T12:00:00+00:00",
+                "high_count": 3,
+                "more_fixed": 0,
+                "check_reason": null,
+                "medium_count": 0,
+                "primary_high": 0,
+                "any_exploited": true,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 1,
+                "critical_count": 2,
+                "primary_medium": 0,
+                "exploited_count": 2,
+                "fixed_by_primary": 1,
+                "primary_critical": 1,
+                "exploited_without_fix": true
+            },
+            "headline": "This image has a security problem that attackers are using. Change the base image to node:20.18-bookworm in your Dockerfile, then redeploy.",
+            "lines": [
+                "One more problem that attackers are likely to use has no fix yet."
+            ],
+            "badge": "Update now",
+            "image_sentence": "a2paritygitapp0000000002:c0ffee3 has a security problem that attackers are using. Change the base image to node:20.18-bookworm in your Dockerfile, then redeploy.",
+            "version_check_running": "Coolify is checking for newer versions of a2paritygitapp0000000002:c0ffee3.",
+            "attack_note": null,
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": "node:20.18-bookworm is the newest release of your base image. Coolify scanned it 11 hours ago: it fixes these problems and adds none that attackers use.",
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "Update now",
+            "action": {
+                "text": "Change the base image to node:20.18-bookworm in your Dockerfile, then redeploy.",
+                "link": true,
+                "muted": false
+            },
+            "images_line": "1 of 2 images",
+            "marker": {
+                "status": "update_now",
+                "text": "Update now",
+                "label": "Security: update now. Change the base image to node:20.18-bookworm in your Dockerfile, then redeploy.",
+                "tooltip": "Change the base image to node:20.18-bookworm in your Dockerfile, then redeploy."
+            }
+        },
+        {
+            "uuid": "u2parityscandockerfile11",
+            "security": {
+                "eol": null,
+                "why": [
+                    {
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-7001",
+                        "score": 9.3,
+                        "title": "libc6 2.36-9: critical vulnerability",
+                        "signal": "exploited",
+                        "package": "libc6",
+                        "version": "2.36-9",
+                        "severity": "critical",
+                        "display_id": "CVE-2025-7001"
+                    }
+                ],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 0,
+                        "high_fixed": 0,
+                        "kev_unfixed": 1,
+                        "medium_fixed": 0,
+                        "signal_fixed": 0,
+                        "critical_fixed": 0,
+                        "relevant_fixed": 0,
+                        "signal_unfixed": 1,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [
+                        "versions_unchecked"
+                    ],
+                    "unfixed_why": [
+                        {
+                            "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-7001",
+                            "score": 9.3,
+                            "title": "libc6 2.36-9: critical vulnerability",
+                            "signal": "exploited",
+                            "package": "libc6",
+                            "version": "2.36-9",
+                            "severity": "critical",
+                            "display_id": "CVE-2025-7001"
+                        }
+                    ],
+                    "action_stats": [],
+                    "action_status": "no_fix"
+                },
+                "status": "check_needed",
+                "actions": [],
+                "checked_at": "2025-12-31T12:00:00+00:00",
+                "high_count": 0,
+                "more_fixed": 0,
+                "check_reason": "versions_unchecked",
+                "medium_count": 0,
+                "primary_high": 0,
+                "any_exploited": true,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 1,
+                "critical_count": 0,
+                "primary_medium": 0,
+                "exploited_count": 1,
+                "fixed_by_primary": 0,
+                "primary_critical": 0,
+                "exploited_without_fix": false
+            },
+            "headline": "Coolify needs to check this image again: Coolify has not checked for newer versions yet.",
+            "lines": [],
+            "badge": "Check needed",
+            "image_sentence": "a2paritygitapp0000000002:c0ffee3 needs another check: Coolify has not checked for newer versions yet.",
+            "version_check_running": "Coolify is checking for newer versions of a2paritygitapp0000000002:c0ffee3.",
+            "attack_note": null,
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": null,
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "Check needed",
+            "action": {
+                "text": "Check again: Coolify has not checked for newer versions yet.",
+                "link": true,
+                "muted": true
+            },
+            "images_line": null,
+            "marker": null
+        },
+        {
+            "uuid": "u3parityscandockerfile12",
+            "security": {
+                "eol": null,
+                "why": [
+                    {
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-7003",
+                        "score": 7.1,
+                        "title": "imagemagick 6.9.11: high vulnerability",
+                        "signal": null,
+                        "package": "imagemagick",
+                        "version": "6.9.11",
+                        "severity": "high",
+                        "display_id": "CVE-2025-7003"
+                    }
+                ],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 0,
+                        "high_fixed": 1,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 0,
+                        "critical_fixed": 0,
+                        "relevant_fixed": 1,
+                        "signal_unfixed": 0,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [
+                        "image_changed"
+                    ],
+                    "unfixed_why": [],
+                    "action_stats": [
+                        {
+                            "eol": 0,
+                            "kev": 0,
+                            "why": [
+                                {
+                                    "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-7003",
+                                    "score": 7.1,
+                                    "title": "imagemagick 6.9.11: high vulnerability",
+                                    "signal": null,
+                                    "package": "imagemagick",
+                                    "version": "6.9.11",
+                                    "severity": "high",
+                                    "display_id": "CVE-2025-7003"
+                                }
+                            ],
+                            "high": 1,
+                            "owner": "parity-git",
+                            "medium": 0,
+                            "signal": 0,
+                            "critical": 0,
+                            "owner_id": 2,
+                            "relevant": 1,
+                            "owner_type": "App\\Models\\Application"
+                        }
+                    ],
+                    "action_status": "update_available"
+                },
+                "status": "check_needed",
+                "actions": [
+                    {
+                        "ref": null,
+                        "copy": null,
+                        "type": "rebuild",
+                        "image": "a2paritygitapp0000000002:c0ffee3",
+                        "parts": [],
+                        "button": true,
+                        "target": null,
+                        "sentence": "Rebuild without cache to get the fixed system packages.",
+                        "fixed_ids": [
+                            "CVE-2025-7003"
+                        ]
+                    }
+                ],
+                "checked_at": "2025-12-31T12:00:00+00:00",
+                "high_count": 1,
+                "more_fixed": 0,
+                "check_reason": "image_changed",
+                "medium_count": 0,
+                "primary_high": 1,
+                "any_exploited": false,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 1,
+                "critical_count": 0,
+                "primary_medium": 0,
+                "exploited_count": 0,
+                "fixed_by_primary": 1,
+                "primary_critical": 0,
+                "exploited_without_fix": false
+            },
+            "headline": "Coolify needs to check this image again: the running image is not the checked image.",
+            "lines": [],
+            "badge": "Check needed",
+            "image_sentence": "a2paritygitapp0000000002:c0ffee3 needs another check: the running image is not the checked image.",
+            "version_check_running": "Coolify is checking for newer versions of a2paritygitapp0000000002:c0ffee3.",
+            "attack_note": null,
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": "The current base image already has the fixed system packages.",
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "Check needed",
+            "action": {
+                "text": "Check again: the running image is not the checked image.",
+                "link": true,
+                "muted": true
+            },
+            "images_line": null,
+            "marker": null
+        },
+        {
+            "uuid": "u4parityscanbuiltinci014",
+            "security": {
+                "eol": null,
+                "why": [
+                    {
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-1001",
+                        "score": 9.8,
+                        "title": "OpenSSL allows remote code execution through a crafted certificate.",
+                        "signal": "exploited",
+                        "package": "openssl",
+                        "version": "3.0.1",
+                        "severity": "critical",
+                        "display_id": "CVE-2025-1001"
+                    }
+                ],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 1,
+                        "high_fixed": 2,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 1,
+                        "critical_fixed": 1,
+                        "relevant_fixed": 3,
+                        "signal_unfixed": 0,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [],
+                    "unfixed_why": [],
+                    "action_stats": [
+                        {
+                            "eol": 0,
+                            "kev": 1,
+                            "why": [
+                                {
+                                    "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-1001",
+                                    "score": 9.8,
+                                    "title": "OpenSSL allows remote code execution through a crafted certificate.",
+                                    "signal": "exploited",
+                                    "package": "openssl",
+                                    "version": "3.0.1",
+                                    "severity": "critical",
+                                    "display_id": "CVE-2025-1001"
+                                }
+                            ],
+                            "high": 0,
+                            "owner": "parity-image",
+                            "medium": 0,
+                            "signal": 1,
+                            "critical": 1,
+                            "owner_id": 1,
+                            "relevant": 1,
+                            "owner_type": "App\\Models\\Application"
+                        },
+                        {
+                            "eol": 0,
+                            "kev": 0,
+                            "why": [
+                                {
+                                    "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-7005",
+                                    "score": 7.2,
+                                    "title": "lodash 3.10.1: high vulnerability",
+                                    "signal": null,
+                                    "package": "lodash",
+                                    "version": "3.10.1",
+                                    "severity": "high",
+                                    "display_id": "CVE-2025-7005"
+                                }
+                            ],
+                            "high": 1,
+                            "owner": "parity-image",
+                            "medium": 0,
+                            "signal": 0,
+                            "critical": 0,
+                            "owner_id": 1,
+                            "relevant": 1,
+                            "owner_type": "App\\Models\\Application"
+                        },
+                        {
+                            "eol": 0,
+                            "kev": 0,
+                            "why": [
+                                {
+                                    "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-7003",
+                                    "score": 7.1,
+                                    "title": "imagemagick 6.9.11: high vulnerability",
+                                    "signal": null,
+                                    "package": "imagemagick",
+                                    "version": "6.9.11",
+                                    "severity": "high",
+                                    "display_id": "CVE-2025-7003"
+                                }
+                            ],
+                            "high": 1,
+                            "owner": "parity-image",
+                            "medium": 0,
+                            "signal": 0,
+                            "critical": 0,
+                            "owner_id": 1,
+                            "relevant": 1,
+                            "owner_type": "App\\Models\\Application"
+                        }
+                    ],
+                    "action_status": "update_now"
+                },
+                "status": "update_now",
+                "actions": [
+                    {
+                        "ref": "nginx:1.27.4-alpine",
+                        "copy": null,
+                        "type": "update_image",
+                        "image": "nginx:alpine",
+                        "parts": [],
+                        "button": true,
+                        "target": "1.27.4-alpine",
+                        "sentence": "Update to 1.27.4-alpine.",
+                        "fixed_ids": [
+                            "CVE-2025-1001"
+                        ]
+                    },
+                    {
+                        "ref": null,
+                        "copy": "lodash 4.17.20",
+                        "type": "upgrade_package",
+                        "image": "nginx:alpine",
+                        "parts": [],
+                        "button": false,
+                        "target": "lodash",
+                        "sentence": "Upgrade lodash to 4.17.20 or later, then redeploy. This is a major version change. Check for breaking changes.",
+                        "fixed_ids": [
+                            "GHSA-1111-2222-3333"
+                        ]
+                    },
+                    {
+                        "ref": null,
+                        "copy": null,
+                        "type": "rebuild_in_ci",
+                        "image": "nginx:alpine",
+                        "parts": [],
+                        "button": false,
+                        "target": null,
+                        "sentence": "Rebuild the image in your CI, then redeploy.",
+                        "fixed_ids": [
+                            "CVE-2025-7003"
+                        ]
+                    }
+                ],
+                "checked_at": "2025-12-31T12:00:00+00:00",
+                "high_count": 2,
+                "more_fixed": 0,
+                "check_reason": null,
+                "medium_count": 0,
+                "primary_high": 0,
+                "any_exploited": true,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 1,
+                "critical_count": 1,
+                "primary_medium": 0,
+                "exploited_count": 1,
+                "fixed_by_primary": 1,
+                "primary_critical": 1,
+                "exploited_without_fix": false
+            },
+            "headline": "This image has a security problem that attackers are using. Update to 1.27.4-alpine to fix it.",
+            "lines": [],
+            "badge": "Update now",
+            "image_sentence": "nginx:alpine has a security problem that attackers are using. Update to 1.27.4-alpine to fix it.",
+            "version_check_running": "Coolify is checking for newer versions of nginx:alpine.",
+            "attack_note": null,
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": "1.27.4-alpine is the newest 1.x release on Docker Hub. Coolify scanned it 11 hours ago: it fixes these problems and adds none that attackers use.",
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "Update now",
+            "action": {
+                "text": "Update to 1.27.4-alpine.",
+                "link": true,
+                "muted": false
+            },
+            "images_line": "1 of 2 images",
+            "marker": {
+                "status": "update_now",
+                "text": "Update now",
+                "label": "Security: update now. Update to 1.27.4-alpine.",
+                "tooltip": "Update to 1.27.4-alpine."
+            }
+        },
+        {
+            "uuid": "u5parityscaneol000000015",
+            "security": {
+                "eol": {
+                    "name": "alpine",
+                    "fixed": true,
+                    "version": "3.16"
+                },
+                "why": [],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 0,
+                        "high_fixed": 0,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 0,
+                        "critical_fixed": 1,
+                        "relevant_fixed": 1,
+                        "signal_unfixed": 0,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [],
+                    "unfixed_why": [],
+                    "action_stats": [
+                        {
+                            "eol": 1,
+                            "kev": 0,
+                            "why": [],
+                            "high": 0,
+                            "owner": "parity-image",
+                            "medium": 0,
+                            "signal": 0,
+                            "critical": 1,
+                            "owner_id": 1,
+                            "relevant": 1,
+                            "owner_type": "App\\Models\\Application"
+                        }
+                    ],
+                    "action_status": "update_available"
+                },
+                "status": "update_available",
+                "actions": [
+                    {
+                        "ref": "nginx:1.27.4-alpine",
+                        "copy": null,
+                        "type": "update_image",
+                        "image": "nginx:alpine",
+                        "parts": [],
+                        "button": true,
+                        "target": "1.27.4-alpine",
+                        "sentence": "Update to 1.27.4-alpine.",
+                        "fixed_ids": []
+                    }
+                ],
+                "checked_at": "2025-12-31T12:00:00+00:00",
+                "high_count": 0,
+                "more_fixed": 0,
+                "check_reason": null,
+                "medium_count": 0,
+                "primary_high": 0,
+                "any_exploited": false,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 1,
+                "critical_count": 1,
+                "primary_medium": 0,
+                "exploited_count": 0,
+                "fixed_by_primary": 1,
+                "primary_critical": 1,
+                "exploited_without_fix": false
+            },
+            "headline": "Update to 1.27.4-alpine. This fixes 1 serious problem (1 critical). It moves off Alpine 3.16, which no longer gets security fixes. Attackers are not known to use it.",
+            "lines": [],
+            "badge": "Security update",
+            "image_sentence": "nginx:alpine has a critical problem. Update to 1.27.4-alpine to fix it. It moves off Alpine 3.16, which no longer gets security fixes.",
+            "version_check_running": "Coolify is checking for newer versions of nginx:alpine.",
+            "attack_note": "No known attacks on this problem.",
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": "1.27.4-alpine is the newest 1.x release on Docker Hub. Coolify scanned it 11 hours ago: it fixes these problems and adds none that attackers use.",
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "Security update",
+            "action": {
+                "text": "Update to 1.27.4-alpine.",
+                "link": true,
+                "muted": false
+            },
+            "images_line": "1 of 2 images",
+            "marker": null
+        },
+        {
+            "uuid": "u6parityscaneolpg0000016",
+            "security": {
+                "eol": {
+                    "name": "alpine",
+                    "fixed": false,
+                    "version": "3.16"
+                },
+                "why": [],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 0,
+                        "high_fixed": 0,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 0,
+                        "critical_fixed": 0,
+                        "relevant_fixed": 0,
+                        "signal_unfixed": 0,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [],
+                    "unfixed_why": [],
+                    "action_stats": [],
+                    "action_status": "ok"
+                },
+                "status": "ok",
+                "actions": [],
+                "checked_at": "2025-12-31T12:00:00+00:00",
+                "high_count": 0,
+                "more_fixed": 0,
+                "check_reason": null,
+                "medium_count": 0,
+                "primary_high": 0,
+                "any_exploited": false,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 0,
+                "critical_count": 0,
+                "primary_medium": 0,
+                "exploited_count": 0,
+                "fixed_by_primary": 0,
+                "primary_critical": 0,
+                "exploited_without_fix": false
+            },
+            "headline": "No action needed.",
+            "lines": [],
+            "badge": null,
+            "image_sentence": "postgres:16-alpine needs no action.",
+            "version_check_running": "Coolify is checking for newer versions of postgres:16-alpine.",
+            "attack_note": null,
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": null,
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "No action needed",
+            "action": null,
+            "images_line": null,
+            "marker": null
+        },
+        {
+            "uuid": "u7parityscaneolredis0017",
+            "security": {
+                "eol": {
+                    "name": "debian",
+                    "fixed": true,
+                    "version": "10"
+                },
+                "why": [],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 0,
+                        "high_fixed": 0,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 0,
+                        "critical_fixed": 1,
+                        "relevant_fixed": 1,
+                        "signal_unfixed": 0,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [],
+                    "unfixed_why": [],
+                    "action_stats": [
+                        {
+                            "eol": 1,
+                            "kev": 0,
+                            "why": [],
+                            "high": 0,
+                            "owner": "parity-redis",
+                            "medium": 0,
+                            "signal": 0,
+                            "critical": 1,
+                            "owner_id": 1,
+                            "relevant": 1,
+                            "owner_type": "App\\Models\\StandaloneRedis"
+                        }
+                    ],
+                    "action_status": "update_available"
+                },
+                "status": "update_available",
+                "actions": [
+                    {
+                        "ref": "redis:7.2",
+                        "copy": null,
+                        "type": "pull_latest",
+                        "image": "redis:7.2",
+                        "parts": [],
+                        "button": true,
+                        "target": "7.2",
+                        "sentence": "Pull the newer build of redis:7.2 and restart.",
+                        "fixed_ids": []
+                    }
+                ],
+                "checked_at": "2025-12-31T12:00:00+00:00",
+                "high_count": 0,
+                "more_fixed": 0,
+                "check_reason": null,
+                "medium_count": 0,
+                "primary_high": 0,
+                "any_exploited": false,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 1,
+                "critical_count": 1,
+                "primary_medium": 0,
+                "exploited_count": 0,
+                "fixed_by_primary": 1,
+                "primary_critical": 1,
+                "exploited_without_fix": false
+            },
+            "headline": "A newer build of this image is available. Pull it and restart. This fixes 1 serious problem (1 critical). It moves off Debian 10, which no longer gets security fixes. Attackers are not known to use it.",
+            "lines": [],
+            "badge": "Security update",
+            "image_sentence": "redis:7.2 has a newer build that fixes a critical problem. It moves off Debian 10, which no longer gets security fixes.",
+            "version_check_running": "Coolify is checking for newer versions of redis:7.2.",
+            "attack_note": "No known attacks on this problem.",
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": "Docker Hub has a newer build of 7.2. Coolify scanned it 11 hours ago: it fixes these problems and adds none that attackers use.",
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "Security update",
+            "action": {
+                "text": "Pull the newer build of redis:7.2 and restart.",
+                "link": true,
+                "muted": false
+            },
+            "images_line": "1 of 2 images",
+            "marker": null
+        },
+        {
+            "uuid": "u8parityscannoversions18",
+            "security": {
+                "eol": null,
+                "why": [],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 0,
+                        "high_fixed": 0,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 0,
+                        "critical_fixed": 0,
+                        "relevant_fixed": 0,
+                        "signal_unfixed": 0,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [
+                        "versions_unchecked"
+                    ],
+                    "unfixed_why": [],
+                    "action_stats": [],
+                    "action_status": "ok"
+                },
+                "status": "check_needed",
+                "actions": [],
+                "checked_at": "2025-12-31T12:00:00+00:00",
+                "high_count": 0,
+                "more_fixed": 0,
+                "check_reason": "versions_unchecked",
+                "medium_count": 0,
+                "primary_high": 0,
+                "any_exploited": false,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 0,
+                "critical_count": 0,
+                "primary_medium": 0,
+                "exploited_count": 0,
+                "fixed_by_primary": 0,
+                "primary_critical": 0,
+                "exploited_without_fix": false
+            },
+            "headline": "Coolify needs to check this image again: Coolify has not checked for newer versions yet.",
+            "lines": [],
+            "badge": "Check needed",
+            "image_sentence": "nginx:alpine needs another check: Coolify has not checked for newer versions yet.",
+            "version_check_running": "Coolify is checking for newer versions of nginx:alpine.",
+            "attack_note": null,
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": null,
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "Check needed",
+            "action": {
+                "text": "Check again: Coolify has not checked for newer versions yet.",
+                "link": true,
+                "muted": true
+            },
+            "images_line": null,
+            "marker": null
+        },
+        {
+            "uuid": "u9parityscanauthneeded19",
+            "security": {
+                "eol": null,
+                "why": [],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 0,
+                        "high_fixed": 0,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 0,
+                        "critical_fixed": 0,
+                        "relevant_fixed": 0,
+                        "signal_unfixed": 0,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [],
+                    "unfixed_why": [],
+                    "action_stats": [],
+                    "action_status": "ok"
+                },
+                "status": "ok",
+                "actions": [],
+                "checked_at": "2025-12-31T12:00:00+00:00",
+                "high_count": 0,
+                "more_fixed": 0,
+                "check_reason": null,
+                "medium_count": 0,
+                "primary_high": 0,
+                "any_exploited": false,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 0,
+                "critical_count": 0,
+                "primary_medium": 0,
+                "exploited_count": 0,
+                "fixed_by_primary": 0,
+                "primary_critical": 0,
+                "exploited_without_fix": false
+            },
+            "headline": "No action needed.",
+            "lines": [],
+            "badge": null,
+            "image_sentence": "postgres:16-alpine needs no action.",
+            "version_check_running": "Coolify is checking for newer versions of postgres:16-alpine.",
+            "attack_note": null,
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": null,
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "No action needed",
+            "action": null,
+            "images_line": null,
+            "marker": null
+        },
+        {
+            "uuid": "v1parityscandailylimit20",
+            "security": {
+                "eol": null,
+                "why": [],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 0,
+                        "high_fixed": 0,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 0,
+                        "critical_fixed": 0,
+                        "relevant_fixed": 0,
+                        "signal_unfixed": 0,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [],
+                    "unfixed_why": [],
+                    "action_stats": [],
+                    "action_status": "ok"
+                },
+                "status": "ok",
+                "actions": [],
+                "checked_at": "2025-12-31T12:00:00+00:00",
+                "high_count": 0,
+                "more_fixed": 0,
+                "check_reason": null,
+                "medium_count": 0,
+                "primary_high": 0,
+                "any_exploited": false,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 0,
+                "critical_count": 0,
+                "primary_medium": 0,
+                "exploited_count": 0,
+                "fixed_by_primary": 0,
+                "primary_critical": 0,
+                "exploited_without_fix": false
+            },
+            "headline": "No action needed.",
+            "lines": [],
+            "badge": null,
+            "image_sentence": "redis:7.2 needs no action.",
+            "version_check_running": "Coolify is checking for newer versions of redis:7.2.",
+            "attack_note": null,
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": null,
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "No action needed",
+            "action": null,
+            "images_line": null,
+            "marker": null
+        },
+        {
+            "uuid": "v2parityscanlockbusy0021",
+            "security": {
+                "eol": null,
+                "why": [],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 0,
+                        "high_fixed": 0,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 0,
+                        "critical_fixed": 0,
+                        "relevant_fixed": 0,
+                        "signal_unfixed": 0,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [
+                        "versions_unchecked"
+                    ],
+                    "unfixed_why": [],
+                    "action_stats": [],
+                    "action_status": "ok"
+                },
+                "status": "check_needed",
+                "actions": [],
+                "checked_at": "2025-12-31T12:00:00+00:00",
+                "high_count": 0,
+                "more_fixed": 0,
+                "check_reason": "versions_unchecked",
+                "medium_count": 0,
+                "primary_high": 0,
+                "any_exploited": false,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 0,
+                "critical_count": 0,
+                "primary_medium": 0,
+                "exploited_count": 0,
+                "fixed_by_primary": 0,
+                "primary_critical": 0,
+                "exploited_without_fix": false
+            },
+            "headline": "Coolify needs to check this image again: Coolify has not checked for newer versions yet.",
+            "lines": [],
+            "badge": "Check needed",
+            "image_sentence": "mongo:7 needs another check: Coolify has not checked for newer versions yet.",
+            "version_check_running": "Coolify is checking for newer versions of mongo:7.",
+            "attack_note": null,
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": null,
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "Check needed",
+            "action": {
+                "text": "Check again: Coolify has not checked for newer versions yet.",
+                "link": true,
+                "muted": true
+            },
+            "images_line": null,
+            "marker": null
+        },
+        {
+            "uuid": "v3parityscanlegacylist22",
+            "security": {
+                "eol": null,
+                "why": [
+                    {
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-3001",
+                        "score": 8.1,
+                        "title": "mysql-server 8.0.36: high vulnerability",
+                        "signal": "exploited",
+                        "package": "mysql-server",
+                        "version": "8.0.36",
+                        "severity": "high",
+                        "display_id": "CVE-2025-3001"
+                    }
+                ],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 1,
+                        "high_fixed": 1,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 1,
+                        "critical_fixed": 0,
+                        "relevant_fixed": 1,
+                        "signal_unfixed": 0,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [
+                        "versions_unchecked"
+                    ],
+                    "unfixed_why": [],
+                    "action_stats": [
+                        {
+                            "eol": 0,
+                            "kev": 1,
+                            "why": [
+                                {
+                                    "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-3001",
+                                    "score": 8.1,
+                                    "title": "mysql-server 8.0.36: high vulnerability",
+                                    "signal": "exploited",
+                                    "package": "mysql-server",
+                                    "version": "8.0.36",
+                                    "severity": "high",
+                                    "display_id": "CVE-2025-3001"
+                                }
+                            ],
+                            "high": 1,
+                            "owner": "parity-mysql",
+                            "medium": 0,
+                            "signal": 1,
+                            "critical": 0,
+                            "owner_id": 1,
+                            "relevant": 1,
+                            "owner_type": "App\\Models\\StandaloneMysql"
+                        }
+                    ],
+                    "action_status": "update_now"
+                },
+                "status": "check_needed",
+                "actions": [
+                    {
+                        "ref": "mysql:8.4",
+                        "copy": null,
+                        "type": "update_image",
+                        "image": "mysql:8",
+                        "parts": [],
+                        "button": true,
+                        "target": "8.4",
+                        "sentence": "Update to 8.4.",
+                        "fixed_ids": [
+                            "CVE-2025-3001"
+                        ]
+                    }
+                ],
+                "checked_at": "2025-12-31T12:00:00+00:00",
+                "high_count": 1,
+                "more_fixed": 0,
+                "check_reason": "versions_unchecked",
+                "medium_count": 0,
+                "primary_high": 1,
+                "any_exploited": true,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 1,
+                "critical_count": 0,
+                "primary_medium": 0,
+                "exploited_count": 1,
+                "fixed_by_primary": 1,
+                "primary_critical": 0,
+                "exploited_without_fix": false
+            },
+            "headline": "Coolify needs to check this image again: Coolify has not checked for newer versions yet.",
+            "lines": [],
+            "badge": "Check needed",
+            "image_sentence": "mysql:8 needs another check: Coolify has not checked for newer versions yet.",
+            "version_check_running": "Coolify is checking for newer versions of mysql:8.",
+            "attack_note": null,
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": "8.4 is the newest 8.x release on Docker Hub. Coolify scanned it 11 hours ago: it fixes these problems and adds none that attackers use.",
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "Check needed",
+            "action": {
+                "text": "Check again: Coolify has not checked for newer versions yet.",
+                "link": true,
+                "muted": true
+            },
+            "images_line": null,
+            "marker": null
+        },
+        {
+            "uuid": "v4parityscancomposeweb23",
+            "security": {
+                "eol": null,
+                "why": [
+                    {
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-1001",
+                        "score": 9.8,
+                        "title": "OpenSSL allows remote code execution through a crafted certificate.",
+                        "signal": "exploited",
+                        "package": "openssl",
+                        "version": "3.0.1",
+                        "severity": "critical",
+                        "display_id": "CVE-2025-1001"
+                    }
+                ],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 1,
+                        "high_fixed": 0,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 1,
+                        "critical_fixed": 1,
+                        "relevant_fixed": 1,
+                        "signal_unfixed": 0,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [],
+                    "unfixed_why": [],
+                    "action_stats": [
+                        {
+                            "eol": 0,
+                            "kev": 1,
+                            "why": [
+                                {
+                                    "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-1001",
+                                    "score": 9.8,
+                                    "title": "OpenSSL allows remote code execution through a crafted certificate.",
+                                    "signal": "exploited",
+                                    "package": "openssl",
+                                    "version": "3.0.1",
+                                    "severity": "critical",
+                                    "display_id": "CVE-2025-1001"
+                                }
+                            ],
+                            "high": 0,
+                            "owner": "parity-git",
+                            "medium": 0,
+                            "signal": 1,
+                            "critical": 1,
+                            "owner_id": 2,
+                            "relevant": 1,
+                            "owner_type": "App\\Models\\Application"
+                        }
+                    ],
+                    "action_status": "update_now"
+                },
+                "status": "update_now",
+                "actions": [
+                    {
+                        "ref": "nginx:1.27.4-alpine",
+                        "copy": null,
+                        "type": "update_image",
+                        "image": "nginx:alpine",
+                        "parts": [],
+                        "button": true,
+                        "target": "1.27.4-alpine",
+                        "sentence": "Update to 1.27.4-alpine.",
+                        "fixed_ids": [
+                            "CVE-2025-1001"
+                        ]
+                    }
+                ],
+                "checked_at": "2025-12-31T12:00:00+00:00",
+                "high_count": 0,
+                "more_fixed": 0,
+                "check_reason": null,
+                "medium_count": 0,
+                "primary_high": 0,
+                "any_exploited": true,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 1,
+                "critical_count": 1,
+                "primary_medium": 0,
+                "exploited_count": 1,
+                "fixed_by_primary": 1,
+                "primary_critical": 1,
+                "exploited_without_fix": false
+            },
+            "headline": "This image has a security problem that attackers are using. Update to 1.27.4-alpine to fix it.",
+            "lines": [],
+            "badge": "Update now",
+            "image_sentence": "nginx:alpine has a security problem that attackers are using. Update to 1.27.4-alpine to fix it.",
+            "version_check_running": "Coolify is checking for newer versions of nginx:alpine.",
+            "attack_note": null,
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": "1.27.4-alpine is the newest 1.x release on Docker Hub. Coolify scanned it 11 hours ago: it fixes these problems and adds none that attackers use.",
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "Update now",
+            "action": {
+                "text": "Update to 1.27.4-alpine.",
+                "link": true,
+                "muted": false
+            },
+            "images_line": "1 of 2 images",
+            "marker": {
+                "status": "update_now",
+                "text": "Update now",
+                "label": "Security: update now. Update to 1.27.4-alpine.",
+                "tooltip": "Update to 1.27.4-alpine."
+            }
+        },
+        {
+            "uuid": "v4parityscancomposeweb23",
+            "security": {
+                "eol": null,
+                "why": [
+                    {
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-1001",
+                        "score": 9.8,
+                        "title": "OpenSSL allows remote code execution through a crafted certificate.",
+                        "signal": "exploited",
+                        "package": "openssl",
+                        "version": "3.0.1",
+                        "severity": "critical",
+                        "display_id": "CVE-2025-1001"
+                    }
+                ],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 1,
+                        "high_fixed": 0,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 1,
+                        "critical_fixed": 1,
+                        "relevant_fixed": 1,
+                        "signal_unfixed": 0,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [],
+                    "unfixed_why": [],
+                    "action_stats": [
+                        {
+                            "eol": 0,
+                            "kev": 1,
+                            "why": [
+                                {
+                                    "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-1001",
+                                    "score": 9.8,
+                                    "title": "OpenSSL allows remote code execution through a crafted certificate.",
+                                    "signal": "exploited",
+                                    "package": "openssl",
+                                    "version": "3.0.1",
+                                    "severity": "critical",
+                                    "display_id": "CVE-2025-1001"
+                                }
+                            ],
+                            "high": 0,
+                            "owner": "parity-git",
+                            "medium": 0,
+                            "signal": 1,
+                            "critical": 1,
+                            "owner_id": 2,
+                            "relevant": 1,
+                            "owner_type": "App\\Models\\Application"
+                        }
+                    ],
+                    "action_status": "update_now"
+                },
+                "status": "update_now",
+                "actions": [
+                    {
+                        "ref": "nginx:1.27.4-alpine",
+                        "copy": null,
+                        "type": "update_image",
+                        "image": "nginx:alpine",
+                        "parts": [],
+                        "button": false,
+                        "target": "1.27.4-alpine",
+                        "sentence": "Change the version to 1.27.4-alpine in the compose file of this app, then redeploy.",
+                        "fixed_ids": [
+                            "CVE-2025-1001"
+                        ]
+                    }
+                ],
+                "checked_at": "2025-12-31T12:00:00+00:00",
+                "high_count": 0,
+                "more_fixed": 0,
+                "check_reason": null,
+                "medium_count": 0,
+                "primary_high": 0,
+                "any_exploited": true,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 1,
+                "critical_count": 1,
+                "primary_medium": 0,
+                "exploited_count": 1,
+                "fixed_by_primary": 1,
+                "primary_critical": 1,
+                "exploited_without_fix": false
+            },
+            "headline": "This image has a security problem that attackers are using. Change the version to 1.27.4-alpine in the compose file of this app, then redeploy.",
+            "lines": [],
+            "badge": "Update now",
+            "image_sentence": "nginx:alpine has a security problem that attackers are using. Change the version to 1.27.4-alpine in the compose file of this app, then redeploy.",
+            "version_check_running": "Coolify is checking for newer versions of nginx:alpine.",
+            "attack_note": null,
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": "1.27.4-alpine is the newest 1.x release on Docker Hub. Coolify scanned it 11 hours ago: it fixes these problems and adds none that attackers use.",
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "Update now",
+            "action": {
+                "text": "Change the version to 1.27.4-alpine in the compose file of this app, then redeploy.",
+                "link": true,
+                "muted": false
+            },
+            "images_line": "1 of 2 images",
+            "marker": {
+                "status": "update_now",
+                "text": "Update now",
+                "label": "Security: update now. Change the version to 1.27.4-alpine in the compose file of this app, then redeploy.",
+                "tooltip": "Change the version to 1.27.4-alpine in the compose file of this app, then redeploy."
+            }
+        },
+        {
+            "uuid": "v6parityscancomposeone25",
+            "security": {
+                "eol": null,
+                "why": [
+                    {
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-1001",
+                        "score": 9.8,
+                        "title": "OpenSSL allows remote code execution through a crafted certificate.",
+                        "signal": "exploited",
+                        "package": "openssl",
+                        "version": "3.0.1",
+                        "severity": "critical",
+                        "display_id": "CVE-2025-1001"
+                    }
+                ],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 1,
+                        "high_fixed": 0,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 1,
+                        "critical_fixed": 1,
+                        "relevant_fixed": 1,
+                        "signal_unfixed": 0,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [],
+                    "unfixed_why": [],
+                    "action_stats": [
+                        {
+                            "eol": 0,
+                            "kev": 1,
+                            "why": [
+                                {
+                                    "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-1001",
+                                    "score": 9.8,
+                                    "title": "OpenSSL allows remote code execution through a crafted certificate.",
+                                    "signal": "exploited",
+                                    "package": "openssl",
+                                    "version": "3.0.1",
+                                    "severity": "critical",
+                                    "display_id": "CVE-2025-1001"
+                                }
+                            ],
+                            "high": 0,
+                            "owner": "parity-git",
+                            "medium": 0,
+                            "signal": 1,
+                            "critical": 1,
+                            "owner_id": 2,
+                            "relevant": 1,
+                            "owner_type": "App\\Models\\Application"
+                        }
+                    ],
+                    "action_status": "update_now"
+                },
+                "status": "update_now",
+                "actions": [
+                    {
+                        "ref": "nginx:alpine",
+                        "copy": null,
+                        "type": "pull_latest",
+                        "image": "nginx:alpine",
+                        "parts": [],
+                        "button": true,
+                        "target": "alpine",
+                        "sentence": "Pull the newer build of nginx:alpine and redeploy.",
+                        "fixed_ids": [
+                            "CVE-2025-1001"
+                        ]
+                    }
+                ],
+                "checked_at": "2025-12-31T12:00:00+00:00",
+                "high_count": 0,
+                "more_fixed": 0,
+                "check_reason": null,
+                "medium_count": 0,
+                "primary_high": 0,
+                "any_exploited": true,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 1,
+                "critical_count": 1,
+                "primary_medium": 0,
+                "exploited_count": 1,
+                "fixed_by_primary": 1,
+                "primary_critical": 1,
+                "exploited_without_fix": false
+            },
+            "headline": "This image has a security problem that attackers are using. A newer build of this image fixes it. Pull it and redeploy.",
+            "lines": [],
+            "badge": "Update now",
+            "image_sentence": "nginx:alpine has a security problem that attackers are using. A newer build fixes it. Pull it and redeploy.",
+            "version_check_running": "Coolify is checking for newer versions of nginx:alpine.",
+            "attack_note": null,
+            "no_fix_advice": null,
+            "why_more": "",
+            "provenance": "Docker Hub has a newer build of alpine. Coolify scanned it 11 hours ago: it fixes these problems and adds none that attackers use.",
+            "provenance_none": null,
+            "registry": "Docker Hub",
+            "status_label": "Update now",
+            "action": {
+                "text": "Pull the newer build of nginx:alpine and redeploy.",
+                "link": true,
+                "muted": false
+            },
+            "images_line": "1 of 2 images",
+            "marker": {
+                "status": "update_now",
+                "text": "Update now",
+                "label": "Security: update now. Pull the newer build of nginx:alpine and redeploy.",
+                "tooltip": "Pull the newer build of nginx:alpine and redeploy."
+            }
+        },
+        {
+            "uuid": "v7parityscansqlite000026",
+            "security": {
+                "eol": null,
+                "why": [
+                    {
+                        "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-2001",
+                        "score": 9.4,
+                        "title": "Redis Lua scripts can escape the sandbox.",
+                        "signal": "likely",
+                        "package": "redis",
+                        "version": "7.2.4",
+                        "severity": "critical",
+                        "display_id": "CVE-2025-2001"
+                    }
+                ],
+                "facts": {
+                    "counts": {
+                        "kev_fixed": 0,
+                        "high_fixed": 0,
+                        "kev_unfixed": 0,
+                        "medium_fixed": 0,
+                        "signal_fixed": 0,
+                        "critical_fixed": 0,
+                        "relevant_fixed": 0,
+                        "signal_unfixed": 1,
+                        "builder_unfixed": 0
+                    },
+                    "reasons": [],
+                    "unfixed_why": [
+                        {
+                            "link": "https://nvd.nist.gov/vuln/detail/CVE-2025-2001",
+                            "score": 9.4,
+                            "title": "Redis Lua scripts can escape the sandbox.",
+                            "signal": "likely",
+                            "package": "redis",
+                            "version": "7.2.4",
+                            "severity": "critical",
+                            "display_id": "CVE-2025-2001"
+                        }
+                    ],
+                    "action_stats": [],
+                    "action_status": "no_fix"
+                },
+                "status": "no_fix",
+                "actions": [],
+                "checked_at": "2025-12-31T12:00:00+00:00",
+                "high_count": 0,
+                "more_fixed": 0,
+                "check_reason": null,
+                "medium_count": 0,
+                "primary_high": 0,
+                "any_exploited": false,
+                "builder_image": false,
+                "check_context": [],
+                "problem_count": 1,
+                "critical_count": 0,
+                "primary_medium": 0,
+                "exploited_count": 1,
+                "fixed_by_primary": 0,
+                "primary_critical": 0,
+                "exploited_without_fix": false
+            },
+            "headline": "This image has a security problem that attackers are likely to use, and no fixed version exists yet. Coolify checks every day and tells you when a fix is out. Until then, limit who can reach this app, or ignore the problem if the affected part is not used.",
+            "lines": [],
+            "badge": "No fix yet",
+            "image_sentence": "peakimages/sqlite:3.54.1-v0.2.0 has a security problem that attackers are likely to use. No fixed version exists yet, and Coolify checks every day.",
+            "version_check_running": "Coolify is checking for newer versions of peakimages/sqlite:3.54.1-v0.2.0.",
+            "attack_note": null,
+            "no_fix_advice": "Until then, limit who can reach this database, or ignore the problem if the affected part is not used.",
+            "why_more": "",
+            "provenance": "Coolify checked Docker Hub 11 hours ago: you already run the newest 3.x version. The problem is in redis, and no fixed version of it exists yet.",
+            "provenance_none": "Coolify checked Docker Hub 11 hours ago: you already run the newest 3.x version. The problem is in redis, and no fixed version of it exists yet.",
+            "registry": "Docker Hub",
+            "status_label": "No fix yet",
+            "action": {
+                "text": "No fix released yet. Coolify checks daily.",
+                "link": false,
+                "muted": true
+            },
+            "images_line": null,
+            "marker": {
+                "status": "no_fix",
+                "text": "No fix yet",
+                "label": "Security: no fix yet",
+                "tooltip": null
+            }
+        }
+    ],
+    "extra": {
+        "images_needing_update": [
+            null,
+            "1 of 3 images needs an update",
+            "2 of 3 images need an update"
+        ],
+        "known_issues": [
+            "No known issues",
+            "1 known issue",
+            "12 known issues"
+        ],
+        "short_digest": [
+            null,
+            "3f1a2b4c5d6e",
+            "abcdef"
+        ],
+        "database_update_confirmation": [
+            "This is a patch release of PostgreSQL 16. Your data stays as it is. The database restarts and is unavailable for a few seconds.",
+            "This is a patch release of Redis. Your data stays as it is. The database restarts and is unavailable for a few seconds."
+        ],
+        "check_reasons": [
+            "1 of 3 images were checked",
+            "the scan result was too large to read completely",
+            "the last check was 1 week ago",
+            "the vulnerability database is out of date",
+            "the running image is not the checked image",
+            "Coolify has not checked for newer versions yet",
+            "Image scanning is off for this server.",
+            "Image scanning is off for this app.",
+            "This image has not been scanned yet.",
+            "This image has not been scanned yet."
+        ]
+    }
+}
