@@ -8,6 +8,7 @@ import { errorResponse, successResponse, withTimings } from "../http.js";
 import { authorizeBillingRead } from "../policy.js";
 import { resolveBillingOrgHex } from "../billing-scope.js";
 import { createTimings } from "@saas/contracts/timing";
+import { selfServeBilling } from "../self-serve.js";
 import {
   mapBillingCustomerToPublic,
   mapEntitlementToPublic,
@@ -63,6 +64,8 @@ export async function handleGetBillingSummary(
       activeSubscription: activeSubscription ? mapSubscriptionToPublic(activeSubscription) : null,
       plan: plan ? mapPlanToPublic(plan) : null,
       entitlements: entitlements.map(mapEntitlementToPublic),
+      // DP-82: whether checkout, the portal and cancellation can work here (the console's subscription pages).
+      selfServe: selfServeBilling(env),
     };
     endTotal();
     return withTimings(successResponse(body, requestId), requestId, "billing.summary", timings);

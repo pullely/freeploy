@@ -273,6 +273,46 @@ describe("router", () => {
       }
     });
 
+    // DP-82: the console's subscription pages read whether checkout/portal/cancel can work here.
+    async function summaryBody(overrides?: Record<string, unknown>): Promise<{ selfServe?: unknown }> {
+      const res = await handleGetBillingSummary(
+        makeRequest("GET", `/v1/organizations/${TEST_ORG_PUBLIC}/billing/summary`),
+        createFakeEnv(overrides),
+        "req_test123",
+        { subjectId: TEST_USER_ID, subjectType: "user" },
+        TEST_ORG_UUID,
+        { repo: summaryRepo() },
+      );
+      expect(res.status).toBe(200);
+      return ((await res.json()) as { data: { selfServe?: unknown } }).data;
+    }
+
+    it("says self-serve billing is not available when no provider is configured (DP-82)", async () => {
+      expect((await summaryBody()).selfServe).toEqual({ available: false, purchasablePlanCodes: [] });
+      // A product map alone (stage's vars) without the Polar secrets is not a configured provider.
+      const mapOnly = await summaryBody({ POLAR_PRODUCT_MAP: JSON.stringify({ pro: "p1", business: "p2" }) });
+      expect(mapOnly.selfServe).toEqual({ available: false, purchasablePlanCodes: [] });
+      // Stripe has no adapter yet.
+      const stripe = await summaryBody({
+        BILLING_PROVIDER: "stripe",
+        POLAR_ACCESS_TOKEN: "tok",
+        POLAR_WEBHOOK_SECRET: "whsec",
+        POLAR_PRODUCT_MAP: JSON.stringify({ pro: "p1" }),
+      });
+      expect(stripe.selfServe).toEqual({ available: false, purchasablePlanCodes: [] });
+    });
+
+    it("lists the purchasable plans of a configured provider, never free, enterprise or unknown codes (DP-82)", async () => {
+      const body = await summaryBody({
+        POLAR_ACCESS_TOKEN: "tok",
+        POLAR_WEBHOOK_SECRET: "whsec",
+        POLAR_PRODUCT_MAP: JSON.stringify({ pro: "p1", business: "p2", free: "p0", enterprise: "p3", bogus: "p4" }),
+      });
+      expect(body.selfServe).toEqual({ available: true, purchasablePlanCodes: ["pro", "business"] });
+      const raw = JSON.stringify(body);
+      for (const secret of ["tok", "whsec", "p1", "p2"]) expect(raw).not.toContain(`"${secret}"`);
+    });
+
     it("deny never leaks summary data even though the read runs in parallel", async () => {
       const denyPolicy = createMockFetcher({
         data: { allow: false, reason: "no_matching_role", policyVersion: 1, derivedScope: { orgId: TEST_ORG_UUID } },

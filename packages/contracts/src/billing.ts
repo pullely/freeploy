@@ -250,6 +250,20 @@ export interface GetBillingSummaryResponse {
   activeSubscription: PublicSubscription | null;
   plan: PublicPlan | null;
   entitlements: PublicEntitlement[];
+  /**
+   * Whether self-serve checkout, the customer portal and cancellation can work
+   * in this environment: a billing provider adapter is configured, and which
+   * plan codes it can sell (those with a provider product). Never a secret or a
+   * provider id. Optional: older billing-workers omit it (DP-82).
+   */
+  selfServe?: BillingSelfServe;
+}
+
+export interface BillingSelfServe {
+  /** True when the environment's billing provider is configured (its credentials are set). */
+  available: boolean;
+  /** Plan codes with a provider product, sold through checkout; empty when not available. */
+  purchasablePlanCodes: string[];
 }
 
 // ---------------------------------------------------------------------------
