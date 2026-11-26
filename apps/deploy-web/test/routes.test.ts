@@ -121,7 +121,7 @@ test("an application's configuration routes map to General, Domains, Advanced, H
   // Every other entry of the configuration menu.
   for (const page of [
     "logs", "terminal", "files", "metrics", "analytics",
-    "vulnerabilities", // (Preview Deployments and Backups are ported by DP-99, Maintenance Mode and Swarm by DP-102.)
+    // (Preview Deployments and Backups are ported by DP-99, Maintenance Mode and Swarm by DP-102, Security by DP-114.)
   ]) {
     assert.equal(pageFor(`${application}/${page}`), "not-ported", page);
   }
@@ -153,7 +153,8 @@ test("a database's configuration route maps to General, its shared pages to thei
   }
   // routes/web.php's other project.database.* routes (the backups page is ported: see below).
   // (Healthcheck and Servers are ported by DP-97: see below.)
-  for (const page of ["import-backup", "metrics", "vulnerabilities", "logs", "terminal", "files"]) {
+  // (Security is ported by DP-114: see below.)
+  for (const page of ["import-backup", "metrics", "logs", "terminal", "files"]) {
     assert.equal(pageFor(`${database}/${page}`), "not-ported", page);
   }
   // A database is not an application, whatever its uuid.
@@ -301,8 +302,8 @@ test("a service's configuration route maps to General, its shared pages to their
   assert.equal(pageFor(`${service}/sub000000000000000000001`), "project.service.index");
   assert.equal(pageFor(`${service}/sub000000000000000000001/`), "project.service.index");
   // (Scheduled Tasks, Webhooks and Resource Operations are ported by DP-97: see below.)
-  // (Domains and Maintenance Mode are ported by DP-102: see below.)
-  for (const notPorted of ["logs", "analytics", "vulnerabilities", "terminal", "files"]) {
+  // (Domains and Maintenance Mode are ported by DP-102, Security by DP-114: see below.)
+  for (const notPorted of ["logs", "analytics", "terminal", "files"]) {
     assert.equal(pageFor(`${service}/${notPorted}`), "not-ported", notPorted);
   }
   // (Storage backups, the import links and a database's …/backups are ported by DP-99.)
@@ -523,4 +524,24 @@ test("DP-102: an application's Maintenance Mode and Swarm, a service's Domains a
   assert.notEqual(pageFor(`${service}/domains`), "project.service.index");
   // A part's own settings are still a part's.
   assert.equal(pageFor(`${service}/sub000000000000000000001`), "project.service.index");
+});
+
+test("DP-114: a resource's Security page and its SBOM downloads, and the team's Security page", () => {
+  const environment = "/project/abc123def456ghi789jkl012/environment/mno345pqr678stu901vwx234";
+  for (const kind of ["application", "service", "database"]) {
+    const resource = `${environment}/${kind}/res000000000000000000001`;
+    assert.equal(pageFor(`${resource}/vulnerabilities`), `project.${kind}.vulnerabilities`, kind);
+    assert.equal(pageFor(`${resource}/vulnerabilities/`), `project.${kind}.vulnerabilities`, kind);
+    assert.equal(pageFor(`${resource}/vulnerabilities/sbom/scan0001/cyclonedx`), `project.${kind}.vulnerabilities.sbom`, kind);
+    assert.equal(pageFor(`${resource}/vulnerabilities/sbom/scan0001/spdx/`), `project.${kind}.vulnerabilities.sbom`, kind);
+    for (const other of [`${resource}/vulnerabilities/x`, `${resource}/vulnerabilities/sbom/scan0001`, `${resource}/vulnerabilities/sbom/a/b/c`]) assert.equal(pageFor(other), "not-ported", other);
+  }
+  // A service's Security page is no part of it (project.service.index).
+  assert.notEqual(pageFor(`${environment}/service/svc1/vulnerabilities`), "project.service.index");
+  assert.equal(pageFor("/vulnerabilities"), "vulnerabilities");
+  assert.equal(pageFor("/vulnerabilities/"), "vulnerabilities");
+  // The image scanning settings and a server's vulnerabilities stay not ported.
+  for (const other of ["/vulnerabilities/x", "/settings/image-scanning", "/team/image-scanning", "/server/s1/security/vulnerabilities", "/server/s1/security/image-scanning"]) {
+    assert.equal(pageFor(other), "not-ported", other);
+  }
 });

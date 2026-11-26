@@ -212,13 +212,21 @@ export const phpArrayJson = (value: unknown): string => JSON.stringify(value, (_
  * OS, the cut report, then SecurityStatus::store() — so that its stored status matches its findings.
  */
 export async function refreshScanSummary(tx: SqlExecutor, scanId: number, now: Date, decrypt: DecryptValue): Promise<void> {
+  await refreshScanSummaries(tx, [scanId], now, decrypt);
+}
+
+/** ResourceScans::refreshSummaries() of these scans of the org, read once (DP-114: after an ignore is added or removed, or a rule changed). */
+export async function refreshScanSummaries(tx: SqlExecutor, scanIds: readonly number[], now: Date, decrypt: DecryptValue): Promise<void> {
+  if (scanIds.length === 0) return;
   const resources = await listResources(tx, decrypt);
   const data = await loadScanData(tx, resources, now, true);
-  const scan = data.scans.find((s) => s.id === scanId);
-  const owner = scan === undefined ? undefined : data.owners.get(scan.id);
-  if (scan === undefined || owner === undefined) return;
-  const summary = record(scan.summary);
-  scan.summary = summaryFor(findings(scan), IgnoreMatcher.forResource(owner, data), isRecord(summary.eol_distro) ? (summary.eol_distro as Json) : null, Boolean(summary.truncated ?? false) && summary.truncated !== "0" && summary.truncated !== 0);
-  store(scan, data);
-  await saveImageScanSummary(tx, scan.id, phpArrayJson(scan.summary));
+  for (const scanId of scanIds) {
+    const scan = data.scans.find((s) => s.id === scanId);
+    const owner = scan === undefined ? undefined : data.owners.get(scan.id);
+    if (scan === undefined || owner === undefined) continue;
+    const summary = record(scan.summary);
+    scan.summary = summaryFor(findings(scan), IgnoreMatcher.forResource(owner, data), isRecord(summary.eol_distro) ? (summary.eol_distro as Json) : null, Boolean(summary.truncated ?? false) && summary.truncated !== "0" && summary.truncated !== 0);
+    store(scan, data);
+    await saveImageScanSummary(tx, scan.id, phpArrayJson(scan.summary));
+  }
 }

@@ -24,6 +24,7 @@ import { ORG_DEPLOY_CANVAS_RE, handleDeployCanvas } from "./handlers/deploy-canv
 import { handleCanvasViews } from "./handlers/canvas-views.js";
 import { ORG_DEPLOY_TAGS_RE, handleTagPages } from "./handlers/tag-pages.js";
 import { ORG_DEPLOY_DASHBOARD_RE, handleDashboard } from "./handlers/dashboard.js";
+import { ORG_DEPLOY_VULNERABILITIES_RE, handleFleetVulnerabilities } from "./handlers/image-scan-pages.js";
 import { handleEnvironmentClone } from "./handlers/environment-clone.js";
 
 const REQUEST_ID_RE = /^[\w-]{1,128}$/;
@@ -272,6 +273,17 @@ export async function route(request: Request, env: Env): Promise<Response> {
       if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
       const segments = (dashboard[2] ?? "").split("/").filter(Boolean);
       return handleDashboard(env, requestId, actor, orgId, segments, request);
+    }
+
+    // The team's Security page at /vulnerabilities (DP-114).
+    const vulnerabilities = url.pathname.match(ORG_DEPLOY_VULNERABILITIES_RE);
+    if (vulnerabilities) {
+      const orgId = parseOrgPublicId(vulnerabilities[1]!);
+      if (!orgId) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
+      const segments = (vulnerabilities[2] ?? "").split("/").filter(Boolean);
+      return handleFleetVulnerabilities(env, requestId, actor, orgId, vulnerabilities[1]!, segments, request);
     }
 
     // The team's Tags page (DP-97): a tag is named in the path, so each segment is decoded.
