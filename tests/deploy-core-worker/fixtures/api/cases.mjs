@@ -1966,7 +1966,410 @@ add({ name: "app update: unknown application", token: "write", method: "PATCH", 
 add({ name: "app update: another team's application", token: "write", method: "PATCH", path: PATCH_APP(A_OTHER), body: { name: "nope" } });
 add({ name: "app update: a read token", token: "read", method: "PATCH", path: PATCH_APP(A_IMAGE), body: { name: "nope" } });
 
+// ── DP-88: a database's and a service's container logs ──────────────────────
+const DB_LOGS = (uuid) => `/api/v1/databases/${uuid}/logs`;
+add({ name: "database logs: the server not functional", token: "sensitive", method: "GET", path: DB_LOGS(DB_PG) });
+add({ name: "database logs", token: "root", method: "GET", path: `${DB_LOGS(DB_REDIS)}?lines=20&show_timestamps=true`, setup: FUNCTIONAL });
+add({ name: "database logs on a Swarm server", token: "root", method: "GET", path: DB_LOGS(DB_PG), setup: SWARM_SERVER });
+add({ name: "database logs of unknown", token: "root", method: "GET", path: DB_LOGS("nonexistentuuid") });
+add({ name: "database logs of another team's", token: "root", method: "GET", path: DB_LOGS(DB_OTHER) });
+add({ name: "database logs, a member", token: "memberSensitive", method: "GET", path: DB_LOGS(DB_MYSQL), setup: SWARM_SERVER });
+add({ name: "database logs with a read token", token: "read", method: "GET", path: DB_LOGS(DB_PG) });
+const SV_LOGS = (uuid, query = "?sub_service_name=web") => `/api/v1/services/${uuid}/logs${query}`;
+add({ name: "service logs: the server not functional", token: "sensitive", method: "GET", path: SV_LOGS(SV_MAIN) });
+add({ name: "service logs", token: "root", method: "GET", path: SV_LOGS(SV_MAIN, "?sub_service_name=db&lines=10"), setup: FUNCTIONAL });
+add({ name: "service logs on a Swarm server", token: "root", method: "GET", path: SV_LOGS(SV_MAIN), setup: SWARM_SERVER });
+add({ name: "service logs without a sub service", token: "root", method: "GET", path: SV_LOGS(SV_MAIN, "") });
+add({ name: "service logs, an empty sub service", token: "root", method: "GET", path: SV_LOGS("nonexistentuuid", "?sub_service_name=") });
+add({ name: "service logs of unknown", token: "root", method: "GET", path: SV_LOGS("nonexistentuuid") });
+add({ name: "service logs of another team's", token: "root", method: "GET", path: SV_LOGS(SV_OTHER) });
+add({ name: "service logs of a deleted service", token: "root", method: "GET", path: SV_LOGS(SV_MAIN), setup: ["update services set deleted_at = '2025-12-31 00:00:00' where id = 1"] });
+add({ name: "service logs with a read token", token: "read", method: "GET", path: SV_LOGS(SV_MAIN) });
+
+// ── DP-88: an application's rollback images and rollback ────────────────────
+const ROLLBACK_IMAGES = (uuid) => `/api/v1/applications/${uuid}/rollback-images`;
+const ROLLBACK = (uuid) => `/api/v1/applications/${uuid}/rollback`;
+/** The Git application pushes its builds to a registry, and three of its deployments finished (two of production, one of a pull request; the queue's rows have the team's tenancy column on each side). */
+const REGISTRY_BUILDS = {
+  setup: [
+  "update applications set docker_registry_image_name = 'ghcr.io/parity/git' where id = 2",
+  "update application_deployment_queues set status = 'finished', updated_at = '2025-12-29 10:01:00' where id = 5",
+  ],
+  setupCoolify: [
+    "insert into application_deployment_queues (id, application_id, deployment_uuid, pull_request_id, force_rebuild, commit, status, is_webhook, server_id, destination_id, application_name, server_name, rollback, created_at, updated_at) values (6, '2', 'q6paritygitfinished00006', 0, false, 'f00dbabe', 'finished', false, 1, '1', 'parity-git', 'parity-server', false, '2025-12-30 09:00:00', '2025-12-30 09:05:00')",
+    "insert into application_deployment_queues (id, application_id, deployment_uuid, pull_request_id, force_rebuild, commit, status, is_webhook, server_id, destination_id, application_name, server_name, rollback, created_at, updated_at) values (7, '2', 'q7paritygitagain00000007', 0, false, 'a1b2c3d', 'finished', false, 1, '1', 'parity-git', 'parity-server', false, '2025-12-31 09:00:00', '2025-12-31 09:05:00')",
+    "insert into application_deployment_queues (id, application_id, deployment_uuid, pull_request_id, force_rebuild, commit, status, is_webhook, server_id, destination_id, application_name, server_name, rollback, created_at, updated_at) values (8, '2', 'q8paritygitpullrequest08', 4, false, 'beefcafe', 'finished', false, 1, '1', 'parity-git', 'parity-server', false, '2025-12-31 10:00:00', '2025-12-31 10:05:00')",
+    "insert into application_deployment_queues (id, application_id, deployment_uuid, pull_request_id, force_rebuild, commit, status, is_webhook, server_id, destination_id, application_name, server_name, rollback, created_at, updated_at) values (9, '2', 'q9paritygithead000000009', 0, false, 'HEAD', 'finished', false, 1, '1', 'parity-git', 'parity-server', false, '2025-12-31 11:00:00', '2025-12-31 11:05:00')",
+  ],
+  setupFreeploy: [
+    "insert into application_deployment_queues (id, application_id, deployment_uuid, pull_request_id, force_rebuild, commit, status, is_webhook, server_id, destination_id, application_name, server_name, rollback, org_id, created_at, updated_at) values (6, '2', 'q6paritygitfinished00006', 0, false, 'f00dbabe', 'finished', false, 1, '1', 'parity-git', 'parity-server', false, deploy.current_org(), '2025-12-30 09:00:00', '2025-12-30 09:05:00')",
+    "insert into application_deployment_queues (id, application_id, deployment_uuid, pull_request_id, force_rebuild, commit, status, is_webhook, server_id, destination_id, application_name, server_name, rollback, org_id, created_at, updated_at) values (7, '2', 'q7paritygitagain00000007', 0, false, 'a1b2c3d', 'finished', false, 1, '1', 'parity-git', 'parity-server', false, deploy.current_org(), '2025-12-31 09:00:00', '2025-12-31 09:05:00')",
+    "insert into application_deployment_queues (id, application_id, deployment_uuid, pull_request_id, force_rebuild, commit, status, is_webhook, server_id, destination_id, application_name, server_name, rollback, org_id, created_at, updated_at) values (8, '2', 'q8paritygitpullrequest08', 4, false, 'beefcafe', 'finished', false, 1, '1', 'parity-git', 'parity-server', false, deploy.current_org(), '2025-12-31 10:00:00', '2025-12-31 10:05:00')",
+    "insert into application_deployment_queues (id, application_id, deployment_uuid, pull_request_id, force_rebuild, commit, status, is_webhook, server_id, destination_id, application_name, server_name, rollback, org_id, created_at, updated_at) values (9, '2', 'q9paritygithead000000009', 0, false, 'HEAD', 'finished', false, 1, '1', 'parity-git', 'parity-server', false, deploy.current_org(), '2025-12-31 11:00:00', '2025-12-31 11:05:00')",
+  ],
+};
+/** The deployment of f00dbabe was itself a rollback: only the registry's image allows it (after the queue's rows are made). */
+const ROLLED_BACK = "update application_deployment_queues set rollback = true where deployment_uuid = 'q6paritygitfinished00006'";
+const ROLLBACK_AFTER = { deployments: "select application_id, commit, status, rollback, pull_request_id from application_deployment_queues where application_id in ('1', '2') order by id" };
+add({ name: "rollback images: an image application", token: "read", method: "GET", path: ROLLBACK_IMAGES(A_IMAGE) });
+add({ name: "rollback images: the registry's builds", token: "read", method: "GET", path: ROLLBACK_IMAGES(A_GIT), ...REGISTRY_BUILDS });
+add({ name: "rollback images: without a registry image", token: "read", method: "GET", path: ROLLBACK_IMAGES(A_GIT) });
+add({ name: "rollback images: a Dockerfile application", token: "read", method: "GET", path: ROLLBACK_IMAGES(A_GIT), ...REGISTRY_BUILDS, setup: [...REGISTRY_BUILDS.setup, "update applications set dockerfile = 'FROM nginx' where id = 2"] });
+add({ name: "rollback images: a Docker Compose application", token: "read", method: "GET", path: ROLLBACK_IMAGES(A_GIT), ...REGISTRY_BUILDS, setup: [...REGISTRY_BUILDS.setup, "update applications set build_pack = 'dockercompose' where id = 2"] });
+add({ name: "rollback images: on a functional server", token: "read", method: "GET", path: ROLLBACK_IMAGES(A_GIT), ...REGISTRY_BUILDS, setup: [...REGISTRY_BUILDS.setup, ...FUNCTIONAL] });
+add({ name: "rollback images of unknown", token: "read", method: "GET", path: ROLLBACK_IMAGES("nonexistentuuid") });
+add({ name: "rollback images of another team's", token: "read", method: "GET", path: ROLLBACK_IMAGES(A_OTHER) });
+add({ name: "rollback: a deployed commit", token: "deploy", method: "POST", path: ROLLBACK(A_GIT), ...REGISTRY_BUILDS, body: { commit: "f00dbabe" }, after: ROLLBACK_AFTER });
+add({ name: "rollback: the finished HEAD", token: "root", method: "POST", path: ROLLBACK(A_IMAGE), body: { commit: " HEAD " }, after: ROLLBACK_AFTER });
+add({ name: "rollback: a registry build", token: "deploy", method: "POST", path: ROLLBACK(A_GIT), ...REGISTRY_BUILDS, setupCoolify: [...REGISTRY_BUILDS.setupCoolify, ROLLED_BACK], setupFreeploy: [...REGISTRY_BUILDS.setupFreeploy, ROLLED_BACK], body: { commit: "f00dbabe" }, after: ROLLBACK_AFTER });
+add({ name: "rollback: a pull request's commit", token: "deploy", method: "POST", path: ROLLBACK(A_GIT), ...REGISTRY_BUILDS, body: { commit: "beefcafe" }, after: ROLLBACK_AFTER });
+add({ name: "rollback: a failed deployment's commit", token: "deploy", method: "POST", path: ROLLBACK(A_GIT), body: { commit: "a1b2c3d" }, after: ROLLBACK_AFTER });
+add({ name: "rollback: an unknown commit on a functional server", token: "deploy", method: "POST", path: ROLLBACK(A_GIT), setup: FUNCTIONAL, body: { commit: "0123abc" }, after: ROLLBACK_AFTER });
+add({ name: "rollback: a commit starting with a hyphen", token: "deploy", method: "POST", path: ROLLBACK(A_GIT), body: { commit: "-x" } });
+add({ name: "rollback: a commit with spaces", token: "deploy", method: "POST", path: ROLLBACK(A_GIT), body: { commit: "a b" } });
+add({ name: "rollback: an empty commit", token: "deploy", method: "POST", path: ROLLBACK(A_GIT), body: { commit: "   " } });
+add({ name: "rollback: no commit", token: "deploy", method: "POST", path: ROLLBACK(A_GIT), body: { tag: "v1" } });
+add({ name: "rollback: a commit that is not a string", token: "deploy", method: "POST", path: ROLLBACK(A_GIT), body: { commit: 12345 } });
+add({ name: "rollback: not JSON", token: "deploy", method: "POST", path: ROLLBACK(A_GIT), raw: "commit=x", contentType: "application/x-www-form-urlencoded" });
+add({ name: "rollback: empty JSON", token: "deploy", method: "POST", path: ROLLBACK(A_GIT), raw: "{}" });
+add({ name: "rollback of unknown", token: "deploy", method: "POST", path: ROLLBACK("nonexistentuuid"), body: { commit: "HEAD" } });
+add({ name: "rollback of another team's", token: "deploy", method: "POST", path: ROLLBACK(A_OTHER), body: { commit: "HEAD" } });
+add({ name: "rollback with a write token", token: "write", method: "POST", path: ROLLBACK(A_GIT), body: { commit: "HEAD" } });
+
+// ── DP-88: executing a scheduled task now ───────────────────────────────────
+for (const [group, base, uuid, other, task, otherTask] of [
+  ["application", "applications", A_IMAGE, A_OTHER, ST_BACKUP, ST_SERVICE],
+  ["service", "services", SV_MAIN, SV_OTHER, ST_SERVICE, ST_BACKUP],
+]) {
+  const path = (owner, t) => `/api/v1/${base}/${owner}/scheduled-tasks/${t}/execute`;
+  add({ name: `execute ${group} task`, token: "deploy", method: "POST", path: path(uuid, task), after: TASKS_AFTER });
+  add({ name: `execute ${group} task, root`, token: "root", method: "POST", path: path(uuid, task) });
+  add({ name: `execute ${group} task: unknown task`, token: "deploy", method: "POST", path: path(uuid, "nonexistentuuid") });
+  add({ name: `execute ${group} task: another resource's task`, token: "deploy", method: "POST", path: path(uuid, otherTask) });
+  add({ name: `execute ${group} task: unknown ${group}`, token: "deploy", method: "POST", path: path("nonexistentuuid", task) });
+  add({ name: `execute ${group} task: another team's ${group}`, token: "deploy", method: "POST", path: path(other, ST_OTHER) });
+  add({ name: `execute ${group} task with a write token`, token: "write", method: "POST", path: path(uuid, task) });
+}
+add({ name: "execute application task: a disabled task", token: "deploy", method: "POST", path: `/api/v1/applications/${A_IMAGE}/scheduled-tasks/${ST_CLEANUP}/execute` });
+
+// ── DP-88: the backup schedule of a storage ─────────────────────────────────
+const PG_VOLUME = "l4paritypgdatavolume0004";
+/** The PostgreSQL's data volume (its created hook made it with a random uuid): a fixed uuid on both sides. */
+const PG_VOLUME_SETUP = [`update local_persistent_volumes set uuid = '${PG_VOLUME}' where resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 1`];
+const VB = (base, owner, storage, run = false) => `/api/v1/${base}/${owner}/storages/${storage}/backups${run ? "/run" : ""}`;
+const VB_AFTER = {
+  schedules:
+    "select case when uuid like 'v%parityschedule%' then uuid end as fixture_uuid, backupable_type, backupable_id, s3_storage_id, frequency, enabled, save_s3, disable_local_backup, stop_during_backup, retention_amount_locally, retention_days_locally, retention_max_storage_locally::float8::text as max_locally, retention_amount_s3, retention_days_s3, retention_max_storage_s3::float8::text as max_s3, timeout, missing_backup_notification_days from scheduled_volume_backups order by backupable_type, backupable_id",
+  s3: "select b.backupable_type, b.backupable_id, p.s3_storage_id from scheduled_volume_backup_s3_storage p join scheduled_volume_backups b on b.id = p.scheduled_volume_backup_id order by b.backupable_type, b.backupable_id, p.s3_storage_id",
+};
+/** A schedule of the application's volume, made by the case on each side (Coolify's table has team_id, Freeploy's org_id). */
+const scheduleOf = (uuid, type, id, extra = "") => ({
+  setupCoolify: [`insert into scheduled_volume_backups (uuid, backupable_type, backupable_id, team_id, frequency, timeout, created_at, updated_at${extra ? ", s3_storage_id, save_s3" : ""}) values ('${uuid}', '${type}', ${id}, 1, '0 2 * * *', 3600, now(), now()${extra})`],
+  setupFreeploy: [`insert into scheduled_volume_backups (uuid, backupable_type, backupable_id, org_id, frequency, timeout, created_at, updated_at${extra ? ", s3_storage_id, save_s3" : ""}) values ('${uuid}', '${type}', ${id}, deploy.current_org(), '0 2 * * *', 3600, now(), now()${extra})`],
+});
+const VOLUME_TYPE = "App\\Models\\LocalPersistentVolume";
+const FILE_TYPE = "App\\Models\\LocalFileVolume";
+const APP_SCHEDULE = scheduleOf("v1parityschedule00000001", VOLUME_TYPE, 12);
+const APP_SCHEDULE_S3 = scheduleOf("v1parityschedule00000001", VOLUME_TYPE, 12, ", 1, true");
+const APP_VB = VB("applications", A_IMAGE, PV_APP);
+add({ name: "volume backups: create", token: "root", method: "PUT", path: APP_VB, body: { frequency: "0 3 * * *" }, after: VB_AFTER });
+add({ name: "volume backups: create, every field", token: "root", method: "PUT", path: APP_VB, body: { frequency: "@daily", enabled: false, save_s3: true, disable_local_backup: true, stop_during_backup: true, s3_storage_uuid: S3_MAIN, retention_amount_locally: 3, retention_days_locally: 14, retention_max_storage_locally: 2.5, retention_amount_s3: 10, retention_days_s3: 30, retention_max_storage_s3: "12", timeout: 600, missing_backup_notification_days: 2 }, after: VB_AFTER });
+add({ name: "volume backups: create with an S3 list", token: "root", method: "PUT", path: APP_VB, body: { frequency: "0 3 * * *", save_s3: true, s3_storage_uuids: [S3_MAIN] }, after: VB_AFTER });
+add({ name: "volume backups: create with a write token", token: "write", method: "PUT", path: APP_VB, body: { frequency: "weekly" }, after: VB_AFTER });
+add({ name: "volume backups: update", token: "root", method: "PUT", path: APP_VB, ...APP_SCHEDULE, body: { frequency: "*/30 * * * *", retention_amount_locally: 1 }, after: VB_AFTER });
+add({ name: "volume backups: update, S3 turned off", token: "root", method: "PUT", path: APP_VB, ...APP_SCHEDULE_S3, body: { frequency: "0 2 * * *" }, after: VB_AFTER });
+add({ name: "volume backups: update, the same S3 storage", token: "root", method: "PUT", path: APP_VB, ...APP_SCHEDULE_S3, body: { frequency: "0 2 * * *", save_s3: "1", s3_storage_uuid: S3_MAIN, timeout: "900" }, after: VB_AFTER });
+add({ name: "volume backups: a directory", token: "root", method: "PUT", path: VB("applications", A_IMAGE, FV_DIR), body: { frequency: "0 4 * * *" }, after: VB_AFTER });
+add({ name: "volume backups: a file", token: "root", method: "PUT", path: VB("applications", A_IMAGE, FV_CONFIG), body: { frequency: "0 4 * * *" } });
+add({ name: "volume backups: a host file", token: "root", method: "PUT", path: VB("applications", A_IMAGE, FV_HOST), body: { frequency: "bad", extra: 1 } });
+add({ name: "volume backups: invalid", token: "root", method: "PUT", path: APP_VB, body: { frequency: ["x"], enabled: "maybe", save_s3: 2, s3_storage_uuids: "x", retention_amount_locally: -1, retention_days_locally: "x", retention_max_storage_locally: "lots", retention_amount_s3: 10001, timeout: 59, missing_backup_notification_days: 366, every: "day" } });
+add({ name: "volume backups: no frequency", token: "root", method: "PUT", path: APP_VB, body: { enabled: true } });
+add({ name: "volume backups: a bad frequency", token: "root", method: "PUT", path: APP_VB, body: { frequency: "every day" } });
+add({ name: "volume backups: local backups off without S3", token: "root", method: "PUT", path: APP_VB, body: { frequency: "@daily", disable_local_backup: true } });
+add({ name: "volume backups: S3 without a storage", token: "root", method: "PUT", path: APP_VB, body: { frequency: "@daily", save_s3: true } });
+add({ name: "volume backups: another team's S3 storage", token: "root", method: "PUT", path: APP_VB, body: { frequency: "@daily", save_s3: true, s3_storage_uuid: S3_OTHER } });
+add({ name: "volume backups: an S3 storage not in the list", token: "root", method: "PUT", path: APP_VB, body: { frequency: "@daily", save_s3: true, s3_storage_uuid: S3_MAIN, s3_storage_uuids: ["nonexistentuuid"] } });
+add({ name: "volume backups: duplicate S3 storages", token: "root", method: "PUT", path: APP_VB, body: { frequency: "@daily", save_s3: true, s3_storage_uuids: [S3_MAIN, S3_MAIN] } });
+add({ name: "volume backups: an unusable S3 storage", token: "root", method: "PUT", path: APP_VB, setup: ["update s3_storages set is_usable = false where id = 1"], body: { frequency: "@daily", save_s3: true, s3_storage_uuid: S3_MAIN } });
+add({ name: "volume backups: stop during backup without the deploy permission", token: "write", method: "PUT", path: APP_VB, body: { frequency: "@daily", stop_during_backup: true } });
+add({ name: "volume backups: stop during backup of unknown storage, a write token", token: "write", method: "PUT", path: VB("applications", A_IMAGE, "nonexistentuuid"), body: { frequency: "@daily", stop_during_backup: true } });
+add({ name: "volume backups: unknown storage", token: "root", method: "PUT", path: VB("applications", A_IMAGE, "nonexistentuuid"), body: { frequency: "@daily" } });
+add({ name: "volume backups: another application's storage", token: "root", method: "PUT", path: VB("applications", A_GIT, PV_APP), body: { frequency: "@daily" } });
+add({ name: "volume backups: unknown application", token: "root", method: "PUT", path: VB("applications", "nonexistentuuid", PV_APP), body: { frequency: "@daily" } });
+add({ name: "volume backups: another team's application", token: "root", method: "PUT", path: VB("applications", A_OTHER, PV_OTHER), body: { frequency: "@daily" } });
+add({ name: "volume backups: not JSON", token: "root", method: "PUT", path: APP_VB, raw: "frequency=x", contentType: "application/x-www-form-urlencoded" });
+add({ name: "volume backups: empty JSON", token: "root", method: "PUT", path: APP_VB, raw: "{}" });
+add({ name: "volume backups: a database's volume", token: "root", method: "PUT", path: VB("databases", DB_PG, PG_VOLUME), setup: PG_VOLUME_SETUP, body: { frequency: "0 5 * * *", save_s3: true, s3_storage_uuid: S3_MAIN }, after: VB_AFTER });
+add({ name: "volume backups: a database's file", token: "root", method: "PUT", path: VB("databases", DB_PG, FV_PG), body: { frequency: "0 5 * * *" } });
+add({ name: "volume backups: unknown database", token: "root", method: "PUT", path: VB("databases", "nonexistentuuid", FV_PG), body: { frequency: "@daily" } });
+add({ name: "volume backups: a service's volume", token: "root", method: "PUT", path: VB("services", SV_MAIN, PV_SERVICE), body: { frequency: "0 6 * * *" }, after: VB_AFTER });
+add({ name: "volume backups: unknown service", token: "root", method: "PUT", path: VB("services", "nonexistentuuid", PV_SERVICE), body: { frequency: "@daily" } });
+add({ name: "volume backups: a service's unknown storage", token: "root", method: "PUT", path: VB("services", SV_MAIN, PV_APP), body: { frequency: "@daily" } });
+add({ name: "volume backups: with a read token", token: "read", method: "PUT", path: APP_VB, body: { frequency: "@daily" } });
+// DELETE …/backups: DeleteScheduledVolumeBackup (no execution has archives, so nothing runs on the server).
+add({ name: "volume backups: delete", token: "delete", method: "DELETE", path: APP_VB, ...APP_SCHEDULE_S3, setupCoolify: [...APP_SCHEDULE_S3.setupCoolify, "insert into scheduled_volume_backup_s3_storage (scheduled_volume_backup_id, s3_storage_id) select id, 1 from scheduled_volume_backups"], setupFreeploy: [...APP_SCHEDULE_S3.setupFreeploy, "insert into scheduled_volume_backup_s3_storage (scheduled_volume_backup_id, s3_storage_id, org_id) select id, 1, deploy.current_org() from scheduled_volume_backups"], after: VB_AFTER });
+add({ name: "volume backups: delete, no schedule", token: "delete", method: "DELETE", path: APP_VB });
+add({ name: "volume backups: delete, unknown storage", token: "delete", method: "DELETE", path: VB("applications", A_IMAGE, "nonexistentuuid") });
+add({ name: "volume backups: delete, unknown application", token: "delete", method: "DELETE", path: VB("applications", "nonexistentuuid", PV_APP) });
+add({ name: "volume backups: delete, unknown database", token: "delete", method: "DELETE", path: VB("databases", "nonexistentuuid", PV_APP) });
+add({ name: "volume backups: delete, unknown service", token: "delete", method: "DELETE", path: VB("services", "nonexistentuuid", PV_APP) });
+add({ name: "volume backups: delete a database's", token: "delete", method: "DELETE", path: VB("databases", DB_PG, PG_VOLUME), setup: PG_VOLUME_SETUP, ...scheduleOf("v2parityschedule00000002", VOLUME_TYPE, 2), after: VB_AFTER });
+add({ name: "volume backups: delete a service's", token: "delete", method: "DELETE", path: VB("services", SV_MAIN, PV_SERVICE), ...scheduleOf("v3parityschedule00000003", VOLUME_TYPE, 13), after: VB_AFTER });
+add({ name: "volume backups: delete while a backup runs", token: "delete", method: "DELETE", path: APP_VB, setupCoolify: [...APP_SCHEDULE.setupCoolify, "insert into scheduled_volume_backup_executions (uuid, scheduled_volume_backup_id, status, created_at, updated_at) select 'u1parityrunningexecution', id, 'running', now(), now() from scheduled_volume_backups"], setupFreeploy: [...APP_SCHEDULE.setupFreeploy, "insert into scheduled_volume_backup_executions (uuid, scheduled_volume_backup_id, status, org_id, created_at, updated_at) select 'u1parityrunningexecution', id, 'running', deploy.current_org(), now(), now() from scheduled_volume_backups"], after: VB_AFTER });
+add({ name: "volume backups: delete with a write token", token: "write", method: "DELETE", path: APP_VB });
+// POST …/backups/run: VolumeBackupJob, queued.
+add({ name: "volume backups: run", token: "root", method: "POST", path: VB("applications", A_IMAGE, PV_APP, true), ...APP_SCHEDULE, after: VB_AFTER });
+add({ name: "volume backups: run a database's", token: "root", method: "POST", path: VB("databases", DB_PG, PG_VOLUME, true), setup: PG_VOLUME_SETUP, ...scheduleOf("v2parityschedule00000002", VOLUME_TYPE, 2) });
+add({ name: "volume backups: run a service's", token: "root", method: "POST", path: VB("services", SV_MAIN, PV_SERVICE, true), ...scheduleOf("v3parityschedule00000003", VOLUME_TYPE, 13) });
+add({ name: "volume backups: run, no schedule", token: "root", method: "POST", path: VB("applications", A_IMAGE, PV_APP, true) });
+add({ name: "volume backups: run, unknown storage", token: "root", method: "POST", path: VB("applications", A_IMAGE, "nonexistentuuid", true) });
+add({ name: "volume backups: run, unknown application", token: "root", method: "POST", path: VB("applications", "nonexistentuuid", PV_APP, true) });
+add({ name: "volume backups: run, unknown database", token: "root", method: "POST", path: VB("databases", "nonexistentuuid", PV_APP, true) });
+add({ name: "volume backups: run, unknown service", token: "root", method: "POST", path: VB("services", "nonexistentuuid", PV_APP, true) });
+add({ name: "volume backups: run with a read token", token: "read", method: "POST", path: VB("applications", A_IMAGE, PV_APP, true) });
+add({ name: "volume backups: run with a write token", token: "write", method: "POST", path: VB("applications", A_IMAGE, PV_APP, true) });
+
+// ── DP-88: a server's proxy settings ────────────────────────────────────────
+const SRV = (sub, uuid = S_MAIN) => `/api/v1/servers/${uuid}/${sub}`;
+const PROXY_AFTER = {
+  // The proxy as the model reads it: Server's retrieved hook gives redirect_enabled true when it is missing (Freeploy stores it).
+  server: "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1",
+  settings: "select generate_exact_labels, traefik_certificate_resolver, is_cloudflare_tunnel, ssh_host_key, ssh_host_key_source, ssh_host_key_pending from server_settings where server_id = 1",
+};
+const TRAEFIK_PROXY = [`update servers set proxy = '{"type":"TRAEFIK","status":"running","redirect_enabled":false,"redirect_url":"https://fallback.example.com","last_saved_proxy_configuration":"services:\\n  traefik:\\n    image: traefik:v3.1\\n"}', proxy_error_page = '<h1>Oops</h1>' where id = 1`];
+add({ name: "server proxy: show", token: "read", method: "GET", path: SRV("proxy") });
+add({ name: "server proxy: show, read:sensitive", token: "sensitive", method: "GET", path: SRV("proxy") });
+add({ name: "server proxy: show Traefik", token: "read", method: "GET", path: SRV("proxy"), setup: TRAEFIK_PROXY });
+add({ name: "server proxy: show Traefik, read:sensitive", token: "sensitive", method: "GET", path: SRV("proxy"), setup: [...TRAEFIK_PROXY, "update server_settings set traefik_certificate_resolver = 'none', generate_exact_labels = true where server_id = 1"] });
+add({ name: "server proxy: show, a member with read:sensitive", token: "memberSensitive", method: "GET", path: SRV("proxy"), setup: TRAEFIK_PROXY });
+add({ name: "server proxy: show unknown", token: "read", method: "GET", path: SRV("proxy", "nonexistentuuid") });
+add({ name: "server proxy: show another team's", token: "read", method: "GET", path: SRV("proxy", S_OTHER) });
+add({ name: "server proxy: update the redirect", token: "write", method: "PATCH", path: SRV("proxy"), body: { redirect_enabled: false, redirect_url: "https://www.example.com/", proxy_error_page: "<h1>Down</h1>" }, after: PROXY_AFTER });
+add({ name: "server proxy: update, the redirect cleared", token: "write", method: "PATCH", path: SRV("proxy"), setup: TRAEFIK_PROXY, body: { redirect_enabled: "1", redirect_url: "", proxy_error_page: null }, after: PROXY_AFTER });
+add({ name: "server proxy: update the labels and the resolver", token: "write", method: "PATCH", path: SRV("proxy"), setup: TRAEFIK_PROXY, body: { generate_exact_labels: true, traefik_certificate_resolver: "myresolver" }, after: PROXY_AFTER });
+add({ name: "server proxy: update, no resolver", token: "write", method: "PATCH", path: SRV("proxy"), body: { traefik_certificate_resolver: null }, after: PROXY_AFTER });
+add({ name: "server proxy: update, the same proxy type", token: "write", method: "PATCH", path: SRV("proxy"), setup: TRAEFIK_PROXY, body: { proxy_type: "traefik" }, after: PROXY_AFTER });
+add({ name: "server proxy: update, to no proxy", token: "root", method: "PATCH", path: SRV("proxy"), setup: TRAEFIK_PROXY, body: { proxy_type: "none" }, after: PROXY_AFTER });
+add({ name: "server proxy: update, to Caddy", token: "root", method: "PATCH", path: SRV("proxy"), setup: TRAEFIK_PROXY, body: { proxy_type: "CADDY" }, after: PROXY_AFTER });
+add({ name: "server proxy: update, a proxy type without the deploy permission", token: "write", method: "PATCH", path: SRV("proxy"), setup: TRAEFIK_PROXY, body: { proxy_type: "caddy" } });
+add({ name: "server proxy: update, an unknown proxy type", token: "write", method: "PATCH", path: SRV("proxy"), body: { proxy_type: "haproxy" } });
+add({ name: "server proxy: update the redirect on a functional server", token: "write", method: "PATCH", path: SRV("proxy"), setup: FUNCTIONAL, body: { redirect_url: "https://www.example.com" }, after: PROXY_AFTER });
+add({ name: "server proxy: update the labels on a functional server", token: "write", method: "PATCH", path: SRV("proxy"), setup: FUNCTIONAL, body: { generate_exact_labels: true }, after: PROXY_AFTER });
+add({ name: "server proxy: update, invalid", token: "write", method: "PATCH", path: SRV("proxy"), body: { redirect_enabled: "maybe", redirect_url: "not a url", proxy_error_page: 5, generate_exact_labels: "x", traefik_certificate_resolver: "bad resolver", proxy_type: 3, port: 80 } });
+add({ name: "server proxy: update, a private redirect", token: "write", method: "PATCH", path: SRV("proxy"), body: { redirect_url: "http://private.example/" } });
+add({ name: "server proxy: update, a loopback redirect", token: "write", method: "PATCH", path: SRV("proxy"), body: { redirect_url: "http://127.0.0.1/" } });
+add({ name: "server proxy: update, an error page too large", token: "write", method: "PATCH", path: SRV("proxy"), body: { proxy_error_page: "x".repeat(1048577) } });
+add({ name: "server proxy: update, not JSON", token: "write", method: "PATCH", path: SRV("proxy"), raw: "redirect_enabled=1", contentType: "application/x-www-form-urlencoded" });
+add({ name: "server proxy: update, empty JSON", token: "write", method: "PATCH", path: SRV("proxy"), raw: "{}" });
+add({ name: "server proxy: update unknown", token: "write", method: "PATCH", path: SRV("proxy", "nonexistentuuid"), body: { redirect_enabled: true } });
+add({ name: "server proxy: update with a read token", token: "read", method: "PATCH", path: SRV("proxy"), body: { redirect_enabled: true } });
+add({ name: "server proxy: restart, not functional", token: "deploy", method: "POST", path: SRV("proxy/restart") });
+add({ name: "server proxy: restart", token: "deploy", method: "POST", path: SRV("proxy/restart"), setup: FUNCTIONAL });
+add({ name: "server proxy: restart unknown", token: "deploy", method: "POST", path: SRV("proxy/restart", "nonexistentuuid") });
+add({ name: "server proxy: restart with a write token", token: "write", method: "POST", path: SRV("proxy/restart") });
+
+// ── DP-88: a server's Sentinel settings ─────────────────────────────────────
+const SENTINEL_AFTER = { settings: "select is_metrics_enabled, is_sentinel_debug_enabled, sentinel_metrics_refresh_rate_seconds, sentinel_metrics_history_days, sentinel_push_interval_seconds, sentinel_custom_url, traffic_topn, traffic_sample_threshold, traffic_retention_1h_days, traffic_retention_1d_days, is_geoip_enabled, geoip_refresh_days, geoip_maxmind_license_key is not null as has_geoip_key, traffic_ip_mode from server_settings where server_id = 1" };
+const SENTINEL_OFF = ["update server_settings set is_sentinel_enabled = false where server_id = 1"];
+add({ name: "server sentinel: show", token: "read", method: "GET", path: SRV("sentinel") });
+add({ name: "server sentinel: show, read:sensitive", token: "sensitive", method: "GET", path: SRV("sentinel"), setup: ["update server_settings set sentinel_custom_url = 'http://sentinel.example.com:8888', traffic_ip_mode = 'anonymized', is_metrics_enabled = true where server_id = 1"] });
+add({ name: "server sentinel: show a build server", token: "read", method: "GET", path: SRV("sentinel"), setup: ["update server_settings set server_role = 'build', is_build_server = true where server_id = 1"] });
+add({ name: "server sentinel: show a Swarm server", token: "read", method: "GET", path: SRV("sentinel"), setup: SWARM_SERVER });
+add({ name: "server sentinel: show a transferred server", token: "read", method: "GET", path: SRV("sentinel"), setup: [`update servers set server_metadata = '{"transfer":{"status":"transferred","export_id":"exp-1"}}' where id = 1`] });
+add({ name: "server sentinel: show unknown", token: "read", method: "GET", path: SRV("sentinel", "nonexistentuuid") });
+add({ name: "server sentinel: update", token: "root", method: "PATCH", path: SRV("sentinel"), setup: SENTINEL_OFF, body: { is_metrics_enabled: true, sentinel_metrics_refresh_rate_seconds: 30, sentinel_metrics_history_days: "14", sentinel_push_interval_seconds: 120, traffic_topn: 100, traffic_sample_threshold: 0, traffic_retention_1h_days: 7, traffic_retention_1d_days: 365, is_geoip_enabled: false, geoip_refresh_days: 7, traffic_ip_mode: "off", sentinel_custom_url: "https://sentinel.example.com" }, after: SENTINEL_AFTER });
+add({ name: "server sentinel: update, a token", token: "root", method: "PATCH", path: SRV("sentinel"), setup: SENTINEL_OFF, body: { sentinel_token: "abc.DEF-123+/=", geoip_maxmind_license_key: "lic-1" }, after: SENTINEL_AFTER });
+add({ name: "server sentinel: update, Sentinel enabled", token: "root", method: "PATCH", path: SRV("sentinel"), body: { is_metrics_enabled: true }, after: SENTINEL_AFTER });
+add({ name: "server sentinel: update, nothing changed", token: "root", method: "PATCH", path: SRV("sentinel"), body: { is_metrics_enabled: false, traffic_topn: 50 }, after: SENTINEL_AFTER });
+add({ name: "server sentinel: update, invalid", token: "root", method: "PATCH", path: SRV("sentinel"), body: { is_metrics_enabled: "x", sentinel_token: "a b", sentinel_metrics_refresh_rate_seconds: 0, sentinel_push_interval_seconds: 5, sentinel_custom_url: "nope", traffic_topn: 1001, traffic_sample_threshold: -1, traffic_retention_1h_days: 366, traffic_retention_1d_days: 0, geoip_maxmind_license_key: 5, traffic_ip_mode: "partial", is_sentinel_enabled: true } });
+add({ name: "server sentinel: update, a token too long", token: "root", method: "PATCH", path: SRV("sentinel"), body: { sentinel_token: "a".repeat(501) } });
+add({ name: "server sentinel: update, a null token", token: "root", method: "PATCH", path: SRV("sentinel"), setup: SENTINEL_OFF, body: { sentinel_token: null } });
+add({ name: "server sentinel: update, not JSON", token: "root", method: "PATCH", path: SRV("sentinel"), raw: "x=1", contentType: "application/x-www-form-urlencoded" });
+add({ name: "server sentinel: update unknown", token: "root", method: "PATCH", path: SRV("sentinel", "nonexistentuuid"), body: { is_metrics_enabled: true } });
+add({ name: "server sentinel: update with a write token", token: "write", method: "PATCH", path: SRV("sentinel"), body: { is_metrics_enabled: true } });
+
+// ── DP-88: a server's log drains ────────────────────────────────────────────
+const LOG_DRAINS_AFTER = { settings: "select is_logdrain_newrelic_enabled, logdrain_newrelic_license_key is not null as has_newrelic_key, logdrain_newrelic_base_uri, is_logdrain_axiom_enabled, logdrain_axiom_dataset_name, logdrain_axiom_api_key is not null as has_axiom_key, logdrain_axiom_domain, is_logdrain_custom_enabled, logdrain_custom_config is not null as has_custom_config, logdrain_custom_config_parser, is_logdrain_cloudwatch_enabled, logdrain_cloudwatch_region, logdrain_cloudwatch_group, logdrain_cloudwatch_stream_prefix from server_settings where server_id = 1" };
+const AXIOM = ["update server_settings set is_logdrain_axiom_enabled = true, logdrain_axiom_dataset_name = 'parity' where server_id = 1"];
+add({ name: "server log drains: show", token: "read", method: "GET", path: SRV("log-drains") });
+add({ name: "server log drains: show Axiom, read:sensitive", token: "sensitive", method: "GET", path: SRV("log-drains"), setup: AXIOM });
+add({ name: "server log drains: show Axiom", token: "read", method: "GET", path: SRV("log-drains"), setup: AXIOM });
+add({ name: "server log drains: show unknown", token: "read", method: "GET", path: SRV("log-drains", "nonexistentuuid") });
+add({ name: "server log drains: New Relic", token: "root", method: "PATCH", path: SRV("log-drains"), body: { is_logdrain_newrelic_enabled: true, logdrain_newrelic_license_key: "nr-key_1.2", logdrain_newrelic_base_uri: "https://log-api.newrelic.com/log/v1" }, after: LOG_DRAINS_AFTER });
+add({ name: "server log drains: Axiom without a key", token: "root", method: "PATCH", path: SRV("log-drains"), setup: AXIOM, body: { logdrain_axiom_dataset_name: "parity-2" } });
+add({ name: "server log drains: Axiom", token: "root", method: "PATCH", path: SRV("log-drains"), body: { is_logdrain_axiom_enabled: true, logdrain_axiom_dataset_name: "parity", logdrain_axiom_api_key: "xaat-123" }, after: LOG_DRAINS_AFTER });
+add({ name: "server log drains: Axiom turned off", token: "root", method: "PATCH", path: SRV("log-drains"), setup: AXIOM, body: { is_logdrain_axiom_enabled: false, logdrain_axiom_domain: "eu-central-1.aws.edge.axiom.co" }, after: LOG_DRAINS_AFTER });
+add({ name: "server log drains: CloudWatch", token: "root", method: "PATCH", path: SRV("log-drains"), body: { is_logdrain_cloudwatch_enabled: true, logdrain_cloudwatch_region: "eu-west-1", logdrain_cloudwatch_group: "/coolify/parity", logdrain_cloudwatch_stream_prefix: "parity" }, after: LOG_DRAINS_AFTER });
+add({ name: "server log drains: CloudWatch beside Axiom", token: "root", method: "PATCH", path: SRV("log-drains"), setup: AXIOM, body: { is_logdrain_cloudwatch_enabled: true, logdrain_cloudwatch_region: "eu-west-1", logdrain_cloudwatch_group: "g" } });
+add({ name: "server log drains: CloudWatch without a group", token: "root", method: "PATCH", path: SRV("log-drains"), body: { is_logdrain_cloudwatch_enabled: true } });
+add({ name: "server log drains: New Relic without a key", token: "root", method: "PATCH", path: SRV("log-drains"), body: { is_logdrain_newrelic_enabled: true } });
+add({ name: "server log drains: Axiom without a dataset", token: "root", method: "PATCH", path: SRV("log-drains"), body: { is_logdrain_axiom_enabled: true, logdrain_axiom_api_key: "k" } });
+add({ name: "server log drains: custom without a config", token: "root", method: "PATCH", path: SRV("log-drains"), body: { is_logdrain_custom_enabled: true } });
+add({ name: "server log drains: custom", token: "root", method: "PATCH", path: SRV("log-drains"), body: { is_logdrain_custom_enabled: true, logdrain_custom_config: "[OUTPUT]\n    Name stdout\n    Match *\n" }, after: LOG_DRAINS_AFTER });
+add({ name: "server log drains: a custom config that is not allowed", token: "root", method: "PATCH", path: SRV("log-drains"), body: { logdrain_custom_config: "[INPUT]\n    Name exec\n    Command id\n" } });
+add({ name: "server log drains: invalid", token: "root", method: "PATCH", path: SRV("log-drains"), body: { is_logdrain_newrelic_enabled: "x", logdrain_newrelic_license_key: "a b", logdrain_newrelic_base_uri: "nope", logdrain_axiom_dataset_name: "a/b", logdrain_axiom_domain: "-bad-", logdrain_cloudwatch_region: "europe", logdrain_cloudwatch_group: "a b", logdrain_cloudwatch_stream_prefix: "a b", extra: 1 } });
+add({ name: "server log drains: on a functional server", token: "root", method: "PATCH", path: SRV("log-drains"), setup: FUNCTIONAL, body: { logdrain_axiom_domain: "eu-central-1.aws.edge.axiom.co" }, after: LOG_DRAINS_AFTER });
+add({ name: "server log drains: not JSON", token: "root", method: "PATCH", path: SRV("log-drains"), raw: "x=1", contentType: "application/x-www-form-urlencoded" });
+add({ name: "server log drains: update unknown", token: "root", method: "PATCH", path: SRV("log-drains", "nonexistentuuid"), body: { is_logdrain_axiom_enabled: false } });
+add({ name: "server log drains: update with a write token", token: "write", method: "PATCH", path: SRV("log-drains"), body: { is_logdrain_axiom_enabled: false } });
+
+// ── DP-88: a server's image scanning ────────────────────────────────────────
+const IMAGE_SCAN_AFTER = { settings: "select is_image_scan_enabled, image_scan_memory_mb, image_scan_syft_timeout, image_scan_grype_timeout, image_scan_cpus::float8::text as cpus from server_settings where server_id = 1" };
+add({ name: "server image scanning: show", token: "read", method: "GET", path: SRV("image-scanning") });
+add({ name: "server image scanning: show unknown", token: "read", method: "GET", path: SRV("image-scanning", "nonexistentuuid") });
+add({ name: "server image scanning: the limits", token: "write", method: "PATCH", path: SRV("image-scanning"), body: { image_scan_memory_mb: 2048, image_scan_syft_timeout: 1200, image_scan_grype_timeout: 300, image_scan_cpus: 2 }, after: IMAGE_SCAN_AFTER });
+add({ name: "server image scanning: the limits of a small server", token: "write", method: "PATCH", path: SRV("image-scanning"), setup: [`update servers set server_metadata = '{"memory_bytes":2147483648,"cpus":1}' where id = 1`], body: { image_scan_memory_mb: 4096, image_scan_cpus: 2 } });
+add({ name: "server image scanning: turned off", token: "write", method: "PATCH", path: SRV("image-scanning"), setup: ["update server_settings set is_image_scan_enabled = true where server_id = 1"], body: { is_image_scan_enabled: false }, after: IMAGE_SCAN_AFTER });
+add({ name: "server image scanning: turned on", token: "write", method: "PATCH", path: SRV("image-scanning"), body: { is_image_scan_enabled: true }, after: IMAGE_SCAN_AFTER });
+add({ name: "server image scanning: turned on, a transferred server", token: "write", method: "PATCH", path: SRV("image-scanning"), setup: [`update servers set server_metadata = '{"transfer":{"status":"transferred"}}' where id = 1`], body: { is_image_scan_enabled: true } });
+add({ name: "server image scanning: nothing", token: "write", method: "PATCH", path: SRV("image-scanning"), body: { other: 1 } });
+add({ name: "server image scanning: invalid", token: "write", method: "PATCH", path: SRV("image-scanning"), body: { is_image_scan_enabled: "x", image_scan_memory_mb: 3000, image_scan_syft_timeout: "long", image_scan_grype_timeout: 7, image_scan_cpus: 1.7 } });
+add({ name: "server image scanning: not JSON", token: "write", method: "PATCH", path: SRV("image-scanning"), raw: "x=1", contentType: "application/x-www-form-urlencoded" });
+add({ name: "server image scanning: update unknown", token: "write", method: "PATCH", path: SRV("image-scanning", "nonexistentuuid"), body: { is_image_scan_enabled: false } });
+
+// ── DP-88: a server's Cloudflare Tunnel setting ─────────────────────────────
+const TUNNEL_HOST_KEY = [`update server_settings set ssh_host_key = '${HOST_KEY}', ssh_host_key_source = 'manual', ssh_host_key_trusted_at = '2025-12-01 00:00:00' where server_id = 1`];
+const TUNNEL_ON = ["update server_settings set is_cloudflare_tunnel = true where server_id = 1", "update servers set ip = 'ssh.example.com', ip_previous = '203.0.113.10' where id = 1"];
+add({ name: "server cloudflare tunnel: show", token: "read", method: "GET", path: SRV("cloudflare-tunnel") });
+add({ name: "server cloudflare tunnel: show unknown", token: "read", method: "GET", path: SRV("cloudflare-tunnel", "nonexistentuuid") });
+add({ name: "server cloudflare tunnel: update on", token: "write", method: "PATCH", path: SRV("cloudflare-tunnel"), setup: TUNNEL_HOST_KEY, body: { is_cloudflare_tunnel: true }, after: PROXY_AFTER });
+add({ name: "server cloudflare tunnel: update off", token: "write", method: "PATCH", path: SRV("cloudflare-tunnel"), setup: TUNNEL_ON, body: { is_cloudflare_tunnel: "0" }, after: PROXY_AFTER });
+add({ name: "server cloudflare tunnel: update, unchanged", token: "write", method: "PATCH", path: SRV("cloudflare-tunnel"), setup: TUNNEL_HOST_KEY, body: { is_cloudflare_tunnel: false }, after: PROXY_AFTER });
+add({ name: "server cloudflare tunnel: update, invalid", token: "write", method: "PATCH", path: SRV("cloudflare-tunnel"), body: { is_cloudflare_tunnel: "yes", ip: "x" } });
+add({ name: "server cloudflare tunnel: update, nothing", token: "write", method: "PATCH", path: SRV("cloudflare-tunnel"), body: { ip: "x" } });
+add({ name: "server cloudflare tunnel: update, not JSON", token: "write", method: "PATCH", path: SRV("cloudflare-tunnel"), raw: "x=1", contentType: "application/x-www-form-urlencoded" });
+add({ name: "server cloudflare tunnel: update unknown", token: "write", method: "PATCH", path: SRV("cloudflare-tunnel", "nonexistentuuid"), body: { is_cloudflare_tunnel: true } });
+add({ name: "server cloudflare tunnel: enable", token: "write", method: "POST", path: SRV("cloudflare-tunnel/enable"), setup: TUNNEL_HOST_KEY, after: PROXY_AFTER });
+add({ name: "server cloudflare tunnel: disable", token: "write", method: "POST", path: SRV("cloudflare-tunnel/disable"), setup: TUNNEL_ON, after: PROXY_AFTER });
+add({ name: "server cloudflare tunnel: disable without a previous IP", token: "write", method: "POST", path: SRV("cloudflare-tunnel/disable"), setup: ["update server_settings set is_cloudflare_tunnel = true where server_id = 1"], after: PROXY_AFTER });
+add({ name: "server cloudflare tunnel: enable unknown", token: "write", method: "POST", path: SRV("cloudflare-tunnel/enable", "nonexistentuuid") });
+add({ name: "server cloudflare tunnel: disable another team's", token: "write", method: "POST", path: SRV("cloudflare-tunnel/disable", S_OTHER) });
+add({ name: "server cloudflare tunnel: enable with a read token", token: "read", method: "POST", path: SRV("cloudflare-tunnel/enable") });
+
+// ── DP-88: resetting a server's SSH host key ────────────────────────────────
+const HOST_KEY_RESET = SRV("host-key/reset");
+add({ name: "server host key: reset", token: "write", method: "POST", path: HOST_KEY_RESET, setup: TUNNEL_HOST_KEY, raw: "", contentType: "application/json", after: PROXY_AFTER });
+add({ name: "server host key: reset to a key", token: "write", method: "POST", path: HOST_KEY_RESET, body: { ssh_host_key: `parity.example.com ${HOST_KEY}\n# a comment` }, after: PROXY_AFTER });
+add({ name: "server host key: reset to an invalid key", token: "write", method: "POST", path: HOST_KEY_RESET, body: { ssh_host_key: "ssh-ed25519 notbase64" } });
+add({ name: "server host key: reset to a key that is not a string", token: "write", method: "POST", path: HOST_KEY_RESET, body: { ssh_host_key: ["x"] } });
+add({ name: "server host key: reset a transferred server", token: "write", method: "POST", path: HOST_KEY_RESET, setup: [`update servers set server_metadata = '{"transfer":{"status":"transferred"}}' where id = 1`], body: { ssh_host_key: "x" } });
+add({ name: "server host key: reset unknown", token: "write", method: "POST", path: SRV("host-key/reset", "nonexistentuuid") });
+add({ name: "server host key: reset with a read token", token: "read", method: "POST", path: HOST_KEY_RESET });
+
+// ── DP-88: a server's Docker registry logins ────────────────────────────────
+const REGISTRY_USERS = ["update applications set docker_registry_image_name = 'ghcr.io/parity/git' where id = 2", "update services set docker_compose = 'services:\n  web:\n    image: registry.example.com:5000/team/web:1\n' where id = 1"];
+add({ name: "server registries: list", token: "sensitive", method: "GET", path: SRV("registries") });
+add({ name: "server registries: list, the images in use", token: "sensitive", method: "GET", path: SRV("registries"), setup: REGISTRY_USERS });
+add({ name: "server registries: list on a functional server", token: "sensitive", method: "GET", path: SRV("registries"), setup: FUNCTIONAL });
+add({ name: "server registries: list unknown", token: "sensitive", method: "GET", path: SRV("registries", "nonexistentuuid") });
+add({ name: "server registries: list with a read token", token: "read", method: "GET", path: SRV("registries") });
+add({ name: "server registries: login, not functional", token: "root", method: "POST", path: SRV("registries"), body: { registry: "https://GHCR.io/v2/", username: "parity", password: "secret" } });
+add({ name: "server registries: login", token: "root", method: "POST", path: SRV("registries"), setup: FUNCTIONAL, body: { registry: "ghcr.io", username: "parity", password: "secret" } });
+add({ name: "server registries: login, invalid", token: "root", method: "POST", path: SRV("registries"), body: { registry: "bad host!", username: "a b", password: 5, email: "x" } });
+add({ name: "server registries: login, missing", token: "root", method: "POST", path: SRV("registries"), body: { other: 1 } });
+add({ name: "server registries: login, not JSON", token: "root", method: "POST", path: SRV("registries"), raw: "x=1", contentType: "application/x-www-form-urlencoded" });
+add({ name: "server registries: login unknown", token: "root", method: "POST", path: SRV("registries", "nonexistentuuid"), body: { registry: "ghcr.io", username: "parity", password: "secret" } });
+add({ name: "server registries: login with a write token", token: "write", method: "POST", path: SRV("registries"), body: { registry: "ghcr.io", username: "parity", password: "secret" } });
+add({ name: "server registries: check, not functional", token: "root", method: "POST", path: SRV("registries/ghcr.io/check") });
+add({ name: "server registries: check", token: "root", method: "POST", path: SRV("registries/docker.io/check"), setup: FUNCTIONAL });
+add({ name: "server registries: check an invalid registry", token: "root", method: "POST", path: SRV("registries/bad_host/check") });
+add({ name: "server registries: check unknown", token: "root", method: "POST", path: SRV("registries/ghcr.io/check", "nonexistentuuid") });
+add({ name: "server registries: logout, not functional", token: "root", method: "DELETE", path: SRV("registries/registry-1.docker.io") });
+add({ name: "server registries: logout", token: "root", method: "DELETE", path: SRV("registries/ghcr.io"), setup: FUNCTIONAL });
+add({ name: "server registries: logout an invalid registry", token: "root", method: "DELETE", path: SRV("registries/a..b%20c") });
+add({ name: "server registries: logout with a write token", token: "write", method: "DELETE", path: SRV("registries/ghcr.io") });
+
+// ── DP-88: a server's transfer to another instance ──────────────────────────
+add({ name: "server transfer: status", token: "read", method: "GET", path: SRV("transfer") });
+add({ name: "server transfer: status of a migration", token: "write", method: "GET", path: SRV("transfer"), setup: [`update servers set server_metadata = '{"transfer":{"status":"exported","export_id":"exp-1","exported_at":"2025-12-30T00:00:00+00:00","imported_at":null},"migration":{"status":"failed","target_url":"https://target.example.com","log":[{"level":"error","message":"FAILED"}],"error":"1 of 3 checks failed"}}' where id = 1`] });
+add({ name: "server transfer: status of a migration, a member", token: "memberRead", method: "GET", path: SRV("transfer"), setup: [`update servers set server_metadata = '{"migration":{"status":"running","log":[],"error":null}}' where id = 1`] });
+add({ name: "server transfer: status unknown", token: "read", method: "GET", path: SRV("transfer", "nonexistentuuid") });
+add({ name: "server transfer: migrate", token: "root", method: "POST", path: SRV("migrate"), body: { target_url: "https://target.example.com", target_token: "1|abc" }, after: { server: "select server_metadata::jsonb::text as metadata from servers where id = 1" } });
+add({ name: "server transfer: migrate, invalid", token: "root", method: "POST", path: SRV("migrate"), body: { target_url: "nope", other: 1 } });
+add({ name: "server transfer: migrate, not JSON", token: "root", method: "POST", path: SRV("migrate"), raw: "x=1", contentType: "application/x-www-form-urlencoded" });
+add({ name: "server transfer: migrate without read:sensitive", token: "write", method: "POST", path: SRV("migrate"), body: { target_url: "https://target.example.com", target_token: "1|abc" } });
+add({ name: "server transfer: migrate to an http URL", token: "root", method: "POST", path: SRV("migrate"), body: { target_url: "http://target.example.com", target_token: "1|abc" } });
+add({ name: "server transfer: migrate to a private URL", token: "root", method: "POST", path: SRV("migrate"), body: { target_url: "https://private.example/", target_token: "1|abc" } });
+add({ name: "server transfer: migrate with a blank bearer token", token: "root", method: "POST", path: SRV("migrate"), body: { target_url: "https://target.example.com/", target_token: " Bearer   " } });
+add({ name: "server transfer: migrate while a migration runs", token: "root", method: "POST", path: SRV("migrate"), setup: [`update servers set server_metadata = '{"migration":{"status":"running","started_at":"2099-01-01T00:00:00+00:00"}}' where id = 1`], body: { target_url: "https://target.example.com", target_token: "1|abc" } });
+add({ name: "server transfer: migrate after a stale migration", token: "root", method: "POST", path: SRV("migrate"), setup: [`update servers set server_metadata = '{"migration":{"status":"running","started_at":"2025-01-01T00:00:00+00:00"}}' where id = 1`], body: { target_url: "https://target.example.com", target_token: "1|abc" } });
+add({ name: "server transfer: migrate unknown", token: "root", method: "POST", path: SRV("migrate", "nonexistentuuid"), body: { target_url: "https://target.example.com", target_token: "1|abc" } });
+add({ name: "server transfer: import check", token: "root", method: "GET", path: `/api/v1/servers/import/check?server_uuid=${S_MAIN}&ip=203.0.113.50&port=22` });
+add({ name: "server transfer: import check, invalid", token: "root", method: "GET", path: "/api/v1/servers/import/check?ip=not%20an%20ip&port=70000&schema_version=x" });
+add({ name: "server transfer: import check, nothing", token: "root", method: "GET", path: "/api/v1/servers/import/check" });
+add({ name: "server transfer: import check with a write token", token: "write", method: "GET", path: `/api/v1/servers/import/check?server_uuid=${S_MAIN}&ip=203.0.113.50` });
+
+// ── DP-88: database imports (a standalone database's and a service database's) ─
+const UPLOAD_ID = "6f1c2d3e-4b5a-4c7d-8e9f-0a1b2c3d4e5f";
+for (const [group, base, notFound, running] of [
+  ["database imports", `/api/v1/databases/${DB_PG}`, `/api/v1/databases/nonexistentuuid`, "update standalone_postgresqls set status = 'running:healthy' where id = 1"],
+  ["service database imports", `/api/v1/services/${SV_MAIN}/databases/${SD_DB}`, `/api/v1/services/${SV_MAIN}/databases/nonexistentuuid`, "update service_databases set status = 'running:healthy' where id = 1"],
+]) {
+  add({ name: `${group}: upload, no file`, token: "write", method: "POST", path: `${base}/imports/uploads`, body: { upload_id: UPLOAD_ID } });
+  add({ name: `${group}: upload, a file that is not a file`, token: "write", method: "POST", path: `${base}/imports/uploads`, body: { upload_id: "not-a-uuid", file: "dump.sql" } });
+  add({ name: `${group}: upload, nothing`, token: "write", method: "POST", path: `${base}/imports/uploads`, raw: "", contentType: "application/json" });
+  add({ name: `${group}: upload to unknown`, token: "write", method: "POST", path: `${notFound}/imports/uploads`, body: { upload_id: UPLOAD_ID } });
+  add({ name: `${group}: upload with a read token`, token: "read", method: "POST", path: `${base}/imports/uploads`, body: { upload_id: UPLOAD_ID } });
+  add({ name: `${group}: from the server, not running`, token: "root", method: "POST", path: `${base}/imports`, body: { source: "server", path: "/backups/dump.sql" } });
+  add({ name: `${group}: from the server`, token: "root", method: "POST", path: `${base}/imports`, setup: [running], body: { source: "server", path: "/backups/dump.sql", replace_existing: true } });
+  add({ name: `${group}: from S3`, token: "root", method: "POST", path: `${base}/imports`, setup: [running], body: { source: "s3", s3_storage_uuid: S3_MAIN, path: "backups/dump.sql" } });
+  add({ name: `${group}: an upload`, token: "root", method: "POST", path: `${base}/imports`, setup: [running], body: { source: "upload", upload_id: UPLOAD_ID } });
+  add({ name: `${group}: on a Swarm server`, token: "root", method: "POST", path: `${base}/imports`, setup: [running, ...SWARM_SERVER], body: { source: "server", path: "/backups/dump.sql" } });
+  add({ name: `${group}: invalid`, token: "root", method: "POST", path: `${base}/imports`, body: { source: "ftp", upload_id: "x", dump_all: "maybe", keep_owners: 2, sqlite_database: 5, extra: 1 } });
+  add({ name: `${group}: an upload with a path`, token: "root", method: "POST", path: `${base}/imports`, body: { source: "upload", path: "/x", s3_storage_uuid: "y" } });
+  add({ name: `${group}: from S3 without a storage`, token: "root", method: "POST", path: `${base}/imports`, body: { source: "s3", upload_id: UPLOAD_ID } });
+  add({ name: `${group}: from the server without a path`, token: "root", method: "POST", path: `${base}/imports`, body: { source: "server" } });
+  add({ name: `${group}: no source`, token: "root", method: "POST", path: `${base}/imports`, raw: "", contentType: "application/json" });
+  add({ name: `${group}: a form body`, token: "root", method: "POST", path: `${base}/imports`, raw: "source=server&path=%2Fbackups%2Fdump.sql", contentType: "application/x-www-form-urlencoded" });
+  add({ name: `${group}: without the deploy permission`, token: "write", method: "POST", path: `${base}/imports`, body: { source: "server", path: "/backups/dump.sql" } });
+  add({ name: `${group}: into unknown`, token: "root", method: "POST", path: `${notFound}/imports`, body: { source: "server", path: "/x" } });
+  add({ name: `${group}: show`, token: "read", method: "GET", path: `${base}/imports/12` });
+  add({ name: `${group}: show of unknown`, token: "read", method: "GET", path: `${notFound}/imports/12` });
+}
+add({ name: "database imports: a Redis", token: "root", method: "POST", path: `/api/v1/databases/${DB_REDIS}/imports`, body: { source: "server", path: "/backups/dump.rdb" } });
+add({ name: "database imports: show, not a number", token: "read", method: "GET", path: `/api/v1/databases/${DB_PG}/imports/abc` });
+add({ name: "database imports: of another team's", token: "root", method: "POST", path: `/api/v1/databases/${DB_OTHER}/imports`, body: { source: "server", path: "/x" } });
+add({ name: "service database imports: of an unknown service", token: "root", method: "POST", path: `/api/v1/services/nonexistentuuid/databases/${SD_DB}/imports`, body: { source: "server", path: "/x" } });
+
+// ── DP-88: GitHub Apps ──────────────────────────────────────────────────────
+// Freeploy is a hosted service: the cases run as Coolify Cloud (no system-wide App, private networks refused).
+const GH = "/api/v1/github-apps";
+const GH_APP = (id) => `${GH}/${id}`;
+const GH_AFTER = { apps: "select case when uuid like 'j%parity%' then id end as fixture_id, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, client_secret is not null as has_client_secret, webhook_secret is not null as has_webhook_secret, private_key_id, is_system_wide, is_public from github_apps where id > 0 order by id" };
+const githubApp = (id, uuid, team, name, key) => ({
+  coolify: `insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (${id}, '${uuid}', '${name}', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 100${id}, 200${id}, 'Iv1.parity${id}', false, false, ${key}, ${team}, '2025-12-0${id} 00:00:00', '2025-12-0${id} 00:00:00')`,
+  freeploy: `insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (${id}, '${uuid}', '${name}', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 100${id}, 200${id}, 'Iv1.parity${id}', false, false, ${key}, deploy.current_org(), '2025-12-0${id} 00:00:00', '2025-12-0${id} 00:00:00')`,
+});
+const GH_ROWS = [githubApp(1, "j1paritygithubapp0000001", 1, "Parity App", 1), githubApp(2, "j2paritysecondapp0000002", 1, "Second App", 2)];
+const GH_SETUP = { setupCoolify: GH_ROWS.map((r) => r.coolify), setupFreeploy: GH_ROWS.map((r) => r.freeploy) };
+const GH_CREATE = { name: "New App", organization: " /acme/ ", html_url: "https://github.com", app_id: 123, installation_id: 456, client_id: "Iv1.abc", client_secret: "cs-1", webhook_secret: "ws-1", private_key_uuid: K_MAIN };
+add({ name: "github apps: list", token: "read", method: "GET", path: GH, config: CLOUD, ...GH_SETUP });
+add({ name: "github apps: list, read:sensitive", token: "sensitive", method: "GET", path: GH, config: CLOUD, ...GH_SETUP });
+add({ name: "github apps: list, none", token: "read", method: "GET", path: GH, config: CLOUD });
+add({ name: "github apps: create", token: "write", method: "POST", path: GH, config: CLOUD, body: GH_CREATE, after: GH_AFTER });
+add({ name: "github apps: create, every field", token: "write", method: "POST", path: GH, config: CLOUD, body: { ...GH_CREATE, organization: null, api_url: "https://api.github.com", custom_user: "deploy", custom_port: 2222, is_system_wide: true }, after: GH_AFTER });
+add({ name: "github apps: create, GitHub Enterprise", token: "write", method: "POST", path: GH, config: CLOUD, body: { ...GH_CREATE, html_url: "https://github.acme-corp.com" }, after: GH_AFTER });
+add({ name: "github apps: create, invalid", token: "write", method: "POST", path: GH, config: CLOUD, body: { name: "", organization: "a b", api_url: "nope", html_url: "ftp://x", custom_user: 5, custom_port: 70000, app_id: "x", installation_id: null, client_id: ["x"], client_secret: 5, private_key_uuid: 1, is_system_wide: "maybe", extra: 1 } });
+add({ name: "github apps: create, a private host", token: "write", method: "POST", path: GH, config: CLOUD, body: { ...GH_CREATE, html_url: "https://private.example" } });
+add({ name: "github apps: create, an unknown key", token: "write", method: "POST", path: GH, config: CLOUD, body: { ...GH_CREATE, private_key_uuid: "nonexistentuuid" } });
+add({ name: "github apps: create, another team's key", token: "write", method: "POST", path: GH, config: CLOUD, body: { ...GH_CREATE, private_key_uuid: K_OTHER } });
+add({ name: "github apps: create, not JSON", token: "write", method: "POST", path: GH, config: CLOUD, raw: "name=x", contentType: "application/x-www-form-urlencoded" });
+add({ name: "github apps: create, empty JSON", token: "write", method: "POST", path: GH, config: CLOUD, raw: "{}" });
+add({ name: "github apps: create with a read token", token: "read", method: "POST", path: GH, config: CLOUD, body: GH_CREATE });
+add({ name: "github apps: update", token: "write", method: "PATCH", path: GH_APP(1), config: CLOUD, ...GH_SETUP, body: { name: "Renamed App", organization: "/new-org/", custom_port: "2200", client_secret: "cs-2", private_key_uuid: K_FREE }, after: GH_AFTER });
+add({ name: "github apps: update the HTML URL", token: "write", method: "PATCH", path: GH_APP(1), config: CLOUD, ...GH_SETUP, body: { html_url: "https://github.acme-corp.com" }, after: GH_AFTER });
+add({ name: "github apps: update, nothing", token: "write", method: "PATCH", path: GH_APP(1), config: CLOUD, ...GH_SETUP, body: { is_system_wide: true, other: 1 }, after: GH_AFTER });
+add({ name: "github apps: update, invalid", token: "write", method: "PATCH", path: GH_APP(1), config: CLOUD, ...GH_SETUP, body: { name: 5, api_url: "nope", custom_port: 0, app_id: "x", private_key_uuid: [] } });
+add({ name: "github apps: update, a private host", token: "write", method: "PATCH", path: GH_APP(1), config: CLOUD, ...GH_SETUP, body: { api_url: "http://10.0.0.8/api/v3" } });
+add({ name: "github apps: update, an unknown key", token: "write", method: "PATCH", path: GH_APP(1), config: CLOUD, ...GH_SETUP, body: { private_key_uuid: K_OTHER } });
+add({ name: "github apps: update unknown", token: "write", method: "PATCH", path: GH_APP(99), config: CLOUD, ...GH_SETUP, body: { name: "x" } });
+add({ name: "github apps: update with a read token", token: "read", method: "PATCH", path: GH_APP(1), config: CLOUD, ...GH_SETUP, body: { name: "x" } });
+add({ name: "github apps: delete", token: "delete", method: "DELETE", path: GH_APP(2), config: CLOUD, ...GH_SETUP, after: GH_AFTER });
+add({ name: "github apps: delete, in use", token: "delete", method: "DELETE", path: GH_APP(1), config: CLOUD, ...GH_SETUP, setup: ["update applications set source_id = 1 where id = 2"], after: GH_AFTER });
+add({ name: "github apps: delete unknown", token: "delete", method: "DELETE", path: GH_APP(99), config: CLOUD, ...GH_SETUP });
+add({ name: "github apps: delete with a write token", token: "write", method: "DELETE", path: GH_APP(2), config: CLOUD, ...GH_SETUP });
+
 /** The tables whose column order emit.php writes into the goldens (`columns`): what a nested relation serializes in. */
-const columnsOf = ["servers", "server_settings", "standalone_dockers", "application_settings", "applications", "environment_variables", "application_deployment_queues", "scheduled_database_backups", "scheduled_database_backup_executions", "services", "service_applications", "service_databases", "projects", "environments", "standalone_postgresqls", "standalone_redis", "standalone_mongodbs", "standalone_mysqls", "standalone_mariadbs", "standalone_keydbs", "standalone_dragonflies", "standalone_clickhouses", "local_persistent_volumes", "local_file_volumes"];
+const columnsOf = ["servers", "server_settings", "standalone_dockers", "application_settings", "applications", "environment_variables", "application_deployment_queues", "scheduled_database_backups", "scheduled_database_backup_executions", "services", "service_applications", "service_databases", "projects", "environments", "standalone_postgresqls", "standalone_redis", "standalone_mongodbs", "standalone_mysqls", "standalone_mariadbs", "standalone_keydbs", "standalone_dragonflies", "standalone_clickhouses", "local_persistent_volumes", "local_file_volumes", "github_apps"];
 
 console.log(JSON.stringify({ fixture, columnsOf, cases }, null, 1));

@@ -13,8 +13,7 @@
 // port overrides and flags) and written into the Compose file and the part's variables (updateCompose(), DP-74's port).
 // What runs on the server answers 501 in Coolify's envelope after Coolify's own refusals and before anything is stored:
 // starting, restarting and stopping a part of a functional server, its container logs, and the TCP proxy a database's
-// is_public starts or stops. The database imports (uploads, an import, its status) are not ported: they copy a file to
-// the server and run the restore there.
+// is_public starts or stops. A service database's imports are database-imports.ts' (DP-88).
 import type { SqlExecutor } from "@saas/db/hyperdrive";
 import type { ApiRow } from "@saas/db/deploy";
 import { databasePublicPortTaken } from "@saas/db/deploy";

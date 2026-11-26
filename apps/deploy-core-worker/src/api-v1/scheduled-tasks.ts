@@ -7,8 +7,8 @@
 //
 // Coolify's /api/v1 for the scheduled tasks of an application and of a service (DP-84), on the task rows the console's
 // Scheduled Tasks pages use (packages/db's deploy/scheduled-tasks.ts) and DP-68's cron validator. A task is a row: what
-// runs it is the scheduler. "Execute now" (POST …/execute) queues ScheduledTaskJob, which runs the command over SSH: it is
-// not ported (the route answers the fallback 404).
+// runs it is the scheduler. "Execute now" (POST …/execute, DP-88) queues ScheduledTaskJob, which runs the command over
+// SSH: Freeploy answers 501 in Coolify's envelope after Coolify's checks (executeTask()), and stores nothing.
 import type { SqlExecutor } from "@saas/db/hyperdrive";
 import { deleteScheduledTask, insertScheduledTask, updateScheduledTask, type ApiRow, type ScheduledTaskChanges, type ScheduledTaskOwner } from "@saas/db/deploy";
 import { COOLIFY_API, coolifyJson, laravelDate, obj, serializeApiResponse, type CoolifyAnswer, type PhpObject, type PhpValue } from "@saas/contracts/coolify-api";
@@ -17,7 +17,8 @@ import { validateCronExpression } from "../servers/settings-validation.js";
 import { newPublicId } from "../helpers/names.js";
 import { applicationRelation } from "./applications.js";
 import { serviceResource } from "./services.js";
-import { hasDeployAbility, message, rowsOf, type ApiV1Context, type Rows } from "./context.js";
+import { needsExecutor } from "../applications/resources.js";
+import { hasDeployAbility, message, rowsOf, unavailable, type ApiV1Context, type Rows } from "./context.js";
 import { rowValue, toModel, type ModelShape } from "./models.js";
 import { extraFields, readApiBody, requestBoolean, validationFailed, type Errors } from "./request.js";
 import { validateRules, type Rules } from "./rules.js";
@@ -89,7 +90,26 @@ export async function scheduledTasksApi(c: ApiV1Context, kind: TaskOwnerKind, uu
   const m = c.method;
   if (taskUuid === undefined) return m === "GET" ? listTasks(c, kind, uuid) : m === "POST" ? createTask(c, kind, uuid) : null;
   if (sub === undefined) return m === "PATCH" ? updateTask(c, kind, uuid, taskUuid) : m === "DELETE" ? deleteTask(c, kind, uuid, taskUuid) : null;
+  if (sub === "execute") return m === "POST" ? execute(c, kind, uuid, taskUuid) : null;
   return sub === "executions" && m === "GET" ? executions(c, kind, uuid, taskUuid) : null;
+}
+
+/** Freeploy's: ScheduledTaskJob runs the task's command in the resource's container over SSH. */
+export const EXECUTE_TASK_UNAVAILABLE = needsExecutor("Running the scheduled task");
+
+/** executeTask(): the update policy, the resource's task, then ScheduledTaskJob::dispatch() (501). A disabled task runs too. */
+async function execute(c: ApiV1Context, kind: TaskOwnerKind, uuid: string, taskUuid: string): Promise<CoolifyAnswer> {
+  return c.sql(c.env, c.orgId, async (tx) => {
+    const rows = rowsOf(tx);
+    const r = await resolve(rows, kind, param(c, {}, uuid));
+    if (!r) return message(NOT_FOUND[kind], 404);
+    const no = await denied(c, true);
+    if (no) return no;
+    // $request->task_uuid: the input before the route parameter.
+    const wanted = c.url.searchParams.get("task_uuid") ?? taskUuid;
+    if (!(await taskOf(rows, r, wanted))) return message("Scheduled task not found.", 404);
+    return unavailable(EXECUTE_TASK_UNAVAILABLE);
+  });
 }
 
 async function listTasks(c: ApiV1Context, kind: TaskOwnerKind, uuid: string): Promise<CoolifyAnswer> {

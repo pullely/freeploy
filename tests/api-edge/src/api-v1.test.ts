@@ -167,7 +167,7 @@ describe("what the edge sends a worker", () => {
 });
 
 describe("the routes", () => {
-  it("are the 202 ported operations of openapi.json (health, the deprecated team aliases and the GET answers of start, restart and stop aside)", () => {
+  it("are the 248 ported operations of openapi.json (health, the deprecated team aliases and the GET answers of start, restart and stop aside)", () => {
     const openapi = JSON.parse(readFileSync(resolve(FIXTURES, "../../../../specs/epics/freeploy-coolify-parity/parity/openapi.operations.json"), "utf8")) as { rows: Array<{ method: string; path: string }> };
     const ops = new Set(openapi.rows.map((r) => `${r.method} ${r.path}`));
     const routes = API_V1_ROUTES.map((r) => `${r.method} /api/v1${r.path}`);
@@ -193,7 +193,7 @@ describe("the routes", () => {
       "GET /api/v1/services/{uuid}/restart",
       "GET /api/v1/services/{uuid}/stop",
     ]);
-    expect(inOpenapi.length + 1 /* GET /api/v1/health */).toBe(202);
+    expect(inOpenapi.length + 1 /* GET /api/v1/health */).toBe(248);
   });
 
   it("take the first match in routes/api.php's order and ignore a trailing slash", () => {
@@ -214,8 +214,16 @@ describe("the routes", () => {
     expect(matchApiRoute("DELETE", "/databases/b1/storages/l1")?.abilities).toEqual(["delete"]);
     expect(matchApiRoute("PATCH", "/databases/b1/envs/bulk")?.path).toBe("/databases/{uuid}/envs/bulk");
     expect(matchApiRoute("GET", "/applications/a1/scheduled-tasks/n1/executions")?.path).toBe("/applications/{uuid}/scheduled-tasks/{task_uuid}/executions");
-    expect(matchApiRoute("POST", "/services/s1/scheduled-tasks/n1/execute")).toBeNull();
-    expect(matchApiRoute("PUT", "/applications/a1/storages/l1/backups")).toBeNull();
+    // DP-88: executing a task, a storage's backup schedule, an import's status (->whereNumber('activity_id')).
+    expect(matchApiRoute("POST", "/services/s1/scheduled-tasks/n1/execute")?.path).toBe("/services/{uuid}/scheduled-tasks/{task_uuid}/execute");
+    expect(matchApiRoute("PUT", "/applications/a1/storages/l1/backups")?.abilities).toEqual(["write"]);
+    expect(matchApiRoute("POST", "/databases/b1/storages/l1/backups/run")?.alsoAbilities).toEqual(["deploy"]);
+    expect(matchApiRoute("GET", "/databases/b1/imports/12")?.path).toBe("/databases/{uuid}/imports/{activity_id}");
+    expect(matchApiRoute("GET", "/databases/b1/imports/abc")).toBeNull();
+    expect(matchApiRoute("GET", "/servers/s1/transfer")?.abilities).toEqual(["read", "write"]);
+    expect(matchApiRoute("GET", "/servers/import/check")?.path).toBe("/servers/import/check");
+    expect(matchApiRoute("PUT", "/servers/s1/proxy/configuration")).toBeNull();
+    expect(matchApiRoute("POST", "/servers/s1/transfer/complete")).toBeNull();
     expect(matchApiRoute("PATCH", "/team/envs/10")?.target).toBe("deploy");
     expect(matchApiRoute("PATCH", "/team")).toBeNull();
     expect(matchApiRoute("GET", "/deployments/applications/a1")?.path).toBe("/deployments/applications/{uuid}");

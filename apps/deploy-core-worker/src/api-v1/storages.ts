@@ -82,7 +82,7 @@ function param(c: ApiV1Context, all: Record<string, unknown>, route: string): un
 // ── the resource and its owners ─────────────────────────────────────────────
 
 /** What a storage belongs to: the resource itself, or one of a service's applications and databases. */
-interface Owner {
+export interface Owner {
   type: string;
   id: string | number;
   uuid: string;
@@ -91,7 +91,7 @@ interface Owner {
   part?: "application" | "database";
 }
 
-interface Target {
+export interface Target {
   kind: StorageKind;
   row: ApiRow;
   /** The resource directory on the server (Storage::fileStorageHostPath(), workdir()). */
@@ -102,7 +102,7 @@ interface Target {
 
 const queryUuid = (v: unknown): string | null => (typeof v === "string" || typeof v === "number" ? String(v) : null);
 
-async function findTarget(tx: SqlExecutor, rows: Rows, kind: StorageKind, uuid: unknown): Promise<Target | null> {
+export async function findTarget(tx: SqlExecutor, rows: Rows, kind: StorageKind, uuid: unknown): Promise<Target | null> {
   const key = queryUuid(uuid);
   if (key === null) return null;
   if (kind === "application") {

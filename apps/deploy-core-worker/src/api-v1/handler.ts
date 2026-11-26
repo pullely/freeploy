@@ -33,6 +33,15 @@
 //   PATCH /v1/internal/api-v1/{org}/applications/{uuid}                                                         application-update.ts (DP-87)
 //   /v1/internal/api-v1/{org}/applications/{uuid}/destinations[/{destination_uuid}]                            app-destinations.ts (DP-86)
 //   /v1/internal/api-v1/{org}/{applications,databases,services}/{uuid}/{move,migrate,clone}                    operations.ts (DP-86)
+//   /v1/internal/api-v1/{org}/{databases,services}/{uuid}/logs                                                 resource-logs.ts (DP-88)
+//   /v1/internal/api-v1/{org}/applications/{uuid}/{rollback-images,rollback}                                   rollback.ts (DP-88)
+//   /v1/internal/api-v1/{org}/{applications,databases,services}/{uuid}/storages/{storage_uuid}/backups[/run]   volume-backups.ts (DP-88)
+//   /v1/internal/api-v1/{org}/servers/{uuid}/{proxy[/restart],sentinel,log-drains,image-scanning,
+//                              cloudflare-tunnel[/enable|/disable],host-key/reset}                             server-settings.ts (DP-88)
+//   /v1/internal/api-v1/{org}/servers/{uuid}/{registries[/{registry}[/check]],transfer,migrate}, /servers/import/check
+//                                                                                                               server-registries-transfer.ts (DP-88)
+//   /v1/internal/api-v1/{org}/databases/{uuid}/imports…, /services/{uuid}/databases/{database_uuid}/imports…  database-imports.ts (DP-88)
+//   /v1/internal/api-v1/{org}/github-apps[/{github_app_id}]                                                    github-apps.ts (DP-88)
 //
 // $this->authorize(…) is policy-worker's deploy.resource.read (view) or deploy.resource.write (create,
 // update, delete) for the token's user; a denial is Laravel's 403 "This action is unauthorized.".
@@ -93,6 +102,13 @@ import { dockerCleanupApi } from "./docker-cleanup.js";
 import { previewsApi } from "./previews.js";
 import { appDestinationsApi } from "./app-destinations.js";
 import { operationsApi } from "./operations.js";
+import { databaseLogs, serviceLogs } from "./resource-logs.js";
+import { rollback, rollbackImages } from "./rollback.js";
+import { volumeBackupsApi } from "./volume-backups.js";
+import { serverSettingsApi } from "./server-settings.js";
+import { importCheck, serverRegistriesApi, serverTransferApi } from "./server-registries-transfer.js";
+import { databaseImportsApi } from "./database-imports.js";
+import { githubAppsApi } from "./github-apps.js";
 import { s3Fetch } from "../s3-storages/connection.js";
 import { dohResolver } from "../s3-storages/safe-url.js";
 import type { S3StorageNetwork } from "../s3-storages/service.js";
@@ -187,6 +203,13 @@ export async function handleApiV1(request: Request, env: Env, requestId: string,
     if (first === "destinations") return send((await destinationsApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
     if (first === "servers" && second !== undefined && third === "destinations") return send((await serverDestinationsApi(context, second, segments.slice(3))) ?? COOLIFY_API.notFound());
     if (first === "servers" && second !== undefined && third === "envs") return send((await serverSharedVariablesApi(context, second, segments.slice(3))) ?? COOLIFY_API.notFound());
+    // DP-88: a server's proxy, Sentinel, log drains, image scanning, Cloudflare Tunnel, host key, registries and transfer.
+    if (first === "servers" && second === "import" && third === "check" && fourth === undefined) return send(method === "GET" ? await importCheck(context) : COOLIFY_API.notFound());
+    if (first === "servers" && second !== undefined && (third === "proxy" || third === "sentinel" || third === "log-drains" || third === "image-scanning" || third === "cloudflare-tunnel" || third === "host-key")) {
+      return send((await serverSettingsApi(context, second, third, segments.slice(3))) ?? COOLIFY_API.notFound());
+    }
+    if (first === "servers" && second !== undefined && third === "registries") return send((await serverRegistriesApi(context, second, segments.slice(3))) ?? COOLIFY_API.notFound());
+    if (first === "servers" && second !== undefined && (third === "transfer" || third === "migrate")) return send((await serverTransferApi(context, second, third, segments.slice(3))) ?? COOLIFY_API.notFound());
     if (first === "servers" && fourth === undefined) {
       const answer = await serversApi(context, second, third);
       if (answer) return send(answer);
@@ -201,12 +224,23 @@ export async function handleApiV1(request: Request, env: Env, requestId: string,
     if (first === "s3-storages") return send((await s3StoragesApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
     // DP-84: a resource's storages, an application's and a service's scheduled tasks, a database's variables, the team's shared variables.
     const storageOwner = STORAGE_OWNERS[first ?? ""];
+    // DP-88: a storage's backup schedule.
+    if (storageOwner && second !== undefined && third === "storages" && fourth !== undefined && fifth === "backups") return send((await volumeBackupsApi(context, storageOwner, second, fourth, segments.slice(5))) ?? COOLIFY_API.notFound());
     if (storageOwner && second !== undefined && third === "storages") return send((await storagesApi(context, storageOwner, second, segments.slice(3))) ?? COOLIFY_API.notFound());
     if ((first === "applications" || first === "services") && second !== undefined && third === "scheduled-tasks") {
       return send((await scheduledTasksApi(context, first === "applications" ? "application" : "service", second, segments.slice(3))) ?? COOLIFY_API.notFound());
     }
     if (first === "databases" && second !== undefined && third === "envs") return send((await databaseEnvsApi(context, second, segments.slice(3))) ?? COOLIFY_API.notFound());
     if (first === "team" && second === "envs") return send((await teamSharedVariablesApi(context, segments.slice(2))) ?? COOLIFY_API.notFound());
+    // DP-88: database imports, a database's and a service's logs, an application's rollback, GitHub Apps.
+    if (first === "databases" && second !== undefined && third === "imports") return send((await databaseImportsApi(context, "standalone", second, undefined, segments.slice(3))) ?? COOLIFY_API.notFound());
+    if (first === "services" && second !== undefined && third === "databases" && fourth !== undefined && fifth === "imports") return send((await databaseImportsApi(context, "service", second, fourth, segments.slice(5))) ?? COOLIFY_API.notFound());
+    if ((first === "databases" || first === "services") && second !== undefined && third === "logs" && fourth === undefined) {
+      return send(method !== "GET" ? COOLIFY_API.notFound() : first === "databases" ? await databaseLogs(context, second) : await serviceLogs(context, second));
+    }
+    if (first === "applications" && second !== undefined && fourth === undefined && third === "rollback-images") return send(method === "GET" ? await rollbackImages(context, second) : COOLIFY_API.notFound());
+    if (first === "applications" && second !== undefined && fourth === undefined && third === "rollback") return send(method === "POST" ? await rollback(context, second) : COOLIFY_API.notFound());
+    if (first === "github-apps") return send((await githubAppsApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
     // DP-85: a service's applications and databases, the team's notification channels.
     if (first === "services" && second !== undefined && (third === "applications" || third === "databases")) {
       return send((await servicePartsApi(context, third === "applications" ? "application" : "database", second, segments.slice(3))) ?? COOLIFY_API.notFound());

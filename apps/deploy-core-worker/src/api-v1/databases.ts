@@ -199,7 +199,7 @@ export async function databasesApi(c: ApiV1Context, segments: string[]): Promise
 
 // ── reading ─────────────────────────────────────────────────────────────────
 
-interface FoundDatabase {
+export interface FoundDatabase {
   engine: DatabaseEngine;
   /** The whole row (apiRows). */
   row: ApiRow;
@@ -208,6 +208,10 @@ interface FoundDatabase {
 }
 
 /** queryDatabaseByUuidWithinTeam(): the org's database of any engine, not deleted (row-level security confines it to the org). */
+export async function findApiDatabase(tx: SqlExecutor, uuid: unknown): Promise<FoundDatabase | null> {
+  return findDatabase(tx, uuid);
+}
+
 async function findDatabase(tx: SqlExecutor, uuid: unknown): Promise<FoundDatabase | null> {
   if (typeof uuid !== "string" && typeof uuid !== "number") return null;
   const db = await findDatabaseByUuid(tx, String(uuid));

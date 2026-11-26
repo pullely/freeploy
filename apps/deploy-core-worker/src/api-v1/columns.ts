@@ -153,6 +153,13 @@ export const COOLIFY_COLUMNS = {
     "id", "uuid", "fs_path", "mount_path", "content", "resource_type", "resource_id", "created_at", "updated_at",
     "is_directory", "chown", "chmod", "is_based_on_git", "is_preview_suffix_enabled", "is_host_file", "variable_fs_path",
   ],
+  // DP-88: an updated GitHub App (the loaded model, answered unsorted)
+  github_apps: [
+    "id", "uuid", "name", "organization", "api_url", "html_url", "custom_user", "custom_port", "app_id", "installation_id",
+    "client_id", "client_secret", "webhook_secret", "is_system_wide", "is_public", "private_key_id", "team_id", "created_at",
+    "updated_at", "contents", "metadata", "pull_requests", "administration", "organization_self_hosted_runners", "actions",
+    "webhook_events", "runner_group_id", "deployments", "installation_account",
+  ],
 } as const satisfies Record<string, readonly string[]>;
 
 export type CoolifyTable = keyof typeof COOLIFY_COLUMNS;
