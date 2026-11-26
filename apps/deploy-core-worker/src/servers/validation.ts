@@ -83,6 +83,8 @@ export interface CreateServerInput {
   serverRole: ServerRole;
   /** SetsImageScanning: "on" turns image scanning on. */
   scanImages: boolean;
+  /** The proxy type, upper case (the API's proxy_type, DP-78); TRAEFIK when not given. */
+  proxyType?: string;
 }
 
 /** ByIp::rules() with ByIp::messages(). */

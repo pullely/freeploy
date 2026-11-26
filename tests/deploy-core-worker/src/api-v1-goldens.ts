@@ -126,6 +126,8 @@ export function mask(value: PhpValue, context: { teamIdKey?: boolean } = {}, par
         // Coolify generates a Sentinel token when it creates the settings row; Freeploy's server creation stores none (freeploy-rows.json; a departure), so it is masked even when null.
         if (SECRET_KEYS.has(k)) return [k, "<secret>"];
         if (k === "id" && context.teamIdKey && parentKey === "") return [k, "<team>"];
+        // A team nested in a project (a deployment's application.environment.project.team, DP-78).
+        if (k === "id" && parentKey === "team") return [k, "<team>"];
         if (k === "id" && typeof email === "string") return [k, `<user:${email}>`];
         if (k === "id" && parentKey === "settings") return [k, "<settings-id>"];
         // A server's default destination: Coolify names it "coolify", Freeploy "freeploy" (a label; the network is "coolify" on both, DP-71).

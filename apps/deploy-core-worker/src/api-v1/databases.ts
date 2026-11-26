@@ -58,7 +58,7 @@ import { stripTags, tagName } from "../applications/tags.js";
 import { deleteOptions } from "../applications/danger.js";
 import { newPublicId } from "../helpers/names.js";
 import { nestedServer } from "./applications.js";
-import { inCoolifyOrder } from "./columns.js";
+import { inCoolifyOrder, type CoolifyTable } from "./columns.js";
 import { decryptColumn, hasDeployAbility, message, rowsOf, unavailable, type ApiV1Context, type Rows } from "./context.js";
 import { DESTINATION, rowValue, toModel, type ModelShape } from "./models.js";
 import { addError, descriptionRules, nameRules, readApiBody, requestBoolean, validationFailed, type ApiBody, type Errors } from "./request.js";
@@ -252,19 +252,40 @@ async function destinationModel(rows: Rows, c: ApiV1Context, row: ApiRow): Promi
  * caller set (backup_configs) — then serializeApiResponse() and the connection URLs of a locked password redacted.
  */
 async function databaseModel(tx: SqlExecutor, c: ApiV1Context, found: FoundDatabase, extra: Array<[string, PhpValue]> = []): Promise<PhpObject> {
+  return databaseSerialization(tx, c, found, extra, null);
+}
+
+/**
+ * A standalone database through serializeApiResource() (GET /resources and an environment's resources, DP-78): toArray()
+ * unsorted — every column in Coolify's order (id included), every $hidden attribute made visible for a token that may
+ * read secrets (exposeSensitiveFields(): the passwords decrypted, the configuration, legacy_password_quoting and the
+ * connection URLs), the status accessor, the through key, the appended attributes and the loaded destination — and the
+ * connection URLs of a locked password redacted.
+ */
+export async function databaseResource(tx: SqlExecutor, c: ApiV1Context, engine: DatabaseEngine, row: ApiRow, throughKey?: unknown): Promise<PhpObject | null> {
+  const db = await findDatabaseByUuid(tx, String(rowValue(row, "uuid")));
+  if (!db) return null;
+  return databaseSerialization(tx, c, { engine, row, db }, [], { throughKey });
+}
+
+async function databaseSerialization(tx: SqlExecutor, c: ApiV1Context, found: FoundDatabase, extra: Array<[string, PhpValue]>, resource: { throughKey?: unknown } | null): Promise<PhpObject> {
   const { engine, row } = found;
   const table = DATABASE_TABLES[engine];
   const sensitive = c.canReadSensitive;
   const shape = databaseShape(engine);
   const shown = (await showDatabase(databaseContext(tx, c), found.db.uuid, true))!;
   const extras: Array<[string, PhpValue]> = [];
-  if (sensitive) {
-    for (const column of table.encrypted) extras.push([column, await decryptColumn(tx, c, table.table, column, rowValue(row, column))]);
-    extras.push(["internal_db_url", shown.dbUrl], ["external_db_url", shown.dbUrlPublic]);
-  }
+  if (sensitive) for (const column of table.encrypted) extras.push([column, await decryptColumn(tx, c, table.table, column, rowValue(row, column))]);
   extras.push(["status", databaseStatus(rowValue(row, "status") as string | null)]);
+  if (resource && resource.throughKey !== undefined) extras.push(["laravel_through_key", resource.throughKey as PhpValue]);
+  if (sensitive) extras.push(["internal_db_url", shown.dbUrl], ["external_db_url", shown.dbUrlPublic]);
   extras.push(["database_type", DATABASE_ENGINE_SPECS[engine].databaseType], ["server_status", shown.serverStatus]);
   extras.push(...extra);
+  if (resource) {
+    // The destination server_status loaded: its server's hidden attributes stay hidden (only the resource is exposed).
+    extras.push(["destination", await destinationModel(rowsOf(tx), { ...c, canReadSensitive: false }, row)]);
+    return toModel(inCoolifyOrder(row, table.table as CoolifyTable), { ...shape, hidden: [...shape.hidden, "internal_db_url", "external_db_url"] }, { visible: sensitive ? shape.hidden : [], extra: extras });
+  }
   extras.push(["destination", await destinationModel(rowsOf(tx), c, row)]);
   const visible = sensitive ? shape.hidden.filter((k) => k !== "legacy_password_quoting") : [];
   return serializeApiResponse(toModel(row.filter(([k]) => k !== "id"), shape, { visible, extra: extras }), sensitive);

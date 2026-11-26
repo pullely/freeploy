@@ -58,3 +58,28 @@ export async function fetchAuthorizationContext(
 
   return { ok: true, memberships: typed.memberships };
 }
+
+/**
+ * The org as membership-worker shows it to the user (GET /v1/organizations/{org}): Coolify's team in /api/v1's
+ * answers (DP-78; identity-worker's teams read it the same way, DP-70). Null when it is not shown.
+ */
+export async function fetchOrganizationFacts(
+  membershipWorker: Fetcher,
+  orgPublicId: string,
+  subjectId: string,
+  subjectType: string,
+  requestId: string,
+): Promise<{ id: string; name: string; createdAt: string } | null> {
+  try {
+    const res = await membershipWorker.fetch(`http://membership-worker/v1/organizations/${encodeURIComponent(orgPublicId)}`, {
+      headers: { "x-request-id": requestId, "x-actor-subject-id": subjectId, "x-actor-subject-type": subjectType },
+    });
+    if (!res.ok) return null;
+    const body = (await res.json()) as { data?: { organization?: { id?: unknown; name?: unknown; createdAt?: unknown } } };
+    const org = body.data?.organization;
+    if (!org || typeof org.id !== "string" || typeof org.name !== "string" || typeof org.createdAt !== "string") return null;
+    return { id: org.id, name: org.name, createdAt: org.createdAt };
+  } catch {
+    return null;
+  }
+}

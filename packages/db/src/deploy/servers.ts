@@ -237,6 +237,14 @@ export async function deleteServer(tx: SqlExecutor, id: string | number): Promis
 }
 
 /**
+ * The API's ssh_host_key on a created server (ServersController::create_server(), DP-78): the normalized host
+ * key lines, trusted as given by the user.
+ */
+export async function trustServerSshHostKey(tx: SqlExecutor, serverId: string | number, keys: string): Promise<void> {
+  await tx.execute(`UPDATE deploy.server_settings SET ssh_host_key = $2, ssh_host_key_source = 'manual', ssh_host_key_trusted_at = ${NOW}, updated_at = ${NOW} WHERE server_id = $1`, [serverId, keys]);
+}
+
+/**
  * Server::sshEndpointInUse($ip, $port, $exceptServerId): a server already uses
  * this IP and SSH port. Coolify looks across every team; here row-level
  * security confines the check to the org.

@@ -92,6 +92,7 @@ export {
   deleteServer,
   serverSshEndpointInUse,
   otherBuildServerExists,
+  trustServerSshHostKey,
   listServerPrivateKeys,
   type DeployServerListRow,
   type DeployServerRow,

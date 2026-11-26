@@ -13,6 +13,8 @@ export interface ApiRoute {
   /** api.ability:… — any one of them (CheckForAnyAbility); root passes every check. */
   abilities: readonly string[];
   target: Target;
+  /** A path this route does not take: an earlier route of routes/api.php Freeploy has not ported takes it (DP-78). */
+  except?: RegExp;
 }
 
 const r = (method: ApiRoute["method"], path: string, ability: string, target: Target): ApiRoute => ({ method, path, abilities: [ability], target });
@@ -37,6 +39,10 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("POST", "/projects", "write", "deploy"),
   r("PATCH", "/projects/{uuid}", "write", "deploy"),
   r("DELETE", "/projects/{uuid}", "delete", "deploy"),
+  // DP-78: after /projects/{uuid}/environments (routes/api.php's order); /projects/{uuid}/envs is the shared variables'
+  // route, not ported, so it is not this one either.
+  { ...r("GET", "/projects/{uuid}/{environment_name_or_uuid}", "read", "deploy"), except: /^\/projects\/[^/]+\/envs$/ },
+  r("GET", "/resources", "read", "deploy"),
 
   r("GET", "/security/keys", "read", "deploy"),
   r("POST", "/security/keys", "write", "deploy"),
@@ -47,6 +53,11 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("GET", "/servers", "read", "deploy"),
   r("GET", "/servers/{uuid}", "read", "deploy"),
   r("POST", "/servers/{uuid}/validate", "write", "deploy"),
+  // DP-78
+  r("GET", "/servers/{uuid}/domains", "read", "deploy"),
+  r("GET", "/servers/{uuid}/resources", "read", "deploy"),
+  r("POST", "/servers", "write", "deploy"),
+  r("DELETE", "/servers/{uuid}", "delete", "deploy"),
 
   // DP-71
   r("GET", "/applications", "read", "deploy"),
@@ -94,12 +105,15 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("POST", "/databases/{uuid}/restart", "deploy", "deploy"),
   r("POST", "/databases/{uuid}/stop", "deploy", "deploy"),
 
-  // DP-74: deploying and deployments (GET /deployments and GET /deployments/{uuid} are not ported), then services and
+  // DP-74: deploying and deployments (GET /deployments and GET /deployments/{uuid}: DP-78), then services and
   // their environment variables. routes/api.php's /deploy and /deployments come before /servers; no route here
   // matches both, so the order between the groups does not change which route answers.
   // OtherController::post_required
   r("GET", "/deploy", "deploy", "deploy"),
   r("POST", "/deploy", "deploy", "deploy"),
+  // DP-78
+  r("GET", "/deployments", "read", "deploy"),
+  r("GET", "/deployments/{uuid}", "read", "deploy"),
   r("POST", "/deployments/{uuid}/cancel", "deploy", "deploy"),
   r("GET", "/deployments/applications/{uuid}", "read", "deploy"),
   r("GET", "/services", "read", "deploy"),
@@ -131,5 +145,5 @@ const COMPILED = API_V1_ROUTES.map((route) => ({ route, re: compile(route.path) 
 export function matchApiRoute(method: string, path: string): ApiRoute | null {
   const p = path.length > 1 ? path.replace(/\/+$/, "") : path;
   const m = method.toUpperCase() === "HEAD" ? "GET" : method.toUpperCase();
-  return COMPILED.find(({ route, re }) => route.method === m && re.test(p))?.route ?? null;
+  return COMPILED.find(({ route, re }) => route.method === m && re.test(p) && !route.except?.test(p))?.route ?? null;
 }

@@ -4,7 +4,7 @@
 import type { Env } from "../env.js";
 import type { SqlExecutor } from "@saas/db/hyperdrive";
 import { apiRows, type ApiRow, type ApiTable } from "@saas/db/deploy";
-import { coolifyJson, obj, type CoolifyAnswer, type PhpValue } from "@saas/contracts/coolify-api";
+import { coolifyJson, obj, type CoolifyAnswer, type CoolifyTeamFacts, type PhpValue } from "@saas/contracts/coolify-api";
 import { columnCipher } from "../handlers/cloud-tokens.js";
 
 /** Runs fn in one transaction confined to the org (withOrg); replaceable for tests. */
@@ -25,6 +25,8 @@ export interface ApiV1Context {
   /** $this->authorize(): policy-worker's deploy.resource.write (true) or deploy.resource.read. */
   allows(write: boolean): Promise<boolean>;
   sql: SqlRunner;
+  /** The org as membership-worker shows it to the token's user: Coolify's team where an answer nests it (DP-78). */
+  org(): Promise<CoolifyTeamFacts | null>;
 }
 
 export type Rows = (table: ApiTable, where?: string, params?: unknown[], order?: "id" | "name") => Promise<ApiRow[]>;

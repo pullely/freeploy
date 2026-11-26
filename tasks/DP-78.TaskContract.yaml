@@ -1,0 +1,24 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-78
+  title: "DP9: /api/v1 for deployments in progress and one deployment, every resource and an environment's resources, servers create, delete, resources and domains"
+spec:
+  goal: Coolify's /api/v1 answers, on DP-70's pipeline (api-edge's middleware and routes, deploy-core-worker's internal mount), for the org's deployments in progress and one deployment (each with its application as Eloquent loads it — and, for one deployment, the application's environment, project and team, the team being the org as membership-worker shows it to the token's user over deploy-core-worker's existing binding, as identity-worker's teams read it), every resource of the team (GET /resources) and an environment's resources (GET /projects/{uuid}/{environment_name_or_uuid}) through serializeApiResource() — the groups' own serializations of applications, services and databases in their unsorted form, every hidden attribute made visible for a token that may read secrets, the locked values redacted — and for creating a server (the console's createServer(), with the API's validation, proxy type and trusted SSH host key), deleting one (the console's deleteServer() for a server without resources, after every check Coolify makes) and a server's resources and domains (and GET /servers/{uuid}?resources), with Coolify's controllers' validation, messages, status codes and key order, every body in Coolify's own JSON bytes. 8 more of openapi.json's 330 operations are ported (81 in all) — GET /deployments, GET /deployments/{uuid}, GET /resources, GET /projects/{uuid}/{environment_name_or_uuid}, POST /servers, DELETE /servers/{uuid}, GET /servers/{uuid}/resources and GET /servers/{uuid}/domains — each replayed byte for byte (masked ids, uuids, dates, and a team's id nested in a project) against goldens emitted by Coolify's real PHP, and each write's rows compared with the rows Coolify's left; the other 249 answer Coolify's 404 shape. Deleting a server with its resources, removing the SSH key from it, deleting it from its cloud provider, stopping the applications that use it as an additional destination and creating it with instant_validate answer 501 in Coolify's envelope, after Coolify's own refusals and before anything is stored. Not ported in the groups done — PATCH /servers/{uuid} (Laravel's url, ipv4 and ipv6 rules, thirteen settings and the proxy change are more than could be ported exactly here) and PATCH /team (it writes only is_build_server_fallback_enabled and scan_images_on_new_servers, team settings Freeploy's orgs have neither the storage nor the features for; DP-69's General page writes the name and description, which the API does not take). Cut, from the end of the task's order — S3 storages, cloud tokens, scheduled tasks, the application create types and PATCH /applications/{uuid}.
+  affects:
+    - apps/api-edge/**
+    - apps/deploy-core-worker/**
+    - apps/identity-worker/**
+    - packages/contracts/**
+    - packages/db/**
+    - tests/api-edge/**
+    - tests/deploy-core-worker/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - every case of tests/deploy-core-worker/fixtures/api/cases.json (485 cases, 63 of them DP-78's) replays against Freeploy byte-equal to goldens.json after the documented masking, except the listed departures (a forced deletion of a server with resources, removing the SSH key and creating with instant_validate answer 501) and the middleware answers, which tests/api-edge replays
+    - the rows each DP-78 write leaves in Freeploy's database (PGlite with the deploy schema at head) equal the golden's `after` rows — a created server with its settings and default destination, a deleted server gone — except the listed departures, which store nothing
+    - deploy-core-worker's COOLIFY_COLUMNS equals the column order emit.php reads from Coolify's schema, projects, environments and the eight standalone database tables included
+    - specs/epics/freeploy-coolify-parity/parity/openapi.operations.json marks the 8 operations ported with taskKey DP-78 (81 ported of 330 in all), and node tools/parity/inventory.ts --check passes
+    - on stage, GET https://<edge>/api/v1/resources and GET /api/v1/deployments/{uuid} with a read token answer as Coolify does, the deployment's team being the org's name
+  gates: []

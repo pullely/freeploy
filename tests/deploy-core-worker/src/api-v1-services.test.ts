@@ -1,4 +1,5 @@
-// Coolify's /api/v1 for services and their environment variables, and for deployments (DP-74), replayed against Coolify's real answers:
+// Coolify's /api/v1 for services and their environment variables, and for deployments (DP-74; the deployments in
+// progress and one deployment, DP-78), replayed against Coolify's real answers:
 // fixtures/api/goldens.json, emitted by Coolify's PHP through its HTTP kernel on PostgreSQL (see fixtures/api/README.md).
 // The fixture is made in Freeploy's own database (api-v1-database.ts: PGlite with the deploy schema at head, the rows
 // made by Freeploy's insert functions — a service per team with its parts and variables), each request goes to
@@ -56,6 +57,8 @@ function runners(db: TransactionalSqlExecutor, allow = true): Partial<ApiV1Runne
     sql: (_e, _o, fn) => withOrg(db, ORG_UUID[T1]!, fn),
     rows: (_e, _o, fn) => withOrg(db, ORG_UUID[T1]!, (tx) => fn((table, where, params) => apiRows(tx, table, where ?? null, params ?? []))),
     allows: async () => allow,
+    // The org as membership-worker shows it: the fixture's team 1 (DP-78's deployments nest it).
+    org: async () => ({ id: ORG_PUBLIC, name: "Parity Team", createdAt: "2026-01-01T00:00:00.000Z" }),
   };
 }
 
@@ -132,7 +135,7 @@ describe("the list of service types (DP-74)", () => {
 });
 
 /** The cases whose answer is the middleware's (tests/api-edge replays them). */
-const MIDDLEWARE_ANSWERS = new Set(["services: list, member with read:sensitive", "service envs: list, member with read:sensitive", "services: stop with a write token", "deployments: cancel with a write token", "deploy: with a read token"]);
+const MIDDLEWARE_ANSWERS = new Set(["services: list, member with read:sensitive", "service envs: list, member with read:sensitive", "services: stop with a write token", "deployments: cancel with a write token", "deploy: with a read token", "deployments: show with a write-only token"]);
 /** Compared on its own below (the catalogue). */
 const LISTED_APART = new Set(["services: create, unknown type"]);
 const GROUP = /^(services|service envs|deployments|deploy): /;

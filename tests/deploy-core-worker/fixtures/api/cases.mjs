@@ -719,7 +719,89 @@ add({ name: "deploy: a service", token: "root", method: "POST", path: `/api/v1/d
 add({ name: "deploy: a database", token: "root", method: "POST", path: `/api/v1/deploy?uuid=${DB_REDIS}` });
 add({ name: "deploy: with a read token", token: "read", method: "POST", path: `/api/v1/deploy?uuid=${A_IMAGE}` });
 
+// ── DP-78: the deployments in progress and one deployment ───────────────────
+add({ name: "deployments: in progress", token: "read", method: "GET", path: "/api/v1/deployments" });
+add({ name: "deployments: in progress, read:sensitive", token: "sensitive", method: "GET", path: "/api/v1/deployments" });
+add({ name: "deployments: in progress, member", token: "memberRead", method: "GET", path: "/api/v1/deployments" });
+add({ name: "deployments: in progress, none", token: "read", method: "GET", path: "/api/v1/deployments", setup: ["update application_deployment_queues set status = 'finished' where application_id in ('1', '2')"] });
+add({ name: "deployments: show", token: "read", method: "GET", path: `/api/v1/deployments/${DQ_FINISHED}` });
+add({ name: "deployments: show, read:sensitive", token: "sensitive", method: "GET", path: `/api/v1/deployments/${DQ_RUNNING}` });
+add({ name: "deployments: show, root", token: "root", method: "GET", path: `/api/v1/deployments/${DQ_FAILED}` });
+add({ name: "deployments: show another team's", token: "read", method: "GET", path: `/api/v1/deployments/${DQ_OTHER}` });
+add({ name: "deployments: show unknown", token: "read", method: "GET", path: "/api/v1/deployments/nonexistentuuid" });
+add({ name: "deployments: show with a write-only token", token: "writeOnly", method: "GET", path: `/api/v1/deployments/${DQ_FINISHED}` });
+
+// ── DP-78: every resource, an environment's resources ───────────────────────
+add({ name: "resources: list", token: "read", method: "GET", path: "/api/v1/resources" });
+add({ name: "resources: list, read:sensitive", token: "sensitive", method: "GET", path: "/api/v1/resources" });
+add({ name: "resources: list, member", token: "memberRead", method: "GET", path: "/api/v1/resources" });
+add({ name: "resources: list with a write-only token", token: "writeOnly", method: "GET", path: "/api/v1/resources" });
+add({ name: "environment details: by name", token: "read", method: "GET", path: `/api/v1/projects/${P_ALPHA}/production` });
+add({ name: "environment details: by uuid, read:sensitive", token: "sensitive", method: "GET", path: `/api/v1/projects/${P_ALPHA}/${E_PROD}` });
+add({ name: "environment details: an empty environment", token: "read", method: "GET", path: `/api/v1/projects/${P_ALPHA}/staging` });
+add({ name: "environment details: another project's environment", token: "read", method: "GET", path: `/api/v1/projects/${P_BETA}/${E_STAGING}` });
+add({ name: "environment details: unknown environment", token: "read", method: "GET", path: `/api/v1/projects/${P_ALPHA}/nope` });
+add({ name: "environment details: unknown project", token: "read", method: "GET", path: "/api/v1/projects/nonexistentuuid/production" });
+add({ name: "environment details: another team's project", token: "read", method: "GET", path: `/api/v1/projects/${P_OTHER}/production` });
+
+// ── DP-78: a server's resources and domains, deleting and creating a server ───
+add({ name: "server resources: list", token: "read", method: "GET", path: `/api/v1/servers/${S_MAIN}/resources` });
+add({ name: "server resources: another team's server", token: "read", method: "GET", path: `/api/v1/servers/${S_OTHER}/resources` });
+add({ name: "server resources: unknown server", token: "read", method: "GET", path: "/api/v1/servers/nonexistentuuid/resources" });
+add({ name: "server resources: none left", token: "read", method: "GET", path: `/api/v1/servers/${S_MAIN}/resources`, setup: ["update applications set deleted_at = '2025-12-31 00:00:00' where destination_id = 1", "update services set deleted_at = '2025-12-31 00:00:00' where server_id = 1", ...["standalone_postgresqls", "standalone_redis", "standalone_mongodbs", "standalone_mysqls", "standalone_mariadbs", "standalone_keydbs", "standalone_dragonflies", "standalone_clickhouses"].map((t) => `update ${t} set deleted_at = '2025-12-31 00:00:00' where destination_id = 1`)] });
+add({ name: "servers: show with resources, read:sensitive", token: "sensitive", method: "GET", path: `/api/v1/servers/${S_MAIN}?resources=true` });
+add({ name: "server domains: list", token: "read", method: "GET", path: `/api/v1/servers/${S_MAIN}/domains` });
+add({ name: "server domains: several domains and a port", token: "read", method: "GET", path: `/api/v1/servers/${S_MAIN}/domains`, setup: ["update applications set fqdn = 'https://image.example.com:8443/path,http://www.image.example.com' where id = 1", "update applications set fqdn = 'http://git.example.com' where id = 2", "update service_applications set fqdn = 'https://web.example.com,https://web2.example.com:3000' where id = 1"] });
+add({ name: "server domains: of an application", token: "read", method: "GET", path: `/api/v1/servers/${S_MAIN}/domains?uuid=${A_IMAGE}` });
+add({ name: "server domains: of an application without a domain", token: "read", method: "GET", path: `/api/v1/servers/${S_MAIN}/domains?uuid=${A_GIT}` });
+add({ name: "server domains: of an unknown application", token: "read", method: "GET", path: `/api/v1/servers/${S_MAIN}/domains?uuid=${A_OTHER}` });
+add({ name: "server domains: another team's server", token: "read", method: "GET", path: `/api/v1/servers/${S_OTHER}/domains` });
+add({ name: "server domains: unknown server", token: "read", method: "GET", path: "/api/v1/servers/nonexistentuuid/domains" });
+
+const RESOURCES_GONE = ["update applications set deleted_at = '2025-12-31 00:00:00' where destination_id = 1", "update services set deleted_at = '2025-12-31 00:00:00' where server_id = 1", ...["standalone_postgresqls", "standalone_redis", "standalone_mongodbs", "standalone_mysqls", "standalone_mariadbs", "standalone_keydbs", "standalone_dragonflies", "standalone_clickhouses"].map((t) => `update ${t} set deleted_at = '2025-12-31 00:00:00' where destination_id = 1`)];
+/** Whether team 1's server is still there (Coolify soft-deletes and queues DeleteServer; Freeploy deletes the rows). */
+const SERVERS_AFTER = { servers: "select uuid from servers where deleted_at is null and ip <> '203.0.113.20' order by id" };
+add({ name: "servers: delete one with resources", token: "delete", method: "DELETE", path: `/api/v1/servers/${S_MAIN}`, after: SERVERS_AFTER });
+add({ name: "servers: delete one with resources, forced without deploy", token: "delete", method: "DELETE", path: `/api/v1/servers/${S_MAIN}?force=true`, after: SERVERS_AFTER });
+add({ name: "servers: delete one with resources, forced", token: "root", method: "DELETE", path: `/api/v1/servers/${S_MAIN}?force=true`, after: SERVERS_AFTER });
+add({ name: "servers: delete", token: "delete", method: "DELETE", path: `/api/v1/servers/${S_MAIN}`, setup: RESOURCES_GONE, after: SERVERS_AFTER });
+add({ name: "servers: delete, keeping the resources", token: "delete", method: "DELETE", path: `/api/v1/servers/${S_MAIN}?remove_resources_from_server=false`, setup: RESOURCES_GONE, after: SERVERS_AFTER });
+add({ name: "servers: delete with an invalid flag", token: "delete", method: "DELETE", path: `/api/v1/servers/${S_MAIN}?delete_from_provider=maybe` });
+add({ name: "servers: delete with an invalid ssh key flag", token: "delete", method: "DELETE", path: `/api/v1/servers/${S_MAIN}?remove_ssh_key=2` });
+add({ name: "servers: delete with an invalid resources flag", token: "delete", method: "DELETE", path: `/api/v1/servers/${S_MAIN}?remove_resources_from_server=nope` });
+add({ name: "servers: delete from a provider it is not on", token: "root", method: "DELETE", path: `/api/v1/servers/${S_MAIN}?delete_from_provider=true`, setup: RESOURCES_GONE, after: SERVERS_AFTER });
+add({ name: "servers: delete, removing the ssh key", token: "root", method: "DELETE", path: `/api/v1/servers/${S_MAIN}?remove_ssh_key=true`, setup: RESOURCES_GONE, after: SERVERS_AFTER });
+add({ name: "servers: delete another team's", token: "root", method: "DELETE", path: `/api/v1/servers/${S_OTHER}` });
+add({ name: "servers: delete unknown", token: "root", method: "DELETE", path: "/api/v1/servers/nonexistentuuid" });
+add({ name: "servers: delete with a read token", token: "read", method: "DELETE", path: `/api/v1/servers/${S_MAIN}` });
+
+/** The server a create made: its columns, settings and default destination (its uuid and a generated name are random). */
+const CREATED_SERVER_AFTER = {
+  server: "select case when name ~ '^[a-z]+-[a-z]+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where ip = '203.0.113.30'",
+  settings: "select ss.server_role, ss.is_build_server, ss.ssh_host_key, ss.ssh_host_key_source, ss.ssh_host_key_trusted_at is not null as trusted from server_settings ss join servers s on s.id = ss.server_id where s.ip = '203.0.113.30'",
+  destination: "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.ip = '203.0.113.30'",
+  servers: "select count(*)::int as count from servers where ip <> '203.0.113.20'",
+};
+const HOST_KEY = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl";
+add({ name: "servers: create", token: "write", method: "POST", path: "/api/v1/servers", body: { ip: "203.0.113.30", private_key_uuid: K_MAIN }, after: CREATED_SERVER_AFTER });
+add({ name: "servers: create with every field", token: "write", method: "POST", path: "/api/v1/servers", body: { name: "build-box", description: "Builds things", ip: "203.0.113.30", port: 2222, user: "deploy", private_key_uuid: K_FREE, server_role: "build", proxy_type: "caddy", ssh_host_key: `203.0.113.30 ${HOST_KEY}\n# a comment\n${HOST_KEY}` }, after: CREATED_SERVER_AFTER });
+add({ name: "servers: create as a build server (legacy flag)", token: "write", method: "POST", path: "/api/v1/servers", body: { name: "legacy-build", ip: "203.0.113.30", private_key_uuid: K_MAIN, is_build_server: true, proxy_type: "NONE" }, after: CREATED_SERVER_AFTER });
+add({ name: "servers: create, the legacy flag against the role", token: "write", method: "POST", path: "/api/v1/servers", body: { ip: "203.0.113.30", private_key_uuid: K_MAIN, is_build_server: true, server_role: "both" }, after: CREATED_SERVER_AFTER });
+add({ name: "servers: create, deployments only without a build server", token: "write", method: "POST", path: "/api/v1/servers", body: { ip: "203.0.113.30", private_key_uuid: K_MAIN, server_role: "deployment" }, after: CREATED_SERVER_AFTER });
+add({ name: "servers: create, nothing", token: "write", method: "POST", path: "/api/v1/servers", body: { description: "No ip" } });
+add({ name: "servers: create, invalid fields", token: "write", method: "POST", path: "/api/v1/servers", body: { name: "a\nb", description: "<bad>", ip: "not an ip!", port: 70000, user: "-root", private_key_uuid: 5, server_role: "worker", is_build_server: "yes", instant_validate: "no", proxy_type: 3, ssh_host_key: 7, extra: 1 } });
+add({ name: "servers: create, a short name and a port that is not a number", token: "write", method: "POST", path: "/api/v1/servers", body: { name: "ab", ip: "2001:db8::1", port: "ssh", private_key_uuid: K_MAIN } });
+add({ name: "servers: create, an invalid host key", token: "write", method: "POST", path: "/api/v1/servers", body: { ip: "203.0.113.30", private_key_uuid: K_MAIN, ssh_host_key: "not a key" } });
+add({ name: "servers: create, an invalid proxy type", token: "write", method: "POST", path: "/api/v1/servers", body: { ip: "203.0.113.30", private_key_uuid: K_MAIN, proxy_type: "apache" } });
+add({ name: "servers: create, an unknown private key", token: "write", method: "POST", path: "/api/v1/servers", body: { ip: "203.0.113.30", private_key_uuid: "nonexistentuuid" } });
+add({ name: "servers: create, another team's private key", token: "write", method: "POST", path: "/api/v1/servers", body: { ip: "203.0.113.30", private_key_uuid: K_OTHER } });
+add({ name: "servers: create, an endpoint in use", token: "write", method: "POST", path: "/api/v1/servers", body: { ip: "203.0.113.10", private_key_uuid: K_MAIN, port: 22 }, after: { servers: "select count(*)::int as count from servers where ip <> '203.0.113.20'" } });
+add({ name: "servers: create, the endpoint in use on another port", token: "write", method: "POST", path: "/api/v1/servers", body: { ip: "203.0.113.10", private_key_uuid: K_MAIN, port: 2200, name: "same-host" }, after: { servers: "select name, port from servers where ip = '203.0.113.10' order by port" } });
+add({ name: "servers: create, validating at once", token: "write", method: "POST", path: "/api/v1/servers", body: { ip: "203.0.113.30", private_key_uuid: K_MAIN, instant_validate: true }, after: CREATED_SERVER_AFTER });
+add({ name: "servers: create, not JSON", token: "write", method: "POST", path: "/api/v1/servers", raw: "ip=203.0.113.30", contentType: "application/x-www-form-urlencoded" });
+add({ name: "servers: create with a read token", token: "read", method: "POST", path: "/api/v1/servers", body: { ip: "203.0.113.30", private_key_uuid: K_MAIN } });
+
 /** The tables whose column order emit.php writes into the goldens (`columns`): what a nested relation serializes in. */
-const columnsOf = ["servers", "server_settings", "standalone_dockers", "application_settings", "applications", "environment_variables", "application_deployment_queues", "scheduled_database_backups", "scheduled_database_backup_executions", "services", "service_applications", "service_databases"];
+const columnsOf = ["servers", "server_settings", "standalone_dockers", "application_settings", "applications", "environment_variables", "application_deployment_queues", "scheduled_database_backups", "scheduled_database_backup_executions", "services", "service_applications", "service_databases", "projects", "environments", "standalone_postgresqls", "standalone_redis", "standalone_mongodbs", "standalone_mysqls", "standalone_mariadbs", "standalone_keydbs", "standalone_dragonflies", "standalone_clickhouses"];
 
 console.log(JSON.stringify({ fixture, columnsOf, cases }, null, 1));

@@ -821,7 +821,17 @@
   "scheduled_database_backup_executions",
   "services",
   "service_applications",
-  "service_databases"
+  "service_databases",
+  "projects",
+  "environments",
+  "standalone_postgresqls",
+  "standalone_redis",
+  "standalone_mongodbs",
+  "standalone_mysqls",
+  "standalone_mariadbs",
+  "standalone_keydbs",
+  "standalone_dragonflies",
+  "standalone_clickhouses"
  ],
  "cases": [
   {
@@ -5081,6 +5091,611 @@
    "token": "read",
    "method": "POST",
    "path": "/api/v1/deploy?uuid=a1parityimageapp00000001"
+  },
+  {
+   "name": "deployments: in progress",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/deployments"
+  },
+  {
+   "name": "deployments: in progress, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/deployments"
+  },
+  {
+   "name": "deployments: in progress, member",
+   "token": "memberRead",
+   "method": "GET",
+   "path": "/api/v1/deployments"
+  },
+  {
+   "name": "deployments: in progress, none",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/deployments",
+   "setup": [
+    "update application_deployment_queues set status = 'finished' where application_id in ('1', '2')"
+   ]
+  },
+  {
+   "name": "deployments: show",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/deployments/q3parityfinished00000003"
+  },
+  {
+   "name": "deployments: show, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/deployments/q1parityinprogress000001"
+  },
+  {
+   "name": "deployments: show, root",
+   "token": "root",
+   "method": "GET",
+   "path": "/api/v1/deployments/q5paritygitfailed0000005"
+  },
+  {
+   "name": "deployments: show another team's",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/deployments/q4otherinprogress0000004"
+  },
+  {
+   "name": "deployments: show unknown",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/deployments/nonexistentuuid"
+  },
+  {
+   "name": "deployments: show with a write-only token",
+   "token": "writeOnly",
+   "method": "GET",
+   "path": "/api/v1/deployments/q3parityfinished00000003"
+  },
+  {
+   "name": "resources: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/resources"
+  },
+  {
+   "name": "resources: list, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/resources"
+  },
+  {
+   "name": "resources: list, member",
+   "token": "memberRead",
+   "method": "GET",
+   "path": "/api/v1/resources"
+  },
+  {
+   "name": "resources: list with a write-only token",
+   "token": "writeOnly",
+   "method": "GET",
+   "path": "/api/v1/resources"
+  },
+  {
+   "name": "environment details: by name",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/production"
+  },
+  {
+   "name": "environment details: by uuid, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/e1alphaproduction0000001"
+  },
+  {
+   "name": "environment details: an empty environment",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/staging"
+  },
+  {
+   "name": "environment details: another project's environment",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/projects/p2betaprojectuuid0000002/e2alphastaging0000000002"
+  },
+  {
+   "name": "environment details: unknown environment",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/nope"
+  },
+  {
+   "name": "environment details: unknown project",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/projects/nonexistentuuid/production"
+  },
+  {
+   "name": "environment details: another team's project",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/projects/p3otherprojectuuid000003/production"
+  },
+  {
+   "name": "server resources: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/servers/s1parityserveruuid000001/resources"
+  },
+  {
+   "name": "server resources: another team's server",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/servers/s2otherteamserver0000002/resources"
+  },
+  {
+   "name": "server resources: unknown server",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/servers/nonexistentuuid/resources"
+  },
+  {
+   "name": "server resources: none left",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/servers/s1parityserveruuid000001/resources",
+   "setup": [
+    "update applications set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update services set deleted_at = '2025-12-31 00:00:00' where server_id = 1",
+    "update standalone_postgresqls set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_redis set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_mongodbs set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_mysqls set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_mariadbs set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_keydbs set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_dragonflies set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_clickhouses set deleted_at = '2025-12-31 00:00:00' where destination_id = 1"
+   ]
+  },
+  {
+   "name": "servers: show with resources, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/servers/s1parityserveruuid000001?resources=true"
+  },
+  {
+   "name": "server domains: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/servers/s1parityserveruuid000001/domains"
+  },
+  {
+   "name": "server domains: several domains and a port",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/servers/s1parityserveruuid000001/domains",
+   "setup": [
+    "update applications set fqdn = 'https://image.example.com:8443/path,http://www.image.example.com' where id = 1",
+    "update applications set fqdn = 'http://git.example.com' where id = 2",
+    "update service_applications set fqdn = 'https://web.example.com,https://web2.example.com:3000' where id = 1"
+   ]
+  },
+  {
+   "name": "server domains: of an application",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/servers/s1parityserveruuid000001/domains?uuid=a1parityimageapp00000001"
+  },
+  {
+   "name": "server domains: of an application without a domain",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/servers/s1parityserveruuid000001/domains?uuid=a2paritygitapp0000000002"
+  },
+  {
+   "name": "server domains: of an unknown application",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/servers/s1parityserveruuid000001/domains?uuid=a3otherteamapp0000000003"
+  },
+  {
+   "name": "server domains: another team's server",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/servers/s2otherteamserver0000002/domains"
+  },
+  {
+   "name": "server domains: unknown server",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/servers/nonexistentuuid/domains"
+  },
+  {
+   "name": "servers: delete one with resources",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "after": {
+    "servers": "select uuid from servers where deleted_at is null and ip <> '203.0.113.20' order by id"
+   }
+  },
+  {
+   "name": "servers: delete one with resources, forced without deploy",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/servers/s1parityserveruuid000001?force=true",
+   "after": {
+    "servers": "select uuid from servers where deleted_at is null and ip <> '203.0.113.20' order by id"
+   }
+  },
+  {
+   "name": "servers: delete one with resources, forced",
+   "token": "root",
+   "method": "DELETE",
+   "path": "/api/v1/servers/s1parityserveruuid000001?force=true",
+   "after": {
+    "servers": "select uuid from servers where deleted_at is null and ip <> '203.0.113.20' order by id"
+   }
+  },
+  {
+   "name": "servers: delete",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "setup": [
+    "update applications set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update services set deleted_at = '2025-12-31 00:00:00' where server_id = 1",
+    "update standalone_postgresqls set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_redis set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_mongodbs set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_mysqls set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_mariadbs set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_keydbs set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_dragonflies set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_clickhouses set deleted_at = '2025-12-31 00:00:00' where destination_id = 1"
+   ],
+   "after": {
+    "servers": "select uuid from servers where deleted_at is null and ip <> '203.0.113.20' order by id"
+   }
+  },
+  {
+   "name": "servers: delete, keeping the resources",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/servers/s1parityserveruuid000001?remove_resources_from_server=false",
+   "setup": [
+    "update applications set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update services set deleted_at = '2025-12-31 00:00:00' where server_id = 1",
+    "update standalone_postgresqls set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_redis set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_mongodbs set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_mysqls set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_mariadbs set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_keydbs set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_dragonflies set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_clickhouses set deleted_at = '2025-12-31 00:00:00' where destination_id = 1"
+   ],
+   "after": {
+    "servers": "select uuid from servers where deleted_at is null and ip <> '203.0.113.20' order by id"
+   }
+  },
+  {
+   "name": "servers: delete with an invalid flag",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/servers/s1parityserveruuid000001?delete_from_provider=maybe"
+  },
+  {
+   "name": "servers: delete with an invalid ssh key flag",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/servers/s1parityserveruuid000001?remove_ssh_key=2"
+  },
+  {
+   "name": "servers: delete with an invalid resources flag",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/servers/s1parityserveruuid000001?remove_resources_from_server=nope"
+  },
+  {
+   "name": "servers: delete from a provider it is not on",
+   "token": "root",
+   "method": "DELETE",
+   "path": "/api/v1/servers/s1parityserveruuid000001?delete_from_provider=true",
+   "setup": [
+    "update applications set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update services set deleted_at = '2025-12-31 00:00:00' where server_id = 1",
+    "update standalone_postgresqls set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_redis set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_mongodbs set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_mysqls set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_mariadbs set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_keydbs set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_dragonflies set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_clickhouses set deleted_at = '2025-12-31 00:00:00' where destination_id = 1"
+   ],
+   "after": {
+    "servers": "select uuid from servers where deleted_at is null and ip <> '203.0.113.20' order by id"
+   }
+  },
+  {
+   "name": "servers: delete, removing the ssh key",
+   "token": "root",
+   "method": "DELETE",
+   "path": "/api/v1/servers/s1parityserveruuid000001?remove_ssh_key=true",
+   "setup": [
+    "update applications set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update services set deleted_at = '2025-12-31 00:00:00' where server_id = 1",
+    "update standalone_postgresqls set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_redis set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_mongodbs set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_mysqls set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_mariadbs set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_keydbs set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_dragonflies set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_clickhouses set deleted_at = '2025-12-31 00:00:00' where destination_id = 1"
+   ],
+   "after": {
+    "servers": "select uuid from servers where deleted_at is null and ip <> '203.0.113.20' order by id"
+   }
+  },
+  {
+   "name": "servers: delete another team's",
+   "token": "root",
+   "method": "DELETE",
+   "path": "/api/v1/servers/s2otherteamserver0000002"
+  },
+  {
+   "name": "servers: delete unknown",
+   "token": "root",
+   "method": "DELETE",
+   "path": "/api/v1/servers/nonexistentuuid"
+  },
+  {
+   "name": "servers: delete with a read token",
+   "token": "read",
+   "method": "DELETE",
+   "path": "/api/v1/servers/s1parityserveruuid000001"
+  },
+  {
+   "name": "servers: create",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers",
+   "body": {
+    "ip": "203.0.113.30",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "after": {
+    "server": "select case when name ~ '^[a-z]+-[a-z]+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where ip = '203.0.113.30'",
+    "settings": "select ss.server_role, ss.is_build_server, ss.ssh_host_key, ss.ssh_host_key_source, ss.ssh_host_key_trusted_at is not null as trusted from server_settings ss join servers s on s.id = ss.server_id where s.ip = '203.0.113.30'",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.ip = '203.0.113.30'",
+    "servers": "select count(*)::int as count from servers where ip <> '203.0.113.20'"
+   }
+  },
+  {
+   "name": "servers: create with every field",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers",
+   "body": {
+    "name": "build-box",
+    "description": "Builds things",
+    "ip": "203.0.113.30",
+    "port": 2222,
+    "user": "deploy",
+    "private_key_uuid": "k2unusedprivatekey000002",
+    "server_role": "build",
+    "proxy_type": "caddy",
+    "ssh_host_key": "203.0.113.30 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl\n# a comment\nssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl"
+   },
+   "after": {
+    "server": "select case when name ~ '^[a-z]+-[a-z]+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where ip = '203.0.113.30'",
+    "settings": "select ss.server_role, ss.is_build_server, ss.ssh_host_key, ss.ssh_host_key_source, ss.ssh_host_key_trusted_at is not null as trusted from server_settings ss join servers s on s.id = ss.server_id where s.ip = '203.0.113.30'",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.ip = '203.0.113.30'",
+    "servers": "select count(*)::int as count from servers where ip <> '203.0.113.20'"
+   }
+  },
+  {
+   "name": "servers: create as a build server (legacy flag)",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers",
+   "body": {
+    "name": "legacy-build",
+    "ip": "203.0.113.30",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "is_build_server": true,
+    "proxy_type": "NONE"
+   },
+   "after": {
+    "server": "select case when name ~ '^[a-z]+-[a-z]+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where ip = '203.0.113.30'",
+    "settings": "select ss.server_role, ss.is_build_server, ss.ssh_host_key, ss.ssh_host_key_source, ss.ssh_host_key_trusted_at is not null as trusted from server_settings ss join servers s on s.id = ss.server_id where s.ip = '203.0.113.30'",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.ip = '203.0.113.30'",
+    "servers": "select count(*)::int as count from servers where ip <> '203.0.113.20'"
+   }
+  },
+  {
+   "name": "servers: create, the legacy flag against the role",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers",
+   "body": {
+    "ip": "203.0.113.30",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "is_build_server": true,
+    "server_role": "both"
+   },
+   "after": {
+    "server": "select case when name ~ '^[a-z]+-[a-z]+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where ip = '203.0.113.30'",
+    "settings": "select ss.server_role, ss.is_build_server, ss.ssh_host_key, ss.ssh_host_key_source, ss.ssh_host_key_trusted_at is not null as trusted from server_settings ss join servers s on s.id = ss.server_id where s.ip = '203.0.113.30'",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.ip = '203.0.113.30'",
+    "servers": "select count(*)::int as count from servers where ip <> '203.0.113.20'"
+   }
+  },
+  {
+   "name": "servers: create, deployments only without a build server",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers",
+   "body": {
+    "ip": "203.0.113.30",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "server_role": "deployment"
+   },
+   "after": {
+    "server": "select case when name ~ '^[a-z]+-[a-z]+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where ip = '203.0.113.30'",
+    "settings": "select ss.server_role, ss.is_build_server, ss.ssh_host_key, ss.ssh_host_key_source, ss.ssh_host_key_trusted_at is not null as trusted from server_settings ss join servers s on s.id = ss.server_id where s.ip = '203.0.113.30'",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.ip = '203.0.113.30'",
+    "servers": "select count(*)::int as count from servers where ip <> '203.0.113.20'"
+   }
+  },
+  {
+   "name": "servers: create, nothing",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers",
+   "body": {
+    "description": "No ip"
+   }
+  },
+  {
+   "name": "servers: create, invalid fields",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers",
+   "body": {
+    "name": "a\nb",
+    "description": "<bad>",
+    "ip": "not an ip!",
+    "port": 70000,
+    "user": "-root",
+    "private_key_uuid": 5,
+    "server_role": "worker",
+    "is_build_server": "yes",
+    "instant_validate": "no",
+    "proxy_type": 3,
+    "ssh_host_key": 7,
+    "extra": 1
+   }
+  },
+  {
+   "name": "servers: create, a short name and a port that is not a number",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers",
+   "body": {
+    "name": "ab",
+    "ip": "2001:db8::1",
+    "port": "ssh",
+    "private_key_uuid": "k1parityprivatekey000001"
+   }
+  },
+  {
+   "name": "servers: create, an invalid host key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers",
+   "body": {
+    "ip": "203.0.113.30",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "ssh_host_key": "not a key"
+   }
+  },
+  {
+   "name": "servers: create, an invalid proxy type",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers",
+   "body": {
+    "ip": "203.0.113.30",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "proxy_type": "apache"
+   }
+  },
+  {
+   "name": "servers: create, an unknown private key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers",
+   "body": {
+    "ip": "203.0.113.30",
+    "private_key_uuid": "nonexistentuuid"
+   }
+  },
+  {
+   "name": "servers: create, another team's private key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers",
+   "body": {
+    "ip": "203.0.113.30",
+    "private_key_uuid": "k3otherteamkey0000000003"
+   }
+  },
+  {
+   "name": "servers: create, an endpoint in use",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers",
+   "body": {
+    "ip": "203.0.113.10",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "port": 22
+   },
+   "after": {
+    "servers": "select count(*)::int as count from servers where ip <> '203.0.113.20'"
+   }
+  },
+  {
+   "name": "servers: create, the endpoint in use on another port",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers",
+   "body": {
+    "ip": "203.0.113.10",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "port": 2200,
+    "name": "same-host"
+   },
+   "after": {
+    "servers": "select name, port from servers where ip = '203.0.113.10' order by port"
+   }
+  },
+  {
+   "name": "servers: create, validating at once",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers",
+   "body": {
+    "ip": "203.0.113.30",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "instant_validate": true
+   },
+   "after": {
+    "server": "select case when name ~ '^[a-z]+-[a-z]+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where ip = '203.0.113.30'",
+    "settings": "select ss.server_role, ss.is_build_server, ss.ssh_host_key, ss.ssh_host_key_source, ss.ssh_host_key_trusted_at is not null as trusted from server_settings ss join servers s on s.id = ss.server_id where s.ip = '203.0.113.30'",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.ip = '203.0.113.30'",
+    "servers": "select count(*)::int as count from servers where ip <> '203.0.113.20'"
+   }
+  },
+  {
+   "name": "servers: create, not JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers",
+   "raw": "ip=203.0.113.30",
+   "contentType": "application/x-www-form-urlencoded"
+  },
+  {
+   "name": "servers: create with a read token",
+   "token": "read",
+   "method": "POST",
+   "path": "/api/v1/servers",
+   "body": {
+    "ip": "203.0.113.30",
+    "private_key_uuid": "k1parityprivatekey000001"
+   }
   }
  ]
 }

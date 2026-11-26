@@ -1,10 +1,12 @@
-# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74)
+# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78)
 
 What Coolify's real API answers, so that Freeploy's `/api/v1` (api-edge's middleware and limiters,
 identity-worker's teams and tokens, deploy-core-worker's projects, environments, private keys and servers —
 DP-70 —, its applications and their environment variables — DP-71 — and its standalone databases and their backup
 schedules — DP-73 — and its services and their environment variables, an application's deployments, cancelling a deployment and
-deploying by uuid or tag — DP-74) can be replayed against it byte for byte.
+deploying by uuid or tag — DP-74 — and the deployments in progress and one deployment, every resource of the team, an
+environment's resources, creating and deleting a server and a server's resources and domains — DP-78) can be replayed
+against it byte for byte.
 
 | File | What it is |
 |---|---|
@@ -29,6 +31,11 @@ variables emit.php makes through the models) and five deployments in the queue, 
 before the request, on the tables of the same names). A write that makes random values is compared on what is not random: the
 `after` queries write a uuid the request made as `<uuid>` and the random name of a service made from a Compose file without
 one (`str()->random(10)`) as `service-<random>`, inside the names, domains and generated Compose files they read.
+DP-78's replay (`src/api-v1-continued.test.ts`; the deployments in progress and one deployment are DP-74's file's) runs on
+the same database with no new fixture rows: a case's `setup` soft-deletes the resources of the fixture's server
+(`deleted_at`, on both sides) so that it can be deleted, the `after` queries of a created server write a generated name as
+`<random-name>` and leave out the other team's server (Freeploy's org sees only its own), and the team a deployment's
+application nests is the fixture's team as membership-worker would answer it (`org`, a runner of the handler).
 
 ## How the goldens are made
 
@@ -71,7 +78,9 @@ Both sides go through the same masking before they are compared (`src/api-v1-gol
   label in the console, `DEFAULT_STANDALONE_DESTINATION`; the network is `coolify` on both) as
   `<default-destination-name>` (DP-71);
 - a uuid the request made where a generated domain names its container after it (`http://<name>-<uuid>.<host>` of a
-  created service's `domains`) as `-<new-uuid>.` (DP-74).
+  created service's `domains`) as `-<new-uuid>.` (DP-74);
+- the `id` of a team nested in a project (a deployment's `application.environment.project.team`) as `<team>`, as a
+  team's id is elsewhere (DP-78).
 
 Everything else — every other key, its position, its type, every message — is compared byte for byte, the
 JSON written again by `phpJsonEncode` (PHP's `json_encode`, `\/` included); a test checks that it writes

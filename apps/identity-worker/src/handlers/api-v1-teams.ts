@@ -16,16 +16,12 @@
 import type { Env } from "../env.js";
 import { createSqlExecutor } from "@saas/db/hyperdrive";
 import { createApiTokenStore, type ApiUserRow } from "@saas/db/identity";
-import { API_V1_HEADERS, COOLIFY_API, coolifyJson, laravelDate, obj, serializeApiResponse, sqlDate, type CoolifyAnswer, type PhpObject } from "@saas/contracts/coolify-api";
+import { API_V1_HEADERS, COOLIFY_API, coolifyJson, coolifyTeam, laravelDate, obj, serializeApiResponse, sqlDate, without, type CoolifyAnswer, type CoolifyTeamFacts, type PhpObject } from "@saas/contracts/coolify-api";
 import { parseUserPublicId, userPublicId } from "../ids.js";
 
 export const API_V1_TEAMS_RE = /^\/v1\/internal\/api-v1\/(teams|team)(?:\/([^/]+))?(?:\/(members))?$/;
 
-export interface OrgFacts {
-  id: string;
-  name: string;
-  createdAt: string;
-}
+export type OrgFacts = CoolifyTeamFacts;
 
 export interface TeamsDeps {
   /** The org as membership-worker shows it to the user, or null. */
@@ -78,24 +74,7 @@ function defaultDeps(env: Env): Required<TeamsDeps> {
 
 /** removeSensitiveData($team): the team's columns without custom_server_limit, serialized. */
 export function teamPayload(org: OrgFacts): PhpObject {
-  return serializeApiResponse(
-    obj({
-      id: org.id,
-      name: org.name,
-      description: null,
-      personal_team: false,
-      created_at: laravelDate(org.createdAt),
-      updated_at: laravelDate(org.createdAt),
-      show_boarding: false,
-      is_mcp_server_enabled: true,
-      is_build_server_fallback_enabled: true,
-      avatar_path: null,
-      avatar_storage_type: null,
-      avatar_s3_storage_id: null,
-      is_two_factor_required: false,
-      scan_images_on_new_servers: false,
-    }),
-  );
+  return serializeApiResponse(without(coolifyTeam(org), ["custom_server_limit"]));
 }
 
 /** A member: the user's columns without $hidden, pivot, email_change_code and its expiry. */

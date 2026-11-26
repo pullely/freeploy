@@ -128,6 +128,66 @@ async function loadRelations(rows: Rows, row: ApiRow): Promise<Loaded> {
 export const functional = (server: ApiRow | null, settings: ApiRow | undefined): boolean =>
   server !== null && settings !== undefined && isFunctional({ is_reachable: rowValue(settings, "is_reachable") as boolean, is_usable: rowValue(settings, "is_usable") as boolean, force_disabled: rowValue(settings, "force_disabled") as boolean, ip: rowValue(server, "ip") as string });
 
+/** The relations an application's serialization loads: its servers (each as a loaded relation), the destination and server_status. */
+function loadedRelations(c: ApiV1Context, row: ApiRow, l: Loaded): { additionalServers: PhpObject[]; destination: PhpObject | null; serverStatus: boolean } {
+  const additionalServers = l.additional.map(({ pivot, server, settings }) => {
+    const s = nestedServer(c, server, settings);
+    put(s, "pivot", obj({ application_id: rowValue(row, "id") as PhpValue, server_id: rowValue(server, "id") as PhpValue, standalone_docker_id: rowValue(pivot, "standalone_docker_id") as PhpValue, status: rowValue(pivot, "status") as PhpValue }));
+    return s;
+  });
+  const destination = l.destination ? toModel(inCoolifyOrder(l.destination, "standalone_dockers"), DESTINATION, { extra: [["server", l.server ? nestedServer(c, l.server, l.serverSettings) : null]] }) : null;
+  const serverStatus = functional(l.server, l.serverSettings) && l.additional.every((a) => functional(a.server, a.settings));
+  return { additionalServers, destination, serverStatus };
+}
+
+/** Application's encrypted casts. */
+const APPLICATION_ENCRYPTED = [...APPLICATION_WEBHOOK_SECRETS, "http_basic_auth_password", "git_https_password"];
+
+export interface PlainModelOptions {
+  /** The environment (with its project and team) the caller loaded first (a deployment's application). */
+  environment?: PhpObject | null;
+  /** laravel_through_key: the project's id, for a resource read through Project's hasManyThrough (GET /resources). */
+  throughKey?: unknown;
+  /** serializeApiResource(): exposeSensitiveFields() — every $hidden attribute made visible for a token that may read secrets — and redactLockedApiResourceValues(). */
+  resource?: boolean;
+}
+
+/**
+ * An application as Eloquent's toArray() gives it without the controller's removeSensitiveData() (a deployment's
+ * application, DP-78; a resource of GET /resources and of an environment, through serializeApiResource()): every column
+ * in Coolify's order but $hidden (made visible, the encrypted ones decrypted, for a resource a token that may read
+ * secrets reads), the accessors, the global scope's counts, the through key, server_status, then the relations in the
+ * order they were loaded (the environment with its project and team when the caller loaded them, then the servers and
+ * the destination server_status loaded, whose own hidden attributes stay hidden).
+ */
+export async function applicationRelation(tx: SqlExecutor, c: ApiV1Context, row: ApiRow, opts: PlainModelOptions = {}): Promise<PhpObject> {
+  const plain: ApiV1Context = { ...c, canReadSensitive: false };
+  const expose = opts.resource === true && c.canReadSensitive;
+  const l = await loadRelations(rowsOf(tx), row);
+  const { additionalServers, destination, serverStatus } = loadedRelations(plain, row, l);
+  const extra: Array<[string, PhpValue]> = [];
+  if (expose) {
+    for (const column of APPLICATION_ENCRYPTED) extra.push([column, await decryptColumn(tx, c, "applications", column, rowValue(row, column))]);
+    const nginx = rowValue(row, "custom_nginx_configuration");
+    extra.push(["custom_nginx_configuration", nginx === null || nginx === undefined ? null : base64Decode(String(nginx))]);
+  }
+  extra.push(
+    ["status", statusAccessor(rowValue(row, "status") as string | null, l.additional.map((a) => rowValue(a.pivot, "status") as string | null))],
+    ["custom_network_aliases", networkAliasesForForm(rowValue(row, "custom_network_aliases") as string | null)],
+    ["additional_servers_count", l.additional.length],
+    ["additional_networks_count", l.additional.length],
+  );
+  if (opts.throughKey !== undefined) extra.push(["laravel_through_key", opts.throughKey as PhpValue]);
+  extra.push(["server_status", serverStatus]);
+  if (opts.environment) extra.push(["environment", opts.environment]);
+  extra.push(["additional_servers", additionalServers], ["destination", destination]);
+  const out = toModel(inCoolifyOrder(row, "applications"), APPLICATION, { visible: expose ? APPLICATION.hidden : [], extra });
+  // redactLockedApiResourceValues()
+  const compose = out.entries.find(([k]) => k === "docker_compose")?.[1];
+  if (opts.resource && typeof compose === "string" && compose.trim() !== "") put(out, "docker_compose", redactLockedValues(compose, await lockedValues(tx, c, row)));
+  return out;
+}
+
 /**
  * removeSensitiveData($application): toArray() — the columns but the hidden ones (made visible for a token that
  * may read secrets, the encrypted ones decrypted; private_key_id hidden from the others), the global scope's
@@ -143,13 +203,7 @@ async function applicationModel(tx: SqlExecutor, c: ApiV1Context, row: ApiRow, w
   const decrypted: ApiRow = [];
   if (sensitive) for (const column of [...APPLICATION_WEBHOOK_SECRETS, "http_basic_auth_password"]) decrypted.push([column, await decryptColumn(tx, c, "applications", column, rowValue(row, column))]);
   const visible = sensitive ? APPLICATION_SENSITIVE : [];
-  const additionalServers = l.additional.map(({ pivot, server, settings }) => {
-    const s = nestedServer(c, server, settings);
-    put(s, "pivot", obj({ application_id: rowValue(row, "id") as PhpValue, server_id: rowValue(server, "id") as PhpValue, standalone_docker_id: rowValue(pivot, "standalone_docker_id") as PhpValue, status: rowValue(pivot, "status") as PhpValue }));
-    return s;
-  });
-  const destination = l.destination ? toModel(inCoolifyOrder(l.destination, "standalone_dockers"), DESTINATION, { extra: [["server", l.server ? nestedServer(c, l.server, l.serverSettings) : null]] }) : null;
-  const serverStatus = functional(l.server, l.serverSettings) && l.additional.every((a) => functional(a.server, a.settings));
+  const { additionalServers, destination, serverStatus } = loadedRelations(c, row, l);
   const extra: Array<[string, PhpValue]> = [
     ...decrypted.map(([k, v]): [string, PhpValue] => [k, v as PhpValue]),
     ["additional_networks_count", l.additional.length],
@@ -174,6 +228,12 @@ async function applicationModel(tx: SqlExecutor, c: ApiV1Context, row: ApiRow, w
   const compose = out.entries.find(([k]) => k === "docker_compose")?.[1];
   if (typeof compose === "string" && compose.trim() !== "") put(out, "docker_compose", redactLockedValues(compose, await lockedValues(tx, c, row)));
   return out;
+}
+
+/** The status accessor of an application row, with its additional servers' statuses (a server's resources, DP-78). */
+export async function applicationStatus(rows: Rows, row: ApiRow): Promise<string> {
+  const pivots = await rows("additional_destinations", "t.application_id = $1", [rowValue(row, "id")]);
+  return statusAccessor(rowValue(row, "status") as string | null, pivots.map((p) => rowValue(p, "status") as string | null));
 }
 
 /** "running (healthy)" or "running:healthy" as "running:healthy"; a status without a health is unhealthy. */

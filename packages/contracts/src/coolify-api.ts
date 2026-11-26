@@ -211,3 +211,36 @@ export const API_V1_HEADERS = {
   canReadSensitive: "x-api-v1-can-read-sensitive",
   tokenNumber: "x-api-v1-token",
 } as const;
+
+/** What membership-worker's organization answer gives of a Coolify team (DP-70; deploy-core-worker's nested team, DP-78). */
+export interface CoolifyTeamFacts {
+  /** The org's public id (Coolify's integer team id). */
+  id: string;
+  name: string;
+  createdAt: string;
+}
+
+/**
+ * A team as Eloquent's toArray() gives it (Team: no $hidden, its boolean casts), in Coolify's column order: a
+ * Freeploy org's name and dates, and Coolify's defaults for a new team for the columns Freeploy's orgs do not
+ * have (the description is not in membership-worker's organization answer).
+ */
+export function coolifyTeam(org: CoolifyTeamFacts): PhpObject {
+  return obj({
+    id: org.id,
+    name: org.name,
+    description: null,
+    personal_team: false,
+    created_at: laravelDate(org.createdAt),
+    updated_at: laravelDate(org.createdAt),
+    show_boarding: false,
+    custom_server_limit: null,
+    is_mcp_server_enabled: true,
+    is_build_server_fallback_enabled: true,
+    avatar_path: null,
+    avatar_storage_type: null,
+    avatar_s3_storage_id: null,
+    is_two_factor_required: false,
+    scan_images_on_new_servers: false,
+  });
+}

@@ -14,6 +14,8 @@
 //                                                                                    databases.ts (DP-73)
 //   /v1/internal/api-v1/{org}/services[/{uuid}[/envs[/bulk|/{env_uuid}]|/start|/restart|/stop]]   services.ts (DP-74)
 //   /v1/internal/api-v1/{org}/deployments/{applications/{uuid}|{uuid}/cancel}, /deploy                       deployments.ts (DP-74)
+//   /v1/internal/api-v1/{org}/deployments[/{uuid}]                                                           deployments.ts (DP-78)
+//   /v1/internal/api-v1/{org}/resources, /projects/{uuid}/{environment_name_or_uuid}                          resources.ts (DP-78)
 //
 // $this->authorize(…) is policy-worker's deploy.resource.read (view) or deploy.resource.write (create,
 // update, delete) for the token's user; a denial is Laravel's 403 "This action is unauthorized.".
@@ -30,10 +32,11 @@ import {
   serializeApiCollection,
   serializeApiResponse,
   type CoolifyAnswer,
+  type CoolifyTeamFacts,
   type PhpObject,
   type PhpValue,
 } from "@saas/contracts/coolify-api";
-import { fetchAuthorizationContext } from "../membership-client.js";
+import { fetchAuthorizationContext, fetchOrganizationFacts } from "../membership-client.js";
 import { authorizeViaPolicy } from "../policy-client.js";
 import { runInOrg as runProjects, type ProjectsRunner } from "../handlers/projects.js";
 import { runInOrg as runKeys, type OrgRunner } from "../handlers/private-keys.js";
@@ -58,6 +61,8 @@ import { applicationsApi } from "./applications.js";
 import { databasesApi } from "./databases.js";
 import { servicesApi } from "./services.js";
 import { deployApi, deploymentsApi } from "./deployments.js";
+import { environmentDetails, listResources } from "./resources.js";
+import { serverResourcesPayload, serversApi } from "./servers.js";
 import type { ApiV1Context, SqlRunner } from "./context.js";
 import { ENVIRONMENT, PRIVATE_KEY, PROJECT, SERVER, SERVER_SETTING, onlyColumns, rowValue, toModel, withoutColumns } from "./models.js";
 
@@ -83,6 +88,8 @@ export interface ApiV1Runners {
   sql?: SqlRunner;
   /** policy-worker's answer for the token's user; replaceable for tests. */
   allows?: (action: "deploy.resource.read" | "deploy.resource.write") => Promise<boolean>;
+  /** The org as membership-worker shows it to the token's user (DP-78); replaceable for tests. */
+  org?: () => Promise<CoolifyTeamFacts | null>;
 }
 
 export const runSql: SqlRunner = async (env, orgId, fn) => {
@@ -124,10 +131,20 @@ export async function handleApiV1(request: Request, env: Env, requestId: string,
 
   try {
     const [first, second, third, fourth, fifth] = segments;
+    const org = r.org ?? (() => fetchOrganizationFacts(env.MEMBERSHIP_WORKER!, orgPublicId, actor.subjectId, actor.subjectType, requestId));
+    const context: ApiV1Context = { env, orgId, orgPublicId, request, method, url, canReadSensitive, abilities, allows: (write) => allows(write ? "deploy.resource.write" : "deploy.resource.read"), sql: r.sql ?? runSql, org };
+    // GET /projects/{uuid}/{environment_name_or_uuid} (DP-78): after /projects/{uuid}/environments; /envs is the shared variables' (not ported).
+    if (first === "projects" && second !== undefined && third !== undefined && third !== "environments" && third !== "envs" && fourth === undefined && method === "GET") {
+      return send(await environmentDetails(context, second, third, () => authorize(false)));
+    }
     if (first === "projects") return send(await projects(second, third, fourth, fifth));
     if (first === "security" && second === "keys") return send(await keys(third, fourth));
+    if (first === "servers" && fourth === undefined) {
+      const answer = await serversApi(context, second, third);
+      if (answer) return send(answer);
+    }
     if (first === "servers") return send(await servers(second, third, fourth));
-    const context: ApiV1Context = { env, orgId, orgPublicId, request, method, url, canReadSensitive, abilities, allows: (write) => allows(write ? "deploy.resource.write" : "deploy.resource.read"), sql: r.sql ?? runSql };
+    if (first === "resources" && second === undefined) return send(method === "GET" ? await listResources(context) : COOLIFY_API.notFound());
     if (first === "applications") return send((await applicationsApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
     if (first === "databases") return send((await databasesApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
     if (first === "services") return send((await servicesApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
@@ -437,7 +454,7 @@ export async function handleApiV1(request: Request, env: Env, requestId: string,
   async function servers(uuid?: string, sub?: string, extra?: string): Promise<CoolifyAnswer> {
     if (extra !== undefined) return COOLIFY_API.notFound();
     if (uuid === undefined) return method === "GET" ? listServers() : COOLIFY_API.notFound();
-    if (sub === undefined) return method === "GET" && !url.searchParams.has("resources") ? showServer(uuid) : COOLIFY_API.notFound();
+    if (sub === undefined) return method === "GET" ? showServer(uuid) : COOLIFY_API.notFound();
     if (sub === "validate" && method === "POST") return validateServer(uuid);
     return COOLIFY_API.notFound();
   }
@@ -485,7 +502,10 @@ export async function handleApiV1(request: Request, env: Env, requestId: string,
     if (!found) return message("Server not found.", 404);
     const denied = await authorize(false);
     if (denied) return denied;
-    return coolifyJson(serializeApiResponse(await serverModel(found.row, found.settings, false), canReadSensitive));
+    const model = await serverModel(found.row, found.settings, false);
+    // ?resources (DP-78): $server['resources'], the server's resources as resources_by_server() gives them.
+    if (url.searchParams.get("resources")) put(model, "resources", await (r.sql ?? runSql)(env, orgId, (tx) => serverResourcesPayload(tx, found.row)));
+    return coolifyJson(serializeApiResponse(model, canReadSensitive));
   }
 
   async function validateServer(uuid: string): Promise<CoolifyAnswer> {
