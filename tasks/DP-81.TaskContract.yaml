@@ -1,0 +1,22 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-81
+  title: "DP9: /api/v1 for tags, a resource's tags, the shared variables of projects and environments, and S3 storages"
+spec:
+  goal: Coolify's /api/v1 answers, on DP-70's pipeline (api-edge's middleware and routes, deploy-core-worker's internal mount), for the team's tags (TagsController — list, create, rename, delete, the pivot rows going with the tag) and the tags of an application, a standalone database and a service (HandlesTagsApi — list in the pivot's order, add one or several with createOrFirst and syncWithoutDetaching, remove), the shared variables of a project and of an environment (SharedEnvironmentVariablesController — list, create, update with the permanent lock, delete; the value decrypted for a token that may read secrets and never for a locked variable) and S3 storages (S3StoragesController — list by name, show, create and update with connectionRules(S3), SafeWebhookUrl and the bucket name rule, delete with the deleting hook that lets the backup schedules go, and validate through DP-65's connection test with an injectable resolver and fetch), with Coolify's validation, messages, status codes and key order, every body in Coolify's own JSON bytes. 27 more of openapi.json's 330 operations are ported (108 in all), each replayed byte for byte (masked ids, uuids, dates, the team and a created shared variable's id) against goldens emitted by Coolify's real PHP, and each write's rows compared with the rows Coolify's left; the other 222 answer Coolify's 404 shape. Creating an SFTP, FTPS or WebDAV storage answers 501 in Coolify's envelope before anything is stored (only S3-compatible storages are ported). Cut, from the task's order — cloud tokens and cloud-init scripts (the cloud-init script's YAML rule needs Symfony's parse errors, which the Worker has no parser for; creating and validating a cloud token call the provider's API), the storages of applications, databases and services, and the scheduled tasks of applications and services.
+  affects:
+    - apps/api-edge/**
+    - apps/deploy-core-worker/**
+    - packages/db/**
+    - tests/api-edge/**
+    - tests/deploy-core-worker/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - every case of tests/deploy-core-worker/fixtures/api/cases.json (638 cases, 153 of them DP-81's) replays against Freeploy byte-equal to goldens.json after the documented masking, except the listed departure (creating an SFTP storage answers 501) and the middleware answers, which tests/api-edge replays
+    - the rows each DP-81 write leaves in Freeploy's database (PGlite with the deploy schema at head) equal the golden's `after` rows — the team's tags and the pivot, the project and environment shared variables, the storages, the schedules that send to them and their destinations — except the listed departure, which stores nothing
+    - the earlier cases' goldens change only in random values (uuids, ciphertexts, generated passwords and names)
+    - specs/epics/freeploy-coolify-parity/parity/openapi.operations.json marks the 27 operations ported with taskKey DP-81 (108 ported of 330 in all), and node tools/parity/inventory.ts --check passes
+    - on stage, GET https://<edge>/api/v1/tags and GET /api/v1/s3-storages with a read token answer as Coolify does
+  gates: []

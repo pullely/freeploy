@@ -1,12 +1,13 @@
-# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78)
+# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81)
 
 What Coolify's real API answers, so that Freeploy's `/api/v1` (api-edge's middleware and limiters,
 identity-worker's teams and tokens, deploy-core-worker's projects, environments, private keys and servers —
 DP-70 —, its applications and their environment variables — DP-71 — and its standalone databases and their backup
 schedules — DP-73 — and its services and their environment variables, an application's deployments, cancelling a deployment and
 deploying by uuid or tag — DP-74 — and the deployments in progress and one deployment, every resource of the team, an
-environment's resources, creating and deleting a server and a server's resources and domains — DP-78) can be replayed
-against it byte for byte.
+environment's resources, creating and deleting a server and a server's resources and domains — DP-78 — and the team's
+tags and those of an application, a database and a service, the shared variables of a project and of an environment, and
+S3 storages — DP-81) can be replayed against it byte for byte.
 
 | File | What it is |
 |---|---|
@@ -36,6 +37,18 @@ the same database with no new fixture rows: a case's `setup` soft-deletes the re
 (`deleted_at`, on both sides) so that it can be deleted, the `after` queries of a created server write a generated name as
 `<random-name>` and leave out the other team's server (Freeploy's org sees only its own), and the team a deployment's
 application nests is the fixture's team as membership-worker would answer it (`org`, a runner of the handler).
+DP-81's replay (`src/api-v1-tags-variables-storages.test.ts`: the team's tags and a resource's, the shared variables of a
+project and of an environment, S3 storages) adds fixture rows at the end of both fixtures: four tags (three of team 1, one
+of team 2) and their pivot rows in a fixed order (an application, a Redis, a service; Coolify's `$resource->tags` has no
+ORDER BY, and PostgreSQL gives the pivot's order), and five shared variables of projects and environments, whose ids follow
+the four predefined variables each server's created hook makes (Freeploy's fixture now makes those too, so the ids agree).
+The `after` queries of the database and service creates read only the tags after the fixture's (`t.id > 4`), so those
+goldens are unchanged; a created shared variable's id is the sequence's (`after` reads the fixture's ids only); and
+emit.php resolves host names through `SafeWebhookUrl::resolveHostsUsing()` (`unresolvable.example` to nothing,
+`private.example` to 10.0.0.5, every other name to 93.184.216.34; no DNS is asked), which the test's resolver repeats.
+No golden case reaches an S3 endpoint (the emitter has none); the test's own case answers a ListObjectsV2 through the
+injected fetch. Freeploy's fixture storage now uses path-style URLs, the column's default that Coolify's `forceCreate()`
+leaves.
 
 ## How the goldens are made
 
@@ -80,7 +93,9 @@ Both sides go through the same masking before they are compared (`src/api-v1-gol
 - a uuid the request made where a generated domain names its container after it (`http://<name>-<uuid>.<host>` of a
   created service's `domains`) as `-<new-uuid>.` (DP-74);
 - the `id` of a team nested in a project (a deployment's `application.environment.project.team`) as `<team>`, as a
-  team's id is elsewhere (DP-78).
+  team's id is elsewhere (DP-78);
+- the answer of a created shared variable, `{"id":N}` (a body that is only an integer `id`), as `{"id":"<new-id>"}`: the
+  sequence's next id, which earlier cases moved (DP-81).
 
 Everything else — every other key, its position, its type, every message — is compared byte for byte, the
 JSON written again by `phpJsonEncode` (PHP's `json_encode`, `\/` included); a test checks that it writes

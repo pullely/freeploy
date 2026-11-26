@@ -6,6 +6,7 @@ import type { SqlExecutor } from "@saas/db/hyperdrive";
 import { apiRows, type ApiRow, type ApiTable } from "@saas/db/deploy";
 import { coolifyJson, obj, type CoolifyAnswer, type CoolifyTeamFacts, type PhpValue } from "@saas/contracts/coolify-api";
 import { columnCipher } from "../handlers/cloud-tokens.js";
+import type { S3StorageNetwork } from "../s3-storages/service.js";
 
 /** Runs fn in one transaction confined to the org (withOrg); replaceable for tests. */
 export type SqlRunner = <T>(env: Env, orgId: string, fn: (tx: SqlExecutor) => Promise<T>) => Promise<T>;
@@ -27,6 +28,8 @@ export interface ApiV1Context {
   sql: SqlRunner;
   /** The org as membership-worker shows it to the token's user: Coolify's team where an answer nests it (DP-78). */
   org(): Promise<CoolifyTeamFacts | null>;
+  /** What an S3 storage's connection test reaches out with: the resolver and the HTTP exchange (DP-81); replaceable for tests. */
+  s3: S3StorageNetwork;
 }
 
 export type Rows = (table: ApiTable, where?: string, params?: unknown[], order?: "id" | "name") => Promise<ApiRow[]>;

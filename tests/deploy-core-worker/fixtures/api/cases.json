@@ -679,6 +679,130 @@
     "finished_at": "2025-12-29 10:01:00"
    }
   ],
+  "tags": [
+   {
+    "id": 1,
+    "uuid": "t1paritybackendtag000001",
+    "team": 1,
+    "name": "backend",
+    "created_at": "2025-12-01 00:00:00"
+   },
+   {
+    "id": 2,
+    "uuid": "t2parityfrontendtag00002",
+    "team": 1,
+    "name": "frontend",
+    "created_at": "2025-12-02 00:00:00"
+   },
+   {
+    "id": 3,
+    "uuid": "t3parityunusedtag0000003",
+    "team": 1,
+    "name": "unused",
+    "created_at": "2025-12-03 00:00:00"
+   },
+   {
+    "id": 4,
+    "uuid": "t4otherteamtag0000000004",
+    "team": 2,
+    "name": "theirs",
+    "created_at": "2025-12-04 00:00:00"
+   }
+  ],
+  "taggables": [
+   {
+    "tag": 1,
+    "type": "application",
+    "id": 1
+   },
+   {
+    "tag": 2,
+    "type": "application",
+    "id": 1
+   },
+   {
+    "tag": 1,
+    "type": "redis",
+    "id": 1
+   },
+   {
+    "tag": 2,
+    "type": "service",
+    "id": 1
+   },
+   {
+    "tag": 4,
+    "type": "application",
+    "id": 3
+   }
+  ],
+  "sharedVariables": [
+   {
+    "id": 5,
+    "team": 1,
+    "type": "project",
+    "project_id": 1,
+    "environment_id": null,
+    "key": "PROJECT_FOO",
+    "value": "project-bar",
+    "is_literal": false,
+    "is_multiline": false,
+    "is_shown_once": false,
+    "comment": null
+   },
+   {
+    "id": 6,
+    "team": 1,
+    "type": "project",
+    "project_id": 1,
+    "environment_id": null,
+    "key": "PROJECT_SECRET",
+    "value": "p-secret",
+    "is_literal": false,
+    "is_multiline": false,
+    "is_shown_once": true,
+    "comment": "Locked"
+   },
+   {
+    "id": 7,
+    "team": 1,
+    "type": "environment",
+    "project_id": null,
+    "environment_id": 1,
+    "key": "ENV_FOO",
+    "value": "env-bar",
+    "is_literal": true,
+    "is_multiline": false,
+    "is_shown_once": false,
+    "comment": null
+   },
+   {
+    "id": 8,
+    "team": 2,
+    "type": "project",
+    "project_id": 3,
+    "environment_id": null,
+    "key": "OTHER_PROJECT",
+    "value": "theirs",
+    "is_literal": false,
+    "is_multiline": false,
+    "is_shown_once": false,
+    "comment": null
+   },
+   {
+    "id": 9,
+    "team": 1,
+    "type": "environment",
+    "project_id": null,
+    "environment_id": 2,
+    "key": "STAGING_ONLY",
+    "value": "line one\nline two",
+    "is_literal": false,
+    "is_multiline": true,
+    "is_shown_once": false,
+    "comment": "Two lines"
+   }
+  ],
   "tokens": [
    {
     "key": "root",
@@ -2354,7 +2478,7 @@
     "database": "select name = 'postgresql-database-' || uuid as default_name, description, image, status, is_public, public_port, public_port_timeout, ports_mappings, limits_memory, limits_memory_swap, limits_memory_swappiness, limits_memory_reservation, limits_cpus, limits_cpuset, limits_cpu_shares, environment_id, destination_id, destination_type, is_log_drain_enabled, custom_docker_run_options, health_check_enabled, health_check_interval, health_check_timeout, health_check_retries, health_check_start_period, redact_all_env_values_in_logs, include_coolify_default_variables, restart_count, started_at, deleted_at, postgres_user, postgres_db, postgres_initdb_args, postgres_host_auth_method, postgres_conf, init_scripts, enable_ssl, ssl_mode from standalone_postgresqls where id > 2 order by id",
     "volumes": "select v.name = 'postgres-data-' || d.uuid as default_name, v.mount_path, v.host_path from local_persistent_volumes v join standalone_postgresqls d on d.id = v.resource_id where v.resource_type = 'App\\Models\\StandalonePostgresql' and d.id > 2 order by v.id",
     "variables": "select e.key, e.is_shared, e.is_runtime, e.is_buildtime from environment_variables e where e.resourceable_type = 'App\\Models\\StandalonePostgresql' and e.resourceable_id > 2 order by e.id",
-    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\StandalonePostgresql' order by t.name"
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\StandalonePostgresql' and t.id > 4 order by t.name"
    }
   },
   {
@@ -2371,7 +2495,7 @@
     "database": "select name = 'redis-database-' || uuid as default_name, description, image, status, is_public, public_port, public_port_timeout, ports_mappings, limits_memory, limits_memory_swap, limits_memory_swappiness, limits_memory_reservation, limits_cpus, limits_cpuset, limits_cpu_shares, environment_id, destination_id, destination_type, is_log_drain_enabled, custom_docker_run_options, health_check_enabled, health_check_interval, health_check_timeout, health_check_retries, health_check_start_period, redact_all_env_values_in_logs, include_coolify_default_variables, restart_count, started_at, deleted_at, redis_conf, enable_ssl from standalone_redis where id > 1 order by id",
     "volumes": "select v.name = 'redis-data-' || d.uuid as default_name, v.mount_path, v.host_path from local_persistent_volumes v join standalone_redis d on d.id = v.resource_id where v.resource_type = 'App\\Models\\StandaloneRedis' and d.id > 1 order by v.id",
     "variables": "select e.key, e.is_shared, e.is_runtime, e.is_buildtime from environment_variables e where e.resourceable_type = 'App\\Models\\StandaloneRedis' and e.resourceable_id > 1 order by e.id",
-    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\StandaloneRedis' order by t.name"
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\StandaloneRedis' and t.id > 4 order by t.name"
    }
   },
   {
@@ -2388,7 +2512,7 @@
     "database": "select name = 'mongodb-database-' || uuid as default_name, description, image, status, is_public, public_port, public_port_timeout, ports_mappings, limits_memory, limits_memory_swap, limits_memory_swappiness, limits_memory_reservation, limits_cpus, limits_cpuset, limits_cpu_shares, environment_id, destination_id, destination_type, is_log_drain_enabled, custom_docker_run_options, health_check_enabled, health_check_interval, health_check_timeout, health_check_retries, health_check_start_period, redact_all_env_values_in_logs, include_coolify_default_variables, restart_count, started_at, deleted_at, mongo_conf, mongo_initdb_root_username, mongo_initdb_database, enable_ssl, ssl_mode from standalone_mongodbs where id > 1 order by id",
     "volumes": "select v.name = 'mongodb-data-' || d.uuid as default_name, v.mount_path, v.host_path from local_persistent_volumes v join standalone_mongodbs d on d.id = v.resource_id where v.resource_type = 'App\\Models\\StandaloneMongodb' and d.id > 1 order by v.id",
     "variables": "select e.key, e.is_shared, e.is_runtime, e.is_buildtime from environment_variables e where e.resourceable_type = 'App\\Models\\StandaloneMongodb' and e.resourceable_id > 1 order by e.id",
-    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\StandaloneMongodb' order by t.name"
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\StandaloneMongodb' and t.id > 4 order by t.name"
    }
   },
   {
@@ -2405,7 +2529,7 @@
     "database": "select name = 'mysql-database-' || uuid as default_name, description, image, status, is_public, public_port, public_port_timeout, ports_mappings, limits_memory, limits_memory_swap, limits_memory_swappiness, limits_memory_reservation, limits_cpus, limits_cpuset, limits_cpu_shares, environment_id, destination_id, destination_type, is_log_drain_enabled, custom_docker_run_options, health_check_enabled, health_check_interval, health_check_timeout, health_check_retries, health_check_start_period, redact_all_env_values_in_logs, include_coolify_default_variables, restart_count, started_at, deleted_at, mysql_user, mysql_database, mysql_conf, enable_ssl, ssl_mode from standalone_mysqls where id > 1 order by id",
     "volumes": "select v.name = 'mysql-data-' || d.uuid as default_name, v.mount_path, v.host_path from local_persistent_volumes v join standalone_mysqls d on d.id = v.resource_id where v.resource_type = 'App\\Models\\StandaloneMysql' and d.id > 1 order by v.id",
     "variables": "select e.key, e.is_shared, e.is_runtime, e.is_buildtime from environment_variables e where e.resourceable_type = 'App\\Models\\StandaloneMysql' and e.resourceable_id > 1 order by e.id",
-    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\StandaloneMysql' order by t.name"
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\StandaloneMysql' and t.id > 4 order by t.name"
    }
   },
   {
@@ -2422,7 +2546,7 @@
     "database": "select name = 'mariadb-database-' || uuid as default_name, description, image, status, is_public, public_port, public_port_timeout, ports_mappings, limits_memory, limits_memory_swap, limits_memory_swappiness, limits_memory_reservation, limits_cpus, limits_cpuset, limits_cpu_shares, environment_id, destination_id, destination_type, is_log_drain_enabled, custom_docker_run_options, health_check_enabled, health_check_interval, health_check_timeout, health_check_retries, health_check_start_period, redact_all_env_values_in_logs, include_coolify_default_variables, restart_count, started_at, deleted_at, mariadb_user, mariadb_database, mariadb_conf, enable_ssl from standalone_mariadbs where id > 1 order by id",
     "volumes": "select v.name = 'mariadb-data-' || d.uuid as default_name, v.mount_path, v.host_path from local_persistent_volumes v join standalone_mariadbs d on d.id = v.resource_id where v.resource_type = 'App\\Models\\StandaloneMariadb' and d.id > 1 order by v.id",
     "variables": "select e.key, e.is_shared, e.is_runtime, e.is_buildtime from environment_variables e where e.resourceable_type = 'App\\Models\\StandaloneMariadb' and e.resourceable_id > 1 order by e.id",
-    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\StandaloneMariadb' order by t.name"
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\StandaloneMariadb' and t.id > 4 order by t.name"
    }
   },
   {
@@ -2439,7 +2563,7 @@
     "database": "select name = 'keydb-database-' || uuid as default_name, description, image, status, is_public, public_port, public_port_timeout, ports_mappings, limits_memory, limits_memory_swap, limits_memory_swappiness, limits_memory_reservation, limits_cpus, limits_cpuset, limits_cpu_shares, environment_id, destination_id, destination_type, is_log_drain_enabled, custom_docker_run_options, health_check_enabled, health_check_interval, health_check_timeout, health_check_retries, health_check_start_period, redact_all_env_values_in_logs, include_coolify_default_variables, restart_count, started_at, deleted_at, keydb_conf, enable_ssl from standalone_keydbs where id > 1 order by id",
     "volumes": "select v.name = 'keydb-data-' || d.uuid as default_name, v.mount_path, v.host_path from local_persistent_volumes v join standalone_keydbs d on d.id = v.resource_id where v.resource_type = 'App\\Models\\StandaloneKeydb' and d.id > 1 order by v.id",
     "variables": "select e.key, e.is_shared, e.is_runtime, e.is_buildtime from environment_variables e where e.resourceable_type = 'App\\Models\\StandaloneKeydb' and e.resourceable_id > 1 order by e.id",
-    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\StandaloneKeydb' order by t.name"
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\StandaloneKeydb' and t.id > 4 order by t.name"
    }
   },
   {
@@ -2456,7 +2580,7 @@
     "database": "select name = 'dragonfly-database-' || uuid as default_name, description, image, status, is_public, public_port, public_port_timeout, ports_mappings, limits_memory, limits_memory_swap, limits_memory_swappiness, limits_memory_reservation, limits_cpus, limits_cpuset, limits_cpu_shares, environment_id, destination_id, destination_type, is_log_drain_enabled, custom_docker_run_options, health_check_enabled, health_check_interval, health_check_timeout, health_check_retries, health_check_start_period, redact_all_env_values_in_logs, include_coolify_default_variables, restart_count, started_at, deleted_at, enable_ssl from standalone_dragonflies where id > 1 order by id",
     "volumes": "select v.name = 'dragonfly-data-' || d.uuid as default_name, v.mount_path, v.host_path from local_persistent_volumes v join standalone_dragonflies d on d.id = v.resource_id where v.resource_type = 'App\\Models\\StandaloneDragonfly' and d.id > 1 order by v.id",
     "variables": "select e.key, e.is_shared, e.is_runtime, e.is_buildtime from environment_variables e where e.resourceable_type = 'App\\Models\\StandaloneDragonfly' and e.resourceable_id > 1 order by e.id",
-    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\StandaloneDragonfly' order by t.name"
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\StandaloneDragonfly' and t.id > 4 order by t.name"
    }
   },
   {
@@ -2473,7 +2597,7 @@
     "database": "select name = 'clickhouse-database-' || uuid as default_name, description, image, status, is_public, public_port, public_port_timeout, ports_mappings, limits_memory, limits_memory_swap, limits_memory_swappiness, limits_memory_reservation, limits_cpus, limits_cpuset, limits_cpu_shares, environment_id, destination_id, destination_type, is_log_drain_enabled, custom_docker_run_options, health_check_enabled, health_check_interval, health_check_timeout, health_check_retries, health_check_start_period, redact_all_env_values_in_logs, include_coolify_default_variables, restart_count, started_at, deleted_at, clickhouse_admin_user, clickhouse_db from standalone_clickhouses where id > 1 order by id",
     "volumes": "select v.name = 'clickhouse-data-' || d.uuid as default_name, v.mount_path, v.host_path from local_persistent_volumes v join standalone_clickhouses d on d.id = v.resource_id where v.resource_type = 'App\\Models\\StandaloneClickhouse' and d.id > 1 order by v.id",
     "variables": "select e.key, e.is_shared, e.is_runtime, e.is_buildtime from environment_variables e where e.resourceable_type = 'App\\Models\\StandaloneClickhouse' and e.resourceable_id > 1 order by e.id",
-    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\StandaloneClickhouse' order by t.name"
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\StandaloneClickhouse' and t.id > 4 order by t.name"
    }
   },
   {
@@ -2511,7 +2635,7 @@
     "database": "select name = 'postgresql-database-' || uuid as default_name, description, image, status, is_public, public_port, public_port_timeout, ports_mappings, limits_memory, limits_memory_swap, limits_memory_swappiness, limits_memory_reservation, limits_cpus, limits_cpuset, limits_cpu_shares, environment_id, destination_id, destination_type, is_log_drain_enabled, custom_docker_run_options, health_check_enabled, health_check_interval, health_check_timeout, health_check_retries, health_check_start_period, redact_all_env_values_in_logs, include_coolify_default_variables, restart_count, started_at, deleted_at, postgres_user, postgres_db, postgres_initdb_args, postgres_host_auth_method, postgres_conf, init_scripts, enable_ssl, ssl_mode from standalone_postgresqls where id > 2 order by id",
     "volumes": "select v.name = 'postgres-data-' || d.uuid as default_name, v.mount_path, v.host_path from local_persistent_volumes v join standalone_postgresqls d on d.id = v.resource_id where v.resource_type = 'App\\Models\\StandalonePostgresql' and d.id > 2 order by v.id",
     "variables": "select e.key, e.is_shared, e.is_runtime, e.is_buildtime from environment_variables e where e.resourceable_type = 'App\\Models\\StandalonePostgresql' and e.resourceable_id > 2 order by e.id",
-    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\StandalonePostgresql' order by t.name"
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\StandalonePostgresql' and t.id > 4 order by t.name"
    }
   },
   {
@@ -2530,7 +2654,7 @@
     "database": "select name = 'redis-database-' || uuid as default_name, description, image, status, is_public, public_port, public_port_timeout, ports_mappings, limits_memory, limits_memory_swap, limits_memory_swappiness, limits_memory_reservation, limits_cpus, limits_cpuset, limits_cpu_shares, environment_id, destination_id, destination_type, is_log_drain_enabled, custom_docker_run_options, health_check_enabled, health_check_interval, health_check_timeout, health_check_retries, health_check_start_period, redact_all_env_values_in_logs, include_coolify_default_variables, restart_count, started_at, deleted_at, redis_conf, enable_ssl from standalone_redis where id > 1 order by id",
     "volumes": "select v.name = 'redis-data-' || d.uuid as default_name, v.mount_path, v.host_path from local_persistent_volumes v join standalone_redis d on d.id = v.resource_id where v.resource_type = 'App\\Models\\StandaloneRedis' and d.id > 1 order by v.id",
     "variables": "select e.key, e.is_shared, e.is_runtime, e.is_buildtime from environment_variables e where e.resourceable_type = 'App\\Models\\StandaloneRedis' and e.resourceable_id > 1 order by e.id",
-    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\StandaloneRedis' order by t.name"
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\StandaloneRedis' and t.id > 4 order by t.name"
    }
   },
   {
@@ -2590,7 +2714,7 @@
     "database": "select name = 'keydb-database-' || uuid as default_name, description, image, status, is_public, public_port, public_port_timeout, ports_mappings, limits_memory, limits_memory_swap, limits_memory_swappiness, limits_memory_reservation, limits_cpus, limits_cpuset, limits_cpu_shares, environment_id, destination_id, destination_type, is_log_drain_enabled, custom_docker_run_options, health_check_enabled, health_check_interval, health_check_timeout, health_check_retries, health_check_start_period, redact_all_env_values_in_logs, include_coolify_default_variables, restart_count, started_at, deleted_at, keydb_conf, enable_ssl from standalone_keydbs where id > 1 order by id",
     "volumes": "select v.name = 'keydb-data-' || d.uuid as default_name, v.mount_path, v.host_path from local_persistent_volumes v join standalone_keydbs d on d.id = v.resource_id where v.resource_type = 'App\\Models\\StandaloneKeydb' and d.id > 1 order by v.id",
     "variables": "select e.key, e.is_shared, e.is_runtime, e.is_buildtime from environment_variables e where e.resourceable_type = 'App\\Models\\StandaloneKeydb' and e.resourceable_id > 1 order by e.id",
-    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\StandaloneKeydb' order by t.name"
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\StandaloneKeydb' and t.id > 4 order by t.name"
    }
   },
   {
@@ -2666,7 +2790,7 @@
     "database": "select name = 'dragonfly-database-' || uuid as default_name, description, image, status, is_public, public_port, public_port_timeout, ports_mappings, limits_memory, limits_memory_swap, limits_memory_swappiness, limits_memory_reservation, limits_cpus, limits_cpuset, limits_cpu_shares, environment_id, destination_id, destination_type, is_log_drain_enabled, custom_docker_run_options, health_check_enabled, health_check_interval, health_check_timeout, health_check_retries, health_check_start_period, redact_all_env_values_in_logs, include_coolify_default_variables, restart_count, started_at, deleted_at, enable_ssl from standalone_dragonflies where id > 1 order by id",
     "volumes": "select v.name = 'dragonfly-data-' || d.uuid as default_name, v.mount_path, v.host_path from local_persistent_volumes v join standalone_dragonflies d on d.id = v.resource_id where v.resource_type = 'App\\Models\\StandaloneDragonfly' and d.id > 1 order by v.id",
     "variables": "select e.key, e.is_shared, e.is_runtime, e.is_buildtime from environment_variables e where e.resourceable_type = 'App\\Models\\StandaloneDragonfly' and e.resourceable_id > 1 order by e.id",
-    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\StandaloneDragonfly' order by t.name"
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\StandaloneDragonfly' and t.id > 4 order by t.name"
    }
   },
   {
@@ -3768,7 +3892,7 @@
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id > 2 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id > 2 order by e.id",
     "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) order by v.id",
-    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
   {
@@ -3804,7 +3928,7 @@
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id > 2 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id > 2 order by e.id",
     "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) order by v.id",
-    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
   {
@@ -3824,7 +3948,7 @@
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id > 2 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id > 2 order by e.id",
     "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) order by v.id",
-    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
   {
@@ -3844,7 +3968,7 @@
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id > 2 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id > 2 order by e.id",
     "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) order by v.id",
-    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
   {
@@ -4022,7 +4146,7 @@
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id > 2 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id > 2 order by e.id",
     "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) order by v.id",
-    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
   {
@@ -4066,7 +4190,7 @@
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id > 2 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id > 2 order by e.id",
     "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) order by v.id",
-    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
   {
@@ -4093,7 +4217,7 @@
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id > 2 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id > 2 order by e.id",
     "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) order by v.id",
-    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
   {
@@ -4127,7 +4251,7 @@
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id > 2 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id > 2 order by e.id",
     "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) order by v.id",
-    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
   {
@@ -4163,7 +4287,7 @@
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id > 2 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id > 2 order by e.id",
     "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) order by v.id",
-    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
   {
@@ -4184,7 +4308,7 @@
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id > 2 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id > 2 order by e.id",
     "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) order by v.id",
-    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
   {
@@ -4240,7 +4364,7 @@
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id = 1 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id = 1 order by e.id",
     "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) order by v.id",
-    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
   {
@@ -4260,7 +4384,7 @@
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id = 1 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id = 1 order by e.id",
     "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) order by v.id",
-    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
   {
@@ -4277,7 +4401,7 @@
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id = 1 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id = 1 order by e.id",
     "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) order by v.id",
-    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
   {
@@ -4299,7 +4423,7 @@
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id = 1 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id = 1 order by e.id",
     "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) order by v.id",
-    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
   {
@@ -4321,7 +4445,7 @@
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id = 1 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id = 1 order by e.id",
     "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) order by v.id",
-    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
   {
@@ -4344,7 +4468,7 @@
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id = 1 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id = 1 order by e.id",
     "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) order by v.id",
-    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
   {
@@ -4366,7 +4490,7 @@
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id = 1 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id = 1 order by e.id",
     "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) order by v.id",
-    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
   {
@@ -4421,7 +4545,7 @@
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id = 1 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id = 1 order by e.id",
     "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) order by v.id",
-    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name"
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
   {
@@ -5467,7 +5591,7 @@
     "private_key_uuid": "k1parityprivatekey000001"
    },
    "after": {
-    "server": "select case when name ~ '^[a-z]+-[a-z]+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where ip = '203.0.113.30'",
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where ip = '203.0.113.30'",
     "settings": "select ss.server_role, ss.is_build_server, ss.ssh_host_key, ss.ssh_host_key_source, ss.ssh_host_key_trusted_at is not null as trusted from server_settings ss join servers s on s.id = ss.server_id where s.ip = '203.0.113.30'",
     "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.ip = '203.0.113.30'",
     "servers": "select count(*)::int as count from servers where ip <> '203.0.113.20'"
@@ -5490,7 +5614,7 @@
     "ssh_host_key": "203.0.113.30 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl\n# a comment\nssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl"
    },
    "after": {
-    "server": "select case when name ~ '^[a-z]+-[a-z]+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where ip = '203.0.113.30'",
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where ip = '203.0.113.30'",
     "settings": "select ss.server_role, ss.is_build_server, ss.ssh_host_key, ss.ssh_host_key_source, ss.ssh_host_key_trusted_at is not null as trusted from server_settings ss join servers s on s.id = ss.server_id where s.ip = '203.0.113.30'",
     "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.ip = '203.0.113.30'",
     "servers": "select count(*)::int as count from servers where ip <> '203.0.113.20'"
@@ -5509,7 +5633,7 @@
     "proxy_type": "NONE"
    },
    "after": {
-    "server": "select case when name ~ '^[a-z]+-[a-z]+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where ip = '203.0.113.30'",
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where ip = '203.0.113.30'",
     "settings": "select ss.server_role, ss.is_build_server, ss.ssh_host_key, ss.ssh_host_key_source, ss.ssh_host_key_trusted_at is not null as trusted from server_settings ss join servers s on s.id = ss.server_id where s.ip = '203.0.113.30'",
     "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.ip = '203.0.113.30'",
     "servers": "select count(*)::int as count from servers where ip <> '203.0.113.20'"
@@ -5527,7 +5651,7 @@
     "server_role": "both"
    },
    "after": {
-    "server": "select case when name ~ '^[a-z]+-[a-z]+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where ip = '203.0.113.30'",
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where ip = '203.0.113.30'",
     "settings": "select ss.server_role, ss.is_build_server, ss.ssh_host_key, ss.ssh_host_key_source, ss.ssh_host_key_trusted_at is not null as trusted from server_settings ss join servers s on s.id = ss.server_id where s.ip = '203.0.113.30'",
     "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.ip = '203.0.113.30'",
     "servers": "select count(*)::int as count from servers where ip <> '203.0.113.20'"
@@ -5544,7 +5668,7 @@
     "server_role": "deployment"
    },
    "after": {
-    "server": "select case when name ~ '^[a-z]+-[a-z]+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where ip = '203.0.113.30'",
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where ip = '203.0.113.30'",
     "settings": "select ss.server_role, ss.is_build_server, ss.ssh_host_key, ss.ssh_host_key_source, ss.ssh_host_key_trusted_at is not null as trusted from server_settings ss join servers s on s.id = ss.server_id where s.ip = '203.0.113.30'",
     "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.ip = '203.0.113.30'",
     "servers": "select count(*)::int as count from servers where ip <> '203.0.113.20'"
@@ -5673,7 +5797,7 @@
     "instant_validate": true
    },
    "after": {
-    "server": "select case when name ~ '^[a-z]+-[a-z]+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where ip = '203.0.113.30'",
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where ip = '203.0.113.30'",
     "settings": "select ss.server_role, ss.is_build_server, ss.ssh_host_key, ss.ssh_host_key_source, ss.ssh_host_key_trusted_at is not null as trusted from server_settings ss join servers s on s.id = ss.server_id where s.ip = '203.0.113.30'",
     "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.ip = '203.0.113.30'",
     "servers": "select count(*)::int as count from servers where ip <> '203.0.113.20'"
@@ -5696,6 +5820,1511 @@
     "ip": "203.0.113.30",
     "private_key_uuid": "k1parityprivatekey000001"
    }
+  },
+  {
+   "name": "tags: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/tags"
+  },
+  {
+   "name": "tags: list, none",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/tags",
+   "setup": [
+    "delete from taggables",
+    "delete from tags"
+   ]
+  },
+  {
+   "name": "tags: create",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/tags",
+   "body": {
+    "name": "  New-Tag  "
+   },
+   "after": {
+    "tags": "select name, created_at is not null as dated from tags where uuid <> 't4otherteamtag0000000004' order by name",
+    "taggables": "select t.name, tg.taggable_type, tg.taggable_id from taggables tg join tags t on t.id = tg.tag_id where t.uuid <> 't4otherteamtag0000000004' order by tg.taggable_type, tg.taggable_id, t.name"
+   }
+  },
+  {
+   "name": "tags: create, markup stripped",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/tags",
+   "body": {
+    "name": "<b>Ops</b> Team"
+   },
+   "after": {
+    "tags": "select name, created_at is not null as dated from tags where uuid <> 't4otherteamtag0000000004' order by name",
+    "taggables": "select t.name, tg.taggable_type, tg.taggable_id from taggables tg join tags t on t.id = tg.tag_id where t.uuid <> 't4otherteamtag0000000004' order by tg.taggable_type, tg.taggable_id, t.name"
+   }
+  },
+  {
+   "name": "tags: create, another team's name",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/tags",
+   "body": {
+    "name": "theirs"
+   },
+   "after": {
+    "tags": "select name, created_at is not null as dated from tags where uuid <> 't4otherteamtag0000000004' order by name",
+    "taggables": "select t.name, tg.taggable_type, tg.taggable_id from taggables tg join tags t on t.id = tg.tag_id where t.uuid <> 't4otherteamtag0000000004' order by tg.taggable_type, tg.taggable_id, t.name"
+   }
+  },
+  {
+   "name": "tags: create, an existing name",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/tags",
+   "body": {
+    "name": "Backend"
+   },
+   "after": {
+    "tags": "select name, created_at is not null as dated from tags where uuid <> 't4otherteamtag0000000004' order by name",
+    "taggables": "select t.name, tg.taggable_type, tg.taggable_id from taggables tg join tags t on t.id = tg.tag_id where t.uuid <> 't4otherteamtag0000000004' order by tg.taggable_type, tg.taggable_id, t.name"
+   }
+  },
+  {
+   "name": "tags: create, too short once sanitized",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/tags",
+   "body": {
+    "name": "<i>a</i>"
+   }
+  },
+  {
+   "name": "tags: create, invalid",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/tags",
+   "body": {
+    "name": "x",
+    "color": "red"
+   }
+  },
+  {
+   "name": "tags: create, no name",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/tags",
+   "body": {
+    "label": "x"
+   }
+  },
+  {
+   "name": "tags: create, name not a string",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/tags",
+   "body": {
+    "name": [
+     "ops"
+    ]
+   }
+  },
+  {
+   "name": "tags: create, name too long",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/tags",
+   "body": {
+    "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+   }
+  },
+  {
+   "name": "tags: create, not JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/tags",
+   "raw": "name=ops",
+   "contentType": "application/x-www-form-urlencoded"
+  },
+  {
+   "name": "tags: create, empty JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/tags",
+   "raw": "{}"
+  },
+  {
+   "name": "tags: update",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/tags/t3parityunusedtag0000003",
+   "body": {
+    "name": "Renamed "
+   },
+   "after": {
+    "tags": "select name, created_at is not null as dated from tags where uuid <> 't4otherteamtag0000000004' order by name",
+    "taggables": "select t.name, tg.taggable_type, tg.taggable_id from taggables tg join tags t on t.id = tg.tag_id where t.uuid <> 't4otherteamtag0000000004' order by tg.taggable_type, tg.taggable_id, t.name"
+   }
+  },
+  {
+   "name": "tags: update to its own name",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/tags/t3parityunusedtag0000003",
+   "body": {
+    "name": "UNUSED"
+   },
+   "after": {
+    "tags": "select name, created_at is not null as dated from tags where uuid <> 't4otherteamtag0000000004' order by name",
+    "taggables": "select t.name, tg.taggable_type, tg.taggable_id from taggables tg join tags t on t.id = tg.tag_id where t.uuid <> 't4otherteamtag0000000004' order by tg.taggable_type, tg.taggable_id, t.name"
+   }
+  },
+  {
+   "name": "tags: update to an existing name",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/tags/t3parityunusedtag0000003",
+   "body": {
+    "name": "frontend"
+   }
+  },
+  {
+   "name": "tags: update, invalid",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/tags/t3parityunusedtag0000003",
+   "body": {
+    "name": "",
+    "uuid": "x"
+   }
+  },
+  {
+   "name": "tags: update unknown",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/tags/nonexistentuuid",
+   "body": {
+    "name": "renamed"
+   }
+  },
+  {
+   "name": "tags: update unknown, invalid",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/tags/nonexistentuuid",
+   "body": {
+    "name": "a"
+   }
+  },
+  {
+   "name": "tags: update another team's",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/tags/t4otherteamtag0000000004",
+   "body": {
+    "name": "mine"
+   }
+  },
+  {
+   "name": "tags: delete",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/tags/t1paritybackendtag000001",
+   "after": {
+    "tags": "select name, created_at is not null as dated from tags where uuid <> 't4otherteamtag0000000004' order by name",
+    "taggables": "select t.name, tg.taggable_type, tg.taggable_id from taggables tg join tags t on t.id = tg.tag_id where t.uuid <> 't4otherteamtag0000000004' order by tg.taggable_type, tg.taggable_id, t.name"
+   }
+  },
+  {
+   "name": "tags: delete unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/tags/nonexistentuuid"
+  },
+  {
+   "name": "tags: delete another team's",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/tags/t4otherteamtag0000000004"
+  },
+  {
+   "name": "tags: delete with a write token",
+   "token": "write",
+   "method": "DELETE",
+   "path": "/api/v1/tags/t3parityunusedtag0000003"
+  },
+  {
+   "name": "application tags: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/tags"
+  },
+  {
+   "name": "application tags: list, none",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/tags"
+  },
+  {
+   "name": "application tags: list another team's",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a3otherteamapp0000000003/tags"
+  },
+  {
+   "name": "application tags: list of unknown",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/nonexistentuuid/tags"
+  },
+  {
+   "name": "application tags: add one",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/tags",
+   "body": {
+    "tag_name": " Unused "
+   },
+   "after": {
+    "tags": "select name, created_at is not null as dated from tags where uuid <> 't4otherteamtag0000000004' order by name",
+    "taggables": "select t.name, tg.taggable_type, tg.taggable_id from taggables tg join tags t on t.id = tg.tag_id where t.uuid <> 't4otherteamtag0000000004' order by tg.taggable_type, tg.taggable_id, t.name"
+   }
+  },
+  {
+   "name": "application tags: add several",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/tags",
+   "body": {
+    "tag_names": [
+     "Zeta",
+     "frontend",
+     "<b>alpha</b>",
+     "zeta",
+     "backend"
+    ]
+   },
+   "after": {
+    "tags": "select name, created_at is not null as dated from tags where uuid <> 't4otherteamtag0000000004' order by name",
+    "taggables": "select t.name, tg.taggable_type, tg.taggable_id from taggables tg join tags t on t.id = tg.tag_id where t.uuid <> 't4otherteamtag0000000004' order by tg.taggable_type, tg.taggable_id, t.name"
+   }
+  },
+  {
+   "name": "application tags: add one already there",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/tags",
+   "body": {
+    "tag_name": "BACKEND"
+   },
+   "after": {
+    "tags": "select name, created_at is not null as dated from tags where uuid <> 't4otherteamtag0000000004' order by name",
+    "taggables": "select t.name, tg.taggable_type, tg.taggable_id from taggables tg join tags t on t.id = tg.tag_id where t.uuid <> 't4otherteamtag0000000004' order by tg.taggable_type, tg.taggable_id, t.name"
+   }
+  },
+  {
+   "name": "application tags: delete",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/tags/t1paritybackendtag000001",
+   "after": {
+    "tags": "select name, created_at is not null as dated from tags where uuid <> 't4otherteamtag0000000004' order by name",
+    "taggables": "select t.name, tg.taggable_type, tg.taggable_id from taggables tg join tags t on t.id = tg.tag_id where t.uuid <> 't4otherteamtag0000000004' order by tg.taggable_type, tg.taggable_id, t.name"
+   }
+  },
+  {
+   "name": "application tags: delete one not there",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/tags/t3parityunusedtag0000003"
+  },
+  {
+   "name": "application tags: delete unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/tags/nonexistentuuid"
+  },
+  {
+   "name": "application tags: delete in unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/nonexistentuuid/tags/t1paritybackendtag000001"
+  },
+  {
+   "name": "application tags: add in unknown",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/nonexistentuuid/tags",
+   "body": {
+    "tag_name": "ops"
+   }
+  },
+  {
+   "name": "database tags: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/databases/b2parityredis00000000002/tags"
+  },
+  {
+   "name": "database tags: list, none",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/databases/b1paritypostgres00000001/tags"
+  },
+  {
+   "name": "database tags: list another team's",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/databases/b9otherpostgres000000009/tags"
+  },
+  {
+   "name": "database tags: list of unknown",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/databases/nonexistentuuid/tags"
+  },
+  {
+   "name": "database tags: add one",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b2parityredis00000000002/tags",
+   "body": {
+    "tag_name": " Unused "
+   },
+   "after": {
+    "tags": "select name, created_at is not null as dated from tags where uuid <> 't4otherteamtag0000000004' order by name",
+    "taggables": "select t.name, tg.taggable_type, tg.taggable_id from taggables tg join tags t on t.id = tg.tag_id where t.uuid <> 't4otherteamtag0000000004' order by tg.taggable_type, tg.taggable_id, t.name"
+   }
+  },
+  {
+   "name": "database tags: add several",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b2parityredis00000000002/tags",
+   "body": {
+    "tag_names": [
+     "Zeta",
+     "frontend",
+     "<b>alpha</b>",
+     "zeta",
+     "backend"
+    ]
+   },
+   "after": {
+    "tags": "select name, created_at is not null as dated from tags where uuid <> 't4otherteamtag0000000004' order by name",
+    "taggables": "select t.name, tg.taggable_type, tg.taggable_id from taggables tg join tags t on t.id = tg.tag_id where t.uuid <> 't4otherteamtag0000000004' order by tg.taggable_type, tg.taggable_id, t.name"
+   }
+  },
+  {
+   "name": "database tags: add one already there",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b2parityredis00000000002/tags",
+   "body": {
+    "tag_name": "BACKEND"
+   },
+   "after": {
+    "tags": "select name, created_at is not null as dated from tags where uuid <> 't4otherteamtag0000000004' order by name",
+    "taggables": "select t.name, tg.taggable_type, tg.taggable_id from taggables tg join tags t on t.id = tg.tag_id where t.uuid <> 't4otherteamtag0000000004' order by tg.taggable_type, tg.taggable_id, t.name"
+   }
+  },
+  {
+   "name": "database tags: delete",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/databases/b2parityredis00000000002/tags/t1paritybackendtag000001",
+   "after": {
+    "tags": "select name, created_at is not null as dated from tags where uuid <> 't4otherteamtag0000000004' order by name",
+    "taggables": "select t.name, tg.taggable_type, tg.taggable_id from taggables tg join tags t on t.id = tg.tag_id where t.uuid <> 't4otherteamtag0000000004' order by tg.taggable_type, tg.taggable_id, t.name"
+   }
+  },
+  {
+   "name": "database tags: delete one not there",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/databases/b2parityredis00000000002/tags/t3parityunusedtag0000003"
+  },
+  {
+   "name": "database tags: delete unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/databases/b2parityredis00000000002/tags/nonexistentuuid"
+  },
+  {
+   "name": "database tags: delete in unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/databases/nonexistentuuid/tags/t1paritybackendtag000001"
+  },
+  {
+   "name": "database tags: add in unknown",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/nonexistentuuid/tags",
+   "body": {
+    "tag_name": "ops"
+   }
+  },
+  {
+   "name": "service tags: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/services/f1parityservice000000001/tags"
+  },
+  {
+   "name": "service tags: list another team's",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/services/f2otherservice0000000002/tags"
+  },
+  {
+   "name": "service tags: list of unknown",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/services/nonexistentuuid/tags"
+  },
+  {
+   "name": "service tags: add one",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/tags",
+   "body": {
+    "tag_name": " Unused "
+   },
+   "after": {
+    "tags": "select name, created_at is not null as dated from tags where uuid <> 't4otherteamtag0000000004' order by name",
+    "taggables": "select t.name, tg.taggable_type, tg.taggable_id from taggables tg join tags t on t.id = tg.tag_id where t.uuid <> 't4otherteamtag0000000004' order by tg.taggable_type, tg.taggable_id, t.name"
+   }
+  },
+  {
+   "name": "service tags: add several",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/tags",
+   "body": {
+    "tag_names": [
+     "Zeta",
+     "frontend",
+     "<b>alpha</b>",
+     "zeta",
+     "backend"
+    ]
+   },
+   "after": {
+    "tags": "select name, created_at is not null as dated from tags where uuid <> 't4otherteamtag0000000004' order by name",
+    "taggables": "select t.name, tg.taggable_type, tg.taggable_id from taggables tg join tags t on t.id = tg.tag_id where t.uuid <> 't4otherteamtag0000000004' order by tg.taggable_type, tg.taggable_id, t.name"
+   }
+  },
+  {
+   "name": "service tags: add one already there",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/tags",
+   "body": {
+    "tag_name": "BACKEND"
+   },
+   "after": {
+    "tags": "select name, created_at is not null as dated from tags where uuid <> 't4otherteamtag0000000004' order by name",
+    "taggables": "select t.name, tg.taggable_type, tg.taggable_id from taggables tg join tags t on t.id = tg.tag_id where t.uuid <> 't4otherteamtag0000000004' order by tg.taggable_type, tg.taggable_id, t.name"
+   }
+  },
+  {
+   "name": "service tags: delete",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/services/f1parityservice000000001/tags/t2parityfrontendtag00002",
+   "after": {
+    "tags": "select name, created_at is not null as dated from tags where uuid <> 't4otherteamtag0000000004' order by name",
+    "taggables": "select t.name, tg.taggable_type, tg.taggable_id from taggables tg join tags t on t.id = tg.tag_id where t.uuid <> 't4otherteamtag0000000004' order by tg.taggable_type, tg.taggable_id, t.name"
+   }
+  },
+  {
+   "name": "service tags: delete one not there",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/services/f1parityservice000000001/tags/t3parityunusedtag0000003"
+  },
+  {
+   "name": "service tags: delete unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/services/f1parityservice000000001/tags/nonexistentuuid"
+  },
+  {
+   "name": "service tags: delete in unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/services/nonexistentuuid/tags/t1paritybackendtag000001"
+  },
+  {
+   "name": "service tags: add in unknown",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/nonexistentuuid/tags",
+   "body": {
+    "tag_name": "ops"
+   }
+  },
+  {
+   "name": "application tags: add a new one to an untagged application",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/tags",
+   "body": {
+    "tag_names": [
+     "ops",
+     "unused"
+    ]
+   },
+   "after": {
+    "tags": "select name, created_at is not null as dated from tags where uuid <> 't4otherteamtag0000000004' order by name",
+    "taggables": "select t.name, tg.taggable_type, tg.taggable_id from taggables tg join tags t on t.id = tg.tag_id where t.uuid <> 't4otherteamtag0000000004' order by tg.taggable_type, tg.taggable_id, t.name"
+   }
+  },
+  {
+   "name": "application tags: add, both fields",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/tags",
+   "body": {
+    "tag_name": "ops",
+    "tag_names": [
+     "dev"
+    ]
+   }
+  },
+  {
+   "name": "application tags: add, neither field",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/tags",
+   "body": {
+    "name": "ops"
+   }
+  },
+  {
+   "name": "application tags: add, an empty list",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/tags",
+   "body": {
+    "tag_names": []
+   }
+  },
+  {
+   "name": "application tags: add, a list that is not one",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/tags",
+   "body": {
+    "tag_names": "ops"
+   }
+  },
+  {
+   "name": "application tags: add, a name that is not a string",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/tags",
+   "body": {
+    "tag_names": [
+     "ops",
+     5,
+     null
+    ]
+   }
+  },
+  {
+   "name": "application tags: add, tag_name not a string",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/tags",
+   "body": {
+    "tag_name": 12
+   }
+  },
+  {
+   "name": "application tags: add, too short once sanitized",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/tags",
+   "body": {
+    "tag_names": [
+     "ok",
+     "<i>a</i>"
+    ]
+   }
+  },
+  {
+   "name": "application tags: add, not JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/tags",
+   "raw": "tag_name=ops",
+   "contentType": "application/x-www-form-urlencoded"
+  },
+  {
+   "name": "application tags: delete another team's tag",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/tags/t4otherteamtag0000000004"
+  },
+  {
+   "name": "database tags: add to a PostgreSQL",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/tags",
+   "body": {
+    "tag_name": "postgres"
+   },
+   "after": {
+    "tags": "select name, created_at is not null as dated from tags where uuid <> 't4otherteamtag0000000004' order by name",
+    "taggables": "select t.name, tg.taggable_type, tg.taggable_id from taggables tg join tags t on t.id = tg.tag_id where t.uuid <> 't4otherteamtag0000000004' order by tg.taggable_type, tg.taggable_id, t.name"
+   }
+  },
+  {
+   "name": "project envs: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/envs"
+  },
+  {
+   "name": "project envs: list, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/envs"
+  },
+  {
+   "name": "project envs: create",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/envs",
+   "body": {
+    "key": " NEW_KEY ",
+    "value": "  kept  ",
+    "is_literal": true,
+    "is_multiline": "1",
+    "is_shown_once": false,
+    "comment": " A comment "
+   },
+   "after": {
+    "variables": "select case when id <= 9 then id end as fixture_id, key, type, project_id, environment_id, server_id, is_shown_once, is_multiline, is_literal, comment, version from shared_environment_variables where type in ('project', 'environment') and key <> 'OTHER_PROJECT' order by id"
+   }
+  },
+  {
+   "name": "project envs: create, the fewest fields",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/envs",
+   "body": {
+    "key": "ONLY_KEY",
+    "value": "v"
+   },
+   "after": {
+    "variables": "select case when id <= 9 then id end as fixture_id, key, type, project_id, environment_id, server_id, is_shown_once, is_multiline, is_literal, comment, version from shared_environment_variables where type in ('project', 'environment') and key <> 'OTHER_PROJECT' order by id"
+   }
+  },
+  {
+   "name": "project envs: create, an existing key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/envs",
+   "body": {
+    "key": "PROJECT_FOO",
+    "value": "again"
+   }
+  },
+  {
+   "name": "project envs: create, invalid",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/envs",
+   "body": {
+    "key": "1BAD-KEY",
+    "value": 5,
+    "is_literal": "maybe",
+    "comment": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "is_preview": true
+   }
+  },
+  {
+   "name": "project envs: create, no key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/envs",
+   "body": {
+    "value": "v"
+   }
+  },
+  {
+   "name": "project envs: create, not JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/envs",
+   "raw": "key=A",
+   "contentType": "application/x-www-form-urlencoded"
+  },
+  {
+   "name": "project envs: update",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/envs/5",
+   "body": {
+    "value": "changed",
+    "comment": "Changed",
+    "is_multiline": true
+   },
+   "after": {
+    "variables": "select case when id <= 9 then id end as fixture_id, key, type, project_id, environment_id, server_id, is_shown_once, is_multiline, is_literal, comment, version from shared_environment_variables where type in ('project', 'environment') and key <> 'OTHER_PROJECT' order by id"
+   }
+  },
+  {
+   "name": "project envs: update, read:sensitive answer",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/envs/5",
+   "body": {
+    "key": "RENAMED_KEY",
+    "is_literal": false
+   },
+   "after": {
+    "variables": "select case when id <= 9 then id end as fixture_id, key, type, project_id, environment_id, server_id, is_shown_once, is_multiline, is_literal, comment, version from shared_environment_variables where type in ('project', 'environment') and key <> 'OTHER_PROJECT' order by id"
+   }
+  },
+  {
+   "name": "project envs: update to its own key",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/envs/5",
+   "body": {
+    "key": " PROJECT_FOO"
+   }
+  },
+  {
+   "name": "project envs: update, invalid",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/envs/5",
+   "body": {
+    "key": "no spaces allowed",
+    "is_shown_once": "yes",
+    "type": "team"
+   }
+  },
+  {
+   "name": "project envs: update unknown",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/envs/999",
+   "body": {
+    "value": "x"
+   }
+  },
+  {
+   "name": "project envs: update another scope's",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/envs/7",
+   "body": {
+    "value": "x"
+   }
+  },
+  {
+   "name": "project envs: update another team's",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/envs/8",
+   "body": {
+    "value": "x"
+   }
+  },
+  {
+   "name": "project envs: delete",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/envs/5",
+   "after": {
+    "variables": "select case when id <= 9 then id end as fixture_id, key, type, project_id, environment_id, server_id, is_shown_once, is_multiline, is_literal, comment, version from shared_environment_variables where type in ('project', 'environment') and key <> 'OTHER_PROJECT' order by id"
+   }
+  },
+  {
+   "name": "project envs: delete unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/envs/999"
+  },
+  {
+   "name": "project envs: delete another scope's",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/envs/7"
+  },
+  {
+   "name": "project envs: update a locked variable",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/envs/6",
+   "body": {
+    "value": "new secret",
+    "is_shown_once": false
+   },
+   "after": {
+    "variables": "select case when id <= 9 then id end as fixture_id, key, type, project_id, environment_id, server_id, is_shown_once, is_multiline, is_literal, comment, version from shared_environment_variables where type in ('project', 'environment') and key <> 'OTHER_PROJECT' order by id"
+   }
+  },
+  {
+   "name": "project envs: update to an existing key",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/envs/5",
+   "body": {
+    "key": "PROJECT_SECRET"
+   }
+  },
+  {
+   "name": "environment envs: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/production/envs"
+  },
+  {
+   "name": "environment envs: list, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/production/envs"
+  },
+  {
+   "name": "environment envs: create",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/production/envs",
+   "body": {
+    "key": " NEW_KEY ",
+    "value": "  kept  ",
+    "is_literal": true,
+    "is_multiline": "1",
+    "is_shown_once": false,
+    "comment": " A comment "
+   },
+   "after": {
+    "variables": "select case when id <= 9 then id end as fixture_id, key, type, project_id, environment_id, server_id, is_shown_once, is_multiline, is_literal, comment, version from shared_environment_variables where type in ('project', 'environment') and key <> 'OTHER_PROJECT' order by id"
+   }
+  },
+  {
+   "name": "environment envs: create, the fewest fields",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/production/envs",
+   "body": {
+    "key": "ONLY_KEY",
+    "value": "v"
+   },
+   "after": {
+    "variables": "select case when id <= 9 then id end as fixture_id, key, type, project_id, environment_id, server_id, is_shown_once, is_multiline, is_literal, comment, version from shared_environment_variables where type in ('project', 'environment') and key <> 'OTHER_PROJECT' order by id"
+   }
+  },
+  {
+   "name": "environment envs: create, an existing key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/production/envs",
+   "body": {
+    "key": "ENV_FOO",
+    "value": "again"
+   }
+  },
+  {
+   "name": "environment envs: create, invalid",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/production/envs",
+   "body": {
+    "key": "1BAD-KEY",
+    "value": 5,
+    "is_literal": "maybe",
+    "comment": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "is_preview": true
+   }
+  },
+  {
+   "name": "environment envs: create, no key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/production/envs",
+   "body": {
+    "value": "v"
+   }
+  },
+  {
+   "name": "environment envs: create, not JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/production/envs",
+   "raw": "key=A",
+   "contentType": "application/x-www-form-urlencoded"
+  },
+  {
+   "name": "environment envs: update",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/production/envs/7",
+   "body": {
+    "value": "changed",
+    "comment": "Changed",
+    "is_multiline": true
+   },
+   "after": {
+    "variables": "select case when id <= 9 then id end as fixture_id, key, type, project_id, environment_id, server_id, is_shown_once, is_multiline, is_literal, comment, version from shared_environment_variables where type in ('project', 'environment') and key <> 'OTHER_PROJECT' order by id"
+   }
+  },
+  {
+   "name": "environment envs: update, read:sensitive answer",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/production/envs/7",
+   "body": {
+    "key": "RENAMED_KEY",
+    "is_literal": false
+   },
+   "after": {
+    "variables": "select case when id <= 9 then id end as fixture_id, key, type, project_id, environment_id, server_id, is_shown_once, is_multiline, is_literal, comment, version from shared_environment_variables where type in ('project', 'environment') and key <> 'OTHER_PROJECT' order by id"
+   }
+  },
+  {
+   "name": "environment envs: update to its own key",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/production/envs/7",
+   "body": {
+    "key": " ENV_FOO"
+   }
+  },
+  {
+   "name": "environment envs: update, invalid",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/production/envs/7",
+   "body": {
+    "key": "no spaces allowed",
+    "is_shown_once": "yes",
+    "type": "team"
+   }
+  },
+  {
+   "name": "environment envs: update unknown",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/production/envs/999",
+   "body": {
+    "value": "x"
+   }
+  },
+  {
+   "name": "environment envs: update another scope's",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/production/envs/5",
+   "body": {
+    "value": "x"
+   }
+  },
+  {
+   "name": "environment envs: update another team's",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/production/envs/8",
+   "body": {
+    "value": "x"
+   }
+  },
+  {
+   "name": "environment envs: delete",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/production/envs/7",
+   "after": {
+    "variables": "select case when id <= 9 then id end as fixture_id, key, type, project_id, environment_id, server_id, is_shown_once, is_multiline, is_literal, comment, version from shared_environment_variables where type in ('project', 'environment') and key <> 'OTHER_PROJECT' order by id"
+   }
+  },
+  {
+   "name": "environment envs: delete unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/production/envs/999"
+  },
+  {
+   "name": "environment envs: delete another scope's",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/production/envs/5"
+  },
+  {
+   "name": "project envs: create a key an environment has",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/envs",
+   "body": {
+    "key": "ENV_FOO",
+    "value": "project-level"
+   },
+   "after": {
+    "variables": "select case when id <= 9 then id end as fixture_id, key, type, project_id, environment_id, server_id, is_shown_once, is_multiline, is_literal, comment, version from shared_environment_variables where type in ('project', 'environment') and key <> 'OTHER_PROJECT' order by id"
+   }
+  },
+  {
+   "name": "project envs: list another team's project",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/projects/p3otherprojectuuid000003/envs"
+  },
+  {
+   "name": "project envs: list of an unknown project",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/projects/nonexistentuuid/envs"
+  },
+  {
+   "name": "project envs: list of a project without any",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/projects/p2betaprojectuuid0000002/envs"
+  },
+  {
+   "name": "project envs: create in an unknown project",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/projects/nonexistentuuid/envs",
+   "body": {
+    "key": "A",
+    "value": "v"
+   }
+  },
+  {
+   "name": "project envs: delete in another team's project",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/projects/p3otherprojectuuid000003/envs/8"
+  },
+  {
+   "name": "environment envs: list by uuid",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/e2alphastaging0000000002/envs"
+  },
+  {
+   "name": "environment envs: list of an unknown environment",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/nope/envs"
+  },
+  {
+   "name": "environment envs: list of another project's environment",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/projects/p2betaprojectuuid0000002/environments/e2alphastaging0000000002/envs"
+  },
+  {
+   "name": "environment envs: list in an unknown project",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/projects/nonexistentuuid/environments/production/envs"
+  },
+  {
+   "name": "environment envs: create a key the project has",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/production/envs",
+   "body": {
+    "key": "PROJECT_FOO",
+    "value": "env-level"
+   },
+   "after": {
+    "variables": "select case when id <= 9 then id end as fixture_id, key, type, project_id, environment_id, server_id, is_shown_once, is_multiline, is_literal, comment, version from shared_environment_variables where type in ('project', 'environment') and key <> 'OTHER_PROJECT' order by id"
+   }
+  },
+  {
+   "name": "environment envs: create in an unknown environment",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/nope/envs",
+   "body": {
+    "key": "A",
+    "value": "v"
+   }
+  },
+  {
+   "name": "environment envs: update the staging variable",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/staging/envs/9",
+   "body": {
+    "is_shown_once": true
+   },
+   "after": {
+    "variables": "select case when id <= 9 then id end as fixture_id, key, type, project_id, environment_id, server_id, is_shown_once, is_multiline, is_literal, comment, version from shared_environment_variables where type in ('project', 'environment') and key <> 'OTHER_PROJECT' order by id"
+   }
+  },
+  {
+   "name": "environment envs: delete another environment's",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/production/envs/9"
+  },
+  {
+   "name": "environment envs: list with a write-only token",
+   "token": "writeOnly",
+   "method": "GET",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/production/envs"
+  },
+  {
+   "name": "s3 storages: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/s3-storages"
+  },
+  {
+   "name": "s3 storages: list, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/s3-storages"
+  },
+  {
+   "name": "s3 storages: list, none",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/s3-storages",
+   "setup": [
+    "update scheduled_database_backups set s3_storage_id = null",
+    "delete from scheduled_database_backup_s3_storage",
+    "delete from s3_storages"
+   ]
+  },
+  {
+   "name": "s3 storages: show",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/s3-storages/s3paritystorage000000001"
+  },
+  {
+   "name": "s3 storages: show, root",
+   "token": "root",
+   "method": "GET",
+   "path": "/api/v1/s3-storages/s3paritystorage000000001"
+  },
+  {
+   "name": "s3 storages: show another team's",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/s3-storages/s4otherstorage0000000002"
+  },
+  {
+   "name": "s3 storages: show unknown",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/s3-storages/nonexistentuuid"
+  },
+  {
+   "name": "s3 storages: create",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/s3-storages",
+   "body": {
+    "name": "API S3",
+    "description": "From the API",
+    "endpoint": " https://api-s3.example.com ",
+    "bucket": " api-bucket ",
+    "region": " eu-west-1 ",
+    "key": " AKIAAPI ",
+    "secret": " api-secret ",
+    "is_usable": true
+   },
+   "after": {
+    "storages": "select uuid = 's3paritystorage000000001' as fixture, name, description, region, bucket, endpoint, is_usable, unusable_email_sent, use_path_style_endpoint, type, private_key_id, sftp_host_key, skip_tls_verification from s3_storages where uuid <> 's4otherstorage0000000002' order by name",
+    "backups": "select uuid, save_s3, s3_storage_id from scheduled_database_backups where uuid <> 'c4otherpgbackup000000004' order by id",
+    "destinations": "select scheduled_database_backup_id, s3_storage_id from scheduled_database_backup_s3_storage order by scheduled_database_backup_id, s3_storage_id"
+   }
+  },
+  {
+   "name": "s3 storages: create, the fewest fields",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/s3-storages",
+   "body": {
+    "name": "Aliyun",
+    "endpoint": "https://oss-cn-hangzhou.aliyuncs.com",
+    "bucket": "ali-bucket",
+    "region": "oss-cn-hangzhou",
+    "key": "k",
+    "secret": "s"
+   },
+   "after": {
+    "storages": "select uuid = 's3paritystorage000000001' as fixture, name, description, region, bucket, endpoint, is_usable, unusable_email_sent, use_path_style_endpoint, type, private_key_id, sftp_host_key, skip_tls_verification from s3_storages where uuid <> 's4otherstorage0000000002' order by name",
+    "backups": "select uuid, save_s3, s3_storage_id from scheduled_database_backups where uuid <> 'c4otherpgbackup000000004' order by id",
+    "destinations": "select scheduled_database_backup_id, s3_storage_id from scheduled_database_backup_s3_storage order by scheduled_database_backup_id, s3_storage_id"
+   }
+  },
+  {
+   "name": "s3 storages: create with the URL style and TLS",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/s3-storages",
+   "body": {
+    "type": "s3",
+    "name": "Styled",
+    "endpoint": "http://minio.example.com:9000",
+    "bucket": "styled",
+    "region": "us-east-1",
+    "key": "k",
+    "secret": "s",
+    "use_path_style_endpoint": false,
+    "skip_tls_verification": "1",
+    "is_usable": 0
+   },
+   "after": {
+    "storages": "select uuid = 's3paritystorage000000001' as fixture, name, description, region, bucket, endpoint, is_usable, unusable_email_sent, use_path_style_endpoint, type, private_key_id, sftp_host_key, skip_tls_verification from s3_storages where uuid <> 's4otherstorage0000000002' order by name",
+    "backups": "select uuid, save_s3, s3_storage_id from scheduled_database_backups where uuid <> 'c4otherpgbackup000000004' order by id",
+    "destinations": "select scheduled_database_backup_id, s3_storage_id from scheduled_database_backup_s3_storage order by scheduled_database_backup_id, s3_storage_id"
+   }
+  },
+  {
+   "name": "s3 storages: create, invalid",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/s3-storages",
+   "body": {
+    "type": "ftp",
+    "name": "x",
+    "description": "<b>",
+    "endpoint": "ftp://files.example.com",
+    "bucket": "A..b",
+    "region": 5,
+    "key": [
+     "k"
+    ],
+    "secret": null,
+    "use_path_style_endpoint": "maybe",
+    "is_usable": 2,
+    "extra": 1
+   }
+  },
+  {
+   "name": "s3 storages: create, only a name",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/s3-storages",
+   "body": {
+    "name": "Only a name"
+   }
+  },
+  {
+   "name": "s3 storages: create, an endpoint with credentials",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/s3-storages",
+   "body": {
+    "name": "API S3",
+    "description": "From the API",
+    "endpoint": "https://user:pass@s3.example.com/a%0Ab",
+    "bucket": " api-bucket ",
+    "region": " eu-west-1 ",
+    "key": " AKIAAPI ",
+    "secret": " api-secret ",
+    "is_usable": true
+   }
+  },
+  {
+   "name": "s3 storages: create, an endpoint that does not resolve",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/s3-storages",
+   "body": {
+    "name": "API S3",
+    "description": "From the API",
+    "endpoint": "https://unresolvable.example",
+    "bucket": " api-bucket ",
+    "region": " eu-west-1 ",
+    "key": " AKIAAPI ",
+    "secret": " api-secret ",
+    "is_usable": true
+   }
+  },
+  {
+   "name": "s3 storages: create, an endpoint too long",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/s3-storages",
+   "body": {
+    "name": "API S3",
+    "description": "From the API",
+    "endpoint": "https://s3.example.com/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "bucket": " api-bucket ",
+    "region": "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+    "key": " AKIAAPI ",
+    "secret": " api-secret ",
+    "is_usable": true
+   }
+  },
+  {
+   "name": "s3 storages: create an SFTP storage",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/s3-storages",
+   "body": {
+    "type": "sftp",
+    "name": "SFTP box",
+    "endpoint": "sftp://files.example.com",
+    "key": "backup",
+    "secret": "pw"
+   },
+   "after": {
+    "storages": "select uuid = 's3paritystorage000000001' as fixture, name, description, region, bucket, endpoint, is_usable, unusable_email_sent, use_path_style_endpoint, type, private_key_id, sftp_host_key, skip_tls_verification from s3_storages where uuid <> 's4otherstorage0000000002' order by name",
+    "backups": "select uuid, save_s3, s3_storage_id from scheduled_database_backups where uuid <> 'c4otherpgbackup000000004' order by id",
+    "destinations": "select scheduled_database_backup_id, s3_storage_id from scheduled_database_backup_s3_storage order by scheduled_database_backup_id, s3_storage_id"
+   }
+  },
+  {
+   "name": "s3 storages: create, not JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/s3-storages",
+   "raw": "name=x",
+   "contentType": "application/x-www-form-urlencoded"
+  },
+  {
+   "name": "s3 storages: update",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/s3-storages/s3paritystorage000000001",
+   "body": {
+    "name": "Renamed S3",
+    "description": null,
+    "region": " us-west-2 ",
+    "is_usable": false
+   },
+   "after": {
+    "storages": "select uuid = 's3paritystorage000000001' as fixture, name, description, region, bucket, endpoint, is_usable, unusable_email_sent, use_path_style_endpoint, type, private_key_id, sftp_host_key, skip_tls_verification from s3_storages where uuid <> 's4otherstorage0000000002' order by name",
+    "backups": "select uuid, save_s3, s3_storage_id from scheduled_database_backups where uuid <> 'c4otherpgbackup000000004' order by id",
+    "destinations": "select scheduled_database_backup_id, s3_storage_id from scheduled_database_backup_s3_storage order by scheduled_database_backup_id, s3_storage_id"
+   }
+  },
+  {
+   "name": "s3 storages: update the connection",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/s3-storages/s3paritystorage000000001",
+   "body": {
+    "endpoint": "https://other-s3.example.com",
+    "bucket": "new-bucket",
+    "key": "NEWKEY",
+    "secret": " new-secret ",
+    "use_path_style_endpoint": false,
+    "skip_tls_verification": true
+   },
+   "after": {
+    "storages": "select uuid = 's3paritystorage000000001' as fixture, name, description, region, bucket, endpoint, is_usable, unusable_email_sent, use_path_style_endpoint, type, private_key_id, sftp_host_key, skip_tls_verification from s3_storages where uuid <> 's4otherstorage0000000002' order by name",
+    "backups": "select uuid, save_s3, s3_storage_id from scheduled_database_backups where uuid <> 'c4otherpgbackup000000004' order by id",
+    "destinations": "select scheduled_database_backup_id, s3_storage_id from scheduled_database_backup_s3_storage order by scheduled_database_backup_id, s3_storage_id"
+   }
+  },
+  {
+   "name": "s3 storages: update, invalid",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/s3-storages/s3paritystorage000000001",
+   "body": {
+    "name": "ab",
+    "bucket": "x",
+    "endpoint": null,
+    "key": "",
+    "type": "s3",
+    "is_usable": "yes"
+   }
+  },
+  {
+   "name": "s3 storages: update another team's",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/s3-storages/s4otherstorage0000000002",
+   "body": {
+    "name": "Mine now"
+   }
+  },
+  {
+   "name": "s3 storages: update unknown",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/s3-storages/nonexistentuuid",
+   "body": {
+    "name": "Mine now"
+   }
+  },
+  {
+   "name": "s3 storages: update, empty JSON",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/s3-storages/s3paritystorage000000001",
+   "raw": "{}"
+  },
+  {
+   "name": "s3 storages: delete",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/s3-storages/s3paritystorage000000001",
+   "after": {
+    "storages": "select uuid = 's3paritystorage000000001' as fixture, name, description, region, bucket, endpoint, is_usable, unusable_email_sent, use_path_style_endpoint, type, private_key_id, sftp_host_key, skip_tls_verification from s3_storages where uuid <> 's4otherstorage0000000002' order by name",
+    "backups": "select uuid, save_s3, s3_storage_id from scheduled_database_backups where uuid <> 'c4otherpgbackup000000004' order by id",
+    "destinations": "select scheduled_database_backup_id, s3_storage_id from scheduled_database_backup_s3_storage order by scheduled_database_backup_id, s3_storage_id"
+   }
+  },
+  {
+   "name": "s3 storages: delete another team's",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/s3-storages/s4otherstorage0000000002"
+  },
+  {
+   "name": "s3 storages: delete unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/s3-storages/nonexistentuuid"
+  },
+  {
+   "name": "s3 storages: validate, an endpoint that does not resolve",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/s3-storages/s3paritystorage000000001/validate",
+   "setup": [
+    "update s3_storages set endpoint = 'https://unresolvable.example' where uuid = 's3paritystorage000000001'"
+   ],
+   "after": {
+    "storages": "select uuid = 's3paritystorage000000001' as fixture, name, description, region, bucket, endpoint, is_usable, unusable_email_sent, use_path_style_endpoint, type, private_key_id, sftp_host_key, skip_tls_verification from s3_storages where uuid <> 's4otherstorage0000000002' order by name",
+    "backups": "select uuid, save_s3, s3_storage_id from scheduled_database_backups where uuid <> 'c4otherpgbackup000000004' order by id",
+    "destinations": "select scheduled_database_backup_id, s3_storage_id from scheduled_database_backup_s3_storage order by scheduled_database_backup_id, s3_storage_id"
+   }
+  },
+  {
+   "name": "s3 storages: validate, an invalid bucket",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/s3-storages/s3paritystorage000000001/validate",
+   "setup": [
+    "update s3_storages set bucket = 'A..b' where uuid = 's3paritystorage000000001'"
+   ],
+   "after": {
+    "storages": "select uuid = 's3paritystorage000000001' as fixture, name, description, region, bucket, endpoint, is_usable, unusable_email_sent, use_path_style_endpoint, type, private_key_id, sftp_host_key, skip_tls_verification from s3_storages where uuid <> 's4otherstorage0000000002' order by name",
+    "backups": "select uuid, save_s3, s3_storage_id from scheduled_database_backups where uuid <> 'c4otherpgbackup000000004' order by id",
+    "destinations": "select scheduled_database_backup_id, s3_storage_id from scheduled_database_backup_s3_storage order by scheduled_database_backup_id, s3_storage_id"
+   }
+  },
+  {
+   "name": "s3 storages: validate another team's",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/s3-storages/s4otherstorage0000000002/validate"
+  },
+  {
+   "name": "s3 storages: validate unknown",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/s3-storages/nonexistentuuid/validate"
   }
  ]
 }

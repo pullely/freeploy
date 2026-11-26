@@ -85,6 +85,53 @@ export async function detachAllTags(tx: SqlExecutor, resource: Taggable): Promis
   await tx.execute("DELETE FROM deploy.taggables WHERE taggable_type = $1 AND taggable_id = $2", [resource.type, resource.id]);
 }
 
+// ── DP-81: what Coolify's /api/v1 reads and writes of tags (TagsController, HandlesTagsApi) ──
+
+/** A tag with its timestamps (TIMESTAMP(0) as text, "YYYY-MM-DD HH:MM:SS"), as TagsController::serializeTag() writes it. */
+export interface DeployTagApiRow extends DeployTagRow {
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+const API_COLUMNS = "t.id, t.uuid, t.name, t.created_at::text AS created_at, t.updated_at::text AS updated_at";
+
+/** Tag::where('team_id', …)->orderBy('name')->get() */
+export async function listTagsWithDates(tx: SqlExecutor): Promise<DeployTagApiRow[]> {
+  const r = await tx.execute<DeployTagApiRow>(`SELECT ${API_COLUMNS} FROM deploy.tags t ORDER BY t.name, t.id`);
+  return r.rows;
+}
+
+/** Tag::where('team_id', …)->where('uuid', $uuid)->first() */
+export async function findTagByUuid(tx: SqlExecutor, uuid: string): Promise<DeployTagApiRow | null> {
+  const r = await tx.execute<DeployTagApiRow>(`SELECT ${API_COLUMNS} FROM deploy.tags t WHERE t.uuid = $1 ORDER BY t.id LIMIT 1`, [uuid]);
+  return r.rows[0] ?? null;
+}
+
+/**
+ * $resource->tags as Coolify's API reads it: the morphToMany query has no ORDER BY, and PostgreSQL gives the rows in the
+ * order it scans the pivot — the order the tags were attached in — so this orders by the pivot rows' place (ctid).
+ */
+export async function listResourceTagsInPivotOrder(tx: SqlExecutor, resource: Taggable): Promise<DeployTagApiRow[]> {
+  const r = await tx.execute<DeployTagApiRow>(
+    `SELECT ${API_COLUMNS} FROM deploy.taggables p JOIN deploy.tags t ON t.id = p.tag_id
+      WHERE p.taggable_type = $1 AND p.taggable_id = $2
+      ORDER BY p.ctid`,
+    [resource.type, resource.id],
+  );
+  return r.rows;
+}
+
+/** $tag->update(['name' => …]): updated_at is touched only when the name changes (Eloquent saves nothing otherwise). */
+export async function renameTag(tx: SqlExecutor, id: string | number, name: string): Promise<void> {
+  await tx.execute(`UPDATE deploy.tags SET name = $2, updated_at = ${NOW} WHERE id = $1 AND name IS DISTINCT FROM $2`, [id, name]);
+}
+
+/** $tag->delete(): Coolify's foreign key cascades to the pivot; deploy.taggables has none, so its rows go first. */
+export async function deleteTag(tx: SqlExecutor, id: string | number): Promise<void> {
+  await tx.execute("DELETE FROM deploy.taggables WHERE tag_id = $1", [id]);
+  await tx.execute("DELETE FROM deploy.tags WHERE id = $1", [id]);
+}
+
 /** clone_application(): `foreach ($source->tags as $tag) $new->tags()->attach($tag->id)`. */
 export async function copyResourceTags(tx: SqlExecutor, from: Taggable, to: Taggable): Promise<void> {
   await tx.execute(
