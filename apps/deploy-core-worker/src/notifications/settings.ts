@@ -93,13 +93,13 @@ export class SettingsError extends Error {
 // ---------------------------------------------------------------------------------------------------
 // A small Laravel validator: the rules these components use, with Laravel's messages.
 
-type Rule = { implicit?: boolean; boolean?: true; check: (value: unknown, state: Props, prop: string) => string | null };
+export type Rule = { implicit?: boolean; boolean?: true; check: (value: unknown, state: Props, prop: string) => string | null };
 
-const isBlank = (v: unknown) => v === null || v === undefined || (typeof v === "string" && v.trim() === "") || (Array.isArray(v) && v.length === 0);
+export const isBlank = (v: unknown) => v === null || v === undefined || (typeof v === "string" && v.trim() === "") || (Array.isArray(v) && v.length === 0);
 const isBooleanLike = (v: unknown) => v === true || v === false || v === 0 || v === 1 || v === "0" || v === "1";
 const isNumeric = (v: unknown) => (typeof v === "number" && Number.isFinite(v)) || (typeof v === "string" && /^\s*[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?\s*$/.test(v));
 
-const R = {
+export const R = {
   boolean: (): Rule => ({ boolean: true, check: (v, _s, p) => (isBooleanLike(v) ? null : `The ${attr(p)} field must be true or false.`) }),
   string: (): Rule => ({ check: (v, _s, p) => (typeof v === "string" ? null : `The ${attr(p)} field must be a string.`) }),
   maxString: (n: number): Rule => ({ check: (v, _s, p) => (typeof v === "string" && Array.from(v).length > n ? `The ${attr(p)} field must not be greater than ${n} characters.` : null) }),
@@ -118,10 +118,10 @@ const R = {
   safeWebhookUrl: (settingsUrl: string): Rule => ({ check: (v, _s, p) => (typeof v === "string" ? safeWebhookUrlMessage(attr(p), v, settingsUrl) : `The ${attr(p)} must be a valid URL.`) }),
   validHostname: (): Rule => ({ check: (v, _s, p) => (typeof v === "string" ? hostnameError(attr(p), v) : null) }),
 };
-const NULLABLE = "nullable" as const;
-type RuleList = Array<Rule | typeof NULLABLE>;
+export const NULLABLE = "nullable" as const;
+export type RuleList = Array<Rule | typeof NULLABLE>;
 
-function isTrue(v: unknown): boolean {
+export function isTrue(v: unknown): boolean {
   return v === true || v === 1 || v === "1" || v === "true";
 }
 
@@ -383,7 +383,7 @@ export function activeEmailProvider(row: SettingsRow): "resend" | "smtp" | "none
   return "none";
 }
 
-function withMessages(rules: Record<string, Array<[Rule | typeof NULLABLE, string?]>>): { rules: Record<string, RuleList>; names: Map<Rule, string> } {
+export function withMessages(rules: Record<string, Array<[Rule | typeof NULLABLE, string?]>>): { rules: Record<string, RuleList>; names: Map<Rule, string> } {
   const names = new Map<Rule, string>();
   const out: Record<string, RuleList> = {};
   for (const [prop, list] of Object.entries(rules)) {
@@ -396,7 +396,7 @@ function withMessages(rules: Record<string, Array<[Rule | typeof NULLABLE, strin
 }
 
 /** Email::validateSmtpSettings(). */
-function validateSmtpSettings(state: Props): void {
+export function validateSmtpSettings(state: Props): void {
   const login = smtpRequiresLogin(state.smtpHost);
   const { rules, names } = withMessages({
     smtpEnabled: [[R.boolean()]],
@@ -427,7 +427,7 @@ function validateSmtpSettings(state: Props): void {
 }
 
 /** Email::validateResendSettings(). */
-function validateResendSettings(state: Props): void {
+export function validateResendSettings(state: Props): void {
   const on = isTrue(state.resendEnabled);
   const { rules, names } = withMessages({
     resendEnabled: [[R.boolean()]],

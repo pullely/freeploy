@@ -104,8 +104,8 @@ export function requestIs(pathname: string, patterns: string[]): boolean {
 
 /**
  * The platform operator's submenu (DP-79): navbar.blade.php's Settings, `'visible' => $teamWide && isInstanceAdmin()`,
- * with the pages Freeploy has (General, Advanced; Updates, Image Scanning, Authentication, Email and Backup are not
- * ported). Coolify lists it last, after Tags.
+ * with the pages Freeploy has (General, Advanced, and since DP-101 Updates, Authentication, Email and Backup; Image
+ * Scanning is not ported). Coolify lists it last, after Tags.
  */
 export const OPERATOR_SUBMENUS: ReadonlyArray<{ label: string; children: SubmenuChild[] }> = [
   {
@@ -113,6 +113,10 @@ export const OPERATOR_SUBMENUS: ReadonlyArray<{ label: string; children: Submenu
     children: [
       { href: "/settings", is: ["settings"] },
       { href: "/settings/advanced", is: ["settings/advanced"] },
+      { href: "/settings/updates", is: ["settings/updates"] },
+      { href: "/settings/oauth", is: ["settings/oauth*"] },
+      { href: "/settings/email", is: ["settings/email"] },
+      { href: "/settings/backup", is: ["settings/backup"] },
     ],
   },
 ];

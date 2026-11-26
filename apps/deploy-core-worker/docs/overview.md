@@ -17,5 +17,9 @@ storages, backups, …) ported from coollabsio/coolify@91b7e3e, one org per row.
   platform actions from its `PLATFORM_OPERATORS` secret alone (no org role
   passes); every denial is a 404. The settings are row 0 of
   `deploy.instance_settings`, owned by no org, read in `asPlatformAdmin()`.
+  Since DP-101 also the Updates, Backup, Email and Authentication pages
+  (`/v1/platform/settings/{updates,backup,email,oauth}`), the OAuth providers
+  in `deploy.oauth_settings` owned by the same nil org, the secrets
+  encrypted; what needs a server, sends email or upgrades answers 501.
 
 Design: `specs/epics/freeploy-coolify-parity/design.md`.
