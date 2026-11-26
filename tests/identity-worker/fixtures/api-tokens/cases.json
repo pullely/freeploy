@@ -1,0 +1,290 @@
+{
+ "users": {
+  "owner": {
+   "name": "Parity Owner",
+   "email": "owner@example.com",
+   "role": "owner"
+  },
+  "admin": {
+   "name": "Parity Admin",
+   "email": "admin@example.com",
+   "role": "admin"
+  },
+  "member": {
+   "name": "Parity Member",
+   "email": "member@example.com",
+   "role": "member"
+  }
+ },
+ "cases": [
+  {
+   "name": "mount: owner",
+   "user": "owner"
+  },
+  {
+   "name": "mount: member",
+   "user": "member"
+  },
+  {
+   "name": "create: defaults",
+   "user": "owner",
+   "set": {
+    "form.description": "CI token"
+   },
+   "call": "addNewToken"
+  },
+  {
+   "name": "create: never expires, root",
+   "user": "owner",
+   "set": {
+    "form.description": "Root token",
+    "form.expiresInDays": "",
+    "form.permissions": [
+     "root"
+    ]
+   },
+   "call": "addNewToken"
+  },
+  {
+   "name": "create: every ability, 365 days",
+   "user": "owner",
+   "set": {
+    "form.description": "All of them",
+    "form.expiresInDays": 365,
+    "form.permissions": [
+     "read",
+     "read:sensitive",
+     "write",
+     "deploy",
+     "delete"
+    ]
+   },
+   "call": "addNewToken"
+  },
+  {
+   "name": "create: 7 days as text",
+   "user": "owner",
+   "set": {
+    "form.description": "Week",
+    "form.expiresInDays": "7",
+    "form.permissions": [
+     "read"
+    ]
+   },
+   "call": "addNewToken"
+  },
+  {
+   "name": "create: no description",
+   "user": "owner",
+   "set": {
+    "form.description": ""
+   },
+   "call": "addNewToken"
+  },
+  {
+   "name": "create: description too short",
+   "user": "owner",
+   "set": {
+    "form.description": "ab"
+   },
+   "call": "addNewToken"
+  },
+  {
+   "name": "create: description too long",
+   "user": "owner",
+   "set": {
+    "form.description": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   },
+   "call": "addNewToken"
+  },
+  {
+   "name": "create: 60 days",
+   "user": "owner",
+   "set": {
+    "form.description": "Sixty",
+    "form.expiresInDays": 60
+   },
+   "call": "addNewToken"
+  },
+  {
+   "name": "create: description of spaces",
+   "user": "owner",
+   "set": {
+    "form.description": "     "
+   },
+   "call": "addNewToken"
+  },
+  {
+   "name": "create: description with surrounding spaces",
+   "user": "owner",
+   "set": {
+    "form.description": "  spaced  "
+   },
+   "call": "addNewToken"
+  },
+  {
+   "name": "create: description of 255 characters",
+   "user": "owner",
+   "set": {
+    "form.description": "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"
+   },
+   "call": "addNewToken"
+  },
+  {
+   "name": "create: expiry not offered",
+   "user": "owner",
+   "set": {
+    "form.description": "Odd expiry",
+    "form.expiresInDays": 15
+   },
+   "call": "addNewToken"
+  },
+  {
+   "name": "create: no permissions",
+   "user": "owner",
+   "set": {
+    "form.description": "Nothing",
+    "form.permissions": []
+   },
+   "call": "addNewToken"
+  },
+  {
+   "name": "create: unknown permission",
+   "user": "owner",
+   "set": {
+    "form.description": "Bogus",
+    "form.permissions": [
+     "read",
+     "admin"
+    ]
+   },
+   "call": "addNewToken"
+  },
+  {
+   "name": "create: write:sensitive by the owner",
+   "user": "owner",
+   "set": {
+    "form.description": "Write secrets",
+    "form.permissions": [
+     "write:sensitive"
+    ]
+   },
+   "call": "addNewToken"
+  },
+  {
+   "name": "create: write:sensitive by an admin",
+   "user": "admin",
+   "set": {
+    "form.description": "Admin secrets",
+    "form.permissions": [
+     "read",
+     "write:sensitive"
+    ]
+   },
+   "call": "addNewToken"
+  },
+  {
+   "name": "create: write:sensitive by a member",
+   "user": "member",
+   "set": {
+    "form.description": "Member secrets",
+    "form.permissions": [
+     "write:sensitive"
+    ]
+   },
+   "call": "addNewToken"
+  },
+  {
+   "name": "create: write by a member",
+   "user": "member",
+   "set": {
+    "form.description": "Member write",
+    "form.permissions": [
+     "read",
+     "write"
+    ]
+   },
+   "call": "addNewToken"
+  },
+  {
+   "name": "create: read:sensitive by a member",
+   "user": "member",
+   "set": {
+    "form.description": "Member sensitive",
+    "form.permissions": [
+     "read",
+     "read:sensitive"
+    ]
+   },
+   "call": "addNewToken"
+  },
+  {
+   "name": "create: read by a member",
+   "user": "member",
+   "set": {
+    "form.description": "Member read",
+    "form.permissions": [
+     "read"
+    ]
+   },
+   "call": "addNewToken"
+  },
+  {
+   "name": "list: newest first, only the user's",
+   "user": "owner",
+   "existing": [
+    {
+     "user": "owner",
+     "name": "First",
+     "abilities": [
+      "read"
+     ]
+    },
+    {
+     "user": "owner",
+     "name": "Second",
+     "abilities": [
+      "root"
+     ]
+    },
+    {
+     "user": "member",
+     "name": "Not mine",
+     "abilities": [
+      "read"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "revoke: own token",
+   "user": "owner",
+   "existing": [
+    {
+     "user": "owner",
+     "name": "Old token",
+     "abilities": [
+      "read"
+     ]
+    }
+   ],
+   "call": "revoke",
+   "revokeExisting": "Old token"
+  },
+  {
+   "name": "revoke: another user's token",
+   "user": "owner",
+   "existing": [
+    {
+     "user": "member",
+     "name": "Member token",
+     "abilities": [
+      "read"
+     ]
+    }
+   ],
+   "call": "revoke",
+   "revokeExisting": "Member token"
+  }
+ ]
+}

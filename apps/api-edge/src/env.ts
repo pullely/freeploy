@@ -27,4 +27,14 @@ export interface Env {
   // ./solo-mode.ts); absent or any other value keeps the full multi-tenant
   // baseline. Deploy-time wrangler var, not a secret.
   SOLO_MODE?: string;
+  // Coolify's /api/v1 (DP-70): Coolify's .env and instance settings, as deploy-time vars. All optional:
+  // absent means Coolify's defaults (API on for every address, 200 requests and 30 failed requests a minute).
+  /** API_RATE_LIMIT */
+  API_RATE_LIMIT?: string;
+  /** API_FAILED_REQUEST_RATE_LIMIT (0 turns the failed-request throttle off) */
+  API_FAILED_REQUEST_RATE_LIMIT?: string;
+  /** "false": the instance setting is_api_enabled off ("API is disabled."). */
+  API_ENABLED?: string;
+  /** The instance setting allowed_ips: comma-separated addresses and CIDRs; empty or 0.0.0.0 allows all. */
+  API_ALLOWED_IPS?: string;
 }

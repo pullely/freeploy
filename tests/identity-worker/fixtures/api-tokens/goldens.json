@@ -1,0 +1,1179 @@
+{
+    "coolify": "91b7e3e",
+    "cases": [
+        {
+            "name": "mount: owner",
+            "mount": {
+                "canUseRootPermissions": true,
+                "canUseWritePermissions": true,
+                "canUseDeployPermissions": true,
+                "canUseSensitivePermissions": true,
+                "canUseDeletePermissions": true,
+                "canUseTeamScope": true,
+                "expirationOptions": {
+                    "7": "7 days",
+                    "30": "30 days",
+                    "60": "60 days",
+                    "90": "90 days",
+                    "365": "1 year"
+                },
+                "form": {
+                    "description": null,
+                    "expiresInDays": 30,
+                    "permissions": [
+                        "read"
+                    ],
+                    "scopeMode": "team"
+                }
+            },
+            "status": null,
+            "errors": [],
+            "toasts": [],
+            "issued": null,
+            "tokens": [],
+            "formAfter": {
+                "description": null,
+                "expiresInDays": 30,
+                "permissions": [
+                    "read"
+                ]
+            }
+        },
+        {
+            "name": "mount: member",
+            "mount": {
+                "canUseRootPermissions": false,
+                "canUseWritePermissions": false,
+                "canUseDeployPermissions": false,
+                "canUseSensitivePermissions": false,
+                "canUseDeletePermissions": false,
+                "canUseTeamScope": true,
+                "expirationOptions": {
+                    "7": "7 days",
+                    "30": "30 days",
+                    "60": "60 days",
+                    "90": "90 days",
+                    "365": "1 year"
+                },
+                "form": {
+                    "description": null,
+                    "expiresInDays": 30,
+                    "permissions": [
+                        "read"
+                    ],
+                    "scopeMode": "team"
+                }
+            },
+            "status": null,
+            "errors": [],
+            "toasts": [],
+            "issued": null,
+            "tokens": [],
+            "formAfter": {
+                "description": null,
+                "expiresInDays": 30,
+                "permissions": [
+                    "read"
+                ]
+            }
+        },
+        {
+            "name": "create: defaults",
+            "mount": {
+                "canUseRootPermissions": true,
+                "canUseWritePermissions": true,
+                "canUseDeployPermissions": true,
+                "canUseSensitivePermissions": true,
+                "canUseDeletePermissions": true,
+                "canUseTeamScope": true,
+                "expirationOptions": {
+                    "7": "7 days",
+                    "30": "30 days",
+                    "60": "60 days",
+                    "90": "90 days",
+                    "365": "1 year"
+                },
+                "form": {
+                    "description": null,
+                    "expiresInDays": 30,
+                    "permissions": [
+                        "read"
+                    ],
+                    "scopeMode": "team"
+                }
+            },
+            "status": 200,
+            "errors": [],
+            "toasts": [],
+            "issued": {
+                "id": true,
+                "secretLength": 48,
+                "crc": true
+            },
+            "tokens": [
+                {
+                    "name": "CI token",
+                    "abilities": [
+                        "read"
+                    ],
+                    "team_id": "1",
+                    "expires_at": "2026-01-31T00:00:00+00:00",
+                    "scopes": null
+                }
+            ],
+            "formAfter": {
+                "description": null,
+                "expiresInDays": 30,
+                "permissions": [
+                    "read"
+                ]
+            }
+        },
+        {
+            "name": "create: never expires, root",
+            "mount": {
+                "canUseRootPermissions": true,
+                "canUseWritePermissions": true,
+                "canUseDeployPermissions": true,
+                "canUseSensitivePermissions": true,
+                "canUseDeletePermissions": true,
+                "canUseTeamScope": true,
+                "expirationOptions": {
+                    "7": "7 days",
+                    "30": "30 days",
+                    "60": "60 days",
+                    "90": "90 days",
+                    "365": "1 year"
+                },
+                "form": {
+                    "description": null,
+                    "expiresInDays": 30,
+                    "permissions": [
+                        "read"
+                    ],
+                    "scopeMode": "team"
+                }
+            },
+            "status": 200,
+            "errors": [],
+            "toasts": [],
+            "issued": {
+                "id": true,
+                "secretLength": 48,
+                "crc": true
+            },
+            "tokens": [
+                {
+                    "name": "Root token",
+                    "abilities": [
+                        "root"
+                    ],
+                    "team_id": "1",
+                    "expires_at": null,
+                    "scopes": null
+                }
+            ],
+            "formAfter": {
+                "description": null,
+                "expiresInDays": 30,
+                "permissions": [
+                    "read"
+                ]
+            }
+        },
+        {
+            "name": "create: every ability, 365 days",
+            "mount": {
+                "canUseRootPermissions": true,
+                "canUseWritePermissions": true,
+                "canUseDeployPermissions": true,
+                "canUseSensitivePermissions": true,
+                "canUseDeletePermissions": true,
+                "canUseTeamScope": true,
+                "expirationOptions": {
+                    "7": "7 days",
+                    "30": "30 days",
+                    "60": "60 days",
+                    "90": "90 days",
+                    "365": "1 year"
+                },
+                "form": {
+                    "description": null,
+                    "expiresInDays": 30,
+                    "permissions": [
+                        "read"
+                    ],
+                    "scopeMode": "team"
+                }
+            },
+            "status": 200,
+            "errors": [],
+            "toasts": [],
+            "issued": {
+                "id": true,
+                "secretLength": 48,
+                "crc": true
+            },
+            "tokens": [
+                {
+                    "name": "All of them",
+                    "abilities": [
+                        "delete",
+                        "deploy",
+                        "read",
+                        "read:sensitive",
+                        "write"
+                    ],
+                    "team_id": "1",
+                    "expires_at": "2027-01-01T00:00:00+00:00",
+                    "scopes": null
+                }
+            ],
+            "formAfter": {
+                "description": null,
+                "expiresInDays": 30,
+                "permissions": [
+                    "read"
+                ]
+            }
+        },
+        {
+            "name": "create: 7 days as text",
+            "mount": {
+                "canUseRootPermissions": true,
+                "canUseWritePermissions": true,
+                "canUseDeployPermissions": true,
+                "canUseSensitivePermissions": true,
+                "canUseDeletePermissions": true,
+                "canUseTeamScope": true,
+                "expirationOptions": {
+                    "7": "7 days",
+                    "30": "30 days",
+                    "60": "60 days",
+                    "90": "90 days",
+                    "365": "1 year"
+                },
+                "form": {
+                    "description": null,
+                    "expiresInDays": 30,
+                    "permissions": [
+                        "read"
+                    ],
+                    "scopeMode": "team"
+                }
+            },
+            "status": 200,
+            "errors": [],
+            "toasts": [],
+            "issued": {
+                "id": true,
+                "secretLength": 48,
+                "crc": true
+            },
+            "tokens": [
+                {
+                    "name": "Week",
+                    "abilities": [
+                        "read"
+                    ],
+                    "team_id": "1",
+                    "expires_at": "2026-01-08T00:00:00+00:00",
+                    "scopes": null
+                }
+            ],
+            "formAfter": {
+                "description": null,
+                "expiresInDays": 30,
+                "permissions": [
+                    "read"
+                ]
+            }
+        },
+        {
+            "name": "create: no description",
+            "mount": {
+                "canUseRootPermissions": true,
+                "canUseWritePermissions": true,
+                "canUseDeployPermissions": true,
+                "canUseSensitivePermissions": true,
+                "canUseDeletePermissions": true,
+                "canUseTeamScope": true,
+                "expirationOptions": {
+                    "7": "7 days",
+                    "30": "30 days",
+                    "60": "60 days",
+                    "90": "90 days",
+                    "365": "1 year"
+                },
+                "form": {
+                    "description": null,
+                    "expiresInDays": 30,
+                    "permissions": [
+                        "read"
+                    ],
+                    "scopeMode": "team"
+                }
+            },
+            "status": 200,
+            "errors": [],
+            "toasts": [
+                [
+                    "error",
+                    "The description field is required."
+                ]
+            ],
+            "issued": null,
+            "tokens": [],
+            "formAfter": {
+                "description": "",
+                "expiresInDays": 30,
+                "permissions": [
+                    "read"
+                ]
+            }
+        },
+        {
+            "name": "create: description too short",
+            "mount": {
+                "canUseRootPermissions": true,
+                "canUseWritePermissions": true,
+                "canUseDeployPermissions": true,
+                "canUseSensitivePermissions": true,
+                "canUseDeletePermissions": true,
+                "canUseTeamScope": true,
+                "expirationOptions": {
+                    "7": "7 days",
+                    "30": "30 days",
+                    "60": "60 days",
+                    "90": "90 days",
+                    "365": "1 year"
+                },
+                "form": {
+                    "description": null,
+                    "expiresInDays": 30,
+                    "permissions": [
+                        "read"
+                    ],
+                    "scopeMode": "team"
+                }
+            },
+            "status": 200,
+            "errors": [],
+            "toasts": [
+                [
+                    "error",
+                    "The description field must be at least 3 characters."
+                ]
+            ],
+            "issued": null,
+            "tokens": [],
+            "formAfter": {
+                "description": "ab",
+                "expiresInDays": 30,
+                "permissions": [
+                    "read"
+                ]
+            }
+        },
+        {
+            "name": "create: description too long",
+            "mount": {
+                "canUseRootPermissions": true,
+                "canUseWritePermissions": true,
+                "canUseDeployPermissions": true,
+                "canUseSensitivePermissions": true,
+                "canUseDeletePermissions": true,
+                "canUseTeamScope": true,
+                "expirationOptions": {
+                    "7": "7 days",
+                    "30": "30 days",
+                    "60": "60 days",
+                    "90": "90 days",
+                    "365": "1 year"
+                },
+                "form": {
+                    "description": null,
+                    "expiresInDays": 30,
+                    "permissions": [
+                        "read"
+                    ],
+                    "scopeMode": "team"
+                }
+            },
+            "status": 200,
+            "errors": [],
+            "toasts": [
+                [
+                    "error",
+                    "The description field must not be greater than 255 characters."
+                ]
+            ],
+            "issued": null,
+            "tokens": [],
+            "formAfter": {
+                "description": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "expiresInDays": 30,
+                "permissions": [
+                    "read"
+                ]
+            }
+        },
+        {
+            "name": "create: 60 days",
+            "mount": {
+                "canUseRootPermissions": true,
+                "canUseWritePermissions": true,
+                "canUseDeployPermissions": true,
+                "canUseSensitivePermissions": true,
+                "canUseDeletePermissions": true,
+                "canUseTeamScope": true,
+                "expirationOptions": {
+                    "7": "7 days",
+                    "30": "30 days",
+                    "60": "60 days",
+                    "90": "90 days",
+                    "365": "1 year"
+                },
+                "form": {
+                    "description": null,
+                    "expiresInDays": 30,
+                    "permissions": [
+                        "read"
+                    ],
+                    "scopeMode": "team"
+                }
+            },
+            "status": 200,
+            "errors": [],
+            "toasts": [],
+            "issued": {
+                "id": true,
+                "secretLength": 48,
+                "crc": true
+            },
+            "tokens": [
+                {
+                    "name": "Sixty",
+                    "abilities": [
+                        "read"
+                    ],
+                    "team_id": "1",
+                    "expires_at": "2026-03-02T00:00:00+00:00",
+                    "scopes": null
+                }
+            ],
+            "formAfter": {
+                "description": null,
+                "expiresInDays": 30,
+                "permissions": [
+                    "read"
+                ]
+            }
+        },
+        {
+            "name": "create: description of spaces",
+            "mount": {
+                "canUseRootPermissions": true,
+                "canUseWritePermissions": true,
+                "canUseDeployPermissions": true,
+                "canUseSensitivePermissions": true,
+                "canUseDeletePermissions": true,
+                "canUseTeamScope": true,
+                "expirationOptions": {
+                    "7": "7 days",
+                    "30": "30 days",
+                    "60": "60 days",
+                    "90": "90 days",
+                    "365": "1 year"
+                },
+                "form": {
+                    "description": null,
+                    "expiresInDays": 30,
+                    "permissions": [
+                        "read"
+                    ],
+                    "scopeMode": "team"
+                }
+            },
+            "status": 200,
+            "errors": [],
+            "toasts": [
+                [
+                    "error",
+                    "The description field is required."
+                ]
+            ],
+            "issued": null,
+            "tokens": [],
+            "formAfter": {
+                "description": "     ",
+                "expiresInDays": 30,
+                "permissions": [
+                    "read"
+                ]
+            }
+        },
+        {
+            "name": "create: description with surrounding spaces",
+            "mount": {
+                "canUseRootPermissions": true,
+                "canUseWritePermissions": true,
+                "canUseDeployPermissions": true,
+                "canUseSensitivePermissions": true,
+                "canUseDeletePermissions": true,
+                "canUseTeamScope": true,
+                "expirationOptions": {
+                    "7": "7 days",
+                    "30": "30 days",
+                    "60": "60 days",
+                    "90": "90 days",
+                    "365": "1 year"
+                },
+                "form": {
+                    "description": null,
+                    "expiresInDays": 30,
+                    "permissions": [
+                        "read"
+                    ],
+                    "scopeMode": "team"
+                }
+            },
+            "status": 200,
+            "errors": [],
+            "toasts": [],
+            "issued": {
+                "id": true,
+                "secretLength": 48,
+                "crc": true
+            },
+            "tokens": [
+                {
+                    "name": "  spaced  ",
+                    "abilities": [
+                        "read"
+                    ],
+                    "team_id": "1",
+                    "expires_at": "2026-01-31T00:00:00+00:00",
+                    "scopes": null
+                }
+            ],
+            "formAfter": {
+                "description": null,
+                "expiresInDays": 30,
+                "permissions": [
+                    "read"
+                ]
+            }
+        },
+        {
+            "name": "create: description of 255 characters",
+            "mount": {
+                "canUseRootPermissions": true,
+                "canUseWritePermissions": true,
+                "canUseDeployPermissions": true,
+                "canUseSensitivePermissions": true,
+                "canUseDeletePermissions": true,
+                "canUseTeamScope": true,
+                "expirationOptions": {
+                    "7": "7 days",
+                    "30": "30 days",
+                    "60": "60 days",
+                    "90": "90 days",
+                    "365": "1 year"
+                },
+                "form": {
+                    "description": null,
+                    "expiresInDays": 30,
+                    "permissions": [
+                        "read"
+                    ],
+                    "scopeMode": "team"
+                }
+            },
+            "status": 200,
+            "errors": [],
+            "toasts": [],
+            "issued": {
+                "id": true,
+                "secretLength": 48,
+                "crc": true
+            },
+            "tokens": [
+                {
+                    "name": "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+                    "abilities": [
+                        "read"
+                    ],
+                    "team_id": "1",
+                    "expires_at": "2026-01-31T00:00:00+00:00",
+                    "scopes": null
+                }
+            ],
+            "formAfter": {
+                "description": null,
+                "expiresInDays": 30,
+                "permissions": [
+                    "read"
+                ]
+            }
+        },
+        {
+            "name": "create: expiry not offered",
+            "mount": {
+                "canUseRootPermissions": true,
+                "canUseWritePermissions": true,
+                "canUseDeployPermissions": true,
+                "canUseSensitivePermissions": true,
+                "canUseDeletePermissions": true,
+                "canUseTeamScope": true,
+                "expirationOptions": {
+                    "7": "7 days",
+                    "30": "30 days",
+                    "60": "60 days",
+                    "90": "90 days",
+                    "365": "1 year"
+                },
+                "form": {
+                    "description": null,
+                    "expiresInDays": 30,
+                    "permissions": [
+                        "read"
+                    ],
+                    "scopeMode": "team"
+                }
+            },
+            "status": 200,
+            "errors": [],
+            "toasts": [
+                [
+                    "error",
+                    "The selected expires in days is invalid."
+                ]
+            ],
+            "issued": null,
+            "tokens": [],
+            "formAfter": {
+                "description": "Odd expiry",
+                "expiresInDays": 15,
+                "permissions": [
+                    "read"
+                ]
+            }
+        },
+        {
+            "name": "create: no permissions",
+            "mount": {
+                "canUseRootPermissions": true,
+                "canUseWritePermissions": true,
+                "canUseDeployPermissions": true,
+                "canUseSensitivePermissions": true,
+                "canUseDeletePermissions": true,
+                "canUseTeamScope": true,
+                "expirationOptions": {
+                    "7": "7 days",
+                    "30": "30 days",
+                    "60": "60 days",
+                    "90": "90 days",
+                    "365": "1 year"
+                },
+                "form": {
+                    "description": null,
+                    "expiresInDays": 30,
+                    "permissions": [
+                        "read"
+                    ],
+                    "scopeMode": "team"
+                }
+            },
+            "status": 200,
+            "errors": [],
+            "toasts": [],
+            "issued": {
+                "id": true,
+                "secretLength": 48,
+                "crc": true
+            },
+            "tokens": [
+                {
+                    "name": "Nothing",
+                    "abilities": [
+                        "read"
+                    ],
+                    "team_id": "1",
+                    "expires_at": "2026-01-31T00:00:00+00:00",
+                    "scopes": null
+                }
+            ],
+            "formAfter": {
+                "description": null,
+                "expiresInDays": 30,
+                "permissions": [
+                    "read"
+                ]
+            }
+        },
+        {
+            "name": "create: unknown permission",
+            "mount": {
+                "canUseRootPermissions": true,
+                "canUseWritePermissions": true,
+                "canUseDeployPermissions": true,
+                "canUseSensitivePermissions": true,
+                "canUseDeletePermissions": true,
+                "canUseTeamScope": true,
+                "expirationOptions": {
+                    "7": "7 days",
+                    "30": "30 days",
+                    "60": "60 days",
+                    "90": "90 days",
+                    "365": "1 year"
+                },
+                "form": {
+                    "description": null,
+                    "expiresInDays": 30,
+                    "permissions": [
+                        "read"
+                    ],
+                    "scopeMode": "team"
+                }
+            },
+            "status": 200,
+            "errors": [],
+            "toasts": [
+                [
+                    "error",
+                    "The selected permissions.0 is invalid."
+                ]
+            ],
+            "issued": null,
+            "tokens": [],
+            "formAfter": {
+                "description": "Bogus",
+                "expiresInDays": 30,
+                "permissions": [
+                    "admin",
+                    "read"
+                ]
+            }
+        },
+        {
+            "name": "create: write:sensitive by the owner",
+            "mount": {
+                "canUseRootPermissions": true,
+                "canUseWritePermissions": true,
+                "canUseDeployPermissions": true,
+                "canUseSensitivePermissions": true,
+                "canUseDeletePermissions": true,
+                "canUseTeamScope": true,
+                "expirationOptions": {
+                    "7": "7 days",
+                    "30": "30 days",
+                    "60": "60 days",
+                    "90": "90 days",
+                    "365": "1 year"
+                },
+                "form": {
+                    "description": null,
+                    "expiresInDays": 30,
+                    "permissions": [
+                        "read"
+                    ],
+                    "scopeMode": "team"
+                }
+            },
+            "status": 200,
+            "errors": [],
+            "toasts": [],
+            "issued": {
+                "id": true,
+                "secretLength": 48,
+                "crc": true
+            },
+            "tokens": [
+                {
+                    "name": "Write secrets",
+                    "abilities": [
+                        "write:sensitive"
+                    ],
+                    "team_id": "1",
+                    "expires_at": "2026-01-31T00:00:00+00:00",
+                    "scopes": null
+                }
+            ],
+            "formAfter": {
+                "description": null,
+                "expiresInDays": 30,
+                "permissions": [
+                    "read"
+                ]
+            }
+        },
+        {
+            "name": "create: write:sensitive by an admin",
+            "mount": {
+                "canUseRootPermissions": true,
+                "canUseWritePermissions": true,
+                "canUseDeployPermissions": true,
+                "canUseSensitivePermissions": true,
+                "canUseDeletePermissions": true,
+                "canUseTeamScope": true,
+                "expirationOptions": {
+                    "7": "7 days",
+                    "30": "30 days",
+                    "60": "60 days",
+                    "90": "90 days",
+                    "365": "1 year"
+                },
+                "form": {
+                    "description": null,
+                    "expiresInDays": 30,
+                    "permissions": [
+                        "read"
+                    ],
+                    "scopeMode": "team"
+                }
+            },
+            "status": 200,
+            "errors": [],
+            "toasts": [],
+            "issued": {
+                "id": true,
+                "secretLength": 48,
+                "crc": true
+            },
+            "tokens": [
+                {
+                    "name": "Admin secrets",
+                    "abilities": [
+                        "read",
+                        "write:sensitive"
+                    ],
+                    "team_id": "1",
+                    "expires_at": "2026-01-31T00:00:00+00:00",
+                    "scopes": null
+                }
+            ],
+            "formAfter": {
+                "description": null,
+                "expiresInDays": 30,
+                "permissions": [
+                    "read"
+                ]
+            }
+        },
+        {
+            "name": "create: write:sensitive by a member",
+            "mount": {
+                "canUseRootPermissions": false,
+                "canUseWritePermissions": false,
+                "canUseDeployPermissions": false,
+                "canUseSensitivePermissions": false,
+                "canUseDeletePermissions": false,
+                "canUseTeamScope": true,
+                "expirationOptions": {
+                    "7": "7 days",
+                    "30": "30 days",
+                    "60": "60 days",
+                    "90": "90 days",
+                    "365": "1 year"
+                },
+                "form": {
+                    "description": null,
+                    "expiresInDays": 30,
+                    "permissions": [
+                        "read"
+                    ],
+                    "scopeMode": "team"
+                }
+            },
+            "status": 200,
+            "errors": [],
+            "toasts": [
+                [
+                    "error",
+                    "You do not have permission to give tokens write:sensitive permissions."
+                ]
+            ],
+            "issued": null,
+            "tokens": [],
+            "formAfter": {
+                "description": "Member secrets",
+                "expiresInDays": 30,
+                "permissions": [
+                    "write:sensitive"
+                ]
+            }
+        },
+        {
+            "name": "create: write by a member",
+            "mount": {
+                "canUseRootPermissions": false,
+                "canUseWritePermissions": false,
+                "canUseDeployPermissions": false,
+                "canUseSensitivePermissions": false,
+                "canUseDeletePermissions": false,
+                "canUseTeamScope": true,
+                "expirationOptions": {
+                    "7": "7 days",
+                    "30": "30 days",
+                    "60": "60 days",
+                    "90": "90 days",
+                    "365": "1 year"
+                },
+                "form": {
+                    "description": null,
+                    "expiresInDays": 30,
+                    "permissions": [
+                        "read"
+                    ],
+                    "scopeMode": "team"
+                }
+            },
+            "status": 200,
+            "errors": [],
+            "toasts": [
+                [
+                    "error",
+                    "A token cannot have more access than you have. Choose fewer permissions or narrower projects, environments, or resources."
+                ]
+            ],
+            "issued": null,
+            "tokens": [],
+            "formAfter": {
+                "description": "Member write",
+                "expiresInDays": 30,
+                "permissions": [
+                    "read",
+                    "write"
+                ]
+            }
+        },
+        {
+            "name": "create: read:sensitive by a member",
+            "mount": {
+                "canUseRootPermissions": false,
+                "canUseWritePermissions": false,
+                "canUseDeployPermissions": false,
+                "canUseSensitivePermissions": false,
+                "canUseDeletePermissions": false,
+                "canUseTeamScope": true,
+                "expirationOptions": {
+                    "7": "7 days",
+                    "30": "30 days",
+                    "60": "60 days",
+                    "90": "90 days",
+                    "365": "1 year"
+                },
+                "form": {
+                    "description": null,
+                    "expiresInDays": 30,
+                    "permissions": [
+                        "read"
+                    ],
+                    "scopeMode": "team"
+                }
+            },
+            "status": 200,
+            "errors": [],
+            "toasts": [
+                [
+                    "error",
+                    "A token cannot have more access than you have. Choose fewer permissions or narrower projects, environments, or resources."
+                ]
+            ],
+            "issued": null,
+            "tokens": [],
+            "formAfter": {
+                "description": "Member sensitive",
+                "expiresInDays": 30,
+                "permissions": [
+                    "read",
+                    "read:sensitive"
+                ]
+            }
+        },
+        {
+            "name": "create: read by a member",
+            "mount": {
+                "canUseRootPermissions": false,
+                "canUseWritePermissions": false,
+                "canUseDeployPermissions": false,
+                "canUseSensitivePermissions": false,
+                "canUseDeletePermissions": false,
+                "canUseTeamScope": true,
+                "expirationOptions": {
+                    "7": "7 days",
+                    "30": "30 days",
+                    "60": "60 days",
+                    "90": "90 days",
+                    "365": "1 year"
+                },
+                "form": {
+                    "description": null,
+                    "expiresInDays": 30,
+                    "permissions": [
+                        "read"
+                    ],
+                    "scopeMode": "team"
+                }
+            },
+            "status": 200,
+            "errors": [],
+            "toasts": [],
+            "issued": {
+                "id": true,
+                "secretLength": 48,
+                "crc": true
+            },
+            "tokens": [
+                {
+                    "name": "Member read",
+                    "abilities": [
+                        "read"
+                    ],
+                    "team_id": "1",
+                    "expires_at": "2026-01-31T00:00:00+00:00",
+                    "scopes": null
+                }
+            ],
+            "formAfter": {
+                "description": null,
+                "expiresInDays": 30,
+                "permissions": [
+                    "read"
+                ]
+            }
+        },
+        {
+            "name": "list: newest first, only the user's",
+            "mount": {
+                "canUseRootPermissions": true,
+                "canUseWritePermissions": true,
+                "canUseDeployPermissions": true,
+                "canUseSensitivePermissions": true,
+                "canUseDeletePermissions": true,
+                "canUseTeamScope": true,
+                "expirationOptions": {
+                    "7": "7 days",
+                    "30": "30 days",
+                    "60": "60 days",
+                    "90": "90 days",
+                    "365": "1 year"
+                },
+                "form": {
+                    "description": null,
+                    "expiresInDays": 30,
+                    "permissions": [
+                        "read"
+                    ],
+                    "scopeMode": "team"
+                }
+            },
+            "status": 200,
+            "errors": [],
+            "toasts": [],
+            "issued": null,
+            "tokens": [
+                {
+                    "name": "First",
+                    "abilities": [
+                        "read"
+                    ],
+                    "team_id": "1",
+                    "expires_at": null,
+                    "scopes": null
+                },
+                {
+                    "name": "Second",
+                    "abilities": [
+                        "root"
+                    ],
+                    "team_id": "1",
+                    "expires_at": null,
+                    "scopes": null
+                }
+            ],
+            "formAfter": {
+                "description": null,
+                "expiresInDays": 30,
+                "permissions": [
+                    "read"
+                ]
+            }
+        },
+        {
+            "name": "revoke: own token",
+            "mount": {
+                "canUseRootPermissions": true,
+                "canUseWritePermissions": true,
+                "canUseDeployPermissions": true,
+                "canUseSensitivePermissions": true,
+                "canUseDeletePermissions": true,
+                "canUseTeamScope": true,
+                "expirationOptions": {
+                    "7": "7 days",
+                    "30": "30 days",
+                    "60": "60 days",
+                    "90": "90 days",
+                    "365": "1 year"
+                },
+                "form": {
+                    "description": null,
+                    "expiresInDays": 30,
+                    "permissions": [
+                        "read"
+                    ],
+                    "scopeMode": "team"
+                }
+            },
+            "status": 200,
+            "errors": [],
+            "toasts": [],
+            "issued": null,
+            "tokens": [],
+            "formAfter": {
+                "description": null,
+                "expiresInDays": 30,
+                "permissions": [
+                    "read"
+                ]
+            }
+        },
+        {
+            "name": "revoke: another user's token",
+            "mount": {
+                "canUseRootPermissions": true,
+                "canUseWritePermissions": true,
+                "canUseDeployPermissions": true,
+                "canUseSensitivePermissions": true,
+                "canUseDeletePermissions": true,
+                "canUseTeamScope": true,
+                "expirationOptions": {
+                    "7": "7 days",
+                    "30": "30 days",
+                    "60": "60 days",
+                    "90": "90 days",
+                    "365": "1 year"
+                },
+                "form": {
+                    "description": null,
+                    "expiresInDays": 30,
+                    "permissions": [
+                        "read"
+                    ],
+                    "scopeMode": "team"
+                }
+            },
+            "status": 200,
+            "errors": [],
+            "toasts": [],
+            "issued": null,
+            "tokens": [],
+            "formAfter": {
+                "description": null,
+                "expiresInDays": null,
+                "permissions": null
+            }
+        }
+    ]
+}

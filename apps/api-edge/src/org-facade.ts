@@ -38,6 +38,9 @@ function teamRouteMethods(pathname: string): readonly string[] | null {
   for (const [re, methods] of TEAM_ROUTES) if (re.test(pathname)) return methods;
   return null;
 }
+/** Keys & Tokens → API Tokens (DP-70): Coolify's tokens, kept by identity-worker. */
+const ORG_API_TOKENS_RE = /^\/v1\/organizations\/[^/]+\/api-tokens(?:\/[^/]+)?$/;
+const ORG_API_TOKENS_COLLECTION_RE = /^\/v1\/organizations\/[^/]+\/api-tokens$/;
 
 const FORWARDED_HEADERS = [
   "content-type",
@@ -47,7 +50,7 @@ const FORWARDED_HEADERS = [
 ];
 
 export function isOrgRoute(pathname: string): boolean {
-  return pathname in ORG_ROUTES || teamRouteMethods(pathname) !== null || ORG_ID_RE.test(pathname) || ORG_MEMBERS_RE.test(pathname) || ORG_MEMBER_ID_RE.test(pathname) || ORG_INVITATIONS_ACCEPT_RE.test(pathname) || ORG_INVITATIONS_RE.test(pathname) || ORG_INVITATION_ID_RE.test(pathname) || ORG_API_KEYS_RE.test(pathname) || ORG_API_KEY_ID_RE.test(pathname);
+  return pathname in ORG_ROUTES || teamRouteMethods(pathname) !== null || ORG_ID_RE.test(pathname) || ORG_MEMBERS_RE.test(pathname) || ORG_MEMBER_ID_RE.test(pathname) || ORG_INVITATIONS_ACCEPT_RE.test(pathname) || ORG_INVITATIONS_RE.test(pathname) || ORG_INVITATION_ID_RE.test(pathname) || ORG_API_KEYS_RE.test(pathname) || ORG_API_KEY_ID_RE.test(pathname) || ORG_API_TOKENS_RE.test(pathname);
 }
 
 export async function handleOrgRoute(
@@ -91,6 +94,10 @@ export async function handleOrgRoute(
   }
 
   if (ORG_API_KEY_ID_RE.test(pathname) && request.method !== "DELETE") {
+    return errorResponse("unsupported", "Method not allowed", 405, requestId);
+  }
+
+  if (ORG_API_TOKENS_RE.test(pathname) && !(ORG_API_TOKENS_COLLECTION_RE.test(pathname) ? ["GET", "POST"] : ["DELETE"]).includes(request.method)) {
     return errorResponse("unsupported", "Method not allowed", 405, requestId);
   }
 
@@ -139,7 +146,7 @@ export async function handleOrgRoute(
     }
 
     const url = new URL(request.url);
-    const isApiKeyRoute = ORG_API_KEYS_RE.test(pathname) || ORG_API_KEY_ID_RE.test(pathname);
+    const isApiKeyRoute = ORG_API_KEYS_RE.test(pathname) || ORG_API_KEY_ID_RE.test(pathname) || ORG_API_TOKENS_RE.test(pathname);
     const targetWorker = isApiKeyRoute ? env.IDENTITY_WORKER! : env.MEMBERSHIP_WORKER!;
     const targetHost = isApiKeyRoute ? "https://identity.internal" : "https://membership.internal";
     const target = new URL(pathname + url.search, targetHost);

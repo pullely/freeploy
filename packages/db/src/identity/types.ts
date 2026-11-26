@@ -159,6 +159,8 @@ export interface ApiKey {
   createdBy: string;
   createdAt: Date;
   updatedAt: Date;
+  /** Coolify API token abilities (migration 720); null or absent for a key that is not an API token. */
+  abilities?: string[] | null;
 }
 
 export interface CreateApiKeyInput {

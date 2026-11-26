@@ -118,6 +118,7 @@ function mapApiKey(row: Record<string, unknown>): ApiKey {
     createdBy: row.created_by as string,
     createdAt: new Date(row.created_at as string),
     updatedAt: new Date(row.updated_at as string),
+    ...(row.abilities !== undefined && { abilities: (row.abilities as string[] | null) ?? null }),
   };
 }
 
@@ -561,7 +562,7 @@ export function createIdentityRepository(executor: SqlExecutor): IdentityReposit
     async getApiKeyByKeyHash(keyHash: string): Promise<IdentityResult<ApiKey>> {
       try {
         const result = await executor.execute<Record<string, unknown>>(
-          `SELECT id, service_principal_id, org_id, key_prefix, label, status, expires_at, last_used_at, revoked_at, revoked_by, created_by, created_at, updated_at
+          `SELECT id, service_principal_id, org_id, key_prefix, label, status, expires_at, last_used_at, revoked_at, revoked_by, created_by, created_at, updated_at, abilities
            FROM identity.api_keys WHERE key_hash = $1 AND status = 'active'`,
           [keyHash],
         );

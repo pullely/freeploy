@@ -43,6 +43,8 @@ import { handleOAuthProviders } from "./handlers/oauth-providers.js";
 import { handleOAuthStart } from "./handlers/oauth-start.js";
 import { handleOAuthCallback } from "./handlers/oauth-callback.js";
 import { handleCreateApiKey, handleListApiKeys, handleRevokeApiKey } from "./handlers/api-key-admin.js";
+import { API_TOKEN_RESOLVE_PATH, ORG_API_TOKENS_RE, handleApiTokens, handleResolveApiToken } from "./handlers/api-tokens.js";
+import { API_V1_TEAMS_RE, handleApiV1Teams } from "./handlers/api-v1-teams.js";
 import { errorResponse, notFound, methodNotAllowed } from "./http.js";
 
 const ORG_API_KEYS_RE = /^\/v1\/organizations\/[^/]+\/api-keys$/;
@@ -237,6 +239,11 @@ export async function route(request: Request, env: Env): Promise<Response> {
       if (request.method !== "GET") return methodNotAllowed(requestId);
       return handleOAuthCallback(request, env, requestId);
     }
+
+    // API tokens (DP9): Keys & Tokens → API Tokens, and the token behind /api/v1 (api-edge only).
+    if (ORG_API_TOKENS_RE.test(url.pathname)) return handleApiTokens(request, env, requestId);
+    if (url.pathname === API_TOKEN_RESOLVE_PATH) return handleResolveApiToken(request, env, requestId);
+    if (API_V1_TEAMS_RE.test(url.pathname)) return handleApiV1Teams(request, env, requestId);
 
     // API-key admin routes (forwarded from api-edge)
     if (ORG_API_KEYS_RE.test(url.pathname)) {

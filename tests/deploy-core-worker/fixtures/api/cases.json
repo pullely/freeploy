@@ -1,0 +1,1182 @@
+{
+ "fixture": {
+  "teams": [
+   {
+    "id": 1,
+    "name": "Parity Team",
+    "description": null,
+    "personal_team": false
+   },
+   {
+    "id": 2,
+    "name": "Other Team",
+    "description": "Not yours",
+    "personal_team": false
+   }
+  ],
+  "users": [
+   {
+    "id": 1,
+    "name": "Parity Owner",
+    "email": "owner@example.com",
+    "teams": [
+     {
+      "team": 1,
+      "role": "owner"
+     }
+    ]
+   },
+   {
+    "id": 2,
+    "name": "Parity Member",
+    "email": "member@example.com",
+    "teams": [
+     {
+      "team": 1,
+      "role": "member"
+     }
+    ]
+   },
+   {
+    "id": 3,
+    "name": "Other Owner",
+    "email": "other@example.com",
+    "teams": [
+     {
+      "team": 2,
+      "role": "owner"
+     }
+    ]
+   },
+   {
+    "id": 4,
+    "name": "Parity Admin",
+    "email": "admin@example.com",
+    "teams": [
+     {
+      "team": 1,
+      "role": "admin"
+     }
+    ]
+   }
+  ],
+  "projects": [
+   {
+    "id": 1,
+    "uuid": "p1alphaprojectuuid000001",
+    "name": "Alpha",
+    "description": "The first project",
+    "team": 1,
+    "environments": [
+     {
+      "id": 1,
+      "uuid": "e1alphaproduction0000001",
+      "name": "production",
+      "description": null
+     },
+     {
+      "id": 2,
+      "uuid": "e2alphastaging0000000002",
+      "name": "staging",
+      "description": "Before production"
+     }
+    ]
+   },
+   {
+    "id": 2,
+    "uuid": "p2betaprojectuuid0000002",
+    "name": "Beta",
+    "description": null,
+    "team": 1,
+    "environments": [
+     {
+      "id": 3,
+      "uuid": "e3betaproduction00000003",
+      "name": "production",
+      "description": null
+     }
+    ]
+   },
+   {
+    "id": 3,
+    "uuid": "p3otherprojectuuid000003",
+    "name": "Other",
+    "description": null,
+    "team": 2,
+    "environments": [
+     {
+      "id": 4,
+      "uuid": "e4otherproduction0000004",
+      "name": "production",
+      "description": null
+     }
+    ]
+   }
+  ],
+  "privateKeys": [
+   {
+    "id": 1,
+    "uuid": "k1parityprivatekey000001",
+    "name": "Parity Key",
+    "description": "The fixture's key",
+    "file": "../ssh-keys/ed25519.openssh",
+    "team": 1
+   },
+   {
+    "id": 2,
+    "uuid": "k2unusedprivatekey000002",
+    "name": "Unused Key",
+    "description": null,
+    "file": "../ssh-keys/ecdsa256.openssh",
+    "team": 1
+   },
+   {
+    "id": 3,
+    "uuid": "k3otherteamkey0000000003",
+    "name": "Other Key",
+    "description": null,
+    "file": "../ssh-keys/rsa2048.openssh",
+    "team": 2
+   }
+  ],
+  "servers": [
+   {
+    "id": 1,
+    "uuid": "s1parityserveruuid000001",
+    "name": "parity-server",
+    "description": "The fixture server",
+    "ip": "203.0.113.10",
+    "user": "root",
+    "port": 22,
+    "team": 1,
+    "private_key_id": 1
+   }
+  ],
+  "tokens": [
+   {
+    "key": "root",
+    "id": 1,
+    "user": 1,
+    "team": 1,
+    "name": "Root token",
+    "abilities": [
+     "root"
+    ],
+    "secret": "rootrootrootrootrootrootrootrootrootroot5a1b2c3d"
+   },
+   {
+    "key": "read",
+    "id": 2,
+    "user": 1,
+    "team": 1,
+    "name": "Read token",
+    "abilities": [
+     "read"
+    ],
+    "secret": "readreadreadreadreadreadreadreadreadread0a1b2c3d"
+   },
+   {
+    "key": "sensitive",
+    "id": 3,
+    "user": 1,
+    "team": 1,
+    "name": "Sensitive token",
+    "abilities": [
+     "read",
+     "read:sensitive"
+    ],
+    "secret": "senssenssenssenssenssenssenssenssenssens1a1b2c3d"
+   },
+   {
+    "key": "write",
+    "id": 4,
+    "user": 1,
+    "team": 1,
+    "name": "Write token",
+    "abilities": [
+     "read",
+     "write"
+    ],
+    "secret": "writwritwritwritwritwritwritwritwritwrit2a1b2c3d"
+   },
+   {
+    "key": "writeOnly",
+    "id": 5,
+    "user": 1,
+    "team": 1,
+    "name": "Write only",
+    "abilities": [
+     "write"
+    ],
+    "secret": "wonlwonlwonlwonlwonlwonlwonlwonlwonlwonl3a1b2c3d"
+   },
+   {
+    "key": "delete",
+    "id": 6,
+    "user": 1,
+    "team": 1,
+    "name": "Delete token",
+    "abilities": [
+     "read",
+     "delete"
+    ],
+    "secret": "deledeledeledeledeledeledeledeledeledele4a1b2c3d"
+   },
+   {
+    "key": "expired",
+    "id": 7,
+    "user": 1,
+    "team": 1,
+    "name": "Expired token",
+    "abilities": [
+     "root"
+    ],
+    "secret": "expiexpiexpiexpiexpiexpiexpiexpiexpiexpi5a1b2c3d",
+    "expires_at": "2025-12-31 00:00:00"
+   },
+   {
+    "key": "memberRead",
+    "id": 8,
+    "user": 2,
+    "team": 1,
+    "name": "Member read",
+    "abilities": [
+     "read"
+    ],
+    "secret": "mreamreamreamreamreamreamreamreamreamrea6a1b2c3d"
+   },
+   {
+    "key": "memberWrite",
+    "id": 9,
+    "user": 2,
+    "team": 1,
+    "name": "Member write",
+    "abilities": [
+     "read",
+     "write"
+    ],
+    "secret": "mwrimwrimwrimwrimwrimwrimwrimwrimwrimwri7a1b2c3d"
+   },
+   {
+    "key": "notMember",
+    "id": 10,
+    "user": 1,
+    "team": 2,
+    "name": "Not a member",
+    "abilities": [
+     "root"
+    ],
+    "secret": "nmemnmemnmemnmemnmemnmemnmemnmemnmemnmem8a1b2c3d"
+   },
+   {
+    "key": "memberSensitive",
+    "id": 11,
+    "user": 2,
+    "team": 1,
+    "name": "Member sensitive",
+    "abilities": [
+     "read",
+     "read:sensitive"
+    ],
+    "secret": "msenmsenmsenmsenmsenmsenmsenmsenmsenmsen9a1b2c3d"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "name": "auth: no token",
+   "method": "GET",
+   "path": "/api/v1/projects"
+  },
+  {
+   "name": "auth: unknown token",
+   "method": "GET",
+   "path": "/api/v1/projects",
+   "authorization": "Bearer 99|nopenopenopenopenopenopenopenopenopenope00000000"
+  },
+  {
+   "name": "auth: secret without id",
+   "method": "GET",
+   "path": "/api/v1/projects",
+   "authorization": "Bearer rootrootrootrootrootrootrootrootrootroot5a1b2c3d"
+  },
+  {
+   "name": "auth: not a bearer",
+   "method": "GET",
+   "path": "/api/v1/projects",
+   "authorization": "Basic dXNlcjpwYXNz"
+  },
+  {
+   "name": "auth: expired",
+   "token": "expired",
+   "method": "GET",
+   "path": "/api/v1/projects"
+  },
+  {
+   "name": "auth: team the user left",
+   "token": "notMember",
+   "method": "GET",
+   "path": "/api/v1/projects"
+  },
+  {
+   "name": "ability: read token writes",
+   "token": "read",
+   "method": "POST",
+   "path": "/api/v1/projects",
+   "body": {
+    "name": "Gamma"
+   }
+  },
+  {
+   "name": "ability: write-only token reads",
+   "token": "writeOnly",
+   "method": "GET",
+   "path": "/api/v1/projects"
+  },
+  {
+   "name": "ability: write token deletes",
+   "token": "write",
+   "method": "DELETE",
+   "path": "/api/v1/projects/p2betaprojectuuid0000002"
+  },
+  {
+   "name": "ability: member token beyond the member's access",
+   "token": "memberWrite",
+   "method": "GET",
+   "path": "/api/v1/projects"
+  },
+  {
+   "name": "ability: member read token",
+   "token": "memberRead",
+   "method": "GET",
+   "path": "/api/v1/projects"
+  },
+  {
+   "name": "allowed: API disabled",
+   "token": "root",
+   "method": "GET",
+   "path": "/api/v1/projects",
+   "instance": {
+    "is_api_enabled": false
+   }
+  },
+  {
+   "name": "allowed: IP not in the allow list",
+   "token": "root",
+   "method": "GET",
+   "path": "/api/v1/projects",
+   "instance": {
+    "allowed_ips": "198.51.100.0/24,192.0.2.7"
+   }
+  },
+  {
+   "name": "allowed: IP in a CIDR of the allow list",
+   "token": "root",
+   "method": "GET",
+   "path": "/api/v1/projects",
+   "ip": "198.51.100.23",
+   "instance": {
+    "allowed_ips": "198.51.100.0/24, 192.0.2.7"
+   }
+  },
+  {
+   "name": "allowed: IP exact in the allow list",
+   "token": "root",
+   "method": "GET",
+   "path": "/api/v1/projects",
+   "ip": "192.0.2.7",
+   "instance": {
+    "allowed_ips": "198.51.100.0/24,192.0.2.7"
+   }
+  },
+  {
+   "name": "allowed: allow list 0.0.0.0",
+   "token": "root",
+   "method": "GET",
+   "path": "/api/v1/projects",
+   "instance": {
+    "allowed_ips": "0.0.0.0"
+   }
+  },
+  {
+   "name": "route: unknown, with a token",
+   "token": "root",
+   "method": "GET",
+   "path": "/api/v1/nonexistent"
+  },
+  {
+   "name": "route: unknown, without a token",
+   "method": "GET",
+   "path": "/api/v1/nonexistent"
+  },
+  {
+   "name": "route: wrong method",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/projects"
+  },
+  {
+   "name": "health",
+   "method": "GET",
+   "path": "/api/v1/health"
+  },
+  {
+   "name": "health: unversioned",
+   "method": "GET",
+   "path": "/api/health"
+  },
+  {
+   "name": "version",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/version"
+  },
+  {
+   "name": "rate limit: API_RATE_LIMIT reached",
+   "config": {
+    "rate_limit": 3
+   },
+   "sequence": [
+    {
+     "token": "read",
+     "method": "GET",
+     "path": "/api/v1/version"
+    },
+    {
+     "token": "read",
+     "method": "GET",
+     "path": "/api/v1/projects"
+    },
+    {
+     "token": "root",
+     "method": "GET",
+     "path": "/api/v1/version"
+    },
+    {
+     "token": "read",
+     "method": "GET",
+     "path": "/api/v1/version"
+    },
+    {
+     "method": "GET",
+     "path": "/api/v1/version",
+     "ip": "203.0.113.51"
+    },
+    {
+     "advance": 61,
+     "token": "read",
+     "method": "GET",
+     "path": "/api/v1/version"
+    }
+   ]
+  },
+  {
+   "name": "failed requests: blocked after the limit",
+   "config": {
+    "failed_request_rate_limit": 3
+   },
+   "sequence": [
+    {
+     "method": "GET",
+     "path": "/api/v1/projects"
+    },
+    {
+     "method": "GET",
+     "path": "/api/v1/projects"
+    },
+    {
+     "method": "GET",
+     "path": "/api/v1/projects"
+    },
+    {
+     "method": "GET",
+     "path": "/api/v1/projects"
+    },
+    {
+     "token": "root",
+     "method": "GET",
+     "path": "/api/v1/version"
+    },
+    {
+     "method": "GET",
+     "path": "/api/v1/health"
+    },
+    {
+     "advance": 61,
+     "method": "GET",
+     "path": "/api/v1/version"
+    },
+    {
+     "method": "GET",
+     "path": "/api/v1/version"
+    },
+    {
+     "method": "GET",
+     "path": "/api/v1/version"
+    },
+    {
+     "method": "GET",
+     "path": "/api/v1/version"
+    },
+    {
+     "advance": 301,
+     "token": "read",
+     "method": "GET",
+     "path": "/api/v1/version"
+    }
+   ]
+  },
+  {
+   "name": "failed requests: per token, and a 404 with a token does not count",
+   "config": {
+    "failed_request_rate_limit": 2
+   },
+   "sequence": [
+    {
+     "token": "read",
+     "method": "POST",
+     "path": "/api/v1/projects",
+     "body": {
+      "name": "Gamma"
+     }
+    },
+    {
+     "token": "read",
+     "method": "GET",
+     "path": "/api/v1/nonexistent"
+    },
+    {
+     "token": "read",
+     "method": "GET",
+     "path": "/api/v1/projects/nonexistentuuid"
+    },
+    {
+     "token": "read",
+     "method": "POST",
+     "path": "/api/v1/projects",
+     "body": {
+      "name": "Gamma"
+     }
+    },
+    {
+     "token": "read",
+     "method": "GET",
+     "path": "/api/v1/version"
+    },
+    {
+     "token": "root",
+     "method": "GET",
+     "path": "/api/v1/version"
+    },
+    {
+     "method": "GET",
+     "path": "/api/v1/nonexistent"
+    }
+   ]
+  },
+  {
+   "name": "teams: current team",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/team"
+  },
+  {
+   "name": "teams: current team (deprecated alias)",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/teams/current"
+  },
+  {
+   "name": "teams: teams",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/teams"
+  },
+  {
+   "name": "teams: team by id",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/teams/1"
+  },
+  {
+   "name": "teams: another team by id",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/teams/2"
+  },
+  {
+   "name": "teams: members",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/team/members"
+  },
+  {
+   "name": "teams: members (deprecated alias)",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/teams/current/members"
+  },
+  {
+   "name": "teams: members by id",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/teams/1/members"
+  },
+  {
+   "name": "teams: members of another team",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/teams/2/members"
+  },
+  {
+   "name": "projects: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/projects"
+  },
+  {
+   "name": "projects: show",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001"
+  },
+  {
+   "name": "projects: show another team's",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/projects/p3otherprojectuuid000003"
+  },
+  {
+   "name": "projects: environments",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments"
+  },
+  {
+   "name": "projects: environments of an unknown project",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/projects/nonexistentuuid/environments"
+  },
+  {
+   "name": "projects: create",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/projects",
+   "body": {
+    "name": "Gamma",
+    "description": "Made by the API"
+   },
+   "after": {
+    "projects": "select name, description, team_id from projects where name = 'Gamma'",
+    "environments": "select e.name from environments e join projects p on p.id = e.project_id where p.name = 'Gamma'"
+   }
+  },
+  {
+   "name": "projects: create without a description",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/projects",
+   "body": {
+    "name": "Gamma"
+   },
+   "after": {
+    "projects": "select name, description from projects where name = 'Gamma'"
+   }
+  },
+  {
+   "name": "projects: create, trimmed",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/projects",
+   "body": {
+    "name": "  Spaced  ",
+    "description": ""
+   },
+   "after": {
+    "projects": "select name, description from projects where name like '%Spaced%'"
+   }
+  },
+  {
+   "name": "projects: create, name not a string",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/projects",
+   "body": {
+    "name": 12345,
+    "description": [
+     "x"
+    ]
+   }
+  },
+  {
+   "name": "projects: create, invalid",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/projects",
+   "body": {
+    "name": "x",
+    "description": "<b>",
+    "extra": 1
+   }
+  },
+  {
+   "name": "projects: create, no name",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/projects",
+   "body": {
+    "description": "No name"
+   }
+  },
+  {
+   "name": "projects: create, not JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/projects",
+   "raw": "name=Gamma",
+   "contentType": "application/x-www-form-urlencoded"
+  },
+  {
+   "name": "projects: create, invalid JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/projects",
+   "raw": "{name"
+  },
+  {
+   "name": "projects: create, empty JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/projects",
+   "raw": "{}"
+  },
+  {
+   "name": "projects: update",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/projects/p2betaprojectuuid0000002",
+   "body": {
+    "name": "Beta 2"
+   },
+   "after": {
+    "projects": "select name, description from projects where uuid = 'p2betaprojectuuid0000002'"
+   }
+  },
+  {
+   "name": "projects: update the description only",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001",
+   "body": {
+    "description": "Changed"
+   }
+  },
+  {
+   "name": "projects: update, invalid",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001",
+   "body": {
+    "name": "ab",
+    "team_id": 2
+   }
+  },
+  {
+   "name": "projects: update another team's",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/projects/p3otherprojectuuid000003",
+   "body": {
+    "name": "Mine"
+   }
+  },
+  {
+   "name": "projects: delete with resources (environments)",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/projects/p2betaprojectuuid0000002",
+   "after": {
+    "projects": "select count(*) as n from projects where uuid = 'p2betaprojectuuid0000002'"
+   }
+  },
+  {
+   "name": "projects: delete unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/projects/nonexistentuuid"
+  },
+  {
+   "name": "environments: create",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments",
+   "body": {
+    "name": "preview"
+   },
+   "after": {
+    "environments": "select name, description from environments where project_id = 1 order by id"
+   }
+  },
+  {
+   "name": "environments: create, mixed case",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments",
+   "body": {
+    "name": "  Preview Env  "
+   },
+   "after": {
+    "environments": "select name from environments where project_id = 1 order by id"
+   }
+  },
+  {
+   "name": "environments: create, extra field",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments",
+   "body": {
+    "name": "preview",
+    "uuid": "x"
+   }
+  },
+  {
+   "name": "environments: create, existing name",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments",
+   "body": {
+    "name": "staging"
+   }
+  },
+  {
+   "name": "environments: create, invalid",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments",
+   "body": {
+    "name": "!",
+    "description": "x"
+   }
+  },
+  {
+   "name": "environments: create in an unknown project",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/projects/nonexistentuuid/environments",
+   "body": {
+    "name": "preview"
+   }
+  },
+  {
+   "name": "environments: update by name",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/staging",
+   "body": {
+    "name": "qa-env",
+    "description": "Renamed"
+   }
+  },
+  {
+   "name": "environments: update by uuid",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/e2alphastaging0000000002",
+   "body": {
+    "description": "Only the description"
+   }
+  },
+  {
+   "name": "environments: update to an existing name",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/staging",
+   "body": {
+    "name": "production"
+   }
+  },
+  {
+   "name": "environments: update unknown",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/nope",
+   "body": {
+    "name": "qa-env"
+   }
+  },
+  {
+   "name": "environments: delete",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/staging",
+   "after": {
+    "environments": "select name from environments where project_id = 1 order by id"
+   }
+  },
+  {
+   "name": "environments: delete unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/nope"
+  },
+  {
+   "name": "keys: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/security/keys"
+  },
+  {
+   "name": "keys: list, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/security/keys"
+  },
+  {
+   "name": "keys: list, member with read:sensitive",
+   "token": "memberSensitive",
+   "method": "GET",
+   "path": "/api/v1/security/keys"
+  },
+  {
+   "name": "keys: show",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/security/keys/k1parityprivatekey000001"
+  },
+  {
+   "name": "keys: show, root",
+   "token": "root",
+   "method": "GET",
+   "path": "/api/v1/security/keys/k1parityprivatekey000001"
+  },
+  {
+   "name": "keys: show another team's",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/security/keys/k3otherteamkey0000000003"
+  },
+  {
+   "name": "keys: create",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/keys",
+   "body": {
+    "name": "API key",
+    "description": "From the API",
+    "private_key": "-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEAniur7wFaNxF3kBDzQtd+MFVaxZfNMrin8XSMeCaLrFbjOwPW\nqr71ZyZ+Te1WGUHmxHEjy6bGf2ABtOJ3H56SYF7vDSDzR2sv8sYpqp6scJISM8il\niydpKDg197+3KooMuQHZppKe5UpoDgC2wQGODFGyZrAau8OrXMK3F0BLUNjZ9pYm\n9RZN9OG/D7KKPi/RpDr9EdYk7rsWOhpmafxJNYwFeseKJ2q3CtmyMlu1GvDohrIM\nV43J5WvDUGjvrPl47xOg3QlInkQVDg8zEGCGHO+HJR5ZwItmljOp7GQ2PNaBCMnY\nV0QNCjHw0bNTO1bpFbWWkjKKL3nzI9hQP7fcMQIDAQABAoIBAFQz+ZcGSEmysczv\nSSGXaOVAO0+frazH4xhGrJU2J/s6UkPTmk9R04DzXCAOLlzJ2ZlQhfbftSKQMLhk\nK3iYyWImh+qcVQb7SA5dckcTq8dN7ATHV2HKPFAeBJT86fzqezVuh7kGqzJztwtl\nU+VR95YVU/0Y2VKGK075ldD5+F50DMfYNJHCl1SSNrLkzjOR3z8LmjCBme7Kx2TS\nz/1rdkWVlwm69lrQqnpyfK2jyh+FYZfDZklN5PpKEOCm46+wZog1xa66VwsYHppP\nWekLiqWk1kLtDM4J5t12AjPHmKJ7B9iCQ/MJoY6TKGSzdZP1PR35OODToJSqvtZn\nCifebkECgYEA0MW9lwunR74CjqLkWDgR6PEsEg3YaFGj/SOySrRXeWTNxlJmTVJs\n2tMi+KFRzFn7yQJEc4CMLg7tHEAzbWLvIWDw/BOCbQGffrdy5arlXUSGZRbnFZuv\nnRCLYKOx5Rg2WuFa7PCVtDQVepzigSGkU5dy6S5SHqs+YRkyveIdyhkCgYEAwfOE\nzQiwxKMtcTUf1vZKB/NhYhLwdby/Hoyxo6aXVb9aqgbiRnfEkQHA7jSLne4uuNtC\nxHEZ2ZbimKHl3VgTlfElZWT3JWrMNlhi9w1vN11xwV7LbZfa2UQNntHFWtmfoCxz\ni9HixP2NeZrJbCJ3oivDBuSvCQW5Nw/ooCVvldkCgYEAiyyXQ98v5+KiP8YVZT4T\nqm9ECtESCBEMuk8Wpzhr6/AoQWJi8n7VNFd2Q7r/FbSS5iBN05XJXVbz+FZQMka2\n1VCTteenldV0JvxSawqvFqr80N0gtcXwn0sNLyJREEFA0vrSK4wCsHvcKb32PVFZ\nA6S9pPcNJYbQ8dfjfLQFWdkCgYAQiwrqyjD5tMltfJCIr11FLFdEHEVyZXUP0ARe\n5xjFcZr0Ib4vMIwNqk6ggs7d27EUh288fkEsNBiD2FtY8+hHw9fivCfwgxmEESnv\n1K+F02yeh81mPaunGIzo3Q+uXh2ldeUtKevjzZTBqJhBpvb5WC48akkbxec0cSDw\neAD6kQKBgQCpsssPgkBfHJ1becoRgrf7ypSfJB/+d+vkhYyjzUUb7A0X0nWSm9xk\nbuWFO16TtVdwxRKfAzVI8PlEavJxpQjBvuG3LFOqv2JnmFSwcCNfCxbraOLhLx4n\nGqm762dBBQHHe4fO3EfYQzyTjl6QD0bpT+7NnscE3HK9wrC+DQrwbg==\n-----END RSA PRIVATE KEY-----\n"
+   }
+  },
+  {
+   "name": "keys: create base64",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/keys",
+   "body": {
+    "private_key": "LS0tLS1CRUdJTiBPUEVOU1NIIFBSSVZBVEUgS0VZLS0tLS0KYjNCbGJuTnphQzFyWlhrdGRqRUFBQUFBQkc1dmJtVUFBQUFFYm05dVpRQUFBQUFBQUFBQkFBQUFpQUFBQUJObFkyUnpZUwoxemFHRXlMVzVwYzNSd016ZzBBQUFBQ0c1cGMzUndNemcwQUFBQVlRU240SG9lMGxlT244Z1ZIZFNGMVdTOG42c0tCaERrCk11V0x4VUhkVlpucXdraHNETXMzdU5MVEhTR0JGV2xoQlVEUVFVT0FlVlJodGQ4QUpJQ2I5ZHBxd1pDdjNwa0lpYUpsOVAKUmVmMzFRYWg5eGI5Unl5azJwajJVaS9OMGgreTRBQUFEUXZnbGJWcjRKVzFZQUFBQVRaV05rYzJFdGMyaGhNaTF1YVhOMApjRE00TkFBQUFBaHVhWE4wY0RNNE5BQUFBR0VFcCtCNkh0SlhqcC9JRlIzVWhkVmt2SityQ2dZUTVETGxpOFZCM1ZXWjZzCkpJYkF6TE43alMweDBoZ1JWcFlRVkEwRUZEZ0hsVVliWGZBQ1NBbS9YYWFzR1FyOTZaQ0ltaVpmVDBYbjk5VUdvZmNXL1UKY3NwTnFZOWxJdnpkSWZzdUFBQUFNUUN6NlZ1TTdGUUNWL1l5YnJ5NWczK01qaS9pK1FqRzNqc3haWWJWZVZicVQwU3c2UwpPMmtLL0p3UDg3WjI0Q0Jrb0FBQUFIWm1sNGRIVnlaUT09Ci0tLS0tRU5EIE9QRU5TU0ggUFJJVkFURSBLRVktLS0tLQo="
+   }
+  },
+  {
+   "name": "keys: create, no name or description",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/keys",
+   "body": {
+    "private_key": "-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEIEqq74BbXo0YzgToRJZxPiO7Rh2jOGcYg+yvE3bG7bWY\n-----END PRIVATE KEY-----\n"
+   }
+  },
+  {
+   "name": "keys: create, existing key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/keys",
+   "body": {
+    "name": "Again",
+    "private_key": "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW\nQyNTUxOQAAACCu2IHwr/v2Aovg7XgW65IWwEvtWWGCoJIaPnrOqLnEtgAAAJDhBu1M4Qbt\nTAAAAAtzc2gtZWQyNTUxOQAAACCu2IHwr/v2Aovg7XgW65IWwEvtWWGCoJIaPnrOqLnEtg\nAAAEAesxy2Twnr9Rg9mQwoKxaqx7xKjx9MThlgINk+VF/fhq7YgfCv+/YCi+DteBbrkhbA\nS+1ZYYKgkho+es6oucS2AAAAB2ZpeHR1cmUBAgMEBQY=\n-----END OPENSSH PRIVATE KEY-----\n"
+   }
+  },
+  {
+   "name": "keys: create, not a key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/keys",
+   "body": {
+    "name": "Bad key",
+    "private_key": "not a key"
+   }
+  },
+  {
+   "name": "keys: create, encrypted key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/keys",
+   "body": {
+    "name": "Encrypted",
+    "private_key": "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAACmFlczI1Ni1jdHIAAAAGYmNyeXB0AAAAGAAAABDwHaGjZo\n4XYDTxSLV7H/zsAAAAGAAAAAEAAAAzAAAAC3NzaC1lZDI1NTE5AAAAIPwW81wA92hISGu/\niZZvZ2oSkAIPIghWaQ8BNmz7p8tjAAAAkHZ6h1GkWN7eO6rkA+7CJgOIwLSsP1QJOrFE2q\njaB+dWHSlZcFeg9LRopWBlYCwUlafILp2jgXdWcwdeKcEYAISg449jAdQrI93uUVKSQ3qs\nCrBbV4/LcG8J5hWSuiI9j1AwqAvyK7vUgnCvqLFqOWtwR9MczG5ELGzIdzw65V9wtH4EDx\nX9UyQqXN+Z4ITMlA==\n-----END OPENSSH PRIVATE KEY-----\n"
+   }
+  },
+  {
+   "name": "keys: create, invalid",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/security/keys",
+   "body": {
+    "name": "a",
+    "description": "<x>",
+    "extra": true
+   }
+  },
+  {
+   "name": "keys: update",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/keys/k2unusedprivatekey000002",
+   "body": {
+    "name": "Renamed Key",
+    "description": "Now described"
+   }
+  },
+  {
+   "name": "keys: update, invalid",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/keys/k2unusedprivatekey000002",
+   "body": {
+    "name": "",
+    "fingerprint": "x"
+   }
+  },
+  {
+   "name": "keys: update, replace the key",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/keys/k2unusedprivatekey000002",
+   "body": {
+    "private_key": "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAArAAAABNlY2RzYS\n1zaGEyLW5pc3RwNTIxAAAACG5pc3RwNTIxAAAAhQQBZmgHHMigqOdTAmGCmpI7NK4k6SiT\nE2z4QL8zz2GBSBTUP+U8fefdvi9C0e0WWrnNVzf2oSUhdFnCx3zKAljnpdUAOY79mk2oEw\nLsZvTf7IXpn0yJ1aQehqIM3tNDjWlNgyAOpa7CPUIv7f7SDX27+NV+qW1ZMM9SukQwtPhL\nc1zuCLUAAAEI8stK+fLLSvkAAAATZWNkc2Etc2hhMi1uaXN0cDUyMQAAAAhuaXN0cDUyMQ\nAAAIUEAWZoBxzIoKjnUwJhgpqSOzSuJOkokxNs+EC/M89hgUgU1D/lPH3n3b4vQtHtFlq5\nzVc39qElIXRZwsd8ygJY56XVADmO/ZpNqBMC7Gb03+yF6Z9MidWkHoaiDN7TQ41pTYMgDq\nWuwj1CL+3+0g19u/jVfqltWTDPUrpEMLT4S3Nc7gi1AAAAQQPR9o2HvZp6lGqulpSjupOc\nBlQl1fkS8WdYcUtfyfcrOM/oUDbt52+vQ7fIwnBUWI2Bbxx6w6aYPnn9wlh5uN99AAAAB2\nZpeHR1cmUBAgME\n-----END OPENSSH PRIVATE KEY-----\n"
+   }
+  },
+  {
+   "name": "keys: update, not a key",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/keys/k2unusedprivatekey000002",
+   "body": {
+    "private_key": "garbage"
+   }
+  },
+  {
+   "name": "keys: update another team's",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/security/keys/k3otherteamkey0000000003",
+   "body": {
+    "name": "Mine now"
+   }
+  },
+  {
+   "name": "keys: delete",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/security/keys/k2unusedprivatekey000002",
+   "after": {
+    "keys": "select uuid from private_keys where team_id = 1 order by id"
+   }
+  },
+  {
+   "name": "keys: delete, in use",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/security/keys/k1parityprivatekey000001"
+  },
+  {
+   "name": "keys: delete unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/security/keys/nonexistentuuid"
+  },
+  {
+   "name": "servers: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/servers"
+  },
+  {
+   "name": "servers: list, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/servers"
+  },
+  {
+   "name": "servers: show",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/servers/s1parityserveruuid000001"
+  },
+  {
+   "name": "servers: show with resources",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/servers/s1parityserveruuid000001?resources=1"
+  },
+  {
+   "name": "servers: show, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/servers/s1parityserveruuid000001"
+  },
+  {
+   "name": "servers: show unknown",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/servers/nonexistentuuid"
+  },
+  {
+   "name": "servers: resources",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/servers/s1parityserveruuid000001/resources"
+  },
+  {
+   "name": "servers: domains",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/servers/s1parityserveruuid000001/domains"
+  },
+  {
+   "name": "servers: validate",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/s1parityserveruuid000001/validate"
+  },
+  {
+   "name": "servers: validate and install without deploy",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/s1parityserveruuid000001/validate",
+   "body": {
+    "install": true
+   }
+  },
+  {
+   "name": "servers: validate, install not a boolean",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/s1parityserveruuid000001/validate",
+   "body": {
+    "install": "maybe"
+   }
+  },
+  {
+   "name": "servers: validate unknown",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/nonexistentuuid/validate"
+  },
+  {
+   "name": "servers: validate with a read token",
+   "token": "read",
+   "method": "POST",
+   "path": "/api/v1/servers/s1parityserveruuid000001/validate"
+  }
+ ]
+}
