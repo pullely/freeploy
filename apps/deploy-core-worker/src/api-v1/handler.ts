@@ -29,6 +29,8 @@
 //   /v1/internal/api-v1/{org}/servers/{uuid}/docker-cleanup[/run|/executions]                                docker-cleanup.ts (DP-85)
 //   /v1/internal/api-v1/{org}/services/{uuid}/{applications,databases}[/{part_uuid}[/logs|/start|/restart|/stop]]  service-parts.ts (DP-85)
 //   /v1/internal/api-v1/{org}/applications/{uuid}/previews[/{pull_request_id}[/logs]]                           previews.ts (DP-86)
+//   /v1/internal/api-v1/{org}/applications/{dockerimage,dockerfile,public,private-deploy-key}                   application-create.ts (DP-87)
+//   PATCH /v1/internal/api-v1/{org}/applications/{uuid}                                                         application-update.ts (DP-87)
 //   /v1/internal/api-v1/{org}/applications/{uuid}/destinations[/{destination_uuid}]                            app-destinations.ts (DP-86)
 //   /v1/internal/api-v1/{org}/{applications,databases,services}/{uuid}/{move,migrate,clone}                    operations.ts (DP-86)
 //

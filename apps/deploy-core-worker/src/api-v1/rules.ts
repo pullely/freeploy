@@ -9,6 +9,7 @@
 //
 // DP-86: present, missing, url, in and required_if, and — with `laravelWildcards` — a `field.*` rule expanded in the
 // order Laravel's ValidationRuleParser::explodeWildcardRules() gives (ValidationData::initializeAndGatherData()).
+// DP-87: not_regex.
 import { addError, type Errors } from "./request.js";
 import { isLaravelUrl } from "./laravel-url.js";
 
@@ -39,7 +40,9 @@ export type Rule =
   /** in:a,b,c / Rule::in([...]): "The selected x is invalid.", DP-86 */
   | { in: readonly string[] }
   /** required_if:other,value (implicit), DP-86 */
-  | { requiredIf: readonly [string, string] };
+  | { requiredIf: readonly [string, string] }
+  /** not_regex:/…/: "The x field format is invalid." for a value that matches (or is not a string or a number), DP-87 */
+  | { notRegex: RegExp };
 
 export type Rules = Array<[string, readonly Rule[]]>;
 
@@ -274,6 +277,8 @@ export async function validateRules(errors: Errors, all: Record<string, unknown>
         if (size < x || size > y) failed(BETWEEN[sizeType(list, numeric)](name, x, y));
       } else if (typeof rule === "object" && "regex" in rule) {
         if ((typeof value !== "string" && typeof value !== "number") || !rule.regex.test(String(value))) failed(`The ${name} field format is invalid.`);
+      } else if (typeof rule === "object" && "notRegex" in rule) {
+        if ((typeof value !== "string" && typeof value !== "number") || rule.notRegex.test(String(value))) failed(`The ${name} field format is invalid.`);
       } else if (typeof rule === "object" && "arrayKeys" in rule) {
         const isArray = Array.isArray(value) || (value !== null && typeof value === "object");
         if (!isArray || keysOf(value).some((k) => !rule.arrayKeys.includes(k))) failed(rule.message.replace(":attribute", name));

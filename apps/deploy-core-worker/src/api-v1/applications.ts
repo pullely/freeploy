@@ -42,6 +42,8 @@ import {
   toModel,
 } from "./models.js";
 import { addError, readApiBody, validationFailed, type ApiBody, type Errors } from "./request.js";
+import { CREATE_TYPES, createApplicationApi } from "./application-create.js";
+import { updateApplicationApi } from "./application-update.js";
 
 export const APPLICATIONS_API_MESSAGES = {
   /** Freeploy's: getContainerLogs() runs docker logs on the server. */
@@ -67,8 +69,13 @@ export async function applicationsApi(c: ApiV1Context, segments: string[]): Prom
   if (fourth !== undefined) return null;
   if (uuid === undefined) return m === "GET" ? listApplications(c) : null;
   if (sub === undefined) {
+    // DP-87: POST /applications/{dockerimage,dockerfile,public,private-deploy-key}
+    const createType = Object.hasOwn(CREATE_TYPES, uuid) ? CREATE_TYPES[uuid] : undefined;
+    if (createType && m === "POST") return createApplicationApi(c, createType);
     if (m === "GET") return showApplication(c, uuid);
     if (m === "DELETE") return deleteApplication(c, uuid);
+    // DP-87
+    if (m === "PATCH") return updateApplicationApi(c, uuid);
     return null;
   }
   if (sub === "envs") {

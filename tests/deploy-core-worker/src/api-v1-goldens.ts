@@ -180,7 +180,9 @@ export function mask(value: PhpValue, context: { teamIdKey?: boolean } = {}, par
     if (value.includes("://"))
       return value
         .replace(/@([a-z0-9]{24}):/g, (all, uuid: string) => (FIXTURE_UUIDS.has(uuid) ? all : "@<new-uuid>:"))
-        .replace(/-([a-z0-9]{24})\./g, (all, uuid: string) => (FIXTURE_UUIDS.has(uuid) ? all : "-<new-uuid>."));
+        .replace(/-([a-z0-9]{24})\./g, (all, uuid: string) => (FIXTURE_UUIDS.has(uuid) ? all : "-<new-uuid>."))
+        // …and where generateUrl() names a created application after its uuid (`http://<uuid>.<host>`, DP-87).
+        .replace(/:\/\/([a-z0-9]{24})\./g, (all, uuid: string) => (FIXTURE_UUIDS.has(uuid) ? all : "://<new-uuid>."));
   }
   return value;
 }

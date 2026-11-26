@@ -629,3 +629,5 @@ export { apiRows, apiValue, databasePublicPortTaken, type ApiRow, type ApiTable 
 export * from "./git-sources.js";
 // DP-79: the platform settings (Coolify's instance settings, row 0 of deploy.instance_settings), for asPlatformAdmin().
 export * from "./platform-settings.js";
+// DP-87: the /api/v1 application create's writes, column by column.
+export * from "./api-applications.js";
