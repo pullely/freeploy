@@ -1,0 +1,13 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-109
+  title: "packages/db: clear the three lint errors (an unused destructured position/added in deploy/config-subpages.ts, an unused env parameter in runner/cli.ts)"
+spec:
+  goal: pnpm --filter ./packages/db lint passes again. deploy/config-subpages.ts keeps dropping each server row's position and added columns (now named and voided, since the lint rule allows only unused arguments prefixed with _), and runner/cli.ts's resolveAdapter() names its unused env parameter _env. No behaviour change.
+  affects:
+    - packages/db/**
+    - tasks/**
+  doneWhen:
+    - pnpm --filter ./packages/db lint, typecheck and build pass, and tests/db passes unchanged
+  gates: []
