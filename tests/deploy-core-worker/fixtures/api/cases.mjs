@@ -69,6 +69,24 @@ const TG_UNUSED = "t3parityunusedtag0000003";
 const TG_OTHER = "t4otherteamtag0000000004";
 /** The fixture's last tag id: the tags a write made come after it. */
 const FIXTURE_TAGS = 4;
+// DP-84: the storages of an application, a database and a service's application; scheduled tasks and their executions;
+// the team's shared variables.
+const PV_APP = "l1parityappvolume0000001";
+const PV_SERVICE = "l2parityservicevolume002";
+const PV_OTHER = "l3otherappvolume00000003";
+const FV_CONFIG = "m1parityappconfigfile001";
+const FV_HOST = "m2parityhostfile00000002";
+const FV_DIR = "m3paritydirectory0000003";
+const FV_PG = "m4paritypgfile0000000004";
+const FV_SERVICE = "m5parityservicefile00005";
+const FV_OTHER = "m6otherappfile0000000006";
+const ST_BACKUP = "n1paritybackuptask000001";
+const ST_CLEANUP = "n2paritycleanuptask00002";
+const ST_SERVICE = "n3parityservicetask00003";
+const ST_OTHER = "n4otherteamtask000000004";
+const SX_OK = "o1paritytaskrunok0000001";
+const SX_FAIL = "o2paritytaskfailed000002";
+const SX_OTHER = "o3otherteamtaskrun000003";
 /** A deployment's logs column: one line as ApplicationDeploymentQueue::addLogEntry() writes it. */
 const deploymentLog = (output) => JSON.stringify([{ command: null, output, type: "stdout", timestamp: "2025-12-30T10:00:01.000000Z", hidden: false, batch: 1, order: 1 }]);
 /** The file the parser generated (fixed text; a locked variable's value in it is redacted for the API). */
@@ -204,6 +222,40 @@ const fixture = {
     { id: 7, team: T1, type: "environment", project_id: null, environment_id: 1, key: "ENV_FOO", value: "env-bar", is_literal: true, is_multiline: false, is_shown_once: false, comment: null },
     { id: 8, team: T2, type: "project", project_id: 3, environment_id: null, key: "OTHER_PROJECT", value: "theirs", is_literal: false, is_multiline: false, is_shown_once: false, comment: null },
     { id: 9, team: T1, type: "environment", project_id: null, environment_id: 2, key: "STAGING_ONLY", value: "line one\nline two", is_literal: false, is_multiline: true, is_shown_once: false, comment: "Two lines" },
+  ],
+  // DP-84: storages (LocalPersistentVolume and LocalFileVolume::forceCreate(): the mutators and the encrypted content; the
+  // file's created hook queues its job, which emit.php fakes). The persistent ids follow the databases' data volumes (2–11).
+  persistentStorages: [
+    { id: 12, uuid: PV_APP, name: `${A_IMAGE}-data`, mount_path: "/data", resource: "application", resource_id: 1 },
+    { id: 13, uuid: PV_SERVICE, name: `${SV_MAIN}_web-html`, mount_path: "/usr/share/nginx/html", resource: "serviceApplication", resource_id: 1 },
+    { id: 14, uuid: PV_OTHER, name: `${A_OTHER}-data`, mount_path: "/data", resource: "application", resource_id: 3 },
+  ],
+  fileStorages: [
+    { id: 1, uuid: FV_CONFIG, fs_path: `/data/coolify/applications/${A_IMAGE}/config.json`, mount_path: "/app/config.json", content: '{"debug":false}', is_directory: false, is_host_file: false, resource: "application", resource_id: 1 },
+    { id: 2, uuid: FV_HOST, fs_path: "/etc/timezone", mount_path: "/etc/timezone", content: null, is_directory: false, is_host_file: true, resource: "application", resource_id: 1 },
+    { id: 3, uuid: FV_DIR, fs_path: "/srv/shared", mount_path: "/shared", content: null, is_directory: true, is_host_file: false, resource: "application", resource_id: 1 },
+    { id: 4, uuid: FV_PG, fs_path: `/data/coolify/databases/${DB_PG}/init.sql`, mount_path: "/docker-entrypoint-initdb.d/init.sql", content: "select 1;", is_directory: false, is_host_file: false, resource: "postgresql", resource_id: 1 },
+    { id: 5, uuid: FV_SERVICE, fs_path: `/data/coolify/services/${SV_MAIN}/default.conf`, mount_path: "/etc/nginx/conf.d/default.conf", content: "server { listen 80; }", is_directory: false, is_host_file: false, resource: "serviceApplication", resource_id: 1 },
+    { id: 6, uuid: FV_OTHER, fs_path: "/etc/localtime", mount_path: "/etc/localtime", content: null, is_directory: false, is_host_file: true, resource: "application", resource_id: 3 },
+  ],
+  // DP-84: scheduled tasks (ScheduledTask::forceCreate() with the team) and executions (forceCreate(); the creating hook's
+  // worker_host is hidden).
+  scheduledTasks: [
+    { id: 1, uuid: ST_BACKUP, team: T1, application_id: 1, service_id: null, name: "backup", command: "php artisan backup:run", frequency: "0 3 * * *", container: null, timeout: 300, use_shell: true, enabled: true, created_at: "2025-12-01 00:00:00" },
+    { id: 2, uuid: ST_CLEANUP, team: T1, application_id: 1, service_id: null, name: "cleanup", command: "rm -rf /tmp/cache", frequency: "@daily", container: "app", timeout: 60, use_shell: false, enabled: false, created_at: "2025-12-02 00:00:00" },
+    { id: 3, uuid: ST_SERVICE, team: T1, application_id: null, service_id: 1, name: "vacuum", command: "vacuumdb --all", frequency: "*/30 * * * *", container: "db", timeout: 600, use_shell: true, enabled: true, created_at: "2025-12-03 00:00:00" },
+    { id: 4, uuid: ST_OTHER, team: T2, application_id: 3, service_id: null, name: "theirs", command: "echo theirs", frequency: "@hourly", container: null, timeout: 300, use_shell: true, enabled: true, created_at: "2025-12-04 00:00:00" },
+  ],
+  scheduledTaskExecutions: [
+    { id: 1, uuid: SX_OK, task: 1, status: "success", message: "Backup done.", started_at: "2025-12-30 03:00:00", finished_at: "2025-12-30 03:00:02", duration: 1.25, retry_count: 0, created_at: "2025-12-30 03:00:00" },
+    { id: 2, uuid: SX_FAIL, task: 1, status: "failed", message: "Error: could not reach s3cr3t-host", started_at: "2025-12-31 03:00:00", finished_at: "2025-12-31 03:00:05", duration: 5.5, retry_count: 2, created_at: "2025-12-31 03:00:00" },
+    { id: 3, uuid: SX_OTHER, task: 4, status: "success", message: "theirs", started_at: "2025-12-31 04:00:00", finished_at: "2025-12-31 04:00:01", duration: 0.5, retry_count: 0, created_at: "2025-12-31 04:00:00" },
+  ],
+  // DP-84: the teams' own shared variables (type team), after DP-81's.
+  teamVariables: [
+    { id: 10, team: T1, key: "TEAM_FOO", value: "team-bar", is_literal: false, is_multiline: false, is_shown_once: false, comment: null },
+    { id: 11, team: T1, key: "TEAM_SECRET", value: "t-secret", is_literal: true, is_multiline: false, is_shown_once: true, comment: "Locked" },
+    { id: 12, team: T2, key: "OTHER_TEAM", value: "theirs", is_literal: false, is_multiline: false, is_shown_once: false, comment: null },
   ],
   // secret: what follows "<id>|" in the bearer token (Sanctum's 40 random characters and crc32b).
   tokens: [
@@ -600,12 +652,13 @@ add({ name: "backups: delete an execution of another schedule", token: "delete",
 /** A uuid made by the request, in a value (a generated name, domain or Compose file), as <uuid>; the random name of a service from a Compose file without one (str()->random(10)) as service-<random>. */
 const masked = (column) => `regexp_replace(regexp_replace(${column}, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g')`;
 /** The rows a service's write leaves: the service, its parts, its variables (values are each side's ciphertext), volumes and tags. */
+// DP-84: the volumes leave out the fixture's volume of the web part (the service storages' cases), as they did before it.
 const servicesAfter = (where) => ({
   service: `select case when name ~ '^service-[A-Za-z0-9]{10}$' then 'service-<random>' else ${masked("name")} end as name, description, docker_compose_raw, ${masked("docker_compose")} as docker_compose, connect_to_docker_network, service_type, compose_parsing_version, is_container_label_escape_enabled, redact_all_env_values_in_logs, include_coolify_default_variables, environment_id, server_id, destination_id, destination_type, deleted_at is not null as deleted from services where ${where} order by id`,
   applications: `select a.name, a.human_name, a.image, ${masked("a.fqdn")} as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where ${where.replaceAll("id", "s.id")} order by a.id`,
   databases: `select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where ${where.replaceAll("id", "s.id")} order by d.id`,
   variables: `select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and ${where.replaceAll("id", "s.id")} order by e.id`,
-  volumes: `select ${masked("v.name")} as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where ${where.replaceAll("id", "s.id")} union select d.id from service_databases d join services s on s.id = d.service_id where ${where.replaceAll("id", "s.id")}) order by v.id`,
+  volumes: `select ${masked("v.name")} as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where ${where.replaceAll("id", "s.id")} union select d.id from service_databases d join services s on s.id = d.service_id where ${where.replaceAll("id", "s.id")}) and v.uuid <> '${PV_SERVICE}' order by v.id`,
   tags: `select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > ${FIXTURE_TAGS} order by t.name`,
 });
 const NEW_SERVICES = servicesAfter("id > 2");
@@ -984,7 +1037,200 @@ add({ name: "s3 storages: validate, an invalid bucket", token: "write", method: 
 add({ name: "s3 storages: validate another team's", token: "write", method: "POST", path: `/api/v1/s3-storages/${S3_OTHER}/validate` });
 add({ name: "s3 storages: validate unknown", token: "write", method: "POST", path: "/api/v1/s3-storages/nonexistentuuid/validate" });
 
+// ── DP-84: the storages of an application, a database and a service ─────────
+/**
+ * Team 1's volumes and file mounts (the other team's rows are not the org's in Freeploy; a file's content is each side's
+ * ciphertext, so only whether it has one is read). A created row's id is the sequence's: only a fixture's id is read.
+ */
+const STORAGES_AFTER = {
+  persistent: "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+  files: "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id",
+};
+for (const [group, base, uuid, other, empty, notFound] of [
+  ["application", "applications", A_IMAGE, A_OTHER, A_GIT, "Application not found."],
+  ["database", "databases", DB_PG, DB_OTHER, DB_MYSQL, "Database not found."],
+  ["service", "services", SV_MAIN, null, null, "Service not found."],
+]) {
+  const path = `/api/v1/${base}/${uuid}/storages`;
+  /** A service's storages belong to one of its parts (resource_uuid). */
+  const part = group === "service" ? { resource_uuid: SA_WEB } : {};
+  add({ name: `${group} storages: list`, token: "read", method: "GET", path });
+  add({ name: `${group} storages: list, read:sensitive`, token: "sensitive", method: "GET", path });
+  if (other) add({ name: `${group} storages: list another team's`, token: "read", method: "GET", path: `/api/v1/${base}/${other}/storages` });
+  if (empty) add({ name: `${group} storages: list, none`, token: "read", method: "GET", path: `/api/v1/${base}/${empty}/storages` });
+  add({ name: `${group} storages: list of unknown`, token: "read", method: "GET", path: `/api/v1/${base}/nonexistentuuid/storages` });
+  add({ name: `${group} storages: create a volume`, token: "write", method: "POST", path, body: { type: "persistent", ...part, name: "cache", mount_path: " cache " }, after: STORAGES_AFTER });
+  add({ name: `${group} storages: create a volume, no name`, token: "write", method: "POST", path, body: { type: "persistent", ...part, mount_path: "/cache" } });
+  add({ name: `${group} storages: create a volume, file fields`, token: "write", method: "POST", path, body: { type: "persistent", ...part, name: "cache", mount_path: "/cache", content: "x", fs_path: "/srv" } });
+  add({ name: `${group} storages: create, invalid`, token: "write", method: "POST", path, body: { type: "volume", name: "-bad name", is_directory: "maybe", content: 5, color: "red" } });
+  add({ name: `${group} storages: create, not JSON`, token: "write", method: "POST", path, raw: "type=persistent", contentType: "application/x-www-form-urlencoded" });
+  add({ name: `${group} storages: create a host file`, token: "write", method: "POST", path, body: { type: "file", ...part, is_host_file: true, fs_path: " /etc/hostname ", mount_path: "etc/hostname" }, after: STORAGES_AFTER });
+  add({ name: `${group} storages: create a host file, no source`, token: "write", method: "POST", path, body: { type: "file", ...part, is_host_file: "1", mount_path: "/etc/hostname" } });
+  add({ name: `${group} storages: create a host file with content`, token: "write", method: "POST", path, body: { type: "file", ...part, is_host_file: true, fs_path: "/etc/hostname", mount_path: "/etc/hostname", content: "x" } });
+  add({ name: `${group} storages: create a host file, a relative source`, token: "write", method: "POST", path, body: { type: "file", ...part, is_host_file: true, fs_path: "etc/hostname", mount_path: "/etc/hostname" } });
+  add({ name: `${group} storages: create a directory that is a host file`, token: "write", method: "POST", path, body: { type: "file", ...part, is_directory: true, is_host_file: true, fs_path: "/srv", mount_path: "/srv" } });
+  add({ name: `${group} storages: create a directory, no source`, token: "write", method: "POST", path, body: { type: "file", ...part, is_directory: true, mount_path: "/srv" } });
+  add({ name: `${group} storages: create a directory outside, a write token`, token: "write", method: "POST", path, body: { type: "file", ...part, is_directory: true, fs_path: "/srv/data", mount_path: "/srv" } });
+  add({ name: `${group} storages: create a directory inside`, token: "root", method: "POST", path, body: { type: "file", ...part, is_directory: true, fs_path: "./data", mount_path: "/srv" }, after: STORAGES_AFTER });
+  add({ name: `${group} storages: create a file, a name`, token: "write", method: "POST", path, body: { type: "file", ...part, name: "x", mount_path: "/app/x.conf" } });
+  add({ name: `${group} storages: create a file with content, a write token`, token: "write", method: "POST", path, body: { type: "file", ...part, mount_path: "/app/x.conf", content: "a = 1" } });
+  add({ name: `${group} storages: create a file`, token: "write", method: "POST", path, body: { type: "file", ...part, mount_path: "/app/x.conf" }, after: STORAGES_AFTER });
+  add({ name: `${group} storages: create a file, a path that leaves`, token: "write", method: "POST", path, body: { type: "file", ...part, mount_path: "/app/../../x.conf" } });
+  add({ name: `${group} storages: create in unknown`, token: "write", method: "POST", path: `/api/v1/${base}/nonexistentuuid/storages`, body: { type: "persistent", ...part, name: "cache", mount_path: "/cache" } });
+  add({ name: `${group} storages: update, neither uuid nor id`, token: "write", method: "PATCH", path, body: { type: "persistent", mount_path: "/x" } });
+  add({ name: `${group} storages: update, invalid`, token: "write", method: "PATCH", path, body: { id: "x", is_preview_suffix_enabled: "maybe", name: "bad name", color: "red" } });
+  add({ name: `${group} storages: update unknown`, token: "write", method: "PATCH", path, body: { uuid: "nonexistentuuid", type: "persistent", mount_path: "/x" } });
+  add({ name: `${group} storages: update a file as a volume`, token: "write", method: "PATCH", path, body: { uuid: group === "database" ? FV_PG : group === "service" ? FV_SERVICE : FV_HOST, type: "persistent", mount_path: "/x" } });
+  add({ name: `${group} storages: update in unknown`, token: "write", method: "PATCH", path: `/api/v1/${base}/nonexistentuuid/storages`, body: { uuid: PV_APP, type: "persistent", mount_path: "/x" } });
+  add({ name: `${group} storages: delete unknown`, token: "delete", method: "DELETE", path: `${path}/nonexistentuuid` });
+  add({ name: `${group} storages: delete in unknown`, token: "delete", method: "DELETE", path: `/api/v1/${base}/nonexistentuuid/storages/${PV_APP}` });
+  add({ name: `${group} storages: delete another team's`, token: "delete", method: "DELETE", path: `${path}/${PV_OTHER}` });
+}
+// An application's volume and file mounts.
+const APP_STORAGES = `/api/v1/applications/${A_IMAGE}/storages`;
+add({ name: "application storages: create a volume, a name it has", token: "write", method: "POST", path: APP_STORAGES, body: { type: "persistent", name: "data", mount_path: "/other" } });
+add({ name: "application storages: create a file with content", token: "root", method: "POST", path: APP_STORAGES, body: { type: "file", mount_path: "/app/x.conf", content: "a = 1" }, after: STORAGES_AFTER });
+add({ name: "application storages: create a file outside, a write token", token: "write", method: "POST", path: APP_STORAGES, body: { type: "file", mount_path: "/app/x.conf", fs_path: "/srv/x.conf" } });
+add({ name: "application storages: update a volume", token: "write", method: "PATCH", path: APP_STORAGES, body: { uuid: PV_APP, type: "persistent", name: "renamed", mount_path: " data2 ", is_preview_suffix_enabled: false }, after: STORAGES_AFTER });
+add({ name: "application storages: update a volume by id", token: "write", method: "PATCH", path: APP_STORAGES, body: { id: 12, type: "persistent", is_preview_suffix_enabled: "0" }, after: STORAGES_AFTER });
+add({ name: "application storages: update a volume, content", token: "write", method: "PATCH", path: APP_STORAGES, body: { uuid: PV_APP, type: "persistent", content: "x" } });
+add({ name: "application storages: update a host file", token: "write", method: "PATCH", path: APP_STORAGES, body: { uuid: FV_HOST, type: "file", mount_path: "/etc/tz", is_preview_suffix_enabled: false }, after: STORAGES_AFTER });
+add({ name: "application storages: update a host file, read:sensitive answer", token: "root", method: "PATCH", path: APP_STORAGES, body: { uuid: FV_HOST, type: "file", is_preview_suffix_enabled: true }, after: STORAGES_AFTER });
+add({ name: "application storages: update a file, a name", token: "write", method: "PATCH", path: APP_STORAGES, body: { uuid: FV_CONFIG, type: "file", name: "x" } });
+add({ name: "application storages: update a file's content, a write token", token: "write", method: "PATCH", path: APP_STORAGES, body: { uuid: FV_CONFIG, type: "file", content: "{}" } });
+add({ name: "application storages: update a file to its own content", token: "write", method: "PATCH", path: APP_STORAGES, body: { uuid: FV_CONFIG, type: "file", content: '{"debug":false}', mount_path: "/app/settings.json" }, after: STORAGES_AFTER });
+add({ name: "application storages: update a file's content", token: "root", method: "PATCH", path: APP_STORAGES, body: { uuid: FV_CONFIG, type: "file", content: '{"debug":true}' }, after: STORAGES_AFTER });
+add({ name: "application storages: update a directory", token: "write", method: "PATCH", path: APP_STORAGES, body: { id: 3, type: "file", mount_path: "/data/shared" }, after: STORAGES_AFTER });
+add({ name: "application storages: update another team's", token: "write", method: "PATCH", path: APP_STORAGES, body: { uuid: PV_OTHER, type: "persistent", mount_path: "/x" } });
+add({ name: "application storages: delete a volume", token: "delete", method: "DELETE", path: `${APP_STORAGES}/${PV_APP}`, after: STORAGES_AFTER });
+add({ name: "application storages: delete a host file", token: "delete", method: "DELETE", path: `${APP_STORAGES}/${FV_HOST}`, after: STORAGES_AFTER });
+add({ name: "application storages: delete a directory outside", token: "delete", method: "DELETE", path: `${APP_STORAGES}/${FV_DIR}`, after: STORAGES_AFTER });
+add({ name: "application storages: delete a file inside", token: "delete", method: "DELETE", path: `${APP_STORAGES}/${FV_CONFIG}`, after: STORAGES_AFTER });
+// A database's.
+const PG_STORAGES = `/api/v1/databases/${DB_PG}/storages`;
+add({ name: "database storages: list a Redis", token: "read", method: "GET", path: `/api/v1/databases/${DB_REDIS}/storages` });
+add({ name: "database storages: update the data volume", token: "write", method: "PATCH", path: PG_STORAGES, body: { id: 2, type: "persistent", name: "pgdata", is_preview_suffix_enabled: false }, after: STORAGES_AFTER });
+add({ name: "database storages: update a file", token: "write", method: "PATCH", path: PG_STORAGES, body: { uuid: FV_PG, type: "file", mount_path: "/docker-entrypoint-initdb.d/01.sql" }, after: STORAGES_AFTER });
+add({ name: "database storages: delete the data volume", token: "delete", method: "DELETE", path: `${PG_STORAGES}/k1paritypgdatavolume0001`, setup: [`update local_persistent_volumes set uuid = 'k1paritypgdatavolume0001' where id = 2`], after: STORAGES_AFTER });
+add({ name: "database storages: delete a file inside", token: "delete", method: "DELETE", path: `${PG_STORAGES}/${FV_PG}`, after: STORAGES_AFTER });
+// A service's: its parts' volumes are the Compose file's (read-only).
+const SV_STORAGES = `/api/v1/services/${SV_MAIN}/storages`;
+add({ name: "service storages: create, no part", token: "write", method: "POST", path: SV_STORAGES, body: { type: "persistent", name: "cache", mount_path: "/cache" } });
+add({ name: "service storages: create in an unknown part", token: "write", method: "POST", path: SV_STORAGES, body: { type: "persistent", resource_uuid: SA_OTHER, name: "cache", mount_path: "/cache" } });
+add({ name: "service storages: create a volume of the database", token: "write", method: "POST", path: SV_STORAGES, body: { type: "persistent", resource_uuid: SD_DB, name: "pg", mount_path: "/var/lib/postgresql/data" }, after: STORAGES_AFTER });
+add({ name: "service storages: create a host file of the database", token: "write", method: "POST", path: SV_STORAGES, body: { type: "file", resource_uuid: SD_DB, is_host_file: true, fs_path: "/etc/hostname", mount_path: "/etc/hostname" }, after: STORAGES_AFTER });
+add({ name: "service storages: update a volume's name", token: "write", method: "PATCH", path: SV_STORAGES, body: { uuid: PV_SERVICE, type: "persistent", name: "renamed", mount_path: "/x" } });
+add({ name: "service storages: update a volume's PR suffix", token: "write", method: "PATCH", path: SV_STORAGES, body: { uuid: PV_SERVICE, type: "persistent", is_preview_suffix_enabled: false }, after: STORAGES_AFTER });
+add({ name: "service storages: update a file", token: "write", method: "PATCH", path: SV_STORAGES, body: { id: 5, type: "file", mount_path: "/etc/nginx/nginx.conf" }, after: STORAGES_AFTER });
+add({ name: "service storages: delete a volume", token: "delete", method: "DELETE", path: `${SV_STORAGES}/${PV_SERVICE}` });
+add({ name: "service storages: delete a file inside", token: "delete", method: "DELETE", path: `${SV_STORAGES}/${FV_SERVICE}`, after: STORAGES_AFTER });
+add({ name: "service storages: list another team's", token: "read", method: "GET", path: `/api/v1/services/${SV_OTHER}/storages` });
+// With a file mount, the list is Coolify's 500 (setAttribute('resource_type', 'application') breaks the file's morphTo); without one:
+add({ name: "service storages: list without file mounts", token: "read", method: "GET", path: SV_STORAGES, setup: ["delete from local_file_volumes where resource_type = 'App\\Models\\ServiceApplication'"] });
+add({ name: "service storages: list without file mounts, a volume of the database", token: "read", method: "GET", path: SV_STORAGES, setup: ["delete from local_file_volumes where resource_type = 'App\\Models\\ServiceApplication'", "update local_persistent_volumes set resource_type = 'App\\Models\\ServiceDatabase' where uuid = 'l2parityservicevolume002'"] });
+
+// ── DP-84: the scheduled tasks of an application and of a service ───────────
+/** Team 1's tasks and their executions (a created task's uuid and id are new: only a fixture's id is read). */
+const TASKS_AFTER = {
+  tasks: "select case when id <= 4 then id end as fixture_id, enabled, name, command, frequency, container, application_id, service_id, timeout, consecutive_failures, failing_since, disabled_reason, use_shell from scheduled_tasks where uuid <> 'n4otherteamtask000000004' order by id",
+  executions: "select uuid, scheduled_task_id, status from scheduled_task_executions where uuid <> 'o3otherteamtaskrun000003' order by id",
+};
+for (const [group, base, uuid, other, task, notFound] of [
+  ["application", "applications", A_IMAGE, A_OTHER, ST_BACKUP, "Application not found."],
+  ["service", "services", SV_MAIN, SV_OTHER, ST_SERVICE, "Service not found."],
+]) {
+  const path = `/api/v1/${base}/${uuid}/scheduled-tasks`;
+  add({ name: `${group} scheduled tasks: list`, token: "read", method: "GET", path });
+  add({ name: `${group} scheduled tasks: list, read:sensitive`, token: "sensitive", method: "GET", path });
+  add({ name: `${group} scheduled tasks: list another team's`, token: "read", method: "GET", path: `/api/v1/${base}/${other}/scheduled-tasks` });
+  add({ name: `${group} scheduled tasks: list of unknown`, token: "read", method: "GET", path: `/api/v1/${base}/nonexistentuuid/scheduled-tasks` });
+  add({ name: `${group} scheduled tasks: create`, token: "root", method: "POST", path, body: { name: " <b>Nightly</b> report ", command: "php artisan report", frequency: "0 1 * * *", container: "web", timeout: 120, use_shell: false }, after: TASKS_AFTER });
+  add({ name: `${group} scheduled tasks: create disabled, a write token`, token: "write", method: "POST", path, body: { name: "later", command: "echo later", frequency: "@weekly", enabled: false }, after: TASKS_AFTER });
+  add({ name: `${group} scheduled tasks: create enabled, a write token`, token: "write", method: "POST", path, body: { name: "now", command: "echo now", frequency: "@weekly" } });
+  add({ name: `${group} scheduled tasks: create, invalid`, token: "root", method: "POST", path, body: { command: ["x"], frequency: 5, container: 1, timeout: 0, use_shell: "maybe", enabled: "yes", every: "day" } });
+  add({ name: `${group} scheduled tasks: create, a bad frequency`, token: "root", method: "POST", path, body: { name: "bad", command: "echo", frequency: "every day" } });
+  add({ name: `${group} scheduled tasks: create, not JSON`, token: "root", method: "POST", path, raw: "name=x", contentType: "application/x-www-form-urlencoded" });
+  add({ name: `${group} scheduled tasks: create in unknown`, token: "root", method: "POST", path: `/api/v1/${base}/nonexistentuuid/scheduled-tasks`, body: { name: "x", command: "echo", frequency: "@daily" } });
+  add({ name: `${group} scheduled tasks: update`, token: "root", method: "PATCH", path: `${path}/${task}`, body: { name: "renamed", frequency: "@hourly", timeout: "90", container: null }, after: TASKS_AFTER });
+  add({ name: `${group} scheduled tasks: update, nothing`, token: "root", method: "PATCH", path: `${path}/${task}`, raw: "{}" });
+  add({ name: `${group} scheduled tasks: update, invalid`, token: "root", method: "PATCH", path: `${path}/${task}`, body: { name: "", timeout: 36001, uuid: "x" } });
+  add({ name: `${group} scheduled tasks: update, a bad frequency`, token: "root", method: "PATCH", path: `${path}/${task}`, body: { frequency: "61 * * * *" } });
+  add({ name: `${group} scheduled tasks: update an enabled task, a write token`, token: "write", method: "PATCH", path: `${path}/${task}`, body: { name: "x" } });
+  add({ name: `${group} scheduled tasks: update unknown`, token: "root", method: "PATCH", path: `${path}/nonexistentuuid`, body: { name: "x" } });
+  add({ name: `${group} scheduled tasks: update unchanged`, token: "root", method: "PATCH", path: `${path}/${task}`, body: { enabled: true }, after: TASKS_AFTER });
+  add({ name: `${group} scheduled tasks: delete`, token: "delete", method: "DELETE", path: `${path}/${task}`, after: TASKS_AFTER });
+  add({ name: `${group} scheduled tasks: delete unknown`, token: "delete", method: "DELETE", path: `${path}/nonexistentuuid` });
+  add({ name: `${group} scheduled tasks: delete another team's`, token: "delete", method: "DELETE", path: `${path}/${ST_OTHER}` });
+  add({ name: `${group} scheduled tasks: executions`, token: "read", method: "GET", path: `${path}/${task}/executions` });
+  add({ name: `${group} scheduled tasks: executions, read:sensitive`, token: "sensitive", method: "GET", path: `${path}/${task}/executions` });
+  add({ name: `${group} scheduled tasks: executions of unknown`, token: "read", method: "GET", path: `${path}/nonexistentuuid/executions` });
+  add({ name: `${group} scheduled tasks: executions in unknown`, token: "read", method: "GET", path: `/api/v1/${base}/nonexistentuuid/scheduled-tasks/${task}/executions` });
+}
+const APP_TASKS = `/api/v1/applications/${A_IMAGE}/scheduled-tasks`;
+add({ name: "application scheduled tasks: update a disabled task, a write token", token: "write", method: "PATCH", path: `${APP_TASKS}/${ST_CLEANUP}`, body: { name: "cleanup-tmp", use_shell: "1" }, after: TASKS_AFTER });
+add({ name: "application scheduled tasks: enable a task disabled automatically", token: "root", method: "PATCH", path: `${APP_TASKS}/${ST_CLEANUP}`, setup: ["update scheduled_tasks set consecutive_failures = 12, failing_since = '2025-12-20 00:00:00', disabled_reason = 'Disabled automatically after 12 failed runs in a row since 2025-12-20 00:00:00 UTC.' where id = 2"], body: { enabled: true }, after: TASKS_AFTER });
+add({ name: "application scheduled tasks: update another resource's task", token: "root", method: "PATCH", path: `${APP_TASKS}/${ST_SERVICE}`, body: { name: "x" } });
+add({ name: "application scheduled tasks: executions of a task that never ran", token: "read", method: "GET", path: `${APP_TASKS}/${ST_CLEANUP}/executions` });
+add({ name: "application scheduled tasks: list, none", token: "read", method: "GET", path: `/api/v1/applications/${A_GIT}/scheduled-tasks` });
+add({ name: "application scheduled tasks: create with a delete token", token: "delete", method: "POST", path: APP_TASKS, body: { name: "x", command: "echo", frequency: "@daily" } });
+
+// ── DP-84: the environment variables of a standalone database ───────────────
+/** Team 1's databases' variables (the value is each side's ciphertext). */
+const DB_ENVS_AFTER = { variables: "select key, resourceable_type, resourceable_id, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, \"order\", version from environment_variables where resourceable_type like 'App\\Models\\Standalone%' order by id" };
+const REDIS_ENVS = `/api/v1/databases/${DB_REDIS}/envs`;
+const PG_ENVS = `/api/v1/databases/${DB_PG}/envs`;
+add({ name: "database envs: list", token: "read", method: "GET", path: REDIS_ENVS });
+add({ name: "database envs: list, read:sensitive", token: "sensitive", method: "GET", path: REDIS_ENVS });
+add({ name: "database envs: list, none", token: "read", method: "GET", path: PG_ENVS });
+add({ name: "database envs: list another team's", token: "read", method: "GET", path: `/api/v1/databases/${DB_OTHER}/envs` });
+add({ name: "database envs: list of unknown", token: "read", method: "GET", path: "/api/v1/databases/nonexistentuuid/envs" });
+add({ name: "database envs: create", token: "write", method: "POST", path: PG_ENVS, body: { key: " PG_MAX_CONN ", value: "100", is_literal: true, comment: "Pool" }, after: DB_ENVS_AFTER });
+add({ name: "database envs: create, read:sensitive answer", token: "root", method: "POST", path: PG_ENVS, body: { key: "LOCKED", value: "hidden", is_shown_once: true, is_multiline: "1" }, after: DB_ENVS_AFTER });
+add({ name: "database envs: create a shared reference", token: "root", method: "POST", path: PG_ENVS, body: { key: "FROM_PROJECT", value: "{{ project.PROJECT_FOO }}" }, after: DB_ENVS_AFTER });
+add({ name: "database envs: create, an existing key", token: "write", method: "POST", path: REDIS_ENVS, body: { key: "REDIS_USERNAME", value: "admin" } });
+add({ name: "database envs: create, invalid", token: "write", method: "POST", path: PG_ENVS, body: { key: "1-bad", value: 5, is_literal: "maybe", comment: "x".repeat(257), is_preview: true } });
+add({ name: "database envs: create, no key", token: "write", method: "POST", path: PG_ENVS, body: { value: "v" } });
+add({ name: "database envs: create in unknown", token: "write", method: "POST", path: "/api/v1/databases/nonexistentuuid/envs", body: { key: "A", value: "v" } });
+add({ name: "database envs: update", token: "write", method: "PATCH", path: REDIS_ENVS, body: { key: "REDIS_USERNAME", value: "admin", is_multiline: false, comment: "Changed" }, after: DB_ENVS_AFTER });
+add({ name: "database envs: update, read:sensitive answer", token: "root", method: "PATCH", path: REDIS_ENVS, body: { key: " REDIS_PASSWORD", is_literal: true }, after: DB_ENVS_AFTER });
+add({ name: "database envs: update unknown", token: "write", method: "PATCH", path: REDIS_ENVS, body: { key: "NOPE", value: "x" } });
+add({ name: "database envs: update, invalid", token: "write", method: "PATCH", path: REDIS_ENVS, body: { key: "", is_shown_once: "yes" } });
+add({ name: "database envs: bulk", token: "root", method: "PATCH", path: `${REDIS_ENVS}/bulk`, body: { data: [{ key: "REDIS_USERNAME", value: "bulk-user" }, { key: "NEW_ONE", value: "1", is_literal: true, extra: "dropped" }] }, after: DB_ENVS_AFTER });
+add({ name: "database envs: bulk, no data", token: "write", method: "PATCH", path: `${REDIS_ENVS}/bulk`, body: { items: [] } });
+add({ name: "database envs: bulk, an invalid item", token: "write", method: "PATCH", path: `${REDIS_ENVS}/bulk`, body: { data: [{ key: "GOOD", value: "1" }, { key: "bad key!", value: "2" }] }, after: DB_ENVS_AFTER });
+add({ name: "database envs: delete", token: "delete", method: "DELETE", path: `${REDIS_ENVS}/${DB_REDIS.slice(0, 20)}user`, setup: [`update environment_variables set uuid = '${DB_REDIS.slice(0, 20)}user' where key = 'REDIS_USERNAME' and resourceable_type = 'App\\Models\\StandaloneRedis'`], after: DB_ENVS_AFTER });
+add({ name: "database envs: delete unknown", token: "delete", method: "DELETE", path: `${REDIS_ENVS}/nonexistentuuid` });
+add({ name: "database envs: delete another resource's", token: "delete", method: "DELETE", path: `${PG_ENVS}/${V_FOO}` });
+
+// ── DP-84: the team's shared variables ──────────────────────────────────────
+/** Team 1's own variables (the other team's row is not the org's). A created row's id is the sequence's: only a fixture's id is read. */
+const TEAM_ENVS_AFTER = { variables: "select case when id <= 12 then id end as fixture_id, key, type, project_id, environment_id, server_id, is_shown_once, is_multiline, is_literal, comment, version from shared_environment_variables where type = 'team' and key <> 'OTHER_TEAM' order by id" };
+add({ name: "team envs: list", token: "read", method: "GET", path: "/api/v1/team/envs" });
+add({ name: "team envs: list, read:sensitive", token: "sensitive", method: "GET", path: "/api/v1/team/envs" });
+add({ name: "team envs: list, none", token: "read", method: "GET", path: "/api/v1/team/envs", setup: ["delete from shared_environment_variables where type = 'team'"] });
+add({ name: "team envs: create", token: "write", method: "POST", path: "/api/v1/team/envs", body: { key: " NEW_TEAM_KEY ", value: "  kept  ", is_literal: "1", is_shown_once: false, comment: " A comment " }, after: TEAM_ENVS_AFTER });
+add({ name: "team envs: create, a key a project has", token: "write", method: "POST", path: "/api/v1/team/envs", body: { key: "PROJECT_FOO", value: "team-level" }, after: TEAM_ENVS_AFTER });
+add({ name: "team envs: create, another team's key", token: "write", method: "POST", path: "/api/v1/team/envs", body: { key: "OTHER_TEAM", value: "mine" }, after: TEAM_ENVS_AFTER });
+add({ name: "team envs: create, an existing key", token: "write", method: "POST", path: "/api/v1/team/envs", body: { key: "TEAM_FOO", value: "again" } });
+add({ name: "team envs: create, invalid", token: "write", method: "POST", path: "/api/v1/team/envs", body: { key: "1BAD-KEY", value: ["x"], is_multiline: "maybe", type: "project" } });
+add({ name: "team envs: create, no key", token: "write", method: "POST", path: "/api/v1/team/envs", body: { value: "v" } });
+add({ name: "team envs: create, not JSON", token: "write", method: "POST", path: "/api/v1/team/envs", raw: "key=A", contentType: "application/x-www-form-urlencoded" });
+add({ name: "team envs: update", token: "write", method: "PATCH", path: "/api/v1/team/envs/10", body: { value: "changed", comment: "Changed", is_multiline: true }, after: TEAM_ENVS_AFTER });
+add({ name: "team envs: update, read:sensitive answer", token: "root", method: "PATCH", path: "/api/v1/team/envs/10", body: { key: "RENAMED_TEAM", is_literal: true }, after: TEAM_ENVS_AFTER });
+add({ name: "team envs: update a locked variable", token: "root", method: "PATCH", path: "/api/v1/team/envs/11", body: { value: "new secret", is_shown_once: false }, after: TEAM_ENVS_AFTER });
+add({ name: "team envs: update to an existing key", token: "write", method: "PATCH", path: "/api/v1/team/envs/10", body: { key: "TEAM_SECRET" } });
+add({ name: "team envs: update, nothing", token: "write", method: "PATCH", path: "/api/v1/team/envs/10", raw: "{}" });
+add({ name: "team envs: update, invalid", token: "write", method: "PATCH", path: "/api/v1/team/envs/10", body: { key: "no spaces allowed", comment: 5 } });
+add({ name: "team envs: update unknown", token: "write", method: "PATCH", path: "/api/v1/team/envs/999", body: { value: "x" } });
+add({ name: "team envs: update unknown, invalid", token: "write", method: "PATCH", path: "/api/v1/team/envs/999", body: { key: "bad key" } });
+add({ name: "team envs: update a project's variable", token: "write", method: "PATCH", path: "/api/v1/team/envs/5", body: { value: "x" } });
+add({ name: "team envs: update another team's", token: "write", method: "PATCH", path: "/api/v1/team/envs/12", body: { value: "x" } });
+add({ name: "team envs: delete", token: "delete", method: "DELETE", path: "/api/v1/team/envs/11", after: TEAM_ENVS_AFTER });
+add({ name: "team envs: delete unknown", token: "delete", method: "DELETE", path: "/api/v1/team/envs/999" });
+add({ name: "team envs: delete a server's variable", token: "delete", method: "DELETE", path: "/api/v1/team/envs/1" });
+add({ name: "team envs: delete another team's", token: "delete", method: "DELETE", path: "/api/v1/team/envs/12" });
+
 /** The tables whose column order emit.php writes into the goldens (`columns`): what a nested relation serializes in. */
-const columnsOf = ["servers", "server_settings", "standalone_dockers", "application_settings", "applications", "environment_variables", "application_deployment_queues", "scheduled_database_backups", "scheduled_database_backup_executions", "services", "service_applications", "service_databases", "projects", "environments", "standalone_postgresqls", "standalone_redis", "standalone_mongodbs", "standalone_mysqls", "standalone_mariadbs", "standalone_keydbs", "standalone_dragonflies", "standalone_clickhouses"];
+const columnsOf = ["servers", "server_settings", "standalone_dockers", "application_settings", "applications", "environment_variables", "application_deployment_queues", "scheduled_database_backups", "scheduled_database_backup_executions", "services", "service_applications", "service_databases", "projects", "environments", "standalone_postgresqls", "standalone_redis", "standalone_mongodbs", "standalone_mysqls", "standalone_mariadbs", "standalone_keydbs", "standalone_dragonflies", "standalone_clickhouses", "local_persistent_volumes", "local_file_volumes"];
 
 console.log(JSON.stringify({ fixture, columnsOf, cases }, null, 1));

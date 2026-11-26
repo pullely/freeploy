@@ -144,6 +144,15 @@ export const COOLIFY_COLUMNS = {
     "is_include_timestamps", "deleted_at", "is_gzip_enabled", "is_stripprefix_enabled", "last_online_at", "is_migrated",
     "custom_type", "public_port_timeout", "is_removed_from_compose",
   ],
+  // DP-84: a resource's storages, which the API writes with response()->json() (unsorted)
+  local_persistent_volumes: [
+    "id", "name", "mount_path", "host_path", "container_id", "resource_type", "resource_id", "created_at", "updated_at",
+    "is_preview_suffix_enabled", "uuid", "standalone_sqlite_id", "ignores_compose_driver_options",
+  ],
+  local_file_volumes: [
+    "id", "uuid", "fs_path", "mount_path", "content", "resource_type", "resource_id", "created_at", "updated_at",
+    "is_directory", "chown", "chmod", "is_based_on_git", "is_preview_suffix_enabled", "is_host_file", "variable_fs_path",
+  ],
 } as const satisfies Record<string, readonly string[]>;
 
 export type CoolifyTable = keyof typeof COOLIFY_COLUMNS;

@@ -22,11 +22,15 @@ use App\Models\ApplicationDeploymentQueue;
 use App\Models\Environment;
 use App\Models\EnvironmentVariable;
 use App\Models\InstanceSettings;
+use App\Models\LocalFileVolume;
+use App\Models\LocalPersistentVolume;
 use App\Models\PersonalAccessToken;
 use App\Models\PrivateKey;
 use App\Models\S3Storage;
 use App\Models\ScheduledDatabaseBackup;
 use App\Models\ScheduledDatabaseBackupExecution;
+use App\Models\ScheduledTask;
+use App\Models\ScheduledTaskExecution;
 use App\Models\Project;
 use App\Models\Server;
 use App\Models\Service;
@@ -66,7 +70,7 @@ Artisan::call('migrate:fresh', ['--force' => true]);
 ob_end_clean();
 /** The fixture's ids are given; what is created after them (a user's personal team, a case's rows) continues after them. */
 $advanceSequences = function (): void {
-    foreach (['teams', 'users', 'team_user', 'projects', 'environments', 'private_keys', 'servers', 'server_settings', 'standalone_dockers', 'personal_access_tokens', 'applications', 'application_settings', 'environment_variables', 'application_deployment_queues', 's3_storages', 'standalone_postgresqls', 'standalone_redis', 'standalone_mongodbs', 'standalone_mysqls', 'standalone_mariadbs', 'standalone_keydbs', 'standalone_dragonflies', 'standalone_clickhouses', 'local_persistent_volumes', 'scheduled_database_backups', 'scheduled_database_backup_executions', 'scheduled_database_backup_s3_storage', 'services', 'service_applications', 'service_databases', 'tags'] as $table) {
+    foreach (['teams', 'users', 'team_user', 'projects', 'environments', 'private_keys', 'servers', 'server_settings', 'standalone_dockers', 'personal_access_tokens', 'applications', 'application_settings', 'environment_variables', 'application_deployment_queues', 's3_storages', 'standalone_postgresqls', 'standalone_redis', 'standalone_mongodbs', 'standalone_mysqls', 'standalone_mariadbs', 'standalone_keydbs', 'standalone_dragonflies', 'standalone_clickhouses', 'local_persistent_volumes', 'scheduled_database_backups', 'scheduled_database_backup_executions', 'scheduled_database_backup_s3_storage', 'services', 'service_applications', 'service_databases', 'tags', 'local_file_volumes', 'scheduled_tasks', 'scheduled_task_executions'] as $table) {
         DB::statement("SELECT setval(pg_get_serial_sequence('{$table}', 'id'), GREATEST((SELECT COALESCE(MAX(id), 0) FROM {$table}), 1))");
     }
 };
@@ -186,6 +190,25 @@ foreach ($fixture['taggables'] ?? [] as $p) {
 // DP-81: shared variables of projects and environments, through the model (the encrypted cast, the key's mutator).
 foreach ($fixture['sharedVariables'] ?? [] as $v) {
     SharedEnvironmentVariable::unguarded(fn () => SharedEnvironmentVariable::query()->forceCreate(['id' => $v['id'], 'key' => $v['key'], 'value' => $v['value'], 'type' => $v['type'], 'team_id' => $v['team'], 'project_id' => $v['project_id'], 'environment_id' => $v['environment_id'], 'is_literal' => $v['is_literal'], 'is_multiline' => $v['is_multiline'], 'is_shown_once' => $v['is_shown_once'], 'comment' => $v['comment']]));
+}
+// DP-84: the team's own shared variables (type team), after DP-81's.
+foreach ($fixture['teamVariables'] ?? [] as $v) {
+    SharedEnvironmentVariable::unguarded(fn () => SharedEnvironmentVariable::query()->forceCreate(['id' => $v['id'], 'key' => $v['key'], 'value' => $v['value'], 'type' => 'team', 'team_id' => $v['team'], 'is_literal' => $v['is_literal'], 'is_multiline' => $v['is_multiline'], 'is_shown_once' => $v['is_shown_once'], 'comment' => $v['comment']]));
+}
+// DP-84: storages through the models (the mount path's mutator, the encrypted content; a file's created hook queues its
+// job, which is faked), scheduled tasks with the team and their executions.
+$storageOwner = ['application' => Application::class, 'postgresql' => \App\Models\StandalonePostgresql::class, 'serviceApplication' => ServiceApplication::class];
+foreach ($fixture['persistentStorages'] ?? [] as $v) {
+    LocalPersistentVolume::unguarded(fn () => LocalPersistentVolume::query()->forceCreate(['id' => $v['id'], 'uuid' => $v['uuid'], 'name' => $v['name'], 'mount_path' => $v['mount_path'], 'resource_type' => $storageOwner[$v['resource']], 'resource_id' => $v['resource_id']]));
+}
+foreach ($fixture['fileStorages'] ?? [] as $f) {
+    LocalFileVolume::unguarded(fn () => LocalFileVolume::query()->forceCreate(['id' => $f['id'], 'uuid' => $f['uuid'], 'fs_path' => $f['fs_path'], 'mount_path' => $f['mount_path'], 'content' => $f['content'], 'is_directory' => $f['is_directory'], 'is_host_file' => $f['is_host_file'], 'resource_type' => $storageOwner[$f['resource']], 'resource_id' => $f['resource_id']]));
+}
+foreach ($fixture['scheduledTasks'] ?? [] as $t) {
+    ScheduledTask::unguarded(fn () => ScheduledTask::query()->forceCreate(['id' => $t['id'], 'uuid' => $t['uuid'], 'team_id' => $t['team'], 'application_id' => $t['application_id'], 'service_id' => $t['service_id'], 'name' => $t['name'], 'command' => $t['command'], 'frequency' => $t['frequency'], 'container' => $t['container'], 'timeout' => $t['timeout'], 'use_shell' => $t['use_shell'], 'enabled' => $t['enabled'], 'created_at' => $t['created_at'], 'updated_at' => $t['created_at']]));
+}
+foreach ($fixture['scheduledTaskExecutions'] ?? [] as $x) {
+    ScheduledTaskExecution::unguarded(fn () => ScheduledTaskExecution::query()->forceCreate(['id' => $x['id'], 'uuid' => $x['uuid'], 'scheduled_task_id' => $x['task'], 'status' => $x['status'], 'message' => $x['message'], 'started_at' => $x['started_at'], 'finished_at' => $x['finished_at'], 'duration' => $x['duration'], 'retry_count' => $x['retry_count'], 'created_at' => $x['created_at'], 'updated_at' => $x['created_at']]));
 }
 // Not in $advanceSequences: the servers' created hook took the first ids from the sequence, which must not be moved before.
 DB::statement("SELECT setval(pg_get_serial_sequence('shared_environment_variables', 'id'), (SELECT MAX(id) FROM shared_environment_variables))");

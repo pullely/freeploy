@@ -64,15 +64,17 @@ export interface NewScheduledTask {
   container: string | null;
   timeout: number;
   useShell: boolean;
+  /** The API's `enabled` (DP-84); the console's Add leaves the column's default, true. */
+  enabled?: boolean;
 }
 
 /** Add::saveScheduledTask(): `enabled` is the column's default, true. */
 export async function insertScheduledTask(tx: SqlExecutor, task: NewScheduledTask): Promise<DeployScheduledTaskRow> {
   const r = await tx.execute<DeployScheduledTaskRow>(
-    `INSERT INTO deploy.scheduled_tasks AS t (uuid, name, command, frequency, container, timeout, use_shell, ${OWNER_COLUMN[task.owner.kind]}, org_id, created_at, updated_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, ${NOW}, ${NOW})
+    `INSERT INTO deploy.scheduled_tasks AS t (uuid, name, command, frequency, container, timeout, use_shell, ${OWNER_COLUMN[task.owner.kind]}, org_id, enabled, created_at, updated_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, ${NOW}, ${NOW})
      RETURNING ${COLUMNS}, NULL::varchar AS latest_status`,
-    [task.uuid, task.name, task.command, task.frequency, task.container, task.timeout, task.useShell, task.owner.id, task.orgId],
+    [task.uuid, task.name, task.command, task.frequency, task.container, task.timeout, task.useShell, task.owner.id, task.orgId, task.enabled ?? true],
   );
   return r.rows[0]!;
 }
@@ -100,11 +102,15 @@ export async function updateScheduledTask(tx: SqlExecutor, owner: ScheduledTaskO
   return r.rows.length > 0;
 }
 
-/** $task->delete(), with its executions (Coolify's foreign key cascades). False when the task is not the owner's. */
-export async function deleteScheduledTask(tx: SqlExecutor, owner: ScheduledTaskOwner, id: string | number): Promise<boolean> {
+/**
+ * $task->delete(), with its executions — the console's. `keepExecutions` (the API's, DP-84): Coolify's
+ * scheduled_task_id is a foreignId() without a constraint, so its delete leaves the executions, as its goldens show.
+ * False when the task is not the owner's.
+ */
+export async function deleteScheduledTask(tx: SqlExecutor, owner: ScheduledTaskOwner, id: string | number, opts: { keepExecutions?: boolean } = {}): Promise<boolean> {
   const found = await tx.execute(`SELECT 1 FROM deploy.scheduled_tasks WHERE id = $1 AND ${OWNER_COLUMN[owner.kind]} = $2`, [id, owner.id]);
   if (!found.rows.length) return false;
-  await tx.execute("DELETE FROM deploy.scheduled_task_executions WHERE scheduled_task_id = $1", [id]);
+  if (!opts.keepExecutions) await tx.execute("DELETE FROM deploy.scheduled_task_executions WHERE scheduled_task_id = $1", [id]);
   await tx.execute("DELETE FROM deploy.scheduled_tasks WHERE id = $1", [id]);
   return true;
 }

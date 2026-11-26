@@ -11,7 +11,7 @@
 // copy, the lock, the NUL check). Starting, stopping, restarting and the container logs run on the server:
 // they answer 501 in Coolify's envelope until the SSH executor exists (DP-70's convention).
 import type { SqlExecutor } from "@saas/db/hyperdrive";
-import { APPLICATION_MORPH_CLASS, type ApiRow, type DeployEnvironmentVariableResourceRow, type DeployEnvironmentVariableRow } from "@saas/db/deploy";
+import { APPLICATION_MORPH_CLASS, type ApiRow, type DeployEnvironmentVariableResourceRow, type DeployEnvironmentVariableRow, type EnvironmentVariableResourceType } from "@saas/db/deploy";
 import { coolifyJson, obj, put, serializeApiResponse, type CoolifyAnswer, type PhpObject, type PhpValue } from "@saas/contracts/coolify-api";
 import { applicationResourcesContext } from "../handlers/application-resources.js";
 import { environmentVariableContext } from "../handlers/environment-variables.js";
@@ -360,7 +360,7 @@ const CREATED_VARIABLE_COLUMNS = ["key", "value", "is_preview", "is_literal", "i
  * `created`: the attributes of a variable just made (the model is not read again), DP-71's for an application's; a
  * service's (DP-74) are what its controller gave.
  */
-export async function variableModel(tx: SqlExecutor, c: ApiV1Context, resource: EnvResource, row: ApiRow, hideListColumns: boolean, justCreated = false, kind: "application" | "service" = "application", created: readonly string[] = CREATED_VARIABLE_COLUMNS): Promise<PhpObject> {
+export async function variableModel(tx: SqlExecutor, c: ApiV1Context, resource: EnvResource, row: ApiRow, hideListColumns: boolean, justCreated = false, kind: EnvironmentVariableResourceType = "application", created: readonly string[] = CREATED_VARIABLE_COLUMNS): Promise<PhpObject> {
   const ctx = environmentVariableContext(tx, c.orgId, c.env.DEPLOY_ENCRYPTION_KEY, kind);
   const value = await storedValue(ctx, { value: rowValue(row, "value") as string | null });
   const key = String(rowValue(row, "key"));

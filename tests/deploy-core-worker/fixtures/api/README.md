@@ -1,4 +1,4 @@
-# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81)
+# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84)
 
 What Coolify's real API answers, so that Freeploy's `/api/v1` (api-edge's middleware and limiters,
 identity-worker's teams and tokens, deploy-core-worker's projects, environments, private keys and servers —
@@ -7,7 +7,9 @@ schedules — DP-73 — and its services and their environment variables, an app
 deploying by uuid or tag — DP-74 — and the deployments in progress and one deployment, every resource of the team, an
 environment's resources, creating and deleting a server and a server's resources and domains — DP-78 — and the team's
 tags and those of an application, a database and a service, the shared variables of a project and of an environment, and
-S3 storages — DP-81) can be replayed against it byte for byte.
+S3 storages — DP-81 — and the storages of an application, a database and a service, the scheduled tasks of an
+application and of a service, a database's environment variables and the team's shared variables — DP-84) can be
+replayed against it byte for byte.
 
 | File | What it is |
 |---|---|
@@ -49,6 +51,16 @@ emit.php resolves host names through `SafeWebhookUrl::resolveHostsUsing()` (`unr
 No golden case reaches an S3 endpoint (the emitter has none); the test's own case answers a ListObjectsV2 through the
 injected fetch. Freeploy's fixture storage now uses path-style URLs, the column's default that Coolify's `forceCreate()`
 leaves.
+DP-84's replay (`src/api-v1-storages-tasks-envs.test.ts`: the storages of an application, a database and a service, the
+scheduled tasks of an application and of a service, a database's environment variables, the team's shared variables) adds
+fixture rows at the end of both fixtures: three shared variables of type team (ids 10–12, after DP-81's), three volumes
+(ids 12–14, after the databases' data volumes: `$advanceSequences()` moved that sequence before the first volume was
+made, so they start at 2, and Freeploy's fixture now moves it the same way), six file mounts (an application's managed
+file, host file and directory, a PostgreSQL's file, a service's file, the other team's host file), four scheduled tasks and
+three executions. A case's `after` reads a created row's id as null (`case when id <= N`), and DP-74's service `after`
+queries leave out the fixture's volume of the service's web part (`v.uuid <> 'l2parityservicevolume002'`), so those
+goldens are unchanged. The storages are answered with `response()->json()` of the models (unsorted), so `columns` gains
+`local_persistent_volumes` and `local_file_volumes`.
 
 ## How the goldens are made
 
@@ -95,7 +107,9 @@ Both sides go through the same masking before they are compared (`src/api-v1-gol
 - the `id` of a team nested in a project (a deployment's `application.environment.project.team`) as `<team>`, as a
   team's id is elsewhere (DP-78);
 - the answer of a created shared variable, `{"id":N}` (a body that is only an integer `id`), as `{"id":"<new-id>"}`: the
-  sequence's next id, which earlier cases moved (DP-81).
+  sequence's next id, which earlier cases moved (DP-81);
+- the integer `id` of an object whose `uuid` the request made (a created storage, DP-84) as `<new-id>`, for the same
+  reason.
 
 Everything else — every other key, its position, its type, every message — is compared byte for byte, the
 JSON written again by `phpJsonEncode` (PHP's `json_encode`, `\/` included); a test checks that it writes

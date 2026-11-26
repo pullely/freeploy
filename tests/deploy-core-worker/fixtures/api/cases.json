@@ -803,6 +803,232 @@
     "comment": "Two lines"
    }
   ],
+  "persistentStorages": [
+   {
+    "id": 12,
+    "uuid": "l1parityappvolume0000001",
+    "name": "a1parityimageapp00000001-data",
+    "mount_path": "/data",
+    "resource": "application",
+    "resource_id": 1
+   },
+   {
+    "id": 13,
+    "uuid": "l2parityservicevolume002",
+    "name": "f1parityservice000000001_web-html",
+    "mount_path": "/usr/share/nginx/html",
+    "resource": "serviceApplication",
+    "resource_id": 1
+   },
+   {
+    "id": 14,
+    "uuid": "l3otherappvolume00000003",
+    "name": "a3otherteamapp0000000003-data",
+    "mount_path": "/data",
+    "resource": "application",
+    "resource_id": 3
+   }
+  ],
+  "fileStorages": [
+   {
+    "id": 1,
+    "uuid": "m1parityappconfigfile001",
+    "fs_path": "/data/coolify/applications/a1parityimageapp00000001/config.json",
+    "mount_path": "/app/config.json",
+    "content": "{\"debug\":false}",
+    "is_directory": false,
+    "is_host_file": false,
+    "resource": "application",
+    "resource_id": 1
+   },
+   {
+    "id": 2,
+    "uuid": "m2parityhostfile00000002",
+    "fs_path": "/etc/timezone",
+    "mount_path": "/etc/timezone",
+    "content": null,
+    "is_directory": false,
+    "is_host_file": true,
+    "resource": "application",
+    "resource_id": 1
+   },
+   {
+    "id": 3,
+    "uuid": "m3paritydirectory0000003",
+    "fs_path": "/srv/shared",
+    "mount_path": "/shared",
+    "content": null,
+    "is_directory": true,
+    "is_host_file": false,
+    "resource": "application",
+    "resource_id": 1
+   },
+   {
+    "id": 4,
+    "uuid": "m4paritypgfile0000000004",
+    "fs_path": "/data/coolify/databases/b1paritypostgres00000001/init.sql",
+    "mount_path": "/docker-entrypoint-initdb.d/init.sql",
+    "content": "select 1;",
+    "is_directory": false,
+    "is_host_file": false,
+    "resource": "postgresql",
+    "resource_id": 1
+   },
+   {
+    "id": 5,
+    "uuid": "m5parityservicefile00005",
+    "fs_path": "/data/coolify/services/f1parityservice000000001/default.conf",
+    "mount_path": "/etc/nginx/conf.d/default.conf",
+    "content": "server { listen 80; }",
+    "is_directory": false,
+    "is_host_file": false,
+    "resource": "serviceApplication",
+    "resource_id": 1
+   },
+   {
+    "id": 6,
+    "uuid": "m6otherappfile0000000006",
+    "fs_path": "/etc/localtime",
+    "mount_path": "/etc/localtime",
+    "content": null,
+    "is_directory": false,
+    "is_host_file": true,
+    "resource": "application",
+    "resource_id": 3
+   }
+  ],
+  "scheduledTasks": [
+   {
+    "id": 1,
+    "uuid": "n1paritybackuptask000001",
+    "team": 1,
+    "application_id": 1,
+    "service_id": null,
+    "name": "backup",
+    "command": "php artisan backup:run",
+    "frequency": "0 3 * * *",
+    "container": null,
+    "timeout": 300,
+    "use_shell": true,
+    "enabled": true,
+    "created_at": "2025-12-01 00:00:00"
+   },
+   {
+    "id": 2,
+    "uuid": "n2paritycleanuptask00002",
+    "team": 1,
+    "application_id": 1,
+    "service_id": null,
+    "name": "cleanup",
+    "command": "rm -rf /tmp/cache",
+    "frequency": "@daily",
+    "container": "app",
+    "timeout": 60,
+    "use_shell": false,
+    "enabled": false,
+    "created_at": "2025-12-02 00:00:00"
+   },
+   {
+    "id": 3,
+    "uuid": "n3parityservicetask00003",
+    "team": 1,
+    "application_id": null,
+    "service_id": 1,
+    "name": "vacuum",
+    "command": "vacuumdb --all",
+    "frequency": "*/30 * * * *",
+    "container": "db",
+    "timeout": 600,
+    "use_shell": true,
+    "enabled": true,
+    "created_at": "2025-12-03 00:00:00"
+   },
+   {
+    "id": 4,
+    "uuid": "n4otherteamtask000000004",
+    "team": 2,
+    "application_id": 3,
+    "service_id": null,
+    "name": "theirs",
+    "command": "echo theirs",
+    "frequency": "@hourly",
+    "container": null,
+    "timeout": 300,
+    "use_shell": true,
+    "enabled": true,
+    "created_at": "2025-12-04 00:00:00"
+   }
+  ],
+  "scheduledTaskExecutions": [
+   {
+    "id": 1,
+    "uuid": "o1paritytaskrunok0000001",
+    "task": 1,
+    "status": "success",
+    "message": "Backup done.",
+    "started_at": "2025-12-30 03:00:00",
+    "finished_at": "2025-12-30 03:00:02",
+    "duration": 1.25,
+    "retry_count": 0,
+    "created_at": "2025-12-30 03:00:00"
+   },
+   {
+    "id": 2,
+    "uuid": "o2paritytaskfailed000002",
+    "task": 1,
+    "status": "failed",
+    "message": "Error: could not reach s3cr3t-host",
+    "started_at": "2025-12-31 03:00:00",
+    "finished_at": "2025-12-31 03:00:05",
+    "duration": 5.5,
+    "retry_count": 2,
+    "created_at": "2025-12-31 03:00:00"
+   },
+   {
+    "id": 3,
+    "uuid": "o3otherteamtaskrun000003",
+    "task": 4,
+    "status": "success",
+    "message": "theirs",
+    "started_at": "2025-12-31 04:00:00",
+    "finished_at": "2025-12-31 04:00:01",
+    "duration": 0.5,
+    "retry_count": 0,
+    "created_at": "2025-12-31 04:00:00"
+   }
+  ],
+  "teamVariables": [
+   {
+    "id": 10,
+    "team": 1,
+    "key": "TEAM_FOO",
+    "value": "team-bar",
+    "is_literal": false,
+    "is_multiline": false,
+    "is_shown_once": false,
+    "comment": null
+   },
+   {
+    "id": 11,
+    "team": 1,
+    "key": "TEAM_SECRET",
+    "value": "t-secret",
+    "is_literal": true,
+    "is_multiline": false,
+    "is_shown_once": true,
+    "comment": "Locked"
+   },
+   {
+    "id": 12,
+    "team": 2,
+    "key": "OTHER_TEAM",
+    "value": "theirs",
+    "is_literal": false,
+    "is_multiline": false,
+    "is_shown_once": false,
+    "comment": null
+   }
+  ],
   "tokens": [
    {
     "key": "root",
@@ -955,7 +1181,9 @@
   "standalone_mariadbs",
   "standalone_keydbs",
   "standalone_dragonflies",
-  "standalone_clickhouses"
+  "standalone_clickhouses",
+  "local_persistent_volumes",
+  "local_file_volumes"
  ],
  "cases": [
   {
@@ -3891,7 +4119,7 @@
     "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id > 2 order by a.id",
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id > 2 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id > 2 order by e.id",
-    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) order by v.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) and v.uuid <> 'l2parityservicevolume002' order by v.id",
     "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
@@ -3927,7 +4155,7 @@
     "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id > 2 order by a.id",
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id > 2 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id > 2 order by e.id",
-    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) order by v.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) and v.uuid <> 'l2parityservicevolume002' order by v.id",
     "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
@@ -3947,7 +4175,7 @@
     "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id > 2 order by a.id",
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id > 2 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id > 2 order by e.id",
-    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) order by v.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) and v.uuid <> 'l2parityservicevolume002' order by v.id",
     "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
@@ -3967,7 +4195,7 @@
     "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id > 2 order by a.id",
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id > 2 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id > 2 order by e.id",
-    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) order by v.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) and v.uuid <> 'l2parityservicevolume002' order by v.id",
     "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
@@ -4145,7 +4373,7 @@
     "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id > 2 order by a.id",
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id > 2 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id > 2 order by e.id",
-    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) order by v.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) and v.uuid <> 'l2parityservicevolume002' order by v.id",
     "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
@@ -4189,7 +4417,7 @@
     "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id > 2 order by a.id",
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id > 2 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id > 2 order by e.id",
-    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) order by v.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) and v.uuid <> 'l2parityservicevolume002' order by v.id",
     "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
@@ -4216,7 +4444,7 @@
     "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id > 2 order by a.id",
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id > 2 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id > 2 order by e.id",
-    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) order by v.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) and v.uuid <> 'l2parityservicevolume002' order by v.id",
     "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
@@ -4250,7 +4478,7 @@
     "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id > 2 order by a.id",
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id > 2 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id > 2 order by e.id",
-    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) order by v.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) and v.uuid <> 'l2parityservicevolume002' order by v.id",
     "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
@@ -4286,7 +4514,7 @@
     "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id > 2 order by a.id",
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id > 2 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id > 2 order by e.id",
-    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) order by v.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) and v.uuid <> 'l2parityservicevolume002' order by v.id",
     "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
@@ -4307,7 +4535,7 @@
     "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id > 2 order by a.id",
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id > 2 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id > 2 order by e.id",
-    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) order by v.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id > 2 union select d.id from service_databases d join services s on s.id = d.service_id where s.id > 2) and v.uuid <> 'l2parityservicevolume002' order by v.id",
     "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
@@ -4363,7 +4591,7 @@
     "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id = 1 order by a.id",
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id = 1 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id = 1 order by e.id",
-    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) order by v.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) and v.uuid <> 'l2parityservicevolume002' order by v.id",
     "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
@@ -4383,7 +4611,7 @@
     "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id = 1 order by a.id",
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id = 1 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id = 1 order by e.id",
-    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) order by v.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) and v.uuid <> 'l2parityservicevolume002' order by v.id",
     "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
@@ -4400,7 +4628,7 @@
     "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id = 1 order by a.id",
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id = 1 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id = 1 order by e.id",
-    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) order by v.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) and v.uuid <> 'l2parityservicevolume002' order by v.id",
     "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
@@ -4422,7 +4650,7 @@
     "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id = 1 order by a.id",
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id = 1 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id = 1 order by e.id",
-    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) order by v.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) and v.uuid <> 'l2parityservicevolume002' order by v.id",
     "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
@@ -4444,7 +4672,7 @@
     "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id = 1 order by a.id",
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id = 1 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id = 1 order by e.id",
-    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) order by v.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) and v.uuid <> 'l2parityservicevolume002' order by v.id",
     "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
@@ -4467,7 +4695,7 @@
     "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id = 1 order by a.id",
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id = 1 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id = 1 order by e.id",
-    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) order by v.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) and v.uuid <> 'l2parityservicevolume002' order by v.id",
     "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
@@ -4489,7 +4717,7 @@
     "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id = 1 order by a.id",
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id = 1 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id = 1 order by e.id",
-    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) order by v.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) and v.uuid <> 'l2parityservicevolume002' order by v.id",
     "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
@@ -4544,7 +4772,7 @@
     "applications": "select a.name, a.human_name, a.image, regexp_replace(regexp_replace(a.fqdn, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as fqdn, a.ports, a.status, a.exclude_from_status, a.is_gzip_enabled, a.is_stripprefix_enabled, a.is_force_https_enabled, a.is_permanent_redirect_enabled, a.redirect, a.is_removed_from_compose, a.deleted_at is not null as deleted from service_applications a join services s on s.id = a.service_id where s.id = 1 order by a.id",
     "databases": "select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where s.id = 1 order by d.id",
     "variables": "select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and s.id = 1 order by e.id",
-    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) order by v.id",
+    "volumes": "select regexp_replace(regexp_replace(v.name, '[a-z0-9]{24}', '<uuid>', 'g'), '(service-)[A-Za-z0-9]{10}([^A-Za-z0-9]|$)', '\\1<random>\\2', 'g') as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where s.id = 1 union select d.id from service_databases d join services s on s.id = d.service_id where s.id = 1) and v.uuid <> 'l2parityservicevolume002' order by v.id",
     "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > 4 order by t.name"
    }
   },
@@ -7325,6 +7553,2415 @@
    "token": "write",
    "method": "POST",
    "path": "/api/v1/s3-storages/nonexistentuuid/validate"
+  },
+  {
+   "name": "application storages: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages"
+  },
+  {
+   "name": "application storages: list, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages"
+  },
+  {
+   "name": "application storages: list another team's",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a3otherteamapp0000000003/storages"
+  },
+  {
+   "name": "application storages: list, none",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/storages"
+  },
+  {
+   "name": "application storages: list of unknown",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/nonexistentuuid/storages"
+  },
+  {
+   "name": "application storages: create a volume",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "type": "persistent",
+    "name": "cache",
+    "mount_path": " cache "
+   },
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "application storages: create a volume, no name",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "type": "persistent",
+    "mount_path": "/cache"
+   }
+  },
+  {
+   "name": "application storages: create a volume, file fields",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "type": "persistent",
+    "name": "cache",
+    "mount_path": "/cache",
+    "content": "x",
+    "fs_path": "/srv"
+   }
+  },
+  {
+   "name": "application storages: create, invalid",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "type": "volume",
+    "name": "-bad name",
+    "is_directory": "maybe",
+    "content": 5,
+    "color": "red"
+   }
+  },
+  {
+   "name": "application storages: create, not JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "raw": "type=persistent",
+   "contentType": "application/x-www-form-urlencoded"
+  },
+  {
+   "name": "application storages: create a host file",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "type": "file",
+    "is_host_file": true,
+    "fs_path": " /etc/hostname ",
+    "mount_path": "etc/hostname"
+   },
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "application storages: create a host file, no source",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "type": "file",
+    "is_host_file": "1",
+    "mount_path": "/etc/hostname"
+   }
+  },
+  {
+   "name": "application storages: create a host file with content",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "type": "file",
+    "is_host_file": true,
+    "fs_path": "/etc/hostname",
+    "mount_path": "/etc/hostname",
+    "content": "x"
+   }
+  },
+  {
+   "name": "application storages: create a host file, a relative source",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "type": "file",
+    "is_host_file": true,
+    "fs_path": "etc/hostname",
+    "mount_path": "/etc/hostname"
+   }
+  },
+  {
+   "name": "application storages: create a directory that is a host file",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "type": "file",
+    "is_directory": true,
+    "is_host_file": true,
+    "fs_path": "/srv",
+    "mount_path": "/srv"
+   }
+  },
+  {
+   "name": "application storages: create a directory, no source",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "type": "file",
+    "is_directory": true,
+    "mount_path": "/srv"
+   }
+  },
+  {
+   "name": "application storages: create a directory outside, a write token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "type": "file",
+    "is_directory": true,
+    "fs_path": "/srv/data",
+    "mount_path": "/srv"
+   }
+  },
+  {
+   "name": "application storages: create a directory inside",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "type": "file",
+    "is_directory": true,
+    "fs_path": "./data",
+    "mount_path": "/srv"
+   },
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "application storages: create a file, a name",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "type": "file",
+    "name": "x",
+    "mount_path": "/app/x.conf"
+   }
+  },
+  {
+   "name": "application storages: create a file with content, a write token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "type": "file",
+    "mount_path": "/app/x.conf",
+    "content": "a = 1"
+   }
+  },
+  {
+   "name": "application storages: create a file",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "type": "file",
+    "mount_path": "/app/x.conf"
+   },
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "application storages: create a file, a path that leaves",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "type": "file",
+    "mount_path": "/app/../../x.conf"
+   }
+  },
+  {
+   "name": "application storages: create in unknown",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/nonexistentuuid/storages",
+   "body": {
+    "type": "persistent",
+    "name": "cache",
+    "mount_path": "/cache"
+   }
+  },
+  {
+   "name": "application storages: update, neither uuid nor id",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "type": "persistent",
+    "mount_path": "/x"
+   }
+  },
+  {
+   "name": "application storages: update, invalid",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "id": "x",
+    "is_preview_suffix_enabled": "maybe",
+    "name": "bad name",
+    "color": "red"
+   }
+  },
+  {
+   "name": "application storages: update unknown",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "uuid": "nonexistentuuid",
+    "type": "persistent",
+    "mount_path": "/x"
+   }
+  },
+  {
+   "name": "application storages: update a file as a volume",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "uuid": "m2parityhostfile00000002",
+    "type": "persistent",
+    "mount_path": "/x"
+   }
+  },
+  {
+   "name": "application storages: update in unknown",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/nonexistentuuid/storages",
+   "body": {
+    "uuid": "l1parityappvolume0000001",
+    "type": "persistent",
+    "mount_path": "/x"
+   }
+  },
+  {
+   "name": "application storages: delete unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages/nonexistentuuid"
+  },
+  {
+   "name": "application storages: delete in unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/nonexistentuuid/storages/l1parityappvolume0000001"
+  },
+  {
+   "name": "application storages: delete another team's",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages/l3otherappvolume00000003"
+  },
+  {
+   "name": "database storages: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/databases/b1paritypostgres00000001/storages"
+  },
+  {
+   "name": "database storages: list, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/databases/b1paritypostgres00000001/storages"
+  },
+  {
+   "name": "database storages: list another team's",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/databases/b9otherpostgres000000009/storages"
+  },
+  {
+   "name": "database storages: list, none",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/databases/b4paritymysql00000000004/storages"
+  },
+  {
+   "name": "database storages: list of unknown",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/databases/nonexistentuuid/storages"
+  },
+  {
+   "name": "database storages: create a volume",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/storages",
+   "body": {
+    "type": "persistent",
+    "name": "cache",
+    "mount_path": " cache "
+   },
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "database storages: create a volume, no name",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/storages",
+   "body": {
+    "type": "persistent",
+    "mount_path": "/cache"
+   }
+  },
+  {
+   "name": "database storages: create a volume, file fields",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/storages",
+   "body": {
+    "type": "persistent",
+    "name": "cache",
+    "mount_path": "/cache",
+    "content": "x",
+    "fs_path": "/srv"
+   }
+  },
+  {
+   "name": "database storages: create, invalid",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/storages",
+   "body": {
+    "type": "volume",
+    "name": "-bad name",
+    "is_directory": "maybe",
+    "content": 5,
+    "color": "red"
+   }
+  },
+  {
+   "name": "database storages: create, not JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/storages",
+   "raw": "type=persistent",
+   "contentType": "application/x-www-form-urlencoded"
+  },
+  {
+   "name": "database storages: create a host file",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/storages",
+   "body": {
+    "type": "file",
+    "is_host_file": true,
+    "fs_path": " /etc/hostname ",
+    "mount_path": "etc/hostname"
+   },
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "database storages: create a host file, no source",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/storages",
+   "body": {
+    "type": "file",
+    "is_host_file": "1",
+    "mount_path": "/etc/hostname"
+   }
+  },
+  {
+   "name": "database storages: create a host file with content",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/storages",
+   "body": {
+    "type": "file",
+    "is_host_file": true,
+    "fs_path": "/etc/hostname",
+    "mount_path": "/etc/hostname",
+    "content": "x"
+   }
+  },
+  {
+   "name": "database storages: create a host file, a relative source",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/storages",
+   "body": {
+    "type": "file",
+    "is_host_file": true,
+    "fs_path": "etc/hostname",
+    "mount_path": "/etc/hostname"
+   }
+  },
+  {
+   "name": "database storages: create a directory that is a host file",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/storages",
+   "body": {
+    "type": "file",
+    "is_directory": true,
+    "is_host_file": true,
+    "fs_path": "/srv",
+    "mount_path": "/srv"
+   }
+  },
+  {
+   "name": "database storages: create a directory, no source",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/storages",
+   "body": {
+    "type": "file",
+    "is_directory": true,
+    "mount_path": "/srv"
+   }
+  },
+  {
+   "name": "database storages: create a directory outside, a write token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/storages",
+   "body": {
+    "type": "file",
+    "is_directory": true,
+    "fs_path": "/srv/data",
+    "mount_path": "/srv"
+   }
+  },
+  {
+   "name": "database storages: create a directory inside",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/storages",
+   "body": {
+    "type": "file",
+    "is_directory": true,
+    "fs_path": "./data",
+    "mount_path": "/srv"
+   },
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "database storages: create a file, a name",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/storages",
+   "body": {
+    "type": "file",
+    "name": "x",
+    "mount_path": "/app/x.conf"
+   }
+  },
+  {
+   "name": "database storages: create a file with content, a write token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/storages",
+   "body": {
+    "type": "file",
+    "mount_path": "/app/x.conf",
+    "content": "a = 1"
+   }
+  },
+  {
+   "name": "database storages: create a file",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/storages",
+   "body": {
+    "type": "file",
+    "mount_path": "/app/x.conf"
+   },
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "database storages: create a file, a path that leaves",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/storages",
+   "body": {
+    "type": "file",
+    "mount_path": "/app/../../x.conf"
+   }
+  },
+  {
+   "name": "database storages: create in unknown",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/nonexistentuuid/storages",
+   "body": {
+    "type": "persistent",
+    "name": "cache",
+    "mount_path": "/cache"
+   }
+  },
+  {
+   "name": "database storages: update, neither uuid nor id",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/databases/b1paritypostgres00000001/storages",
+   "body": {
+    "type": "persistent",
+    "mount_path": "/x"
+   }
+  },
+  {
+   "name": "database storages: update, invalid",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/databases/b1paritypostgres00000001/storages",
+   "body": {
+    "id": "x",
+    "is_preview_suffix_enabled": "maybe",
+    "name": "bad name",
+    "color": "red"
+   }
+  },
+  {
+   "name": "database storages: update unknown",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/databases/b1paritypostgres00000001/storages",
+   "body": {
+    "uuid": "nonexistentuuid",
+    "type": "persistent",
+    "mount_path": "/x"
+   }
+  },
+  {
+   "name": "database storages: update a file as a volume",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/databases/b1paritypostgres00000001/storages",
+   "body": {
+    "uuid": "m4paritypgfile0000000004",
+    "type": "persistent",
+    "mount_path": "/x"
+   }
+  },
+  {
+   "name": "database storages: update in unknown",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/databases/nonexistentuuid/storages",
+   "body": {
+    "uuid": "l1parityappvolume0000001",
+    "type": "persistent",
+    "mount_path": "/x"
+   }
+  },
+  {
+   "name": "database storages: delete unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/databases/b1paritypostgres00000001/storages/nonexistentuuid"
+  },
+  {
+   "name": "database storages: delete in unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/databases/nonexistentuuid/storages/l1parityappvolume0000001"
+  },
+  {
+   "name": "database storages: delete another team's",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/databases/b1paritypostgres00000001/storages/l3otherappvolume00000003"
+  },
+  {
+   "name": "service storages: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/services/f1parityservice000000001/storages"
+  },
+  {
+   "name": "service storages: list, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/services/f1parityservice000000001/storages"
+  },
+  {
+   "name": "service storages: list of unknown",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/services/nonexistentuuid/storages"
+  },
+  {
+   "name": "service storages: create a volume",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/storages",
+   "body": {
+    "type": "persistent",
+    "resource_uuid": "g1paritywebapplication01",
+    "name": "cache",
+    "mount_path": " cache "
+   },
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "service storages: create a volume, no name",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/storages",
+   "body": {
+    "type": "persistent",
+    "resource_uuid": "g1paritywebapplication01",
+    "mount_path": "/cache"
+   }
+  },
+  {
+   "name": "service storages: create a volume, file fields",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/storages",
+   "body": {
+    "type": "persistent",
+    "resource_uuid": "g1paritywebapplication01",
+    "name": "cache",
+    "mount_path": "/cache",
+    "content": "x",
+    "fs_path": "/srv"
+   }
+  },
+  {
+   "name": "service storages: create, invalid",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/storages",
+   "body": {
+    "type": "volume",
+    "name": "-bad name",
+    "is_directory": "maybe",
+    "content": 5,
+    "color": "red"
+   }
+  },
+  {
+   "name": "service storages: create, not JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/storages",
+   "raw": "type=persistent",
+   "contentType": "application/x-www-form-urlencoded"
+  },
+  {
+   "name": "service storages: create a host file",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/storages",
+   "body": {
+    "type": "file",
+    "resource_uuid": "g1paritywebapplication01",
+    "is_host_file": true,
+    "fs_path": " /etc/hostname ",
+    "mount_path": "etc/hostname"
+   },
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "service storages: create a host file, no source",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/storages",
+   "body": {
+    "type": "file",
+    "resource_uuid": "g1paritywebapplication01",
+    "is_host_file": "1",
+    "mount_path": "/etc/hostname"
+   }
+  },
+  {
+   "name": "service storages: create a host file with content",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/storages",
+   "body": {
+    "type": "file",
+    "resource_uuid": "g1paritywebapplication01",
+    "is_host_file": true,
+    "fs_path": "/etc/hostname",
+    "mount_path": "/etc/hostname",
+    "content": "x"
+   }
+  },
+  {
+   "name": "service storages: create a host file, a relative source",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/storages",
+   "body": {
+    "type": "file",
+    "resource_uuid": "g1paritywebapplication01",
+    "is_host_file": true,
+    "fs_path": "etc/hostname",
+    "mount_path": "/etc/hostname"
+   }
+  },
+  {
+   "name": "service storages: create a directory that is a host file",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/storages",
+   "body": {
+    "type": "file",
+    "resource_uuid": "g1paritywebapplication01",
+    "is_directory": true,
+    "is_host_file": true,
+    "fs_path": "/srv",
+    "mount_path": "/srv"
+   }
+  },
+  {
+   "name": "service storages: create a directory, no source",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/storages",
+   "body": {
+    "type": "file",
+    "resource_uuid": "g1paritywebapplication01",
+    "is_directory": true,
+    "mount_path": "/srv"
+   }
+  },
+  {
+   "name": "service storages: create a directory outside, a write token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/storages",
+   "body": {
+    "type": "file",
+    "resource_uuid": "g1paritywebapplication01",
+    "is_directory": true,
+    "fs_path": "/srv/data",
+    "mount_path": "/srv"
+   }
+  },
+  {
+   "name": "service storages: create a directory inside",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/storages",
+   "body": {
+    "type": "file",
+    "resource_uuid": "g1paritywebapplication01",
+    "is_directory": true,
+    "fs_path": "./data",
+    "mount_path": "/srv"
+   },
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "service storages: create a file, a name",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/storages",
+   "body": {
+    "type": "file",
+    "resource_uuid": "g1paritywebapplication01",
+    "name": "x",
+    "mount_path": "/app/x.conf"
+   }
+  },
+  {
+   "name": "service storages: create a file with content, a write token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/storages",
+   "body": {
+    "type": "file",
+    "resource_uuid": "g1paritywebapplication01",
+    "mount_path": "/app/x.conf",
+    "content": "a = 1"
+   }
+  },
+  {
+   "name": "service storages: create a file",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/storages",
+   "body": {
+    "type": "file",
+    "resource_uuid": "g1paritywebapplication01",
+    "mount_path": "/app/x.conf"
+   },
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "service storages: create a file, a path that leaves",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/storages",
+   "body": {
+    "type": "file",
+    "resource_uuid": "g1paritywebapplication01",
+    "mount_path": "/app/../../x.conf"
+   }
+  },
+  {
+   "name": "service storages: create in unknown",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/nonexistentuuid/storages",
+   "body": {
+    "type": "persistent",
+    "resource_uuid": "g1paritywebapplication01",
+    "name": "cache",
+    "mount_path": "/cache"
+   }
+  },
+  {
+   "name": "service storages: update, neither uuid nor id",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001/storages",
+   "body": {
+    "type": "persistent",
+    "mount_path": "/x"
+   }
+  },
+  {
+   "name": "service storages: update, invalid",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001/storages",
+   "body": {
+    "id": "x",
+    "is_preview_suffix_enabled": "maybe",
+    "name": "bad name",
+    "color": "red"
+   }
+  },
+  {
+   "name": "service storages: update unknown",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001/storages",
+   "body": {
+    "uuid": "nonexistentuuid",
+    "type": "persistent",
+    "mount_path": "/x"
+   }
+  },
+  {
+   "name": "service storages: update a file as a volume",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001/storages",
+   "body": {
+    "uuid": "m5parityservicefile00005",
+    "type": "persistent",
+    "mount_path": "/x"
+   }
+  },
+  {
+   "name": "service storages: update in unknown",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/nonexistentuuid/storages",
+   "body": {
+    "uuid": "l1parityappvolume0000001",
+    "type": "persistent",
+    "mount_path": "/x"
+   }
+  },
+  {
+   "name": "service storages: delete unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/services/f1parityservice000000001/storages/nonexistentuuid"
+  },
+  {
+   "name": "service storages: delete in unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/services/nonexistentuuid/storages/l1parityappvolume0000001"
+  },
+  {
+   "name": "service storages: delete another team's",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/services/f1parityservice000000001/storages/l3otherappvolume00000003"
+  },
+  {
+   "name": "application storages: create a volume, a name it has",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "type": "persistent",
+    "name": "data",
+    "mount_path": "/other"
+   }
+  },
+  {
+   "name": "application storages: create a file with content",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "type": "file",
+    "mount_path": "/app/x.conf",
+    "content": "a = 1"
+   },
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "application storages: create a file outside, a write token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "type": "file",
+    "mount_path": "/app/x.conf",
+    "fs_path": "/srv/x.conf"
+   }
+  },
+  {
+   "name": "application storages: update a volume",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "uuid": "l1parityappvolume0000001",
+    "type": "persistent",
+    "name": "renamed",
+    "mount_path": " data2 ",
+    "is_preview_suffix_enabled": false
+   },
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "application storages: update a volume by id",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "id": 12,
+    "type": "persistent",
+    "is_preview_suffix_enabled": "0"
+   },
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "application storages: update a volume, content",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "uuid": "l1parityappvolume0000001",
+    "type": "persistent",
+    "content": "x"
+   }
+  },
+  {
+   "name": "application storages: update a host file",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "uuid": "m2parityhostfile00000002",
+    "type": "file",
+    "mount_path": "/etc/tz",
+    "is_preview_suffix_enabled": false
+   },
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "application storages: update a host file, read:sensitive answer",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "uuid": "m2parityhostfile00000002",
+    "type": "file",
+    "is_preview_suffix_enabled": true
+   },
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "application storages: update a file, a name",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "uuid": "m1parityappconfigfile001",
+    "type": "file",
+    "name": "x"
+   }
+  },
+  {
+   "name": "application storages: update a file's content, a write token",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "uuid": "m1parityappconfigfile001",
+    "type": "file",
+    "content": "{}"
+   }
+  },
+  {
+   "name": "application storages: update a file to its own content",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "uuid": "m1parityappconfigfile001",
+    "type": "file",
+    "content": "{\"debug\":false}",
+    "mount_path": "/app/settings.json"
+   },
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "application storages: update a file's content",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "uuid": "m1parityappconfigfile001",
+    "type": "file",
+    "content": "{\"debug\":true}"
+   },
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "application storages: update a directory",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "id": 3,
+    "type": "file",
+    "mount_path": "/data/shared"
+   },
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "application storages: update another team's",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages",
+   "body": {
+    "uuid": "l3otherappvolume00000003",
+    "type": "persistent",
+    "mount_path": "/x"
+   }
+  },
+  {
+   "name": "application storages: delete a volume",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages/l1parityappvolume0000001",
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "application storages: delete a host file",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages/m2parityhostfile00000002",
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "application storages: delete a directory outside",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages/m3paritydirectory0000003",
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "application storages: delete a file inside",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/storages/m1parityappconfigfile001",
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "database storages: list a Redis",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/databases/b2parityredis00000000002/storages"
+  },
+  {
+   "name": "database storages: update the data volume",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/databases/b1paritypostgres00000001/storages",
+   "body": {
+    "id": 2,
+    "type": "persistent",
+    "name": "pgdata",
+    "is_preview_suffix_enabled": false
+   },
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "database storages: update a file",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/databases/b1paritypostgres00000001/storages",
+   "body": {
+    "uuid": "m4paritypgfile0000000004",
+    "type": "file",
+    "mount_path": "/docker-entrypoint-initdb.d/01.sql"
+   },
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "database storages: delete the data volume",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/databases/b1paritypostgres00000001/storages/k1paritypgdatavolume0001",
+   "setup": [
+    "update local_persistent_volumes set uuid = 'k1paritypgdatavolume0001' where id = 2"
+   ],
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "database storages: delete a file inside",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/databases/b1paritypostgres00000001/storages/m4paritypgfile0000000004",
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "service storages: create, no part",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/storages",
+   "body": {
+    "type": "persistent",
+    "name": "cache",
+    "mount_path": "/cache"
+   }
+  },
+  {
+   "name": "service storages: create in an unknown part",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/storages",
+   "body": {
+    "type": "persistent",
+    "resource_uuid": "g2otherwebapplication002",
+    "name": "cache",
+    "mount_path": "/cache"
+   }
+  },
+  {
+   "name": "service storages: create a volume of the database",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/storages",
+   "body": {
+    "type": "persistent",
+    "resource_uuid": "h1paritydatabase00000001",
+    "name": "pg",
+    "mount_path": "/var/lib/postgresql/data"
+   },
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "service storages: create a host file of the database",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/storages",
+   "body": {
+    "type": "file",
+    "resource_uuid": "h1paritydatabase00000001",
+    "is_host_file": true,
+    "fs_path": "/etc/hostname",
+    "mount_path": "/etc/hostname"
+   },
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "service storages: update a volume's name",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001/storages",
+   "body": {
+    "uuid": "l2parityservicevolume002",
+    "type": "persistent",
+    "name": "renamed",
+    "mount_path": "/x"
+   }
+  },
+  {
+   "name": "service storages: update a volume's PR suffix",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001/storages",
+   "body": {
+    "uuid": "l2parityservicevolume002",
+    "type": "persistent",
+    "is_preview_suffix_enabled": false
+   },
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "service storages: update a file",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001/storages",
+   "body": {
+    "id": 5,
+    "type": "file",
+    "mount_path": "/etc/nginx/nginx.conf"
+   },
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "service storages: delete a volume",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/services/f1parityservice000000001/storages/l2parityservicevolume002"
+  },
+  {
+   "name": "service storages: delete a file inside",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/services/f1parityservice000000001/storages/m5parityservicefile00005",
+   "after": {
+    "persistent": "select case when id <= 14 then id end as fixture_id, name, mount_path, host_path, resource_type, resource_id, is_preview_suffix_enabled, standalone_sqlite_id from local_persistent_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) and not (resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = 2) order by id",
+    "files": "select case when id <= 6 then id end as fixture_id, fs_path, mount_path, content is not null as has_content, is_directory, is_host_file, is_based_on_git, is_preview_suffix_enabled, resource_type, resource_id from local_file_volumes where not (resource_type = 'App\\Models\\Application' and resource_id = 3) order by id"
+   }
+  },
+  {
+   "name": "service storages: list another team's",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/services/f2otherservice0000000002/storages"
+  },
+  {
+   "name": "service storages: list without file mounts",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/services/f1parityservice000000001/storages",
+   "setup": [
+    "delete from local_file_volumes where resource_type = 'App\\Models\\ServiceApplication'"
+   ]
+  },
+  {
+   "name": "service storages: list without file mounts, a volume of the database",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/services/f1parityservice000000001/storages",
+   "setup": [
+    "delete from local_file_volumes where resource_type = 'App\\Models\\ServiceApplication'",
+    "update local_persistent_volumes set resource_type = 'App\\Models\\ServiceDatabase' where uuid = 'l2parityservicevolume002'"
+   ]
+  },
+  {
+   "name": "application scheduled tasks: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/scheduled-tasks"
+  },
+  {
+   "name": "application scheduled tasks: list, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/scheduled-tasks"
+  },
+  {
+   "name": "application scheduled tasks: list another team's",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a3otherteamapp0000000003/scheduled-tasks"
+  },
+  {
+   "name": "application scheduled tasks: list of unknown",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/nonexistentuuid/scheduled-tasks"
+  },
+  {
+   "name": "application scheduled tasks: create",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/scheduled-tasks",
+   "body": {
+    "name": " <b>Nightly</b> report ",
+    "command": "php artisan report",
+    "frequency": "0 1 * * *",
+    "container": "web",
+    "timeout": 120,
+    "use_shell": false
+   },
+   "after": {
+    "tasks": "select case when id <= 4 then id end as fixture_id, enabled, name, command, frequency, container, application_id, service_id, timeout, consecutive_failures, failing_since, disabled_reason, use_shell from scheduled_tasks where uuid <> 'n4otherteamtask000000004' order by id",
+    "executions": "select uuid, scheduled_task_id, status from scheduled_task_executions where uuid <> 'o3otherteamtaskrun000003' order by id"
+   }
+  },
+  {
+   "name": "application scheduled tasks: create disabled, a write token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/scheduled-tasks",
+   "body": {
+    "name": "later",
+    "command": "echo later",
+    "frequency": "@weekly",
+    "enabled": false
+   },
+   "after": {
+    "tasks": "select case when id <= 4 then id end as fixture_id, enabled, name, command, frequency, container, application_id, service_id, timeout, consecutive_failures, failing_since, disabled_reason, use_shell from scheduled_tasks where uuid <> 'n4otherteamtask000000004' order by id",
+    "executions": "select uuid, scheduled_task_id, status from scheduled_task_executions where uuid <> 'o3otherteamtaskrun000003' order by id"
+   }
+  },
+  {
+   "name": "application scheduled tasks: create enabled, a write token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/scheduled-tasks",
+   "body": {
+    "name": "now",
+    "command": "echo now",
+    "frequency": "@weekly"
+   }
+  },
+  {
+   "name": "application scheduled tasks: create, invalid",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/scheduled-tasks",
+   "body": {
+    "command": [
+     "x"
+    ],
+    "frequency": 5,
+    "container": 1,
+    "timeout": 0,
+    "use_shell": "maybe",
+    "enabled": "yes",
+    "every": "day"
+   }
+  },
+  {
+   "name": "application scheduled tasks: create, a bad frequency",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/scheduled-tasks",
+   "body": {
+    "name": "bad",
+    "command": "echo",
+    "frequency": "every day"
+   }
+  },
+  {
+   "name": "application scheduled tasks: create, not JSON",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/scheduled-tasks",
+   "raw": "name=x",
+   "contentType": "application/x-www-form-urlencoded"
+  },
+  {
+   "name": "application scheduled tasks: create in unknown",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/nonexistentuuid/scheduled-tasks",
+   "body": {
+    "name": "x",
+    "command": "echo",
+    "frequency": "@daily"
+   }
+  },
+  {
+   "name": "application scheduled tasks: update",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/scheduled-tasks/n1paritybackuptask000001",
+   "body": {
+    "name": "renamed",
+    "frequency": "@hourly",
+    "timeout": "90",
+    "container": null
+   },
+   "after": {
+    "tasks": "select case when id <= 4 then id end as fixture_id, enabled, name, command, frequency, container, application_id, service_id, timeout, consecutive_failures, failing_since, disabled_reason, use_shell from scheduled_tasks where uuid <> 'n4otherteamtask000000004' order by id",
+    "executions": "select uuid, scheduled_task_id, status from scheduled_task_executions where uuid <> 'o3otherteamtaskrun000003' order by id"
+   }
+  },
+  {
+   "name": "application scheduled tasks: update, nothing",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/scheduled-tasks/n1paritybackuptask000001",
+   "raw": "{}"
+  },
+  {
+   "name": "application scheduled tasks: update, invalid",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/scheduled-tasks/n1paritybackuptask000001",
+   "body": {
+    "name": "",
+    "timeout": 36001,
+    "uuid": "x"
+   }
+  },
+  {
+   "name": "application scheduled tasks: update, a bad frequency",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/scheduled-tasks/n1paritybackuptask000001",
+   "body": {
+    "frequency": "61 * * * *"
+   }
+  },
+  {
+   "name": "application scheduled tasks: update an enabled task, a write token",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/scheduled-tasks/n1paritybackuptask000001",
+   "body": {
+    "name": "x"
+   }
+  },
+  {
+   "name": "application scheduled tasks: update unknown",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/scheduled-tasks/nonexistentuuid",
+   "body": {
+    "name": "x"
+   }
+  },
+  {
+   "name": "application scheduled tasks: update unchanged",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/scheduled-tasks/n1paritybackuptask000001",
+   "body": {
+    "enabled": true
+   },
+   "after": {
+    "tasks": "select case when id <= 4 then id end as fixture_id, enabled, name, command, frequency, container, application_id, service_id, timeout, consecutive_failures, failing_since, disabled_reason, use_shell from scheduled_tasks where uuid <> 'n4otherteamtask000000004' order by id",
+    "executions": "select uuid, scheduled_task_id, status from scheduled_task_executions where uuid <> 'o3otherteamtaskrun000003' order by id"
+   }
+  },
+  {
+   "name": "application scheduled tasks: delete",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/scheduled-tasks/n1paritybackuptask000001",
+   "after": {
+    "tasks": "select case when id <= 4 then id end as fixture_id, enabled, name, command, frequency, container, application_id, service_id, timeout, consecutive_failures, failing_since, disabled_reason, use_shell from scheduled_tasks where uuid <> 'n4otherteamtask000000004' order by id",
+    "executions": "select uuid, scheduled_task_id, status from scheduled_task_executions where uuid <> 'o3otherteamtaskrun000003' order by id"
+   }
+  },
+  {
+   "name": "application scheduled tasks: delete unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/scheduled-tasks/nonexistentuuid"
+  },
+  {
+   "name": "application scheduled tasks: delete another team's",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/scheduled-tasks/n4otherteamtask000000004"
+  },
+  {
+   "name": "application scheduled tasks: executions",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/scheduled-tasks/n1paritybackuptask000001/executions"
+  },
+  {
+   "name": "application scheduled tasks: executions, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/scheduled-tasks/n1paritybackuptask000001/executions"
+  },
+  {
+   "name": "application scheduled tasks: executions of unknown",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/scheduled-tasks/nonexistentuuid/executions"
+  },
+  {
+   "name": "application scheduled tasks: executions in unknown",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/nonexistentuuid/scheduled-tasks/n1paritybackuptask000001/executions"
+  },
+  {
+   "name": "service scheduled tasks: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/services/f1parityservice000000001/scheduled-tasks"
+  },
+  {
+   "name": "service scheduled tasks: list, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/services/f1parityservice000000001/scheduled-tasks"
+  },
+  {
+   "name": "service scheduled tasks: list another team's",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/services/f2otherservice0000000002/scheduled-tasks"
+  },
+  {
+   "name": "service scheduled tasks: list of unknown",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/services/nonexistentuuid/scheduled-tasks"
+  },
+  {
+   "name": "service scheduled tasks: create",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/scheduled-tasks",
+   "body": {
+    "name": " <b>Nightly</b> report ",
+    "command": "php artisan report",
+    "frequency": "0 1 * * *",
+    "container": "web",
+    "timeout": 120,
+    "use_shell": false
+   },
+   "after": {
+    "tasks": "select case when id <= 4 then id end as fixture_id, enabled, name, command, frequency, container, application_id, service_id, timeout, consecutive_failures, failing_since, disabled_reason, use_shell from scheduled_tasks where uuid <> 'n4otherteamtask000000004' order by id",
+    "executions": "select uuid, scheduled_task_id, status from scheduled_task_executions where uuid <> 'o3otherteamtaskrun000003' order by id"
+   }
+  },
+  {
+   "name": "service scheduled tasks: create disabled, a write token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/scheduled-tasks",
+   "body": {
+    "name": "later",
+    "command": "echo later",
+    "frequency": "@weekly",
+    "enabled": false
+   },
+   "after": {
+    "tasks": "select case when id <= 4 then id end as fixture_id, enabled, name, command, frequency, container, application_id, service_id, timeout, consecutive_failures, failing_since, disabled_reason, use_shell from scheduled_tasks where uuid <> 'n4otherteamtask000000004' order by id",
+    "executions": "select uuid, scheduled_task_id, status from scheduled_task_executions where uuid <> 'o3otherteamtaskrun000003' order by id"
+   }
+  },
+  {
+   "name": "service scheduled tasks: create enabled, a write token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/scheduled-tasks",
+   "body": {
+    "name": "now",
+    "command": "echo now",
+    "frequency": "@weekly"
+   }
+  },
+  {
+   "name": "service scheduled tasks: create, invalid",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/scheduled-tasks",
+   "body": {
+    "command": [
+     "x"
+    ],
+    "frequency": 5,
+    "container": 1,
+    "timeout": 0,
+    "use_shell": "maybe",
+    "enabled": "yes",
+    "every": "day"
+   }
+  },
+  {
+   "name": "service scheduled tasks: create, a bad frequency",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/scheduled-tasks",
+   "body": {
+    "name": "bad",
+    "command": "echo",
+    "frequency": "every day"
+   }
+  },
+  {
+   "name": "service scheduled tasks: create, not JSON",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/scheduled-tasks",
+   "raw": "name=x",
+   "contentType": "application/x-www-form-urlencoded"
+  },
+  {
+   "name": "service scheduled tasks: create in unknown",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/services/nonexistentuuid/scheduled-tasks",
+   "body": {
+    "name": "x",
+    "command": "echo",
+    "frequency": "@daily"
+   }
+  },
+  {
+   "name": "service scheduled tasks: update",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001/scheduled-tasks/n3parityservicetask00003",
+   "body": {
+    "name": "renamed",
+    "frequency": "@hourly",
+    "timeout": "90",
+    "container": null
+   },
+   "after": {
+    "tasks": "select case when id <= 4 then id end as fixture_id, enabled, name, command, frequency, container, application_id, service_id, timeout, consecutive_failures, failing_since, disabled_reason, use_shell from scheduled_tasks where uuid <> 'n4otherteamtask000000004' order by id",
+    "executions": "select uuid, scheduled_task_id, status from scheduled_task_executions where uuid <> 'o3otherteamtaskrun000003' order by id"
+   }
+  },
+  {
+   "name": "service scheduled tasks: update, nothing",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001/scheduled-tasks/n3parityservicetask00003",
+   "raw": "{}"
+  },
+  {
+   "name": "service scheduled tasks: update, invalid",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001/scheduled-tasks/n3parityservicetask00003",
+   "body": {
+    "name": "",
+    "timeout": 36001,
+    "uuid": "x"
+   }
+  },
+  {
+   "name": "service scheduled tasks: update, a bad frequency",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001/scheduled-tasks/n3parityservicetask00003",
+   "body": {
+    "frequency": "61 * * * *"
+   }
+  },
+  {
+   "name": "service scheduled tasks: update an enabled task, a write token",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001/scheduled-tasks/n3parityservicetask00003",
+   "body": {
+    "name": "x"
+   }
+  },
+  {
+   "name": "service scheduled tasks: update unknown",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001/scheduled-tasks/nonexistentuuid",
+   "body": {
+    "name": "x"
+   }
+  },
+  {
+   "name": "service scheduled tasks: update unchanged",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001/scheduled-tasks/n3parityservicetask00003",
+   "body": {
+    "enabled": true
+   },
+   "after": {
+    "tasks": "select case when id <= 4 then id end as fixture_id, enabled, name, command, frequency, container, application_id, service_id, timeout, consecutive_failures, failing_since, disabled_reason, use_shell from scheduled_tasks where uuid <> 'n4otherteamtask000000004' order by id",
+    "executions": "select uuid, scheduled_task_id, status from scheduled_task_executions where uuid <> 'o3otherteamtaskrun000003' order by id"
+   }
+  },
+  {
+   "name": "service scheduled tasks: delete",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/services/f1parityservice000000001/scheduled-tasks/n3parityservicetask00003",
+   "after": {
+    "tasks": "select case when id <= 4 then id end as fixture_id, enabled, name, command, frequency, container, application_id, service_id, timeout, consecutive_failures, failing_since, disabled_reason, use_shell from scheduled_tasks where uuid <> 'n4otherteamtask000000004' order by id",
+    "executions": "select uuid, scheduled_task_id, status from scheduled_task_executions where uuid <> 'o3otherteamtaskrun000003' order by id"
+   }
+  },
+  {
+   "name": "service scheduled tasks: delete unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/services/f1parityservice000000001/scheduled-tasks/nonexistentuuid"
+  },
+  {
+   "name": "service scheduled tasks: delete another team's",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/services/f1parityservice000000001/scheduled-tasks/n4otherteamtask000000004"
+  },
+  {
+   "name": "service scheduled tasks: executions",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/services/f1parityservice000000001/scheduled-tasks/n3parityservicetask00003/executions"
+  },
+  {
+   "name": "service scheduled tasks: executions, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/services/f1parityservice000000001/scheduled-tasks/n3parityservicetask00003/executions"
+  },
+  {
+   "name": "service scheduled tasks: executions of unknown",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/services/f1parityservice000000001/scheduled-tasks/nonexistentuuid/executions"
+  },
+  {
+   "name": "service scheduled tasks: executions in unknown",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/services/nonexistentuuid/scheduled-tasks/n3parityservicetask00003/executions"
+  },
+  {
+   "name": "application scheduled tasks: update a disabled task, a write token",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/scheduled-tasks/n2paritycleanuptask00002",
+   "body": {
+    "name": "cleanup-tmp",
+    "use_shell": "1"
+   },
+   "after": {
+    "tasks": "select case when id <= 4 then id end as fixture_id, enabled, name, command, frequency, container, application_id, service_id, timeout, consecutive_failures, failing_since, disabled_reason, use_shell from scheduled_tasks where uuid <> 'n4otherteamtask000000004' order by id",
+    "executions": "select uuid, scheduled_task_id, status from scheduled_task_executions where uuid <> 'o3otherteamtaskrun000003' order by id"
+   }
+  },
+  {
+   "name": "application scheduled tasks: enable a task disabled automatically",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/scheduled-tasks/n2paritycleanuptask00002",
+   "setup": [
+    "update scheduled_tasks set consecutive_failures = 12, failing_since = '2025-12-20 00:00:00', disabled_reason = 'Disabled automatically after 12 failed runs in a row since 2025-12-20 00:00:00 UTC.' where id = 2"
+   ],
+   "body": {
+    "enabled": true
+   },
+   "after": {
+    "tasks": "select case when id <= 4 then id end as fixture_id, enabled, name, command, frequency, container, application_id, service_id, timeout, consecutive_failures, failing_since, disabled_reason, use_shell from scheduled_tasks where uuid <> 'n4otherteamtask000000004' order by id",
+    "executions": "select uuid, scheduled_task_id, status from scheduled_task_executions where uuid <> 'o3otherteamtaskrun000003' order by id"
+   }
+  },
+  {
+   "name": "application scheduled tasks: update another resource's task",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/scheduled-tasks/n3parityservicetask00003",
+   "body": {
+    "name": "x"
+   }
+  },
+  {
+   "name": "application scheduled tasks: executions of a task that never ran",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/scheduled-tasks/n2paritycleanuptask00002/executions"
+  },
+  {
+   "name": "application scheduled tasks: list, none",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/scheduled-tasks"
+  },
+  {
+   "name": "application scheduled tasks: create with a delete token",
+   "token": "delete",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/scheduled-tasks",
+   "body": {
+    "name": "x",
+    "command": "echo",
+    "frequency": "@daily"
+   }
+  },
+  {
+   "name": "database envs: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/databases/b2parityredis00000000002/envs"
+  },
+  {
+   "name": "database envs: list, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/databases/b2parityredis00000000002/envs"
+  },
+  {
+   "name": "database envs: list, none",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/databases/b1paritypostgres00000001/envs"
+  },
+  {
+   "name": "database envs: list another team's",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/databases/b9otherpostgres000000009/envs"
+  },
+  {
+   "name": "database envs: list of unknown",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/databases/nonexistentuuid/envs"
+  },
+  {
+   "name": "database envs: create",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/envs",
+   "body": {
+    "key": " PG_MAX_CONN ",
+    "value": "100",
+    "is_literal": true,
+    "comment": "Pool"
+   },
+   "after": {
+    "variables": "select key, resourceable_type, resourceable_id, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, \"order\", version from environment_variables where resourceable_type like 'App\\Models\\Standalone%' order by id"
+   }
+  },
+  {
+   "name": "database envs: create, read:sensitive answer",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/envs",
+   "body": {
+    "key": "LOCKED",
+    "value": "hidden",
+    "is_shown_once": true,
+    "is_multiline": "1"
+   },
+   "after": {
+    "variables": "select key, resourceable_type, resourceable_id, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, \"order\", version from environment_variables where resourceable_type like 'App\\Models\\Standalone%' order by id"
+   }
+  },
+  {
+   "name": "database envs: create a shared reference",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/envs",
+   "body": {
+    "key": "FROM_PROJECT",
+    "value": "{{ project.PROJECT_FOO }}"
+   },
+   "after": {
+    "variables": "select key, resourceable_type, resourceable_id, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, \"order\", version from environment_variables where resourceable_type like 'App\\Models\\Standalone%' order by id"
+   }
+  },
+  {
+   "name": "database envs: create, an existing key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b2parityredis00000000002/envs",
+   "body": {
+    "key": "REDIS_USERNAME",
+    "value": "admin"
+   }
+  },
+  {
+   "name": "database envs: create, invalid",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/envs",
+   "body": {
+    "key": "1-bad",
+    "value": 5,
+    "is_literal": "maybe",
+    "comment": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "is_preview": true
+   }
+  },
+  {
+   "name": "database envs: create, no key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/envs",
+   "body": {
+    "value": "v"
+   }
+  },
+  {
+   "name": "database envs: create in unknown",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/nonexistentuuid/envs",
+   "body": {
+    "key": "A",
+    "value": "v"
+   }
+  },
+  {
+   "name": "database envs: update",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/databases/b2parityredis00000000002/envs",
+   "body": {
+    "key": "REDIS_USERNAME",
+    "value": "admin",
+    "is_multiline": false,
+    "comment": "Changed"
+   },
+   "after": {
+    "variables": "select key, resourceable_type, resourceable_id, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, \"order\", version from environment_variables where resourceable_type like 'App\\Models\\Standalone%' order by id"
+   }
+  },
+  {
+   "name": "database envs: update, read:sensitive answer",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/databases/b2parityredis00000000002/envs",
+   "body": {
+    "key": " REDIS_PASSWORD",
+    "is_literal": true
+   },
+   "after": {
+    "variables": "select key, resourceable_type, resourceable_id, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, \"order\", version from environment_variables where resourceable_type like 'App\\Models\\Standalone%' order by id"
+   }
+  },
+  {
+   "name": "database envs: update unknown",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/databases/b2parityredis00000000002/envs",
+   "body": {
+    "key": "NOPE",
+    "value": "x"
+   }
+  },
+  {
+   "name": "database envs: update, invalid",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/databases/b2parityredis00000000002/envs",
+   "body": {
+    "key": "",
+    "is_shown_once": "yes"
+   }
+  },
+  {
+   "name": "database envs: bulk",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/databases/b2parityredis00000000002/envs/bulk",
+   "body": {
+    "data": [
+     {
+      "key": "REDIS_USERNAME",
+      "value": "bulk-user"
+     },
+     {
+      "key": "NEW_ONE",
+      "value": "1",
+      "is_literal": true,
+      "extra": "dropped"
+     }
+    ]
+   },
+   "after": {
+    "variables": "select key, resourceable_type, resourceable_id, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, \"order\", version from environment_variables where resourceable_type like 'App\\Models\\Standalone%' order by id"
+   }
+  },
+  {
+   "name": "database envs: bulk, no data",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/databases/b2parityredis00000000002/envs/bulk",
+   "body": {
+    "items": []
+   }
+  },
+  {
+   "name": "database envs: bulk, an invalid item",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/databases/b2parityredis00000000002/envs/bulk",
+   "body": {
+    "data": [
+     {
+      "key": "GOOD",
+      "value": "1"
+     },
+     {
+      "key": "bad key!",
+      "value": "2"
+     }
+    ]
+   },
+   "after": {
+    "variables": "select key, resourceable_type, resourceable_id, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, \"order\", version from environment_variables where resourceable_type like 'App\\Models\\Standalone%' order by id"
+   }
+  },
+  {
+   "name": "database envs: delete",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/databases/b2parityredis00000000002/envs/b2parityredis0000000user",
+   "setup": [
+    "update environment_variables set uuid = 'b2parityredis0000000user' where key = 'REDIS_USERNAME' and resourceable_type = 'App\\Models\\StandaloneRedis'"
+   ],
+   "after": {
+    "variables": "select key, resourceable_type, resourceable_id, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, \"order\", version from environment_variables where resourceable_type like 'App\\Models\\Standalone%' order by id"
+   }
+  },
+  {
+   "name": "database envs: delete unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/databases/b2parityredis00000000002/envs/nonexistentuuid"
+  },
+  {
+   "name": "database envs: delete another resource's",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/databases/b1paritypostgres00000001/envs/v1parityfoovariable00001"
+  },
+  {
+   "name": "team envs: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/team/envs"
+  },
+  {
+   "name": "team envs: list, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/team/envs"
+  },
+  {
+   "name": "team envs: list, none",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/team/envs",
+   "setup": [
+    "delete from shared_environment_variables where type = 'team'"
+   ]
+  },
+  {
+   "name": "team envs: create",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/team/envs",
+   "body": {
+    "key": " NEW_TEAM_KEY ",
+    "value": "  kept  ",
+    "is_literal": "1",
+    "is_shown_once": false,
+    "comment": " A comment "
+   },
+   "after": {
+    "variables": "select case when id <= 12 then id end as fixture_id, key, type, project_id, environment_id, server_id, is_shown_once, is_multiline, is_literal, comment, version from shared_environment_variables where type = 'team' and key <> 'OTHER_TEAM' order by id"
+   }
+  },
+  {
+   "name": "team envs: create, a key a project has",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/team/envs",
+   "body": {
+    "key": "PROJECT_FOO",
+    "value": "team-level"
+   },
+   "after": {
+    "variables": "select case when id <= 12 then id end as fixture_id, key, type, project_id, environment_id, server_id, is_shown_once, is_multiline, is_literal, comment, version from shared_environment_variables where type = 'team' and key <> 'OTHER_TEAM' order by id"
+   }
+  },
+  {
+   "name": "team envs: create, another team's key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/team/envs",
+   "body": {
+    "key": "OTHER_TEAM",
+    "value": "mine"
+   },
+   "after": {
+    "variables": "select case when id <= 12 then id end as fixture_id, key, type, project_id, environment_id, server_id, is_shown_once, is_multiline, is_literal, comment, version from shared_environment_variables where type = 'team' and key <> 'OTHER_TEAM' order by id"
+   }
+  },
+  {
+   "name": "team envs: create, an existing key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/team/envs",
+   "body": {
+    "key": "TEAM_FOO",
+    "value": "again"
+   }
+  },
+  {
+   "name": "team envs: create, invalid",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/team/envs",
+   "body": {
+    "key": "1BAD-KEY",
+    "value": [
+     "x"
+    ],
+    "is_multiline": "maybe",
+    "type": "project"
+   }
+  },
+  {
+   "name": "team envs: create, no key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/team/envs",
+   "body": {
+    "value": "v"
+   }
+  },
+  {
+   "name": "team envs: create, not JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/team/envs",
+   "raw": "key=A",
+   "contentType": "application/x-www-form-urlencoded"
+  },
+  {
+   "name": "team envs: update",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/team/envs/10",
+   "body": {
+    "value": "changed",
+    "comment": "Changed",
+    "is_multiline": true
+   },
+   "after": {
+    "variables": "select case when id <= 12 then id end as fixture_id, key, type, project_id, environment_id, server_id, is_shown_once, is_multiline, is_literal, comment, version from shared_environment_variables where type = 'team' and key <> 'OTHER_TEAM' order by id"
+   }
+  },
+  {
+   "name": "team envs: update, read:sensitive answer",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/team/envs/10",
+   "body": {
+    "key": "RENAMED_TEAM",
+    "is_literal": true
+   },
+   "after": {
+    "variables": "select case when id <= 12 then id end as fixture_id, key, type, project_id, environment_id, server_id, is_shown_once, is_multiline, is_literal, comment, version from shared_environment_variables where type = 'team' and key <> 'OTHER_TEAM' order by id"
+   }
+  },
+  {
+   "name": "team envs: update a locked variable",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/team/envs/11",
+   "body": {
+    "value": "new secret",
+    "is_shown_once": false
+   },
+   "after": {
+    "variables": "select case when id <= 12 then id end as fixture_id, key, type, project_id, environment_id, server_id, is_shown_once, is_multiline, is_literal, comment, version from shared_environment_variables where type = 'team' and key <> 'OTHER_TEAM' order by id"
+   }
+  },
+  {
+   "name": "team envs: update to an existing key",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/team/envs/10",
+   "body": {
+    "key": "TEAM_SECRET"
+   }
+  },
+  {
+   "name": "team envs: update, nothing",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/team/envs/10",
+   "raw": "{}"
+  },
+  {
+   "name": "team envs: update, invalid",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/team/envs/10",
+   "body": {
+    "key": "no spaces allowed",
+    "comment": 5
+   }
+  },
+  {
+   "name": "team envs: update unknown",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/team/envs/999",
+   "body": {
+    "value": "x"
+   }
+  },
+  {
+   "name": "team envs: update unknown, invalid",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/team/envs/999",
+   "body": {
+    "key": "bad key"
+   }
+  },
+  {
+   "name": "team envs: update a project's variable",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/team/envs/5",
+   "body": {
+    "value": "x"
+   }
+  },
+  {
+   "name": "team envs: update another team's",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/team/envs/12",
+   "body": {
+    "value": "x"
+   }
+  },
+  {
+   "name": "team envs: delete",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/team/envs/11",
+   "after": {
+    "variables": "select case when id <= 12 then id end as fixture_id, key, type, project_id, environment_id, server_id, is_shown_once, is_multiline, is_literal, comment, version from shared_environment_variables where type = 'team' and key <> 'OTHER_TEAM' order by id"
+   }
+  },
+  {
+   "name": "team envs: delete unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/team/envs/999"
+  },
+  {
+   "name": "team envs: delete a server's variable",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/team/envs/1"
+  },
+  {
+   "name": "team envs: delete another team's",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/team/envs/12"
   }
  ]
 }
