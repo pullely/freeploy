@@ -93,6 +93,11 @@ const deploymentLog = (output) => JSON.stringify([{ command: null, output, type:
 const SERVICE_GENERATED = "services:\n  web:\n    image: 'nginx:alpine'\n    environment:\n      FOO: bar\n  db:\n    image: 'postgres:16-alpine'\n    environment:\n      POSTGRES_PASSWORD: dbSecretPass1\n";
 /** Fixed manual webhook secrets (Coolify's creating hook makes random ones; both sides are given these). */
 const webhookSecrets = (prefix) => Object.fromEntries(["github", "gitlab", "bitbucket", "gitea"].map((p) => [`manual_webhook_secret_${p}`, `${prefix}${p}`.padEnd(40, "x")]));
+// DP-86: previews of the applications.
+const R_IMAGE = "r1parityimagepreview0001";
+const R_GIT_17 = "r2paritygitpreview000002";
+const R_GIT_12 = "r3paritygitpreview000003";
+const R_OTHER = "r4otherpreview0000000004";
 
 const fixture = {
   teams: [
@@ -263,6 +268,14 @@ const fixture = {
     { id: 2, uuid: "y2paritycleanupfailed002", server_id: 1, status: "failed", message: "Error: docker system prune failed", created_at: "2025-12-31 01:00:00", finished_at: "2025-12-31 01:00:05" },
     { id: 3, uuid: "y3othercleanup0000000003", server_id: 2, status: "running", message: null, created_at: "2025-12-31 02:00:00", finished_at: null },
   ],
+  // DP-86: previews of the applications (ApplicationPreview::forceCreate(): the saving hook normalizes the domain; the
+  // timestamps and last_online_at fixed).
+  previews: [
+    { id: 1, uuid: R_IMAGE, application: 1, pull_request_id: 3, pull_request_html_url: "", git_type: null, fqdn: "https://3.image.example.com", docker_registry_image_tag: "pr-3", status: "running:healthy", created_at: "2025-12-20 00:00:00" },
+    { id: 2, uuid: R_GIT_17, application: 2, pull_request_id: 17, pull_request_html_url: "https://github.com/coollabsio/coolify-examples/pull/17", git_type: "github", fqdn: null, docker_registry_image_tag: null, status: "exited", created_at: "2025-12-21 00:00:00" },
+    { id: 3, uuid: R_GIT_12, application: 2, pull_request_id: 12, pull_request_html_url: "https://github.com/coollabsio/coolify-examples/pull/12", git_type: "github", fqdn: "https://pr-12.example.com:8080", docker_registry_image_tag: null, status: "exited", created_at: "2025-12-22 00:00:00" },
+    { id: 4, uuid: R_OTHER, application: 3, pull_request_id: 1, pull_request_html_url: "", git_type: null, fqdn: null, docker_registry_image_tag: "pr-1", status: "exited", created_at: "2025-12-23 00:00:00" },
+  ],
   // secret: what follows "<id>|" in the bearer token (Sanctum's 40 random characters and crc32b).
   tokens: [
     { key: "root", id: 1, user: 1, team: T1, name: "Root token", abilities: ["root"], secret: "rootrootrootrootrootrootrootrootrootroot5a1b2c3d" },
@@ -276,6 +289,8 @@ const fixture = {
     { key: "memberWrite", id: 9, user: 2, team: T1, name: "Member write", abilities: ["read", "write"], secret: "mwrimwrimwrimwrimwrimwrimwrimwrimwrimwri7a1b2c3d" },
     { key: "notMember", id: 10, user: 1, team: T2, name: "Not a member", abilities: ["root"], secret: "nmemnmemnmemnmemnmemnmemnmemnmemnmemnmem8a1b2c3d" },
     { key: "memberSensitive", id: 11, user: 2, team: T1, name: "Member sensitive", abilities: ["read", "read:sensitive"], secret: "msenmsenmsenmsenmsenmsenmsenmsenmsenmsen9a1b2c3d" },
+    // DP-86: a token that may deploy but not write (a preview's redeploy).
+    { key: "deploy", id: 12, user: 1, team: T1, name: "Deploy token", abilities: ["read", "deploy"], secret: "deplodeplodeplodeplodeplodeplodeplodeplo0b1c2d3e" },
   ],
 };
 
@@ -1469,6 +1484,278 @@ add({ name: "docker cleanup: executions", token: "read", method: "GET", path: `$
 add({ name: "docker cleanup: executions, none", token: "read", method: "GET", path: `/api/v1/servers/${S_MAIN}/docker-cleanup/executions`, setup: ["delete from docker_cleanup_executions where server_id = 1"] });
 add({ name: "docker cleanup: executions of unknown", token: "read", method: "GET", path: "/api/v1/servers/nonexistentuuid/docker-cleanup/executions" });
 add({ name: "docker cleanup: executions of another team's server", token: "read", method: "GET", path: `/api/v1/servers/${S_OTHER}/docker-cleanup/executions` });
+
+// ── DP-86: an application's previews ────────────────────────────────────────
+/** The previews of team 1's applications, as rows (a created one's uuid is the request's, its domain may name a random id). */
+const PREVIEWS_AFTER = {
+  previews:
+    "select case when p.uuid like 'r%preview%' then p.uuid end as fixture_uuid, p.application_id, p.pull_request_id, p.pull_request_html_url, p.fqdn, p.status, p.git_type, p.docker_compose_domains, p.docker_registry_image_tag, p.domain_port_overrides::jsonb::text as domain_port_overrides, p.deleted_at is not null as deleted from application_previews p where p.application_id in (1, 2) order by p.id",
+};
+const PREVIEWS = (app) => `/api/v1/applications/${app}/previews`;
+const COMPOSE_GIT_APP = [
+  "update applications set build_pack = 'dockercompose', docker_compose_raw = 'services:\n  web:\n    image: nginx:alpine\n  api:\n    image: node:22\n  db:\n    image: postgres:16-alpine\n', docker_compose_domains = '{\"web\":{\"domain\":\"https://web.example.com\"},\"api\":{\"domain\":\"\",\"redirect\":\"www\"}}' where id = 2",
+];
+add({ name: "previews: list", token: "read", method: "GET", path: PREVIEWS(A_GIT) });
+add({ name: "previews: list of an image application", token: "read", method: "GET", path: PREVIEWS(A_IMAGE) });
+add({ name: "previews: list, none", token: "read", method: "GET", path: PREVIEWS(A_GIT), setup: ["update application_previews set deleted_at = now() where application_id = 2"] });
+add({ name: "previews: list of unknown application", token: "read", method: "GET", path: PREVIEWS("nonexistentuuid") });
+add({ name: "previews: list of another team's application", token: "read", method: "GET", path: PREVIEWS(A_OTHER) });
+add({ name: "previews: list with compose domains", token: "read", method: "GET", path: PREVIEWS(A_GIT), setup: [...COMPOSE_GIT_APP, "update application_previews set docker_compose_domains = '{\"web\":{\"domain\":\"https://web-17.example.com\"},\"api\":{\"domain\":\"\",\"redirect\":\"both\"}}' where id = 2"] });
+add({ name: "previews: show", token: "read", method: "GET", path: `${PREVIEWS(A_GIT)}/17` });
+add({ name: "previews: show with a port", token: "read", method: "GET", path: `${PREVIEWS(A_GIT)}/12` });
+add({ name: "previews: show of an image application", token: "read", method: "GET", path: `${PREVIEWS(A_IMAGE)}/3` });
+add({ name: "previews: show, not a number", token: "read", method: "GET", path: `${PREVIEWS(A_GIT)}/abc` });
+add({ name: "previews: show, zero", token: "read", method: "GET", path: `${PREVIEWS(A_GIT)}/0` });
+add({ name: "previews: show, too large", token: "read", method: "GET", path: `${PREVIEWS(A_GIT)}/2147483648` });
+add({ name: "previews: show, a sign", token: "read", method: "GET", path: `${PREVIEWS(A_GIT)}/+7` });
+add({ name: "previews: show unknown", token: "read", method: "GET", path: `${PREVIEWS(A_GIT)}/99` });
+add({ name: "previews: show a deleted one", token: "read", method: "GET", path: `${PREVIEWS(A_GIT)}/17`, setup: ["update application_previews set deleted_at = now() where id = 2"] });
+add({ name: "previews: show of unknown application", token: "read", method: "GET", path: `${PREVIEWS("nonexistentuuid")}/17` });
+add({ name: "previews: show another team's", token: "read", method: "GET", path: `${PREVIEWS(A_OTHER)}/1` });
+add({ name: "previews: show the other application's", token: "read", method: "GET", path: `${PREVIEWS(A_IMAGE)}/17` });
+
+// POST …/previews (store): a deployment is queued unless instant_deploy is false.
+add({ name: "previews: create, not deployed", token: "root", method: "POST", path: PREVIEWS(A_GIT), body: { pull_request_id: 20, pull_request_html_url: "https://github.com/coollabsio/coolify-examples/pull/20", git_type: "github", instant_deploy: false }, after: PREVIEWS_AFTER });
+add({ name: "previews: create on an image application, not deployed", token: "root", method: "POST", path: PREVIEWS(A_IMAGE), body: { pull_request_id: 5, docker_tag: " pr-5 ", instant_deploy: false }, after: PREVIEWS_AFTER });
+add({ name: "previews: create on an image application with a port, not deployed", token: "root", method: "POST", path: PREVIEWS(A_IMAGE), setup: ["update applications set fqdn = 'https://image.example.com/app,https://www.image.example.com', domain_port_overrides = '{\"https://image.example.com/app\":8080}' where id = 1"], body: { pull_request_id: "6", docker_tag: "pr-6", instant_deploy: "0" }, after: PREVIEWS_AFTER });
+add({ name: "previews: create with a template, not deployed", token: "root", method: "POST", path: PREVIEWS(A_IMAGE), setup: ["update applications set preview_url_template = 'http://pr{{pr_id}}-{{domain}}' where id = 1"], body: { pull_request_id: 8, docker_tag: "pr-8", instant_deploy: false }, after: PREVIEWS_AFTER });
+add({ name: "previews: create, the source missing", token: "root", method: "POST", path: PREVIEWS(A_GIT), setup: ["update applications set source_id = 999 where id = 2"], body: { pull_request_id: 21, instant_deploy: false }, after: PREVIEWS_AFTER });
+add({ name: "previews: create with an empty url, not deployed", token: "root", method: "POST", path: PREVIEWS(A_GIT), body: { pull_request_id: 22, git_type: "gitlab", pull_request_html_url: "", instant_deploy: false }, after: PREVIEWS_AFTER });
+add({ name: "previews: create a bitbucket one with a commit, not deployed", token: "root", method: "POST", path: PREVIEWS(A_GIT), body: { pull_request_id: 23, git_type: "bitbucket", commit: "a1b2c3d", instant_deploy: false }, after: PREVIEWS_AFTER });
+add({ name: "previews: create and deploy", token: "root", method: "POST", path: PREVIEWS(A_GIT), body: { pull_request_id: 24, git_type: "github" }, after: PREVIEWS_AFTER });
+add({ name: "previews: create on a compose application", token: "root", method: "POST", path: PREVIEWS(A_GIT), setup: COMPOSE_GIT_APP, body: { pull_request_id: 25, git_type: "github", instant_deploy: false }, after: PREVIEWS_AFTER });
+add({ name: "previews: update an existing one, not deployed", token: "root", method: "POST", path: PREVIEWS(A_GIT), body: { pull_request_id: 17, pull_request_html_url: "https://github.com/coollabsio/coolify-examples/pull/77", instant_deploy: false }, after: PREVIEWS_AFTER });
+add({ name: "previews: a new docker tag, not deployed", token: "root", method: "POST", path: PREVIEWS(A_IMAGE), body: { pull_request_id: 3, docker_tag: "pr-3b", instant_deploy: false }, after: PREVIEWS_AFTER });
+add({ name: "previews: unchanged with a deploy token, not deployed", token: "deploy", method: "POST", path: PREVIEWS(A_GIT), body: { pull_request_id: 17, pull_request_html_url: "https://github.com/coollabsio/coolify-examples/pull/17", git_type: "github", instant_deploy: false }, after: PREVIEWS_AFTER });
+add({ name: "previews: redeploy with a deploy token", token: "deploy", method: "POST", path: PREVIEWS(A_GIT), body: { pull_request_id: 17 }, after: PREVIEWS_AFTER });
+add({ name: "previews: redeploy an image preview with a deploy token", token: "deploy", method: "POST", path: PREVIEWS(A_IMAGE), body: { pull_request_id: 3, force: true }, after: PREVIEWS_AFTER });
+add({ name: "previews: open one with a deploy token", token: "deploy", method: "POST", path: PREVIEWS(A_GIT), body: { pull_request_id: 30, git_type: "github" }, after: PREVIEWS_AFTER });
+add({ name: "previews: change the url with a deploy token", token: "deploy", method: "POST", path: PREVIEWS(A_GIT), body: { pull_request_id: 17, pull_request_html_url: "https://github.com/coollabsio/coolify-examples/pull/70" } });
+add({ name: "previews: choose a commit with a deploy token", token: "deploy", method: "POST", path: PREVIEWS(A_GIT), body: { pull_request_id: 17, commit: "abcdef1" } });
+add({ name: "previews: a new docker tag with a deploy token", token: "deploy", method: "POST", path: PREVIEWS(A_IMAGE), body: { pull_request_id: 3, docker_tag: "pr-3c" } });
+add({ name: "previews: create, validation", token: "root", method: "POST", path: PREVIEWS(A_GIT), body: { pull_request_id: "abc", pull_request_html_url: "not a url", force: "yes", instant_deploy: 2, git_type: "svn", commit: "xyz" } });
+add({ name: "previews: create, no pull request id", token: "root", method: "POST", path: PREVIEWS(A_GIT), body: { git_type: "github" } });
+add({ name: "previews: create without a body", token: "root", method: "POST", path: PREVIEWS(A_GIT) });
+add({ name: "previews: create, the id out of range", token: "root", method: "POST", path: PREVIEWS(A_GIT), body: { pull_request_id: 0, git_type: "github", pull_request_html_url: `https://github.com/${"x".repeat(2040)}` } });
+add({ name: "previews: create, the id too large", token: "root", method: "POST", path: PREVIEWS(A_GIT), body: { pull_request_id: 2147483648, git_type: "github" } });
+add({ name: "previews: create, a fraction", token: "root", method: "POST", path: PREVIEWS(A_GIT), body: { pull_request_id: 17.5, git_type: "github" } });
+add({ name: "previews: create, bitbucket without a commit", token: "root", method: "POST", path: PREVIEWS(A_GIT), body: { pull_request_id: 9, git_type: "bitbucket" } });
+add({ name: "previews: create, a docker tag on a git application", token: "root", method: "POST", path: PREVIEWS(A_GIT), body: { pull_request_id: 9, git_type: "github", docker_tag: "x" } });
+add({ name: "previews: create, git fields on an image application", token: "root", method: "POST", path: PREVIEWS(A_IMAGE), body: { pull_request_id: 9, git_type: "github", commit: "abcdef1", docker_tag: "-bad" } });
+add({ name: "previews: create, null git fields on an image application", token: "root", method: "POST", path: PREVIEWS(A_IMAGE), body: { pull_request_id: 9, git_type: null, docker_tag: "ok" , instant_deploy: false }, after: PREVIEWS_AFTER });
+add({ name: "previews: create, an image preview without a tag", token: "root", method: "POST", path: PREVIEWS(A_IMAGE), body: { pull_request_id: 9 } });
+add({ name: "previews: create, an image preview with a blank tag", token: "root", method: "POST", path: PREVIEWS(A_IMAGE), body: { pull_request_id: 9, docker_tag: "  " } });
+add({ name: "previews: create, no git type and no source", token: "root", method: "POST", path: PREVIEWS(A_GIT), setup: ["update applications set source_id = null, source_type = null where id = 2"], body: { pull_request_id: 9 } });
+add({ name: "previews: create, a dockerfile application", token: "root", method: "POST", path: PREVIEWS(A_GIT), setup: ["update applications set build_pack = 'dockerfile', dockerfile = 'FROM nginx' where id = 2"], body: { pull_request_id: 9 } });
+add({ name: "previews: create on unknown application", token: "root", method: "POST", path: PREVIEWS("nonexistentuuid"), body: { pull_request_id: 9 } });
+add({ name: "previews: create on another team's application", token: "root", method: "POST", path: PREVIEWS(A_OTHER), body: { pull_request_id: 9 } });
+add({ name: "previews: create with a read token", token: "read", method: "POST", path: PREVIEWS(A_GIT), body: { pull_request_id: 9 } });
+
+// PATCH …/previews/{pull_request_id}: the preview's domains.
+const PREVIEW_17 = `${PREVIEWS(A_GIT)}/17`;
+add({ name: "previews: update the domains", token: "write", method: "PATCH", path: PREVIEW_17, body: { domains: "HTTPS://PR17.Example.com/Path, https://www.pr17.example.com" }, after: PREVIEWS_AFTER });
+add({ name: "previews: update the domains with a port", token: "write", method: "PATCH", path: PREVIEW_17, body: { domains: "https://pr17.example.com:3000" }, after: PREVIEWS_AFTER });
+add({ name: "previews: update the domains to none", token: "write", method: "PATCH", path: `${PREVIEWS(A_GIT)}/12`, body: { domains: null }, after: PREVIEWS_AFTER });
+add({ name: "previews: update the domains to blank", token: "write", method: "PATCH", path: `${PREVIEWS(A_GIT)}/12`, body: { domains: " , " }, after: PREVIEWS_AFTER });
+add({ name: "previews: update the domains, missing", token: "write", method: "PATCH", path: PREVIEW_17, body: { force_domain_override: true } });
+add({ name: "previews: update the domains, no body", token: "write", method: "PATCH", path: PREVIEW_17 });
+add({ name: "previews: update the domains, invalid", token: "write", method: "PATCH", path: PREVIEW_17, body: { domains: "not a url,ftp://x.example.com", force_domain_override: "maybe" } });
+add({ name: "previews: update the domains, not a string", token: "write", method: "PATCH", path: PREVIEW_17, body: { domains: ["https://pr17.example.com"] } });
+add({ name: "previews: update the domains, compose domains on an image application", token: "write", method: "PATCH", path: PREVIEW_17, body: { domains: "https://pr17.example.com", docker_compose_domains: [] } });
+add({ name: "previews: update the domains, twice", token: "write", method: "PATCH", path: PREVIEW_17, body: { domains: "https://pr17.example.com,https://pr17.example.com:8080" } });
+add({ name: "previews: update the domains, the application's", token: "write", method: "PATCH", path: PREVIEW_17, body: { domains: "https://image.example.com" }, after: PREVIEWS_AFTER });
+add({ name: "previews: update the domains, a service's, forced", token: "write", method: "PATCH", path: PREVIEW_17, body: { domains: "https://web.example.com", force_domain_override: true }, after: PREVIEWS_AFTER });
+add({ name: "previews: update the domains, forced in the query", token: "write", method: "PATCH", path: `${PREVIEW_17}?force_domain_override=true`, body: { domains: "https://image.example.com" }, after: PREVIEWS_AFTER });
+add({ name: "previews: update the domains, another preview's", token: "write", method: "PATCH", path: PREVIEW_17, body: { domains: "https://3.image.example.com/" }, after: PREVIEWS_AFTER });
+add({ name: "previews: update the domains, another preview's with a port", token: "write", method: "PATCH", path: PREVIEW_17, body: { domains: "https://pr-12.example.com:9000" }, after: PREVIEWS_AFTER });
+add({ name: "previews: update the domains, another preview's, forced", token: "write", method: "PATCH", path: PREVIEW_17, body: { domains: "https://3.image.example.com", force_domain_override: true } });
+add({ name: "previews: update the domains, a near host", token: "write", method: "PATCH", path: PREVIEW_17, body: { domains: "https://3.image.example.co" }, after: PREVIEWS_AFTER });
+add({ name: "previews: update the domains, its own", token: "write", method: "PATCH", path: `${PREVIEWS(A_GIT)}/12`, body: { domains: "https://pr-12.example.com" }, after: PREVIEWS_AFTER });
+add({ name: "previews: update the domains, not a number", token: "write", method: "PATCH", path: `${PREVIEWS(A_GIT)}/seven`, body: { domains: "https://pr17.example.com" } });
+add({ name: "previews: update the domains of unknown", token: "write", method: "PATCH", path: `${PREVIEWS(A_GIT)}/99`, body: { domains: "https://pr17.example.com" } });
+add({ name: "previews: update the domains of unknown application", token: "write", method: "PATCH", path: `${PREVIEWS("nonexistentuuid")}/17`, body: { domains: "https://pr17.example.com" } });
+add({ name: "previews: update the domains of another team's", token: "write", method: "PATCH", path: `${PREVIEWS(A_OTHER)}/1`, body: { domains: "https://pr17.example.com" } });
+add({ name: "previews: update the compose domains", token: "write", method: "PATCH", path: PREVIEW_17, setup: [...COMPOSE_GIT_APP, "update application_previews set docker_compose_domains = '{\"web\":{\"domain\":\"https://web-17.example.com\",\"redirect\":\"non-www\"},\"api\":{\"domain\":\"\",\"redirect\":\"both\"}}' where id = 2"], body: { docker_compose_domains: [{ name: "web", domain: "https://WEB-17.example.com:8443,https://www.web-17.example.com" }, { name: "api", domain: null, redirect: null }] }, after: PREVIEWS_AFTER });
+add({ name: "previews: update the compose domains, one service", token: "write", method: "PATCH", path: PREVIEW_17, setup: COMPOSE_GIT_APP, body: { docker_compose_domains: [{ name: "api", domain: "https://api-17.example.com", redirect: "www" }] }, after: PREVIEWS_AFTER });
+add({ name: "previews: update the compose domains, none", token: "write", method: "PATCH", path: PREVIEW_17, setup: COMPOSE_GIT_APP, body: { docker_compose_domains: [] }, after: PREVIEWS_AFTER });
+add({ name: "previews: update the compose domains, a database service", token: "write", method: "PATCH", path: PREVIEW_17, setup: COMPOSE_GIT_APP, body: { docker_compose_domains: [{ name: "db", domain: "https://db-17.example.com" }] } });
+add({ name: "previews: update the compose domains, validation", token: "write", method: "PATCH", path: PREVIEW_17, setup: COMPOSE_GIT_APP, body: { domains: "https://x.example.com", docker_compose_domains: [{ name: "web", domain: "bad", redirect: "nowhere", port: 1 }, { name: "web" }, { domain: "https://y.example.com" }, "web"] } });
+add({ name: "previews: update the compose domains, missing", token: "write", method: "PATCH", path: PREVIEW_17, setup: COMPOSE_GIT_APP, body: { force_domain_override: false } });
+add({ name: "previews: update the compose domains, not an array", token: "write", method: "PATCH", path: PREVIEW_17, setup: COMPOSE_GIT_APP, body: { docker_compose_domains: "web" } });
+add({ name: "previews: update the compose domains, twice", token: "write", method: "PATCH", path: PREVIEW_17, setup: COMPOSE_GIT_APP, body: { docker_compose_domains: [{ name: "web", domain: "https://same.example.com" }, { name: "api", domain: "https://same.example.com:3000" }] } });
+add({ name: "previews: update the compose domains, the application's", token: "write", method: "PATCH", path: PREVIEW_17, setup: COMPOSE_GIT_APP, body: { docker_compose_domains: [{ name: "web", domain: "https://image.example.com" }] } });
+add({ name: "previews: update the compose domains, an unparsable file", token: "write", method: "PATCH", path: PREVIEW_17, setup: [...COMPOSE_GIT_APP, "update applications set docker_compose_raw = 'services: [' where id = 2"], body: { docker_compose_domains: [] } });
+add({ name: "previews: update the compose domains, no services", token: "write", method: "PATCH", path: PREVIEW_17, setup: [...COMPOSE_GIT_APP, "update applications set docker_compose_raw = 'version: \"3\"' where id = 2"], body: { docker_compose_domains: [] } });
+add({ name: "previews: update with a read token", token: "read", method: "PATCH", path: PREVIEW_17, body: { domains: "https://pr17.example.com" } });
+
+// DELETE …/previews/{pull_request_id}: soft-deleted, then CleanupPreviewDeployment (nothing on a server that is not functional).
+add({ name: "previews: delete", token: "delete", method: "DELETE", path: PREVIEW_17, after: PREVIEWS_AFTER });
+add({ name: "previews: delete an image preview", token: "root", method: "DELETE", path: `${PREVIEWS(A_IMAGE)}/3`, after: PREVIEWS_AFTER });
+add({ name: "previews: delete on a functional server", token: "root", method: "DELETE", path: PREVIEW_17, setup: FUNCTIONAL, after: PREVIEWS_AFTER });
+add({ name: "previews: delete, not a number", token: "delete", method: "DELETE", path: `${PREVIEWS(A_GIT)}/-7` });
+add({ name: "previews: delete unknown", token: "delete", method: "DELETE", path: `${PREVIEWS(A_GIT)}/99` });
+add({ name: "previews: delete of unknown application", token: "delete", method: "DELETE", path: `${PREVIEWS("nonexistentuuid")}/17` });
+add({ name: "previews: delete another team's", token: "root", method: "DELETE", path: `${PREVIEWS(A_OTHER)}/1` });
+add({ name: "previews: delete with a write token", token: "write", method: "DELETE", path: PREVIEW_17 });
+
+// GET …/previews/{pull_request_id}/logs: the container's logs on the server.
+add({ name: "previews: logs", token: "sensitive", method: "GET", path: `${PREVIEW_17}/logs` });
+add({ name: "previews: logs, not a number", token: "sensitive", method: "GET", path: `${PREVIEWS(A_GIT)}/x/logs` });
+add({ name: "previews: logs of unknown", token: "sensitive", method: "GET", path: `${PREVIEWS(A_GIT)}/99/logs` });
+add({ name: "previews: logs of unknown application", token: "sensitive", method: "GET", path: `${PREVIEWS("nonexistentuuid")}/17/logs` });
+add({ name: "previews: logs with a read token", token: "read", method: "GET", path: `${PREVIEW_17}/logs` });
+
+// ── DP-86: an application's additional destinations ─────────────────────────
+// A second server of team 1 with its destination, made by the case on each side (Coolify's tables have team_id, Freeploy's
+// org_id): `setupCoolify` is emit.php's, `setupFreeploy` the test's, each after the shared `setup`.
+const S_SECOND = "s5paritysecondserver0005";
+const D_SECOND = "d3seconddestination00003";
+const D_SECOND_B = "d5seconddestinationb0005";
+const D_MAIN_B = "d4maindestinationb000004";
+const PROXY = `'{"redirect_enabled":true}'`;
+const SECOND = {
+  setupCoolify: [
+    `insert into servers (id, uuid, name, ip, team_id, private_key_id, proxy, created_at, updated_at) values (3, '${S_SECOND}', 'second-server', '203.0.113.30', 1, 1, ${PROXY}, now(), now())`,
+    "insert into server_settings (server_id, created_at, updated_at) values (3, now(), now())",
+    `insert into standalone_dockers (id, uuid, name, network, server_id, created_at, updated_at) values (3, '${D_SECOND}', 'second-destination', 'coolify', 3, now(), now())`,
+  ],
+  setupFreeploy: [
+    `insert into servers (id, uuid, name, ip, private_key_id, proxy, org_id, created_at, updated_at) values (3, '${S_SECOND}', 'second-server', '203.0.113.30', 1, ${PROXY}, deploy.current_org(), now(), now())`,
+    "insert into server_settings (server_id, server_role, org_id, created_at, updated_at) values (3, 'both', deploy.current_org(), now(), now())",
+    `insert into standalone_dockers (id, uuid, name, network, server_id, org_id, created_at, updated_at) values (3, '${D_SECOND}', 'second-destination', 'coolify', 3, deploy.current_org(), now(), now())`,
+  ],
+};
+/** One more statement on each side (`team` names the tenancy column, `owner` its value). */
+const both = (base, coolify, freeploy) => ({ setupCoolify: [...base.setupCoolify, ...coolify], setupFreeploy: [...base.setupFreeploy, ...freeploy] });
+const ATTACHED = both(SECOND, ["insert into additional_destinations (application_id, server_id, standalone_docker_id, status) values (2, 3, 3, 'running:healthy')"], ["insert into additional_destinations (application_id, server_id, standalone_docker_id, status, org_id) values (2, 3, 3, 'running:healthy', deploy.current_org())"]);
+const destinationOn = (base, id, uuid, name, server) =>
+  both(base, [`insert into standalone_dockers (id, uuid, name, network, server_id, created_at, updated_at) values (${id}, '${uuid}', '${name}', '${name}', ${server}, now(), now())`], [`insert into standalone_dockers (id, uuid, name, network, server_id, org_id, created_at, updated_at) values (${id}, '${uuid}', '${name}', '${name}', ${server}, deploy.current_org(), now(), now())`]);
+const ADDITIONAL_AFTER = { additional: "select application_id, server_id, standalone_docker_id, status from additional_destinations where application_id in (1, 2) order by application_id, standalone_docker_id" };
+const APP_DESTINATIONS = (app) => `/api/v1/applications/${app}/destinations`;
+add({ name: "app destinations: list", token: "read", method: "GET", path: APP_DESTINATIONS(A_GIT), setup: NAMED_DESTINATION, ...ATTACHED });
+add({ name: "app destinations: list, only the primary", token: "read", method: "GET", path: APP_DESTINATIONS(A_IMAGE), setup: NAMED_DESTINATION });
+add({ name: "app destinations: list of unknown application", token: "read", method: "GET", path: APP_DESTINATIONS("nonexistentuuid") });
+add({ name: "app destinations: list of another team's application", token: "read", method: "GET", path: APP_DESTINATIONS(A_OTHER) });
+add({ name: "app destinations: add", token: "write", method: "POST", path: APP_DESTINATIONS(A_GIT), body: { destination_uuid: D_SECOND }, ...SECOND, after: ADDITIONAL_AFTER });
+add({ name: "app destinations: add, then list", token: "read", method: "GET", path: APP_DESTINATIONS(A_GIT), setup: NAMED_DESTINATION, ...both(ATTACHED, ["insert into additional_destinations (application_id, server_id, standalone_docker_id) values (1, 3, 3)"], ["insert into additional_destinations (application_id, server_id, standalone_docker_id, org_id) values (1, 3, 3, deploy.current_org())"]) });
+add({ name: "app destinations: add, no body", token: "write", method: "POST", path: APP_DESTINATIONS(A_GIT) });
+add({ name: "app destinations: add, not JSON", token: "write", method: "POST", path: APP_DESTINATIONS(A_GIT), raw: "destination_uuid=x", contentType: "application/x-www-form-urlencoded" });
+add({ name: "app destinations: add, empty JSON", token: "write", method: "POST", path: APP_DESTINATIONS(A_GIT), raw: "{}" });
+add({ name: "app destinations: add, validation", token: "write", method: "POST", path: APP_DESTINATIONS(A_GIT), body: { destination_uuid: 5, server_uuid: S_MAIN } });
+add({ name: "app destinations: add, missing", token: "write", method: "POST", path: APP_DESTINATIONS(A_GIT), body: { destination_uuid: null } });
+add({ name: "app destinations: add to unknown application", token: "write", method: "POST", path: APP_DESTINATIONS("nonexistentuuid"), body: { destination_uuid: D_SECOND } });
+add({ name: "app destinations: add unknown destination", token: "write", method: "POST", path: APP_DESTINATIONS(A_GIT), body: { destination_uuid: "nonexistentuuid" } });
+add({ name: "app destinations: add another team's destination", token: "write", method: "POST", path: APP_DESTINATIONS(A_GIT), body: { destination_uuid: D_OTHER } });
+add({ name: "app destinations: add the primary", token: "write", method: "POST", path: APP_DESTINATIONS(A_GIT), body: { destination_uuid: D_MAIN } });
+add({ name: "app destinations: add one already attached", token: "write", method: "POST", path: APP_DESTINATIONS(A_GIT), body: { destination_uuid: D_SECOND }, ...ATTACHED, after: ADDITIONAL_AFTER });
+add({ name: "app destinations: add one on the primary's server", token: "write", method: "POST", path: APP_DESTINATIONS(A_GIT), body: { destination_uuid: D_MAIN_B }, ...destinationOn(SECOND, 4, D_MAIN_B, "main-b", 1) });
+add({ name: "app destinations: add a second on a server", token: "write", method: "POST", path: APP_DESTINATIONS(A_GIT), body: { destination_uuid: D_SECOND_B }, ...destinationOn(ATTACHED, 5, D_SECOND_B, "second-b", 3), after: ADDITIONAL_AFTER });
+add({ name: "app destinations: add to an application with storage", token: "write", method: "POST", path: APP_DESTINATIONS(A_IMAGE), body: { destination_uuid: D_SECOND }, ...SECOND, after: ADDITIONAL_AFTER });
+add({ name: "app destinations: add to a compose application", token: "write", method: "POST", path: APP_DESTINATIONS(A_GIT), setup: ["update applications set build_pack = 'dockercompose' where id = 2"], body: { destination_uuid: D_SECOND }, ...SECOND });
+add({ name: "app destinations: add on a build server", token: "write", method: "POST", path: APP_DESTINATIONS(A_GIT), body: { destination_uuid: D_SECOND }, ...both(SECOND, ["update server_settings set server_role = 'build' where server_id = 3"], ["update server_settings set server_role = 'build' where server_id = 3"]) });
+add({ name: "app destinations: add, the proxies differ", token: "write", method: "POST", path: APP_DESTINATIONS(A_GIT), setup: [`update servers set proxy = '{"type":"TRAEFIK"}' where id = 1`], body: { destination_uuid: D_SECOND }, ...both(SECOND, [`update servers set proxy = '{"type":"CADDY"}' where id = 3`], [`update servers set proxy = '{"type":"CADDY"}' where id = 3`]) });
+add({ name: "app destinations: add, the same proxy", token: "write", method: "POST", path: APP_DESTINATIONS(A_GIT), setup: [`update servers set proxy = '{"type":"TRAEFIK"}' where id = 1`], body: { destination_uuid: D_SECOND }, ...both(SECOND, [`update servers set proxy = '{"type":"TRAEFIK"}' where id = 3`], [`update servers set proxy = '{"type":"TRAEFIK"}' where id = 3`]), after: ADDITIONAL_AFTER });
+add({ name: "app destinations: add, a server without a proxy", token: "root", method: "POST", path: APP_DESTINATIONS(A_GIT), setup: [`update servers set proxy = '{"type":"CADDY"}' where id = 1`], body: { destination_uuid: D_SECOND }, ...both(SECOND, [`update servers set proxy = '{"type":"NONE"}' where id = 3`], [`update servers set proxy = '{"type":"NONE"}' where id = 3`]), after: ADDITIONAL_AFTER });
+add({ name: "app destinations: add with a read token", token: "read", method: "POST", path: APP_DESTINATIONS(A_GIT), body: { destination_uuid: D_SECOND } });
+add({ name: "app destinations: remove", token: "delete", method: "DELETE", path: `${APP_DESTINATIONS(A_GIT)}/${D_SECOND}`, ...ATTACHED, after: ADDITIONAL_AFTER });
+add({ name: "app destinations: remove the primary", token: "delete", method: "DELETE", path: `${APP_DESTINATIONS(A_GIT)}/${D_MAIN}`, ...ATTACHED });
+add({ name: "app destinations: remove one not attached", token: "delete", method: "DELETE", path: `${APP_DESTINATIONS(A_GIT)}/${D_SECOND}`, ...SECOND });
+add({ name: "app destinations: remove unknown", token: "delete", method: "DELETE", path: `${APP_DESTINATIONS(A_GIT)}/nonexistentuuid` });
+add({ name: "app destinations: remove another team's", token: "delete", method: "DELETE", path: `${APP_DESTINATIONS(A_GIT)}/${D_OTHER}` });
+add({ name: "app destinations: remove from unknown application", token: "delete", method: "DELETE", path: `${APP_DESTINATIONS("nonexistentuuid")}/${D_SECOND}` });
+add({ name: "app destinations: remove with a write token", token: "write", method: "DELETE", path: `${APP_DESTINATIONS(A_GIT)}/${D_SECOND}` });
+
+// ── DP-86: moving, migrating and cloning applications, databases and services ──
+const MOVED_AFTER = {
+  moved: "select 'application' as kind, uuid, environment_id from applications where id in (1, 2) union all select 'postgresql', uuid, environment_id from standalone_postgresqls where id = 1 union all select 'service', uuid, environment_id from services where id = 1 order by kind, uuid",
+};
+const MOVE = (group, uuid) => `/api/v1/${group}/${uuid}/move`;
+add({ name: "operations: move an application", token: "write", method: "POST", path: MOVE("applications", A_GIT), body: { environment_uuid: E_STAGING }, after: MOVED_AFTER });
+add({ name: "operations: move an application to another project", token: "write", method: "POST", path: MOVE("applications", A_IMAGE), body: { environment_uuid: E_BETA }, after: MOVED_AFTER });
+add({ name: "operations: move an application, the same environment", token: "write", method: "POST", path: MOVE("applications", A_GIT), body: { environment_uuid: E_PROD }, after: MOVED_AFTER });
+add({ name: "operations: move an application, unknown environment", token: "write", method: "POST", path: MOVE("applications", A_GIT), body: { environment_uuid: "nonexistentuuid" } });
+add({ name: "operations: move an application to another team's environment", token: "write", method: "POST", path: MOVE("applications", A_GIT), body: { environment_uuid: E_OTHER } });
+add({ name: "operations: move an application, no body", token: "write", method: "POST", path: MOVE("applications", A_GIT) });
+add({ name: "operations: move an application, validation", token: "write", method: "POST", path: MOVE("applications", A_GIT), body: { environment_uuid: 5, project_uuid: P_ALPHA } });
+add({ name: "operations: move an application, fields not allowed", token: "write", method: "POST", path: MOVE("applications", A_GIT), body: { environment_uuid: E_STAGING, project_uuid: P_ALPHA, name: "x" }, after: MOVED_AFTER });
+add({ name: "operations: move an application, the query string", token: "write", method: "POST", path: `${MOVE("applications", A_GIT)}?environment_uuid=${E_STAGING}`, after: MOVED_AFTER });
+add({ name: "operations: move unknown application", token: "write", method: "POST", path: MOVE("applications", "nonexistentuuid"), body: { environment_uuid: E_STAGING } });
+add({ name: "operations: move another team's application", token: "write", method: "POST", path: MOVE("applications", A_OTHER), body: { environment_uuid: E_STAGING } });
+add({ name: "operations: move an application with a read token", token: "read", method: "POST", path: MOVE("applications", A_GIT), body: { environment_uuid: E_STAGING } });
+add({ name: "operations: move a database", token: "write", method: "POST", path: MOVE("databases", DB_PG), body: { environment_uuid: E_STAGING }, after: MOVED_AFTER });
+add({ name: "operations: move a database, the same environment", token: "write", method: "POST", path: MOVE("databases", DB_REDIS), body: { environment_uuid: E_PROD } });
+add({ name: "operations: move a database, unknown environment", token: "write", method: "POST", path: MOVE("databases", DB_PG), body: { environment_uuid: "nonexistentuuid" } });
+add({ name: "operations: move unknown database", token: "write", method: "POST", path: MOVE("databases", "nonexistentuuid"), body: { environment_uuid: E_STAGING } });
+add({ name: "operations: move another team's database", token: "write", method: "POST", path: MOVE("databases", DB_OTHER), body: { environment_uuid: E_STAGING } });
+add({ name: "operations: move a service", token: "write", method: "POST", path: MOVE("services", SV_MAIN), body: { environment_uuid: E_BETA }, after: MOVED_AFTER });
+add({ name: "operations: move a service, the same environment", token: "write", method: "POST", path: MOVE("services", SV_MAIN), body: { environment_uuid: E_PROD } });
+add({ name: "operations: move a service, validation", token: "write", method: "POST", path: MOVE("services", SV_MAIN), body: { environment_uuid: null } });
+add({ name: "operations: move unknown service", token: "write", method: "POST", path: MOVE("services", "nonexistentuuid"), body: { environment_uuid: E_STAGING } });
+add({ name: "operations: move another team's service", token: "write", method: "POST", path: MOVE("services", SV_OTHER), body: { environment_uuid: E_STAGING } });
+
+// migrate: migrateResourceToDestination() aborts with 404 outside development (isDev()).
+const MIGRATE = (group, uuid) => `/api/v1/${group}/${uuid}/migrate`;
+add({ name: "operations: migrate an application", token: "write", method: "POST", path: MIGRATE("applications", A_GIT), body: { destination_uuid: D_MAIN } });
+add({ name: "operations: migrate an application, no body", token: "write", method: "POST", path: MIGRATE("applications", A_GIT) });
+add({ name: "operations: migrate unknown application", token: "write", method: "POST", path: MIGRATE("applications", "nonexistentuuid"), body: { destination_uuid: D_MAIN } });
+add({ name: "operations: migrate a database", token: "write", method: "POST", path: MIGRATE("databases", DB_PG), body: { destination_uuid: D_MAIN } });
+add({ name: "operations: migrate unknown database", token: "write", method: "POST", path: MIGRATE("databases", "nonexistentuuid"), body: { destination_uuid: D_MAIN } });
+add({ name: "operations: migrate a service", token: "write", method: "POST", path: MIGRATE("services", SV_MAIN), body: { destination_uuid: D_MAIN } });
+add({ name: "operations: migrate another team's service", token: "write", method: "POST", path: MIGRATE("services", SV_OTHER), body: { destination_uuid: D_MAIN } });
+
+// clone: the copy's rows (its random uuid read as <uuid> in its name and its volumes' names).
+const FIXTURE_APPS = `'${A_IMAGE}', '${A_GIT}', '${A_OTHER}'`;
+const NEW_APP = `(select id from applications where uuid not in (${FIXTURE_APPS}))`;
+const NEW_APP_UUID = `(select uuid from applications where uuid not in (${FIXTURE_APPS}))`;
+const APP_CLONE_AFTER = {
+  application: `select replace(name, uuid, '<uuid>') as name, replace(fqdn, uuid, '<uuid>') as fqdn, status, environment_id, destination_id, destination_type, git_repository, git_branch, build_pack, ports_exposes, docker_registry_image_name, docker_registry_image_tag, source_id, source_type, health_check_enabled from applications where uuid not in (${FIXTURE_APPS})`,
+  settings: `select is_static, is_auto_deploy_enabled, is_force_https_enabled, is_preview_deployments_enabled from application_settings where application_id = ${NEW_APP}`,
+  tags: `select tg.tag_id from taggables tg where tg.taggable_type = 'App\\Models\\Application' and tg.taggable_id = ${NEW_APP} order by tg.tag_id`,
+  tasks: `select name, command, frequency, container, enabled, uuid in ('${ST_BACKUP}', '${ST_CLEANUP}') as fixture_uuid from scheduled_tasks where application_id = ${NEW_APP} order by name`,
+  variables: `select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime from environment_variables where resourceable_type = 'App\\Models\\Application' and resourceable_id = ${NEW_APP} order by key, is_preview`,
+  volumes: `select replace(name, ${NEW_APP_UUID}, '<uuid>') as name, mount_path, uuid = '${PV_APP}' as fixture_uuid from local_persistent_volumes where resource_type = 'App\\Models\\Application' and resource_id = ${NEW_APP} order by name`,
+  files: `select fs_path, mount_path, is_directory, is_host_file from local_file_volumes where resource_type = 'App\\Models\\Application' and resource_id = ${NEW_APP} order by mount_path`,
+};
+const FIXTURE_PGS = `'${DB_PG}', '${DB_OTHER}'`;
+const NEW_PG = `(select id from standalone_postgresqls where uuid not in (${FIXTURE_PGS}))`;
+const NEW_PG_UUID = `(select uuid from standalone_postgresqls where uuid not in (${FIXTURE_PGS}))`;
+const DB_CLONE_AFTER = {
+  database: `select replace(name, uuid, '<uuid>') as name, description, status, started_at, image, postgres_db, is_public, public_port, environment_id, destination_id, destination_type from standalone_postgresqls where uuid not in (${FIXTURE_PGS})`,
+  tags: `select tg.tag_id from taggables tg where tg.taggable_type = 'App\\Models\\StandalonePostgresql' and tg.taggable_id = ${NEW_PG} order by tg.tag_id`,
+  volumes: `select replace(name, ${NEW_PG_UUID}, '<uuid>') as name, mount_path from local_persistent_volumes where resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = ${NEW_PG} order by name`,
+  files: `select fs_path, mount_path, is_directory from local_file_volumes where resource_type = 'App\\Models\\StandalonePostgresql' and resource_id = ${NEW_PG} order by mount_path`,
+  backups: `select frequency, save_s3, enabled, databases_to_backup, (select count(*) from scheduled_database_backup_s3_storage p where p.scheduled_database_backup_id = b.id) as s3 from scheduled_database_backups b where database_type = 'App\\Models\\StandalonePostgresql' and database_id = ${NEW_PG} order by frequency`,
+  variables: `select key, is_shown_once from environment_variables where resourceable_type = 'App\\Models\\StandalonePostgresql' and resourceable_id = ${NEW_PG} order by key`,
+};
+const FIXTURE_REDIS = `'${DB_REDIS}'`;
+const REDIS_CLONE_AFTER = {
+  database: `select replace(name, uuid, '<uuid>') as name, status, image, environment_id from standalone_redis where uuid not in (${FIXTURE_REDIS})`,
+  tags: `select tg.tag_id from taggables tg where tg.taggable_type = 'App\\Models\\StandaloneRedis' and tg.taggable_id = (select id from standalone_redis where uuid not in (${FIXTURE_REDIS})) order by tg.tag_id`,
+  variables: `select key, is_shown_once from environment_variables where resourceable_type = 'App\\Models\\StandaloneRedis' and resourceable_id = (select id from standalone_redis where uuid not in (${FIXTURE_REDIS})) order by key`,
+};
+const CLONE = (group, uuid) => `/api/v1/${group}/${uuid}/clone`;
+add({ name: "operations: clone an application", token: "write", method: "POST", path: CLONE("applications", A_GIT), body: { destination_uuid: D_MAIN }, after: APP_CLONE_AFTER });
+add({ name: "operations: clone an application with its parts", token: "write", method: "POST", path: CLONE("applications", A_IMAGE), body: { destination_uuid: D_MAIN, name: "image-copy" }, after: APP_CLONE_AFTER });
+add({ name: "operations: clone an application, a long name", token: "write", method: "POST", path: CLONE("applications", A_GIT), setup: ["update applications set name = 'a-very-long-application-name' where id = 2"], body: { destination_uuid: D_MAIN, clone_volumes: false }, after: APP_CLONE_AFTER });
+add({ name: "operations: clone an application, the volumes without deploy", token: "write", method: "POST", path: CLONE("applications", A_GIT), body: { destination_uuid: D_MAIN, clone_volumes: true } });
+add({ name: "operations: clone an application, no volumes to copy", token: "root", method: "POST", path: CLONE("applications", A_GIT), body: { destination_uuid: D_MAIN, clone_volumes: "1" }, after: APP_CLONE_AFTER });
+add({ name: "operations: clone an application, the volumes", token: "root", method: "POST", path: CLONE("applications", A_IMAGE), body: { destination_uuid: D_MAIN, clone_volumes: true }, after: APP_CLONE_AFTER });
+add({ name: "operations: clone an application, no body", token: "write", method: "POST", path: CLONE("applications", A_GIT) });
+add({ name: "operations: clone an application, validation", token: "write", method: "POST", path: CLONE("applications", A_GIT), body: { destination_uuid: 1, name: "x!", clone_volumes: "maybe", environment_uuid: E_STAGING } });
+add({ name: "operations: clone an application, unknown destination", token: "write", method: "POST", path: CLONE("applications", A_GIT), body: { destination_uuid: "nonexistentuuid" } });
+add({ name: "operations: clone an application, another team's destination", token: "write", method: "POST", path: CLONE("applications", A_GIT), body: { destination_uuid: D_OTHER } });
+add({ name: "operations: clone an application, a build server", token: "write", method: "POST", path: CLONE("applications", A_GIT), setup: ["update server_settings set server_role = 'build' where server_id = 1"], body: { destination_uuid: D_MAIN } });
+add({ name: "operations: clone unknown application", token: "write", method: "POST", path: CLONE("applications", "nonexistentuuid"), body: { destination_uuid: D_MAIN } });
+add({ name: "operations: clone an application with a read token", token: "read", method: "POST", path: CLONE("applications", A_GIT), body: { destination_uuid: D_MAIN } });
+add({ name: "operations: clone a database", token: "write", method: "POST", path: CLONE("databases", DB_PG), body: { destination_uuid: D_MAIN }, after: DB_CLONE_AFTER });
+add({ name: "operations: clone a database with a name", token: "write", method: "POST", path: CLONE("databases", DB_PG), body: { destination_uuid: D_MAIN, name: "pg-copy" }, after: DB_CLONE_AFTER });
+add({ name: "operations: clone a database, the volumes", token: "root", method: "POST", path: CLONE("databases", DB_PG), body: { destination_uuid: D_MAIN, clone_volumes: true }, after: DB_CLONE_AFTER });
+add({ name: "operations: clone a database, the volumes without deploy", token: "write", method: "POST", path: CLONE("databases", DB_PG), body: { destination_uuid: D_MAIN, clone_volumes: 1 } });
+add({ name: "operations: clone a Redis", token: "write", method: "POST", path: CLONE("databases", DB_REDIS), body: { destination_uuid: D_MAIN }, after: REDIS_CLONE_AFTER });
+add({ name: "operations: clone a database, unknown destination", token: "write", method: "POST", path: CLONE("databases", DB_PG), body: { destination_uuid: "nonexistentuuid" } });
+add({ name: "operations: clone unknown database", token: "write", method: "POST", path: CLONE("databases", "nonexistentuuid"), body: { destination_uuid: D_MAIN } });
+add({ name: "operations: clone another team's database", token: "write", method: "POST", path: CLONE("databases", DB_OTHER), body: { destination_uuid: D_MAIN } });
+add({ name: "operations: clone a database, validation", token: "write", method: "POST", path: CLONE("databases", DB_PG), body: { name: "ab" } });
 
 /** The tables whose column order emit.php writes into the goldens (`columns`): what a nested relation serializes in. */
 const columnsOf = ["servers", "server_settings", "standalone_dockers", "application_settings", "applications", "environment_variables", "application_deployment_queues", "scheduled_database_backups", "scheduled_database_backup_executions", "services", "service_applications", "service_databases", "projects", "environments", "standalone_postgresqls", "standalone_redis", "standalone_mongodbs", "standalone_mysqls", "standalone_mariadbs", "standalone_keydbs", "standalone_dragonflies", "standalone_clickhouses", "local_persistent_volumes", "local_file_volumes"];

@@ -407,7 +407,7 @@ describe("cloning an application (clone_application's replicas)", () => {
       uuid: CLONE,
       name: `clone-of-docker-image-app1aaaaa...-${CLONE}`,
       fqdn: `http://${CLONE}.203.0.113.10.sslip.io`,
-      status: "exited",
+      status: "exited:unhealthy", // the status mutator adds the health (DP-86)
       environment_id: fx.a!.stagingId,
       destination_id: fx.a!.swarm.id,
       destination_type: "App\\Models\\SwarmDocker",

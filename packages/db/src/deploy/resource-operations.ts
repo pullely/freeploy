@@ -109,6 +109,12 @@ export async function moveApplication(tx: SqlExecutor, id: string | number, envi
   return r.rows.length > 0;
 }
 
+/** $service->update(['environment_id' => …]) of the API's moveResourceToEnvironment() (DP-86). */
+export async function moveService(tx: SqlExecutor, id: string | number, environmentId: string | number): Promise<boolean> {
+  const r = await tx.execute(`UPDATE deploy.services SET environment_id = $2, updated_at = ${NOW} WHERE id = $1 AND deleted_at IS NULL RETURNING id`, [id, environmentId]);
+  return r.rows.length > 0;
+}
+
 type Fill = Record<string, string | number | boolean | null>;
 
 /**
@@ -158,7 +164,7 @@ export interface ApplicationReplica {
 
 /**
  * $source->replicate([...])->fill([...])->save(): the application's row with
- * a new uuid, name, domain, environment and destination, status 'exited', and
+ * a new uuid, name, domain, environment and destination, status 'exited' (stored by the status mutator as 'exited:unhealthy', DP-86), and
  * — the creating and saving hooks — compose_parsing_version '5' and
  * last_online_at now. The manual webhook secrets are the source's (the
  * creating hook only fills in missing ones). Null when the source is gone.
@@ -171,7 +177,7 @@ export async function replicateApplication(tx: SqlExecutor, sourceId: string | n
     name: replica.name,
     fqdn: replica.fqdn,
     domain_port_overrides: replica.domainPortOverrides,
-    status: "exited",
+    status: "exited:unhealthy",
     environment_id: replica.environmentId,
     destination_id: replica.destinationId,
     destination_type: DESTINATION_MORPH_CLASS[replica.destinationType],
@@ -272,7 +278,7 @@ export interface DatabaseReplica {
 
 /**
  * $this->resource->replicate(['id', 'created_at', 'updated_at'])->fill([uuid,
- * name, status 'exited', started_at null, environment_id, destination_id,
+ * name, status 'exited' (the status mutator stores 'exited:unhealthy', DP-86), started_at null, environment_id, destination_id,
  * destination_type])->save(): the database's row, column for column — its
  * credentials (as stored: a ciphertext is bound to its org and column, not
  * its row), public port, configuration and limits — and, by the saving hook
@@ -291,7 +297,7 @@ export async function replicateDatabase(tx: SqlExecutor, engine: DatabaseEngine,
     {
       uuid: replica.uuid,
       name: replica.name,
-      status: "exited",
+      status: "exited:unhealthy",
       started_at: null,
       environment_id: replica.environmentId,
       destination_id: replica.destinationId,

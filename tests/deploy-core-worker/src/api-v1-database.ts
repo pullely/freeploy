@@ -45,6 +45,7 @@ import {
 import { columnCipher } from "@deploy-core-worker/handlers/cloud-tokens";
 import { ENVIRONMENT_VARIABLE_VERSION } from "@deploy-core-worker/environment-variables/service";
 import { defaultVolumes } from "@deploy-core-worker/databases/engines";
+import { normalizeDomainPortOverrides } from "@deploy-core-worker/applications/domains";
 import { CASES } from "./api-v1-goldens.js";
 
 
@@ -337,6 +338,20 @@ export async function fixtureDatabase(): Promise<FixtureDatabase> {
       for (const channel of NOTIFICATION_CHANNELS) same(`${channel} settings`, (await ensureNotificationSettings(tx, channel, org(team))).id, team);
     });
   }
+  // DP-86: the applications' previews (Coolify's saving hook moves a domain's port to domain_port_overrides, and sets
+  // last_online_at to the clock's now as the status is set).
+  for (const p of f.previews) {
+    const team = f.applications.find((a) => a.id === p.application)!.team;
+    const domain = normalizeDomainPortOverrides(p.fqdn, null);
+    await withOrg(db, org(team), (tx) =>
+      tx.execute(
+        `INSERT INTO deploy.application_previews (id, uuid, application_id, pull_request_id, pull_request_html_url, git_type, fqdn, domain_port_overrides, docker_registry_image_tag, status, last_online_at, created_at, updated_at, org_id)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8::json, $9, $10, '2026-01-01 00:00:00', $11, $11, $12)`,
+        [p.id, p.uuid, p.application, p.pull_request_id, p.pull_request_html_url, p.git_type, domain.fqdn, domain.overrides === null ? null : JSON.stringify(domain.overrides), p.docker_registry_image_tag, p.status, p.created_at, org(team)],
+      ),
+    );
+  }
+  await db.execute("SELECT setval(pg_get_serial_sequence('deploy.application_previews', 'id'), $1)", [Math.max(...f.previews.map((p) => p.id))]);
   return {
     pg,
     async inCase(fn) {

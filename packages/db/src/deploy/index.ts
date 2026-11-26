@@ -355,6 +355,7 @@ export {
   type ApplicationReplica,
   // DP-64: a standalone database's Resource Operations and Resource Limits.
   moveDatabase,
+  moveService,
   replicateDatabase,
   listDatabaseEnvironmentVariableIds,
   replicateDatabaseEnvironmentVariable,
