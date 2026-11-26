@@ -29,6 +29,11 @@ import {
   insertProject,
   insertServer,
   insertParsedService,
+  insertTag,
+  attachTag,
+  insertSharedVariable,
+  APPLICATION_MORPH_CLASS,
+  SERVICE_MORPH_CLASS,
   withOrg,
 } from "@saas/db/deploy";
 import { columnCipher } from "@deploy-core-worker/handlers/cloud-tokens";
@@ -114,6 +119,10 @@ export async function fixtureDatabase(): Promise<FixtureDatabase> {
     await withOrg(db, org(s.team), async (tx) => {
       // Coolify's created hook: redirect_enabled (the fixture's server is made with forceCreate()).
       await insertServer(tx, { orgId: org(s.team), uuid: s.uuid, name: s.name, description: s.description, ip: s.ip, user: s.user, port: s.port, privateKeyId: s.private_key_id, proxy: { redirect_enabled: true }, serverRole: "both", imageScanEnabled: false, defaultDestinationUuid: destination.uuid });
+      // The created hook's predefined variables (DP-81: they take the first ids of the shared variables, as in Coolify).
+      for (const [key, value] of [["COOLIFY_SERVER_UUID", s.uuid], ["COOLIFY_SERVER_NAME", s.name]] as const) {
+        await insertSharedVariable(tx, { orgId: org(s.team), owner: { type: "server", id: s.id }, key, value: await encrypt(tx, s.team, "shared_environment_variables.value", value) });
+      }
     });
   }
   for (const a of f.applications) {
@@ -164,7 +173,7 @@ export async function fixtureDatabase(): Promise<FixtureDatabase> {
       await insertS3Storage(tx, {
         orgId: org(s.team), uuid: s.uuid, type: "s3", name: s.name, description: s.description, region: s.region,
         key: await encrypt(tx, s.team, "s3_storages.key", s.key), secret: await encrypt(tx, s.team, "s3_storages.secret", s.secret),
-        bucket: s.bucket, endpoint: s.endpoint, usePathStyleEndpoint: false, skipTlsVerification: false, isUsable: s.is_usable, unusableEmailSent: false,
+        bucket: s.bucket, endpoint: s.endpoint, usePathStyleEndpoint: true, skipTlsVerification: false, isUsable: s.is_usable, unusableEmailSent: false,
       });
     });
   }
@@ -236,6 +245,26 @@ export async function fixtureDatabase(): Promise<FixtureDatabase> {
         );
       }
       for (const v of f.serviceVariables.filter((x) => x.service === s.id && x.is_shown_once)) await tx.execute("UPDATE deploy.environment_variables SET is_shown_once = true WHERE uuid = $1", [v.uuid]);
+    });
+  }
+  // DP-81: the tags in id order (insertTag(), so the identity gives the fixture's ids), then the pivot rows in the fixture's order.
+  const MORPH = { application: APPLICATION_MORPH_CLASS, redis: DATABASE_TABLES.redis.morphClass, service: SERVICE_MORPH_CLASS } as const;
+  for (const t of f.tags) {
+    await withOrg(db, org(t.team), async (tx) => {
+      const row = await insertTag(tx, { orgId: org(t.team), uuid: t.uuid, name: t.name });
+      await tx.execute("UPDATE deploy.tags SET created_at = $2, updated_at = $2 WHERE id = $1", [row.id, t.created_at]);
+    });
+  }
+  for (const p of f.taggables) {
+    const team = f.tags.find((t) => t.id === p.tag)!.team;
+    await withOrg(db, org(team), (tx) => attachTag(tx, org(team), { type: MORPH[p.type], id: p.id }, p.tag));
+  }
+  // DP-81: the shared variables of projects and environments, in id order (the identity gives the fixture's ids).
+  for (const v of f.sharedVariables) {
+    await withOrg(db, org(v.team), async (tx) => {
+      const owner = v.type === "project" ? { type: "project" as const, id: v.project_id } : { type: "environment" as const, id: v.environment_id };
+      const row = await insertSharedVariable(tx, { orgId: org(v.team), owner, key: v.key, value: await encrypt(tx, v.team, "shared_environment_variables.value", v.value), comment: v.comment, isLiteral: v.is_literal, isMultiline: v.is_multiline, isShownOnce: v.is_shown_once });
+      if (Number(row.id) !== v.id) throw new Error(`shared variable ${v.key}: id ${row.id}, not ${v.id}`);
     });
   }
   return {

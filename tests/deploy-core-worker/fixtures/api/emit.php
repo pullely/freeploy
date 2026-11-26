@@ -30,9 +30,11 @@ use App\Models\ScheduledDatabaseBackupExecution;
 use App\Models\Project;
 use App\Models\Server;
 use App\Models\Service;
+use App\Models\SharedEnvironmentVariable;
 use App\Models\ServiceApplication;
 use App\Models\ServiceDatabase;
 use App\Models\StandaloneDocker;
+use App\Models\Tag;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Contracts\Http\Kernel as HttpKernel;
@@ -64,7 +66,7 @@ Artisan::call('migrate:fresh', ['--force' => true]);
 ob_end_clean();
 /** The fixture's ids are given; what is created after them (a user's personal team, a case's rows) continues after them. */
 $advanceSequences = function (): void {
-    foreach (['teams', 'users', 'team_user', 'projects', 'environments', 'private_keys', 'servers', 'server_settings', 'standalone_dockers', 'personal_access_tokens', 'applications', 'application_settings', 'environment_variables', 'application_deployment_queues', 's3_storages', 'standalone_postgresqls', 'standalone_redis', 'standalone_mongodbs', 'standalone_mysqls', 'standalone_mariadbs', 'standalone_keydbs', 'standalone_dragonflies', 'standalone_clickhouses', 'local_persistent_volumes', 'scheduled_database_backups', 'scheduled_database_backup_executions', 'scheduled_database_backup_s3_storage', 'services', 'service_applications', 'service_databases'] as $table) {
+    foreach (['teams', 'users', 'team_user', 'projects', 'environments', 'private_keys', 'servers', 'server_settings', 'standalone_dockers', 'personal_access_tokens', 'applications', 'application_settings', 'environment_variables', 'application_deployment_queues', 's3_storages', 'standalone_postgresqls', 'standalone_redis', 'standalone_mongodbs', 'standalone_mysqls', 'standalone_mariadbs', 'standalone_keydbs', 'standalone_dragonflies', 'standalone_clickhouses', 'local_persistent_volumes', 'scheduled_database_backups', 'scheduled_database_backup_executions', 'scheduled_database_backup_s3_storage', 'services', 'service_applications', 'service_databases', 'tags'] as $table) {
         DB::statement("SELECT setval(pg_get_serial_sequence('{$table}', 'id'), GREATEST((SELECT COALESCE(MAX(id), 0) FROM {$table}), 1))");
     }
 };
@@ -75,6 +77,13 @@ Carbon::setTestNow(Carbon::parse('2026-01-01T00:00:00Z'));
 \Carbon\CarbonImmutable::setTestNow(\Carbon\CarbonImmutable::parse('2026-01-01T00:00:00Z'));
 
 $fixture = $cases['fixture'];
+
+// DP-81: host names as SafeWebhookUrl resolves them (no DNS is asked): an S3 storage's endpoint.
+\App\Rules\SafeWebhookUrl::resolveHostsUsing(fn (string $host): array => match ($host) {
+    'unresolvable.example' => [],
+    'private.example' => ['10.0.0.5'],
+    default => ['93.184.216.34'],
+});
 
 // ── the fixture ─────────────────────────────────────────────────────────────
 InstanceSettings::unguarded(fn () => InstanceSettings::query()->updateOrCreate(['id' => 0], ['is_api_enabled' => true, 'allowed_ips' => null]));
@@ -165,6 +174,21 @@ foreach ($fixture['serviceVariables'] ?? [] as $v) {
 foreach ($fixture['deployments'] ?? [] as $q) {
     ApplicationDeploymentQueue::unguarded(fn () => ApplicationDeploymentQueue::query()->forceCreate(['id' => $q['id'], 'deployment_uuid' => $q['uuid'], 'application_id' => (string) $q['application'], 'status' => $q['status'], 'commit' => $q['commit'], 'server_id' => $q['server_id'], 'destination_id' => (string) $q['destination_id'], 'application_name' => $q['application_name'], 'server_name' => $q['server_name'], 'logs' => $q['logs'], 'created_at' => $q['created_at'], 'updated_at' => $q['created_at'], 'finished_at' => $q['finished_at']]));
 }
+// DP-81: tags with the team (forceCreate(): the name through the model's mutator) and the pivot rows, in the fixture's order.
+$advanceSequences();
+foreach ($fixture['tags'] ?? [] as $t) {
+    Tag::unguarded(fn () => Tag::query()->forceCreate(['id' => $t['id'], 'uuid' => $t['uuid'], 'name' => $t['name'], 'team_id' => $t['team'], 'created_at' => $t['created_at'], 'updated_at' => $t['created_at']]));
+}
+$taggable = ['application' => Application::class, 'redis' => \App\Models\StandaloneRedis::class, 'service' => Service::class];
+foreach ($fixture['taggables'] ?? [] as $p) {
+    DB::table('taggables')->insert(['tag_id' => $p['tag'], 'taggable_type' => $taggable[$p['type']], 'taggable_id' => $p['id']]);
+}
+// DP-81: shared variables of projects and environments, through the model (the encrypted cast, the key's mutator).
+foreach ($fixture['sharedVariables'] ?? [] as $v) {
+    SharedEnvironmentVariable::unguarded(fn () => SharedEnvironmentVariable::query()->forceCreate(['id' => $v['id'], 'key' => $v['key'], 'value' => $v['value'], 'type' => $v['type'], 'team_id' => $v['team'], 'project_id' => $v['project_id'], 'environment_id' => $v['environment_id'], 'is_literal' => $v['is_literal'], 'is_multiline' => $v['is_multiline'], 'is_shown_once' => $v['is_shown_once'], 'comment' => $v['comment']]));
+}
+// Not in $advanceSequences: the servers' created hook took the first ids from the sequence, which must not be moved before.
+DB::statement("SELECT setval(pg_get_serial_sequence('shared_environment_variables', 'id'), (SELECT MAX(id) FROM shared_environment_variables))");
 // Tokens: the fixture's plain text, hashed as Sanctum stores it; the client sends "<id>|<plain text>".
 $advanceSequences();
 foreach ($fixture['tokens'] as $t) {

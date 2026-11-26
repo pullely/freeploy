@@ -167,7 +167,7 @@ describe("what the edge sends a worker", () => {
 });
 
 describe("the routes", () => {
-  it("are the 81 ported operations of openapi.json (health, the deprecated team aliases and the GET answers of start, restart and stop aside)", () => {
+  it("are the 108 ported operations of openapi.json (health, the deprecated team aliases and the GET answers of start, restart and stop aside)", () => {
     const openapi = JSON.parse(readFileSync(resolve(FIXTURES, "../../../../specs/epics/freeploy-coolify-parity/parity/openapi.operations.json"), "utf8")) as { rows: Array<{ method: string; path: string }> };
     const ops = new Set(openapi.rows.map((r) => `${r.method} ${r.path}`));
     const routes = API_V1_ROUTES.map((r) => `${r.method} /api/v1${r.path}`);
@@ -189,7 +189,7 @@ describe("the routes", () => {
       "GET /api/v1/services/{uuid}/restart",
       "GET /api/v1/services/{uuid}/stop",
     ]);
-    expect(inOpenapi.length + 1 /* GET /api/v1/health */).toBe(81);
+    expect(inOpenapi.length + 1 /* GET /api/v1/health */).toBe(108);
   });
 
   it("take the first match in routes/api.php's order and ignore a trailing slash", () => {
@@ -212,7 +212,12 @@ describe("the routes", () => {
     expect(matchApiRoute("GET", "/deployments")?.path).toBe("/deployments");
     expect(matchApiRoute("GET", "/projects/p1/environments")?.path).toBe("/projects/{uuid}/environments");
     expect(matchApiRoute("GET", "/projects/p1/production")?.path).toBe("/projects/{uuid}/{environment_name_or_uuid}");
-    expect(matchApiRoute("GET", "/projects/p1/envs")).toBeNull();
+    // DP-81: the shared variables' routes come before /projects/{uuid}/{environment_name_or_uuid}
+    expect(matchApiRoute("GET", "/projects/p1/envs")?.path).toBe("/projects/{uuid}/envs");
+    expect(matchApiRoute("PATCH", "/projects/p1/environments/production/envs/5")?.path).toBe("/projects/{uuid}/environments/{environment_name_or_uuid}/envs/{env_id}");
+    expect(matchApiRoute("DELETE", "/applications/a1/tags/t1")?.abilities).toEqual(["delete"]);
+    expect(matchApiRoute("POST", "/s3-storages/s1/validate")?.abilities).toEqual(["write"]);
+    expect(matchApiRoute("GET", "/tags/t1")).toBeNull();
     expect(matchApiRoute("GET", "/servers/s1/resources")?.path).toBe("/servers/{uuid}/resources");
     expect(matchApiRoute("DELETE", "/servers/s1")?.abilities).toEqual(["delete"]);
     expect(matchApiRoute("PATCH", "/servers/s1")).toBeNull();

@@ -39,16 +39,38 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("POST", "/projects", "write", "deploy"),
   r("PATCH", "/projects/{uuid}", "write", "deploy"),
   r("DELETE", "/projects/{uuid}", "delete", "deploy"),
-  // DP-78: after /projects/{uuid}/environments (routes/api.php's order); /projects/{uuid}/envs is the shared variables'
-  // route, not ported, so it is not this one either.
-  { ...r("GET", "/projects/{uuid}/{environment_name_or_uuid}", "read", "deploy"), except: /^\/projects\/[^/]+\/envs$/ },
+  // DP-81: the shared variables of a project and of an environment, before /projects/{uuid}/{environment_name_or_uuid}
+  // (routes/api.php's order), which therefore never takes /projects/{uuid}/envs.
+  r("GET", "/projects/{uuid}/envs", "read", "deploy"),
+  r("POST", "/projects/{uuid}/envs", "write", "deploy"),
+  r("PATCH", "/projects/{uuid}/envs/{env_id}", "write", "deploy"),
+  r("DELETE", "/projects/{uuid}/envs/{env_id}", "delete", "deploy"),
+  r("GET", "/projects/{uuid}/environments/{environment_name_or_uuid}/envs", "read", "deploy"),
+  r("POST", "/projects/{uuid}/environments/{environment_name_or_uuid}/envs", "write", "deploy"),
+  r("PATCH", "/projects/{uuid}/environments/{environment_name_or_uuid}/envs/{env_id}", "write", "deploy"),
+  r("DELETE", "/projects/{uuid}/environments/{environment_name_or_uuid}/envs/{env_id}", "delete", "deploy"),
+  // DP-78: after /projects/{uuid}/environments and the shared variables' routes (routes/api.php's order).
+  r("GET", "/projects/{uuid}/{environment_name_or_uuid}", "read", "deploy"),
   r("GET", "/resources", "read", "deploy"),
+  // DP-81: the team's tags
+  r("GET", "/tags", "read", "deploy"),
+  r("POST", "/tags", "write", "deploy"),
+  r("PATCH", "/tags/{uuid}", "write", "deploy"),
+  r("DELETE", "/tags/{uuid}", "delete", "deploy"),
 
   r("GET", "/security/keys", "read", "deploy"),
   r("POST", "/security/keys", "write", "deploy"),
   r("GET", "/security/keys/{uuid}", "read", "deploy"),
   r("PATCH", "/security/keys/{uuid}", "write", "deploy"),
   r("DELETE", "/security/keys/{uuid}", "delete", "deploy"),
+
+  // DP-81: S3 storages
+  r("GET", "/s3-storages", "read", "deploy"),
+  r("POST", "/s3-storages", "write", "deploy"),
+  r("GET", "/s3-storages/{uuid}", "read", "deploy"),
+  r("PATCH", "/s3-storages/{uuid}", "write", "deploy"),
+  r("DELETE", "/s3-storages/{uuid}", "delete", "deploy"),
+  r("POST", "/s3-storages/{uuid}/validate", "write", "deploy"),
 
   r("GET", "/servers", "read", "deploy"),
   r("GET", "/servers/{uuid}", "read", "deploy"),
@@ -76,6 +98,10 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("POST", "/applications/{uuid}/start", "deploy", "deploy"),
   r("POST", "/applications/{uuid}/restart", "deploy", "deploy"),
   r("POST", "/applications/{uuid}/stop", "deploy", "deploy"),
+  // DP-81: HandlesTagsApi
+  r("GET", "/applications/{uuid}/tags", "read", "deploy"),
+  r("POST", "/applications/{uuid}/tags", "write", "deploy"),
+  r("DELETE", "/applications/{uuid}/tags/{tag_uuid}", "delete", "deploy"),
 
   // DP-73: the standalone databases (the eight engines Freeploy has; POST /databases/sqlite is not ported) and their
   // backup schedules
@@ -104,6 +130,10 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("POST", "/databases/{uuid}/start", "deploy", "deploy"),
   r("POST", "/databases/{uuid}/restart", "deploy", "deploy"),
   r("POST", "/databases/{uuid}/stop", "deploy", "deploy"),
+  // DP-81: HandlesTagsApi
+  r("GET", "/databases/{uuid}/tags", "read", "deploy"),
+  r("POST", "/databases/{uuid}/tags", "write", "deploy"),
+  r("DELETE", "/databases/{uuid}/tags/{tag_uuid}", "delete", "deploy"),
 
   // DP-74: deploying and deployments (GET /deployments and GET /deployments/{uuid}: DP-78), then services and
   // their environment variables. routes/api.php's /deploy and /deployments come before /servers; no route here
@@ -133,6 +163,10 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("POST", "/services/{uuid}/start", "deploy", "deploy"),
   r("POST", "/services/{uuid}/restart", "deploy", "deploy"),
   r("POST", "/services/{uuid}/stop", "deploy", "deploy"),
+  // DP-81: HandlesTagsApi
+  r("GET", "/services/{uuid}/tags", "read", "deploy"),
+  r("POST", "/services/{uuid}/tags", "write", "deploy"),
+  r("DELETE", "/services/{uuid}/tags/{tag_uuid}", "delete", "deploy"),
 ];
 
 /** Laravel's route parameters match one segment ([^/]+). */

@@ -96,6 +96,37 @@ export async function updateS3Storage(tx: SqlExecutor, id: string | number, s: S
   return r.rows[0] ?? null;
 }
 
+/** The columns Coolify's API writes of a storage (DP-81: S3StoragesController::update() and validateStorage()). */
+export interface S3StorageColumnChanges {
+  name?: string;
+  description?: string | null;
+  region?: string | null;
+  /** fp1 ciphertexts */
+  key?: string;
+  secret?: string;
+  bucket?: string | null;
+  endpoint?: string | null;
+  use_path_style_endpoint?: boolean;
+  skip_tls_verification?: boolean;
+  is_usable?: boolean;
+  unusable_email_sent?: boolean;
+}
+
+const CHANGEABLE: ReadonlyArray<keyof S3StorageColumnChanges> = ["name", "description", "region", "key", "secret", "bucket", "endpoint", "use_path_style_endpoint", "skip_tls_verification", "is_usable", "unusable_email_sent"];
+
+/** $storage->update([...]) / $storage->save(): only the columns given, and updated_at; nothing when none is given. */
+export async function updateS3StorageColumns(tx: SqlExecutor, id: string | number, changes: S3StorageColumnChanges): Promise<void> {
+  const params: unknown[] = [id];
+  const sets: string[] = [];
+  for (const column of CHANGEABLE) {
+    if (!(column in changes)) continue;
+    params.push(changes[column]);
+    sets.push(`${column} = $${params.length}`);
+  }
+  if (sets.length === 0) return;
+  await tx.execute(`UPDATE deploy.s3_storages SET ${sets.join(", ")}, updated_at = ${NOW} WHERE id = $1`, params);
+}
+
 /** Form::testConnection(): only the status of the stored storage changes. */
 export async function setS3StorageUsable(tx: SqlExecutor, id: string | number, isUsable: boolean, unusableEmailSent: boolean): Promise<boolean> {
   const r = await tx.execute(`UPDATE deploy.s3_storages SET is_usable = $2, unusable_email_sent = $3, updated_at = ${NOW} WHERE id = $1 RETURNING id`, [id, isUsable, unusableEmailSent]);

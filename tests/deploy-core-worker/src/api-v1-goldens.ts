@@ -73,6 +73,11 @@ export interface Fixture {
   serviceVariables: Array<{ uuid: string; service: number; key: string; value: string; is_shown_once: boolean; comment: string | null }>;
   /** DP-74: deployments in the queue. */
   deployments: Array<{ id: number; uuid: string; application: number; status: string; commit: string; server_id: number; destination_id: number; application_name: string; server_name: string; logs: string | null; created_at: string; finished_at: string | null }>;
+  /** DP-81: the teams' tags and what they are attached to ("application", "redis" or "service" and its id), in order. */
+  tags: Array<{ id: number; uuid: string; team: number; name: string; created_at: string }>;
+  taggables: Array<{ tag: number; type: "application" | "redis" | "service"; id: number }>;
+  /** DP-81: shared variables of projects and environments (ids after the servers' four predefined ones). */
+  sharedVariables: Array<{ id: number; team: number; type: "project" | "environment"; project_id: number | null; environment_id: number | null; key: string; value: string; is_literal: boolean; is_multiline: boolean; is_shown_once: boolean; comment: string | null }>;
 }
 
 export const CASES = JSON.parse(readFileSync(resolve(API_FIXTURES, "cases.json"), "utf8")) as { fixture: Fixture; cases: Case[] };
@@ -102,6 +107,7 @@ const FIXTURE_UUIDS = new Set<string>([
   ...CASES.fixture.serviceDatabases.map((d) => d.uuid),
   ...CASES.fixture.serviceVariables.map((v) => v.uuid),
   ...CASES.fixture.deployments.map((d) => d.uuid),
+  ...CASES.fixture.tags.map((t) => t.uuid),
 ]);
 
 const LARAVEL_DATE = /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{6}Z$/;
@@ -118,6 +124,8 @@ const SECRET_KEYS = new Set(["sentinel_token"]);
  */
 export function mask(value: PhpValue, context: { teamIdKey?: boolean } = {}, parentKey = ""): PhpValue {
   if (Array.isArray(value)) return value.map((v) => mask(v, context, parentKey));
+  // A created shared variable's answer, {"id":N}: the sequence's next id, which earlier cases moved (DP-81).
+  if (isObj(value) && parentKey === "" && value.entries.length === 1 && value.entries[0]![0] === "id" && typeof value.entries[0]![1] === "number") return obj({ id: "<new-id>" });
   if (isObj(value)) {
     const email = value.entries.find(([k]) => k === "email")?.[1];
     return obj(

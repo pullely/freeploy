@@ -92,6 +92,8 @@ export interface NewSharedVariable {
   comment?: string | null;
   isMultiline?: boolean;
   isLiteral?: boolean;
+  /** SharedEnvironmentVariablesController::createEnv() (DP-81): the API can create a variable locked. */
+  isShownOnce?: boolean;
 }
 
 /** $owner->environment_variables()->create([...]): the type and the owner's column follow the owner. */
@@ -104,9 +106,9 @@ export async function insertSharedVariable(tx: SqlExecutor, variable: NewSharedV
   };
   const r = await tx.execute<DeploySharedVariableRow>(
     `INSERT INTO deploy.shared_environment_variables
-       (key, value, type, project_id, environment_id, server_id, comment, is_multiline, is_literal, org_id, created_at, updated_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, ${NOW}, ${NOW}) RETURNING ${COLUMNS}`,
-    [variable.key, variable.value, owner.type, ids.project, ids.environment, ids.server, variable.comment ?? null, variable.isMultiline ?? false, variable.isLiteral ?? false, variable.orgId],
+       (key, value, type, project_id, environment_id, server_id, comment, is_multiline, is_literal, is_shown_once, org_id, created_at, updated_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, ${NOW}, ${NOW}) RETURNING ${COLUMNS}`,
+    [variable.key, variable.value, owner.type, ids.project, ids.environment, ids.server, variable.comment ?? null, variable.isMultiline ?? false, variable.isLiteral ?? false, variable.isShownOnce ?? false, variable.orgId],
   );
   return r.rows[0]!;
 }

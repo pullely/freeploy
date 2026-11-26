@@ -62,6 +62,13 @@ const DQ_QUEUED = "q2parityqueued0000000002";
 const DQ_FINISHED = "q3parityfinished00000003";
 const DQ_OTHER = "q4otherinprogress0000004";
 const DQ_FAILED = "q5paritygitfailed0000005";
+// DP-81: the teams' tags, attached to an application, a database and a service.
+const TG_BACKEND = "t1paritybackendtag000001";
+const TG_FRONTEND = "t2parityfrontendtag00002";
+const TG_UNUSED = "t3parityunusedtag0000003";
+const TG_OTHER = "t4otherteamtag0000000004";
+/** The fixture's last tag id: the tags a write made come after it. */
+const FIXTURE_TAGS = 4;
 /** A deployment's logs column: one line as ApplicationDeploymentQueue::addLogEntry() writes it. */
 const deploymentLog = (output) => JSON.stringify([{ command: null, output, type: "stdout", timestamp: "2025-12-30T10:00:01.000000Z", hidden: false, batch: 1, order: 1 }]);
 /** The file the parser generated (fixed text; a locked variable's value in it is redacted for the API). */
@@ -173,6 +180,30 @@ const fixture = {
     { id: 3, uuid: DQ_FINISHED, application: 1, status: "finished", commit: "HEAD", server_id: 1, destination_id: 1, application_name: "parity-image", server_name: "parity-server", logs: deploymentLog("Deployment finished."), created_at: "2025-12-30 10:00:00", finished_at: "2025-12-30 10:05:00" },
     { id: 4, uuid: DQ_OTHER, application: 3, status: "in_progress", commit: "HEAD", server_id: 2, destination_id: 2, application_name: "other-image", server_name: "other-server", logs: null, created_at: "2025-12-31 12:00:00", finished_at: null },
     { id: 5, uuid: DQ_FAILED, application: 2, status: "failed", commit: "a1b2c3d", server_id: 1, destination_id: 1, application_name: "parity-git", server_name: "parity-server", logs: deploymentLog("Build failed."), created_at: "2025-12-29 10:00:00", finished_at: "2025-12-29 10:01:00" },
+  ],
+  // DP-81: tags (Tag::forceCreate() with the team, created_at fixed) and what they are attached to (the taggables pivot,
+  // in this order).
+  tags: [
+    { id: 1, uuid: TG_BACKEND, team: T1, name: "backend", created_at: "2025-12-01 00:00:00" },
+    { id: 2, uuid: TG_FRONTEND, team: T1, name: "frontend", created_at: "2025-12-02 00:00:00" },
+    { id: 3, uuid: TG_UNUSED, team: T1, name: "unused", created_at: "2025-12-03 00:00:00" },
+    { id: 4, uuid: TG_OTHER, team: T2, name: "theirs", created_at: "2025-12-04 00:00:00" },
+  ],
+  taggables: [
+    { tag: 1, type: "application", id: 1 },
+    { tag: 2, type: "application", id: 1 },
+    { tag: 1, type: "redis", id: 1 },
+    { tag: 2, type: "service", id: 1 },
+    { tag: 4, type: "application", id: 3 },
+  ],
+  // DP-81: shared variables of projects and environments (SharedEnvironmentVariable::create(), the value encrypted by the
+  // cast). Their ids follow the four each server's created hook makes (COOLIFY_SERVER_UUID and COOLIFY_SERVER_NAME).
+  sharedVariables: [
+    { id: 5, team: T1, type: "project", project_id: 1, environment_id: null, key: "PROJECT_FOO", value: "project-bar", is_literal: false, is_multiline: false, is_shown_once: false, comment: null },
+    { id: 6, team: T1, type: "project", project_id: 1, environment_id: null, key: "PROJECT_SECRET", value: "p-secret", is_literal: false, is_multiline: false, is_shown_once: true, comment: "Locked" },
+    { id: 7, team: T1, type: "environment", project_id: null, environment_id: 1, key: "ENV_FOO", value: "env-bar", is_literal: true, is_multiline: false, is_shown_once: false, comment: null },
+    { id: 8, team: T2, type: "project", project_id: 3, environment_id: null, key: "OTHER_PROJECT", value: "theirs", is_literal: false, is_multiline: false, is_shown_once: false, comment: null },
+    { id: 9, team: T1, type: "environment", project_id: null, environment_id: 2, key: "STAGING_ONLY", value: "line one\nline two", is_literal: false, is_multiline: true, is_shown_once: false, comment: "Two lines" },
   ],
   // secret: what follows "<id>|" in the bearer token (Sanctum's 40 random characters and crc32b).
   tokens: [
@@ -420,7 +451,7 @@ const createdAfter = (engine, table, model, extra, last = engine === "postgresql
   database: `select name = '${engine}-database-' || uuid as default_name, ${COMMON_DB_COLUMNS}, ${extra} from ${table} where id > ${last} order by id`,
   volumes: `select v.name = '${engine === "postgresql" ? "postgres" : engine}-data-' || d.uuid as default_name, v.mount_path, v.host_path from local_persistent_volumes v join ${table} d on d.id = v.resource_id where v.resource_type = 'App\\Models\\${model}' and d.id > ${last} order by v.id`,
   variables: `select e.key, e.is_shared, e.is_runtime, e.is_buildtime from environment_variables e where e.resourceable_type = 'App\\Models\\${model}' and e.resourceable_id > ${last} order by e.id`,
-  tags: `select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\${model}' order by t.name`,
+  tags: `select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\${model}' and t.id > ${FIXTURE_TAGS} order by t.name`,
 });
 const ON = { project_uuid: P_ALPHA, environment_name: "production", server_uuid: S_MAIN };
 add({ name: "databases: list", token: "read", method: "GET", path: "/api/v1/databases" });
@@ -575,7 +606,7 @@ const servicesAfter = (where) => ({
   databases: `select d.name, d.human_name, d.image, d.ports, d.status, d.exclude_from_status, d.is_public, d.is_removed_from_compose, d.deleted_at is not null as deleted from service_databases d join services s on s.id = d.service_id where ${where.replaceAll("id", "s.id")} order by d.id`,
   variables: `select e.key, e.is_preview, e.is_required, e.is_shared, e.is_literal, e.is_multiline, e.is_shown_once, e.is_runtime, e.is_buildtime, e.comment, e.version from environment_variables e join services s on s.id = e.resourceable_id where e.resourceable_type = 'App\\Models\\Service' and ${where.replaceAll("id", "s.id")} order by e.id`,
   volumes: `select ${masked("v.name")} as name, v.mount_path, v.resource_type from local_persistent_volumes v where v.resource_type in ('App\\Models\\ServiceApplication', 'App\\Models\\ServiceDatabase') and v.resource_id in (select a.id from service_applications a join services s on s.id = a.service_id where ${where.replaceAll("id", "s.id")} union select d.id from service_databases d join services s on s.id = d.service_id where ${where.replaceAll("id", "s.id")}) order by v.id`,
-  tags: "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' order by t.name",
+  tags: `select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\Service' and t.id > ${FIXTURE_TAGS} order by t.name`,
 });
 const NEW_SERVICES = servicesAfter("id > 2");
 const MAIN_SERVICE = servicesAfter("id = 1");
@@ -777,7 +808,7 @@ add({ name: "servers: delete with a read token", token: "read", method: "DELETE"
 
 /** The server a create made: its columns, settings and default destination (its uuid and a generated name are random). */
 const CREATED_SERVER_AFTER = {
-  server: "select case when name ~ '^[a-z]+-[a-z]+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where ip = '203.0.113.30'",
+  server: "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where ip = '203.0.113.30'",
   settings: "select ss.server_role, ss.is_build_server, ss.ssh_host_key, ss.ssh_host_key_source, ss.ssh_host_key_trusted_at is not null as trusted from server_settings ss join servers s on s.id = ss.server_id where s.ip = '203.0.113.30'",
   destination: "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.ip = '203.0.113.30'",
   servers: "select count(*)::int as count from servers where ip <> '203.0.113.20'",
@@ -800,6 +831,158 @@ add({ name: "servers: create, the endpoint in use on another port", token: "writ
 add({ name: "servers: create, validating at once", token: "write", method: "POST", path: "/api/v1/servers", body: { ip: "203.0.113.30", private_key_uuid: K_MAIN, instant_validate: true }, after: CREATED_SERVER_AFTER });
 add({ name: "servers: create, not JSON", token: "write", method: "POST", path: "/api/v1/servers", raw: "ip=203.0.113.30", contentType: "application/x-www-form-urlencoded" });
 add({ name: "servers: create with a read token", token: "read", method: "POST", path: "/api/v1/servers", body: { ip: "203.0.113.30", private_key_uuid: K_MAIN } });
+
+// ── DP-81: tags, and the tags of an application, a database and a service ─────
+/** Team 1's tags and what they are attached to (the other team's rows are not the org's in Freeploy). */
+const TAGS_AFTER = {
+  tags: "select name, created_at is not null as dated from tags where uuid <> 't4otherteamtag0000000004' order by name",
+  taggables: "select t.name, tg.taggable_type, tg.taggable_id from taggables tg join tags t on t.id = tg.tag_id where t.uuid <> 't4otherteamtag0000000004' order by tg.taggable_type, tg.taggable_id, t.name",
+};
+add({ name: "tags: list", token: "read", method: "GET", path: "/api/v1/tags" });
+add({ name: "tags: list, none", token: "read", method: "GET", path: "/api/v1/tags", setup: ["delete from taggables", "delete from tags"] });
+add({ name: "tags: create", token: "write", method: "POST", path: "/api/v1/tags", body: { name: "  New-Tag  " }, after: TAGS_AFTER });
+add({ name: "tags: create, markup stripped", token: "write", method: "POST", path: "/api/v1/tags", body: { name: "<b>Ops</b> Team" }, after: TAGS_AFTER });
+add({ name: "tags: create, another team's name", token: "write", method: "POST", path: "/api/v1/tags", body: { name: "theirs" }, after: TAGS_AFTER });
+add({ name: "tags: create, an existing name", token: "write", method: "POST", path: "/api/v1/tags", body: { name: "Backend" }, after: TAGS_AFTER });
+add({ name: "tags: create, too short once sanitized", token: "write", method: "POST", path: "/api/v1/tags", body: { name: "<i>a</i>" } });
+add({ name: "tags: create, invalid", token: "write", method: "POST", path: "/api/v1/tags", body: { name: "x", color: "red" } });
+add({ name: "tags: create, no name", token: "write", method: "POST", path: "/api/v1/tags", body: { label: "x" } });
+add({ name: "tags: create, name not a string", token: "write", method: "POST", path: "/api/v1/tags", body: { name: ["ops"] } });
+add({ name: "tags: create, name too long", token: "write", method: "POST", path: "/api/v1/tags", body: { name: "a".repeat(256) } });
+add({ name: "tags: create, not JSON", token: "write", method: "POST", path: "/api/v1/tags", raw: "name=ops", contentType: "application/x-www-form-urlencoded" });
+add({ name: "tags: create, empty JSON", token: "write", method: "POST", path: "/api/v1/tags", raw: "{}" });
+add({ name: "tags: update", token: "write", method: "PATCH", path: `/api/v1/tags/${TG_UNUSED}`, body: { name: "Renamed " }, after: TAGS_AFTER });
+add({ name: "tags: update to its own name", token: "write", method: "PATCH", path: `/api/v1/tags/${TG_UNUSED}`, body: { name: "UNUSED" }, after: TAGS_AFTER });
+add({ name: "tags: update to an existing name", token: "write", method: "PATCH", path: `/api/v1/tags/${TG_UNUSED}`, body: { name: "frontend" } });
+add({ name: "tags: update, invalid", token: "write", method: "PATCH", path: `/api/v1/tags/${TG_UNUSED}`, body: { name: "", uuid: "x" } });
+add({ name: "tags: update unknown", token: "write", method: "PATCH", path: "/api/v1/tags/nonexistentuuid", body: { name: "renamed" } });
+add({ name: "tags: update unknown, invalid", token: "write", method: "PATCH", path: "/api/v1/tags/nonexistentuuid", body: { name: "a" } });
+add({ name: "tags: update another team's", token: "write", method: "PATCH", path: `/api/v1/tags/${TG_OTHER}`, body: { name: "mine" } });
+add({ name: "tags: delete", token: "delete", method: "DELETE", path: `/api/v1/tags/${TG_BACKEND}`, after: TAGS_AFTER });
+add({ name: "tags: delete unknown", token: "delete", method: "DELETE", path: "/api/v1/tags/nonexistentuuid" });
+add({ name: "tags: delete another team's", token: "delete", method: "DELETE", path: `/api/v1/tags/${TG_OTHER}` });
+add({ name: "tags: delete with a write token", token: "write", method: "DELETE", path: `/api/v1/tags/${TG_UNUSED}` });
+
+for (const [group, base, uuid, other, empty] of [
+  ["application", "applications", A_IMAGE, A_OTHER, A_GIT],
+  ["database", "databases", DB_REDIS, DB_OTHER, DB_PG],
+  ["service", "services", SV_MAIN, SV_OTHER, null],
+]) {
+  add({ name: `${group} tags: list`, token: "read", method: "GET", path: `/api/v1/${base}/${uuid}/tags` });
+  if (empty) add({ name: `${group} tags: list, none`, token: "read", method: "GET", path: `/api/v1/${base}/${empty}/tags` });
+  add({ name: `${group} tags: list another team's`, token: "read", method: "GET", path: `/api/v1/${base}/${other}/tags` });
+  add({ name: `${group} tags: list of unknown`, token: "read", method: "GET", path: `/api/v1/${base}/nonexistentuuid/tags` });
+  add({ name: `${group} tags: add one`, token: "write", method: "POST", path: `/api/v1/${base}/${uuid}/tags`, body: { tag_name: " Unused " }, after: TAGS_AFTER });
+  add({ name: `${group} tags: add several`, token: "write", method: "POST", path: `/api/v1/${base}/${uuid}/tags`, body: { tag_names: ["Zeta", "frontend", "<b>alpha</b>", "zeta", "backend"] }, after: TAGS_AFTER });
+  add({ name: `${group} tags: add one already there`, token: "write", method: "POST", path: `/api/v1/${base}/${uuid}/tags`, body: { tag_name: "BACKEND" }, after: TAGS_AFTER });
+  add({ name: `${group} tags: delete`, token: "delete", method: "DELETE", path: `/api/v1/${base}/${uuid}/tags/${group === "service" ? TG_FRONTEND : TG_BACKEND}`, after: TAGS_AFTER });
+  add({ name: `${group} tags: delete one not there`, token: "delete", method: "DELETE", path: `/api/v1/${base}/${uuid}/tags/${TG_UNUSED}` });
+  add({ name: `${group} tags: delete unknown`, token: "delete", method: "DELETE", path: `/api/v1/${base}/${uuid}/tags/nonexistentuuid` });
+  add({ name: `${group} tags: delete in unknown`, token: "delete", method: "DELETE", path: `/api/v1/${base}/nonexistentuuid/tags/${TG_BACKEND}` });
+  add({ name: `${group} tags: add in unknown`, token: "write", method: "POST", path: `/api/v1/${base}/nonexistentuuid/tags`, body: { tag_name: "ops" } });
+}
+add({ name: "application tags: add a new one to an untagged application", token: "write", method: "POST", path: `/api/v1/applications/${A_GIT}/tags`, body: { tag_names: ["ops", "unused"] }, after: TAGS_AFTER });
+add({ name: "application tags: add, both fields", token: "write", method: "POST", path: `/api/v1/applications/${A_IMAGE}/tags`, body: { tag_name: "ops", tag_names: ["dev"] } });
+add({ name: "application tags: add, neither field", token: "write", method: "POST", path: `/api/v1/applications/${A_IMAGE}/tags`, body: { name: "ops" } });
+add({ name: "application tags: add, an empty list", token: "write", method: "POST", path: `/api/v1/applications/${A_IMAGE}/tags`, body: { tag_names: [] } });
+add({ name: "application tags: add, a list that is not one", token: "write", method: "POST", path: `/api/v1/applications/${A_IMAGE}/tags`, body: { tag_names: "ops" } });
+add({ name: "application tags: add, a name that is not a string", token: "write", method: "POST", path: `/api/v1/applications/${A_IMAGE}/tags`, body: { tag_names: ["ops", 5, null] } });
+add({ name: "application tags: add, tag_name not a string", token: "write", method: "POST", path: `/api/v1/applications/${A_IMAGE}/tags`, body: { tag_name: 12 } });
+add({ name: "application tags: add, too short once sanitized", token: "write", method: "POST", path: `/api/v1/applications/${A_IMAGE}/tags`, body: { tag_names: ["ok", "<i>a</i>"] } });
+add({ name: "application tags: add, not JSON", token: "write", method: "POST", path: `/api/v1/applications/${A_IMAGE}/tags`, raw: "tag_name=ops", contentType: "application/x-www-form-urlencoded" });
+add({ name: "application tags: delete another team's tag", token: "delete", method: "DELETE", path: `/api/v1/applications/${A_IMAGE}/tags/${TG_OTHER}` });
+add({ name: "database tags: add to a PostgreSQL", token: "write", method: "POST", path: `/api/v1/databases/${DB_PG}/tags`, body: { tag_name: "postgres" }, after: TAGS_AFTER });
+
+// ── DP-81: the shared variables of a project and of an environment ──────────
+/**
+ * Team 1's project and environment variables (the value is each side's ciphertext; the other team's row is not the org's).
+ * A created row's id is the sequence's, which earlier cases moved (a sequence does not roll back): only a fixture's id is read.
+ */
+const SHARED_AFTER = { variables: "select case when id <= 9 then id end as fixture_id, key, type, project_id, environment_id, server_id, is_shown_once, is_multiline, is_literal, comment, version from shared_environment_variables where type in ('project', 'environment') and key <> 'OTHER_PROJECT' order by id" };
+for (const [scope, base, own, others] of [
+  ["project envs", `/api/v1/projects/${P_ALPHA}/envs`, { id: 5, key: "PROJECT_FOO", locked: 6 }, { id: 7, theirs: 8 }],
+  ["environment envs", `/api/v1/projects/${P_ALPHA}/environments/production/envs`, { id: 7, key: "ENV_FOO", locked: null }, { id: 5, theirs: 8 }],
+]) {
+  add({ name: `${scope}: list`, token: "read", method: "GET", path: base });
+  add({ name: `${scope}: list, read:sensitive`, token: "sensitive", method: "GET", path: base });
+  add({ name: `${scope}: create`, token: "write", method: "POST", path: base, body: { key: " NEW_KEY ", value: "  kept  ", is_literal: true, is_multiline: "1", is_shown_once: false, comment: " A comment " }, after: SHARED_AFTER });
+  add({ name: `${scope}: create, the fewest fields`, token: "write", method: "POST", path: base, body: { key: "ONLY_KEY", value: "v" }, after: SHARED_AFTER });
+  add({ name: `${scope}: create, an existing key`, token: "write", method: "POST", path: base, body: { key: own.key, value: "again" } });
+  add({ name: `${scope}: create, invalid`, token: "write", method: "POST", path: base, body: { key: "1BAD-KEY", value: 5, is_literal: "maybe", comment: "x".repeat(257), is_preview: true } });
+  add({ name: `${scope}: create, no key`, token: "write", method: "POST", path: base, body: { value: "v" } });
+  add({ name: `${scope}: create, not JSON`, token: "write", method: "POST", path: base, raw: "key=A", contentType: "application/x-www-form-urlencoded" });
+  add({ name: `${scope}: update`, token: "write", method: "PATCH", path: `${base}/${own.id}`, body: { value: "changed", comment: "Changed", is_multiline: true }, after: SHARED_AFTER });
+  add({ name: `${scope}: update, read:sensitive answer`, token: "root", method: "PATCH", path: `${base}/${own.id}`, body: { key: "RENAMED_KEY", is_literal: false }, after: SHARED_AFTER });
+  add({ name: `${scope}: update to its own key`, token: "root", method: "PATCH", path: `${base}/${own.id}`, body: { key: ` ${own.key}` } });
+  add({ name: `${scope}: update, invalid`, token: "write", method: "PATCH", path: `${base}/${own.id}`, body: { key: "no spaces allowed", is_shown_once: "yes", type: "team" } });
+  add({ name: `${scope}: update unknown`, token: "write", method: "PATCH", path: `${base}/999`, body: { value: "x" } });
+  add({ name: `${scope}: update another scope's`, token: "write", method: "PATCH", path: `${base}/${others.id}`, body: { value: "x" } });
+  add({ name: `${scope}: update another team's`, token: "write", method: "PATCH", path: `${base}/${others.theirs}`, body: { value: "x" } });
+  add({ name: `${scope}: delete`, token: "delete", method: "DELETE", path: `${base}/${own.id}`, after: SHARED_AFTER });
+  add({ name: `${scope}: delete unknown`, token: "delete", method: "DELETE", path: `${base}/999` });
+  add({ name: `${scope}: delete another scope's`, token: "delete", method: "DELETE", path: `${base}/${others.id}` });
+  if (own.locked) {
+    add({ name: `${scope}: update a locked variable`, token: "root", method: "PATCH", path: `${base}/${own.locked}`, body: { value: "new secret", is_shown_once: false }, after: SHARED_AFTER });
+    add({ name: `${scope}: update to an existing key`, token: "write", method: "PATCH", path: `${base}/${own.id}`, body: { key: "PROJECT_SECRET" } });
+  }
+}
+add({ name: "project envs: create a key an environment has", token: "write", method: "POST", path: `/api/v1/projects/${P_ALPHA}/envs`, body: { key: "ENV_FOO", value: "project-level" }, after: SHARED_AFTER });
+add({ name: "project envs: list another team's project", token: "read", method: "GET", path: `/api/v1/projects/${P_OTHER}/envs` });
+add({ name: "project envs: list of an unknown project", token: "read", method: "GET", path: "/api/v1/projects/nonexistentuuid/envs" });
+add({ name: "project envs: list of a project without any", token: "read", method: "GET", path: `/api/v1/projects/${P_BETA}/envs` });
+add({ name: "project envs: create in an unknown project", token: "write", method: "POST", path: "/api/v1/projects/nonexistentuuid/envs", body: { key: "A", value: "v" } });
+add({ name: "project envs: delete in another team's project", token: "delete", method: "DELETE", path: `/api/v1/projects/${P_OTHER}/envs/8` });
+add({ name: "environment envs: list by uuid", token: "sensitive", method: "GET", path: `/api/v1/projects/${P_ALPHA}/environments/${E_STAGING}/envs` });
+add({ name: "environment envs: list of an unknown environment", token: "read", method: "GET", path: `/api/v1/projects/${P_ALPHA}/environments/nope/envs` });
+add({ name: "environment envs: list of another project's environment", token: "read", method: "GET", path: `/api/v1/projects/${P_BETA}/environments/${E_STAGING}/envs` });
+add({ name: "environment envs: list in an unknown project", token: "read", method: "GET", path: "/api/v1/projects/nonexistentuuid/environments/production/envs" });
+add({ name: "environment envs: create a key the project has", token: "write", method: "POST", path: `/api/v1/projects/${P_ALPHA}/environments/production/envs`, body: { key: "PROJECT_FOO", value: "env-level" }, after: SHARED_AFTER });
+add({ name: "environment envs: create in an unknown environment", token: "write", method: "POST", path: `/api/v1/projects/${P_ALPHA}/environments/nope/envs`, body: { key: "A", value: "v" } });
+add({ name: "environment envs: update the staging variable", token: "root", method: "PATCH", path: `/api/v1/projects/${P_ALPHA}/environments/staging/envs/9`, body: { is_shown_once: true }, after: SHARED_AFTER });
+add({ name: "environment envs: delete another environment's", token: "delete", method: "DELETE", path: `/api/v1/projects/${P_ALPHA}/environments/production/envs/9` });
+add({ name: "environment envs: list with a write-only token", token: "writeOnly", method: "GET", path: `/api/v1/projects/${P_ALPHA}/environments/production/envs` });
+
+// ── DP-81: S3 storages ──────────────────────────────────────────────────────
+/**
+ * Team 1's storages (the key and secret are each side's ciphertext: their decrypted length is read instead), the schedules
+ * that send to one, and their destinations. Host names resolve as emit.php's SafeWebhookUrl::resolveHostsUsing() table says.
+ */
+const S3_AFTER = {
+  storages: "select uuid = 's3paritystorage000000001' as fixture, name, description, region, bucket, endpoint, is_usable, unusable_email_sent, use_path_style_endpoint, type, private_key_id, sftp_host_key, skip_tls_verification from s3_storages where uuid <> 's4otherstorage0000000002' order by name",
+  backups: "select uuid, save_s3, s3_storage_id from scheduled_database_backups where uuid <> 'c4otherpgbackup000000004' order by id",
+  destinations: "select scheduled_database_backup_id, s3_storage_id from scheduled_database_backup_s3_storage order by scheduled_database_backup_id, s3_storage_id",
+};
+const NEW_S3 = { name: "API S3", description: "From the API", endpoint: " https://api-s3.example.com ", bucket: " api-bucket ", region: " eu-west-1 ", key: " AKIAAPI ", secret: " api-secret ", is_usable: true };
+add({ name: "s3 storages: list", token: "read", method: "GET", path: "/api/v1/s3-storages" });
+add({ name: "s3 storages: list, read:sensitive", token: "sensitive", method: "GET", path: "/api/v1/s3-storages" });
+add({ name: "s3 storages: list, none", token: "read", method: "GET", path: "/api/v1/s3-storages", setup: ["update scheduled_database_backups set s3_storage_id = null", "delete from scheduled_database_backup_s3_storage", "delete from s3_storages"] });
+add({ name: "s3 storages: show", token: "read", method: "GET", path: `/api/v1/s3-storages/${S3_MAIN}` });
+add({ name: "s3 storages: show, root", token: "root", method: "GET", path: `/api/v1/s3-storages/${S3_MAIN}` });
+add({ name: "s3 storages: show another team's", token: "read", method: "GET", path: `/api/v1/s3-storages/${S3_OTHER}` });
+add({ name: "s3 storages: show unknown", token: "read", method: "GET", path: "/api/v1/s3-storages/nonexistentuuid" });
+add({ name: "s3 storages: create", token: "write", method: "POST", path: "/api/v1/s3-storages", body: NEW_S3, after: S3_AFTER });
+add({ name: "s3 storages: create, the fewest fields", token: "write", method: "POST", path: "/api/v1/s3-storages", body: { name: "Aliyun", endpoint: "https://oss-cn-hangzhou.aliyuncs.com", bucket: "ali-bucket", region: "oss-cn-hangzhou", key: "k", secret: "s" }, after: S3_AFTER });
+add({ name: "s3 storages: create with the URL style and TLS", token: "write", method: "POST", path: "/api/v1/s3-storages", body: { type: "s3", name: "Styled", endpoint: "http://minio.example.com:9000", bucket: "styled", region: "us-east-1", key: "k", secret: "s", use_path_style_endpoint: false, skip_tls_verification: "1", is_usable: 0 }, after: S3_AFTER });
+add({ name: "s3 storages: create, invalid", token: "write", method: "POST", path: "/api/v1/s3-storages", body: { type: "ftp", name: "x", description: "<b>", endpoint: "ftp://files.example.com", bucket: "A..b", region: 5, key: ["k"], secret: null, use_path_style_endpoint: "maybe", is_usable: 2, extra: 1 } });
+add({ name: "s3 storages: create, only a name", token: "write", method: "POST", path: "/api/v1/s3-storages", body: { name: "Only a name" } });
+add({ name: "s3 storages: create, an endpoint with credentials", token: "write", method: "POST", path: "/api/v1/s3-storages", body: { ...NEW_S3, endpoint: "https://user:pass@s3.example.com/a%0Ab" } });
+add({ name: "s3 storages: create, an endpoint that does not resolve", token: "write", method: "POST", path: "/api/v1/s3-storages", body: { ...NEW_S3, endpoint: "https://unresolvable.example" } });
+add({ name: "s3 storages: create, an endpoint too long", token: "write", method: "POST", path: "/api/v1/s3-storages", body: { ...NEW_S3, endpoint: `https://s3.example.com/${"a".repeat(240)}`, region: "r".repeat(256) } });
+add({ name: "s3 storages: create an SFTP storage", token: "write", method: "POST", path: "/api/v1/s3-storages", body: { type: "sftp", name: "SFTP box", endpoint: "sftp://files.example.com", key: "backup", secret: "pw" }, after: S3_AFTER });
+add({ name: "s3 storages: create, not JSON", token: "write", method: "POST", path: "/api/v1/s3-storages", raw: "name=x", contentType: "application/x-www-form-urlencoded" });
+add({ name: "s3 storages: update", token: "write", method: "PATCH", path: `/api/v1/s3-storages/${S3_MAIN}`, body: { name: "Renamed S3", description: null, region: " us-west-2 ", is_usable: false }, after: S3_AFTER });
+add({ name: "s3 storages: update the connection", token: "write", method: "PATCH", path: `/api/v1/s3-storages/${S3_MAIN}`, body: { endpoint: "https://other-s3.example.com", bucket: "new-bucket", key: "NEWKEY", secret: " new-secret ", use_path_style_endpoint: false, skip_tls_verification: true }, after: S3_AFTER });
+add({ name: "s3 storages: update, invalid", token: "write", method: "PATCH", path: `/api/v1/s3-storages/${S3_MAIN}`, body: { name: "ab", bucket: "x", endpoint: null, key: "", type: "s3", is_usable: "yes" } });
+add({ name: "s3 storages: update another team's", token: "write", method: "PATCH", path: `/api/v1/s3-storages/${S3_OTHER}`, body: { name: "Mine now" } });
+add({ name: "s3 storages: update unknown", token: "write", method: "PATCH", path: "/api/v1/s3-storages/nonexistentuuid", body: { name: "Mine now" } });
+add({ name: "s3 storages: update, empty JSON", token: "write", method: "PATCH", path: `/api/v1/s3-storages/${S3_MAIN}`, raw: "{}" });
+add({ name: "s3 storages: delete", token: "delete", method: "DELETE", path: `/api/v1/s3-storages/${S3_MAIN}`, after: S3_AFTER });
+add({ name: "s3 storages: delete another team's", token: "delete", method: "DELETE", path: `/api/v1/s3-storages/${S3_OTHER}` });
+add({ name: "s3 storages: delete unknown", token: "delete", method: "DELETE", path: "/api/v1/s3-storages/nonexistentuuid" });
+add({ name: "s3 storages: validate, an endpoint that does not resolve", token: "write", method: "POST", path: `/api/v1/s3-storages/${S3_MAIN}/validate`, setup: ["update s3_storages set endpoint = 'https://unresolvable.example' where uuid = 's3paritystorage000000001'"], after: S3_AFTER });
+add({ name: "s3 storages: validate, an invalid bucket", token: "write", method: "POST", path: `/api/v1/s3-storages/${S3_MAIN}/validate`, setup: ["update s3_storages set bucket = 'A..b' where uuid = 's3paritystorage000000001'"], after: S3_AFTER });
+add({ name: "s3 storages: validate another team's", token: "write", method: "POST", path: `/api/v1/s3-storages/${S3_OTHER}/validate` });
+add({ name: "s3 storages: validate unknown", token: "write", method: "POST", path: "/api/v1/s3-storages/nonexistentuuid/validate" });
 
 /** The tables whose column order emit.php writes into the goldens (`columns`): what a nested relation serializes in. */
 const columnsOf = ["servers", "server_settings", "standalone_dockers", "application_settings", "applications", "environment_variables", "application_deployment_queues", "scheduled_database_backups", "scheduled_database_backup_executions", "services", "service_applications", "service_databases", "projects", "environments", "standalone_postgresqls", "standalone_redis", "standalone_mongodbs", "standalone_mysqls", "standalone_mariadbs", "standalone_keydbs", "standalone_dragonflies", "standalone_clickhouses"];

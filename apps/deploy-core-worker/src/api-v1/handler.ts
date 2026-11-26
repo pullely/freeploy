@@ -16,6 +16,9 @@
 //   /v1/internal/api-v1/{org}/deployments/{applications/{uuid}|{uuid}/cancel}, /deploy                       deployments.ts (DP-74)
 //   /v1/internal/api-v1/{org}/deployments[/{uuid}]                                                           deployments.ts (DP-78)
 //   /v1/internal/api-v1/{org}/resources, /projects/{uuid}/{environment_name_or_uuid}                          resources.ts (DP-78)
+//   /v1/internal/api-v1/{org}/projects/{uuid}[/environments/{environment_name_or_uuid}]/envs[/{env_id}]       shared-variables.ts (DP-81)
+//   /v1/internal/api-v1/{org}/tags[/{uuid}], /{applications,databases,services}/{uuid}/tags[/{tag_uuid}]    tags.ts (DP-81)
+//   /v1/internal/api-v1/{org}/s3-storages[/{uuid}[/validate]]                                                 s3-storages.ts (DP-81)
 //
 // $this->authorize(…) is policy-worker's deploy.resource.read (view) or deploy.resource.write (create,
 // update, delete) for the token's user; a denial is Laravel's 403 "This action is unauthorized.".
@@ -63,10 +66,19 @@ import { servicesApi } from "./services.js";
 import { deployApi, deploymentsApi } from "./deployments.js";
 import { environmentDetails, listResources } from "./resources.js";
 import { serverResourcesPayload, serversApi } from "./servers.js";
+import { resourceTagsApi, tagsApi, type TaggableKind } from "./tags.js";
+import { sharedVariablesApi } from "./shared-variables.js";
+import { s3StoragesApi } from "./s3-storages.js";
+import { s3Fetch } from "../s3-storages/connection.js";
+import { dohResolver } from "../s3-storages/safe-url.js";
+import type { S3StorageNetwork } from "../s3-storages/service.js";
 import type { ApiV1Context, SqlRunner } from "./context.js";
 import { ENVIRONMENT, PRIVATE_KEY, PROJECT, SERVER, SERVER_SETTING, onlyColumns, rowValue, toModel, withoutColumns } from "./models.js";
 
-export const API_V1_INTERNAL_RE = /^\/v1\/internal\/api-v1\/(org_[0-9a-f]{32})(\/.*)$/;
+/** The groups whose resources HandlesTagsApi tags (DP-81). */
+const TAGGABLES: Record<string, TaggableKind> = { applications: "application", databases: "database", services: "service" };
+
+export const API_V1_INTERNAL_RE =/^\/v1\/internal\/api-v1\/(org_[0-9a-f]{32})(\/.*)$/;
 
 /** Reads whole rows of one org (apiRows inside withOrg). */
 export type RowsRunner = <T>(env: Env, orgId: string, fn: (rows: (table: ApiTable, where?: string, params?: unknown[]) => Promise<ApiRow[]>) => Promise<T>) => Promise<T>;
@@ -90,6 +102,8 @@ export interface ApiV1Runners {
   allows?: (action: "deploy.resource.read" | "deploy.resource.write") => Promise<boolean>;
   /** The org as membership-worker shows it to the token's user (DP-78); replaceable for tests. */
   org?: () => Promise<CoolifyTeamFacts | null>;
+  /** An S3 storage's connection test: the resolver and the HTTP exchange (DP-81); replaceable for tests. */
+  s3?: S3StorageNetwork;
 }
 
 export const runSql: SqlRunner = async (env, orgId, fn) => {
@@ -132,8 +146,11 @@ export async function handleApiV1(request: Request, env: Env, requestId: string,
   try {
     const [first, second, third, fourth, fifth] = segments;
     const org = r.org ?? (() => fetchOrganizationFacts(env.MEMBERSHIP_WORKER!, orgPublicId, actor.subjectId, actor.subjectType, requestId));
-    const context: ApiV1Context = { env, orgId, orgPublicId, request, method, url, canReadSensitive, abilities, allows: (write) => allows(write ? "deploy.resource.write" : "deploy.resource.read"), sql: r.sql ?? runSql, org };
-    // GET /projects/{uuid}/{environment_name_or_uuid} (DP-78): after /projects/{uuid}/environments; /envs is the shared variables' (not ported).
+    const context: ApiV1Context = { env, orgId, orgPublicId, request, method, url, canReadSensitive, abilities, allows: (write) => allows(write ? "deploy.resource.write" : "deploy.resource.read"), sql: r.sql ?? runSql, org, s3: r.s3 ?? { http: s3Fetch, resolve: dohResolver } };
+    // DP-81: the shared variables of a project (/projects/{uuid}/envs) and of an environment (…/environments/{env}/envs).
+    if (first === "projects" && second !== undefined && third === "envs") return send((await sharedVariablesApi(context, second, undefined, segments.slice(3))) ?? COOLIFY_API.notFound());
+    if (first === "projects" && second !== undefined && third === "environments" && fourth !== undefined && fifth === "envs") return send((await sharedVariablesApi(context, second, fourth, segments.slice(5))) ?? COOLIFY_API.notFound());
+    // GET /projects/{uuid}/{environment_name_or_uuid} (DP-78): after /projects/{uuid}/environments and /projects/{uuid}/envs.
     if (first === "projects" && second !== undefined && third !== undefined && third !== "environments" && third !== "envs" && fourth === undefined && method === "GET") {
       return send(await environmentDetails(context, second, third, () => authorize(false)));
     }
@@ -145,6 +162,12 @@ export async function handleApiV1(request: Request, env: Env, requestId: string,
     }
     if (first === "servers") return send(await servers(second, third, fourth));
     if (first === "resources" && second === undefined) return send(method === "GET" ? await listResources(context) : COOLIFY_API.notFound());
+    // DP-81: the team's tags, and the tags of an application, a database and a service (HandlesTagsApi).
+    if (first === "tags") return send((await tagsApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
+    const taggable = TAGGABLES[first ?? ""];
+    if (taggable && second !== undefined && third === "tags") return send((await resourceTagsApi(context, taggable, second, segments.slice(3))) ?? COOLIFY_API.notFound());
+    // DP-81: S3 storages
+    if (first === "s3-storages") return send((await s3StoragesApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
     if (first === "applications") return send((await applicationsApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
     if (first === "databases") return send((await databasesApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
     if (first === "services") return send((await servicesApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());

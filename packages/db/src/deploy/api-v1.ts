@@ -40,6 +40,8 @@ const TABLES = [
   "services",
   "service_applications",
   "service_databases",
+  // DP-81: the shared variables of projects and environments
+  "shared_environment_variables",
 ] as const;
 export type ApiTable = (typeof TABLES)[number];
 

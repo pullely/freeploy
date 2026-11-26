@@ -26,8 +26,8 @@ export type Rule =
   | { requiredWithout: string }
   /** array:key1,key2 — an array whose keys are only these; `message` is the controller's own message for it (DP-74) */
   | { arrayKeys: readonly string[]; message: string }
-  /** A closure rule: the messages it fails with (DP-74) */
-  | { closure: (value: unknown) => string[] };
+  /** A closure rule (or a rule object): the messages it fails with (DP-74; DP-81: it may wait, as SafeWebhookUrl resolves a host) */
+  | { closure: (value: unknown) => string[] | Promise<string[]> };
 
 export type Rules = Array<[string, readonly Rule[]]>;
 
@@ -61,7 +61,8 @@ function sizeOf(value: unknown, numeric: boolean): number {
   return mbLength(phpString(value));
 }
 
-const sizeType = (value: unknown, numeric: boolean): SizeType => (numeric ? "numeric" : Array.isArray(value) || (value !== null && typeof value === "object") ? "array" : "string");
+/** getAttributeType(): the message follows the rules (numeric, array), not the value — an array under `string|min:2` is "characters" (DP-81). */
+const sizeType = (list: readonly Rule[], numeric: boolean): SizeType => (numeric ? "numeric" : list.some((r) => r === "array" || (typeof r === "object" && "arrayKeys" in r)) ? "array" : "string");
 
 const MIN: Record<SizeType, (a: string, n: number) => string> = {
   numeric: (a, n) => `The ${a} field must be at least ${n}.`,
@@ -160,21 +161,21 @@ export async function validateRules(errors: Errors, all: Record<string, unknown>
         if (siblings.filter((s) => s === value).length > 1) failed(`The ${name} field has a duplicate value.`);
       } else if (typeof rule === "string" && rule.startsWith("min:")) {
         const n = Number(rule.slice(4));
-        if (sizeOf(value, numeric) < n) failed(MIN[sizeType(value, numeric)](name, n));
+        if (sizeOf(value, numeric) < n) failed(MIN[sizeType(list, numeric)](name, n));
       } else if (typeof rule === "string" && rule.startsWith("max:")) {
         const n = Number(rule.slice(4));
-        if (sizeOf(value, numeric) > n) failed(MAX[sizeType(value, numeric)](name, n));
+        if (sizeOf(value, numeric) > n) failed(MAX[sizeType(list, numeric)](name, n));
       } else if (typeof rule === "string" && rule.startsWith("between:")) {
         const [x, y] = rule.slice(8).split(",").map(Number) as [number, number];
         const size = sizeOf(value, numeric);
-        if (size < x || size > y) failed(BETWEEN[sizeType(value, numeric)](name, x, y));
+        if (size < x || size > y) failed(BETWEEN[sizeType(list, numeric)](name, x, y));
       } else if (typeof rule === "object" && "regex" in rule) {
         if ((typeof value !== "string" && typeof value !== "number") || !rule.regex.test(String(value))) failed(`The ${name} field format is invalid.`);
       } else if (typeof rule === "object" && "arrayKeys" in rule) {
         const isArray = Array.isArray(value) || (value !== null && typeof value === "object");
         if (!isArray || keysOf(value).some((k) => !rule.arrayKeys.includes(k))) failed(rule.message);
       } else if (typeof rule === "object" && "closure" in rule) {
-        for (const text of rule.closure(value)) failed(text);
+        for (const text of await rule.closure(value)) failed(text);
       } else if (typeof rule === "object" && "exists" in rule) {
         // hasNotFailedPreviousRuleIfPresenceRule(): exists runs only while the attribute has no error.
         if (!hasError() && !(await rule.exists(value))) failed(`The selected ${name} is invalid.`);
