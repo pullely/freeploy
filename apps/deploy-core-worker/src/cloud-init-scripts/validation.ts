@@ -7,54 +7,52 @@
 // order (no `bail`); the form shows the first.
 //
 // ValidCloudInitYaml parses the script with symfony/yaml unless it starts with
-// "#!". This Worker has no YAML parser, so only one of Symfony's parse errors
-// is reproduced: a first content line indented with a tab. Any other script is
-// accepted, also YAML that Symfony would refuse.
+// "#!": the parse is ../yaml/symfony's port of Symfony's Parser (DP-110), so
+// every ParseException message — its line and snippet included — is
+// Symfony's, and the console and /api/v1 refuse the same scripts.
 import { add, blank, length, type FieldErrors } from "../private-keys/validation.js";
 import { LARAVEL } from "../servers/settings-validation.js";
+import { symfonyYamlError } from "../yaml/symfony/index.js";
 
 export const CLOUD_INIT_VALIDATION_MESSAGES = {
   /** CloudInitScriptForm::messages() and Show::messages() */
   nameRequired: "Script name is required.",
   nameMax: "Script name cannot exceed 255 characters.",
   scriptRequired: "Cloud-init script content is required.",
-  /** ValidCloudInitYaml, with :attribute as Laravel fills it. */
-  cloudConfigYaml: (error: string) => `The script must be valid YAML format. Error: ${error}`,
-  scriptOrYaml: (error: string) => `The script must be either a valid bash script (starting with #!) or valid cloud-config YAML. YAML parse error: ${error}`,
 } as const;
 
 /** PHP's trim(): space, \t, \n, \r, \0, \x0B. */
 const phpTrim = (s: string): string => s.replace(/^[ \t\n\r\0\x0B]+|[ \t\n\r\0\x0B]+$/g, "");
 
-/**
- * Symfony's Parser on the first line it reads: comment and blank lines are
- * skipped, and a line that starts with a tab is "A YAML file cannot contain
- * tabs as indentation at line N (near "…")." Null when that line is fine.
- */
-function yamlTabError(yaml: string): string | null {
-  const lines = yaml.replace(/\r\n?/g, "\n").split("\n");
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i]!;
-    const afterSpaces = line.replace(/^ +/, "");
-    if (afterSpaces === "" || afterSpaces.startsWith("#")) continue;
-    return line.startsWith("\t") ? `A YAML file cannot contain tabs as indentation at line ${i + 1} (near "${line}").` : null;
-  }
-  return null;
-}
+/** ValidCloudInitYaml's two messages, ":attribute" left for the caller's attribute name. */
+export const VALID_CLOUD_INIT_YAML = {
+  cloudConfigYaml: (error: string) => `The :attribute must be valid YAML format. Error: ${error}`,
+  scriptOrYaml: (error: string) => `The :attribute must be either a valid bash script (starting with #!) or valid cloud-config YAML. YAML parse error: ${error}`,
+} as const;
 
-/** ValidCloudInitYaml::validate(): the failure message, or null. */
-export function cloudInitYamlError(value: string): string | null {
+/**
+ * ValidCloudInitYaml::validate(): the failure message with ":attribute" in it, or null. Laravel replaces ":attribute"
+ * with the field's display name: "script" on the console's forms and the API's scripts, "cloud init script" for the
+ * field of a server create.
+ */
+export function validCloudInitYaml(value: string): string | null {
   // empty($value)
   if (value === "" || value === "0") return null;
   const script = phpTrim(value);
+  // a bash script (starts with a shebang) is not parsed
   if (script.startsWith("#!")) return null;
   if (script.startsWith("#cloud-config")) {
-    // preg_replace('/^#cloud-config\s*/m', '', $script, 1)
-    const error = yamlTabError(script.replace(/^#cloud-config[ \t\n\x0B\f\r]*/m, ""));
-    return error === null ? null : CLOUD_INIT_VALIDATION_MESSAGES.cloudConfigYaml(error);
+    // preg_replace('/^#cloud-config\s*/m', '', $script, 1): the first line that starts with the header, and the white space after it.
+    const error = symfonyYamlError(script.replace(/^#cloud-config[ \t\n\x0B\f\r]*/m, ""));
+    return error === null ? null : VALID_CLOUD_INIT_YAML.cloudConfigYaml(error);
   }
-  const error = yamlTabError(script);
-  return error === null ? null : CLOUD_INIT_VALIDATION_MESSAGES.scriptOrYaml(error);
+  const error = symfonyYamlError(script);
+  return error === null ? null : VALID_CLOUD_INIT_YAML.scriptOrYaml(error);
+}
+
+/** ValidCloudInitYaml::validate() on the console's forms (":attribute" is "script"), or null. */
+export function cloudInitYamlError(value: string): string | null {
+  return validCloudInitYaml(value)?.replaceAll(":attribute", "script") ?? null;
 }
 
 export interface ScriptInput {

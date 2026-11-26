@@ -3734,6 +3734,201 @@ const MANY_AUDIT_ROWS = [
 ];
 for (const page of [1, 10, 18, 25]) add({ name: `audit events: many pages, page ${page}`, token: "read", method: "GET", path: `${AE}?per_page=2&page=${page}`, setupCoolify: MANY_AUDIT_ROWS });
 
+// ── DP-110: cloud-init scripts (CloudInitScriptsController) ─────────────────
+// A case's scripts are `cloudInitScripts`: emit.php makes them through the model (the encrypted cast), the test with
+// Freeploy's insert and the org's key. ValidCloudInitYaml's messages are Symfony YAML's ParseException messages.
+const CIS = "/api/v1/cloud-init-scripts";
+const CIS_BASE = "i1parityinitscript000001";
+const CIS_BASH = "i2parityinitscript000002";
+const CIS_OTHER = "i3otherinitscript0000003";
+const CIS_ROWS = [
+  { uuid: CIS_BASE, team: T1, name: "Base packages", script: "#cloud-config\npackages:\n  - curl\n  - git\n", created_at: "2025-12-01 10:00:00" },
+  { uuid: CIS_BASH, team: T1, name: "Bash setup", script: "#!/bin/bash\napt-get update -y\n", created_at: "2025-12-02 10:00:00" },
+  { uuid: CIS_OTHER, team: T2, name: "Other team's script", script: "#cloud-config\nruncmd: [ls]\n", created_at: "2025-12-03 10:00:00" },
+];
+const SCRIPTS = { cloudInitScripts: CIS_ROWS };
+const CIS_AFTER = {
+  scripts: `select case when uuid in ('${CIS_BASE}', '${CIS_BASH}') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> '${CIS_OTHER}' order by name`,
+};
+const CLOUD_CONFIG = "#cloud-config\npackage_update: true\npackages:\n  - nginx\nruncmd:\n  - systemctl enable --now nginx\n";
+add({ name: "cloud-init scripts: list", token: "root", method: "GET", path: CIS, ...SCRIPTS });
+add({ name: "cloud-init scripts: list with a read token", token: "read", method: "GET", path: CIS, ...SCRIPTS });
+add({ name: "cloud-init scripts: list with read:sensitive", token: "sensitive", method: "GET", path: CIS, ...SCRIPTS });
+add({ name: "cloud-init scripts: none", token: "read", method: "GET", path: CIS });
+add({ name: "cloud-init scripts: list, a member", token: "memberRead", method: "GET", path: CIS, ...SCRIPTS });
+add({ name: "cloud-init scripts: list with a write-only token", token: "writeOnly", method: "GET", path: CIS, ...SCRIPTS });
+add({ name: "cloud-init scripts: show", token: "read", method: "GET", path: `${CIS}/${CIS_BASE}`, ...SCRIPTS });
+add({ name: "cloud-init scripts: show with read:sensitive", token: "sensitive", method: "GET", path: `${CIS}/${CIS_BASE}`, ...SCRIPTS });
+add({ name: "cloud-init scripts: show, unknown", token: "read", method: "GET", path: `${CIS}/nonexistentuuid`, ...SCRIPTS });
+add({ name: "cloud-init scripts: show, another team's", token: "read", method: "GET", path: `${CIS}/${CIS_OTHER}`, ...SCRIPTS });
+add({ name: "cloud-init scripts: show, a member", token: "memberRead", method: "GET", path: `${CIS}/${CIS_BASE}`, ...SCRIPTS });
+add({ name: "cloud-init scripts: create", token: "write", method: "POST", path: CIS, body: { name: "Web server", script: CLOUD_CONFIG }, after: CIS_AFTER });
+add({ name: "cloud-init scripts: create next to the others", token: "write", method: "POST", path: CIS, body: { name: "Web server", script: CLOUD_CONFIG }, ...SCRIPTS, after: CIS_AFTER });
+add({ name: "cloud-init scripts: create with the root token", token: "root", method: "POST", path: CIS, body: { name: "Web server", script: CLOUD_CONFIG }, after: CIS_AFTER });
+add({ name: "cloud-init scripts: create, a bash script", token: "write", method: "POST", path: CIS, body: { name: "  Bash  ", script: "#!/bin/sh\n\techo tabs are fine here: yes\n" }, after: CIS_AFTER });
+add({ name: "cloud-init scripts: create, YAML without its header", token: "write", method: "POST", path: CIS, body: { name: "No header", script: "packages:\n  - htop\nruncmd:\n  - [ls, -l, /]\n" }, after: CIS_AFTER });
+add({ name: "cloud-init scripts: create, a plain line", token: "write", method: "POST", path: CIS, body: { name: "Plain", script: "echo hello" }, after: CIS_AFTER });
+const BAD_YAML = [
+  ["a duplicate key", "#cloud-config\npackages: [a]\npackages: [b]\n"],
+  ["a tab", "#cloud-config\npackages:\n\t- curl\n"],
+  ["an unclosed flow", "#cloud-config\nruncmd: [ls, -l\n"],
+  ["an unclosed quote", "#cloud-config\nwrite_files:\n  - path: \"/etc/x\n"],
+  ["a colon in a value", "#cloud-config\nhostname: web: 1\n"],
+  ["a sequence in a mapping", "#cloud-config\npackages: [a]\n- b\n"],
+  ["a missing reference", "#cloud-config\nruncmd: *steps\n"],
+  ["an indentation problem", "#cloud-config\nusers:\n    - name: a\n  - name: b\n"],
+  ["two documents", "#cloud-config\na: 1\n---\nb: 2\n"],
+  ["a custom tag", "#cloud-config\na: !include x.yaml\n"],
+  ["a reserved indicator", "#cloud-config\na: @b\n"],
+  ["mapping values in a plain multi-line", "apt-get update\napt-get install: nginx\n"],
+  ["a mapping in a sequence, without the header", "- ls\nkey: value\n"],
+  ["an unquoted mapping value over lines", "a: one\n  b: two\n"],
+];
+for (const [what, script] of BAD_YAML) add({ name: `cloud-init scripts: create, invalid YAML, ${what}`, token: "write", method: "POST", path: CIS, body: { name: "Bad", script }, after: CIS_AFTER });
+add({ name: "cloud-init scripts: create, invalid", token: "write", method: "POST", path: CIS, body: { name: "x".repeat(256), script: 5, extra: true } });
+add({ name: "cloud-init scripts: create, the script a number", token: "write", method: "POST", path: CIS, body: { name: 7, script: 123 } });
+add({ name: "cloud-init scripts: create, the script an array", token: "write", method: "POST", path: CIS, body: { name: "Array", script: ["a"] } });
+add({ name: "cloud-init scripts: create, nothing", token: "write", method: "POST", path: CIS, body: { name: "", script: "  " } });
+add({ name: "cloud-init scripts: create, an empty object", token: "write", method: "POST", path: CIS, raw: "{}" });
+add({ name: "cloud-init scripts: create, not JSON", token: "write", method: "POST", path: CIS, raw: "name=x", contentType: "application/x-www-form-urlencoded" });
+add({ name: "cloud-init scripts: create with a read token", token: "read", method: "POST", path: CIS, body: { name: "Web server", script: CLOUD_CONFIG } });
+add({ name: "cloud-init scripts: update the name", token: "write", method: "PATCH", path: `${CIS}/${CIS_BASE}`, body: { name: "Renamed" }, ...SCRIPTS, after: CIS_AFTER });
+add({ name: "cloud-init scripts: update the script", token: "root", method: "PATCH", path: `${CIS}/${CIS_BASE}`, body: { script: CLOUD_CONFIG }, ...SCRIPTS, after: CIS_AFTER });
+add({ name: "cloud-init scripts: update the script with write", token: "write", method: "PATCH", path: `${CIS}/${CIS_BASH}`, body: { script: "#!/bin/bash\necho changed\n", name: "Bash setup" }, ...SCRIPTS, after: CIS_AFTER });
+add({ name: "cloud-init scripts: update, nothing changes", token: "write", method: "PATCH", path: `${CIS}/${CIS_BASE}`, body: { name: "Base packages" }, ...SCRIPTS, after: CIS_AFTER });
+add({ name: "cloud-init scripts: update, invalid YAML", token: "write", method: "PATCH", path: `${CIS}/${CIS_BASE}`, body: { script: "#cloud-config\npackages: [a]\npackages: [b]\n" }, ...SCRIPTS, after: CIS_AFTER });
+add({ name: "cloud-init scripts: update, invalid", token: "write", method: "PATCH", path: `${CIS}/${CIS_BASE}`, body: { name: null, script: null, uuid: "x" }, ...SCRIPTS, after: CIS_AFTER });
+add({ name: "cloud-init scripts: update, an empty object", token: "write", method: "PATCH", path: `${CIS}/${CIS_BASE}`, raw: "{}", ...SCRIPTS });
+add({ name: "cloud-init scripts: update, unknown", token: "write", method: "PATCH", path: `${CIS}/nonexistentuuid`, body: { name: "x" }, ...SCRIPTS });
+add({ name: "cloud-init scripts: update, another team's", token: "write", method: "PATCH", path: `${CIS}/${CIS_OTHER}`, body: { name: "x" }, ...SCRIPTS });
+add({ name: "cloud-init scripts: update, not JSON", token: "write", method: "PATCH", path: `${CIS}/${CIS_BASE}`, raw: "name=x", contentType: "application/x-www-form-urlencoded", ...SCRIPTS });
+add({ name: "cloud-init scripts: update with a read token", token: "read", method: "PATCH", path: `${CIS}/${CIS_BASE}`, body: { name: "x" }, ...SCRIPTS });
+add({ name: "cloud-init scripts: delete", token: "delete", method: "DELETE", path: `${CIS}/${CIS_BASE}`, ...SCRIPTS, after: CIS_AFTER });
+add({ name: "cloud-init scripts: delete, unknown", token: "delete", method: "DELETE", path: `${CIS}/nonexistentuuid`, ...SCRIPTS, after: CIS_AFTER });
+add({ name: "cloud-init scripts: delete, another team's", token: "delete", method: "DELETE", path: `${CIS}/${CIS_OTHER}`, ...SCRIPTS, after: CIS_AFTER });
+add({ name: "cloud-init scripts: delete with a write token", token: "write", method: "DELETE", path: `${CIS}/${CIS_BASE}`, ...SCRIPTS });
+add({ name: "cloud-init scripts: delete, a member", token: "memberDelete", method: "DELETE", path: `${CIS}/${CIS_BASE}`, ...SCRIPTS, after: CIS_AFTER });
+add({ name: "cloud-init scripts: PUT", token: "root", method: "PUT", path: `${CIS}/${CIS_BASE}`, body: { name: "x" }, ...SCRIPTS });
+// A member with write may not create a script (CloudInitScriptPolicy::create is a team admin's).
+denial("cloud-init scripts: create", "memberWrite", WRITE_DELETE, WRITER);
+
+// ── DP-110: POST /servers/hetzner, /servers/vultr, /servers/digitalocean ─────
+// The providers are faked per case (`http`): the account's SSH keys (the fixture key K_MAIN, ed25519, is found by its MD5
+// fingerprint at Hetzner and DigitalOcean and by its text at Vultr, or uploaded), the server's creation and its address.
+// The new server is the one after the fixture's; ValidateNewCloudServerJob is queued (faked) after it is stored.
+const KEY_FACTS = JSON.parse(readFileSync(new URL("../ssh-keys/expected.json", import.meta.url), "utf8"))["ed25519.openssh"];
+const CLOUD_AFTER = {
+  server: "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+  settings: "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+  destination: "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2",
+};
+const OTHER_PUBLIC_KEY = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host";
+
+// Hetzner
+const HZ_BASE = "https://api\\.hetzner\\.cloud/v1";
+const HZS = "/api/v1/servers/hetzner";
+const HZ_BODY = { cloud_provider_token_uuid: CT_HETZNER, location: "nbg1", server_type: "cx22", image: 67794396, name: "Web-1", private_key_uuid: K_MAIN };
+const HZ_KEYS = (keys) => answer(`^GET ${HZ_BASE}/ssh_keys\\?page=1&per_page=50$`, { ssh_keys: keys, meta: { pagination: { page: 1, next_page: null } } });
+const HZ_KNOWN = HZ_KEYS([{ id: 11, name: "laptop", fingerprint: "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99", public_key: OTHER_PUBLIC_KEY }, { id: 12, name: "Parity Key", fingerprint: KEY_FACTS.md5, public_key: KEY_FACTS.public }]);
+const HZ_UPLOAD = answer(`^POST ${HZ_BASE}/ssh_keys$`, { ssh_key: { id: 13, name: "Parity Key", fingerprint: KEY_FACTS.md5, public_key: KEY_FACTS.public } }, 201);
+const hzServer = (net = { ipv4: { ip: "198.51.100.21" }, ipv6: { ip: "2001:db8:21::/64" } }, id = 9001) => ({ server: { id, name: "web-1", status: "initializing", public_net: net } });
+const HZ_CREATE = (body = hzServer(), status = 201) => answer(`^POST ${HZ_BASE}/servers$`, body, status);
+const HZ_BACKUP = (status = 201) => answer(`^POST ${HZ_BASE}/servers/9001/actions/enable_backup$`, status < 300 ? { action: { id: 5, command: "enable_backup", status: "running" } } : { error: { code: "server_error", message: "Boom" } }, status);
+const HZ_DELETE = answer(`^DELETE ${HZ_BASE}/servers/9001$`, { action: { id: 6, command: "delete_server" } });
+add({ name: "server via Hetzner: create", token: "write", method: "POST", path: HZS, body: HZ_BODY, http: [HZ_KNOWN, HZ_CREATE()], after: CLOUD_AFTER });
+add({ name: "server via Hetzner: create, the key uploaded", token: "write", method: "POST", path: HZS, body: HZ_BODY, http: [HZ_KEYS([]), HZ_UPLOAD, HZ_CREATE()], after: CLOUD_AFTER });
+add({ name: "server via Hetzner: create, the deprecated token id and a generated name", token: "write", method: "POST", path: HZS, body: { ...HZ_BODY, cloud_provider_token_uuid: undefined, cloud_provider_token_id: CT_HETZNER, name: undefined }, http: [HZ_KNOWN, HZ_CREATE()], after: CLOUD_AFTER });
+add({ name: "server via Hetzner: create, IPv6 only", token: "write", method: "POST", path: HZS, body: { ...HZ_BODY, enable_ipv4: false }, http: [HZ_KNOWN, HZ_CREATE(hzServer({ ipv4: null, ipv6: { ip: "2001:db8:21::/64" } }))], after: CLOUD_AFTER });
+add({ name: "server via Hetzner: create, IPv6 without a prefix", token: "write", method: "POST", path: HZS, body: { ...HZ_BODY, enable_ipv4: "0", enable_ipv6: 1 }, http: [HZ_KNOWN, HZ_CREATE(hzServer({ ipv6: { ip: "2a01:4f8:c17:b8f::2" } }))], after: CLOUD_AFTER });
+add({ name: "server via Hetzner: create, no protocol", token: "write", method: "POST", path: HZS, body: { ...HZ_BODY, enable_ipv4: false, enable_ipv6: "0" }, http: [] });
+add({ name: "server via Hetzner: create, no address", token: "write", method: "POST", path: HZS, body: HZ_BODY, http: [HZ_KNOWN, HZ_CREATE(hzServer({ ipv4: null, ipv6: null })), HZ_DELETE], after: CLOUD_AFTER });
+add({ name: "server via Hetzner: create with backups", token: "write", method: "POST", path: HZS, body: { ...HZ_BODY, enable_backups: true }, http: [HZ_KNOWN, HZ_CREATE(), HZ_BACKUP()], after: CLOUD_AFTER });
+add({ name: "server via Hetzner: create, backups refused", token: "write", method: "POST", path: HZS, body: { ...HZ_BODY, enable_backups: 1 }, http: [HZ_KNOWN, HZ_CREATE(), HZ_BACKUP(500)], after: CLOUD_AFTER });
+add({ name: "server via Hetzner: create with keys, firewalls, networks and a script, without validating", token: "root", method: "POST", path: HZS, body: { ...HZ_BODY, hetzner_ssh_key_ids: [12, 31, "31", 32], hetzner_firewall_ids: [7, "7", 8], hetzner_network_ids: ["41", 42], cloud_init_script: CLOUD_CONFIG, instant_validate: false }, http: [HZ_KNOWN, HZ_CREATE()], after: CLOUD_AFTER });
+add({ name: "server via Hetzner: create and validate", token: "root", method: "POST", path: HZS, body: HZ_BODY, http: [HZ_KNOWN, HZ_CREATE()], after: CLOUD_AFTER });
+add({ name: "server via Hetzner: create with a deploy token and a bash script", token: "root", method: "POST", path: HZS, body: { ...HZ_BODY, cloud_init_script: "#!/bin/bash\necho hi\n", instant_validate: "0" }, http: [HZ_KNOWN, HZ_CREATE()], after: CLOUD_AFTER });
+for (const [what, script] of BAD_YAML.slice(0, 8)) add({ name: `server via Hetzner: create, invalid cloud-init YAML, ${what}`, token: "root", method: "POST", path: HZS, body: { ...HZ_BODY, cloud_init_script: script }, http: [] });
+add({ name: "server via Hetzner: create, a script without deploy", token: "write", method: "POST", path: HZS, body: { ...HZ_BODY, cloud_init_script: CLOUD_CONFIG }, http: [] });
+add({ name: "server via Hetzner: create, extra keys without deploy", token: "write", method: "POST", path: HZS, body: { ...HZ_BODY, hetzner_ssh_key_ids: [31] }, http: [] });
+add({ name: "server via Hetzner: create, validating without deploy", token: "write", method: "POST", path: HZS, body: { ...HZ_BODY, instant_validate: true }, http: [] });
+add({ name: "server via Hetzner: create, Hetzner refuses", token: "write", method: "POST", path: HZS, body: HZ_BODY, http: [HZ_KNOWN, HZ_CREATE({ error: { code: "invalid_input", message: "invalid input in field 'server_type'", details: { fields: [{ name: "server_type", messages: ["unknown"] }] } } }, 422)], after: CLOUD_AFTER });
+add({ name: "server via Hetzner: create, rate limited", token: "write", method: "POST", path: HZS, body: HZ_BODY, http: [answer(`^GET ${HZ_BASE}/ssh_keys`, { error: { code: "rate_limit_exceeded", message: "limit" } }, 429, { "Retry-After": "12" })], after: CLOUD_AFTER });
+add({ name: "server via Hetzner: create, a key without a fingerprint", token: "write", method: "POST", path: HZS, body: HZ_BODY, http: [HZ_KEYS([{ id: 11, name: "odd" }])], after: CLOUD_AFTER });
+add({ name: "server via Hetzner: create, the upload answers no key", token: "write", method: "POST", path: HZS, body: HZ_BODY, http: [HZ_KEYS([]), answer(`^POST ${HZ_BASE}/ssh_keys$`, {}, 201)], after: CLOUD_AFTER });
+add({ name: "server via Hetzner: create, invalid", token: "write", method: "POST", path: HZS, body: { cloud_provider_token_uuid: 5, location: 1, image: "ubuntu", name: "bad name!", enable_ipv4: "maybe", enable_backups: [], hetzner_ssh_key_ids: "31", hetzner_firewall_ids: [1, "x"], hetzner_network_ids: [null], cloud_init_script: 5, instant_validate: "no", extra: 1 }, http: [] });
+add({ name: "server via Hetzner: create, no token", token: "write", method: "POST", path: HZS, body: { ...HZ_BODY, cloud_provider_token_uuid: undefined }, http: [] });
+add({ name: "server via Hetzner: create, unknown token", token: "write", method: "POST", path: HZS, body: { ...HZ_BODY, cloud_provider_token_uuid: "nonexistentuuid" }, http: [] });
+add({ name: "server via Hetzner: create, another provider's token", token: "write", method: "POST", path: HZS, body: { ...HZ_BODY, cloud_provider_token_uuid: CT_VULTR }, http: [] });
+add({ name: "server via Hetzner: create, another team's token", token: "write", method: "POST", path: HZS, body: { ...HZ_BODY, cloud_provider_token_uuid: CT_OTHER }, http: [] });
+add({ name: "server via Hetzner: create, unknown private key", token: "write", method: "POST", path: HZS, body: { ...HZ_BODY, private_key_uuid: "nonexistentuuid" }, http: [] });
+add({ name: "server via Hetzner: create, another team's private key", token: "write", method: "POST", path: HZS, body: { ...HZ_BODY, private_key_uuid: K_OTHER }, http: [] });
+add({ name: "server via Hetzner: create, not JSON", token: "write", method: "POST", path: HZS, raw: "location=nbg1", contentType: "application/x-www-form-urlencoded", http: [] });
+add({ name: "server via Hetzner: create with a read token", token: "read", method: "POST", path: HZS, body: HZ_BODY, http: [] });
+denial("server via Hetzner: create", "memberWrite", WRITE_DELETE, WRITER);
+
+// Vultr
+const VU_BASE = "https://api\\.vultr\\.com/v2";
+const VUS = "/api/v1/servers/vultr";
+const VU_BODY = { cloud_provider_token_uuid: CT_VULTR, region: "ams", plan: "vc2-1c-1gb", os_id: 2284, name: "Edge-1", private_key_uuid: K_MAIN };
+const VU_KEYS = (keys) => answer(`^GET ${VU_BASE}/ssh-keys\\?per_page=100$`, { ssh_keys: keys, meta: { total: keys.length, links: { next: "", prev: "" } } });
+const VU_KNOWN = VU_KEYS([{ id: "key-other", name: "laptop", ssh_key: OTHER_PUBLIC_KEY }, { id: "key-parity", name: "Parity Key", ssh_key: `${KEY_FACTS.public} parity@host` }]);
+const VU_UPLOAD = answer(`^POST ${VU_BASE}/ssh-keys$`, { ssh_key: { id: "key-new", name: "Parity Key", ssh_key: KEY_FACTS.public } }, 201);
+const vuInstance = (main = "198.51.100.31", v6 = "2001:db8:31::1", status = "pending") => ({ instance: { id: "inst-31", label: "edge-1", status, main_ip: main, v6_main_ip: v6 } });
+const VU_CREATE = (body = vuInstance(), status = 202) => answer(`^POST ${VU_BASE}/instances$`, body, status);
+const VU_GET = (body) => answer(`^GET ${VU_BASE}/instances/inst-31$`, body);
+add({ name: "server via Vultr: create", token: "write", method: "POST", path: VUS, body: VU_BODY, http: [VU_KNOWN, VU_CREATE()], after: CLOUD_AFTER });
+add({ name: "server via Vultr: create, the key uploaded", token: "write", method: "POST", path: VUS, body: { ...VU_BODY, name: undefined }, http: [VU_KEYS([]), VU_UPLOAD, VU_CREATE()], after: CLOUD_AFTER });
+add({ name: "server via Vultr: create, the address after a wait", token: "write", method: "POST", path: VUS, body: VU_BODY, http: [VU_KNOWN, VU_CREATE(vuInstance("0.0.0.0", "")), VU_GET(vuInstance("198.51.100.32", "", "active"))], after: CLOUD_AFTER });
+add({ name: "server via Vultr: create, no address yet", token: "write", method: "POST", path: VUS, body: VU_BODY, http: [VU_KNOWN, VU_CREATE(vuInstance("0.0.0.0", "::")), VU_GET(vuInstance("0.0.0.0", "::"))], after: CLOUD_AFTER });
+add({ name: "server via Vultr: create, IPv6 only", token: "write", method: "POST", path: VUS, body: { ...VU_BODY, disable_public_ipv4: true }, http: [VU_KNOWN, VU_CREATE()], after: CLOUD_AFTER });
+add({ name: "server via Vultr: create, no public address enabled", token: "write", method: "POST", path: VUS, body: { ...VU_BODY, disable_public_ipv4: 1, enable_ipv6: false }, http: [] });
+add({ name: "server via Vultr: create with keys and a script, without validating", token: "root", method: "POST", path: VUS, body: { ...VU_BODY, vultr_ssh_key_ids: ["key-parity", "key-2", "key-2"], cloud_init_script: CLOUD_CONFIG, instant_validate: false }, http: [VU_KNOWN, VU_CREATE()], after: CLOUD_AFTER });
+add({ name: "server via Vultr: create and validate", token: "root", method: "POST", path: VUS, body: VU_BODY, http: [VU_KNOWN, VU_CREATE()], after: CLOUD_AFTER });
+for (const [what, script] of BAD_YAML.slice(8)) add({ name: `server via Vultr: create, invalid cloud-init YAML, ${what}`, token: "root", method: "POST", path: VUS, body: { ...VU_BODY, cloud_init_script: script }, http: [] });
+add({ name: "server via Vultr: create, a script without deploy", token: "write", method: "POST", path: VUS, body: { ...VU_BODY, cloud_init_script: "#!/bin/bash\nls\n" }, http: [] });
+add({ name: "server via Vultr: create, Vultr refuses", token: "write", method: "POST", path: VUS, body: VU_BODY, http: [VU_KNOWN, VU_CREATE({ error: "Invalid plan", status: 400 }, 400)], after: CLOUD_AFTER });
+add({ name: "server via Vultr: create, rate limited", token: "write", method: "POST", path: VUS, body: VU_BODY, http: [VU_KNOWN, VU_CREATE({ error: "Rate limit" }, 429)], after: CLOUD_AFTER });
+add({ name: "server via Vultr: create, no instance id", token: "write", method: "POST", path: VUS, body: VU_BODY, http: [VU_KNOWN, VU_CREATE({ instance: { label: "edge-1" } })], after: CLOUD_AFTER });
+add({ name: "server via Vultr: create, invalid", token: "write", method: "POST", path: VUS, body: { cloud_provider_token_uuid: CT_VULTR, region: 5, os_id: "x", private_key_uuid: [], enable_ipv6: "yes", vultr_ssh_key_ids: [1, "k"], cloud_init_script: true, extra: 1 }, http: [] });
+add({ name: "server via Vultr: create, unknown token", token: "write", method: "POST", path: VUS, body: { ...VU_BODY, cloud_provider_token_uuid: "nonexistentuuid" }, http: [] });
+add({ name: "server via Vultr: create, another provider's token", token: "write", method: "POST", path: VUS, body: { ...VU_BODY, cloud_provider_token_uuid: CT_HETZNER }, http: [] });
+add({ name: "server via Vultr: create, unknown private key", token: "write", method: "POST", path: VUS, body: { ...VU_BODY, private_key_uuid: "nonexistentuuid" }, http: [] });
+add({ name: "server via Vultr: create, not JSON", token: "write", method: "POST", path: VUS, raw: "region=ams", contentType: "application/x-www-form-urlencoded", http: [] });
+add({ name: "server via Vultr: create with a read token", token: "read", method: "POST", path: VUS, body: VU_BODY, http: [] });
+denial("server via Vultr: create", "memberWrite", WRITE_DELETE, WRITER);
+
+// DigitalOcean
+const DO_BASE = "https://api\\.digitalocean\\.com/v2";
+const DOS = "/api/v1/servers/digitalocean";
+const DO_BODY = { cloud_provider_token_uuid: CT_DO, region: "fra1", size: "s-1vcpu-1gb", image: "ubuntu-24-04-x64", name: "Db-1", private_key_uuid: K_MAIN };
+const DO_KEYS = (keys) => answer(`^GET ${DO_BASE}/account/keys\\?page=1&per_page=50$`, { ssh_keys: keys, links: {}, meta: { total: keys.length } });
+const DO_KNOWN = DO_KEYS([{ id: 511, name: "laptop", fingerprint: "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99", public_key: OTHER_PUBLIC_KEY }, { id: "512", name: "Parity Key", fingerprint: KEY_FACTS.md5, public_key: KEY_FACTS.public }]);
+const DO_UPLOAD = answer(`^POST ${DO_BASE}/account/keys$`, { ssh_key: { id: 513, name: "Parity Key", fingerprint: KEY_FACTS.md5, public_key: KEY_FACTS.public } }, 201);
+const doDroplet = (v4 = [], v6 = [], status = "new", id = 3164444) => ({ droplet: { id, name: "db-1", status, networks: { v4, v6 } } });
+const PUBLIC_V4 = [{ ip_address: "10.110.0.2", type: "private" }, { ip_address: "198.51.100.41", type: "public" }];
+const PUBLIC_V6 = [{ ip_address: "2001:db8:41::2", type: "public" }];
+const DO_CREATE = (body = doDroplet(), status = 202) => answer(`^POST ${DO_BASE}/droplets$`, body, status);
+const DO_GET = (body) => answer(`^GET ${DO_BASE}/droplets/3164444$`, body);
+add({ name: "server via DigitalOcean: create", token: "write", method: "POST", path: DOS, body: DO_BODY, http: [DO_KNOWN, DO_CREATE(doDroplet(PUBLIC_V4))], after: CLOUD_AFTER });
+add({ name: "server via DigitalOcean: create, the key uploaded and the address after a wait", token: "write", method: "POST", path: DOS, body: { ...DO_BODY, name: undefined, image: 154962364 }, http: [DO_KEYS([]), DO_UPLOAD, DO_CREATE(), DO_GET(doDroplet(PUBLIC_V4, [], "active"))], after: CLOUD_AFTER });
+add({ name: "server via DigitalOcean: create, no address yet", token: "write", method: "POST", path: DOS, body: DO_BODY, http: [DO_KNOWN, DO_CREATE(), DO_GET(doDroplet())], after: CLOUD_AFTER });
+add({ name: "server via DigitalOcean: create, IPv6 only", token: "write", method: "POST", path: DOS, body: DO_BODY, http: [DO_KNOWN, DO_CREATE(doDroplet([], PUBLIC_V6, "active"))], after: CLOUD_AFTER });
+add({ name: "server via DigitalOcean: create, IPv6 off by null, no monitoring", token: "write", method: "POST", path: DOS, body: { ...DO_BODY, enable_ipv6: null, monitoring: "0" }, http: [DO_KNOWN, DO_CREATE(doDroplet(PUBLIC_V4))], after: CLOUD_AFTER });
+add({ name: "server via DigitalOcean: create with keys and a script, without validating", token: "root", method: "POST", path: DOS, body: { ...DO_BODY, digitalocean_ssh_key_ids: [512, 601, "601"], cloud_init_script: CLOUD_CONFIG, instant_validate: false }, http: [DO_KNOWN, DO_CREATE(doDroplet(PUBLIC_V4))], after: CLOUD_AFTER });
+add({ name: "server via DigitalOcean: create and validate", token: "root", method: "POST", path: DOS, body: DO_BODY, http: [DO_KNOWN, DO_CREATE(doDroplet(PUBLIC_V4))], after: CLOUD_AFTER });
+for (const [what, script] of BAD_YAML.slice(0, 6)) add({ name: `server via DigitalOcean: create, invalid cloud-init YAML, ${what}`, token: "root", method: "POST", path: DOS, body: { ...DO_BODY, cloud_init_script: script }, http: [] });
+add({ name: "server via DigitalOcean: create, validating without deploy", token: "write", method: "POST", path: DOS, body: { ...DO_BODY, instant_validate: 1 }, http: [] });
+add({ name: "server via DigitalOcean: create, DigitalOcean refuses", token: "write", method: "POST", path: DOS, body: DO_BODY, http: [DO_KNOWN, DO_CREATE({ id: "unprocessable_entity", message: "You specified an invalid size for Droplet creation." }, 422)], after: CLOUD_AFTER });
+add({ name: "server via DigitalOcean: create, rate limited", token: "write", method: "POST", path: DOS, body: DO_BODY, http: [answer(`^GET ${DO_BASE}/account/keys`, { id: "too_many_requests", message: "API Rate limit exceeded." }, 429, { "Retry-After": "60" })], after: CLOUD_AFTER });
+add({ name: "server via DigitalOcean: create, no droplet id", token: "write", method: "POST", path: DOS, body: DO_BODY, http: [DO_KNOWN, DO_CREATE({ droplet: { name: "db-1" } })], after: CLOUD_AFTER });
+add({ name: "server via DigitalOcean: create, invalid", token: "write", method: "POST", path: DOS, body: { cloud_provider_token_id: 9, size: [], name: "-db", private_key_uuid: K_MAIN, enable_ipv6: "x", monitoring: 2, digitalocean_ssh_key_ids: ["a"], cloud_init_script: [], instant_validate: "yes", extra: 1 }, http: [] });
+add({ name: "server via DigitalOcean: create, unknown token", token: "write", method: "POST", path: DOS, body: { ...DO_BODY, cloud_provider_token_uuid: "nonexistentuuid" }, http: [] });
+add({ name: "server via DigitalOcean: create, another provider's token", token: "write", method: "POST", path: DOS, body: { ...DO_BODY, cloud_provider_token_uuid: CT_HETZNER }, http: [] });
+add({ name: "server via DigitalOcean: create, another team's private key", token: "write", method: "POST", path: DOS, body: { ...DO_BODY, private_key_uuid: K_OTHER }, http: [] });
+add({ name: "server via DigitalOcean: create, not JSON", token: "write", method: "POST", path: DOS, raw: "region=fra1", contentType: "application/x-www-form-urlencoded", http: [] });
+add({ name: "server via DigitalOcean: create with a read token", token: "read", method: "POST", path: DOS, body: DO_BODY, http: [] });
+denial("server via DigitalOcean: create", "memberWrite", WRITE_DELETE, WRITER);
+
 /** The tables whose column order emit.php writes into the goldens (`columns`): what a nested relation serializes in. */
 const columnsOf = ["servers", "server_settings", "standalone_dockers", "application_settings", "applications", "environment_variables", "application_deployment_queues", "scheduled_database_backups", "scheduled_database_backup_executions", "services", "service_applications", "service_databases", "projects", "environments", "standalone_postgresqls", "standalone_redis", "standalone_mongodbs", "standalone_mysqls", "standalone_mariadbs", "standalone_keydbs", "standalone_dragonflies", "standalone_clickhouses", "local_persistent_volumes", "local_file_volumes", "github_apps"];
 

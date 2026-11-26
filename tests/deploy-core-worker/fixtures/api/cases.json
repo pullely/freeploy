@@ -37933,6 +37933,4388 @@
    "setupCoolify": [
     "insert into audit_events (team_id, event, source, action, level, actor_type, actor_id, actor_name, actor_email, resource_type, resource_uuid, resource_name, description, created_at) select 1, 'ui.team.updated', 'ui', 'updated', 'info', 'user', 1, 'Parity Owner', 'owner@example.com', 'team', null, 'Parity Team', 'Parity Team Updated', timestamp '2025-12-01 00:00:00' + make_interval(mins => g) from generate_series(0, 39) g"
    ]
+  },
+  {
+   "name": "cloud-init scripts: list",
+   "token": "root",
+   "method": "GET",
+   "path": "/api/v1/cloud-init-scripts",
+   "cloudInitScripts": [
+    {
+     "uuid": "i1parityinitscript000001",
+     "team": 1,
+     "name": "Base packages",
+     "script": "#cloud-config\npackages:\n  - curl\n  - git\n",
+     "created_at": "2025-12-01 10:00:00"
+    },
+    {
+     "uuid": "i2parityinitscript000002",
+     "team": 1,
+     "name": "Bash setup",
+     "script": "#!/bin/bash\napt-get update -y\n",
+     "created_at": "2025-12-02 10:00:00"
+    },
+    {
+     "uuid": "i3otherinitscript0000003",
+     "team": 2,
+     "name": "Other team's script",
+     "script": "#cloud-config\nruncmd: [ls]\n",
+     "created_at": "2025-12-03 10:00:00"
+    }
+   ]
+  },
+  {
+   "name": "cloud-init scripts: list with a read token",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/cloud-init-scripts",
+   "cloudInitScripts": [
+    {
+     "uuid": "i1parityinitscript000001",
+     "team": 1,
+     "name": "Base packages",
+     "script": "#cloud-config\npackages:\n  - curl\n  - git\n",
+     "created_at": "2025-12-01 10:00:00"
+    },
+    {
+     "uuid": "i2parityinitscript000002",
+     "team": 1,
+     "name": "Bash setup",
+     "script": "#!/bin/bash\napt-get update -y\n",
+     "created_at": "2025-12-02 10:00:00"
+    },
+    {
+     "uuid": "i3otherinitscript0000003",
+     "team": 2,
+     "name": "Other team's script",
+     "script": "#cloud-config\nruncmd: [ls]\n",
+     "created_at": "2025-12-03 10:00:00"
+    }
+   ]
+  },
+  {
+   "name": "cloud-init scripts: list with read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/cloud-init-scripts",
+   "cloudInitScripts": [
+    {
+     "uuid": "i1parityinitscript000001",
+     "team": 1,
+     "name": "Base packages",
+     "script": "#cloud-config\npackages:\n  - curl\n  - git\n",
+     "created_at": "2025-12-01 10:00:00"
+    },
+    {
+     "uuid": "i2parityinitscript000002",
+     "team": 1,
+     "name": "Bash setup",
+     "script": "#!/bin/bash\napt-get update -y\n",
+     "created_at": "2025-12-02 10:00:00"
+    },
+    {
+     "uuid": "i3otherinitscript0000003",
+     "team": 2,
+     "name": "Other team's script",
+     "script": "#cloud-config\nruncmd: [ls]\n",
+     "created_at": "2025-12-03 10:00:00"
+    }
+   ]
+  },
+  {
+   "name": "cloud-init scripts: none",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/cloud-init-scripts"
+  },
+  {
+   "name": "cloud-init scripts: list, a member",
+   "token": "memberRead",
+   "method": "GET",
+   "path": "/api/v1/cloud-init-scripts",
+   "cloudInitScripts": [
+    {
+     "uuid": "i1parityinitscript000001",
+     "team": 1,
+     "name": "Base packages",
+     "script": "#cloud-config\npackages:\n  - curl\n  - git\n",
+     "created_at": "2025-12-01 10:00:00"
+    },
+    {
+     "uuid": "i2parityinitscript000002",
+     "team": 1,
+     "name": "Bash setup",
+     "script": "#!/bin/bash\napt-get update -y\n",
+     "created_at": "2025-12-02 10:00:00"
+    },
+    {
+     "uuid": "i3otherinitscript0000003",
+     "team": 2,
+     "name": "Other team's script",
+     "script": "#cloud-config\nruncmd: [ls]\n",
+     "created_at": "2025-12-03 10:00:00"
+    }
+   ]
+  },
+  {
+   "name": "cloud-init scripts: list with a write-only token",
+   "token": "writeOnly",
+   "method": "GET",
+   "path": "/api/v1/cloud-init-scripts",
+   "cloudInitScripts": [
+    {
+     "uuid": "i1parityinitscript000001",
+     "team": 1,
+     "name": "Base packages",
+     "script": "#cloud-config\npackages:\n  - curl\n  - git\n",
+     "created_at": "2025-12-01 10:00:00"
+    },
+    {
+     "uuid": "i2parityinitscript000002",
+     "team": 1,
+     "name": "Bash setup",
+     "script": "#!/bin/bash\napt-get update -y\n",
+     "created_at": "2025-12-02 10:00:00"
+    },
+    {
+     "uuid": "i3otherinitscript0000003",
+     "team": 2,
+     "name": "Other team's script",
+     "script": "#cloud-config\nruncmd: [ls]\n",
+     "created_at": "2025-12-03 10:00:00"
+    }
+   ]
+  },
+  {
+   "name": "cloud-init scripts: show",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/cloud-init-scripts/i1parityinitscript000001",
+   "cloudInitScripts": [
+    {
+     "uuid": "i1parityinitscript000001",
+     "team": 1,
+     "name": "Base packages",
+     "script": "#cloud-config\npackages:\n  - curl\n  - git\n",
+     "created_at": "2025-12-01 10:00:00"
+    },
+    {
+     "uuid": "i2parityinitscript000002",
+     "team": 1,
+     "name": "Bash setup",
+     "script": "#!/bin/bash\napt-get update -y\n",
+     "created_at": "2025-12-02 10:00:00"
+    },
+    {
+     "uuid": "i3otherinitscript0000003",
+     "team": 2,
+     "name": "Other team's script",
+     "script": "#cloud-config\nruncmd: [ls]\n",
+     "created_at": "2025-12-03 10:00:00"
+    }
+   ]
+  },
+  {
+   "name": "cloud-init scripts: show with read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/cloud-init-scripts/i1parityinitscript000001",
+   "cloudInitScripts": [
+    {
+     "uuid": "i1parityinitscript000001",
+     "team": 1,
+     "name": "Base packages",
+     "script": "#cloud-config\npackages:\n  - curl\n  - git\n",
+     "created_at": "2025-12-01 10:00:00"
+    },
+    {
+     "uuid": "i2parityinitscript000002",
+     "team": 1,
+     "name": "Bash setup",
+     "script": "#!/bin/bash\napt-get update -y\n",
+     "created_at": "2025-12-02 10:00:00"
+    },
+    {
+     "uuid": "i3otherinitscript0000003",
+     "team": 2,
+     "name": "Other team's script",
+     "script": "#cloud-config\nruncmd: [ls]\n",
+     "created_at": "2025-12-03 10:00:00"
+    }
+   ]
+  },
+  {
+   "name": "cloud-init scripts: show, unknown",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/cloud-init-scripts/nonexistentuuid",
+   "cloudInitScripts": [
+    {
+     "uuid": "i1parityinitscript000001",
+     "team": 1,
+     "name": "Base packages",
+     "script": "#cloud-config\npackages:\n  - curl\n  - git\n",
+     "created_at": "2025-12-01 10:00:00"
+    },
+    {
+     "uuid": "i2parityinitscript000002",
+     "team": 1,
+     "name": "Bash setup",
+     "script": "#!/bin/bash\napt-get update -y\n",
+     "created_at": "2025-12-02 10:00:00"
+    },
+    {
+     "uuid": "i3otherinitscript0000003",
+     "team": 2,
+     "name": "Other team's script",
+     "script": "#cloud-config\nruncmd: [ls]\n",
+     "created_at": "2025-12-03 10:00:00"
+    }
+   ]
+  },
+  {
+   "name": "cloud-init scripts: show, another team's",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/cloud-init-scripts/i3otherinitscript0000003",
+   "cloudInitScripts": [
+    {
+     "uuid": "i1parityinitscript000001",
+     "team": 1,
+     "name": "Base packages",
+     "script": "#cloud-config\npackages:\n  - curl\n  - git\n",
+     "created_at": "2025-12-01 10:00:00"
+    },
+    {
+     "uuid": "i2parityinitscript000002",
+     "team": 1,
+     "name": "Bash setup",
+     "script": "#!/bin/bash\napt-get update -y\n",
+     "created_at": "2025-12-02 10:00:00"
+    },
+    {
+     "uuid": "i3otherinitscript0000003",
+     "team": 2,
+     "name": "Other team's script",
+     "script": "#cloud-config\nruncmd: [ls]\n",
+     "created_at": "2025-12-03 10:00:00"
+    }
+   ]
+  },
+  {
+   "name": "cloud-init scripts: show, a member",
+   "token": "memberRead",
+   "method": "GET",
+   "path": "/api/v1/cloud-init-scripts/i1parityinitscript000001",
+   "cloudInitScripts": [
+    {
+     "uuid": "i1parityinitscript000001",
+     "team": 1,
+     "name": "Base packages",
+     "script": "#cloud-config\npackages:\n  - curl\n  - git\n",
+     "created_at": "2025-12-01 10:00:00"
+    },
+    {
+     "uuid": "i2parityinitscript000002",
+     "team": 1,
+     "name": "Bash setup",
+     "script": "#!/bin/bash\napt-get update -y\n",
+     "created_at": "2025-12-02 10:00:00"
+    },
+    {
+     "uuid": "i3otherinitscript0000003",
+     "team": 2,
+     "name": "Other team's script",
+     "script": "#cloud-config\nruncmd: [ls]\n",
+     "created_at": "2025-12-03 10:00:00"
+    }
+   ]
+  },
+  {
+   "name": "cloud-init scripts: create",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-init-scripts",
+   "body": {
+    "name": "Web server",
+    "script": "#cloud-config\npackage_update: true\npackages:\n  - nginx\nruncmd:\n  - systemctl enable --now nginx\n"
+   },
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   }
+  },
+  {
+   "name": "cloud-init scripts: create next to the others",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-init-scripts",
+   "body": {
+    "name": "Web server",
+    "script": "#cloud-config\npackage_update: true\npackages:\n  - nginx\nruncmd:\n  - systemctl enable --now nginx\n"
+   },
+   "cloudInitScripts": [
+    {
+     "uuid": "i1parityinitscript000001",
+     "team": 1,
+     "name": "Base packages",
+     "script": "#cloud-config\npackages:\n  - curl\n  - git\n",
+     "created_at": "2025-12-01 10:00:00"
+    },
+    {
+     "uuid": "i2parityinitscript000002",
+     "team": 1,
+     "name": "Bash setup",
+     "script": "#!/bin/bash\napt-get update -y\n",
+     "created_at": "2025-12-02 10:00:00"
+    },
+    {
+     "uuid": "i3otherinitscript0000003",
+     "team": 2,
+     "name": "Other team's script",
+     "script": "#cloud-config\nruncmd: [ls]\n",
+     "created_at": "2025-12-03 10:00:00"
+    }
+   ],
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   }
+  },
+  {
+   "name": "cloud-init scripts: create with the root token",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/cloud-init-scripts",
+   "body": {
+    "name": "Web server",
+    "script": "#cloud-config\npackage_update: true\npackages:\n  - nginx\nruncmd:\n  - systemctl enable --now nginx\n"
+   },
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   }
+  },
+  {
+   "name": "cloud-init scripts: create, a bash script",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-init-scripts",
+   "body": {
+    "name": "  Bash  ",
+    "script": "#!/bin/sh\n\techo tabs are fine here: yes\n"
+   },
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   }
+  },
+  {
+   "name": "cloud-init scripts: create, YAML without its header",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-init-scripts",
+   "body": {
+    "name": "No header",
+    "script": "packages:\n  - htop\nruncmd:\n  - [ls, -l, /]\n"
+   },
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   }
+  },
+  {
+   "name": "cloud-init scripts: create, a plain line",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-init-scripts",
+   "body": {
+    "name": "Plain",
+    "script": "echo hello"
+   },
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   }
+  },
+  {
+   "name": "cloud-init scripts: create, invalid YAML, a duplicate key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-init-scripts",
+   "body": {
+    "name": "Bad",
+    "script": "#cloud-config\npackages: [a]\npackages: [b]\n"
+   },
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   }
+  },
+  {
+   "name": "cloud-init scripts: create, invalid YAML, a tab",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-init-scripts",
+   "body": {
+    "name": "Bad",
+    "script": "#cloud-config\npackages:\n\t- curl\n"
+   },
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   }
+  },
+  {
+   "name": "cloud-init scripts: create, invalid YAML, an unclosed flow",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-init-scripts",
+   "body": {
+    "name": "Bad",
+    "script": "#cloud-config\nruncmd: [ls, -l\n"
+   },
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   }
+  },
+  {
+   "name": "cloud-init scripts: create, invalid YAML, an unclosed quote",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-init-scripts",
+   "body": {
+    "name": "Bad",
+    "script": "#cloud-config\nwrite_files:\n  - path: \"/etc/x\n"
+   },
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   }
+  },
+  {
+   "name": "cloud-init scripts: create, invalid YAML, a colon in a value",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-init-scripts",
+   "body": {
+    "name": "Bad",
+    "script": "#cloud-config\nhostname: web: 1\n"
+   },
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   }
+  },
+  {
+   "name": "cloud-init scripts: create, invalid YAML, a sequence in a mapping",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-init-scripts",
+   "body": {
+    "name": "Bad",
+    "script": "#cloud-config\npackages: [a]\n- b\n"
+   },
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   }
+  },
+  {
+   "name": "cloud-init scripts: create, invalid YAML, a missing reference",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-init-scripts",
+   "body": {
+    "name": "Bad",
+    "script": "#cloud-config\nruncmd: *steps\n"
+   },
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   }
+  },
+  {
+   "name": "cloud-init scripts: create, invalid YAML, an indentation problem",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-init-scripts",
+   "body": {
+    "name": "Bad",
+    "script": "#cloud-config\nusers:\n    - name: a\n  - name: b\n"
+   },
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   }
+  },
+  {
+   "name": "cloud-init scripts: create, invalid YAML, two documents",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-init-scripts",
+   "body": {
+    "name": "Bad",
+    "script": "#cloud-config\na: 1\n---\nb: 2\n"
+   },
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   }
+  },
+  {
+   "name": "cloud-init scripts: create, invalid YAML, a custom tag",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-init-scripts",
+   "body": {
+    "name": "Bad",
+    "script": "#cloud-config\na: !include x.yaml\n"
+   },
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   }
+  },
+  {
+   "name": "cloud-init scripts: create, invalid YAML, a reserved indicator",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-init-scripts",
+   "body": {
+    "name": "Bad",
+    "script": "#cloud-config\na: @b\n"
+   },
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   }
+  },
+  {
+   "name": "cloud-init scripts: create, invalid YAML, mapping values in a plain multi-line",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-init-scripts",
+   "body": {
+    "name": "Bad",
+    "script": "apt-get update\napt-get install: nginx\n"
+   },
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   }
+  },
+  {
+   "name": "cloud-init scripts: create, invalid YAML, a mapping in a sequence, without the header",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-init-scripts",
+   "body": {
+    "name": "Bad",
+    "script": "- ls\nkey: value\n"
+   },
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   }
+  },
+  {
+   "name": "cloud-init scripts: create, invalid YAML, an unquoted mapping value over lines",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-init-scripts",
+   "body": {
+    "name": "Bad",
+    "script": "a: one\n  b: two\n"
+   },
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   }
+  },
+  {
+   "name": "cloud-init scripts: create, invalid",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-init-scripts",
+   "body": {
+    "name": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "script": 5,
+    "extra": true
+   }
+  },
+  {
+   "name": "cloud-init scripts: create, the script a number",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-init-scripts",
+   "body": {
+    "name": 7,
+    "script": 123
+   }
+  },
+  {
+   "name": "cloud-init scripts: create, the script an array",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-init-scripts",
+   "body": {
+    "name": "Array",
+    "script": [
+     "a"
+    ]
+   }
+  },
+  {
+   "name": "cloud-init scripts: create, nothing",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-init-scripts",
+   "body": {
+    "name": "",
+    "script": "  "
+   }
+  },
+  {
+   "name": "cloud-init scripts: create, an empty object",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-init-scripts",
+   "raw": "{}"
+  },
+  {
+   "name": "cloud-init scripts: create, not JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/cloud-init-scripts",
+   "raw": "name=x",
+   "contentType": "application/x-www-form-urlencoded"
+  },
+  {
+   "name": "cloud-init scripts: create with a read token",
+   "token": "read",
+   "method": "POST",
+   "path": "/api/v1/cloud-init-scripts",
+   "body": {
+    "name": "Web server",
+    "script": "#cloud-config\npackage_update: true\npackages:\n  - nginx\nruncmd:\n  - systemctl enable --now nginx\n"
+   }
+  },
+  {
+   "name": "cloud-init scripts: update the name",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/cloud-init-scripts/i1parityinitscript000001",
+   "body": {
+    "name": "Renamed"
+   },
+   "cloudInitScripts": [
+    {
+     "uuid": "i1parityinitscript000001",
+     "team": 1,
+     "name": "Base packages",
+     "script": "#cloud-config\npackages:\n  - curl\n  - git\n",
+     "created_at": "2025-12-01 10:00:00"
+    },
+    {
+     "uuid": "i2parityinitscript000002",
+     "team": 1,
+     "name": "Bash setup",
+     "script": "#!/bin/bash\napt-get update -y\n",
+     "created_at": "2025-12-02 10:00:00"
+    },
+    {
+     "uuid": "i3otherinitscript0000003",
+     "team": 2,
+     "name": "Other team's script",
+     "script": "#cloud-config\nruncmd: [ls]\n",
+     "created_at": "2025-12-03 10:00:00"
+    }
+   ],
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   }
+  },
+  {
+   "name": "cloud-init scripts: update the script",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/cloud-init-scripts/i1parityinitscript000001",
+   "body": {
+    "script": "#cloud-config\npackage_update: true\npackages:\n  - nginx\nruncmd:\n  - systemctl enable --now nginx\n"
+   },
+   "cloudInitScripts": [
+    {
+     "uuid": "i1parityinitscript000001",
+     "team": 1,
+     "name": "Base packages",
+     "script": "#cloud-config\npackages:\n  - curl\n  - git\n",
+     "created_at": "2025-12-01 10:00:00"
+    },
+    {
+     "uuid": "i2parityinitscript000002",
+     "team": 1,
+     "name": "Bash setup",
+     "script": "#!/bin/bash\napt-get update -y\n",
+     "created_at": "2025-12-02 10:00:00"
+    },
+    {
+     "uuid": "i3otherinitscript0000003",
+     "team": 2,
+     "name": "Other team's script",
+     "script": "#cloud-config\nruncmd: [ls]\n",
+     "created_at": "2025-12-03 10:00:00"
+    }
+   ],
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   }
+  },
+  {
+   "name": "cloud-init scripts: update the script with write",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/cloud-init-scripts/i2parityinitscript000002",
+   "body": {
+    "script": "#!/bin/bash\necho changed\n",
+    "name": "Bash setup"
+   },
+   "cloudInitScripts": [
+    {
+     "uuid": "i1parityinitscript000001",
+     "team": 1,
+     "name": "Base packages",
+     "script": "#cloud-config\npackages:\n  - curl\n  - git\n",
+     "created_at": "2025-12-01 10:00:00"
+    },
+    {
+     "uuid": "i2parityinitscript000002",
+     "team": 1,
+     "name": "Bash setup",
+     "script": "#!/bin/bash\napt-get update -y\n",
+     "created_at": "2025-12-02 10:00:00"
+    },
+    {
+     "uuid": "i3otherinitscript0000003",
+     "team": 2,
+     "name": "Other team's script",
+     "script": "#cloud-config\nruncmd: [ls]\n",
+     "created_at": "2025-12-03 10:00:00"
+    }
+   ],
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   }
+  },
+  {
+   "name": "cloud-init scripts: update, nothing changes",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/cloud-init-scripts/i1parityinitscript000001",
+   "body": {
+    "name": "Base packages"
+   },
+   "cloudInitScripts": [
+    {
+     "uuid": "i1parityinitscript000001",
+     "team": 1,
+     "name": "Base packages",
+     "script": "#cloud-config\npackages:\n  - curl\n  - git\n",
+     "created_at": "2025-12-01 10:00:00"
+    },
+    {
+     "uuid": "i2parityinitscript000002",
+     "team": 1,
+     "name": "Bash setup",
+     "script": "#!/bin/bash\napt-get update -y\n",
+     "created_at": "2025-12-02 10:00:00"
+    },
+    {
+     "uuid": "i3otherinitscript0000003",
+     "team": 2,
+     "name": "Other team's script",
+     "script": "#cloud-config\nruncmd: [ls]\n",
+     "created_at": "2025-12-03 10:00:00"
+    }
+   ],
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   }
+  },
+  {
+   "name": "cloud-init scripts: update, invalid YAML",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/cloud-init-scripts/i1parityinitscript000001",
+   "body": {
+    "script": "#cloud-config\npackages: [a]\npackages: [b]\n"
+   },
+   "cloudInitScripts": [
+    {
+     "uuid": "i1parityinitscript000001",
+     "team": 1,
+     "name": "Base packages",
+     "script": "#cloud-config\npackages:\n  - curl\n  - git\n",
+     "created_at": "2025-12-01 10:00:00"
+    },
+    {
+     "uuid": "i2parityinitscript000002",
+     "team": 1,
+     "name": "Bash setup",
+     "script": "#!/bin/bash\napt-get update -y\n",
+     "created_at": "2025-12-02 10:00:00"
+    },
+    {
+     "uuid": "i3otherinitscript0000003",
+     "team": 2,
+     "name": "Other team's script",
+     "script": "#cloud-config\nruncmd: [ls]\n",
+     "created_at": "2025-12-03 10:00:00"
+    }
+   ],
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   }
+  },
+  {
+   "name": "cloud-init scripts: update, invalid",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/cloud-init-scripts/i1parityinitscript000001",
+   "body": {
+    "name": null,
+    "script": null,
+    "uuid": "x"
+   },
+   "cloudInitScripts": [
+    {
+     "uuid": "i1parityinitscript000001",
+     "team": 1,
+     "name": "Base packages",
+     "script": "#cloud-config\npackages:\n  - curl\n  - git\n",
+     "created_at": "2025-12-01 10:00:00"
+    },
+    {
+     "uuid": "i2parityinitscript000002",
+     "team": 1,
+     "name": "Bash setup",
+     "script": "#!/bin/bash\napt-get update -y\n",
+     "created_at": "2025-12-02 10:00:00"
+    },
+    {
+     "uuid": "i3otherinitscript0000003",
+     "team": 2,
+     "name": "Other team's script",
+     "script": "#cloud-config\nruncmd: [ls]\n",
+     "created_at": "2025-12-03 10:00:00"
+    }
+   ],
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   }
+  },
+  {
+   "name": "cloud-init scripts: update, an empty object",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/cloud-init-scripts/i1parityinitscript000001",
+   "raw": "{}",
+   "cloudInitScripts": [
+    {
+     "uuid": "i1parityinitscript000001",
+     "team": 1,
+     "name": "Base packages",
+     "script": "#cloud-config\npackages:\n  - curl\n  - git\n",
+     "created_at": "2025-12-01 10:00:00"
+    },
+    {
+     "uuid": "i2parityinitscript000002",
+     "team": 1,
+     "name": "Bash setup",
+     "script": "#!/bin/bash\napt-get update -y\n",
+     "created_at": "2025-12-02 10:00:00"
+    },
+    {
+     "uuid": "i3otherinitscript0000003",
+     "team": 2,
+     "name": "Other team's script",
+     "script": "#cloud-config\nruncmd: [ls]\n",
+     "created_at": "2025-12-03 10:00:00"
+    }
+   ]
+  },
+  {
+   "name": "cloud-init scripts: update, unknown",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/cloud-init-scripts/nonexistentuuid",
+   "body": {
+    "name": "x"
+   },
+   "cloudInitScripts": [
+    {
+     "uuid": "i1parityinitscript000001",
+     "team": 1,
+     "name": "Base packages",
+     "script": "#cloud-config\npackages:\n  - curl\n  - git\n",
+     "created_at": "2025-12-01 10:00:00"
+    },
+    {
+     "uuid": "i2parityinitscript000002",
+     "team": 1,
+     "name": "Bash setup",
+     "script": "#!/bin/bash\napt-get update -y\n",
+     "created_at": "2025-12-02 10:00:00"
+    },
+    {
+     "uuid": "i3otherinitscript0000003",
+     "team": 2,
+     "name": "Other team's script",
+     "script": "#cloud-config\nruncmd: [ls]\n",
+     "created_at": "2025-12-03 10:00:00"
+    }
+   ]
+  },
+  {
+   "name": "cloud-init scripts: update, another team's",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/cloud-init-scripts/i3otherinitscript0000003",
+   "body": {
+    "name": "x"
+   },
+   "cloudInitScripts": [
+    {
+     "uuid": "i1parityinitscript000001",
+     "team": 1,
+     "name": "Base packages",
+     "script": "#cloud-config\npackages:\n  - curl\n  - git\n",
+     "created_at": "2025-12-01 10:00:00"
+    },
+    {
+     "uuid": "i2parityinitscript000002",
+     "team": 1,
+     "name": "Bash setup",
+     "script": "#!/bin/bash\napt-get update -y\n",
+     "created_at": "2025-12-02 10:00:00"
+    },
+    {
+     "uuid": "i3otherinitscript0000003",
+     "team": 2,
+     "name": "Other team's script",
+     "script": "#cloud-config\nruncmd: [ls]\n",
+     "created_at": "2025-12-03 10:00:00"
+    }
+   ]
+  },
+  {
+   "name": "cloud-init scripts: update, not JSON",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/cloud-init-scripts/i1parityinitscript000001",
+   "raw": "name=x",
+   "contentType": "application/x-www-form-urlencoded",
+   "cloudInitScripts": [
+    {
+     "uuid": "i1parityinitscript000001",
+     "team": 1,
+     "name": "Base packages",
+     "script": "#cloud-config\npackages:\n  - curl\n  - git\n",
+     "created_at": "2025-12-01 10:00:00"
+    },
+    {
+     "uuid": "i2parityinitscript000002",
+     "team": 1,
+     "name": "Bash setup",
+     "script": "#!/bin/bash\napt-get update -y\n",
+     "created_at": "2025-12-02 10:00:00"
+    },
+    {
+     "uuid": "i3otherinitscript0000003",
+     "team": 2,
+     "name": "Other team's script",
+     "script": "#cloud-config\nruncmd: [ls]\n",
+     "created_at": "2025-12-03 10:00:00"
+    }
+   ]
+  },
+  {
+   "name": "cloud-init scripts: update with a read token",
+   "token": "read",
+   "method": "PATCH",
+   "path": "/api/v1/cloud-init-scripts/i1parityinitscript000001",
+   "body": {
+    "name": "x"
+   },
+   "cloudInitScripts": [
+    {
+     "uuid": "i1parityinitscript000001",
+     "team": 1,
+     "name": "Base packages",
+     "script": "#cloud-config\npackages:\n  - curl\n  - git\n",
+     "created_at": "2025-12-01 10:00:00"
+    },
+    {
+     "uuid": "i2parityinitscript000002",
+     "team": 1,
+     "name": "Bash setup",
+     "script": "#!/bin/bash\napt-get update -y\n",
+     "created_at": "2025-12-02 10:00:00"
+    },
+    {
+     "uuid": "i3otherinitscript0000003",
+     "team": 2,
+     "name": "Other team's script",
+     "script": "#cloud-config\nruncmd: [ls]\n",
+     "created_at": "2025-12-03 10:00:00"
+    }
+   ]
+  },
+  {
+   "name": "cloud-init scripts: delete",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/cloud-init-scripts/i1parityinitscript000001",
+   "cloudInitScripts": [
+    {
+     "uuid": "i1parityinitscript000001",
+     "team": 1,
+     "name": "Base packages",
+     "script": "#cloud-config\npackages:\n  - curl\n  - git\n",
+     "created_at": "2025-12-01 10:00:00"
+    },
+    {
+     "uuid": "i2parityinitscript000002",
+     "team": 1,
+     "name": "Bash setup",
+     "script": "#!/bin/bash\napt-get update -y\n",
+     "created_at": "2025-12-02 10:00:00"
+    },
+    {
+     "uuid": "i3otherinitscript0000003",
+     "team": 2,
+     "name": "Other team's script",
+     "script": "#cloud-config\nruncmd: [ls]\n",
+     "created_at": "2025-12-03 10:00:00"
+    }
+   ],
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   }
+  },
+  {
+   "name": "cloud-init scripts: delete, unknown",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/cloud-init-scripts/nonexistentuuid",
+   "cloudInitScripts": [
+    {
+     "uuid": "i1parityinitscript000001",
+     "team": 1,
+     "name": "Base packages",
+     "script": "#cloud-config\npackages:\n  - curl\n  - git\n",
+     "created_at": "2025-12-01 10:00:00"
+    },
+    {
+     "uuid": "i2parityinitscript000002",
+     "team": 1,
+     "name": "Bash setup",
+     "script": "#!/bin/bash\napt-get update -y\n",
+     "created_at": "2025-12-02 10:00:00"
+    },
+    {
+     "uuid": "i3otherinitscript0000003",
+     "team": 2,
+     "name": "Other team's script",
+     "script": "#cloud-config\nruncmd: [ls]\n",
+     "created_at": "2025-12-03 10:00:00"
+    }
+   ],
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   }
+  },
+  {
+   "name": "cloud-init scripts: delete, another team's",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/cloud-init-scripts/i3otherinitscript0000003",
+   "cloudInitScripts": [
+    {
+     "uuid": "i1parityinitscript000001",
+     "team": 1,
+     "name": "Base packages",
+     "script": "#cloud-config\npackages:\n  - curl\n  - git\n",
+     "created_at": "2025-12-01 10:00:00"
+    },
+    {
+     "uuid": "i2parityinitscript000002",
+     "team": 1,
+     "name": "Bash setup",
+     "script": "#!/bin/bash\napt-get update -y\n",
+     "created_at": "2025-12-02 10:00:00"
+    },
+    {
+     "uuid": "i3otherinitscript0000003",
+     "team": 2,
+     "name": "Other team's script",
+     "script": "#cloud-config\nruncmd: [ls]\n",
+     "created_at": "2025-12-03 10:00:00"
+    }
+   ],
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   }
+  },
+  {
+   "name": "cloud-init scripts: delete with a write token",
+   "token": "write",
+   "method": "DELETE",
+   "path": "/api/v1/cloud-init-scripts/i1parityinitscript000001",
+   "cloudInitScripts": [
+    {
+     "uuid": "i1parityinitscript000001",
+     "team": 1,
+     "name": "Base packages",
+     "script": "#cloud-config\npackages:\n  - curl\n  - git\n",
+     "created_at": "2025-12-01 10:00:00"
+    },
+    {
+     "uuid": "i2parityinitscript000002",
+     "team": 1,
+     "name": "Bash setup",
+     "script": "#!/bin/bash\napt-get update -y\n",
+     "created_at": "2025-12-02 10:00:00"
+    },
+    {
+     "uuid": "i3otherinitscript0000003",
+     "team": 2,
+     "name": "Other team's script",
+     "script": "#cloud-config\nruncmd: [ls]\n",
+     "created_at": "2025-12-03 10:00:00"
+    }
+   ]
+  },
+  {
+   "name": "cloud-init scripts: delete, a member",
+   "token": "memberDelete",
+   "method": "DELETE",
+   "path": "/api/v1/cloud-init-scripts/i1parityinitscript000001",
+   "cloudInitScripts": [
+    {
+     "uuid": "i1parityinitscript000001",
+     "team": 1,
+     "name": "Base packages",
+     "script": "#cloud-config\npackages:\n  - curl\n  - git\n",
+     "created_at": "2025-12-01 10:00:00"
+    },
+    {
+     "uuid": "i2parityinitscript000002",
+     "team": 1,
+     "name": "Bash setup",
+     "script": "#!/bin/bash\napt-get update -y\n",
+     "created_at": "2025-12-02 10:00:00"
+    },
+    {
+     "uuid": "i3otherinitscript0000003",
+     "team": 2,
+     "name": "Other team's script",
+     "script": "#cloud-config\nruncmd: [ls]\n",
+     "created_at": "2025-12-03 10:00:00"
+    }
+   ],
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   }
+  },
+  {
+   "name": "cloud-init scripts: PUT",
+   "token": "root",
+   "method": "PUT",
+   "path": "/api/v1/cloud-init-scripts/i1parityinitscript000001",
+   "body": {
+    "name": "x"
+   },
+   "cloudInitScripts": [
+    {
+     "uuid": "i1parityinitscript000001",
+     "team": 1,
+     "name": "Base packages",
+     "script": "#cloud-config\npackages:\n  - curl\n  - git\n",
+     "created_at": "2025-12-01 10:00:00"
+    },
+    {
+     "uuid": "i2parityinitscript000002",
+     "team": 1,
+     "name": "Bash setup",
+     "script": "#!/bin/bash\napt-get update -y\n",
+     "created_at": "2025-12-02 10:00:00"
+    },
+    {
+     "uuid": "i3otherinitscript0000003",
+     "team": 2,
+     "name": "Other team's script",
+     "script": "#cloud-config\nruncmd: [ls]\n",
+     "created_at": "2025-12-03 10:00:00"
+    }
+   ]
+  },
+  {
+   "name": "denied: cloud-init scripts: create, a member with write and delete",
+   "token": "memberWrite",
+   "method": "POST",
+   "path": "/api/v1/cloud-init-scripts",
+   "body": {
+    "name": "Web server",
+    "script": "#cloud-config\npackage_update: true\npackages:\n  - nginx\nruncmd:\n  - systemctl enable --now nginx\n"
+   },
+   "after": {
+    "scripts": "select case when uuid in ('i1parityinitscript000001', 'i2parityinitscript000002') then uuid end as fixture_uuid, uuid ~ '^[a-z0-9]{24}$' as public_id, name, script is not null as has_script, updated_at > created_at as updated from cloud_init_scripts where uuid <> 'i3otherinitscript0000003' order by name"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "server via Hetzner: create",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/ssh_keys\\?page=1&per_page=50$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": 11,
+        "name": "laptop",
+        "fingerprint": "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": 12,
+        "name": "Parity Key",
+        "fingerprint": "27:86:2f:8d:bf:69:01:90:6d:54:30:8e:0d:4c:39:da",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 1,
+        "next_page": null
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.hetzner\\.cloud/v1/servers$",
+     "body": {
+      "server": {
+       "id": 9001,
+       "name": "web-1",
+       "status": "initializing",
+       "public_net": {
+        "ipv4": {
+         "ip": "198.51.100.21"
+        },
+        "ipv6": {
+         "ip": "2001:db8:21::/64"
+        }
+       }
+      }
+     },
+     "status": 201
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Hetzner: create, the key uploaded",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/ssh_keys\\?page=1&per_page=50$",
+     "body": {
+      "ssh_keys": [],
+      "meta": {
+       "pagination": {
+        "page": 1,
+        "next_page": null
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.hetzner\\.cloud/v1/ssh_keys$",
+     "body": {
+      "ssh_key": {
+       "id": 13,
+       "name": "Parity Key",
+       "fingerprint": "27:86:2f:8d:bf:69:01:90:6d:54:30:8e:0d:4c:39:da",
+       "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2"
+      }
+     },
+     "status": 201
+    },
+    {
+     "match": "^POST https://api\\.hetzner\\.cloud/v1/servers$",
+     "body": {
+      "server": {
+       "id": 9001,
+       "name": "web-1",
+       "status": "initializing",
+       "public_net": {
+        "ipv4": {
+         "ip": "198.51.100.21"
+        },
+        "ipv6": {
+         "ip": "2001:db8:21::/64"
+        }
+       }
+      }
+     },
+     "status": 201
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Hetzner: create, the deprecated token id and a generated name",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "private_key_uuid": "k1parityprivatekey000001",
+    "cloud_provider_token_id": "c1paritycloudhetzner0001"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/ssh_keys\\?page=1&per_page=50$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": 11,
+        "name": "laptop",
+        "fingerprint": "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": 12,
+        "name": "Parity Key",
+        "fingerprint": "27:86:2f:8d:bf:69:01:90:6d:54:30:8e:0d:4c:39:da",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 1,
+        "next_page": null
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.hetzner\\.cloud/v1/servers$",
+     "body": {
+      "server": {
+       "id": 9001,
+       "name": "web-1",
+       "status": "initializing",
+       "public_net": {
+        "ipv4": {
+         "ip": "198.51.100.21"
+        },
+        "ipv6": {
+         "ip": "2001:db8:21::/64"
+        }
+       }
+      }
+     },
+     "status": 201
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Hetzner: create, IPv6 only",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "enable_ipv4": false
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/ssh_keys\\?page=1&per_page=50$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": 11,
+        "name": "laptop",
+        "fingerprint": "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": 12,
+        "name": "Parity Key",
+        "fingerprint": "27:86:2f:8d:bf:69:01:90:6d:54:30:8e:0d:4c:39:da",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 1,
+        "next_page": null
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.hetzner\\.cloud/v1/servers$",
+     "body": {
+      "server": {
+       "id": 9001,
+       "name": "web-1",
+       "status": "initializing",
+       "public_net": {
+        "ipv4": null,
+        "ipv6": {
+         "ip": "2001:db8:21::/64"
+        }
+       }
+      }
+     },
+     "status": 201
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Hetzner: create, IPv6 without a prefix",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "enable_ipv4": "0",
+    "enable_ipv6": 1
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/ssh_keys\\?page=1&per_page=50$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": 11,
+        "name": "laptop",
+        "fingerprint": "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": 12,
+        "name": "Parity Key",
+        "fingerprint": "27:86:2f:8d:bf:69:01:90:6d:54:30:8e:0d:4c:39:da",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 1,
+        "next_page": null
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.hetzner\\.cloud/v1/servers$",
+     "body": {
+      "server": {
+       "id": 9001,
+       "name": "web-1",
+       "status": "initializing",
+       "public_net": {
+        "ipv6": {
+         "ip": "2a01:4f8:c17:b8f::2"
+        }
+       }
+      }
+     },
+     "status": 201
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Hetzner: create, no protocol",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "enable_ipv4": false,
+    "enable_ipv6": "0"
+   },
+   "http": []
+  },
+  {
+   "name": "server via Hetzner: create, no address",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/ssh_keys\\?page=1&per_page=50$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": 11,
+        "name": "laptop",
+        "fingerprint": "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": 12,
+        "name": "Parity Key",
+        "fingerprint": "27:86:2f:8d:bf:69:01:90:6d:54:30:8e:0d:4c:39:da",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 1,
+        "next_page": null
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.hetzner\\.cloud/v1/servers$",
+     "body": {
+      "server": {
+       "id": 9001,
+       "name": "web-1",
+       "status": "initializing",
+       "public_net": {
+        "ipv4": null,
+        "ipv6": null
+       }
+      }
+     },
+     "status": 201
+    },
+    {
+     "match": "^DELETE https://api\\.hetzner\\.cloud/v1/servers/9001$",
+     "body": {
+      "action": {
+       "id": 6,
+       "command": "delete_server"
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Hetzner: create with backups",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "enable_backups": true
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/ssh_keys\\?page=1&per_page=50$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": 11,
+        "name": "laptop",
+        "fingerprint": "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": 12,
+        "name": "Parity Key",
+        "fingerprint": "27:86:2f:8d:bf:69:01:90:6d:54:30:8e:0d:4c:39:da",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 1,
+        "next_page": null
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.hetzner\\.cloud/v1/servers$",
+     "body": {
+      "server": {
+       "id": 9001,
+       "name": "web-1",
+       "status": "initializing",
+       "public_net": {
+        "ipv4": {
+         "ip": "198.51.100.21"
+        },
+        "ipv6": {
+         "ip": "2001:db8:21::/64"
+        }
+       }
+      }
+     },
+     "status": 201
+    },
+    {
+     "match": "^POST https://api\\.hetzner\\.cloud/v1/servers/9001/actions/enable_backup$",
+     "body": {
+      "action": {
+       "id": 5,
+       "command": "enable_backup",
+       "status": "running"
+      }
+     },
+     "status": 201
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Hetzner: create, backups refused",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "enable_backups": 1
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/ssh_keys\\?page=1&per_page=50$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": 11,
+        "name": "laptop",
+        "fingerprint": "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": 12,
+        "name": "Parity Key",
+        "fingerprint": "27:86:2f:8d:bf:69:01:90:6d:54:30:8e:0d:4c:39:da",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 1,
+        "next_page": null
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.hetzner\\.cloud/v1/servers$",
+     "body": {
+      "server": {
+       "id": 9001,
+       "name": "web-1",
+       "status": "initializing",
+       "public_net": {
+        "ipv4": {
+         "ip": "198.51.100.21"
+        },
+        "ipv6": {
+         "ip": "2001:db8:21::/64"
+        }
+       }
+      }
+     },
+     "status": 201
+    },
+    {
+     "match": "^POST https://api\\.hetzner\\.cloud/v1/servers/9001/actions/enable_backup$",
+     "body": {
+      "error": {
+       "code": "server_error",
+       "message": "Boom"
+      }
+     },
+     "status": 500
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Hetzner: create with keys, firewalls, networks and a script, without validating",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "hetzner_ssh_key_ids": [
+     12,
+     31,
+     "31",
+     32
+    ],
+    "hetzner_firewall_ids": [
+     7,
+     "7",
+     8
+    ],
+    "hetzner_network_ids": [
+     "41",
+     42
+    ],
+    "cloud_init_script": "#cloud-config\npackage_update: true\npackages:\n  - nginx\nruncmd:\n  - systemctl enable --now nginx\n",
+    "instant_validate": false
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/ssh_keys\\?page=1&per_page=50$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": 11,
+        "name": "laptop",
+        "fingerprint": "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": 12,
+        "name": "Parity Key",
+        "fingerprint": "27:86:2f:8d:bf:69:01:90:6d:54:30:8e:0d:4c:39:da",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 1,
+        "next_page": null
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.hetzner\\.cloud/v1/servers$",
+     "body": {
+      "server": {
+       "id": 9001,
+       "name": "web-1",
+       "status": "initializing",
+       "public_net": {
+        "ipv4": {
+         "ip": "198.51.100.21"
+        },
+        "ipv6": {
+         "ip": "2001:db8:21::/64"
+        }
+       }
+      }
+     },
+     "status": 201
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Hetzner: create and validate",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/ssh_keys\\?page=1&per_page=50$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": 11,
+        "name": "laptop",
+        "fingerprint": "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": 12,
+        "name": "Parity Key",
+        "fingerprint": "27:86:2f:8d:bf:69:01:90:6d:54:30:8e:0d:4c:39:da",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 1,
+        "next_page": null
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.hetzner\\.cloud/v1/servers$",
+     "body": {
+      "server": {
+       "id": 9001,
+       "name": "web-1",
+       "status": "initializing",
+       "public_net": {
+        "ipv4": {
+         "ip": "198.51.100.21"
+        },
+        "ipv6": {
+         "ip": "2001:db8:21::/64"
+        }
+       }
+      }
+     },
+     "status": 201
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Hetzner: create with a deploy token and a bash script",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "cloud_init_script": "#!/bin/bash\necho hi\n",
+    "instant_validate": "0"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/ssh_keys\\?page=1&per_page=50$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": 11,
+        "name": "laptop",
+        "fingerprint": "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": 12,
+        "name": "Parity Key",
+        "fingerprint": "27:86:2f:8d:bf:69:01:90:6d:54:30:8e:0d:4c:39:da",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 1,
+        "next_page": null
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.hetzner\\.cloud/v1/servers$",
+     "body": {
+      "server": {
+       "id": 9001,
+       "name": "web-1",
+       "status": "initializing",
+       "public_net": {
+        "ipv4": {
+         "ip": "198.51.100.21"
+        },
+        "ipv6": {
+         "ip": "2001:db8:21::/64"
+        }
+       }
+      }
+     },
+     "status": 201
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Hetzner: create, invalid cloud-init YAML, a duplicate key",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "cloud_init_script": "#cloud-config\npackages: [a]\npackages: [b]\n"
+   },
+   "http": []
+  },
+  {
+   "name": "server via Hetzner: create, invalid cloud-init YAML, a tab",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "cloud_init_script": "#cloud-config\npackages:\n\t- curl\n"
+   },
+   "http": []
+  },
+  {
+   "name": "server via Hetzner: create, invalid cloud-init YAML, an unclosed flow",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "cloud_init_script": "#cloud-config\nruncmd: [ls, -l\n"
+   },
+   "http": []
+  },
+  {
+   "name": "server via Hetzner: create, invalid cloud-init YAML, an unclosed quote",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "cloud_init_script": "#cloud-config\nwrite_files:\n  - path: \"/etc/x\n"
+   },
+   "http": []
+  },
+  {
+   "name": "server via Hetzner: create, invalid cloud-init YAML, a colon in a value",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "cloud_init_script": "#cloud-config\nhostname: web: 1\n"
+   },
+   "http": []
+  },
+  {
+   "name": "server via Hetzner: create, invalid cloud-init YAML, a sequence in a mapping",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "cloud_init_script": "#cloud-config\npackages: [a]\n- b\n"
+   },
+   "http": []
+  },
+  {
+   "name": "server via Hetzner: create, invalid cloud-init YAML, a missing reference",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "cloud_init_script": "#cloud-config\nruncmd: *steps\n"
+   },
+   "http": []
+  },
+  {
+   "name": "server via Hetzner: create, invalid cloud-init YAML, an indentation problem",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "cloud_init_script": "#cloud-config\nusers:\n    - name: a\n  - name: b\n"
+   },
+   "http": []
+  },
+  {
+   "name": "server via Hetzner: create, a script without deploy",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "cloud_init_script": "#cloud-config\npackage_update: true\npackages:\n  - nginx\nruncmd:\n  - systemctl enable --now nginx\n"
+   },
+   "http": []
+  },
+  {
+   "name": "server via Hetzner: create, extra keys without deploy",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "hetzner_ssh_key_ids": [
+     31
+    ]
+   },
+   "http": []
+  },
+  {
+   "name": "server via Hetzner: create, validating without deploy",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "instant_validate": true
+   },
+   "http": []
+  },
+  {
+   "name": "server via Hetzner: create, Hetzner refuses",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/ssh_keys\\?page=1&per_page=50$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": 11,
+        "name": "laptop",
+        "fingerprint": "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": 12,
+        "name": "Parity Key",
+        "fingerprint": "27:86:2f:8d:bf:69:01:90:6d:54:30:8e:0d:4c:39:da",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 1,
+        "next_page": null
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.hetzner\\.cloud/v1/servers$",
+     "body": {
+      "error": {
+       "code": "invalid_input",
+       "message": "invalid input in field 'server_type'",
+       "details": {
+        "fields": [
+         {
+          "name": "server_type",
+          "messages": [
+           "unknown"
+          ]
+         }
+        ]
+       }
+      }
+     },
+     "status": 422
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Hetzner: create, rate limited",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/ssh_keys",
+     "body": {
+      "error": {
+       "code": "rate_limit_exceeded",
+       "message": "limit"
+      }
+     },
+     "status": 429,
+     "headers": {
+      "Retry-After": "12"
+     }
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Hetzner: create, a key without a fingerprint",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/ssh_keys\\?page=1&per_page=50$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": 11,
+        "name": "odd"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 1,
+        "next_page": null
+       }
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Hetzner: create, the upload answers no key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/ssh_keys\\?page=1&per_page=50$",
+     "body": {
+      "ssh_keys": [],
+      "meta": {
+       "pagination": {
+        "page": 1,
+        "next_page": null
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.hetzner\\.cloud/v1/ssh_keys$",
+     "body": {},
+     "status": 201
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Hetzner: create, invalid",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": 5,
+    "location": 1,
+    "image": "ubuntu",
+    "name": "bad name!",
+    "enable_ipv4": "maybe",
+    "enable_backups": [],
+    "hetzner_ssh_key_ids": "31",
+    "hetzner_firewall_ids": [
+     1,
+     "x"
+    ],
+    "hetzner_network_ids": [
+     null
+    ],
+    "cloud_init_script": 5,
+    "instant_validate": "no",
+    "extra": 1
+   },
+   "http": []
+  },
+  {
+   "name": "server via Hetzner: create, no token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": []
+  },
+  {
+   "name": "server via Hetzner: create, unknown token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "nonexistentuuid",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": []
+  },
+  {
+   "name": "server via Hetzner: create, another provider's token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c3paritycloudvultr000003",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": []
+  },
+  {
+   "name": "server via Hetzner: create, another team's token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c5paritycloudother000005",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": []
+  },
+  {
+   "name": "server via Hetzner: create, unknown private key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "nonexistentuuid"
+   },
+   "http": []
+  },
+  {
+   "name": "server via Hetzner: create, another team's private key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k3otherteamkey0000000003"
+   },
+   "http": []
+  },
+  {
+   "name": "server via Hetzner: create, not JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "raw": "location=nbg1",
+   "contentType": "application/x-www-form-urlencoded",
+   "http": []
+  },
+  {
+   "name": "server via Hetzner: create with a read token",
+   "token": "read",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": []
+  },
+  {
+   "name": "denied: server via Hetzner: create, a member with write and delete",
+   "token": "memberWrite",
+   "method": "POST",
+   "path": "/api/v1/servers/hetzner",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "location": "nbg1",
+    "server_type": "cx22",
+    "image": 67794396,
+    "name": "Web-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/ssh_keys\\?page=1&per_page=50$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": 11,
+        "name": "laptop",
+        "fingerprint": "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": 12,
+        "name": "Parity Key",
+        "fingerprint": "27:86:2f:8d:bf:69:01:90:6d:54:30:8e:0d:4c:39:da",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2"
+       }
+      ],
+      "meta": {
+       "pagination": {
+        "page": 1,
+        "next_page": null
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.hetzner\\.cloud/v1/servers$",
+     "body": {
+      "server": {
+       "id": 9001,
+       "name": "web-1",
+       "status": "initializing",
+       "public_net": {
+        "ipv4": {
+         "ip": "198.51.100.21"
+        },
+        "ipv6": {
+         "ip": "2001:db8:21::/64"
+        }
+       }
+      }
+     },
+     "status": 201
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "server via Vultr: create",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/vultr",
+   "body": {
+    "cloud_provider_token_uuid": "c3paritycloudvultr000003",
+    "region": "ams",
+    "plan": "vc2-1c-1gb",
+    "os_id": 2284,
+    "name": "Edge-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.vultr\\.com/v2/ssh-keys\\?per_page=100$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": "key-other",
+        "name": "laptop",
+        "ssh_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": "key-parity",
+        "name": "Parity Key",
+        "ssh_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2 parity@host"
+       }
+      ],
+      "meta": {
+       "total": 2,
+       "links": {
+        "next": "",
+        "prev": ""
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.vultr\\.com/v2/instances$",
+     "body": {
+      "instance": {
+       "id": "inst-31",
+       "label": "edge-1",
+       "status": "pending",
+       "main_ip": "198.51.100.31",
+       "v6_main_ip": "2001:db8:31::1"
+      }
+     },
+     "status": 202
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Vultr: create, the key uploaded",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/vultr",
+   "body": {
+    "cloud_provider_token_uuid": "c3paritycloudvultr000003",
+    "region": "ams",
+    "plan": "vc2-1c-1gb",
+    "os_id": 2284,
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.vultr\\.com/v2/ssh-keys\\?per_page=100$",
+     "body": {
+      "ssh_keys": [],
+      "meta": {
+       "total": 0,
+       "links": {
+        "next": "",
+        "prev": ""
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.vultr\\.com/v2/ssh-keys$",
+     "body": {
+      "ssh_key": {
+       "id": "key-new",
+       "name": "Parity Key",
+       "ssh_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2"
+      }
+     },
+     "status": 201
+    },
+    {
+     "match": "^POST https://api\\.vultr\\.com/v2/instances$",
+     "body": {
+      "instance": {
+       "id": "inst-31",
+       "label": "edge-1",
+       "status": "pending",
+       "main_ip": "198.51.100.31",
+       "v6_main_ip": "2001:db8:31::1"
+      }
+     },
+     "status": 202
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Vultr: create, the address after a wait",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/vultr",
+   "body": {
+    "cloud_provider_token_uuid": "c3paritycloudvultr000003",
+    "region": "ams",
+    "plan": "vc2-1c-1gb",
+    "os_id": 2284,
+    "name": "Edge-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.vultr\\.com/v2/ssh-keys\\?per_page=100$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": "key-other",
+        "name": "laptop",
+        "ssh_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": "key-parity",
+        "name": "Parity Key",
+        "ssh_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2 parity@host"
+       }
+      ],
+      "meta": {
+       "total": 2,
+       "links": {
+        "next": "",
+        "prev": ""
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.vultr\\.com/v2/instances$",
+     "body": {
+      "instance": {
+       "id": "inst-31",
+       "label": "edge-1",
+       "status": "pending",
+       "main_ip": "0.0.0.0",
+       "v6_main_ip": ""
+      }
+     },
+     "status": 202
+    },
+    {
+     "match": "^GET https://api\\.vultr\\.com/v2/instances/inst-31$",
+     "body": {
+      "instance": {
+       "id": "inst-31",
+       "label": "edge-1",
+       "status": "active",
+       "main_ip": "198.51.100.32",
+       "v6_main_ip": ""
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Vultr: create, no address yet",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/vultr",
+   "body": {
+    "cloud_provider_token_uuid": "c3paritycloudvultr000003",
+    "region": "ams",
+    "plan": "vc2-1c-1gb",
+    "os_id": 2284,
+    "name": "Edge-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.vultr\\.com/v2/ssh-keys\\?per_page=100$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": "key-other",
+        "name": "laptop",
+        "ssh_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": "key-parity",
+        "name": "Parity Key",
+        "ssh_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2 parity@host"
+       }
+      ],
+      "meta": {
+       "total": 2,
+       "links": {
+        "next": "",
+        "prev": ""
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.vultr\\.com/v2/instances$",
+     "body": {
+      "instance": {
+       "id": "inst-31",
+       "label": "edge-1",
+       "status": "pending",
+       "main_ip": "0.0.0.0",
+       "v6_main_ip": "::"
+      }
+     },
+     "status": 202
+    },
+    {
+     "match": "^GET https://api\\.vultr\\.com/v2/instances/inst-31$",
+     "body": {
+      "instance": {
+       "id": "inst-31",
+       "label": "edge-1",
+       "status": "pending",
+       "main_ip": "0.0.0.0",
+       "v6_main_ip": "::"
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Vultr: create, IPv6 only",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/vultr",
+   "body": {
+    "cloud_provider_token_uuid": "c3paritycloudvultr000003",
+    "region": "ams",
+    "plan": "vc2-1c-1gb",
+    "os_id": 2284,
+    "name": "Edge-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "disable_public_ipv4": true
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.vultr\\.com/v2/ssh-keys\\?per_page=100$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": "key-other",
+        "name": "laptop",
+        "ssh_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": "key-parity",
+        "name": "Parity Key",
+        "ssh_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2 parity@host"
+       }
+      ],
+      "meta": {
+       "total": 2,
+       "links": {
+        "next": "",
+        "prev": ""
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.vultr\\.com/v2/instances$",
+     "body": {
+      "instance": {
+       "id": "inst-31",
+       "label": "edge-1",
+       "status": "pending",
+       "main_ip": "198.51.100.31",
+       "v6_main_ip": "2001:db8:31::1"
+      }
+     },
+     "status": 202
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Vultr: create, no public address enabled",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/vultr",
+   "body": {
+    "cloud_provider_token_uuid": "c3paritycloudvultr000003",
+    "region": "ams",
+    "plan": "vc2-1c-1gb",
+    "os_id": 2284,
+    "name": "Edge-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "disable_public_ipv4": 1,
+    "enable_ipv6": false
+   },
+   "http": []
+  },
+  {
+   "name": "server via Vultr: create with keys and a script, without validating",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/vultr",
+   "body": {
+    "cloud_provider_token_uuid": "c3paritycloudvultr000003",
+    "region": "ams",
+    "plan": "vc2-1c-1gb",
+    "os_id": 2284,
+    "name": "Edge-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "vultr_ssh_key_ids": [
+     "key-parity",
+     "key-2",
+     "key-2"
+    ],
+    "cloud_init_script": "#cloud-config\npackage_update: true\npackages:\n  - nginx\nruncmd:\n  - systemctl enable --now nginx\n",
+    "instant_validate": false
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.vultr\\.com/v2/ssh-keys\\?per_page=100$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": "key-other",
+        "name": "laptop",
+        "ssh_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": "key-parity",
+        "name": "Parity Key",
+        "ssh_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2 parity@host"
+       }
+      ],
+      "meta": {
+       "total": 2,
+       "links": {
+        "next": "",
+        "prev": ""
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.vultr\\.com/v2/instances$",
+     "body": {
+      "instance": {
+       "id": "inst-31",
+       "label": "edge-1",
+       "status": "pending",
+       "main_ip": "198.51.100.31",
+       "v6_main_ip": "2001:db8:31::1"
+      }
+     },
+     "status": 202
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Vultr: create and validate",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/vultr",
+   "body": {
+    "cloud_provider_token_uuid": "c3paritycloudvultr000003",
+    "region": "ams",
+    "plan": "vc2-1c-1gb",
+    "os_id": 2284,
+    "name": "Edge-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.vultr\\.com/v2/ssh-keys\\?per_page=100$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": "key-other",
+        "name": "laptop",
+        "ssh_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": "key-parity",
+        "name": "Parity Key",
+        "ssh_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2 parity@host"
+       }
+      ],
+      "meta": {
+       "total": 2,
+       "links": {
+        "next": "",
+        "prev": ""
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.vultr\\.com/v2/instances$",
+     "body": {
+      "instance": {
+       "id": "inst-31",
+       "label": "edge-1",
+       "status": "pending",
+       "main_ip": "198.51.100.31",
+       "v6_main_ip": "2001:db8:31::1"
+      }
+     },
+     "status": 202
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Vultr: create, invalid cloud-init YAML, two documents",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/vultr",
+   "body": {
+    "cloud_provider_token_uuid": "c3paritycloudvultr000003",
+    "region": "ams",
+    "plan": "vc2-1c-1gb",
+    "os_id": 2284,
+    "name": "Edge-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "cloud_init_script": "#cloud-config\na: 1\n---\nb: 2\n"
+   },
+   "http": []
+  },
+  {
+   "name": "server via Vultr: create, invalid cloud-init YAML, a custom tag",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/vultr",
+   "body": {
+    "cloud_provider_token_uuid": "c3paritycloudvultr000003",
+    "region": "ams",
+    "plan": "vc2-1c-1gb",
+    "os_id": 2284,
+    "name": "Edge-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "cloud_init_script": "#cloud-config\na: !include x.yaml\n"
+   },
+   "http": []
+  },
+  {
+   "name": "server via Vultr: create, invalid cloud-init YAML, a reserved indicator",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/vultr",
+   "body": {
+    "cloud_provider_token_uuid": "c3paritycloudvultr000003",
+    "region": "ams",
+    "plan": "vc2-1c-1gb",
+    "os_id": 2284,
+    "name": "Edge-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "cloud_init_script": "#cloud-config\na: @b\n"
+   },
+   "http": []
+  },
+  {
+   "name": "server via Vultr: create, invalid cloud-init YAML, mapping values in a plain multi-line",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/vultr",
+   "body": {
+    "cloud_provider_token_uuid": "c3paritycloudvultr000003",
+    "region": "ams",
+    "plan": "vc2-1c-1gb",
+    "os_id": 2284,
+    "name": "Edge-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "cloud_init_script": "apt-get update\napt-get install: nginx\n"
+   },
+   "http": []
+  },
+  {
+   "name": "server via Vultr: create, invalid cloud-init YAML, a mapping in a sequence, without the header",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/vultr",
+   "body": {
+    "cloud_provider_token_uuid": "c3paritycloudvultr000003",
+    "region": "ams",
+    "plan": "vc2-1c-1gb",
+    "os_id": 2284,
+    "name": "Edge-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "cloud_init_script": "- ls\nkey: value\n"
+   },
+   "http": []
+  },
+  {
+   "name": "server via Vultr: create, invalid cloud-init YAML, an unquoted mapping value over lines",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/vultr",
+   "body": {
+    "cloud_provider_token_uuid": "c3paritycloudvultr000003",
+    "region": "ams",
+    "plan": "vc2-1c-1gb",
+    "os_id": 2284,
+    "name": "Edge-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "cloud_init_script": "a: one\n  b: two\n"
+   },
+   "http": []
+  },
+  {
+   "name": "server via Vultr: create, a script without deploy",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/vultr",
+   "body": {
+    "cloud_provider_token_uuid": "c3paritycloudvultr000003",
+    "region": "ams",
+    "plan": "vc2-1c-1gb",
+    "os_id": 2284,
+    "name": "Edge-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "cloud_init_script": "#!/bin/bash\nls\n"
+   },
+   "http": []
+  },
+  {
+   "name": "server via Vultr: create, Vultr refuses",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/vultr",
+   "body": {
+    "cloud_provider_token_uuid": "c3paritycloudvultr000003",
+    "region": "ams",
+    "plan": "vc2-1c-1gb",
+    "os_id": 2284,
+    "name": "Edge-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.vultr\\.com/v2/ssh-keys\\?per_page=100$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": "key-other",
+        "name": "laptop",
+        "ssh_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": "key-parity",
+        "name": "Parity Key",
+        "ssh_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2 parity@host"
+       }
+      ],
+      "meta": {
+       "total": 2,
+       "links": {
+        "next": "",
+        "prev": ""
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.vultr\\.com/v2/instances$",
+     "body": {
+      "error": "Invalid plan",
+      "status": 400
+     },
+     "status": 400
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Vultr: create, rate limited",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/vultr",
+   "body": {
+    "cloud_provider_token_uuid": "c3paritycloudvultr000003",
+    "region": "ams",
+    "plan": "vc2-1c-1gb",
+    "os_id": 2284,
+    "name": "Edge-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.vultr\\.com/v2/ssh-keys\\?per_page=100$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": "key-other",
+        "name": "laptop",
+        "ssh_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": "key-parity",
+        "name": "Parity Key",
+        "ssh_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2 parity@host"
+       }
+      ],
+      "meta": {
+       "total": 2,
+       "links": {
+        "next": "",
+        "prev": ""
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.vultr\\.com/v2/instances$",
+     "body": {
+      "error": "Rate limit"
+     },
+     "status": 429
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Vultr: create, no instance id",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/vultr",
+   "body": {
+    "cloud_provider_token_uuid": "c3paritycloudvultr000003",
+    "region": "ams",
+    "plan": "vc2-1c-1gb",
+    "os_id": 2284,
+    "name": "Edge-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.vultr\\.com/v2/ssh-keys\\?per_page=100$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": "key-other",
+        "name": "laptop",
+        "ssh_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": "key-parity",
+        "name": "Parity Key",
+        "ssh_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2 parity@host"
+       }
+      ],
+      "meta": {
+       "total": 2,
+       "links": {
+        "next": "",
+        "prev": ""
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.vultr\\.com/v2/instances$",
+     "body": {
+      "instance": {
+       "label": "edge-1"
+      }
+     },
+     "status": 202
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Vultr: create, invalid",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/vultr",
+   "body": {
+    "cloud_provider_token_uuid": "c3paritycloudvultr000003",
+    "region": 5,
+    "os_id": "x",
+    "private_key_uuid": [],
+    "enable_ipv6": "yes",
+    "vultr_ssh_key_ids": [
+     1,
+     "k"
+    ],
+    "cloud_init_script": true,
+    "extra": 1
+   },
+   "http": []
+  },
+  {
+   "name": "server via Vultr: create, unknown token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/vultr",
+   "body": {
+    "cloud_provider_token_uuid": "nonexistentuuid",
+    "region": "ams",
+    "plan": "vc2-1c-1gb",
+    "os_id": 2284,
+    "name": "Edge-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": []
+  },
+  {
+   "name": "server via Vultr: create, another provider's token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/vultr",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "region": "ams",
+    "plan": "vc2-1c-1gb",
+    "os_id": 2284,
+    "name": "Edge-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": []
+  },
+  {
+   "name": "server via Vultr: create, unknown private key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/vultr",
+   "body": {
+    "cloud_provider_token_uuid": "c3paritycloudvultr000003",
+    "region": "ams",
+    "plan": "vc2-1c-1gb",
+    "os_id": 2284,
+    "name": "Edge-1",
+    "private_key_uuid": "nonexistentuuid"
+   },
+   "http": []
+  },
+  {
+   "name": "server via Vultr: create, not JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/vultr",
+   "raw": "region=ams",
+   "contentType": "application/x-www-form-urlencoded",
+   "http": []
+  },
+  {
+   "name": "server via Vultr: create with a read token",
+   "token": "read",
+   "method": "POST",
+   "path": "/api/v1/servers/vultr",
+   "body": {
+    "cloud_provider_token_uuid": "c3paritycloudvultr000003",
+    "region": "ams",
+    "plan": "vc2-1c-1gb",
+    "os_id": 2284,
+    "name": "Edge-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": []
+  },
+  {
+   "name": "denied: server via Vultr: create, a member with write and delete",
+   "token": "memberWrite",
+   "method": "POST",
+   "path": "/api/v1/servers/vultr",
+   "body": {
+    "cloud_provider_token_uuid": "c3paritycloudvultr000003",
+    "region": "ams",
+    "plan": "vc2-1c-1gb",
+    "os_id": 2284,
+    "name": "Edge-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.vultr\\.com/v2/ssh-keys\\?per_page=100$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": "key-other",
+        "name": "laptop",
+        "ssh_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": "key-parity",
+        "name": "Parity Key",
+        "ssh_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2 parity@host"
+       }
+      ],
+      "meta": {
+       "total": 2,
+       "links": {
+        "next": "",
+        "prev": ""
+       }
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.vultr\\.com/v2/instances$",
+     "body": {
+      "instance": {
+       "id": "inst-31",
+       "label": "edge-1",
+       "status": "pending",
+       "main_ip": "198.51.100.31",
+       "v6_main_ip": "2001:db8:31::1"
+      }
+     },
+     "status": 202
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "server via DigitalOcean: create",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/digitalocean",
+   "body": {
+    "cloud_provider_token_uuid": "c2paritycloudocean000002",
+    "region": "fra1",
+    "size": "s-1vcpu-1gb",
+    "image": "ubuntu-24-04-x64",
+    "name": "Db-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.digitalocean\\.com/v2/account/keys\\?page=1&per_page=50$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": 511,
+        "name": "laptop",
+        "fingerprint": "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": "512",
+        "name": "Parity Key",
+        "fingerprint": "27:86:2f:8d:bf:69:01:90:6d:54:30:8e:0d:4c:39:da",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2"
+       }
+      ],
+      "links": {},
+      "meta": {
+       "total": 2
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.digitalocean\\.com/v2/droplets$",
+     "body": {
+      "droplet": {
+       "id": 3164444,
+       "name": "db-1",
+       "status": "new",
+       "networks": {
+        "v4": [
+         {
+          "ip_address": "10.110.0.2",
+          "type": "private"
+         },
+         {
+          "ip_address": "198.51.100.41",
+          "type": "public"
+         }
+        ],
+        "v6": []
+       }
+      }
+     },
+     "status": 202
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via DigitalOcean: create, the key uploaded and the address after a wait",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/digitalocean",
+   "body": {
+    "cloud_provider_token_uuid": "c2paritycloudocean000002",
+    "region": "fra1",
+    "size": "s-1vcpu-1gb",
+    "image": 154962364,
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.digitalocean\\.com/v2/account/keys\\?page=1&per_page=50$",
+     "body": {
+      "ssh_keys": [],
+      "links": {},
+      "meta": {
+       "total": 0
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.digitalocean\\.com/v2/account/keys$",
+     "body": {
+      "ssh_key": {
+       "id": 513,
+       "name": "Parity Key",
+       "fingerprint": "27:86:2f:8d:bf:69:01:90:6d:54:30:8e:0d:4c:39:da",
+       "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2"
+      }
+     },
+     "status": 201
+    },
+    {
+     "match": "^POST https://api\\.digitalocean\\.com/v2/droplets$",
+     "body": {
+      "droplet": {
+       "id": 3164444,
+       "name": "db-1",
+       "status": "new",
+       "networks": {
+        "v4": [],
+        "v6": []
+       }
+      }
+     },
+     "status": 202
+    },
+    {
+     "match": "^GET https://api\\.digitalocean\\.com/v2/droplets/3164444$",
+     "body": {
+      "droplet": {
+       "id": 3164444,
+       "name": "db-1",
+       "status": "active",
+       "networks": {
+        "v4": [
+         {
+          "ip_address": "10.110.0.2",
+          "type": "private"
+         },
+         {
+          "ip_address": "198.51.100.41",
+          "type": "public"
+         }
+        ],
+        "v6": []
+       }
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via DigitalOcean: create, no address yet",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/digitalocean",
+   "body": {
+    "cloud_provider_token_uuid": "c2paritycloudocean000002",
+    "region": "fra1",
+    "size": "s-1vcpu-1gb",
+    "image": "ubuntu-24-04-x64",
+    "name": "Db-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.digitalocean\\.com/v2/account/keys\\?page=1&per_page=50$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": 511,
+        "name": "laptop",
+        "fingerprint": "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": "512",
+        "name": "Parity Key",
+        "fingerprint": "27:86:2f:8d:bf:69:01:90:6d:54:30:8e:0d:4c:39:da",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2"
+       }
+      ],
+      "links": {},
+      "meta": {
+       "total": 2
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.digitalocean\\.com/v2/droplets$",
+     "body": {
+      "droplet": {
+       "id": 3164444,
+       "name": "db-1",
+       "status": "new",
+       "networks": {
+        "v4": [],
+        "v6": []
+       }
+      }
+     },
+     "status": 202
+    },
+    {
+     "match": "^GET https://api\\.digitalocean\\.com/v2/droplets/3164444$",
+     "body": {
+      "droplet": {
+       "id": 3164444,
+       "name": "db-1",
+       "status": "new",
+       "networks": {
+        "v4": [],
+        "v6": []
+       }
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via DigitalOcean: create, IPv6 only",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/digitalocean",
+   "body": {
+    "cloud_provider_token_uuid": "c2paritycloudocean000002",
+    "region": "fra1",
+    "size": "s-1vcpu-1gb",
+    "image": "ubuntu-24-04-x64",
+    "name": "Db-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.digitalocean\\.com/v2/account/keys\\?page=1&per_page=50$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": 511,
+        "name": "laptop",
+        "fingerprint": "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": "512",
+        "name": "Parity Key",
+        "fingerprint": "27:86:2f:8d:bf:69:01:90:6d:54:30:8e:0d:4c:39:da",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2"
+       }
+      ],
+      "links": {},
+      "meta": {
+       "total": 2
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.digitalocean\\.com/v2/droplets$",
+     "body": {
+      "droplet": {
+       "id": 3164444,
+       "name": "db-1",
+       "status": "active",
+       "networks": {
+        "v4": [],
+        "v6": [
+         {
+          "ip_address": "2001:db8:41::2",
+          "type": "public"
+         }
+        ]
+       }
+      }
+     },
+     "status": 202
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via DigitalOcean: create, IPv6 off by null, no monitoring",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/digitalocean",
+   "body": {
+    "cloud_provider_token_uuid": "c2paritycloudocean000002",
+    "region": "fra1",
+    "size": "s-1vcpu-1gb",
+    "image": "ubuntu-24-04-x64",
+    "name": "Db-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "enable_ipv6": null,
+    "monitoring": "0"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.digitalocean\\.com/v2/account/keys\\?page=1&per_page=50$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": 511,
+        "name": "laptop",
+        "fingerprint": "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": "512",
+        "name": "Parity Key",
+        "fingerprint": "27:86:2f:8d:bf:69:01:90:6d:54:30:8e:0d:4c:39:da",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2"
+       }
+      ],
+      "links": {},
+      "meta": {
+       "total": 2
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.digitalocean\\.com/v2/droplets$",
+     "body": {
+      "droplet": {
+       "id": 3164444,
+       "name": "db-1",
+       "status": "new",
+       "networks": {
+        "v4": [
+         {
+          "ip_address": "10.110.0.2",
+          "type": "private"
+         },
+         {
+          "ip_address": "198.51.100.41",
+          "type": "public"
+         }
+        ],
+        "v6": []
+       }
+      }
+     },
+     "status": 202
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via DigitalOcean: create with keys and a script, without validating",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/digitalocean",
+   "body": {
+    "cloud_provider_token_uuid": "c2paritycloudocean000002",
+    "region": "fra1",
+    "size": "s-1vcpu-1gb",
+    "image": "ubuntu-24-04-x64",
+    "name": "Db-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "digitalocean_ssh_key_ids": [
+     512,
+     601,
+     "601"
+    ],
+    "cloud_init_script": "#cloud-config\npackage_update: true\npackages:\n  - nginx\nruncmd:\n  - systemctl enable --now nginx\n",
+    "instant_validate": false
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.digitalocean\\.com/v2/account/keys\\?page=1&per_page=50$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": 511,
+        "name": "laptop",
+        "fingerprint": "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": "512",
+        "name": "Parity Key",
+        "fingerprint": "27:86:2f:8d:bf:69:01:90:6d:54:30:8e:0d:4c:39:da",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2"
+       }
+      ],
+      "links": {},
+      "meta": {
+       "total": 2
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.digitalocean\\.com/v2/droplets$",
+     "body": {
+      "droplet": {
+       "id": 3164444,
+       "name": "db-1",
+       "status": "new",
+       "networks": {
+        "v4": [
+         {
+          "ip_address": "10.110.0.2",
+          "type": "private"
+         },
+         {
+          "ip_address": "198.51.100.41",
+          "type": "public"
+         }
+        ],
+        "v6": []
+       }
+      }
+     },
+     "status": 202
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via DigitalOcean: create and validate",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/digitalocean",
+   "body": {
+    "cloud_provider_token_uuid": "c2paritycloudocean000002",
+    "region": "fra1",
+    "size": "s-1vcpu-1gb",
+    "image": "ubuntu-24-04-x64",
+    "name": "Db-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.digitalocean\\.com/v2/account/keys\\?page=1&per_page=50$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": 511,
+        "name": "laptop",
+        "fingerprint": "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": "512",
+        "name": "Parity Key",
+        "fingerprint": "27:86:2f:8d:bf:69:01:90:6d:54:30:8e:0d:4c:39:da",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2"
+       }
+      ],
+      "links": {},
+      "meta": {
+       "total": 2
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.digitalocean\\.com/v2/droplets$",
+     "body": {
+      "droplet": {
+       "id": 3164444,
+       "name": "db-1",
+       "status": "new",
+       "networks": {
+        "v4": [
+         {
+          "ip_address": "10.110.0.2",
+          "type": "private"
+         },
+         {
+          "ip_address": "198.51.100.41",
+          "type": "public"
+         }
+        ],
+        "v6": []
+       }
+      }
+     },
+     "status": 202
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via DigitalOcean: create, invalid cloud-init YAML, a duplicate key",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/digitalocean",
+   "body": {
+    "cloud_provider_token_uuid": "c2paritycloudocean000002",
+    "region": "fra1",
+    "size": "s-1vcpu-1gb",
+    "image": "ubuntu-24-04-x64",
+    "name": "Db-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "cloud_init_script": "#cloud-config\npackages: [a]\npackages: [b]\n"
+   },
+   "http": []
+  },
+  {
+   "name": "server via DigitalOcean: create, invalid cloud-init YAML, a tab",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/digitalocean",
+   "body": {
+    "cloud_provider_token_uuid": "c2paritycloudocean000002",
+    "region": "fra1",
+    "size": "s-1vcpu-1gb",
+    "image": "ubuntu-24-04-x64",
+    "name": "Db-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "cloud_init_script": "#cloud-config\npackages:\n\t- curl\n"
+   },
+   "http": []
+  },
+  {
+   "name": "server via DigitalOcean: create, invalid cloud-init YAML, an unclosed flow",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/digitalocean",
+   "body": {
+    "cloud_provider_token_uuid": "c2paritycloudocean000002",
+    "region": "fra1",
+    "size": "s-1vcpu-1gb",
+    "image": "ubuntu-24-04-x64",
+    "name": "Db-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "cloud_init_script": "#cloud-config\nruncmd: [ls, -l\n"
+   },
+   "http": []
+  },
+  {
+   "name": "server via DigitalOcean: create, invalid cloud-init YAML, an unclosed quote",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/digitalocean",
+   "body": {
+    "cloud_provider_token_uuid": "c2paritycloudocean000002",
+    "region": "fra1",
+    "size": "s-1vcpu-1gb",
+    "image": "ubuntu-24-04-x64",
+    "name": "Db-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "cloud_init_script": "#cloud-config\nwrite_files:\n  - path: \"/etc/x\n"
+   },
+   "http": []
+  },
+  {
+   "name": "server via DigitalOcean: create, invalid cloud-init YAML, a colon in a value",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/digitalocean",
+   "body": {
+    "cloud_provider_token_uuid": "c2paritycloudocean000002",
+    "region": "fra1",
+    "size": "s-1vcpu-1gb",
+    "image": "ubuntu-24-04-x64",
+    "name": "Db-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "cloud_init_script": "#cloud-config\nhostname: web: 1\n"
+   },
+   "http": []
+  },
+  {
+   "name": "server via DigitalOcean: create, invalid cloud-init YAML, a sequence in a mapping",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/digitalocean",
+   "body": {
+    "cloud_provider_token_uuid": "c2paritycloudocean000002",
+    "region": "fra1",
+    "size": "s-1vcpu-1gb",
+    "image": "ubuntu-24-04-x64",
+    "name": "Db-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "cloud_init_script": "#cloud-config\npackages: [a]\n- b\n"
+   },
+   "http": []
+  },
+  {
+   "name": "server via DigitalOcean: create, validating without deploy",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/digitalocean",
+   "body": {
+    "cloud_provider_token_uuid": "c2paritycloudocean000002",
+    "region": "fra1",
+    "size": "s-1vcpu-1gb",
+    "image": "ubuntu-24-04-x64",
+    "name": "Db-1",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "instant_validate": 1
+   },
+   "http": []
+  },
+  {
+   "name": "server via DigitalOcean: create, DigitalOcean refuses",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/digitalocean",
+   "body": {
+    "cloud_provider_token_uuid": "c2paritycloudocean000002",
+    "region": "fra1",
+    "size": "s-1vcpu-1gb",
+    "image": "ubuntu-24-04-x64",
+    "name": "Db-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.digitalocean\\.com/v2/account/keys\\?page=1&per_page=50$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": 511,
+        "name": "laptop",
+        "fingerprint": "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": "512",
+        "name": "Parity Key",
+        "fingerprint": "27:86:2f:8d:bf:69:01:90:6d:54:30:8e:0d:4c:39:da",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2"
+       }
+      ],
+      "links": {},
+      "meta": {
+       "total": 2
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.digitalocean\\.com/v2/droplets$",
+     "body": {
+      "id": "unprocessable_entity",
+      "message": "You specified an invalid size for Droplet creation."
+     },
+     "status": 422
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via DigitalOcean: create, rate limited",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/digitalocean",
+   "body": {
+    "cloud_provider_token_uuid": "c2paritycloudocean000002",
+    "region": "fra1",
+    "size": "s-1vcpu-1gb",
+    "image": "ubuntu-24-04-x64",
+    "name": "Db-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.digitalocean\\.com/v2/account/keys",
+     "body": {
+      "id": "too_many_requests",
+      "message": "API Rate limit exceeded."
+     },
+     "status": 429,
+     "headers": {
+      "Retry-After": "60"
+     }
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via DigitalOcean: create, no droplet id",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/digitalocean",
+   "body": {
+    "cloud_provider_token_uuid": "c2paritycloudocean000002",
+    "region": "fra1",
+    "size": "s-1vcpu-1gb",
+    "image": "ubuntu-24-04-x64",
+    "name": "Db-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.digitalocean\\.com/v2/account/keys\\?page=1&per_page=50$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": 511,
+        "name": "laptop",
+        "fingerprint": "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": "512",
+        "name": "Parity Key",
+        "fingerprint": "27:86:2f:8d:bf:69:01:90:6d:54:30:8e:0d:4c:39:da",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2"
+       }
+      ],
+      "links": {},
+      "meta": {
+       "total": 2
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.digitalocean\\.com/v2/droplets$",
+     "body": {
+      "droplet": {
+       "name": "db-1"
+      }
+     },
+     "status": 202
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via DigitalOcean: create, invalid",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/digitalocean",
+   "body": {
+    "cloud_provider_token_id": 9,
+    "size": [],
+    "name": "-db",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "enable_ipv6": "x",
+    "monitoring": 2,
+    "digitalocean_ssh_key_ids": [
+     "a"
+    ],
+    "cloud_init_script": [],
+    "instant_validate": "yes",
+    "extra": 1
+   },
+   "http": []
+  },
+  {
+   "name": "server via DigitalOcean: create, unknown token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/digitalocean",
+   "body": {
+    "cloud_provider_token_uuid": "nonexistentuuid",
+    "region": "fra1",
+    "size": "s-1vcpu-1gb",
+    "image": "ubuntu-24-04-x64",
+    "name": "Db-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": []
+  },
+  {
+   "name": "server via DigitalOcean: create, another provider's token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/digitalocean",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "region": "fra1",
+    "size": "s-1vcpu-1gb",
+    "image": "ubuntu-24-04-x64",
+    "name": "Db-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": []
+  },
+  {
+   "name": "server via DigitalOcean: create, another team's private key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/digitalocean",
+   "body": {
+    "cloud_provider_token_uuid": "c2paritycloudocean000002",
+    "region": "fra1",
+    "size": "s-1vcpu-1gb",
+    "image": "ubuntu-24-04-x64",
+    "name": "Db-1",
+    "private_key_uuid": "k3otherteamkey0000000003"
+   },
+   "http": []
+  },
+  {
+   "name": "server via DigitalOcean: create, not JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/digitalocean",
+   "raw": "region=fra1",
+   "contentType": "application/x-www-form-urlencoded",
+   "http": []
+  },
+  {
+   "name": "server via DigitalOcean: create with a read token",
+   "token": "read",
+   "method": "POST",
+   "path": "/api/v1/servers/digitalocean",
+   "body": {
+    "cloud_provider_token_uuid": "c2paritycloudocean000002",
+    "region": "fra1",
+    "size": "s-1vcpu-1gb",
+    "image": "ubuntu-24-04-x64",
+    "name": "Db-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": []
+  },
+  {
+   "name": "denied: server via DigitalOcean: create, a member with write and delete",
+   "token": "memberWrite",
+   "method": "POST",
+   "path": "/api/v1/servers/digitalocean",
+   "body": {
+    "cloud_provider_token_uuid": "c2paritycloudocean000002",
+    "region": "fra1",
+    "size": "s-1vcpu-1gb",
+    "image": "ubuntu-24-04-x64",
+    "name": "Db-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.digitalocean\\.com/v2/account/keys\\?page=1&per_page=50$",
+     "body": {
+      "ssh_keys": [
+       {
+        "id": 511,
+        "name": "laptop",
+        "fingerprint": "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtherOtherOtherOtherOtherOtherOtherOtherOther other@host"
+       },
+       {
+        "id": "512",
+        "name": "Parity Key",
+        "fingerprint": "27:86:2f:8d:bf:69:01:90:6d:54:30:8e:0d:4c:39:da",
+        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2"
+       }
+      ],
+      "links": {},
+      "meta": {
+       "total": 2
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://api\\.digitalocean\\.com/v2/droplets$",
+     "body": {
+      "droplet": {
+       "id": 3164444,
+       "name": "db-1",
+       "status": "new",
+       "networks": {
+        "v4": [
+         {
+          "ip_address": "10.110.0.2",
+          "type": "private"
+         },
+         {
+          "ip_address": "198.51.100.41",
+          "type": "public"
+         }
+        ],
+        "v6": []
+       }
+      }
+     },
+     "status": 202
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hetzner_server_id, hetzner_server_status, vultr_instance_id, vultr_instance_status, digitalocean_droplet_id, digitalocean_droplet_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
   }
  ]
 }

@@ -79520,6 +79520,4094 @@
             "body": {
                 "json": "{\"current_page\":25,\"data\":[],\"first_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"from\":null,\"last_page\":20,\"last_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=20\",\"links\":[{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=24\",\"label\":\"&laquo; Previous\",\"page\":24,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=1\",\"label\":\"1\",\"page\":1,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=2\",\"label\":\"2\",\"page\":2,\"active\":false},{\"url\":null,\"label\":\"...\",\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=11\",\"label\":\"11\",\"page\":11,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=12\",\"label\":\"12\",\"page\":12,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=13\",\"label\":\"13\",\"page\":13,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=14\",\"label\":\"14\",\"page\":14,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=15\",\"label\":\"15\",\"page\":15,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=16\",\"label\":\"16\",\"page\":16,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=17\",\"label\":\"17\",\"page\":17,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=18\",\"label\":\"18\",\"page\":18,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=19\",\"label\":\"19\",\"page\":19,\"active\":false},{\"url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=20\",\"label\":\"20\",\"page\":20,\"active\":false},{\"url\":null,\"label\":\"Next &raquo;\",\"page\":null,\"active\":false}],\"next_page_url\":null,\"path\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events\",\"per_page\":2,\"prev_page_url\":\"http:\\/\\/localhost\\/api\\/v1\\/audit-events?page=24\",\"to\":null,\"total\":40}"
             }
+        },
+        {
+            "name": "cloud-init scripts: list",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[{\"uuid\":\"i2parityinitscript000002\",\"name\":\"Bash setup\",\"script\":\"#!\\/bin\\/bash\\napt-get update -y\\n\",\"created_at\":\"2025-12-02T10:00:00.000000Z\",\"updated_at\":\"2025-12-02T10:00:00.000000Z\"},{\"uuid\":\"i1parityinitscript000001\",\"name\":\"Base packages\",\"script\":\"#cloud-config\\npackages:\\n  - curl\\n  - git\\n\",\"created_at\":\"2025-12-01T10:00:00.000000Z\",\"updated_at\":\"2025-12-01T10:00:00.000000Z\"}]"
+            }
+        },
+        {
+            "name": "cloud-init scripts: list with a read token",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[{\"uuid\":\"i2parityinitscript000002\",\"name\":\"Bash setup\",\"created_at\":\"2025-12-02T10:00:00.000000Z\",\"updated_at\":\"2025-12-02T10:00:00.000000Z\"},{\"uuid\":\"i1parityinitscript000001\",\"name\":\"Base packages\",\"created_at\":\"2025-12-01T10:00:00.000000Z\",\"updated_at\":\"2025-12-01T10:00:00.000000Z\"}]"
+            }
+        },
+        {
+            "name": "cloud-init scripts: list with read:sensitive",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[{\"uuid\":\"i2parityinitscript000002\",\"name\":\"Bash setup\",\"script\":\"#!\\/bin\\/bash\\napt-get update -y\\n\",\"created_at\":\"2025-12-02T10:00:00.000000Z\",\"updated_at\":\"2025-12-02T10:00:00.000000Z\"},{\"uuid\":\"i1parityinitscript000001\",\"name\":\"Base packages\",\"script\":\"#cloud-config\\npackages:\\n  - curl\\n  - git\\n\",\"created_at\":\"2025-12-01T10:00:00.000000Z\",\"updated_at\":\"2025-12-01T10:00:00.000000Z\"}]"
+            }
+        },
+        {
+            "name": "cloud-init scripts: none",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[]"
+            }
+        },
+        {
+            "name": "cloud-init scripts: list, a member",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"You are not authorized to perform this action.\",\"error\":\"Unauthorized\"}"
+            }
+        },
+        {
+            "name": "cloud-init scripts: list with a write-only token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: read\"}"
+            }
+        },
+        {
+            "name": "cloud-init scripts: show",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"i1parityinitscript000001\",\"name\":\"Base packages\",\"created_at\":\"2025-12-01T10:00:00.000000Z\",\"updated_at\":\"2025-12-01T10:00:00.000000Z\"}"
+            }
+        },
+        {
+            "name": "cloud-init scripts: show with read:sensitive",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"i1parityinitscript000001\",\"name\":\"Base packages\",\"script\":\"#cloud-config\\npackages:\\n  - curl\\n  - git\\n\",\"created_at\":\"2025-12-01T10:00:00.000000Z\",\"updated_at\":\"2025-12-01T10:00:00.000000Z\"}"
+            }
+        },
+        {
+            "name": "cloud-init scripts: show, unknown",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Cloud-init script not found.\"}"
+            }
+        },
+        {
+            "name": "cloud-init scripts: show, another team's",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Cloud-init script not found.\"}"
+            }
+        },
+        {
+            "name": "cloud-init scripts: show, a member",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"You are not authorized to perform this action.\",\"error\":\"Unauthorized\"}"
+            }
+        },
+        {
+            "name": "cloud-init scripts: create",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"gggo7pbhy4noqai2outeb4io\",\"name\":\"Web server\",\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}"
+            },
+            "after": {
+                "scripts": [
+                    {
+                        "fixture_uuid": null,
+                        "public_id": true,
+                        "name": "Web server",
+                        "has_script": true,
+                        "updated": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "cloud-init scripts: create next to the others",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"bnqrxaclrkn74xto7dg6vygg\",\"name\":\"Web server\",\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}"
+            },
+            "after": {
+                "scripts": [
+                    {
+                        "fixture_uuid": "i1parityinitscript000001",
+                        "public_id": true,
+                        "name": "Base packages",
+                        "has_script": true,
+                        "updated": false
+                    },
+                    {
+                        "fixture_uuid": "i2parityinitscript000002",
+                        "public_id": true,
+                        "name": "Bash setup",
+                        "has_script": true,
+                        "updated": false
+                    },
+                    {
+                        "fixture_uuid": null,
+                        "public_id": true,
+                        "name": "Web server",
+                        "has_script": true,
+                        "updated": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "cloud-init scripts: create with the root token",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"li5w6jp3euqwbhdnq0itjhv8\",\"name\":\"Web server\",\"script\":\"#cloud-config\\npackage_update: true\\npackages:\\n  - nginx\\nruncmd:\\n  - systemctl enable --now nginx\",\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}"
+            },
+            "after": {
+                "scripts": [
+                    {
+                        "fixture_uuid": null,
+                        "public_id": true,
+                        "name": "Web server",
+                        "has_script": true,
+                        "updated": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "cloud-init scripts: create, a bash script",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"ygk28fykbdgb0leha06213sb\",\"name\":\"Bash\",\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}"
+            },
+            "after": {
+                "scripts": [
+                    {
+                        "fixture_uuid": null,
+                        "public_id": true,
+                        "name": "Bash",
+                        "has_script": true,
+                        "updated": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "cloud-init scripts: create, YAML without its header",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"fuuvwyabcxy3nldrrvka9ylt\",\"name\":\"No header\",\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}"
+            },
+            "after": {
+                "scripts": [
+                    {
+                        "fixture_uuid": null,
+                        "public_id": true,
+                        "name": "No header",
+                        "has_script": true,
+                        "updated": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "cloud-init scripts: create, a plain line",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"mr0qtko1yjjy9hoajsp9reju\",\"name\":\"Plain\",\"created_at\":\"2026-01-01T00:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}"
+            },
+            "after": {
+                "scripts": [
+                    {
+                        "fixture_uuid": null,
+                        "public_id": true,
+                        "name": "Plain",
+                        "has_script": true,
+                        "updated": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "cloud-init scripts: create, invalid YAML, a duplicate key",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"script\":[\"The script must be valid YAML format. Error: Duplicate key \\\"packages\\\" detected at line 2 (near \\\"packages: [b]\\\").\"]}}"
+            },
+            "after": {
+                "scripts": []
+            }
+        },
+        {
+            "name": "cloud-init scripts: create, invalid YAML, a tab",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"script\":[\"The script must be valid YAML format. Error: A YAML file cannot contain tabs as indentation at line 2 (near \\\"\\t- curl\\\").\"]}}"
+            },
+            "after": {
+                "scripts": []
+            }
+        },
+        {
+            "name": "cloud-init scripts: create, invalid YAML, an unclosed flow",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"script\":[\"The script must be valid YAML format. Error: Malformed inline YAML string at line 1 (near \\\"runcmd: [ls, -l\\\").\"]}}"
+            },
+            "after": {
+                "scripts": []
+            }
+        },
+        {
+            "name": "cloud-init scripts: create, invalid YAML, an unclosed quote",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"script\":[\"The script must be valid YAML format. Error: Malformed inline YAML string at line 2 (near \\\"path: \\\"\\/etc\\/x\\\").\"]}}"
+            },
+            "after": {
+                "scripts": []
+            }
+        },
+        {
+            "name": "cloud-init scripts: create, invalid YAML, a colon in a value",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"script\":[\"The script must be valid YAML format. Error: A colon cannot be used in an unquoted mapping value at line 1 (near \\\"hostname: web: 1\\\").\"]}}"
+            },
+            "after": {
+                "scripts": []
+            }
+        },
+        {
+            "name": "cloud-init scripts: create, invalid YAML, a sequence in a mapping",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"script\":[\"The script must be valid YAML format. Error: You cannot define a sequence item when in a mapping at line 2 (near \\\"- b\\\").\"]}}"
+            },
+            "after": {
+                "scripts": []
+            }
+        },
+        {
+            "name": "cloud-init scripts: create, invalid YAML, a missing reference",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"script\":[\"The script must be valid YAML format. Error: Reference \\\"steps\\\" does not exist at line 1 (near \\\"runcmd: *steps\\\").\"]}}"
+            },
+            "after": {
+                "scripts": []
+            }
+        },
+        {
+            "name": "cloud-init scripts: create, invalid YAML, an indentation problem",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"script\":[\"The script must be valid YAML format. Error: Indentation problem at line 3 (near \\\"  - name: b\\\").\"]}}"
+            },
+            "after": {
+                "scripts": []
+            }
+        },
+        {
+            "name": "cloud-init scripts: create, invalid YAML, two documents",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"script\":[\"The script must be valid YAML format. Error: Multiple documents are not supported at line 2 (near \\\"---\\\").\"]}}"
+            },
+            "after": {
+                "scripts": []
+            }
+        },
+        {
+            "name": "cloud-init scripts: create, invalid YAML, a custom tag",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"script\":[\"The script must be valid YAML format. Error: Tags support is not enabled. Enable the \\\"Yaml::PARSE_CUSTOM_TAGS\\\" flag to use \\\"!include\\\" at line 1 (near \\\"a: !include x.yaml\\\").\"]}}"
+            },
+            "after": {
+                "scripts": []
+            }
+        },
+        {
+            "name": "cloud-init scripts: create, invalid YAML, a reserved indicator",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"script\":[\"The script must be valid YAML format. Error: The reserved indicator \\\"@\\\" cannot start a plain scalar; you need to quote the scalar at line 1 (near \\\"a: @b\\\").\"]}}"
+            },
+            "after": {
+                "scripts": []
+            }
+        },
+        {
+            "name": "cloud-init scripts: create, invalid YAML, mapping values in a plain multi-line",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"script\":[\"The script must be either a valid bash script (starting with #!) or valid cloud-config YAML. YAML parse error: Mapping values are not allowed in multi-line blocks at line 1 (near \\\"apt-get update\\\").\"]}}"
+            },
+            "after": {
+                "scripts": []
+            }
+        },
+        {
+            "name": "cloud-init scripts: create, invalid YAML, a mapping in a sequence, without the header",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"script\":[\"The script must be either a valid bash script (starting with #!) or valid cloud-config YAML. YAML parse error: You cannot define a mapping item when in a sequence at line 2 (near \\\"key: value\\\").\"]}}"
+            },
+            "after": {
+                "scripts": []
+            }
+        },
+        {
+            "name": "cloud-init scripts: create, invalid YAML, an unquoted mapping value over lines",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"script\":[\"The script must be either a valid bash script (starting with #!) or valid cloud-config YAML. YAML parse error: A colon cannot be used in an unquoted mapping value at line 2 (near \\\"  b: two\\\").\"]}}"
+            },
+            "after": {
+                "scripts": []
+            }
+        },
+        {
+            "name": "cloud-init scripts: create, invalid",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"name\":[\"The name field must not be greater than 255 characters.\"],\"script\":[\"The script field must be a string.\"],\"extra\":[\"This field is not allowed.\"]}}"
+            }
+        },
+        {
+            "name": "cloud-init scripts: create, the script a number",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"name\":[\"The name field must be a string.\"],\"script\":[\"The script field must be a string.\"]}}"
+            }
+        },
+        {
+            "name": "cloud-init scripts: create, the script an array",
+            "status": 500,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\n    \"message\": \"Server Error\"\n}"
+            }
+        },
+        {
+            "name": "cloud-init scripts: create, nothing",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"name\":[\"This field is required.\"],\"script\":[\"This field is required.\"]}}"
+            }
+        },
+        {
+            "name": "cloud-init scripts: create, an empty object",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Invalid request.\",\"error\":\"Empty JSON.\"}"
+            }
+        },
+        {
+            "name": "cloud-init scripts: create, not JSON",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Invalid request.\",\"error\":\"Content-Type must be application\\/json.\"}"
+            }
+        },
+        {
+            "name": "cloud-init scripts: create with a read token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: write\"}"
+            }
+        },
+        {
+            "name": "cloud-init scripts: update the name",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"i1parityinitscript000001\",\"name\":\"Renamed\",\"created_at\":\"2025-12-01T10:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}"
+            },
+            "after": {
+                "scripts": [
+                    {
+                        "fixture_uuid": "i2parityinitscript000002",
+                        "public_id": true,
+                        "name": "Bash setup",
+                        "has_script": true,
+                        "updated": false
+                    },
+                    {
+                        "fixture_uuid": "i1parityinitscript000001",
+                        "public_id": true,
+                        "name": "Renamed",
+                        "has_script": true,
+                        "updated": true
+                    }
+                ]
+            }
+        },
+        {
+            "name": "cloud-init scripts: update the script",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"i1parityinitscript000001\",\"name\":\"Base packages\",\"script\":\"#cloud-config\\npackage_update: true\\npackages:\\n  - nginx\\nruncmd:\\n  - systemctl enable --now nginx\",\"created_at\":\"2025-12-01T10:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}"
+            },
+            "after": {
+                "scripts": [
+                    {
+                        "fixture_uuid": "i1parityinitscript000001",
+                        "public_id": true,
+                        "name": "Base packages",
+                        "has_script": true,
+                        "updated": true
+                    },
+                    {
+                        "fixture_uuid": "i2parityinitscript000002",
+                        "public_id": true,
+                        "name": "Bash setup",
+                        "has_script": true,
+                        "updated": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "cloud-init scripts: update the script with write",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"i2parityinitscript000002\",\"name\":\"Bash setup\",\"created_at\":\"2025-12-02T10:00:00.000000Z\",\"updated_at\":\"2026-01-01T00:00:00.000000Z\"}"
+            },
+            "after": {
+                "scripts": [
+                    {
+                        "fixture_uuid": "i1parityinitscript000001",
+                        "public_id": true,
+                        "name": "Base packages",
+                        "has_script": true,
+                        "updated": false
+                    },
+                    {
+                        "fixture_uuid": "i2parityinitscript000002",
+                        "public_id": true,
+                        "name": "Bash setup",
+                        "has_script": true,
+                        "updated": true
+                    }
+                ]
+            }
+        },
+        {
+            "name": "cloud-init scripts: update, nothing changes",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"i1parityinitscript000001\",\"name\":\"Base packages\",\"created_at\":\"2025-12-01T10:00:00.000000Z\",\"updated_at\":\"2025-12-01T10:00:00.000000Z\"}"
+            },
+            "after": {
+                "scripts": [
+                    {
+                        "fixture_uuid": "i1parityinitscript000001",
+                        "public_id": true,
+                        "name": "Base packages",
+                        "has_script": true,
+                        "updated": false
+                    },
+                    {
+                        "fixture_uuid": "i2parityinitscript000002",
+                        "public_id": true,
+                        "name": "Bash setup",
+                        "has_script": true,
+                        "updated": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "cloud-init scripts: update, invalid YAML",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"script\":[\"The script must be valid YAML format. Error: Duplicate key \\\"packages\\\" detected at line 2 (near \\\"packages: [b]\\\").\"]}}"
+            },
+            "after": {
+                "scripts": [
+                    {
+                        "fixture_uuid": "i1parityinitscript000001",
+                        "public_id": true,
+                        "name": "Base packages",
+                        "has_script": true,
+                        "updated": false
+                    },
+                    {
+                        "fixture_uuid": "i2parityinitscript000002",
+                        "public_id": true,
+                        "name": "Bash setup",
+                        "has_script": true,
+                        "updated": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "cloud-init scripts: update, invalid",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"name\":[\"The name field must be a string.\"],\"script\":[\"The script field must be a string.\"],\"uuid\":[\"This field is not allowed.\"]}}"
+            },
+            "after": {
+                "scripts": [
+                    {
+                        "fixture_uuid": "i1parityinitscript000001",
+                        "public_id": true,
+                        "name": "Base packages",
+                        "has_script": true,
+                        "updated": false
+                    },
+                    {
+                        "fixture_uuid": "i2parityinitscript000002",
+                        "public_id": true,
+                        "name": "Bash setup",
+                        "has_script": true,
+                        "updated": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "cloud-init scripts: update, an empty object",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Invalid request.\",\"error\":\"Empty JSON.\"}"
+            }
+        },
+        {
+            "name": "cloud-init scripts: update, unknown",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Cloud-init script not found.\"}"
+            }
+        },
+        {
+            "name": "cloud-init scripts: update, another team's",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Cloud-init script not found.\"}"
+            }
+        },
+        {
+            "name": "cloud-init scripts: update, not JSON",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Invalid request.\",\"error\":\"Content-Type must be application\\/json.\"}"
+            }
+        },
+        {
+            "name": "cloud-init scripts: update with a read token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: write\"}"
+            }
+        },
+        {
+            "name": "cloud-init scripts: delete",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Cloud-init script deleted.\"}"
+            },
+            "after": {
+                "scripts": [
+                    {
+                        "fixture_uuid": "i2parityinitscript000002",
+                        "public_id": true,
+                        "name": "Bash setup",
+                        "has_script": true,
+                        "updated": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "cloud-init scripts: delete, unknown",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Cloud-init script not found.\"}"
+            },
+            "after": {
+                "scripts": [
+                    {
+                        "fixture_uuid": "i1parityinitscript000001",
+                        "public_id": true,
+                        "name": "Base packages",
+                        "has_script": true,
+                        "updated": false
+                    },
+                    {
+                        "fixture_uuid": "i2parityinitscript000002",
+                        "public_id": true,
+                        "name": "Bash setup",
+                        "has_script": true,
+                        "updated": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "cloud-init scripts: delete, another team's",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Cloud-init script not found.\"}"
+            },
+            "after": {
+                "scripts": [
+                    {
+                        "fixture_uuid": "i1parityinitscript000001",
+                        "public_id": true,
+                        "name": "Base packages",
+                        "has_script": true,
+                        "updated": false
+                    },
+                    {
+                        "fixture_uuid": "i2parityinitscript000002",
+                        "public_id": true,
+                        "name": "Bash setup",
+                        "has_script": true,
+                        "updated": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "cloud-init scripts: delete with a write token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: delete\"}"
+            }
+        },
+        {
+            "name": "cloud-init scripts: delete, a member",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"This API token has more access than you have in this team. Revoke it and create a new token.\"}"
+            },
+            "after": {
+                "scripts": [
+                    {
+                        "fixture_uuid": "i1parityinitscript000001",
+                        "public_id": true,
+                        "name": "Base packages",
+                        "has_script": true,
+                        "updated": false
+                    },
+                    {
+                        "fixture_uuid": "i2parityinitscript000002",
+                        "public_id": true,
+                        "name": "Bash setup",
+                        "has_script": true,
+                        "updated": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "cloud-init scripts: PUT",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Not found.\",\"docs\":\"https:\\/\\/coolify.io\\/docs\"}"
+            }
+        },
+        {
+            "name": "denied: cloud-init scripts: create, a member with write and delete",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"You are not authorized to perform this action.\",\"error\":\"Unauthorized\"}"
+            },
+            "after": {
+                "scripts": []
+            }
+        },
+        {
+            "name": "server via Hetzner: create",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"lboci9hsnm8dwkqp5ve97i2z\",\"hetzner_server_id\":9001,\"ip\":\"198.51.100.21\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "web-1",
+                        "description": null,
+                        "ip": "198.51.100.21",
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "cloud_provider_token_id": 1,
+                        "hetzner_server_id": 9001,
+                        "hetzner_server_status": "initializing",
+                        "vultr_instance_id": null,
+                        "vultr_instance_status": null,
+                        "digitalocean_droplet_id": null,
+                        "digitalocean_droplet_status": null,
+                        "proxy_type": "TRAEFIK",
+                        "proxy_status": "exited",
+                        "redirect_enabled": true
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false
+                    }
+                ],
+                "destination": [
+                    {
+                        "network": "coolify"
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.hetzner.cloud/v1/ssh_keys?page=1&per_page=50",
+                    "authorization": "Bearer hz-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.hetzner.cloud/v1/servers",
+                    "authorization": "Bearer hz-team1-token",
+                    "body": {
+                        "name": "web-1",
+                        "server_type": "cx22",
+                        "image": 67794396,
+                        "location": "nbg1",
+                        "start_after_create": true,
+                        "ssh_keys": [
+                            12
+                        ],
+                        "public_net": {
+                            "enable_ipv4": true,
+                            "enable_ipv6": true
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "server via Hetzner: create, the key uploaded",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"mw5wgiykedwpc9mywjuwif3i\",\"hetzner_server_id\":9001,\"ip\":\"198.51.100.21\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "web-1",
+                        "description": null,
+                        "ip": "198.51.100.21",
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "cloud_provider_token_id": 1,
+                        "hetzner_server_id": 9001,
+                        "hetzner_server_status": "initializing",
+                        "vultr_instance_id": null,
+                        "vultr_instance_status": null,
+                        "digitalocean_droplet_id": null,
+                        "digitalocean_droplet_status": null,
+                        "proxy_type": "TRAEFIK",
+                        "proxy_status": "exited",
+                        "redirect_enabled": true
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false
+                    }
+                ],
+                "destination": [
+                    {
+                        "network": "coolify"
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.hetzner.cloud/v1/ssh_keys?page=1&per_page=50",
+                    "authorization": "Bearer hz-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.hetzner.cloud/v1/ssh_keys",
+                    "authorization": "Bearer hz-team1-token",
+                    "body": {
+                        "name": "Parity Key",
+                        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2 "
+                    }
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.hetzner.cloud/v1/servers",
+                    "authorization": "Bearer hz-team1-token",
+                    "body": {
+                        "name": "web-1",
+                        "server_type": "cx22",
+                        "image": 67794396,
+                        "location": "nbg1",
+                        "start_after_create": true,
+                        "ssh_keys": [
+                            13
+                        ],
+                        "public_net": {
+                            "enable_ipv4": true,
+                            "enable_ipv6": true
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "server via Hetzner: create, the deprecated token id and a generated name",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"jhhlmnjpptnxnm0f7dvsetaa\",\"hetzner_server_id\":9001,\"ip\":\"198.51.100.21\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "<random-name>",
+                        "description": null,
+                        "ip": "198.51.100.21",
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "cloud_provider_token_id": 1,
+                        "hetzner_server_id": 9001,
+                        "hetzner_server_status": "initializing",
+                        "vultr_instance_id": null,
+                        "vultr_instance_status": null,
+                        "digitalocean_droplet_id": null,
+                        "digitalocean_droplet_status": null,
+                        "proxy_type": "TRAEFIK",
+                        "proxy_status": "exited",
+                        "redirect_enabled": true
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false
+                    }
+                ],
+                "destination": [
+                    {
+                        "network": "coolify"
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.hetzner.cloud/v1/ssh_keys?page=1&per_page=50",
+                    "authorization": "Bearer hz-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.hetzner.cloud/v1/servers",
+                    "authorization": "Bearer hz-team1-token",
+                    "body": {
+                        "name": "motionless-mosquito-1yjybucxot3k2vwpu0vspapi",
+                        "server_type": "cx22",
+                        "image": 67794396,
+                        "location": "nbg1",
+                        "start_after_create": true,
+                        "ssh_keys": [
+                            12
+                        ],
+                        "public_net": {
+                            "enable_ipv4": true,
+                            "enable_ipv6": true
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "server via Hetzner: create, IPv6 only",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"gkcqrgqubw6f0beubcmnjrtf\",\"hetzner_server_id\":9001,\"ip\":\"2001:db8:21::1\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "web-1",
+                        "description": null,
+                        "ip": "2001:db8:21::1",
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "cloud_provider_token_id": 1,
+                        "hetzner_server_id": 9001,
+                        "hetzner_server_status": "initializing",
+                        "vultr_instance_id": null,
+                        "vultr_instance_status": null,
+                        "digitalocean_droplet_id": null,
+                        "digitalocean_droplet_status": null,
+                        "proxy_type": "TRAEFIK",
+                        "proxy_status": "exited",
+                        "redirect_enabled": true
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false
+                    }
+                ],
+                "destination": [
+                    {
+                        "network": "coolify"
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.hetzner.cloud/v1/ssh_keys?page=1&per_page=50",
+                    "authorization": "Bearer hz-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.hetzner.cloud/v1/servers",
+                    "authorization": "Bearer hz-team1-token",
+                    "body": {
+                        "name": "web-1",
+                        "server_type": "cx22",
+                        "image": 67794396,
+                        "location": "nbg1",
+                        "start_after_create": true,
+                        "ssh_keys": [
+                            12
+                        ],
+                        "public_net": {
+                            "enable_ipv4": false,
+                            "enable_ipv6": true
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "server via Hetzner: create, IPv6 without a prefix",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"dgrxhpxwceehw6iayq1yzu5e\",\"hetzner_server_id\":9001,\"ip\":\"2a01:4f8:c17:b8f::2\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "web-1",
+                        "description": null,
+                        "ip": "2a01:4f8:c17:b8f::2",
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "cloud_provider_token_id": 1,
+                        "hetzner_server_id": 9001,
+                        "hetzner_server_status": "initializing",
+                        "vultr_instance_id": null,
+                        "vultr_instance_status": null,
+                        "digitalocean_droplet_id": null,
+                        "digitalocean_droplet_status": null,
+                        "proxy_type": "TRAEFIK",
+                        "proxy_status": "exited",
+                        "redirect_enabled": true
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false
+                    }
+                ],
+                "destination": [
+                    {
+                        "network": "coolify"
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.hetzner.cloud/v1/ssh_keys?page=1&per_page=50",
+                    "authorization": "Bearer hz-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.hetzner.cloud/v1/servers",
+                    "authorization": "Bearer hz-team1-token",
+                    "body": {
+                        "name": "web-1",
+                        "server_type": "cx22",
+                        "image": 67794396,
+                        "location": "nbg1",
+                        "start_after_create": true,
+                        "ssh_keys": [
+                            12
+                        ],
+                        "public_net": {
+                            "enable_ipv4": "0",
+                            "enable_ipv6": 1
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "server via Hetzner: create, no protocol",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"enable_ipv4\":[\"Enable at least one public IP protocol.\"],\"enable_ipv6\":[\"Enable at least one public IP protocol.\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Hetzner: create, no address",
+            "status": 500,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Failed to create Hetzner server.\"}"
+            },
+            "after": {
+                "server": [],
+                "settings": [],
+                "destination": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.hetzner.cloud/v1/ssh_keys?page=1&per_page=50",
+                    "authorization": "Bearer hz-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.hetzner.cloud/v1/servers",
+                    "authorization": "Bearer hz-team1-token",
+                    "body": {
+                        "name": "web-1",
+                        "server_type": "cx22",
+                        "image": 67794396,
+                        "location": "nbg1",
+                        "start_after_create": true,
+                        "ssh_keys": [
+                            12
+                        ],
+                        "public_net": {
+                            "enable_ipv4": true,
+                            "enable_ipv6": true
+                        }
+                    }
+                },
+                {
+                    "method": "DELETE",
+                    "url": "https://api.hetzner.cloud/v1/servers/9001",
+                    "authorization": "Bearer hz-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "server via Hetzner: create with backups",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"meyfdng8wcfkri4cuueyo2ih\",\"hetzner_server_id\":9001,\"ip\":\"198.51.100.21\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "web-1",
+                        "description": null,
+                        "ip": "198.51.100.21",
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "cloud_provider_token_id": 1,
+                        "hetzner_server_id": 9001,
+                        "hetzner_server_status": "initializing",
+                        "vultr_instance_id": null,
+                        "vultr_instance_status": null,
+                        "digitalocean_droplet_id": null,
+                        "digitalocean_droplet_status": null,
+                        "proxy_type": "TRAEFIK",
+                        "proxy_status": "exited",
+                        "redirect_enabled": true
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false
+                    }
+                ],
+                "destination": [
+                    {
+                        "network": "coolify"
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.hetzner.cloud/v1/ssh_keys?page=1&per_page=50",
+                    "authorization": "Bearer hz-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.hetzner.cloud/v1/servers",
+                    "authorization": "Bearer hz-team1-token",
+                    "body": {
+                        "name": "web-1",
+                        "server_type": "cx22",
+                        "image": 67794396,
+                        "location": "nbg1",
+                        "start_after_create": true,
+                        "ssh_keys": [
+                            12
+                        ],
+                        "public_net": {
+                            "enable_ipv4": true,
+                            "enable_ipv6": true
+                        }
+                    }
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.hetzner.cloud/v1/servers/9001/actions/enable_backup",
+                    "authorization": "Bearer hz-team1-token",
+                    "body": []
+                }
+            ]
+        },
+        {
+            "name": "server via Hetzner: create, backups refused",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"g8xat9r9hrdplgslizmzjhli\",\"hetzner_server_id\":9001,\"ip\":\"198.51.100.21\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "web-1",
+                        "description": null,
+                        "ip": "198.51.100.21",
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "cloud_provider_token_id": 1,
+                        "hetzner_server_id": 9001,
+                        "hetzner_server_status": "initializing",
+                        "vultr_instance_id": null,
+                        "vultr_instance_status": null,
+                        "digitalocean_droplet_id": null,
+                        "digitalocean_droplet_status": null,
+                        "proxy_type": "TRAEFIK",
+                        "proxy_status": "exited",
+                        "redirect_enabled": true
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false
+                    }
+                ],
+                "destination": [
+                    {
+                        "network": "coolify"
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.hetzner.cloud/v1/ssh_keys?page=1&per_page=50",
+                    "authorization": "Bearer hz-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.hetzner.cloud/v1/servers",
+                    "authorization": "Bearer hz-team1-token",
+                    "body": {
+                        "name": "web-1",
+                        "server_type": "cx22",
+                        "image": 67794396,
+                        "location": "nbg1",
+                        "start_after_create": true,
+                        "ssh_keys": [
+                            12
+                        ],
+                        "public_net": {
+                            "enable_ipv4": true,
+                            "enable_ipv6": true
+                        }
+                    }
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.hetzner.cloud/v1/servers/9001/actions/enable_backup",
+                    "authorization": "Bearer hz-team1-token",
+                    "body": []
+                }
+            ]
+        },
+        {
+            "name": "server via Hetzner: create with keys, firewalls, networks and a script, without validating",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"9o2tztqngowqlppdfj24hcpo\",\"hetzner_server_id\":9001,\"ip\":\"198.51.100.21\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "web-1",
+                        "description": null,
+                        "ip": "198.51.100.21",
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "cloud_provider_token_id": 1,
+                        "hetzner_server_id": 9001,
+                        "hetzner_server_status": "initializing",
+                        "vultr_instance_id": null,
+                        "vultr_instance_status": null,
+                        "digitalocean_droplet_id": null,
+                        "digitalocean_droplet_status": null,
+                        "proxy_type": "TRAEFIK",
+                        "proxy_status": "exited",
+                        "redirect_enabled": true
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false
+                    }
+                ],
+                "destination": [
+                    {
+                        "network": "coolify"
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.hetzner.cloud/v1/ssh_keys?page=1&per_page=50",
+                    "authorization": "Bearer hz-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.hetzner.cloud/v1/servers",
+                    "authorization": "Bearer hz-team1-token",
+                    "body": {
+                        "name": "web-1",
+                        "server_type": "cx22",
+                        "image": 67794396,
+                        "location": "nbg1",
+                        "start_after_create": true,
+                        "ssh_keys": [
+                            12,
+                            31,
+                            32
+                        ],
+                        "public_net": {
+                            "enable_ipv4": true,
+                            "enable_ipv6": true
+                        },
+                        "firewalls": [
+                            {
+                                "firewall": 7
+                            },
+                            {
+                                "firewall": 8
+                            }
+                        ],
+                        "networks": [
+                            "41",
+                            42
+                        ],
+                        "user_data": "#cloud-config\npackage_update: true\npackages:\n  - nginx\nruncmd:\n  - systemctl enable --now nginx"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "server via Hetzner: create and validate",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"lnsyb2qrub5x91fyua2cvsal\",\"hetzner_server_id\":9001,\"ip\":\"198.51.100.21\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "web-1",
+                        "description": null,
+                        "ip": "198.51.100.21",
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "cloud_provider_token_id": 1,
+                        "hetzner_server_id": 9001,
+                        "hetzner_server_status": "initializing",
+                        "vultr_instance_id": null,
+                        "vultr_instance_status": null,
+                        "digitalocean_droplet_id": null,
+                        "digitalocean_droplet_status": null,
+                        "proxy_type": "TRAEFIK",
+                        "proxy_status": "exited",
+                        "redirect_enabled": true
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false
+                    }
+                ],
+                "destination": [
+                    {
+                        "network": "coolify"
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.hetzner.cloud/v1/ssh_keys?page=1&per_page=50",
+                    "authorization": "Bearer hz-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.hetzner.cloud/v1/servers",
+                    "authorization": "Bearer hz-team1-token",
+                    "body": {
+                        "name": "web-1",
+                        "server_type": "cx22",
+                        "image": 67794396,
+                        "location": "nbg1",
+                        "start_after_create": true,
+                        "ssh_keys": [
+                            12
+                        ],
+                        "public_net": {
+                            "enable_ipv4": true,
+                            "enable_ipv6": true
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "server via Hetzner: create with a deploy token and a bash script",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"osmxehx3hp1w7jjiwace3aqa\",\"hetzner_server_id\":9001,\"ip\":\"198.51.100.21\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "web-1",
+                        "description": null,
+                        "ip": "198.51.100.21",
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "cloud_provider_token_id": 1,
+                        "hetzner_server_id": 9001,
+                        "hetzner_server_status": "initializing",
+                        "vultr_instance_id": null,
+                        "vultr_instance_status": null,
+                        "digitalocean_droplet_id": null,
+                        "digitalocean_droplet_status": null,
+                        "proxy_type": "TRAEFIK",
+                        "proxy_status": "exited",
+                        "redirect_enabled": true
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false
+                    }
+                ],
+                "destination": [
+                    {
+                        "network": "coolify"
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.hetzner.cloud/v1/ssh_keys?page=1&per_page=50",
+                    "authorization": "Bearer hz-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.hetzner.cloud/v1/servers",
+                    "authorization": "Bearer hz-team1-token",
+                    "body": {
+                        "name": "web-1",
+                        "server_type": "cx22",
+                        "image": 67794396,
+                        "location": "nbg1",
+                        "start_after_create": true,
+                        "ssh_keys": [
+                            12
+                        ],
+                        "public_net": {
+                            "enable_ipv4": true,
+                            "enable_ipv6": true
+                        },
+                        "user_data": "#!/bin/bash\necho hi"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "server via Hetzner: create, invalid cloud-init YAML, a duplicate key",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"cloud_init_script\":[\"The cloud init script must be valid YAML format. Error: Duplicate key \\\"packages\\\" detected at line 2 (near \\\"packages: [b]\\\").\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Hetzner: create, invalid cloud-init YAML, a tab",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"cloud_init_script\":[\"The cloud init script must be valid YAML format. Error: A YAML file cannot contain tabs as indentation at line 2 (near \\\"\\t- curl\\\").\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Hetzner: create, invalid cloud-init YAML, an unclosed flow",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"cloud_init_script\":[\"The cloud init script must be valid YAML format. Error: Malformed inline YAML string at line 1 (near \\\"runcmd: [ls, -l\\\").\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Hetzner: create, invalid cloud-init YAML, an unclosed quote",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"cloud_init_script\":[\"The cloud init script must be valid YAML format. Error: Malformed inline YAML string at line 2 (near \\\"path: \\\"\\/etc\\/x\\\").\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Hetzner: create, invalid cloud-init YAML, a colon in a value",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"cloud_init_script\":[\"The cloud init script must be valid YAML format. Error: A colon cannot be used in an unquoted mapping value at line 1 (near \\\"hostname: web: 1\\\").\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Hetzner: create, invalid cloud-init YAML, a sequence in a mapping",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"cloud_init_script\":[\"The cloud init script must be valid YAML format. Error: You cannot define a sequence item when in a mapping at line 2 (near \\\"- b\\\").\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Hetzner: create, invalid cloud-init YAML, a missing reference",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"cloud_init_script\":[\"The cloud init script must be valid YAML format. Error: Reference \\\"steps\\\" does not exist at line 1 (near \\\"runcmd: *steps\\\").\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Hetzner: create, invalid cloud-init YAML, an indentation problem",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"cloud_init_script\":[\"The cloud init script must be valid YAML format. Error: Indentation problem at line 3 (near \\\"  - name: b\\\").\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Hetzner: create, a script without deploy",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: deploy. A cloud-init script or extra SSH keys run as root on the new server, so it needs a token with the deploy permission.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Hetzner: create, extra keys without deploy",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: deploy. A cloud-init script or extra SSH keys run as root on the new server, so it needs a token with the deploy permission.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Hetzner: create, validating without deploy",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: deploy. Instant validation installs Docker and starts the proxy on the new server, so it needs a token with the deploy permission.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Hetzner: create, Hetzner refuses",
+            "status": 502,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Failed to create Hetzner server. Hetzner rejected the request as invalid. Check the selected values and your account limits. Invalid fields: server_type.\",\"provider_status\":422,\"provider_error_code\":\"invalid_input\"}"
+            },
+            "after": {
+                "server": [],
+                "settings": [],
+                "destination": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.hetzner.cloud/v1/ssh_keys?page=1&per_page=50",
+                    "authorization": "Bearer hz-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.hetzner.cloud/v1/servers",
+                    "authorization": "Bearer hz-team1-token",
+                    "body": {
+                        "name": "web-1",
+                        "server_type": "cx22",
+                        "image": 67794396,
+                        "location": "nbg1",
+                        "start_after_create": true,
+                        "ssh_keys": [
+                            12
+                        ],
+                        "public_net": {
+                            "enable_ipv4": true,
+                            "enable_ipv6": true
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "server via Hetzner: create, rate limited",
+            "status": 429,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199",
+                "retry-after": "12"
+            },
+            "body": {
+                "json": "{\"message\":\"Rate limit exceeded. Please try again later.\"}"
+            },
+            "after": {
+                "server": [],
+                "settings": [],
+                "destination": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.hetzner.cloud/v1/ssh_keys?page=1&per_page=50",
+                    "authorization": "Bearer hz-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.hetzner.cloud/v1/ssh_keys?page=1&per_page=50",
+                    "authorization": "Bearer hz-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.hetzner.cloud/v1/ssh_keys?page=1&per_page=50",
+                    "authorization": "Bearer hz-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "server via Hetzner: create, a key without a fingerprint",
+            "status": 500,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Failed to create Hetzner server.\"}"
+            },
+            "after": {
+                "server": [],
+                "settings": [],
+                "destination": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.hetzner.cloud/v1/ssh_keys?page=1&per_page=50",
+                    "authorization": "Bearer hz-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "server via Hetzner: create, the upload answers no key",
+            "status": 500,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Failed to create Hetzner server.\"}"
+            },
+            "after": {
+                "server": [],
+                "settings": [],
+                "destination": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.hetzner.cloud/v1/ssh_keys?page=1&per_page=50",
+                    "authorization": "Bearer hz-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.hetzner.cloud/v1/ssh_keys",
+                    "authorization": "Bearer hz-team1-token",
+                    "body": {
+                        "name": "Parity Key",
+                        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2 "
+                    }
+                }
+            ]
+        },
+        {
+            "name": "server via Hetzner: create, invalid",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"cloud_provider_token_uuid\":[\"The cloud provider token uuid field must be a string.\"],\"location\":[\"The location field must be a string.\"],\"server_type\":[\"This field is required.\"],\"image\":[\"The image field must be an integer.\"],\"name\":[\"The name contains invalid characters. Only letters (a-z, A-Z), numbers (0-9), hyphens (-), and dots (.) are allowed.\"],\"private_key_uuid\":[\"This field is required.\"],\"enable_ipv4\":[\"The enable ipv4 field must be true or false.\"],\"enable_backups\":[\"The enable backups field must be true or false.\"],\"hetzner_ssh_key_ids\":[\"The hetzner ssh key ids field must be an array.\"],\"cloud_init_script\":[\"The cloud init script field must be a string.\"],\"instant_validate\":[\"The instant validate field must be true or false.\"],\"hetzner_firewall_ids.1\":[\"The hetzner_firewall_ids.1 field must be an integer.\"],\"hetzner_network_ids.0\":[\"The hetzner_network_ids.0 field must be an integer.\"],\"extra\":[\"This field is not allowed.\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Hetzner: create, no token",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"cloud_provider_token_uuid\":[\"The cloud provider token uuid field is required when cloud provider token id is not present.\"],\"cloud_provider_token_id\":[\"The cloud provider token id field is required when cloud provider token uuid is not present.\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Hetzner: create, unknown token",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Hetzner cloud provider token not found.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Hetzner: create, another provider's token",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Hetzner cloud provider token not found.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Hetzner: create, another team's token",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Hetzner cloud provider token not found.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Hetzner: create, unknown private key",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Private key not found.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Hetzner: create, another team's private key",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Private key not found.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Hetzner: create, not JSON",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Invalid request.\",\"error\":\"Content-Type must be application\\/json.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Hetzner: create with a read token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: write\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "denied: server via Hetzner: create, a member with write and delete",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"You are not authorized to perform this action.\",\"error\":\"Unauthorized\"}"
+            },
+            "after": {
+                "server": [],
+                "settings": [],
+                "destination": []
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Vultr: create",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"smx3t3catfoapcftjj6fxsa7\",\"vultr_instance_id\":\"inst-31\",\"ip\":\"198.51.100.31\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "edge-1",
+                        "description": null,
+                        "ip": "198.51.100.31",
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "cloud_provider_token_id": 3,
+                        "hetzner_server_id": null,
+                        "hetzner_server_status": null,
+                        "vultr_instance_id": "inst-31",
+                        "vultr_instance_status": "pending",
+                        "digitalocean_droplet_id": null,
+                        "digitalocean_droplet_status": null,
+                        "proxy_type": "TRAEFIK",
+                        "proxy_status": "exited",
+                        "redirect_enabled": true
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false
+                    }
+                ],
+                "destination": [
+                    {
+                        "network": "coolify"
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.vultr.com/v2/ssh-keys?per_page=100",
+                    "authorization": "Bearer vu-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.vultr.com/v2/instances",
+                    "authorization": "Bearer vu-team1-token",
+                    "body": {
+                        "region": "ams",
+                        "plan": "vc2-1c-1gb",
+                        "os_id": 2284,
+                        "label": "edge-1",
+                        "hostname": "edge-1",
+                        "sshkey_id": [
+                            "key-parity"
+                        ],
+                        "enable_ipv6": true,
+                        "disable_public_ipv4": false
+                    }
+                }
+            ]
+        },
+        {
+            "name": "server via Vultr: create, the key uploaded",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"t6whw6gmyajxo69ifkpdlb13\",\"vultr_instance_id\":\"inst-31\",\"ip\":\"198.51.100.31\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "<random-name>",
+                        "description": null,
+                        "ip": "198.51.100.31",
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "cloud_provider_token_id": 3,
+                        "hetzner_server_id": null,
+                        "hetzner_server_status": null,
+                        "vultr_instance_id": "inst-31",
+                        "vultr_instance_status": "pending",
+                        "digitalocean_droplet_id": null,
+                        "digitalocean_droplet_status": null,
+                        "proxy_type": "TRAEFIK",
+                        "proxy_status": "exited",
+                        "redirect_enabled": true
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false
+                    }
+                ],
+                "destination": [
+                    {
+                        "network": "coolify"
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.vultr.com/v2/ssh-keys?per_page=100",
+                    "authorization": "Bearer vu-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.vultr.com/v2/ssh-keys",
+                    "authorization": "Bearer vu-team1-token",
+                    "body": {
+                        "name": "Parity Key",
+                        "ssh_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2 "
+                    }
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.vultr.com/v2/instances",
+                    "authorization": "Bearer vu-team1-token",
+                    "body": {
+                        "region": "ams",
+                        "plan": "vc2-1c-1gb",
+                        "os_id": 2284,
+                        "label": "delightful-deer-54zqh4sl9xbc6swophx3xxil",
+                        "hostname": "delightful-deer-54zqh4sl9xbc6swophx3xxil",
+                        "sshkey_id": [
+                            "key-new"
+                        ],
+                        "enable_ipv6": true,
+                        "disable_public_ipv4": false
+                    }
+                }
+            ]
+        },
+        {
+            "name": "server via Vultr: create, the address after a wait",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"lotkjdu042s8orp7ipszfjko\",\"vultr_instance_id\":\"inst-31\",\"ip\":\"198.51.100.32\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "edge-1",
+                        "description": null,
+                        "ip": "198.51.100.32",
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "cloud_provider_token_id": 3,
+                        "hetzner_server_id": null,
+                        "hetzner_server_status": null,
+                        "vultr_instance_id": "inst-31",
+                        "vultr_instance_status": "active",
+                        "digitalocean_droplet_id": null,
+                        "digitalocean_droplet_status": null,
+                        "proxy_type": "TRAEFIK",
+                        "proxy_status": "exited",
+                        "redirect_enabled": true
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false
+                    }
+                ],
+                "destination": [
+                    {
+                        "network": "coolify"
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.vultr.com/v2/ssh-keys?per_page=100",
+                    "authorization": "Bearer vu-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.vultr.com/v2/instances",
+                    "authorization": "Bearer vu-team1-token",
+                    "body": {
+                        "region": "ams",
+                        "plan": "vc2-1c-1gb",
+                        "os_id": 2284,
+                        "label": "edge-1",
+                        "hostname": "edge-1",
+                        "sshkey_id": [
+                            "key-parity"
+                        ],
+                        "enable_ipv6": true,
+                        "disable_public_ipv4": false
+                    }
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.vultr.com/v2/instances/inst-31",
+                    "authorization": "Bearer vu-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "server via Vultr: create, no address yet",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"jxxphdyjmgb0y89irebmpope\",\"vultr_instance_id\":\"inst-31\",\"ip\":\"1.2.3.4\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "edge-1",
+                        "description": null,
+                        "ip": "1.2.3.4",
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "cloud_provider_token_id": 3,
+                        "hetzner_server_id": null,
+                        "hetzner_server_status": null,
+                        "vultr_instance_id": "inst-31",
+                        "vultr_instance_status": "pending",
+                        "digitalocean_droplet_id": null,
+                        "digitalocean_droplet_status": null,
+                        "proxy_type": "TRAEFIK",
+                        "proxy_status": "exited",
+                        "redirect_enabled": true
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false
+                    }
+                ],
+                "destination": [
+                    {
+                        "network": "coolify"
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.vultr.com/v2/ssh-keys?per_page=100",
+                    "authorization": "Bearer vu-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.vultr.com/v2/instances",
+                    "authorization": "Bearer vu-team1-token",
+                    "body": {
+                        "region": "ams",
+                        "plan": "vc2-1c-1gb",
+                        "os_id": 2284,
+                        "label": "edge-1",
+                        "hostname": "edge-1",
+                        "sshkey_id": [
+                            "key-parity"
+                        ],
+                        "enable_ipv6": true,
+                        "disable_public_ipv4": false
+                    }
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.vultr.com/v2/instances/inst-31",
+                    "authorization": "Bearer vu-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.vultr.com/v2/instances/inst-31",
+                    "authorization": "Bearer vu-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.vultr.com/v2/instances/inst-31",
+                    "authorization": "Bearer vu-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.vultr.com/v2/instances/inst-31",
+                    "authorization": "Bearer vu-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.vultr.com/v2/instances/inst-31",
+                    "authorization": "Bearer vu-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.vultr.com/v2/instances/inst-31",
+                    "authorization": "Bearer vu-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "server via Vultr: create, IPv6 only",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"pfcpfevcqagiglu8przwjpac\",\"vultr_instance_id\":\"inst-31\",\"ip\":\"2001:db8:31::1\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "edge-1",
+                        "description": null,
+                        "ip": "2001:db8:31::1",
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "cloud_provider_token_id": 3,
+                        "hetzner_server_id": null,
+                        "hetzner_server_status": null,
+                        "vultr_instance_id": "inst-31",
+                        "vultr_instance_status": "pending",
+                        "digitalocean_droplet_id": null,
+                        "digitalocean_droplet_status": null,
+                        "proxy_type": "TRAEFIK",
+                        "proxy_status": "exited",
+                        "redirect_enabled": true
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false
+                    }
+                ],
+                "destination": [
+                    {
+                        "network": "coolify"
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.vultr.com/v2/ssh-keys?per_page=100",
+                    "authorization": "Bearer vu-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.vultr.com/v2/instances",
+                    "authorization": "Bearer vu-team1-token",
+                    "body": {
+                        "region": "ams",
+                        "plan": "vc2-1c-1gb",
+                        "os_id": 2284,
+                        "label": "edge-1",
+                        "hostname": "edge-1",
+                        "sshkey_id": [
+                            "key-parity"
+                        ],
+                        "enable_ipv6": true,
+                        "disable_public_ipv4": true
+                    }
+                }
+            ]
+        },
+        {
+            "name": "server via Vultr: create, no public address enabled",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"enable_ipv6\":[\"Enable IPv6 when disabling public IPv4.\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Vultr: create with keys and a script, without validating",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"dcsih2qjagspgtugf0lmcepd\",\"vultr_instance_id\":\"inst-31\",\"ip\":\"198.51.100.31\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "edge-1",
+                        "description": null,
+                        "ip": "198.51.100.31",
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "cloud_provider_token_id": 3,
+                        "hetzner_server_id": null,
+                        "hetzner_server_status": null,
+                        "vultr_instance_id": "inst-31",
+                        "vultr_instance_status": "pending",
+                        "digitalocean_droplet_id": null,
+                        "digitalocean_droplet_status": null,
+                        "proxy_type": "TRAEFIK",
+                        "proxy_status": "exited",
+                        "redirect_enabled": true
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false
+                    }
+                ],
+                "destination": [
+                    {
+                        "network": "coolify"
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.vultr.com/v2/ssh-keys?per_page=100",
+                    "authorization": "Bearer vu-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.vultr.com/v2/instances",
+                    "authorization": "Bearer vu-team1-token",
+                    "body": {
+                        "region": "ams",
+                        "plan": "vc2-1c-1gb",
+                        "os_id": 2284,
+                        "label": "edge-1",
+                        "hostname": "edge-1",
+                        "sshkey_id": [
+                            "key-parity",
+                            "key-2"
+                        ],
+                        "enable_ipv6": true,
+                        "disable_public_ipv4": false,
+                        "user_data": "I2Nsb3VkLWNvbmZpZwpwYWNrYWdlX3VwZGF0ZTogdHJ1ZQpwYWNrYWdlczoKICAtIG5naW54CnJ1bmNtZDoKICAtIHN5c3RlbWN0bCBlbmFibGUgLS1ub3cgbmdpbng="
+                    }
+                }
+            ]
+        },
+        {
+            "name": "server via Vultr: create and validate",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"ck2ydbwkyg6vsyorzxcdhe7b\",\"vultr_instance_id\":\"inst-31\",\"ip\":\"198.51.100.31\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "edge-1",
+                        "description": null,
+                        "ip": "198.51.100.31",
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "cloud_provider_token_id": 3,
+                        "hetzner_server_id": null,
+                        "hetzner_server_status": null,
+                        "vultr_instance_id": "inst-31",
+                        "vultr_instance_status": "pending",
+                        "digitalocean_droplet_id": null,
+                        "digitalocean_droplet_status": null,
+                        "proxy_type": "TRAEFIK",
+                        "proxy_status": "exited",
+                        "redirect_enabled": true
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false
+                    }
+                ],
+                "destination": [
+                    {
+                        "network": "coolify"
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.vultr.com/v2/ssh-keys?per_page=100",
+                    "authorization": "Bearer vu-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.vultr.com/v2/instances",
+                    "authorization": "Bearer vu-team1-token",
+                    "body": {
+                        "region": "ams",
+                        "plan": "vc2-1c-1gb",
+                        "os_id": 2284,
+                        "label": "edge-1",
+                        "hostname": "edge-1",
+                        "sshkey_id": [
+                            "key-parity"
+                        ],
+                        "enable_ipv6": true,
+                        "disable_public_ipv4": false
+                    }
+                }
+            ]
+        },
+        {
+            "name": "server via Vultr: create, invalid cloud-init YAML, two documents",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"cloud_init_script\":[\"The cloud init script must be valid YAML format. Error: Multiple documents are not supported at line 2 (near \\\"---\\\").\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Vultr: create, invalid cloud-init YAML, a custom tag",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"cloud_init_script\":[\"The cloud init script must be valid YAML format. Error: Tags support is not enabled. Enable the \\\"Yaml::PARSE_CUSTOM_TAGS\\\" flag to use \\\"!include\\\" at line 1 (near \\\"a: !include x.yaml\\\").\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Vultr: create, invalid cloud-init YAML, a reserved indicator",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"cloud_init_script\":[\"The cloud init script must be valid YAML format. Error: The reserved indicator \\\"@\\\" cannot start a plain scalar; you need to quote the scalar at line 1 (near \\\"a: @b\\\").\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Vultr: create, invalid cloud-init YAML, mapping values in a plain multi-line",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"cloud_init_script\":[\"The cloud init script must be either a valid bash script (starting with #!) or valid cloud-config YAML. YAML parse error: Mapping values are not allowed in multi-line blocks at line 1 (near \\\"apt-get update\\\").\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Vultr: create, invalid cloud-init YAML, a mapping in a sequence, without the header",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"cloud_init_script\":[\"The cloud init script must be either a valid bash script (starting with #!) or valid cloud-config YAML. YAML parse error: You cannot define a mapping item when in a sequence at line 2 (near \\\"key: value\\\").\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Vultr: create, invalid cloud-init YAML, an unquoted mapping value over lines",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"cloud_init_script\":[\"The cloud init script must be either a valid bash script (starting with #!) or valid cloud-config YAML. YAML parse error: A colon cannot be used in an unquoted mapping value at line 2 (near \\\"  b: two\\\").\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Vultr: create, a script without deploy",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: deploy. A cloud-init script or extra SSH keys run as root on the new server, so it needs a token with the deploy permission.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Vultr: create, Vultr refuses",
+            "status": 502,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Failed to create Vultr server. Vultr returned HTTP 400.\",\"provider_status\":400,\"provider_error_code\":null}"
+            },
+            "after": {
+                "server": [],
+                "settings": [],
+                "destination": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.vultr.com/v2/ssh-keys?per_page=100",
+                    "authorization": "Bearer vu-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.vultr.com/v2/instances",
+                    "authorization": "Bearer vu-team1-token",
+                    "body": {
+                        "region": "ams",
+                        "plan": "vc2-1c-1gb",
+                        "os_id": 2284,
+                        "label": "edge-1",
+                        "hostname": "edge-1",
+                        "sshkey_id": [
+                            "key-parity"
+                        ],
+                        "enable_ipv6": true,
+                        "disable_public_ipv4": false
+                    }
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.vultr.com/v2/instances",
+                    "authorization": "Bearer vu-team1-token",
+                    "body": {
+                        "region": "ams",
+                        "plan": "vc2-1c-1gb",
+                        "os_id": 2284,
+                        "label": "edge-1",
+                        "hostname": "edge-1",
+                        "sshkey_id": [
+                            "key-parity"
+                        ],
+                        "enable_ipv6": true,
+                        "disable_public_ipv4": false
+                    }
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.vultr.com/v2/instances",
+                    "authorization": "Bearer vu-team1-token",
+                    "body": {
+                        "region": "ams",
+                        "plan": "vc2-1c-1gb",
+                        "os_id": 2284,
+                        "label": "edge-1",
+                        "hostname": "edge-1",
+                        "sshkey_id": [
+                            "key-parity"
+                        ],
+                        "enable_ipv6": true,
+                        "disable_public_ipv4": false
+                    }
+                }
+            ]
+        },
+        {
+            "name": "server via Vultr: create, rate limited",
+            "status": 429,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199",
+                "retry-after": "0"
+            },
+            "body": {
+                "json": "{\"message\":\"Rate limit exceeded. Please try again later.\"}"
+            },
+            "after": {
+                "server": [],
+                "settings": [],
+                "destination": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.vultr.com/v2/ssh-keys?per_page=100",
+                    "authorization": "Bearer vu-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.vultr.com/v2/instances",
+                    "authorization": "Bearer vu-team1-token",
+                    "body": {
+                        "region": "ams",
+                        "plan": "vc2-1c-1gb",
+                        "os_id": 2284,
+                        "label": "edge-1",
+                        "hostname": "edge-1",
+                        "sshkey_id": [
+                            "key-parity"
+                        ],
+                        "enable_ipv6": true,
+                        "disable_public_ipv4": false
+                    }
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.vultr.com/v2/instances",
+                    "authorization": "Bearer vu-team1-token",
+                    "body": {
+                        "region": "ams",
+                        "plan": "vc2-1c-1gb",
+                        "os_id": 2284,
+                        "label": "edge-1",
+                        "hostname": "edge-1",
+                        "sshkey_id": [
+                            "key-parity"
+                        ],
+                        "enable_ipv6": true,
+                        "disable_public_ipv4": false
+                    }
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.vultr.com/v2/instances",
+                    "authorization": "Bearer vu-team1-token",
+                    "body": {
+                        "region": "ams",
+                        "plan": "vc2-1c-1gb",
+                        "os_id": 2284,
+                        "label": "edge-1",
+                        "hostname": "edge-1",
+                        "sshkey_id": [
+                            "key-parity"
+                        ],
+                        "enable_ipv6": true,
+                        "disable_public_ipv4": false
+                    }
+                }
+            ]
+        },
+        {
+            "name": "server via Vultr: create, no instance id",
+            "status": 500,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Failed to create Vultr server.\"}"
+            },
+            "after": {
+                "server": [],
+                "settings": [],
+                "destination": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.vultr.com/v2/ssh-keys?per_page=100",
+                    "authorization": "Bearer vu-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.vultr.com/v2/instances",
+                    "authorization": "Bearer vu-team1-token",
+                    "body": {
+                        "region": "ams",
+                        "plan": "vc2-1c-1gb",
+                        "os_id": 2284,
+                        "label": "edge-1",
+                        "hostname": "edge-1",
+                        "sshkey_id": [
+                            "key-parity"
+                        ],
+                        "enable_ipv6": true,
+                        "disable_public_ipv4": false
+                    }
+                }
+            ]
+        },
+        {
+            "name": "server via Vultr: create, invalid",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"region\":[\"The region field must be a string.\"],\"plan\":[\"This field is required.\"],\"os_id\":[\"The os id field must be an integer.\"],\"private_key_uuid\":[\"This field is required.\"],\"enable_ipv6\":[\"The enable ipv6 field must be true or false.\"],\"cloud_init_script\":[\"The cloud init script field must be a string.\"],\"vultr_ssh_key_ids.0\":[\"The vultr_ssh_key_ids.0 field must be a string.\"],\"extra\":[\"This field is not allowed.\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Vultr: create, unknown token",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Vultr cloud provider token not found.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Vultr: create, another provider's token",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Vultr cloud provider token not found.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Vultr: create, unknown private key",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Private key not found.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Vultr: create, not JSON",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Invalid request.\",\"error\":\"Content-Type must be application\\/json.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via Vultr: create with a read token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: write\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "denied: server via Vultr: create, a member with write and delete",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"You are not authorized to perform this action.\",\"error\":\"Unauthorized\"}"
+            },
+            "after": {
+                "server": [],
+                "settings": [],
+                "destination": []
+            },
+            "requests": []
+        },
+        {
+            "name": "server via DigitalOcean: create",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"h3ha39smrxu8vjre3dimj3kz\",\"digitalocean_droplet_id\":3164444,\"ip\":\"198.51.100.41\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "db-1",
+                        "description": null,
+                        "ip": "198.51.100.41",
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "cloud_provider_token_id": 2,
+                        "hetzner_server_id": null,
+                        "hetzner_server_status": null,
+                        "vultr_instance_id": null,
+                        "vultr_instance_status": null,
+                        "digitalocean_droplet_id": 3164444,
+                        "digitalocean_droplet_status": "new",
+                        "proxy_type": "TRAEFIK",
+                        "proxy_status": "exited",
+                        "redirect_enabled": true
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false
+                    }
+                ],
+                "destination": [
+                    {
+                        "network": "coolify"
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/account/keys?page=1&per_page=50",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.digitalocean.com/v2/droplets",
+                    "authorization": "Bearer do-team1-token",
+                    "body": {
+                        "name": "db-1",
+                        "region": "fra1",
+                        "size": "s-1vcpu-1gb",
+                        "image": "ubuntu-24-04-x64",
+                        "ssh_keys": [
+                            512
+                        ],
+                        "ipv6": true,
+                        "monitoring": true
+                    }
+                }
+            ]
+        },
+        {
+            "name": "server via DigitalOcean: create, the key uploaded and the address after a wait",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"53tfnk3ez8ng1dtaheunhex6\",\"digitalocean_droplet_id\":3164444,\"ip\":\"198.51.100.41\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "<random-name>",
+                        "description": null,
+                        "ip": "198.51.100.41",
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "cloud_provider_token_id": 2,
+                        "hetzner_server_id": null,
+                        "hetzner_server_status": null,
+                        "vultr_instance_id": null,
+                        "vultr_instance_status": null,
+                        "digitalocean_droplet_id": 3164444,
+                        "digitalocean_droplet_status": "active",
+                        "proxy_type": "TRAEFIK",
+                        "proxy_status": "exited",
+                        "redirect_enabled": true
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false
+                    }
+                ],
+                "destination": [
+                    {
+                        "network": "coolify"
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/account/keys?page=1&per_page=50",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.digitalocean.com/v2/account/keys",
+                    "authorization": "Bearer do-team1-token",
+                    "body": {
+                        "name": "Parity Key",
+                        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7YgfCv+/YCi+DteBbrkhbAS+1ZYYKgkho+es6oucS2 "
+                    }
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.digitalocean.com/v2/droplets",
+                    "authorization": "Bearer do-team1-token",
+                    "body": {
+                        "name": "wrong-wren-oxsrraajckkh1zhmr6furrpn",
+                        "region": "fra1",
+                        "size": "s-1vcpu-1gb",
+                        "image": 154962364,
+                        "ssh_keys": [
+                            513
+                        ],
+                        "ipv6": true,
+                        "monitoring": true
+                    }
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "server via DigitalOcean: create, no address yet",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"dd79ofeaidytdlgwiammeeht\",\"digitalocean_droplet_id\":3164444,\"ip\":\"1.2.3.4\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "db-1",
+                        "description": null,
+                        "ip": "1.2.3.4",
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "cloud_provider_token_id": 2,
+                        "hetzner_server_id": null,
+                        "hetzner_server_status": null,
+                        "vultr_instance_id": null,
+                        "vultr_instance_status": null,
+                        "digitalocean_droplet_id": 3164444,
+                        "digitalocean_droplet_status": "new",
+                        "proxy_type": "TRAEFIK",
+                        "proxy_status": "exited",
+                        "redirect_enabled": true
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false
+                    }
+                ],
+                "destination": [
+                    {
+                        "network": "coolify"
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/account/keys?page=1&per_page=50",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.digitalocean.com/v2/droplets",
+                    "authorization": "Bearer do-team1-token",
+                    "body": {
+                        "name": "db-1",
+                        "region": "fra1",
+                        "size": "s-1vcpu-1gb",
+                        "image": "ubuntu-24-04-x64",
+                        "ssh_keys": [
+                            512
+                        ],
+                        "ipv6": true,
+                        "monitoring": true
+                    }
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/droplets/3164444",
+                    "authorization": "Bearer do-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "server via DigitalOcean: create, IPv6 only",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"qafs3mqs20pxiwjzdjolk8i6\",\"digitalocean_droplet_id\":3164444,\"ip\":\"2001:db8:41::2\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "db-1",
+                        "description": null,
+                        "ip": "2001:db8:41::2",
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "cloud_provider_token_id": 2,
+                        "hetzner_server_id": null,
+                        "hetzner_server_status": null,
+                        "vultr_instance_id": null,
+                        "vultr_instance_status": null,
+                        "digitalocean_droplet_id": 3164444,
+                        "digitalocean_droplet_status": "active",
+                        "proxy_type": "TRAEFIK",
+                        "proxy_status": "exited",
+                        "redirect_enabled": true
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false
+                    }
+                ],
+                "destination": [
+                    {
+                        "network": "coolify"
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/account/keys?page=1&per_page=50",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.digitalocean.com/v2/droplets",
+                    "authorization": "Bearer do-team1-token",
+                    "body": {
+                        "name": "db-1",
+                        "region": "fra1",
+                        "size": "s-1vcpu-1gb",
+                        "image": "ubuntu-24-04-x64",
+                        "ssh_keys": [
+                            512
+                        ],
+                        "ipv6": true,
+                        "monitoring": true
+                    }
+                }
+            ]
+        },
+        {
+            "name": "server via DigitalOcean: create, IPv6 off by null, no monitoring",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"8fstlyftgkodgllple7wtmdh\",\"digitalocean_droplet_id\":3164444,\"ip\":\"198.51.100.41\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "db-1",
+                        "description": null,
+                        "ip": "198.51.100.41",
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "cloud_provider_token_id": 2,
+                        "hetzner_server_id": null,
+                        "hetzner_server_status": null,
+                        "vultr_instance_id": null,
+                        "vultr_instance_status": null,
+                        "digitalocean_droplet_id": 3164444,
+                        "digitalocean_droplet_status": "new",
+                        "proxy_type": "TRAEFIK",
+                        "proxy_status": "exited",
+                        "redirect_enabled": true
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false
+                    }
+                ],
+                "destination": [
+                    {
+                        "network": "coolify"
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/account/keys?page=1&per_page=50",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.digitalocean.com/v2/droplets",
+                    "authorization": "Bearer do-team1-token",
+                    "body": {
+                        "name": "db-1",
+                        "region": "fra1",
+                        "size": "s-1vcpu-1gb",
+                        "image": "ubuntu-24-04-x64",
+                        "ssh_keys": [
+                            512
+                        ],
+                        "ipv6": false,
+                        "monitoring": false
+                    }
+                }
+            ]
+        },
+        {
+            "name": "server via DigitalOcean: create with keys and a script, without validating",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"teggeyphapstyq19foy7oxwi\",\"digitalocean_droplet_id\":3164444,\"ip\":\"198.51.100.41\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "db-1",
+                        "description": null,
+                        "ip": "198.51.100.41",
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "cloud_provider_token_id": 2,
+                        "hetzner_server_id": null,
+                        "hetzner_server_status": null,
+                        "vultr_instance_id": null,
+                        "vultr_instance_status": null,
+                        "digitalocean_droplet_id": 3164444,
+                        "digitalocean_droplet_status": "new",
+                        "proxy_type": "TRAEFIK",
+                        "proxy_status": "exited",
+                        "redirect_enabled": true
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false
+                    }
+                ],
+                "destination": [
+                    {
+                        "network": "coolify"
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/account/keys?page=1&per_page=50",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.digitalocean.com/v2/droplets",
+                    "authorization": "Bearer do-team1-token",
+                    "body": {
+                        "name": "db-1",
+                        "region": "fra1",
+                        "size": "s-1vcpu-1gb",
+                        "image": "ubuntu-24-04-x64",
+                        "ssh_keys": [
+                            512,
+                            601
+                        ],
+                        "ipv6": true,
+                        "monitoring": true,
+                        "user_data": "#cloud-config\npackage_update: true\npackages:\n  - nginx\nruncmd:\n  - systemctl enable --now nginx"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "server via DigitalOcean: create and validate",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"uuid\":\"kdxbnduugjapnjxrhjwcx2ya\",\"digitalocean_droplet_id\":3164444,\"ip\":\"198.51.100.41\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "name": "db-1",
+                        "description": null,
+                        "ip": "198.51.100.41",
+                        "port": 22,
+                        "user": "root",
+                        "private_key_id": 1,
+                        "cloud_provider_token_id": 2,
+                        "hetzner_server_id": null,
+                        "hetzner_server_status": null,
+                        "vultr_instance_id": null,
+                        "vultr_instance_status": null,
+                        "digitalocean_droplet_id": 3164444,
+                        "digitalocean_droplet_status": "new",
+                        "proxy_type": "TRAEFIK",
+                        "proxy_status": "exited",
+                        "redirect_enabled": true
+                    }
+                ],
+                "settings": [
+                    {
+                        "server_role": "both",
+                        "is_build_server": false
+                    }
+                ],
+                "destination": [
+                    {
+                        "network": "coolify"
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/account/keys?page=1&per_page=50",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.digitalocean.com/v2/droplets",
+                    "authorization": "Bearer do-team1-token",
+                    "body": {
+                        "name": "db-1",
+                        "region": "fra1",
+                        "size": "s-1vcpu-1gb",
+                        "image": "ubuntu-24-04-x64",
+                        "ssh_keys": [
+                            512
+                        ],
+                        "ipv6": true,
+                        "monitoring": true
+                    }
+                }
+            ]
+        },
+        {
+            "name": "server via DigitalOcean: create, invalid cloud-init YAML, a duplicate key",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"cloud_init_script\":[\"The cloud init script must be valid YAML format. Error: Duplicate key \\\"packages\\\" detected at line 2 (near \\\"packages: [b]\\\").\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via DigitalOcean: create, invalid cloud-init YAML, a tab",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"cloud_init_script\":[\"The cloud init script must be valid YAML format. Error: A YAML file cannot contain tabs as indentation at line 2 (near \\\"\\t- curl\\\").\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via DigitalOcean: create, invalid cloud-init YAML, an unclosed flow",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"cloud_init_script\":[\"The cloud init script must be valid YAML format. Error: Malformed inline YAML string at line 1 (near \\\"runcmd: [ls, -l\\\").\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via DigitalOcean: create, invalid cloud-init YAML, an unclosed quote",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"cloud_init_script\":[\"The cloud init script must be valid YAML format. Error: Malformed inline YAML string at line 2 (near \\\"path: \\\"\\/etc\\/x\\\").\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via DigitalOcean: create, invalid cloud-init YAML, a colon in a value",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"cloud_init_script\":[\"The cloud init script must be valid YAML format. Error: A colon cannot be used in an unquoted mapping value at line 1 (near \\\"hostname: web: 1\\\").\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via DigitalOcean: create, invalid cloud-init YAML, a sequence in a mapping",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"cloud_init_script\":[\"The cloud init script must be valid YAML format. Error: You cannot define a sequence item when in a mapping at line 2 (near \\\"- b\\\").\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via DigitalOcean: create, validating without deploy",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: deploy. Instant validation installs Docker and starts the proxy on the new server, so it needs a token with the deploy permission.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via DigitalOcean: create, DigitalOcean refuses",
+            "status": 502,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Failed to create DigitalOcean server. DigitalOcean rejected the request as invalid. Check the selected values and your account limits.\",\"provider_status\":422,\"provider_error_code\":\"unprocessable_entity\"}"
+            },
+            "after": {
+                "server": [],
+                "settings": [],
+                "destination": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/account/keys?page=1&per_page=50",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.digitalocean.com/v2/droplets",
+                    "authorization": "Bearer do-team1-token",
+                    "body": {
+                        "name": "db-1",
+                        "region": "fra1",
+                        "size": "s-1vcpu-1gb",
+                        "image": "ubuntu-24-04-x64",
+                        "ssh_keys": [
+                            512
+                        ],
+                        "ipv6": true,
+                        "monitoring": true
+                    }
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.digitalocean.com/v2/droplets",
+                    "authorization": "Bearer do-team1-token",
+                    "body": {
+                        "name": "db-1",
+                        "region": "fra1",
+                        "size": "s-1vcpu-1gb",
+                        "image": "ubuntu-24-04-x64",
+                        "ssh_keys": [
+                            512
+                        ],
+                        "ipv6": true,
+                        "monitoring": true
+                    }
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.digitalocean.com/v2/droplets",
+                    "authorization": "Bearer do-team1-token",
+                    "body": {
+                        "name": "db-1",
+                        "region": "fra1",
+                        "size": "s-1vcpu-1gb",
+                        "image": "ubuntu-24-04-x64",
+                        "ssh_keys": [
+                            512
+                        ],
+                        "ipv6": true,
+                        "monitoring": true
+                    }
+                }
+            ]
+        },
+        {
+            "name": "server via DigitalOcean: create, rate limited",
+            "status": 429,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199",
+                "retry-after": "60"
+            },
+            "body": {
+                "json": "{\"message\":\"Rate limit exceeded. Please try again later.\"}"
+            },
+            "after": {
+                "server": [],
+                "settings": [],
+                "destination": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/account/keys?page=1&per_page=50",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/account/keys?page=1&per_page=50",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/account/keys?page=1&per_page=50",
+                    "authorization": "Bearer do-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "server via DigitalOcean: create, no droplet id",
+            "status": 500,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Failed to create DigitalOcean server.\"}"
+            },
+            "after": {
+                "server": [],
+                "settings": [],
+                "destination": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.digitalocean.com/v2/account/keys?page=1&per_page=50",
+                    "authorization": "Bearer do-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.digitalocean.com/v2/droplets",
+                    "authorization": "Bearer do-team1-token",
+                    "body": {
+                        "name": "db-1",
+                        "region": "fra1",
+                        "size": "s-1vcpu-1gb",
+                        "image": "ubuntu-24-04-x64",
+                        "ssh_keys": [
+                            512
+                        ],
+                        "ipv6": true,
+                        "monitoring": true
+                    }
+                }
+            ]
+        },
+        {
+            "name": "server via DigitalOcean: create, invalid",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"cloud_provider_token_id\":[\"The cloud provider token id field must be a string.\"],\"region\":[\"This field is required.\"],\"size\":[\"This field is required.\"],\"image\":[\"This field is required.\"],\"name\":[\"The name contains an invalid label. Labels cannot start or end with a hyphen.\"],\"enable_ipv6\":[\"The enable ipv6 field must be true or false.\"],\"monitoring\":[\"The monitoring field must be true or false.\"],\"cloud_init_script\":[\"The cloud init script field must be a string.\"],\"instant_validate\":[\"The instant validate field must be true or false.\"],\"digitalocean_ssh_key_ids.0\":[\"The digitalocean_ssh_key_ids.0 field must be an integer.\"],\"extra\":[\"This field is not allowed.\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via DigitalOcean: create, unknown token",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"DigitalOcean cloud provider token not found.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via DigitalOcean: create, another provider's token",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"DigitalOcean cloud provider token not found.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via DigitalOcean: create, another team's private key",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Private key not found.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via DigitalOcean: create, not JSON",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Invalid request.\",\"error\":\"Content-Type must be application\\/json.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "server via DigitalOcean: create with a read token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: write\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "denied: server via DigitalOcean: create, a member with write and delete",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"You are not authorized to perform this action.\",\"error\":\"Unauthorized\"}"
+            },
+            "after": {
+                "server": [],
+                "settings": [],
+                "destination": []
+            },
+            "requests": []
         }
     ]
 }

@@ -347,6 +347,11 @@ foreach ($cases['cases'] as $case) {
         $token->token = $t['token'];
         $token->saveQuietly();
     }
+    // DP-110: a case's cloud-init scripts, made through the model (the `encrypted` cast; each side encrypts its own), with
+    // their uuid and dates fixed; the id is the sequence's (no answer shows it).
+    foreach ($case['cloudInitScripts'] ?? [] as $s) {
+        (new \App\Models\CloudInitScript)->forceFill(['uuid' => $s['uuid'], 'team_id' => $s['team'], 'name' => $s['name'], 'script' => $s['script'], 'created_at' => $s['created_at'], 'updated_at' => $s['created_at']])->saveQuietly();
+    }
     // DP-90: an outside HTTP API (a cloud provider's, GitHub's) is Http::fake(): the case's `http` answers, the first whose
     // `match` (a regex on "METHOD URL") fits; anything else is a 404. Every request Coolify sends is recorded (`requests`).
     $requests = [];

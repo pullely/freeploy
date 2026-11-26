@@ -53,6 +53,8 @@
 //   /v1/internal/api-v1/{org}/{applications,services,databases}/{uuid}/secret-manager[/keys|/references|/import] secret-manager.ts (DP-106)
 //   GET|PATCH /v1/internal/api-v1/{org}/settings/email: the platform operator's (DP-101's row 0)                 instance-email.ts (DP-106)
 //   GET|POST /v1/internal/api-v1/{org}/disable, POST …/mcp/{enable,disable}: the platform operator's             instance-switches.ts (DP-107)
+//   /v1/internal/api-v1/{org}/cloud-init-scripts[/{uuid}]                                                      cloud-init-scripts.ts (DP-110)
+//   POST /v1/internal/api-v1/{org}/servers/{hetzner,vultr,digitalocean}                                         cloud-servers.ts (DP-110)
 //
 // $this->authorize(…) is policy-worker's deploy.resource.read (view) or deploy.resource.write (create,
 // update, delete) for the token's user; a denial is the exception handler's 403 (COOLIFY_API.unauthorized(), DP-93).
@@ -122,6 +124,8 @@ import { databaseImportsApi } from "./database-imports.js";
 import { githubAppsApi } from "./github-apps.js";
 import { giteaAppsApi, gitlabAppsApi } from "./oauth-source-apps.js";
 import { createHostingerServer } from "./hostinger-servers.js";
+import { createDigitalOceanServer, createHetznerServer, createVultrServer } from "./cloud-servers.js";
+import { cloudInitScriptsApi } from "./cloud-init-scripts.js";
 import { cloudProviderTokensApi } from "./cloud-provider-tokens.js";
 import { integrationTokensApi } from "./integration-tokens.js";
 import { SECRET_MANAGER_RESOURCE_TYPES, secretManagerApi, type SecretManagerResourceType } from "./secret-manager.js";
@@ -223,6 +227,8 @@ export async function handleApiV1(request: Request, env: Env, requestId: string,
     const context: ApiV1Context = { env, orgId, orgPublicId, request, method, url, canReadSensitive, abilities, allows: (write) => allows(write ? "deploy.resource.write" : "deploy.resource.read"), sql: r.sql ?? runSql, org, s3: r.s3 ?? { http: s3Fetch, resolve: dohResolver }, providers: r.providers ?? PROVIDER_NETWORK };
     // DP-90: the org's cloud provider tokens, and what each provider offers through one.
     if (first === "cloud-tokens") return send((await cloudProviderTokensApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
+    // DP-110: the org's cloud-init scripts.
+    if (first === "cloud-init-scripts") return send((await cloudInitScriptsApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
     if (first === "hetzner" || first === "digitalocean" || first === "vultr" || first === "hostinger") return send((await cloudCatalogsApi(context, first, segments.slice(1))) ?? COOLIFY_API.notFound());
     // DP-81: the shared variables of a project (/projects/{uuid}/envs) and of an environment (…/environments/{env}/envs).
     if (first === "projects" && second !== undefined && third === "envs") return send((await sharedVariablesApi(context, second, undefined, segments.slice(3))) ?? COOLIFY_API.notFound());
@@ -269,6 +275,10 @@ export async function handleApiV1(request: Request, env: Env, requestId: string,
     if (first === "servers" && second !== undefined && (third === "transfer" || third === "migrate")) return send((await serverTransferApi(context, second, third, segments.slice(3))) ?? COOLIFY_API.notFound());
     // DP-93: a Hostinger VPS bought and stored as a server (routes/api.php puts it before /servers/{uuid}).
     if (first === "servers" && second === "hostinger" && third === undefined && method === "POST") return send(await createHostingerServer(context));
+    // DP-110: a Hetzner server, a Vultr instance or a DigitalOcean droplet made and stored as a server.
+    if (first === "servers" && second === "hetzner" && third === undefined && method === "POST") return send(await createHetznerServer(context));
+    if (first === "servers" && second === "vultr" && third === undefined && method === "POST") return send(await createVultrServer(context));
+    if (first === "servers" && second === "digitalocean" && third === undefined && method === "POST") return send(await createDigitalOceanServer(context));
     // DP-107: a server's update.
     if (first === "servers" && second !== undefined && third === undefined && method === "PATCH") return send(await updateServerApi(context, second));
     if (first === "servers" && fourth === undefined) {

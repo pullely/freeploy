@@ -1,0 +1,22 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-110
+  title: "DP9: symfony/yaml's parser for ValidCloudInitYaml, the cloud-init scripts and the Hetzner, Vultr and DigitalOcean servers on /api/v1"
+spec:
+  goal: symfony/yaml v8.1.11's Parser, Inline and Unescaper (the version in Coolify's composer.lock) are ported to apps/deploy-core-worker/src/yaml/symfony, so that ValidCloudInitYaml — on the console's cloud-init script forms and on /api/v1 — refuses the scripts Coolify refuses with Symfony's ParseException messages byte for byte (DP-45 reproduced only a first line indented with a tab); on DP-70's pipeline the eight operations DP-90 left planned for that reason are ported and held to goldens emitted by Coolify's PHP — GET/POST /cloud-init-scripts, GET/PATCH/DELETE /cloud-init-scripts/{uuid} (CloudInitScriptsController, the console's rows and cipher) and POST /servers/hetzner, /servers/vultr and /servers/digitalocean (each controller's rules and refusals, the provider asked through DP-90's clients and the injectable fetch, the server stored as Team::createServerWithinLimit() stores it, a validation over SSH a 501 after the row is stored); 8 more of openapi.json's 330 operations are ported (323 in all). No migration (deploy.servers has had digitalocean_droplet_id and digitalocean_droplet_status since 660), no binding.
+  affects:
+    - apps/api-edge/**
+    - apps/deploy-core-worker/**
+    - packages/db/**
+    - tests/api-edge/**
+    - tests/deploy-core-worker/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - every document of tests/deploy-core-worker/fixtures/symfony-yaml/cases.json (the hand-written cases and 3000 generated ones) parses to PHP's value, or fails with PHP's ParseException message and line, and ValidCloudInitYaml gives PHP's message for each (tests/deploy-core-worker/src/symfony-yaml.test.ts); the 390 Compose templates parse and dump to PHP's hashes through the port
+    - every DP-110 case of tests/deploy-core-worker/fixtures/api/cases.json replays byte-equal to goldens.json against deploy-core-worker's handler with the requests sent to the provider and the rows of the writes (tests/deploy-core-worker/src/api-v1-cloud-init-servers.test.ts), the middleware's answers at the edge, and the four member denials (50 in all) as Coolify's exception handler answers them
+    - the departures (validating a new cloud server at once) answer 501 after the provider made the server and the row was stored, as Coolify stores it before it queues the job
+    - specs/epics/freeploy-coolify-parity/parity/openapi.operations.json marks the 8 operations ported with taskKey DP-110 (323 ported of 330), tests/api-edge/src/api-v1.test.ts counts 323, and node tools/parity/inventory.ts --check passes
+    - on stage, POST /api/v1/cloud-init-scripts with a duplicate key answers Symfony's "Duplicate key … detected at line N" 422, a valid script is stored and listed, and the console's Cloud-Init Scripts form refuses the same script with the same words
+  gates: []

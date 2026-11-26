@@ -37,18 +37,18 @@ export const HOSTINGER_SERVER_MESSAGES = {
 
 const ALLOWED = ["cloud_provider_token_uuid", "cloud_provider_token_id", "item_id", "data_center_id", "template_id", "name", "private_key_uuid", "enable_backups", "public_key_ids", "post_install_script_id", "instant_validate"];
 
-const filled = (v: unknown): boolean => !(v === undefined || v === null || (typeof v === "string" && v.trim() === "") || (Array.isArray(v) && v.length === 0));
+export const filled = (v: unknown): boolean => !(v === undefined || v === null || (typeof v === "string" && v.trim() === "") || (Array.isArray(v) && v.length === 0));
 /** $request->boolean() */
-const requestBool = (v: unknown): boolean => v === true || v === 1 || (typeof v === "string" && ["1", "true", "on", "yes"].includes(v.trim().toLowerCase()));
+export const requestBool = (v: unknown): boolean => v === true || v === 1 || (typeof v === "string" && ["1", "true", "on", "yes"].includes(v.trim().toLowerCase()));
 /** $request->integer(): intval() of the input. */
-const requestInt = (v: unknown): number => {
+export const requestInt = (v: unknown): number => {
   if (typeof v === "number") return Math.trunc(v);
   if (typeof v === "boolean") return v ? 1 : 0;
   const m = typeof v === "string" ? /^\s*[+-]?\d+/.exec(v) : null;
   return m ? Number(m[0]) : 0;
 };
 /** $request->array(): the input as an array (a scalar wrapped, null empty). */
-const requestArray = (v: unknown): unknown[] => (v === undefined || v === null ? [] : Array.isArray(v) ? v : typeof v === "object" ? Object.values(v as Record<string, unknown>) : [v]);
+export const requestArray = (v: unknown): unknown[] => (v === undefined || v === null ? [] : Array.isArray(v) ? v : typeof v === "object" ? Object.values(v as Record<string, unknown>) : [v]);
 
 /** createServer()'s customApiValidator() rules, then the fields not allowed. */
 async function validate(all: Record<string, unknown>): Promise<Errors> {
@@ -143,14 +143,18 @@ async function waitForPublicIp(c: ApiV1Context, client: ProviderClient, vm: PhpV
   return current;
 }
 
-async function storeServer(tx: SqlExecutor, c: ApiV1Context, input: { name: string; privateKeyId: string | number; tokenId: string; vmId: PhpValue | undefined; state: PhpValue | undefined }) {
+/**
+ * Team::createServerWithinLimit($teamId, [...]), then the proxy's status and type (DP-110: Hetzner's, Vultr's and
+ * DigitalOcean's too): Server::create() — the created hook's settings, default destination and predefined variables — with
+ * the provider's columns.
+ */
+export async function storeCloudServer(tx: SqlExecutor, c: ApiV1Context, input: { name: string; ip: string; privateKeyId: string | number; columns: Array<[string, unknown]> }) {
   const ctx = serverContext(tx, c.orgId, c.env);
-  // Server::create(): the created hook's settings and default destination, then the proxy's status and type.
   const server = await ctx.store.insert({
     uuid: newPublicId(),
     name: input.name,
     description: null,
-    ip: PLACEHOLDER_IP,
+    ip: input.ip,
     user: "root",
     port: 22,
     privateKeyId: input.privateKeyId,
@@ -159,11 +163,26 @@ async function storeServer(tx: SqlExecutor, c: ApiV1Context, input: { name: stri
     imageScanEnabled: false,
     defaultDestinationUuid: newPublicId(),
   });
-  await tx.execute("UPDATE deploy.servers SET cloud_provider_token_id = $2, hostinger_virtual_machine_id = $3, hostinger_virtual_machine_status = $4 WHERE id = $1", [server.id, input.tokenId, input.vmId === undefined || input.vmId === null ? null : String(input.vmId), input.state === undefined || input.state === null ? null : String(input.state)]);
+  if (input.columns.length) await tx.execute(`UPDATE deploy.servers SET ${input.columns.map(([k], i) => `${k} = $${i + 2}`).join(", ")} WHERE id = $1`, [server.id, ...input.columns.map(([, v]) => v)]);
   // The created hook's predefined server shared variables: the uuid and the name, both literal.
   const predefined: Record<(typeof PREDEFINED_SERVER_VARIABLE_KEYS)[number], string> = { COOLIFY_SERVER_UUID: server.uuid, COOLIFY_SERVER_NAME: server.name };
   for (const variable of PREDEFINED_SERVER_VARIABLE_KEYS) await ctx.store.addSharedVariable({ serverId: server.id, key: variable, value: await ctx.variables.encrypt(predefined[variable]), isLiteral: true });
   return server;
+}
+
+const orNull = (v: PhpValue | undefined): string | null => (v === undefined || v === null ? null : String(v));
+
+async function storeServer(tx: SqlExecutor, c: ApiV1Context, input: { name: string; privateKeyId: string | number; tokenId: string; vmId: PhpValue | undefined; state: PhpValue | undefined }) {
+  return storeCloudServer(tx, c, {
+    name: input.name,
+    ip: PLACEHOLDER_IP,
+    privateKeyId: input.privateKeyId,
+    columns: [
+      ["cloud_provider_token_id", input.tokenId],
+      ["hostinger_virtual_machine_id", orNull(input.vmId)],
+      ["hostinger_virtual_machine_status", orNull(input.state)],
+    ],
+  });
 }
 
 /** HostingerController::createServer() */
@@ -232,7 +251,7 @@ export async function createHostingerServer(c: ApiV1Context): Promise<CoolifyAns
 }
 
 /** PHP's truthiness of a request value (`$request->name ?: …`). */
-function phpTruthy(v: unknown): boolean {
+export function phpTruthy(v: unknown): boolean {
   return !(v === undefined || v === null || v === false || v === 0 || v === "" || v === "0" || (Array.isArray(v) && v.length === 0));
 }
 

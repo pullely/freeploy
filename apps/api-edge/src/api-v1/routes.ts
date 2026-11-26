@@ -125,11 +125,21 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("PATCH", "/cloud-tokens/{uuid}", "write", "deploy"),
   r("DELETE", "/cloud-tokens/{uuid}", "delete", "deploy"),
   r("POST", "/cloud-tokens/{uuid}/validate", "write", "deploy"),
+  // DP-110: cloud-init scripts
+  r("GET", "/cloud-init-scripts", "read", "deploy"),
+  r("POST", "/cloud-init-scripts", "write", "deploy"),
+  r("GET", "/cloud-init-scripts/{uuid}", "read", "deploy"),
+  r("PATCH", "/cloud-init-scripts/{uuid}", "write", "deploy"),
+  r("DELETE", "/cloud-init-scripts/{uuid}", "delete", "deploy"),
   // DP-90: what each cloud provider offers, read through a cloud provider token
   ...["locations", "server-types", "images", "ssh-keys", "firewalls", "networks"].map((what) => r("GET", `/hetzner/${what}`, "read", "deploy")),
   ...["regions", "plans", "os", "ssh-keys"].map((what) => r("GET", `/vultr/${what}`, "read", "deploy")),
   ...["regions", "sizes", "images", "ssh-keys"].map((what) => r("GET", `/digitalocean/${what}`, "read", "deploy")),
   ...["data-centers", "catalog", "templates", "ssh-keys", "post-install-scripts"].map((what) => r("GET", `/hostinger/${what}`, "read", "deploy")),
+  // DP-110: a cloud server made through a provider token and stored as a server
+  r("POST", "/servers/hetzner", "write", "deploy"),
+  r("POST", "/servers/vultr", "write", "deploy"),
+  r("POST", "/servers/digitalocean", "write", "deploy"),
 
   // DP-81: S3 storages
   r("GET", "/s3-storages", "read", "deploy"),
