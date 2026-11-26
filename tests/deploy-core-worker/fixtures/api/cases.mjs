@@ -3311,6 +3311,167 @@ add({
     { method: "GET", path: SE, authorization: AS_ROOT_TEAM("sensitive").authorization },
   ],
 });
+// ── DP-105: managed DNS (DnsController) ─────────────────────────────────────
+// The team's Cloudflare zones (DP-104's fixture: example.com and example.org of the first Cloudflare token, example.net of
+// the second, whose records are proxied), and the records of an application's and a service's domains: image.example.com
+// (the image application) and web.example.com (the service's application) are in example.com, and the server's address
+// 203.0.113.10 is public to PHP's filter. Cloudflare is faked per case (`http`); a fake record's comment written
+// `{{ownership:<uuid>}}` is the ownership comment each side writes for that record (emit.php: ManagedDnsRecord::
+// ownershipCommentFor(), Freeploy's own). A managed record and its references are rows of `setupCoolify` (team_id; the
+// references have no team) and `setupFreeploy` (org_id).
+const DNS_APP = `/api/v1/applications/${A_IMAGE}/dns`;
+const DNS_SVC = `/api/v1/services/${SV_MAIN}/dns`;
+const DNS_ZONES = "/api/v1/dns/zones";
+const MORPH = { app: "App\\Models\\Application", serviceApp: "App\\Models\\ServiceApplication", preview: "App\\Models\\ApplicationPreview" };
+const DR_IMAGE = "m2paritydnsimage00000002";
+const DR_OLD = "m3paritydnsold0000000003";
+const DR_OLD_WEB = "m4paritydnsoldweb0000004";
+const DNS_RECORD = (tenancy, r) =>
+  `insert into managed_dns_records (uuid, integration_token_id, dns_provider_zone_id, provider_record_id, type, name, content, owned, ${tenancy[0]}, created_at, updated_at) values ('${r.uuid}', ${r.token ?? 1}, ${r.zone ?? 1}, '${r.rec}', '${r.type ?? "A"}', '${r.name}', '${r.content ?? "203.0.113.10"}', ${r.owned ?? true}, ${tenancy[1]}, '2025-12-30 00:00:00', '2025-12-30 00:00:00')`;
+const DNS_REF = (tenancy, uuid, [type, id]) =>
+  `insert into managed_dns_record_references (managed_dns_record_id, resource_type, resource_id, ${tenancy ? `${tenancy[0]}, ` : ""}created_at, updated_at) select id, '${type}', ${id}, ${tenancy ? `${tenancy[1]}, ` : ""}'2025-12-30 00:00:00', '2025-12-30 00:00:00' from managed_dns_records where uuid = '${uuid}'`;
+/** Managed records (each with its references, `refs`: [morph, id]) on both sides, after the case's own setupCoolify/setupFreeploy. */
+const withDns = (records, more = {}) => ({
+  setupCoolify: [...(more.setupCoolify ?? []), ...records.flatMap((r) => [DNS_RECORD(COOLIFY_TENANCY, r), ...(r.refs ?? []).map((k) => DNS_REF(null, r.uuid, k))])],
+  setupFreeploy: [...(more.setupFreeploy ?? []), ...records.flatMap((r) => [DNS_RECORD(FREEPLOY_TENANCY, r), ...(r.refs ?? []).map((k) => DNS_REF(FREEPLOY_TENANCY, r.uuid, k))])],
+});
+const REC_IMAGE = { uuid: DR_IMAGE, rec: "rec-image", name: "image.example.com", refs: [[MORPH.app, 1]] };
+const REC_OLD = { uuid: DR_OLD, rec: "rec-old", name: "old.example.com", refs: [[MORPH.app, 1]] };
+const REC_OLD_WEB = { uuid: DR_OLD_WEB, rec: "rec-oldweb", name: "old-web.example.com", refs: [[MORPH.serviceApp, 1]] };
+/** A zone of another token of team 1 (the second Cloudflare token) on both sides. */
+const DNS_ZONE = (tenancy, uuid, token, providerZoneId, name) =>
+  `insert into dns_provider_zones (uuid, integration_token_id, provider_zone_id, name, account_id, account_name, ${tenancy ? `${tenancy[0]}, ` : ""}created_at, updated_at) values ('${uuid}', ${token}, '${providerZoneId}', '${name}', 'acc-1', 'Parity Account', ${tenancy ? `${tenancy[1]}, ` : ""}'2025-12-29 00:00:00', '2025-12-29 00:00:00')`;
+const withZone = (uuid, token, providerZoneId, name) => ({ setupCoolify: [DNS_ZONE(null, uuid, token, providerZoneId, name)], setupFreeploy: [DNS_ZONE(FREEPLOY_TENANCY, uuid, token, providerZoneId, name)] });
+const DNS_AFTER = {
+  records: "select case when r.uuid like 'm_paritydns%' then r.uuid end as fixture_uuid, t.uuid as token, z.provider_zone_id as zone, r.provider_record_id, r.type, r.name, r.content, r.owned from managed_dns_records r join integration_tokens t on t.id = r.integration_token_id join dns_provider_zones z on z.id = r.dns_provider_zone_id order by r.name, r.provider_record_id",
+  references: "select r.name, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.name, f.resource_type, f.resource_id",
+};
+const APP_DOMAINS = (fqdn) => `update applications set fqdn = '${fqdn}' where id = 1`;
+const SERVER_SETTINGS = (v4, v6 = null) => `update server_settings set public_ipv4 = ${v4 === null ? "null" : `'${v4}'`}, public_ipv6 = ${v6 === null ? "null" : `'${v6}'`} where server_id = 1`;
+const SERVER_IP = (ip) => `update servers set ip = '${ip}' where id = 1`;
+const TRANSFERRED = `update servers set server_metadata = '{"transfer":{"status":"transferred"}}' where id = 1`;
+const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const cfRecord = (id, name, content, extra = {}) => ({ id, type: "A", name, content, proxied: false, ttl: 1, comment: null, ...extra });
+const CF_FAIL = { success: false, errors: [{ code: 10000, message: "Authentication error" }] };
+const CF_LIST = (name, result = [], { type = "A", zone = "zone-com", status = 200 } = {}) => answer(`^GET ${CF}/zones/${zone}/dns_records\\?type=${type}&name=${esc(name)}&per_page=100$`, status === 200 ? { success: true, result } : CF_FAIL, status);
+const CF_CREATE = ({ zone = "zone-com", id = "rec-new", status = 200, result } = {}) => answer(`^POST ${CF}/zones/${zone}/dns_records$`, status === 200 ? { success: true, result: result === undefined ? { id } : result } : CF_FAIL, status);
+const CF_PATCH = (rec, { zone = "zone-com", status = 200 } = {}) => answer(`^PATCH ${CF}/zones/${zone}/dns_records/${rec}$`, status === 200 ? { success: true, result: { id: rec } } : CF_FAIL, status);
+const CF_GET = (rec, result, { zone = "zone-com", status = 200 } = {}) => answer(`^GET ${CF}/zones/${zone}/dns_records/${rec}$`, status === 200 ? { success: true, result } : CF_FAIL, status);
+const CF_DELETE = (rec, { zone = "zone-com", status = 200 } = {}) => answer(`^DELETE ${CF}/zones/${zone}/dns_records/${rec}$`, status === 200 ? { success: true, result: { id: rec } } : CF_FAIL, status);
+const OWNED = (uuid) => `{{ownership:${uuid}}}`;
+const CF_OWNED = (rec, name, uuid, extra = {}) => CF_GET(rec, cfRecord(rec, name, "203.0.113.10", { comment: OWNED(uuid), ...extra }));
+
+// GET /dns/zones (IntegrationToken viewAny: a team admin)
+add({ name: "dns zones: list", token: "read", method: "GET", path: DNS_ZONES });
+add({ name: "dns zones: list with managed records", token: "read", method: "GET", path: DNS_ZONES, ...withDns([REC_IMAGE, REC_OLD, { uuid: "m5paritydnsnet0000000005", rec: "rec-net", name: "app.example.net", token: 2, zone: 3 }]) });
+add({ name: "dns zones: list, a token that is not Cloudflare's", token: "read", method: "GET", path: DNS_ZONES, setup: ["update integration_tokens set provider = 'doppler' where id = 2"] });
+add({ name: "dns zones: list, none", token: "read", method: "GET", path: DNS_ZONES, setup: ["delete from dns_provider_zones"] });
+add({ name: "dns zones: list with a write-only token", token: "writeOnly", method: "GET", path: DNS_ZONES });
+
+// GET /applications/{uuid}/dns and /services/{uuid}/dns
+add({ name: "dns application: status", token: "read", method: "GET", path: DNS_APP });
+add({ name: "dns application: status with several domains and records", token: "read", method: "GET", path: DNS_APP, setup: [APP_DOMAINS("https://image.example.com/app,http://WWW.Image.example.com:8080,https://api.example.org,https://nozone.test,https://app.example.net,https://image.example.com:8443")], ...withDns([REC_IMAGE, { uuid: "m6paritydnswww0000000006", rec: "rec-www", name: "www.image.example.com", owned: false }, { uuid: "m7paritydnsorg0000000007", rec: "rec-api", name: "api.example.org", zone: 2, content: "2606:4700::6810:84e5", type: "AAAA", refs: [[MORPH.app, 1]] }]) });
+add({ name: "dns application: status, two tokens manage the zone", token: "read", method: "GET", path: DNS_APP, ...withZone("z5paritydupexamplecom005", 2, "zone-com-2", "example.com") });
+add({ name: "dns application: status, the longest zone", token: "read", method: "GET", path: DNS_APP, ...withZone("z6parityimageexample0006", 2, "zone-image", "image.example.com") });
+add({ name: "dns application: status, public IPv4 and IPv6", token: "read", method: "GET", path: DNS_APP, setup: [SERVER_SETTINGS("93.184.216.34", "2606:4700::6810:84e5")] });
+add({ name: "dns application: status, a public IPv6 only", token: "read", method: "GET", path: DNS_APP, setup: [SERVER_SETTINGS(null, "2606:4700::6810:84e5")] });
+add({ name: "dns application: status, a private server", token: "read", method: "GET", path: DNS_APP, setup: [SERVER_IP("10.0.0.5")] });
+add({ name: "dns application: status, a CGNAT public IPv4", token: "read", method: "GET", path: DNS_APP, setup: [SERVER_SETTINGS("100.64.0.1")] });
+add({ name: "dns application: status, an IPv6 server", token: "read", method: "GET", path: DNS_APP, setup: [SERVER_IP("2606:4700::1")] });
+add({ name: "dns application: status, compose domains", token: "read", method: "GET", path: DNS_APP, setup: [`update applications set fqdn = null, build_pack = 'dockercompose', docker_compose_domains = '{"web":{"domain":"https://web.example.org,https://Image.example.com"},"api":{"domain":""},"db":"x"}' where id = 1`] });
+add({ name: "dns application: status, no domains", token: "read", method: "GET", path: `/api/v1/applications/${A_GIT}/dns` });
+add({ name: "dns application: status, unknown", token: "read", method: "GET", path: "/api/v1/applications/nonexistentuuid/dns" });
+add({ name: "dns application: status, another team's", token: "read", method: "GET", path: `/api/v1/applications/${A_OTHER}/dns` });
+add({ name: "dns service: status", token: "read", method: "GET", path: DNS_SVC });
+add({ name: "dns service: status with several domains and a record", token: "read", method: "GET", path: DNS_SVC, setup: ["update service_applications set fqdn = 'https://web.example.com:8080,https://web2.example.org' where id = 1"], ...withDns([{ uuid: "m8paritydnsweb0000000008", rec: "rec-web", name: "web.example.com", refs: [[MORPH.serviceApp, 1]] }]) });
+add({ name: "dns service: status, a private server", token: "read", method: "GET", path: DNS_SVC, setup: [SERVER_IP("192.168.1.10")] });
+add({ name: "dns service: status, unknown", token: "read", method: "GET", path: "/api/v1/services/nonexistentuuid/dns" });
+add({ name: "dns service: status, another team's", token: "read", method: "GET", path: `/api/v1/services/${SV_OTHER}/dns` });
+
+// POST /applications/{uuid}/dns
+const NEW_IMAGE = { hostname: "image.example.com" };
+add({ name: "dns application: create a record", token: "write", method: "POST", path: DNS_APP, body: NEW_IMAGE, http: [CF_LIST("image.example.com"), CF_CREATE()], after: DNS_AFTER });
+add({ name: "dns application: create a record, the hostname as written", token: "write", method: "POST", path: DNS_APP, body: { hostname: " IMAGE.Example.com.. " }, http: [CF_LIST("image.example.com"), CF_CREATE()], after: DNS_AFTER });
+add({ name: "dns application: create a proxied record", token: "write", method: "POST", path: DNS_APP, setup: [APP_DOMAINS("https://app.example.net")], body: { hostname: "app.example.net" }, http: [CF_LIST("app.example.net", [], { zone: "zone-net" }), CF_CREATE({ zone: "zone-net", id: "rec-net-new" })], after: DNS_AFTER });
+add({ name: "dns application: create an AAAA record", token: "write", method: "POST", path: DNS_APP, setup: [SERVER_SETTINGS("93.184.216.34", "2606:4700::6810:84e5")], body: { hostname: "image.example.com", address: "2606:4700:0::6810:84E5" }, http: [CF_LIST("image.example.com", [], { type: "AAAA" }), CF_CREATE({ id: "rec-v6" })], after: DNS_AFTER });
+add({ name: "dns application: create a record of the public IPv4", token: "write", method: "POST", path: DNS_APP, setup: [SERVER_SETTINGS("93.184.216.34")], body: { hostname: "image.example.com", address: "93.184.216.34", integration_token_uuid: IT_CF }, http: [CF_LIST("image.example.com"), CF_CREATE()], after: DNS_AFTER });
+add({ name: "dns application: create, a record of the address exists", token: "write", method: "POST", path: DNS_APP, body: NEW_IMAGE, http: [CF_LIST("image.example.com", [cfRecord("rec-existing", "Image.Example.com", "203.0.113.10", { comment: "made by hand" })])], after: DNS_AFTER });
+add({ name: "dns application: create, the tracked record", token: "write", method: "POST", path: DNS_APP, body: NEW_IMAGE, ...withDns([{ ...REC_IMAGE, refs: [] }]), http: [CF_LIST("image.example.com", [cfRecord("rec-image", "image.example.com", "203.0.113.10", { comment: OWNED(DR_IMAGE) })])], after: DNS_AFTER });
+add({ name: "dns application: create, the tracked record changed its comment", token: "write", method: "POST", path: DNS_APP, body: NEW_IMAGE, ...withDns([REC_IMAGE]), http: [CF_LIST("image.example.com", [cfRecord("rec-image", "image.example.com", "203.0.113.10", { comment: "edited" })])], after: DNS_AFTER });
+add({ name: "dns application: create, a conflict", token: "write", method: "POST", path: DNS_APP, body: NEW_IMAGE, http: [CF_LIST("image.example.com", [cfRecord("rec-other", "image.example.com", "198.51.100.7")])], after: DNS_AFTER });
+add({ name: "dns application: create, several records", token: "write", method: "POST", path: DNS_APP, body: NEW_IMAGE, http: [CF_LIST("image.example.com", [cfRecord("rec-a", "image.example.com", "198.51.100.7"), cfRecord("rec-b", "image.example.com", "198.51.100.8")])] });
+add({ name: "dns application: create, the matching record has no id", token: "write", method: "POST", path: DNS_APP, body: NEW_IMAGE, http: [CF_LIST("image.example.com", [{ type: "A", name: "image.example.com", content: "203.0.113.10" }, "not a record"])] });
+add({ name: "dns application: create, no DNS permission", token: "write", method: "POST", path: DNS_APP, body: NEW_IMAGE, http: [CF_LIST("image.example.com", [], { status: 403 })], after: DNS_AFTER });
+add({ name: "dns application: create, the records not checked", token: "write", method: "POST", path: DNS_APP, body: NEW_IMAGE, http: [CF_LIST("image.example.com", [], { status: 500 })] });
+add({ name: "dns application: create, Cloudflare unreachable", token: "write", method: "POST", path: DNS_APP, body: NEW_IMAGE, http: [FAILED(`^GET ${CF}/zones/zone-com/dns_records`)], after: DNS_AFTER });
+add({ name: "dns application: create, the create refused", token: "write", method: "POST", path: DNS_APP, body: NEW_IMAGE, http: [CF_LIST("image.example.com"), CF_CREATE({ status: 403 })], after: DNS_AFTER });
+add({ name: "dns application: create, the create failed", token: "write", method: "POST", path: DNS_APP, body: NEW_IMAGE, http: [CF_LIST("image.example.com"), CF_CREATE({ status: 500 })] });
+add({ name: "dns application: create, no record id", token: "write", method: "POST", path: DNS_APP, body: NEW_IMAGE, http: [CF_LIST("image.example.com"), CF_CREATE({ result: { id: 7 } })], after: DNS_AFTER });
+add({ name: "dns application: create, not a domain of the application", token: "write", method: "POST", path: DNS_APP, body: { hostname: "other.example.com" }, http: [] });
+add({ name: "dns application: create, the validation", token: "write", method: "POST", path: DNS_APP, body: { address: 7, integration_token_uuid: ["x"], proxied: true, hostname: "x".repeat(256) }, http: [] });
+add({ name: "dns application: create, no hostname", token: "write", method: "POST", path: DNS_APP, body: { address: null }, http: [] });
+add({ name: "dns application: create, not JSON", token: "write", method: "POST", path: DNS_APP, raw: "hostname=image.example.com", contentType: "application/x-www-form-urlencoded", http: [] });
+add({ name: "dns application: create, an empty body", token: "write", method: "POST", path: DNS_APP, raw: "{}", http: [] });
+add({ name: "dns application: create, a private server", token: "write", method: "POST", path: DNS_APP, setup: [SERVER_IP("10.0.0.5")], body: NEW_IMAGE, http: [] });
+add({ name: "dns application: create, an address not of the server", token: "write", method: "POST", path: DNS_APP, setup: [SERVER_SETTINGS("93.184.216.34", "2606:4700::6810:84e5")], body: { hostname: "image.example.com", address: "203.0.113.10" }, http: [] });
+add({ name: "dns application: create, no zone", token: "write", method: "POST", path: DNS_APP, setup: [APP_DOMAINS("https://nozone.test")], body: { hostname: "nozone.test" }, http: [] });
+add({ name: "dns application: create, two tokens manage the zone", token: "write", method: "POST", path: DNS_APP, body: NEW_IMAGE, ...withZone("z5paritydupexamplecom005", 2, "zone-com-2", "example.com"), http: [] });
+add({ name: "dns application: create, the token chosen", token: "write", method: "POST", path: DNS_APP, body: { hostname: "image.example.com", integration_token_uuid: IT_CF_TUNNEL }, ...withZone("z5paritydupexamplecom005", 2, "zone-com-2", "example.com"), http: [CF_LIST("image.example.com", [], { zone: "zone-com-2" }), CF_CREATE({ zone: "zone-com-2", id: "rec-dup" })], after: DNS_AFTER });
+add({ name: "dns application: create, a token that does not manage it", token: "write", method: "POST", path: DNS_APP, body: { hostname: "image.example.com", integration_token_uuid: IT_CF_TUNNEL }, http: [] });
+add({ name: "dns application: create, a transferred server", token: "write", method: "POST", path: DNS_APP, setup: [TRANSFERRED], body: NEW_IMAGE, http: [] });
+add({ name: "dns application: create, unknown", token: "write", method: "POST", path: "/api/v1/applications/nonexistentuuid/dns", body: NEW_IMAGE });
+add({ name: "dns application: create with a read token", token: "read", method: "POST", path: DNS_APP, body: NEW_IMAGE });
+// POST /services/{uuid}/dns
+add({ name: "dns service: create a record", token: "write", method: "POST", path: DNS_SVC, body: { hostname: "web.example.com" }, http: [CF_LIST("web.example.com"), CF_CREATE({ id: "rec-web" })], after: DNS_AFTER });
+add({ name: "dns service: create, not a domain of the service", token: "write", method: "POST", path: DNS_SVC, body: { hostname: "image.example.com" }, http: [] });
+add({ name: "dns service: create, unknown", token: "write", method: "POST", path: "/api/v1/services/nonexistentuuid/dns", body: { hostname: "web.example.com" } });
+
+// POST /applications/{uuid}/dns/replace
+const REPLACE = { hostname: "image.example.com", record_id: "rec-other", current: "198.51.100.7" };
+const OTHER_RECORD = [cfRecord("rec-other", "image.example.com", "198.51.100.7")];
+add({ name: "dns application: replace a record", token: "write", method: "POST", path: `${DNS_APP}/replace`, body: REPLACE, http: [CF_LIST("image.example.com", OTHER_RECORD), CF_PATCH("rec-other")], after: DNS_AFTER });
+add({ name: "dns application: replace, the tracked record", token: "write", method: "POST", path: `${DNS_APP}/replace`, body: REPLACE, ...withDns([{ ...REC_IMAGE, rec: "rec-other", content: "198.51.100.7", refs: [] }]), http: [CF_LIST("image.example.com", [cfRecord("rec-other", "image.example.com", "198.51.100.7", { comment: OWNED(DR_IMAGE) })]), CF_PATCH("rec-other")], after: DNS_AFTER });
+add({ name: "dns application: replace, the conflict is gone", token: "write", method: "POST", path: `${DNS_APP}/replace`, body: REPLACE, http: [CF_LIST("image.example.com")], after: DNS_AFTER });
+add({ name: "dns application: replace, another record", token: "write", method: "POST", path: `${DNS_APP}/replace`, body: { ...REPLACE, record_id: "rec-x" }, http: [CF_LIST("image.example.com", OTHER_RECORD)] });
+add({ name: "dns application: replace, the record changed", token: "write", method: "POST", path: `${DNS_APP}/replace`, body: { ...REPLACE, current: "198.51.100.9" }, http: [CF_LIST("image.example.com", OTHER_RECORD)] });
+add({ name: "dns application: replace, several records", token: "write", method: "POST", path: `${DNS_APP}/replace`, body: REPLACE, http: [CF_LIST("image.example.com", [...OTHER_RECORD, cfRecord("rec-b", "image.example.com", "198.51.100.8")])] });
+add({ name: "dns application: replace, refused", token: "write", method: "POST", path: `${DNS_APP}/replace`, body: REPLACE, http: [CF_LIST("image.example.com", OTHER_RECORD), CF_PATCH("rec-other", { status: 403 })], after: DNS_AFTER });
+add({ name: "dns application: replace, failed", token: "write", method: "POST", path: `${DNS_APP}/replace`, body: REPLACE, http: [CF_LIST("image.example.com", OTHER_RECORD), CF_PATCH("rec-other", { status: 500 })] });
+add({ name: "dns application: replace, the validation", token: "write", method: "POST", path: `${DNS_APP}/replace`, body: { hostname: "image.example.com", current: 5, extra: 1 }, http: [] });
+add({ name: "dns application: replace, not a domain of the application", token: "write", method: "POST", path: `${DNS_APP}/replace`, body: { ...REPLACE, hostname: "nope.example.com" }, http: [] });
+add({ name: "dns service: replace a record", token: "write", method: "POST", path: `${DNS_SVC}/replace`, body: { hostname: "web.example.com", record_id: "rec-w", current: "198.51.100.7" }, http: [CF_LIST("web.example.com", [cfRecord("rec-w", "web.example.com", "198.51.100.7")]), CF_PATCH("rec-w")], after: DNS_AFTER });
+
+// DELETE /applications/{uuid}/dns/{hostname}
+const RELEASE_OLD = `${DNS_APP}/old.example.com`;
+add({ name: "dns application: release, deleted", token: "delete", method: "DELETE", path: RELEASE_OLD, ...withDns([REC_OLD]), http: [CF_OWNED("rec-old", "old.example.com", DR_OLD), CF_DELETE("rec-old")], after: DNS_AFTER });
+add({ name: "dns application: release, the hostname as written", token: "delete", method: "DELETE", path: `${DNS_APP}/OLD.Example.com.`, ...withDns([REC_OLD]), http: [CF_OWNED("rec-old", "old.example.com", DR_OLD), CF_DELETE("rec-old")], after: DNS_AFTER });
+add({ name: "dns application: release, already gone", token: "delete", method: "DELETE", path: RELEASE_OLD, ...withDns([REC_OLD]), http: [CF_GET("rec-old", null, { status: 404 })], after: DNS_AFTER });
+add({ name: "dns application: release, gone while deleting", token: "delete", method: "DELETE", path: RELEASE_OLD, ...withDns([REC_OLD]), http: [CF_OWNED("rec-old", "old.example.com", DR_OLD), CF_DELETE("rec-old", { status: 404 })], after: DNS_AFTER });
+add({ name: "dns application: release, changed outside", token: "delete", method: "DELETE", path: RELEASE_OLD, ...withDns([REC_OLD]), http: [CF_OWNED("rec-old", "old.example.com", DR_OLD, { content: "198.51.100.7" })], after: DNS_AFTER });
+add({ name: "dns application: release, another comment", token: "delete", method: "DELETE", path: RELEASE_OLD, ...withDns([REC_OLD]), http: [CF_GET("rec-old", cfRecord("rec-old", "OLD.example.com", "203.0.113.10", { comment: OWNED(DR_IMAGE) }))], after: DNS_AFTER });
+add({ name: "dns application: release, Cloudflare failed", token: "delete", method: "DELETE", path: RELEASE_OLD, ...withDns([REC_OLD]), http: [CF_GET("rec-old", null, { status: 500 })], after: DNS_AFTER });
+add({ name: "dns application: release, the delete failed", token: "delete", method: "DELETE", path: RELEASE_OLD, ...withDns([REC_OLD]), http: [CF_OWNED("rec-old", "old.example.com", DR_OLD), CF_DELETE("rec-old", { status: 500 })], after: DNS_AFTER });
+add({ name: "dns application: release, Cloudflare unreachable", token: "delete", method: "DELETE", path: RELEASE_OLD, ...withDns([REC_OLD]), http: [FAILED(`^GET ${CF}/zones/zone-com/dns_records/rec-old$`)], after: DNS_AFTER });
+add({ name: "dns application: release, not owned", token: "delete", method: "DELETE", path: RELEASE_OLD, ...withDns([{ ...REC_OLD, owned: false }]), http: [], after: DNS_AFTER });
+add({ name: "dns application: release, kept on request", token: "delete", method: "DELETE", path: `${RELEASE_OLD}?delete_record=false`, ...withDns([REC_OLD]), http: [], after: DNS_AFTER });
+add({ name: "dns application: release, another application references it", token: "delete", method: "DELETE", path: RELEASE_OLD, ...withDns([{ ...REC_OLD, refs: [[MORPH.app, 1], [MORPH.app, 2]] }]), http: [], after: DNS_AFTER });
+add({ name: "dns application: release, a dead reference", token: "delete", method: "DELETE", path: RELEASE_OLD, ...withDns([{ ...REC_OLD, refs: [[MORPH.app, 1], [MORPH.preview, 99]] }]), http: [CF_OWNED("rec-old", "old.example.com", DR_OLD), CF_DELETE("rec-old")], after: DNS_AFTER });
+add({ name: "dns application: release, another application uses the hostname", token: "delete", method: "DELETE", path: RELEASE_OLD, setup: ["update applications set fqdn = 'https://old.example.com:3000' where id = 2"], ...withDns([REC_OLD]), http: [], after: DNS_AFTER });
+add({ name: "dns application: release, a preview uses the hostname", token: "delete", method: "DELETE", path: RELEASE_OLD, setup: ["update application_previews set fqdn = 'http://OLD.example.com' where id = 3"], ...withDns([REC_OLD]), http: [], after: DNS_AFTER });
+add({ name: "dns application: release, still a domain", token: "delete", method: "DELETE", path: `${DNS_APP}/Image.example.com`, ...withDns([REC_IMAGE]), http: [], after: DNS_AFTER });
+add({ name: "dns application: release, no record", token: "delete", method: "DELETE", path: `${DNS_APP}/Nothing.example.com`, http: [] });
+add({ name: "dns application: release, a record of another resource", token: "delete", method: "DELETE", path: RELEASE_OLD, ...withDns([{ ...REC_OLD, refs: [[MORPH.app, 2]] }]), http: [], after: DNS_AFTER });
+add({ name: "dns application: release, unknown", token: "delete", method: "DELETE", path: "/api/v1/applications/nonexistentuuid/dns/old.example.com" });
+add({ name: "dns application: release with a write token", token: "write", method: "DELETE", path: RELEASE_OLD });
+// DELETE /services/{uuid}/dns/{hostname}
+add({ name: "dns service: release, deleted", token: "delete", method: "DELETE", path: `${DNS_SVC}/old-web.example.com`, ...withDns([REC_OLD_WEB]), http: [CF_OWNED("rec-oldweb", "old-web.example.com", DR_OLD_WEB), CF_DELETE("rec-oldweb")], after: DNS_AFTER });
+add({ name: "dns service: release, still a domain", token: "delete", method: "DELETE", path: `${DNS_SVC}/web.example.com`, http: [] });
+add({ name: "dns service: release, no record", token: "delete", method: "DELETE", path: `${DNS_SVC}/old-web.example.com`, http: [] });
+// A default member does not administer the team (the zones); a member without Write releases nothing (a create or a
+// replace needs a token with write, which such a member may not hold: api.token.team refuses it before the policy).
+denial("dns zones: list", "memberRead", null, MEMBER);
+denial("dns application: release, deleted", "memberDelete", DEPLOY_DELETE, DEPLOYER);
+denial("dns service: release, deleted", "memberDelete", DEPLOY_DELETE, DEPLOYER);
 
 /** The tables whose column order emit.php writes into the goldens (`columns`): what a nested relation serializes in. */
 const columnsOf = ["servers", "server_settings", "standalone_dockers", "application_settings", "applications", "environment_variables", "application_deployment_queues", "scheduled_database_backups", "scheduled_database_backup_executions", "services", "service_applications", "service_databases", "projects", "environments", "standalone_postgresqls", "standalone_redis", "standalone_mongodbs", "standalone_mysqls", "standalone_mariadbs", "standalone_keydbs", "standalone_dragonflies", "standalone_clickhouses", "local_persistent_volumes", "local_file_volumes", "github_apps"];

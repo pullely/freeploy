@@ -673,3 +673,5 @@ export * from "./config-subpages.js";
 export * from "./integration-tokens.js";
 // DP-106: a resource's secret manager source
 export * from "./secret-manager-links.js";
+// DP-105: managed DNS records, their references, and what the DNS API reads around them.
+export * from "./managed-dns.js";

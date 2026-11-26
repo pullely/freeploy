@@ -1,4 +1,4 @@
-# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85, DP-86, DP-87, DP-88, DP-90, DP-93, DP-103, DP-104, DP-106)
+# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85, DP-86, DP-87, DP-88, DP-90, DP-93, DP-103, DP-104, DP-105, DP-106)
 
 What Coolify's real API answers, so that Freeploy's `/api/v1` (api-edge's middleware and limiters,
 identity-worker's teams and tokens, deploy-core-worker's projects, environments, private keys and servers —
@@ -19,7 +19,8 @@ Apps — DP-88 — and the cloud provider tokens, the Hetzner, DigitalOcean, Vul
 configuration — DP-90 — and a policy's denial on a route of each group, a GitHub App's repositories and branches, an
 application from a private repository through a GitHub App and a Hostinger server — DP-93 — and the integration tokens
 and a Cloudflare token's zones — DP-104 — and the GitLab Apps, the Gitea Apps, an application from a private repository
-through a Gitea App and an application's source changed to one — DP-103 — and a resource's secret manager source and the
+through a Gitea App and an application's source changed to one — DP-103 — and the team's Cloudflare zones and the managed DNS
+records of an application's and a service's domains — DP-105 — and a resource's secret manager source and the
 instance's email settings — DP-106) can be replayed against it byte for byte.
 
 | File | What it is |
@@ -175,6 +176,17 @@ variable's value as whether it is set, and row 0's encrypted email columns as wh
 row 0 is read as the platform operator. The new cases' goldens were emitted alone and inserted after DP-103's, the committed
 ones kept byte for byte. No masking is added.
 
+DP-105's replay (`src/api-v1-dns.test.ts`: GET /dns/zones, GET/POST /{applications,services}/{uuid}/dns, POST …/dns/replace,
+DELETE …/dns/{hostname}) adds no fixture rows: the zones are DP-104's, a managed record and its references are rows of
+`setupCoolify` (team_id; Coolify's references have no team) and `setupFreeploy` (org_id), a second zone of the same name or
+a longer one is a case's too, and `after` reads the records by uuid (`m<n>paritydns…` are the setup's, a created one is null)
+with their token and zone, and the references by the record's name. Cloudflare is faked through `http` (DP-90's); a string
+`{{ownership:<uuid>}}` of a fake answer is the ownership comment each side writes for that record (emit.php:
+`ManagedDnsRecord::ownershipCommentFor()`, the test: Freeploy's), so a record read back is owned on both sides. emit.php
+also makes DnsController again for each request: a route keeps the controller it made, and its CloudflareDnsProvider caches the
+team's zones, which a case's own zone would not reach. Three `denied:` cases are added (45 in all). Only the new entries were
+inserted into goldens.json, after DP-106's; the committed ones are kept byte for byte. One masking is added, of the requests.
+
 ## How the goldens are made
 
 In a scratch copy of coollabsio/coolify@91b7e3e with `vendor/` and a `.env` (prepared as
@@ -224,7 +236,10 @@ Both sides go through the same masking before they are compared (`src/api-v1-gol
 - the integer `id` of an object whose `uuid` the request made (a created storage, DP-84) as `<new-id>`, for the same
   reason;
 - a uuid the request made where a generated domain starts with it (`http://<uuid>.<host>` of a created application's
-  `domains`) as `://<new-uuid>.` (DP-87).
+  `domains`) as `://<new-uuid>.` (DP-87);
+- in the requests sent to an outside API (`maskRequests()`), a managed DNS record's ownership comment — Coolify's
+  `managed-by: coolify <app.id>/<uuid>`, Freeploy's `managed-by: freeploy <environment>/<uuid>` — as
+  `managed-by: <instance>/<uuid>`, the uuid as `<new-uuid>` when the request made it (DP-105).
 
 Everything else — every other key, its position, its type, every message — is compared byte for byte, the
 JSON written again by `phpJsonEncode` (PHP's `json_encode`, `\/` included); a test checks that it writes

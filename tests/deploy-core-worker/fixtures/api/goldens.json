@@ -72878,6 +72878,2184 @@
                     }
                 }
             ]
+        },
+        {
+            "name": "dns zones: list",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[{\"zone\":\"example.com\",\"account_name\":\"Parity Account\",\"integration_token_uuid\":\"i1paritycloudflaredns001\",\"integration_token_name\":\"Parity Cloudflare\",\"managed_records_count\":0},{\"zone\":\"example.net\",\"account_name\":null,\"integration_token_uuid\":\"i2paritycloudflaretun002\",\"integration_token_name\":\"Parity Tunnel\",\"managed_records_count\":0},{\"zone\":\"example.org\",\"account_name\":\"Parity Account\",\"integration_token_uuid\":\"i1paritycloudflaredns001\",\"integration_token_name\":\"Parity Cloudflare\",\"managed_records_count\":0}]"
+            }
+        },
+        {
+            "name": "dns zones: list with managed records",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[{\"zone\":\"example.com\",\"account_name\":\"Parity Account\",\"integration_token_uuid\":\"i1paritycloudflaredns001\",\"integration_token_name\":\"Parity Cloudflare\",\"managed_records_count\":2},{\"zone\":\"example.net\",\"account_name\":null,\"integration_token_uuid\":\"i2paritycloudflaretun002\",\"integration_token_name\":\"Parity Tunnel\",\"managed_records_count\":1},{\"zone\":\"example.org\",\"account_name\":\"Parity Account\",\"integration_token_uuid\":\"i1paritycloudflaredns001\",\"integration_token_name\":\"Parity Cloudflare\",\"managed_records_count\":0}]"
+            }
+        },
+        {
+            "name": "dns zones: list, a token that is not Cloudflare's",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[{\"zone\":\"example.com\",\"account_name\":\"Parity Account\",\"integration_token_uuid\":\"i1paritycloudflaredns001\",\"integration_token_name\":\"Parity Cloudflare\",\"managed_records_count\":0},{\"zone\":\"example.org\",\"account_name\":\"Parity Account\",\"integration_token_uuid\":\"i1paritycloudflaredns001\",\"integration_token_name\":\"Parity Cloudflare\",\"managed_records_count\":0}]"
+            }
+        },
+        {
+            "name": "dns zones: list, none",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "[]"
+            }
+        },
+        {
+            "name": "dns zones: list with a write-only token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: read\"}"
+            }
+        },
+        {
+            "name": "dns application: status",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"default_address\":\"203.0.113.10\",\"public_addresses\":[\"203.0.113.10\"],\"hostnames\":[{\"hostname\":\"image.example.com\",\"providers\":[{\"integration_token_uuid\":\"i1paritycloudflaredns001\",\"integration_token_name\":\"Parity Cloudflare\",\"zone\":\"example.com\",\"automatic_dns\":true,\"proxied_dns\":false}],\"records\":[]}]}"
+            }
+        },
+        {
+            "name": "dns application: status with several domains and records",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"default_address\":\"203.0.113.10\",\"public_addresses\":[\"203.0.113.10\"],\"hostnames\":[{\"hostname\":\"api.example.org\",\"providers\":[{\"integration_token_uuid\":\"i1paritycloudflaredns001\",\"integration_token_name\":\"Parity Cloudflare\",\"zone\":\"example.org\",\"automatic_dns\":true,\"proxied_dns\":false}],\"records\":[{\"uuid\":\"m7paritydnsorg0000000007\",\"hostname\":\"api.example.org\",\"type\":\"AAAA\",\"address\":\"2606:4700::6810:84e5\",\"owned\":true,\"integration_token_uuid\":\"i1paritycloudflaredns001\"}]},{\"hostname\":\"app.example.net\",\"providers\":[{\"integration_token_uuid\":\"i2paritycloudflaretun002\",\"integration_token_name\":\"Parity Tunnel\",\"zone\":\"example.net\",\"automatic_dns\":false,\"proxied_dns\":true}],\"records\":[]},{\"hostname\":\"image.example.com\",\"providers\":[{\"integration_token_uuid\":\"i1paritycloudflaredns001\",\"integration_token_name\":\"Parity Cloudflare\",\"zone\":\"example.com\",\"automatic_dns\":true,\"proxied_dns\":false}],\"records\":[{\"uuid\":\"m2paritydnsimage00000002\",\"hostname\":\"image.example.com\",\"type\":\"A\",\"address\":\"203.0.113.10\",\"owned\":true,\"integration_token_uuid\":\"i1paritycloudflaredns001\"}]},{\"hostname\":\"nozone.test\",\"providers\":[],\"records\":[]},{\"hostname\":\"www.image.example.com\",\"providers\":[{\"integration_token_uuid\":\"i1paritycloudflaredns001\",\"integration_token_name\":\"Parity Cloudflare\",\"zone\":\"example.com\",\"automatic_dns\":true,\"proxied_dns\":false}],\"records\":[{\"uuid\":\"m6paritydnswww0000000006\",\"hostname\":\"www.image.example.com\",\"type\":\"A\",\"address\":\"203.0.113.10\",\"owned\":false,\"integration_token_uuid\":\"i1paritycloudflaredns001\"}]}]}"
+            }
+        },
+        {
+            "name": "dns application: status, two tokens manage the zone",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"default_address\":\"203.0.113.10\",\"public_addresses\":[\"203.0.113.10\"],\"hostnames\":[{\"hostname\":\"image.example.com\",\"providers\":[{\"integration_token_uuid\":\"i1paritycloudflaredns001\",\"integration_token_name\":\"Parity Cloudflare\",\"zone\":\"example.com\",\"automatic_dns\":true,\"proxied_dns\":false},{\"integration_token_uuid\":\"i2paritycloudflaretun002\",\"integration_token_name\":\"Parity Tunnel\",\"zone\":\"example.com\",\"automatic_dns\":false,\"proxied_dns\":true}],\"records\":[]}]}"
+            }
+        },
+        {
+            "name": "dns application: status, the longest zone",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"default_address\":\"203.0.113.10\",\"public_addresses\":[\"203.0.113.10\"],\"hostnames\":[{\"hostname\":\"image.example.com\",\"providers\":[{\"integration_token_uuid\":\"i2paritycloudflaretun002\",\"integration_token_name\":\"Parity Tunnel\",\"zone\":\"image.example.com\",\"automatic_dns\":false,\"proxied_dns\":true}],\"records\":[]}]}"
+            }
+        },
+        {
+            "name": "dns application: status, public IPv4 and IPv6",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"default_address\":\"93.184.216.34\",\"public_addresses\":[\"93.184.216.34\",\"2606:4700::6810:84e5\"],\"hostnames\":[{\"hostname\":\"image.example.com\",\"providers\":[{\"integration_token_uuid\":\"i1paritycloudflaredns001\",\"integration_token_name\":\"Parity Cloudflare\",\"zone\":\"example.com\",\"automatic_dns\":true,\"proxied_dns\":false}],\"records\":[]}]}"
+            }
+        },
+        {
+            "name": "dns application: status, a public IPv6 only",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"default_address\":\"203.0.113.10\",\"public_addresses\":[\"203.0.113.10\",\"2606:4700::6810:84e5\"],\"hostnames\":[{\"hostname\":\"image.example.com\",\"providers\":[{\"integration_token_uuid\":\"i1paritycloudflaredns001\",\"integration_token_name\":\"Parity Cloudflare\",\"zone\":\"example.com\",\"automatic_dns\":true,\"proxied_dns\":false}],\"records\":[]}]}"
+            }
+        },
+        {
+            "name": "dns application: status, a private server",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"default_address\":null,\"public_addresses\":[],\"hostnames\":[{\"hostname\":\"image.example.com\",\"providers\":[{\"integration_token_uuid\":\"i1paritycloudflaredns001\",\"integration_token_name\":\"Parity Cloudflare\",\"zone\":\"example.com\",\"automatic_dns\":true,\"proxied_dns\":false}],\"records\":[]}]}"
+            }
+        },
+        {
+            "name": "dns application: status, a CGNAT public IPv4",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"default_address\":null,\"public_addresses\":[],\"hostnames\":[{\"hostname\":\"image.example.com\",\"providers\":[{\"integration_token_uuid\":\"i1paritycloudflaredns001\",\"integration_token_name\":\"Parity Cloudflare\",\"zone\":\"example.com\",\"automatic_dns\":true,\"proxied_dns\":false}],\"records\":[]}]}"
+            }
+        },
+        {
+            "name": "dns application: status, an IPv6 server",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"default_address\":\"2606:4700::1\",\"public_addresses\":[\"2606:4700::1\"],\"hostnames\":[{\"hostname\":\"image.example.com\",\"providers\":[{\"integration_token_uuid\":\"i1paritycloudflaredns001\",\"integration_token_name\":\"Parity Cloudflare\",\"zone\":\"example.com\",\"automatic_dns\":true,\"proxied_dns\":false}],\"records\":[]}]}"
+            }
+        },
+        {
+            "name": "dns application: status, compose domains",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"default_address\":\"203.0.113.10\",\"public_addresses\":[\"203.0.113.10\"],\"hostnames\":[{\"hostname\":\"image.example.com\",\"providers\":[{\"integration_token_uuid\":\"i1paritycloudflaredns001\",\"integration_token_name\":\"Parity Cloudflare\",\"zone\":\"example.com\",\"automatic_dns\":true,\"proxied_dns\":false}],\"records\":[]},{\"hostname\":\"web.example.org\",\"providers\":[{\"integration_token_uuid\":\"i1paritycloudflaredns001\",\"integration_token_name\":\"Parity Cloudflare\",\"zone\":\"example.org\",\"automatic_dns\":true,\"proxied_dns\":false}],\"records\":[]}]}"
+            }
+        },
+        {
+            "name": "dns application: status, no domains",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"default_address\":\"203.0.113.10\",\"public_addresses\":[\"203.0.113.10\"],\"hostnames\":[]}"
+            }
+        },
+        {
+            "name": "dns application: status, unknown",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Application not found.\"}"
+            }
+        },
+        {
+            "name": "dns application: status, another team's",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Application not found.\"}"
+            }
+        },
+        {
+            "name": "dns service: status",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"default_address\":\"203.0.113.10\",\"public_addresses\":[\"203.0.113.10\"],\"hostnames\":[{\"hostname\":\"web.example.com\",\"providers\":[{\"integration_token_uuid\":\"i1paritycloudflaredns001\",\"integration_token_name\":\"Parity Cloudflare\",\"zone\":\"example.com\",\"automatic_dns\":true,\"proxied_dns\":false}],\"records\":[]}]}"
+            }
+        },
+        {
+            "name": "dns service: status with several domains and a record",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"default_address\":\"203.0.113.10\",\"public_addresses\":[\"203.0.113.10\"],\"hostnames\":[{\"hostname\":\"web.example.com\",\"providers\":[{\"integration_token_uuid\":\"i1paritycloudflaredns001\",\"integration_token_name\":\"Parity Cloudflare\",\"zone\":\"example.com\",\"automatic_dns\":true,\"proxied_dns\":false}],\"records\":[{\"uuid\":\"m8paritydnsweb0000000008\",\"hostname\":\"web.example.com\",\"type\":\"A\",\"address\":\"203.0.113.10\",\"owned\":true,\"integration_token_uuid\":\"i1paritycloudflaredns001\"}]},{\"hostname\":\"web2.example.org\",\"providers\":[{\"integration_token_uuid\":\"i1paritycloudflaredns001\",\"integration_token_name\":\"Parity Cloudflare\",\"zone\":\"example.org\",\"automatic_dns\":true,\"proxied_dns\":false}],\"records\":[]}]}"
+            }
+        },
+        {
+            "name": "dns service: status, a private server",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"default_address\":null,\"public_addresses\":[],\"hostnames\":[{\"hostname\":\"web.example.com\",\"providers\":[{\"integration_token_uuid\":\"i1paritycloudflaredns001\",\"integration_token_name\":\"Parity Cloudflare\",\"zone\":\"example.com\",\"automatic_dns\":true,\"proxied_dns\":false}],\"records\":[]}]}"
+            }
+        },
+        {
+            "name": "dns service: status, unknown",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Service not found.\"}"
+            }
+        },
+        {
+            "name": "dns service: status, another team's",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Service not found.\"}"
+            }
+        },
+        {
+            "name": "dns application: create a record",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"record\":{\"uuid\":\"gsicz5msqjoff1bkigojfbzd\",\"hostname\":\"image.example.com\",\"type\":\"A\",\"address\":\"203.0.113.10\",\"owned\":true,\"integration_token_uuid\":\"i1paritycloudflaredns001\"}}"
+            },
+            "after": {
+                "records": [
+                    {
+                        "fixture_uuid": null,
+                        "token": "i1paritycloudflaredns001",
+                        "zone": "zone-com",
+                        "provider_record_id": "rec-new",
+                        "type": "A",
+                        "name": "image.example.com",
+                        "content": "203.0.113.10",
+                        "owned": true
+                    }
+                ],
+                "references": [
+                    {
+                        "name": "image.example.com",
+                        "resource_type": "App\\Models\\Application",
+                        "resource_id": 1
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records?type=A&name=image.example.com&per_page=100",
+                    "authorization": "Bearer cf-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records",
+                    "authorization": "Bearer cf-team1-token",
+                    "body": {
+                        "type": "A",
+                        "name": "image.example.com",
+                        "content": "203.0.113.10",
+                        "ttl": 1,
+                        "proxied": false,
+                        "comment": "managed-by: coolify default/gsicz5msqjoff1bkigojfbzd"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "dns application: create a record, the hostname as written",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"record\":{\"uuid\":\"zhjekn0ekpfwu1jlhoset06h\",\"hostname\":\"image.example.com\",\"type\":\"A\",\"address\":\"203.0.113.10\",\"owned\":true,\"integration_token_uuid\":\"i1paritycloudflaredns001\"}}"
+            },
+            "after": {
+                "records": [
+                    {
+                        "fixture_uuid": null,
+                        "token": "i1paritycloudflaredns001",
+                        "zone": "zone-com",
+                        "provider_record_id": "rec-new",
+                        "type": "A",
+                        "name": "image.example.com",
+                        "content": "203.0.113.10",
+                        "owned": true
+                    }
+                ],
+                "references": [
+                    {
+                        "name": "image.example.com",
+                        "resource_type": "App\\Models\\Application",
+                        "resource_id": 1
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records?type=A&name=image.example.com&per_page=100",
+                    "authorization": "Bearer cf-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records",
+                    "authorization": "Bearer cf-team1-token",
+                    "body": {
+                        "type": "A",
+                        "name": "image.example.com",
+                        "content": "203.0.113.10",
+                        "ttl": 1,
+                        "proxied": false,
+                        "comment": "managed-by: coolify default/zhjekn0ekpfwu1jlhoset06h"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "dns application: create a proxied record",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"record\":{\"uuid\":\"ashfawx71udox1nwqmitrqsc\",\"hostname\":\"app.example.net\",\"type\":\"A\",\"address\":\"203.0.113.10\",\"owned\":true,\"integration_token_uuid\":\"i2paritycloudflaretun002\"}}"
+            },
+            "after": {
+                "records": [
+                    {
+                        "fixture_uuid": null,
+                        "token": "i2paritycloudflaretun002",
+                        "zone": "zone-net",
+                        "provider_record_id": "rec-net-new",
+                        "type": "A",
+                        "name": "app.example.net",
+                        "content": "203.0.113.10",
+                        "owned": true
+                    }
+                ],
+                "references": [
+                    {
+                        "name": "app.example.net",
+                        "resource_type": "App\\Models\\Application",
+                        "resource_id": 1
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-net/dns_records?type=A&name=app.example.net&per_page=100",
+                    "authorization": "Bearer cf-team1-tunnel"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-net/dns_records",
+                    "authorization": "Bearer cf-team1-tunnel",
+                    "body": {
+                        "type": "A",
+                        "name": "app.example.net",
+                        "content": "203.0.113.10",
+                        "ttl": 1,
+                        "proxied": true,
+                        "comment": "managed-by: coolify default/ashfawx71udox1nwqmitrqsc"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "dns application: create an AAAA record",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"record\":{\"uuid\":\"ldu2o9ixgsfrvn3qnmimzyaz\",\"hostname\":\"image.example.com\",\"type\":\"AAAA\",\"address\":\"2606:4700::6810:84e5\",\"owned\":true,\"integration_token_uuid\":\"i1paritycloudflaredns001\"}}"
+            },
+            "after": {
+                "records": [
+                    {
+                        "fixture_uuid": null,
+                        "token": "i1paritycloudflaredns001",
+                        "zone": "zone-com",
+                        "provider_record_id": "rec-v6",
+                        "type": "AAAA",
+                        "name": "image.example.com",
+                        "content": "2606:4700::6810:84e5",
+                        "owned": true
+                    }
+                ],
+                "references": [
+                    {
+                        "name": "image.example.com",
+                        "resource_type": "App\\Models\\Application",
+                        "resource_id": 1
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records?type=AAAA&name=image.example.com&per_page=100",
+                    "authorization": "Bearer cf-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records",
+                    "authorization": "Bearer cf-team1-token",
+                    "body": {
+                        "type": "AAAA",
+                        "name": "image.example.com",
+                        "content": "2606:4700::6810:84e5",
+                        "ttl": 1,
+                        "proxied": false,
+                        "comment": "managed-by: coolify default/ldu2o9ixgsfrvn3qnmimzyaz"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "dns application: create a record of the public IPv4",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"record\":{\"uuid\":\"0vxysxrptd4js9l5bb3mfyjk\",\"hostname\":\"image.example.com\",\"type\":\"A\",\"address\":\"93.184.216.34\",\"owned\":true,\"integration_token_uuid\":\"i1paritycloudflaredns001\"}}"
+            },
+            "after": {
+                "records": [
+                    {
+                        "fixture_uuid": null,
+                        "token": "i1paritycloudflaredns001",
+                        "zone": "zone-com",
+                        "provider_record_id": "rec-new",
+                        "type": "A",
+                        "name": "image.example.com",
+                        "content": "93.184.216.34",
+                        "owned": true
+                    }
+                ],
+                "references": [
+                    {
+                        "name": "image.example.com",
+                        "resource_type": "App\\Models\\Application",
+                        "resource_id": 1
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records?type=A&name=image.example.com&per_page=100",
+                    "authorization": "Bearer cf-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records",
+                    "authorization": "Bearer cf-team1-token",
+                    "body": {
+                        "type": "A",
+                        "name": "image.example.com",
+                        "content": "93.184.216.34",
+                        "ttl": 1,
+                        "proxied": false,
+                        "comment": "managed-by: coolify default/0vxysxrptd4js9l5bb3mfyjk"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "dns application: create, a record of the address exists",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"record\":{\"uuid\":\"m0kuuhkokvla5zupz662z2r2\",\"hostname\":\"image.example.com\",\"type\":\"A\",\"address\":\"203.0.113.10\",\"owned\":false,\"integration_token_uuid\":\"i1paritycloudflaredns001\"}}"
+            },
+            "after": {
+                "records": [
+                    {
+                        "fixture_uuid": null,
+                        "token": "i1paritycloudflaredns001",
+                        "zone": "zone-com",
+                        "provider_record_id": "rec-existing",
+                        "type": "A",
+                        "name": "image.example.com",
+                        "content": "203.0.113.10",
+                        "owned": false
+                    }
+                ],
+                "references": [
+                    {
+                        "name": "image.example.com",
+                        "resource_type": "App\\Models\\Application",
+                        "resource_id": 1
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records?type=A&name=image.example.com&per_page=100",
+                    "authorization": "Bearer cf-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "dns application: create, the tracked record",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"record\":{\"uuid\":\"m2paritydnsimage00000002\",\"hostname\":\"image.example.com\",\"type\":\"A\",\"address\":\"203.0.113.10\",\"owned\":true,\"integration_token_uuid\":\"i1paritycloudflaredns001\"}}"
+            },
+            "after": {
+                "records": [
+                    {
+                        "fixture_uuid": "m2paritydnsimage00000002",
+                        "token": "i1paritycloudflaredns001",
+                        "zone": "zone-com",
+                        "provider_record_id": "rec-image",
+                        "type": "A",
+                        "name": "image.example.com",
+                        "content": "203.0.113.10",
+                        "owned": true
+                    }
+                ],
+                "references": [
+                    {
+                        "name": "image.example.com",
+                        "resource_type": "App\\Models\\Application",
+                        "resource_id": 1
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records?type=A&name=image.example.com&per_page=100",
+                    "authorization": "Bearer cf-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "dns application: create, the tracked record changed its comment",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"record\":{\"uuid\":\"m2paritydnsimage00000002\",\"hostname\":\"image.example.com\",\"type\":\"A\",\"address\":\"203.0.113.10\",\"owned\":false,\"integration_token_uuid\":\"i1paritycloudflaredns001\"}}"
+            },
+            "after": {
+                "records": [
+                    {
+                        "fixture_uuid": "m2paritydnsimage00000002",
+                        "token": "i1paritycloudflaredns001",
+                        "zone": "zone-com",
+                        "provider_record_id": "rec-image",
+                        "type": "A",
+                        "name": "image.example.com",
+                        "content": "203.0.113.10",
+                        "owned": false
+                    }
+                ],
+                "references": [
+                    {
+                        "name": "image.example.com",
+                        "resource_type": "App\\Models\\Application",
+                        "resource_id": 1
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records?type=A&name=image.example.com&per_page=100",
+                    "authorization": "Bearer cf-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "dns application: create, a conflict",
+            "status": 409,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"DNS record already points to 198.51.100.7.\",\"conflict\":{\"record_id\":\"rec-other\",\"current\":\"198.51.100.7\",\"proposed\":\"203.0.113.10\"}}"
+            },
+            "after": {
+                "records": [],
+                "references": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records?type=A&name=image.example.com&per_page=100",
+                    "authorization": "Bearer cf-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "dns application: create, several records",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Several DNS records already exist for image.example.com. Update them in Cloudflare.\"}"
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records?type=A&name=image.example.com&per_page=100",
+                    "authorization": "Bearer cf-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "dns application: create, the matching record has no id",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Cloudflare DNS records could not be checked.\"}"
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records?type=A&name=image.example.com&per_page=100",
+                    "authorization": "Bearer cf-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "dns application: create, no DNS permission",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"The Cloudflare token needs the Zone \\u2192 DNS \\u2192 Edit permission.\"}"
+            },
+            "after": {
+                "records": [],
+                "references": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records?type=A&name=image.example.com&per_page=100",
+                    "authorization": "Bearer cf-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "dns application: create, the records not checked",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Cloudflare DNS records could not be checked.\"}"
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records?type=A&name=image.example.com&per_page=100",
+                    "authorization": "Bearer cf-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "dns application: create, Cloudflare unreachable",
+            "status": 500,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\n    \"message\": \"Server Error\"\n}"
+            },
+            "after": {
+                "records": [],
+                "references": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records?type=A&name=image.example.com&per_page=100",
+                    "authorization": "Bearer cf-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "dns application: create, the create refused",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"The Cloudflare token needs the Zone \\u2192 DNS \\u2192 Edit permission.\"}"
+            },
+            "after": {
+                "records": [],
+                "references": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records?type=A&name=image.example.com&per_page=100",
+                    "authorization": "Bearer cf-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records",
+                    "authorization": "Bearer cf-team1-token",
+                    "body": {
+                        "type": "A",
+                        "name": "image.example.com",
+                        "content": "203.0.113.10",
+                        "ttl": 1,
+                        "proxied": false,
+                        "comment": "managed-by: coolify default/wczlmm5bewppkdyttnnbxqek"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "dns application: create, the create failed",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Cloudflare could not create the DNS record.\"}"
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records?type=A&name=image.example.com&per_page=100",
+                    "authorization": "Bearer cf-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records",
+                    "authorization": "Bearer cf-team1-token",
+                    "body": {
+                        "type": "A",
+                        "name": "image.example.com",
+                        "content": "203.0.113.10",
+                        "ttl": 1,
+                        "proxied": false,
+                        "comment": "managed-by: coolify default/alipffw3nxhtf6e6p8gm8asu"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "dns application: create, no record id",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Cloudflare could not create the DNS record.\"}"
+            },
+            "after": {
+                "records": [],
+                "references": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records?type=A&name=image.example.com&per_page=100",
+                    "authorization": "Bearer cf-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records",
+                    "authorization": "Bearer cf-team1-token",
+                    "body": {
+                        "type": "A",
+                        "name": "image.example.com",
+                        "content": "203.0.113.10",
+                        "ttl": 1,
+                        "proxied": false,
+                        "comment": "managed-by: coolify default/ze4i6dugfthk1yewwubotrdk"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "dns application: create, not a domain of the application",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"hostname\":[\"other.example.com is not a domain of this resource.\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "dns application: create, the validation",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"hostname\":[\"The hostname field must not be greater than 255 characters.\"],\"integration_token_uuid\":[\"The integration token uuid field must be a string.\"],\"address\":[\"The address field must be a string.\"],\"proxied\":[\"This field is not allowed.\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "dns application: create, no hostname",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"hostname\":[\"This field is required.\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "dns application: create, not JSON",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Invalid request.\",\"error\":\"Content-Type must be application\\/json.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "dns application: create, an empty body",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Invalid request.\",\"error\":\"Empty JSON.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "dns application: create, a private server",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"address\":[\"The server has no public IP address; add the DNS record manually.\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "dns application: create, an address not of the server",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"address\":[\"The address must be a public address of the server: 93.184.216.34, 2606:4700::6810:84e5.\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "dns application: create, no zone",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"integration_token_uuid\":[\"No connected DNS provider of the team manages nozone.test.\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "dns application: create, two tokens manage the zone",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"integration_token_uuid\":[\"Several DNS providers manage image.example.com. Set integration_token_uuid to one of: i1paritycloudflaredns001, i2paritycloudflaretun002.\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "dns application: create, the token chosen",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"record\":{\"uuid\":\"t4rar1rid5szeexnxgngmcdk\",\"hostname\":\"image.example.com\",\"type\":\"A\",\"address\":\"203.0.113.10\",\"owned\":true,\"integration_token_uuid\":\"i2paritycloudflaretun002\"}}"
+            },
+            "after": {
+                "records": [
+                    {
+                        "fixture_uuid": null,
+                        "token": "i2paritycloudflaretun002",
+                        "zone": "zone-com-2",
+                        "provider_record_id": "rec-dup",
+                        "type": "A",
+                        "name": "image.example.com",
+                        "content": "203.0.113.10",
+                        "owned": true
+                    }
+                ],
+                "references": [
+                    {
+                        "name": "image.example.com",
+                        "resource_type": "App\\Models\\Application",
+                        "resource_id": 1
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com-2/dns_records?type=A&name=image.example.com&per_page=100",
+                    "authorization": "Bearer cf-team1-tunnel"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com-2/dns_records",
+                    "authorization": "Bearer cf-team1-tunnel",
+                    "body": {
+                        "type": "A",
+                        "name": "image.example.com",
+                        "content": "203.0.113.10",
+                        "ttl": 1,
+                        "proxied": true,
+                        "comment": "managed-by: coolify default/t4rar1rid5szeexnxgngmcdk"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "dns application: create, a token that does not manage it",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"integration_token_uuid\":[\"No connected DNS provider of the team manages image.example.com.\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "dns application: create, a transferred server",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"This server is managed by another Coolify instance.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "dns application: create, unknown",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Application not found.\"}"
+            }
+        },
+        {
+            "name": "dns application: create with a read token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: write\"}"
+            }
+        },
+        {
+            "name": "dns service: create a record",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"record\":{\"uuid\":\"rvfeh3qba1uxh2q1k1ry85wx\",\"hostname\":\"web.example.com\",\"type\":\"A\",\"address\":\"203.0.113.10\",\"owned\":true,\"integration_token_uuid\":\"i1paritycloudflaredns001\"}}"
+            },
+            "after": {
+                "records": [
+                    {
+                        "fixture_uuid": null,
+                        "token": "i1paritycloudflaredns001",
+                        "zone": "zone-com",
+                        "provider_record_id": "rec-web",
+                        "type": "A",
+                        "name": "web.example.com",
+                        "content": "203.0.113.10",
+                        "owned": true
+                    }
+                ],
+                "references": [
+                    {
+                        "name": "web.example.com",
+                        "resource_type": "App\\Models\\ServiceApplication",
+                        "resource_id": 1
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records?type=A&name=web.example.com&per_page=100",
+                    "authorization": "Bearer cf-team1-token"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records",
+                    "authorization": "Bearer cf-team1-token",
+                    "body": {
+                        "type": "A",
+                        "name": "web.example.com",
+                        "content": "203.0.113.10",
+                        "ttl": 1,
+                        "proxied": false,
+                        "comment": "managed-by: coolify default/rvfeh3qba1uxh2q1k1ry85wx"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "dns service: create, not a domain of the service",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"hostname\":[\"image.example.com is not a domain of this resource.\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "dns service: create, unknown",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Service not found.\"}"
+            }
+        },
+        {
+            "name": "dns application: replace a record",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"record\":{\"uuid\":\"nmkmuzaqdudl3nbumiwe3hlj\",\"hostname\":\"image.example.com\",\"type\":\"A\",\"address\":\"203.0.113.10\",\"owned\":false,\"integration_token_uuid\":\"i1paritycloudflaredns001\"}}"
+            },
+            "after": {
+                "records": [
+                    {
+                        "fixture_uuid": null,
+                        "token": "i1paritycloudflaredns001",
+                        "zone": "zone-com",
+                        "provider_record_id": "rec-other",
+                        "type": "A",
+                        "name": "image.example.com",
+                        "content": "203.0.113.10",
+                        "owned": false
+                    }
+                ],
+                "references": [
+                    {
+                        "name": "image.example.com",
+                        "resource_type": "App\\Models\\Application",
+                        "resource_id": 1
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records?type=A&name=image.example.com&per_page=100",
+                    "authorization": "Bearer cf-team1-token"
+                },
+                {
+                    "method": "PATCH",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records/rec-other",
+                    "authorization": "Bearer cf-team1-token",
+                    "body": {
+                        "content": "203.0.113.10"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "dns application: replace, the tracked record",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"record\":{\"uuid\":\"m2paritydnsimage00000002\",\"hostname\":\"image.example.com\",\"type\":\"A\",\"address\":\"203.0.113.10\",\"owned\":true,\"integration_token_uuid\":\"i1paritycloudflaredns001\"}}"
+            },
+            "after": {
+                "records": [
+                    {
+                        "fixture_uuid": "m2paritydnsimage00000002",
+                        "token": "i1paritycloudflaredns001",
+                        "zone": "zone-com",
+                        "provider_record_id": "rec-other",
+                        "type": "A",
+                        "name": "image.example.com",
+                        "content": "203.0.113.10",
+                        "owned": true
+                    }
+                ],
+                "references": [
+                    {
+                        "name": "image.example.com",
+                        "resource_type": "App\\Models\\Application",
+                        "resource_id": 1
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records?type=A&name=image.example.com&per_page=100",
+                    "authorization": "Bearer cf-team1-token"
+                },
+                {
+                    "method": "PATCH",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records/rec-other",
+                    "authorization": "Bearer cf-team1-token",
+                    "body": {
+                        "content": "203.0.113.10"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "dns application: replace, the conflict is gone",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"The DNS conflict is no longer available. Check the record again.\"}"
+            },
+            "after": {
+                "records": [],
+                "references": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records?type=A&name=image.example.com&per_page=100",
+                    "authorization": "Bearer cf-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "dns application: replace, another record",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"The DNS conflict is no longer available. Check the record again.\"}"
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records?type=A&name=image.example.com&per_page=100",
+                    "authorization": "Bearer cf-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "dns application: replace, the record changed",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"The DNS conflict is no longer available. Check the record again.\"}"
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records?type=A&name=image.example.com&per_page=100",
+                    "authorization": "Bearer cf-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "dns application: replace, several records",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Several DNS records already exist for image.example.com. Update them in Cloudflare.\"}"
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records?type=A&name=image.example.com&per_page=100",
+                    "authorization": "Bearer cf-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "dns application: replace, refused",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"The Cloudflare token needs the Zone \\u2192 DNS \\u2192 Edit permission.\"}"
+            },
+            "after": {
+                "records": [],
+                "references": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records?type=A&name=image.example.com&per_page=100",
+                    "authorization": "Bearer cf-team1-token"
+                },
+                {
+                    "method": "PATCH",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records/rec-other",
+                    "authorization": "Bearer cf-team1-token",
+                    "body": {
+                        "content": "203.0.113.10"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "dns application: replace, failed",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Cloudflare could not replace the conflicting DNS record.\"}"
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records?type=A&name=image.example.com&per_page=100",
+                    "authorization": "Bearer cf-team1-token"
+                },
+                {
+                    "method": "PATCH",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records/rec-other",
+                    "authorization": "Bearer cf-team1-token",
+                    "body": {
+                        "content": "203.0.113.10"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "dns application: replace, the validation",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"record_id\":[\"This field is required.\"],\"current\":[\"The current field must be a string.\"],\"extra\":[\"This field is not allowed.\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "dns application: replace, not a domain of the application",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"hostname\":[\"nope.example.com is not a domain of this resource.\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "dns service: replace a record",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"record\":{\"uuid\":\"nmiynsbmgsgndhuep2g3jx5u\",\"hostname\":\"web.example.com\",\"type\":\"A\",\"address\":\"203.0.113.10\",\"owned\":false,\"integration_token_uuid\":\"i1paritycloudflaredns001\"}}"
+            },
+            "after": {
+                "records": [
+                    {
+                        "fixture_uuid": null,
+                        "token": "i1paritycloudflaredns001",
+                        "zone": "zone-com",
+                        "provider_record_id": "rec-w",
+                        "type": "A",
+                        "name": "web.example.com",
+                        "content": "203.0.113.10",
+                        "owned": false
+                    }
+                ],
+                "references": [
+                    {
+                        "name": "web.example.com",
+                        "resource_type": "App\\Models\\ServiceApplication",
+                        "resource_id": 1
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records?type=A&name=web.example.com&per_page=100",
+                    "authorization": "Bearer cf-team1-token"
+                },
+                {
+                    "method": "PATCH",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records/rec-w",
+                    "authorization": "Bearer cf-team1-token",
+                    "body": {
+                        "content": "203.0.113.10"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "dns application: release, deleted",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"result\":\"deleted\",\"message\":\"The DNS record was deleted.\"}"
+            },
+            "after": {
+                "records": [],
+                "references": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records/rec-old",
+                    "authorization": "Bearer cf-team1-token"
+                },
+                {
+                    "method": "DELETE",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records/rec-old",
+                    "authorization": "Bearer cf-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "dns application: release, the hostname as written",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"result\":\"deleted\",\"message\":\"The DNS record was deleted.\"}"
+            },
+            "after": {
+                "records": [],
+                "references": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records/rec-old",
+                    "authorization": "Bearer cf-team1-token"
+                },
+                {
+                    "method": "DELETE",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records/rec-old",
+                    "authorization": "Bearer cf-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "dns application: release, already gone",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"result\":\"already_gone\",\"message\":\"The DNS record no longer existed.\"}"
+            },
+            "after": {
+                "records": [],
+                "references": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records/rec-old",
+                    "authorization": "Bearer cf-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "dns application: release, gone while deleting",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"result\":\"already_gone\",\"message\":\"The DNS record no longer existed.\"}"
+            },
+            "after": {
+                "records": [],
+                "references": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records/rec-old",
+                    "authorization": "Bearer cf-team1-token"
+                },
+                {
+                    "method": "DELETE",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records/rec-old",
+                    "authorization": "Bearer cf-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "dns application: release, changed outside",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"result\":\"changed_externally\",\"message\":\"The DNS record changed outside Coolify, so it was kept.\"}"
+            },
+            "after": {
+                "records": [],
+                "references": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records/rec-old",
+                    "authorization": "Bearer cf-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "dns application: release, another comment",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"result\":\"changed_externally\",\"message\":\"The DNS record changed outside Coolify, so it was kept.\"}"
+            },
+            "after": {
+                "records": [],
+                "references": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records/rec-old",
+                    "authorization": "Bearer cf-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "dns application: release, Cloudflare failed",
+            "status": 502,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Cloudflare did not respond. The record was left untouched; try again.\"}"
+            },
+            "after": {
+                "records": [
+                    {
+                        "fixture_uuid": "m3paritydnsold0000000003",
+                        "token": "i1paritycloudflaredns001",
+                        "zone": "zone-com",
+                        "provider_record_id": "rec-old",
+                        "type": "A",
+                        "name": "old.example.com",
+                        "content": "203.0.113.10",
+                        "owned": true
+                    }
+                ],
+                "references": [
+                    {
+                        "name": "old.example.com",
+                        "resource_type": "App\\Models\\Application",
+                        "resource_id": 1
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records/rec-old",
+                    "authorization": "Bearer cf-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "dns application: release, the delete failed",
+            "status": 502,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Cloudflare did not respond. The record was left untouched; try again.\"}"
+            },
+            "after": {
+                "records": [
+                    {
+                        "fixture_uuid": "m3paritydnsold0000000003",
+                        "token": "i1paritycloudflaredns001",
+                        "zone": "zone-com",
+                        "provider_record_id": "rec-old",
+                        "type": "A",
+                        "name": "old.example.com",
+                        "content": "203.0.113.10",
+                        "owned": true
+                    }
+                ],
+                "references": [
+                    {
+                        "name": "old.example.com",
+                        "resource_type": "App\\Models\\Application",
+                        "resource_id": 1
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records/rec-old",
+                    "authorization": "Bearer cf-team1-token"
+                },
+                {
+                    "method": "DELETE",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records/rec-old",
+                    "authorization": "Bearer cf-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "dns application: release, Cloudflare unreachable",
+            "status": 502,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Cloudflare did not respond. The record was left untouched; try again.\"}"
+            },
+            "after": {
+                "records": [
+                    {
+                        "fixture_uuid": "m3paritydnsold0000000003",
+                        "token": "i1paritycloudflaredns001",
+                        "zone": "zone-com",
+                        "provider_record_id": "rec-old",
+                        "type": "A",
+                        "name": "old.example.com",
+                        "content": "203.0.113.10",
+                        "owned": true
+                    }
+                ],
+                "references": [
+                    {
+                        "name": "old.example.com",
+                        "resource_type": "App\\Models\\Application",
+                        "resource_id": 1
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records/rec-old",
+                    "authorization": "Bearer cf-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "dns application: release, not owned",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"result\":\"not_owned\",\"message\":\"Coolify did not create the DNS record, so it was kept.\"}"
+            },
+            "after": {
+                "records": [],
+                "references": []
+            },
+            "requests": []
+        },
+        {
+            "name": "dns application: release, kept on request",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"result\":\"kept\",\"message\":\"The DNS record was kept: another resource uses the hostname, or delete_record was false.\"}"
+            },
+            "after": {
+                "records": [],
+                "references": []
+            },
+            "requests": []
+        },
+        {
+            "name": "dns application: release, another application references it",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"result\":\"kept\",\"message\":\"The DNS record was kept: another resource uses the hostname, or delete_record was false.\"}"
+            },
+            "after": {
+                "records": [
+                    {
+                        "fixture_uuid": "m3paritydnsold0000000003",
+                        "token": "i1paritycloudflaredns001",
+                        "zone": "zone-com",
+                        "provider_record_id": "rec-old",
+                        "type": "A",
+                        "name": "old.example.com",
+                        "content": "203.0.113.10",
+                        "owned": true
+                    }
+                ],
+                "references": [
+                    {
+                        "name": "old.example.com",
+                        "resource_type": "App\\Models\\Application",
+                        "resource_id": 2
+                    }
+                ]
+            },
+            "requests": []
+        },
+        {
+            "name": "dns application: release, a dead reference",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"result\":\"deleted\",\"message\":\"The DNS record was deleted.\"}"
+            },
+            "after": {
+                "records": [],
+                "references": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records/rec-old",
+                    "authorization": "Bearer cf-team1-token"
+                },
+                {
+                    "method": "DELETE",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records/rec-old",
+                    "authorization": "Bearer cf-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "dns application: release, another application uses the hostname",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"result\":\"kept\",\"message\":\"The DNS record was kept: another resource uses the hostname, or delete_record was false.\"}"
+            },
+            "after": {
+                "records": [
+                    {
+                        "fixture_uuid": "m3paritydnsold0000000003",
+                        "token": "i1paritycloudflaredns001",
+                        "zone": "zone-com",
+                        "provider_record_id": "rec-old",
+                        "type": "A",
+                        "name": "old.example.com",
+                        "content": "203.0.113.10",
+                        "owned": true
+                    }
+                ],
+                "references": [
+                    {
+                        "name": "old.example.com",
+                        "resource_type": "App\\Models\\Application",
+                        "resource_id": 2
+                    }
+                ]
+            },
+            "requests": []
+        },
+        {
+            "name": "dns application: release, a preview uses the hostname",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"result\":\"kept\",\"message\":\"The DNS record was kept: another resource uses the hostname, or delete_record was false.\"}"
+            },
+            "after": {
+                "records": [
+                    {
+                        "fixture_uuid": "m3paritydnsold0000000003",
+                        "token": "i1paritycloudflaredns001",
+                        "zone": "zone-com",
+                        "provider_record_id": "rec-old",
+                        "type": "A",
+                        "name": "old.example.com",
+                        "content": "203.0.113.10",
+                        "owned": true
+                    }
+                ],
+                "references": [
+                    {
+                        "name": "old.example.com",
+                        "resource_type": "App\\Models\\ApplicationPreview",
+                        "resource_id": 3
+                    }
+                ]
+            },
+            "requests": []
+        },
+        {
+            "name": "dns application: release, still a domain",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"hostname\":[\"The resource still uses image.example.com. Remove the domain first; its DNS record is then released.\"]}}"
+            },
+            "after": {
+                "records": [
+                    {
+                        "fixture_uuid": "m2paritydnsimage00000002",
+                        "token": "i1paritycloudflaredns001",
+                        "zone": "zone-com",
+                        "provider_record_id": "rec-image",
+                        "type": "A",
+                        "name": "image.example.com",
+                        "content": "203.0.113.10",
+                        "owned": true
+                    }
+                ],
+                "references": [
+                    {
+                        "name": "image.example.com",
+                        "resource_type": "App\\Models\\Application",
+                        "resource_id": 1
+                    }
+                ]
+            },
+            "requests": []
+        },
+        {
+            "name": "dns application: release, no record",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"No managed DNS record of this resource for Nothing.example.com.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "dns application: release, a record of another resource",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"No managed DNS record of this resource for old.example.com.\"}"
+            },
+            "after": {
+                "records": [
+                    {
+                        "fixture_uuid": "m3paritydnsold0000000003",
+                        "token": "i1paritycloudflaredns001",
+                        "zone": "zone-com",
+                        "provider_record_id": "rec-old",
+                        "type": "A",
+                        "name": "old.example.com",
+                        "content": "203.0.113.10",
+                        "owned": true
+                    }
+                ],
+                "references": [
+                    {
+                        "name": "old.example.com",
+                        "resource_type": "App\\Models\\Application",
+                        "resource_id": 2
+                    }
+                ]
+            },
+            "requests": []
+        },
+        {
+            "name": "dns application: release, unknown",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Application not found.\"}"
+            }
+        },
+        {
+            "name": "dns application: release with a write token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: delete\"}"
+            }
+        },
+        {
+            "name": "dns service: release, deleted",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"result\":\"deleted\",\"message\":\"The DNS record was deleted.\"}"
+            },
+            "after": {
+                "records": [],
+                "references": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records/rec-oldweb",
+                    "authorization": "Bearer cf-team1-token"
+                },
+                {
+                    "method": "DELETE",
+                    "url": "https://api.cloudflare.com/client/v4/zones/zone-com/dns_records/rec-oldweb",
+                    "authorization": "Bearer cf-team1-token"
+                }
+            ]
+        },
+        {
+            "name": "dns service: release, still a domain",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"hostname\":[\"The resource still uses web.example.com. Remove the domain first; its DNS record is then released.\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "dns service: release, no record",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"No managed DNS record of this resource for old-web.example.com.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "denied: dns zones: list, a member",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"You are not authorized to perform this action.\",\"error\":\"Unauthorized\"}"
+            }
+        },
+        {
+            "name": "denied: dns application: release, deleted, a member with read:sensitive, deploy and delete",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"You need at least admin or owner permissions to update this application.\",\"error\":\"Unauthorized\"}"
+            },
+            "after": {
+                "records": [
+                    {
+                        "fixture_uuid": "m3paritydnsold0000000003",
+                        "token": "i1paritycloudflaredns001",
+                        "zone": "zone-com",
+                        "provider_record_id": "rec-old",
+                        "type": "A",
+                        "name": "old.example.com",
+                        "content": "203.0.113.10",
+                        "owned": true
+                    }
+                ],
+                "references": [
+                    {
+                        "name": "old.example.com",
+                        "resource_type": "App\\Models\\Application",
+                        "resource_id": 1
+                    }
+                ]
+            },
+            "requests": []
+        },
+        {
+            "name": "denied: dns service: release, deleted, a member with read:sensitive, deploy and delete",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"You are not authorized to perform this action.\",\"error\":\"Unauthorized\"}"
+            },
+            "after": {
+                "records": [
+                    {
+                        "fixture_uuid": "m4paritydnsoldweb0000004",
+                        "token": "i1paritycloudflaredns001",
+                        "zone": "zone-com",
+                        "provider_record_id": "rec-oldweb",
+                        "type": "A",
+                        "name": "old-web.example.com",
+                        "content": "203.0.113.10",
+                        "owned": true
+                    }
+                ],
+                "references": [
+                    {
+                        "name": "old-web.example.com",
+                        "resource_type": "App\\Models\\ServiceApplication",
+                        "resource_id": 1
+                    }
+                ]
+            },
+            "requests": []
         }
     ]
 }

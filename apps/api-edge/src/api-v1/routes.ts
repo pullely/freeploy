@@ -85,6 +85,8 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("PATCH", "/security/integration-tokens/{uuid}", "write", "deploy"),
   r("DELETE", "/security/integration-tokens/{uuid}", "delete", "deploy"),
   r("POST", "/security/integration-tokens/{uuid}/sync-zones", "write", "deploy"),
+  // DP-105: the team's Cloudflare zones
+  r("GET", "/dns/zones", "read", "deploy"),
 
   // DP-88: GitHub Apps
   r("GET", "/github-apps", "read", "deploy"),
@@ -224,6 +226,11 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("GET", "/applications/{uuid}/previews/{pull_request_id}", "read", "deploy"),
   r("PATCH", "/applications/{uuid}/previews/{pull_request_id}", "write", "deploy"),
   r("DELETE", "/applications/{uuid}/previews/{pull_request_id}", "delete", "deploy"),
+  // DP-105: the managed DNS records of an application's domains
+  r("GET", "/applications/{uuid}/dns", "read", "deploy"),
+  r("POST", "/applications/{uuid}/dns", "write", "deploy"),
+  r("POST", "/applications/{uuid}/dns/replace", "write", "deploy"),
+  r("DELETE", "/applications/{uuid}/dns/{hostname}", "delete", "deploy"),
   // DP-81: HandlesTagsApi
   r("GET", "/applications/{uuid}/tags", "read", "deploy"),
   r("POST", "/applications/{uuid}/tags", "write", "deploy"),
@@ -324,6 +331,11 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("PATCH", "/services/{uuid}/envs/bulk", "write", "deploy"),
   r("PATCH", "/services/{uuid}/envs", "write", "deploy"),
   r("DELETE", "/services/{uuid}/envs/{env_uuid}", "delete", "deploy"),
+  // DP-105: the managed DNS records of a service's domains
+  r("GET", "/services/{uuid}/dns", "read", "deploy"),
+  r("POST", "/services/{uuid}/dns", "write", "deploy"),
+  r("POST", "/services/{uuid}/dns/replace", "write", "deploy"),
+  r("DELETE", "/services/{uuid}/dns/{hostname}", "delete", "deploy"),
   // DP-85: a service's applications and databases (DP-88: and a service database's imports)
   r("GET", "/services/{uuid}/applications", "read", "deploy"),
   r("GET", "/services/{uuid}/applications/{app_uuid}", "read", "deploy"),
