@@ -99,7 +99,7 @@ const DENIALS = CASES.cases.filter((c) => c.name.startsWith("denied: "));
 
 describe("the denial goldens (DP-93)", () => {
   it("are Coolify's exception handler answering a policy, for a member, on a route of every group that has one", () => {
-    expect(DENIALS.length).toBe(39);
+    expect(DENIALS.length).toBe(42);
     for (const c of DENIALS) {
       expect(roleOf(tokenOf(c.token!).user)).toBe("member");
       const g = golden(c.name);
@@ -109,7 +109,7 @@ describe("the denial goldens (DP-93)", () => {
     }
     // The policies with their own message (Response::deny()) and those that answer false.
     const messages = new Set(DENIALS.map((c) => (JSON.parse(golden(c.name).body.json!) as { message: string }).message));
-    expect([...messages].sort()).toEqual([POLICY_DENIALS.applicationUpdate, "You are not authorized to perform this action."].sort());
+    expect([...messages].sort()).toEqual([POLICY_DENIALS.applicationUpdate, POLICY_DENIALS.databaseUpdate, "You are not authorized to perform this action."].sort());
   });
 });
 

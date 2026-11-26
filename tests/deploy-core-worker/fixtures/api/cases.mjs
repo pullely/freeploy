@@ -3072,6 +3072,246 @@ denial("gitlab apps: create", "memberWrite", WRITE_DELETE, WRITER);
 denial("gitlab apps: update", "memberWrite", WRITE_DELETE, WRITER);
 denial("gitlab apps: delete", "memberDelete", WRITE_DELETE, WRITER);
 
+// ── DP-106: a resource's secret manager source (SecretManagerController) ────
+// The source of an application, a service or a database: a link to a Doppler, Infisical or Vault token of the team
+// (secret_manager_links: Coolify's has no team, Freeploy's has org_id), its settings, the key names of its secrets and the
+// {{vault.KEY}} variables made from them. The secret managers' APIs are Http::fake() (`http`). A link of a case is a row of
+// `setupCoolify` and `setupFreeploy`; `tokenSecrets` replaces a token's secret through the model (a Doppler service
+// account, `dp.sa.`, which the fixture has none of).
+const SM_TYPES = { applications: "Application", services: "Service", databases: "StandalonePostgresql" };
+const SM_PATH = (type, uuid, sub = "") => `/api/v1/${type}/${uuid}/secret-manager${sub}`;
+const SM_LINK = (tenancy, { uuid, model, id, token, settings = null }) =>
+  `insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, ${tenancy ? `${tenancy[0]}, ` : ""}created_at, updated_at) values ('${uuid}', 'App\\Models\\${model}', ${id}, ${token}, ${settings === null ? "null" : `'${JSON.stringify(settings)}'`}, ${tenancy ? `${tenancy[1]}, ` : ""}'2025-12-30 00:00:00', '2025-12-30 00:00:00')`;
+const DOPPLER_LINK = { uuid: "u1paritydopplerlink00001", model: "Application", id: 1, token: 3 };
+const INFISICAL_SETTINGS = { project_id: "proj-1", environment: "prod", secret_path: "/app" };
+const INFISICAL_LINK = { uuid: "u2parityinfisicallink002", model: "Service", id: 1, token: 4, settings: INFISICAL_SETTINGS };
+const VAULT_SETTINGS = { mount: "secret", path: "apps/web" };
+const VAULT_LINK = { uuid: "u3parityvaultlink0000003", model: "StandalonePostgresql", id: 1, token: 5, settings: VAULT_SETTINGS };
+const LINKED = (...links) => ({ setupCoolify: links.map((l) => SM_LINK(null, l)), setupFreeploy: links.map((l) => SM_LINK(FREEPLOY_TENANCY, l)) });
+const DOPPLER_ACCOUNT = { tokenSecrets: [{ id: 3, token: "dp.sa.team1account" }] };
+const SM_LINKS_AFTER = {
+  links: "select resourceable_type, resourceable_id, integration_token_id, settings::jsonb::text as settings, uuid like 'u_parity%' as fixture_link, updated_at = '2025-12-30 00:00:00' as untouched from secret_manager_links order by resourceable_type, resourceable_id",
+};
+const SM_VARS_AFTER = (model, id) => ({
+  variables: `select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, "order", version, value is not null as has_value from environment_variables where resourceable_type = 'App\\Models\\${model}' and resourceable_id = ${id} order by id`,
+});
+const DOPPLER_DOWNLOAD = (query = "format=json", body = { API_KEY: "a", DATABASE_URL: "postgres://x", FOO: "bar", "db-password": "p", "10": "ten", "9": "nine", B_KEY: "b" }, status = 200) =>
+  answer(`^GET https://api\\.doppler\\.com/v3/configs/config/secrets/download\\?${query.replace(/\./g, "\\.")}$`, body, status);
+const INF = "https://app\\.infisical\\.com";
+const INF_SECRETS_V4 = (body = { secrets: [{ secretKey: "API_KEY", secretValue: "a" }, { secretKey: "SHARED", secretValue: "own" }], imports: [{ secretPath: "/shared", environment: "prod", secrets: [{ secretKey: "SHARED", secretValue: "imported" }, { secretKey: "IMPORTED_KEY", secretValue: "i" }] }] }, status = 200) =>
+  answer(`^GET ${INF}/api/v4/secrets\\?`, body, status);
+const INF_SECRETS_V3 = (body = { secrets: [{ secretKey: "LEGACY_KEY", secretValue: "l" }] }, status = 200) => answer(`^GET ${INF}/api/v3/secrets/raw\\?`, body, status);
+const VAULT_BASE = "https://vault\\.example\\.com:8200";
+const VAULT_READ = (path = "secret/data/apps/web", body = { data: { data: { API_KEY: "v", PORT: 5432, NESTED: { a: 1 }, "bad key": "x" }, metadata: { version: 3 } } }, status = 200) =>
+  answer(`^GET ${VAULT_BASE}/v1/${path}$`, body, status);
+
+// GET: the source and the tokens that can be linked
+add({ name: "secret manager: show, an application without a source", token: "read", method: "GET", path: SM_PATH("applications", A_IMAGE) });
+add({ name: "secret manager: show, an application's Doppler source", token: "read", method: "GET", path: SM_PATH("applications", A_IMAGE), ...LINKED(DOPPLER_LINK) });
+add({ name: "secret manager: show, a service's Infisical source", token: "sensitive", method: "GET", path: SM_PATH("services", SV_MAIN), ...LINKED(INFISICAL_LINK) });
+add({ name: "secret manager: show, a database's Vault source", token: "read", method: "GET", path: SM_PATH("databases", DB_PG), ...LINKED(VAULT_LINK) });
+add({ name: "secret manager: show, a redis database", token: "read", method: "GET", path: SM_PATH("databases", DB_REDIS) });
+add({ name: "secret manager: show by a member, the linked token only", token: "memberRead", method: "GET", path: SM_PATH("applications", A_IMAGE), ...LINKED(DOPPLER_LINK) });
+add({ name: "secret manager: show by a member, no source", token: "memberRead", method: "GET", path: SM_PATH("services", SV_MAIN) });
+add({ name: "secret manager: show, a token without the secrets capability", token: "read", method: "GET", path: SM_PATH("applications", A_GIT), setup: ["update integration_tokens set capabilities = '[]' where id = 4"] });
+add({ name: "secret manager: show, unknown application", token: "read", method: "GET", path: SM_PATH("applications", "nonexistentuuid") });
+add({ name: "secret manager: show, another team's application", token: "read", method: "GET", path: SM_PATH("applications", A_OTHER) });
+add({ name: "secret manager: show, unknown service", token: "read", method: "GET", path: SM_PATH("services", "nonexistentuuid") });
+add({ name: "secret manager: show, another team's database", token: "read", method: "GET", path: SM_PATH("databases", DB_OTHER) });
+add({ name: "secret manager: show, not a resource type", token: "read", method: "GET", path: SM_PATH("servers", S_MAIN) });
+add({ name: "secret manager: show with a write-only token", token: "writeOnly", method: "GET", path: SM_PATH("applications", A_IMAGE) });
+
+// PATCH: link a token, or change the link's token or settings
+const SET = (type, uuid) => ({ method: "PATCH", path: SM_PATH(type, uuid) });
+add({ name: "secret manager: set, a Doppler service token", token: "write", ...SET("applications", A_IMAGE), body: { integration_token_uuid: IT_DOPPLER }, after: SM_LINKS_AFTER });
+add({ name: "secret manager: set, a Doppler service token ignores the settings", token: "write", ...SET("applications", A_IMAGE), body: { integration_token_uuid: IT_DOPPLER, settings: { project: "web", config: "prd" } }, after: SM_LINKS_AFTER });
+add({ name: "secret manager: set, a Doppler service account without settings", token: "write", ...SET("applications", A_IMAGE), ...DOPPLER_ACCOUNT, body: { integration_token_uuid: IT_DOPPLER }, after: SM_LINKS_AFTER });
+add({ name: "secret manager: set, a Doppler service account", token: "write", ...SET("applications", A_GIT), ...DOPPLER_ACCOUNT, body: { integration_token_uuid: IT_DOPPLER, settings: { config: "prd", project: "web", extra: "dropped" } }, after: SM_LINKS_AFTER });
+add({ name: "secret manager: set, an Infisical token for a service", token: "write", ...SET("services", SV_MAIN), body: { integration_token_uuid: IT_INFISICAL, settings: INFISICAL_SETTINGS }, after: SM_LINKS_AFTER });
+add({ name: "secret manager: set, an Infisical token without a secret path", token: "write", ...SET("services", SV_MAIN), body: { integration_token_uuid: IT_INFISICAL, settings: { environment: "dev", project_id: "proj-2", secret_path: "" } }, after: SM_LINKS_AFTER });
+add({ name: "secret manager: set, an Infisical token without settings", token: "write", ...SET("services", SV_MAIN), body: { integration_token_uuid: IT_INFISICAL }, after: SM_LINKS_AFTER });
+add({ name: "secret manager: set, an Infisical token, invalid settings", token: "write", ...SET("services", SV_MAIN), body: { integration_token_uuid: IT_INFISICAL, settings: { project_id: 7, environment: ["prod"], secret_path: 5 } } });
+add({ name: "secret manager: set, a Vault token for a database", token: "write", ...SET("databases", DB_PG), body: { integration_token_uuid: IT_VAULT, settings: VAULT_SETTINGS }, after: SM_LINKS_AFTER });
+add({ name: "secret manager: set, a Vault token for a redis database", token: "root", ...SET("databases", DB_REDIS), body: { integration_token_uuid: IT_VAULT, settings: { path: "cache", mount: "kv" } }, after: SM_LINKS_AFTER });
+add({ name: "secret manager: set, a Vault token, invalid settings", token: "write", ...SET("databases", DB_PG), body: { integration_token_uuid: IT_VAULT, settings: { mount: "" } } });
+add({ name: "secret manager: set, another token for a linked application", token: "write", ...SET("applications", A_IMAGE), ...LINKED(DOPPLER_LINK), body: { integration_token_uuid: IT_VAULT, settings: { mount: "secret", path: "apps/image" } }, after: SM_LINKS_AFTER });
+add({ name: "secret manager: set, the link as it is", token: "write", ...SET("services", SV_MAIN), ...LINKED(INFISICAL_LINK), body: { integration_token_uuid: IT_INFISICAL, settings: INFISICAL_SETTINGS }, after: SM_LINKS_AFTER });
+add({ name: "secret manager: set, other settings of the link", token: "write", ...SET("services", SV_MAIN), ...LINKED(INFISICAL_LINK), body: { integration_token_uuid: IT_INFISICAL, settings: { project_id: "proj-1", environment: "staging" } }, after: SM_LINKS_AFTER });
+add({ name: "secret manager: set, unknown token", token: "write", ...SET("applications", A_IMAGE), body: { integration_token_uuid: "nonexistentuuid" } });
+add({ name: "secret manager: set, a Cloudflare token", token: "write", ...SET("applications", A_IMAGE), body: { integration_token_uuid: IT_CF } });
+add({ name: "secret manager: set, another team's token", token: "write", ...SET("applications", A_IMAGE), body: { integration_token_uuid: IT_OTHER } });
+add({ name: "secret manager: set, a token without the secrets capability", token: "write", ...SET("applications", A_IMAGE), setup: ["update integration_tokens set capabilities = '[]' where id = 3"], body: { integration_token_uuid: IT_DOPPLER } });
+add({ name: "secret manager: set, a token uuid that is not a string", token: "write", ...SET("applications", A_IMAGE), body: { integration_token_uuid: 3 } });
+add({ name: "secret manager: set, no token", token: "write", ...SET("applications", A_IMAGE), body: { settings: { project: "web" } } });
+add({ name: "secret manager: set, a field that is not allowed", token: "write", ...SET("applications", A_IMAGE), body: { integration_token_uuid: IT_DOPPLER, provider: "doppler", name: "x" }, after: SM_LINKS_AFTER });
+add({ name: "secret manager: set, settings that are not an object", token: "write", ...SET("applications", A_IMAGE), body: { integration_token_uuid: IT_DOPPLER, settings: "web/prd" } });
+add({ name: "secret manager: set, not JSON", token: "write", ...SET("applications", A_IMAGE), raw: `integration_token_uuid=${IT_DOPPLER}`, contentType: "application/x-www-form-urlencoded" });
+add({ name: "secret manager: set, empty JSON", token: "write", ...SET("applications", A_IMAGE), raw: "{}" });
+add({ name: "secret manager: set, unknown application", token: "write", ...SET("applications", "nonexistentuuid"), raw: "not json", contentType: "text/plain" });
+add({ name: "secret manager: set, unknown database", token: "write", ...SET("databases", "nonexistentuuid"), body: { integration_token_uuid: IT_VAULT } });
+add({ name: "secret manager: set with a read token", token: "read", ...SET("applications", A_IMAGE), body: { integration_token_uuid: IT_DOPPLER } });
+
+// DELETE: remove the source
+const REMOVE = (type, uuid) => ({ method: "DELETE", path: SM_PATH(type, uuid) });
+add({ name: "secret manager: remove, an application's source", token: "delete", ...REMOVE("applications", A_IMAGE), ...LINKED(DOPPLER_LINK, INFISICAL_LINK), after: SM_LINKS_AFTER });
+add({ name: "secret manager: remove, a service's source", token: "delete", ...REMOVE("services", SV_MAIN), ...LINKED(INFISICAL_LINK), after: SM_LINKS_AFTER });
+add({ name: "secret manager: remove, a database's source", token: "root", ...REMOVE("databases", DB_PG), ...LINKED(VAULT_LINK), after: SM_LINKS_AFTER });
+add({ name: "secret manager: remove, no source", token: "delete", ...REMOVE("applications", A_GIT), ...LINKED(DOPPLER_LINK), after: SM_LINKS_AFTER });
+add({ name: "secret manager: remove, unknown service", token: "delete", ...REMOVE("services", "nonexistentuuid") });
+add({ name: "secret manager: remove with a write token", token: "write", ...REMOVE("applications", A_IMAGE), ...LINKED(DOPPLER_LINK) });
+
+// GET …/keys: the key names of the source's secrets, asked of the secret manager
+const KEYS = (type, uuid) => ({ method: "GET", path: SM_PATH(type, uuid, "/keys") });
+add({ name: "secret manager: keys, a Doppler service token", token: "write", ...KEYS("applications", A_IMAGE), ...LINKED(DOPPLER_LINK), http: [DOPPLER_DOWNLOAD()] });
+add({ name: "secret manager: keys, a Doppler service account", token: "write", ...KEYS("applications", A_IMAGE), ...DOPPLER_ACCOUNT, ...LINKED({ ...DOPPLER_LINK, settings: { project: "web", config: "prd" } }), http: [DOPPLER_DOWNLOAD("format=json&project=web&config=prd", { ZED: "z", ALPHA: "a" })] });
+add({ name: "secret manager: keys, Doppler refuses the token", token: "write", ...KEYS("applications", A_IMAGE), ...LINKED(DOPPLER_LINK), http: [DOPPLER_DOWNLOAD("format=json", { messages: ["Invalid Service token"], success: false }, 401)] });
+add({ name: "secret manager: keys, a Doppler failure without a message", token: "write", ...KEYS("applications", A_IMAGE), ...LINKED(DOPPLER_LINK), http: [DOPPLER_DOWNLOAD("format=json", { error: "unavailable" }, 503)] });
+add({ name: "secret manager: keys, Doppler has none", token: "write", ...KEYS("applications", A_IMAGE), ...LINKED(DOPPLER_LINK), http: [DOPPLER_DOWNLOAD("format=json", {})] });
+add({ name: "secret manager: keys, an Infisical source with imports", token: "write", ...KEYS("services", SV_MAIN), ...LINKED(INFISICAL_LINK), http: [INFISICAL_LOGIN(), INF_SECRETS_V4()] });
+add({ name: "secret manager: keys, an older Infisical", token: "write", ...KEYS("services", SV_MAIN), ...LINKED({ ...INFISICAL_LINK, settings: { project_id: "proj-1", environment: "prod" } }), http: [INFISICAL_LOGIN(), INF_SECRETS_V4({ message: "Not Found" }, 404), INF_SECRETS_V3()] });
+add({ name: "secret manager: keys, the Infisical login refused", token: "write", ...KEYS("services", SV_MAIN), ...LINKED(INFISICAL_LINK), http: [INFISICAL_LOGIN(INF, 401)] });
+add({ name: "secret manager: keys, Infisical refuses the secrets", token: "write", ...KEYS("services", SV_MAIN), ...LINKED(INFISICAL_LINK), http: [INFISICAL_LOGIN(), INF_SECRETS_V4({ message: "You are not allowed to read secrets in this environment" }, 403)] });
+add({ name: "secret manager: keys, an Infisical base URL on a private address", token: "write", ...KEYS("services", SV_MAIN), ...LINKED(INFISICAL_LINK), setup: [`update integration_tokens set metadata = '{"base_url":"https://private.example","client_id":"client-team1"}' where id = 4`], http: [] });
+add({ name: "secret manager: keys, a Vault source", token: "write", ...KEYS("databases", DB_PG), ...LINKED(VAULT_LINK), http: [VAULT_READ()] });
+add({ name: "secret manager: keys, a Vault mount and path with slashes", token: "write", ...KEYS("databases", DB_PG), ...LINKED({ ...VAULT_LINK, settings: { mount: "/kv/", path: "/team/app/" } }), http: [VAULT_READ("kv/data/team/app", { data: { data: { ONE: "1" } } })] });
+add({ name: "secret manager: keys, Vault refuses the token", token: "write", ...KEYS("databases", DB_PG), ...LINKED(VAULT_LINK), http: [VAULT_READ(undefined, { errors: ["permission denied"] }, 403)] });
+add({ name: "secret manager: keys, a Vault path without secrets", token: "write", ...KEYS("databases", DB_PG), ...LINKED(VAULT_LINK), http: [VAULT_READ(undefined, { errors: [] }, 404)] });
+add({ name: "secret manager: keys, no source", token: "write", ...KEYS("applications", A_IMAGE), http: [] });
+add({ name: "secret manager: keys, unknown application", token: "write", ...KEYS("applications", "nonexistentuuid"), http: [] });
+add({ name: "secret manager: keys with a read token", token: "read", ...KEYS("applications", A_IMAGE), ...LINKED(DOPPLER_LINK), http: [] });
+
+// POST …/references: a {{vault.KEY}} variable for one key of the source
+const REFERENCE = (type, uuid) => ({ method: "POST", path: SM_PATH(type, uuid, "/references") });
+add({ name: "secret manager: reference, an application's key", token: "write", ...REFERENCE("applications", A_IMAGE), ...LINKED(DOPPLER_LINK), body: { key: "API_KEY" }, http: [DOPPLER_DOWNLOAD()], after: SM_VARS_AFTER("Application", 1) });
+add({ name: "secret manager: reference, a service's key", token: "write", ...REFERENCE("services", SV_MAIN), ...LINKED(INFISICAL_LINK), body: { key: "IMPORTED_KEY" }, http: [INFISICAL_LOGIN(), INF_SECRETS_V4()], after: SM_VARS_AFTER("Service", 1) });
+add({ name: "secret manager: reference, a database's key", token: "write", ...REFERENCE("databases", DB_PG), ...LINKED(VAULT_LINK), body: { key: "PORT" }, http: [VAULT_READ()], after: SM_VARS_AFTER("StandalonePostgresql", 1) });
+add({ name: "secret manager: reference, not a key of the source", token: "write", ...REFERENCE("applications", A_IMAGE), ...LINKED(DOPPLER_LINK), body: { key: "MISSING" }, http: [DOPPLER_DOWNLOAD()], after: SM_VARS_AFTER("Application", 1) });
+add({ name: "secret manager: reference, not a valid variable name", token: "write", ...REFERENCE("applications", A_IMAGE), ...LINKED(DOPPLER_LINK), body: { key: "db-password" }, http: [DOPPLER_DOWNLOAD()] });
+add({ name: "secret manager: reference, a numeric key", token: "write", ...REFERENCE("applications", A_IMAGE), ...LINKED(DOPPLER_LINK), body: { key: "10" }, http: [DOPPLER_DOWNLOAD()] });
+add({ name: "secret manager: reference, a variable with the key exists", token: "write", ...REFERENCE("applications", A_IMAGE), ...LINKED(DOPPLER_LINK), body: { key: "FOO" }, http: [DOPPLER_DOWNLOAD()], after: SM_VARS_AFTER("Application", 1) });
+add({ name: "secret manager: reference, a service variable with the key exists", token: "write", ...REFERENCE("services", SV_MAIN), ...LINKED(INFISICAL_LINK), body: { key: "FOO" }, http: [INFISICAL_LOGIN(), INF_SECRETS_V4({ secrets: [{ secretKey: "FOO", secretValue: "x" }] })] });
+add({ name: "secret manager: reference, no key", token: "write", ...REFERENCE("applications", A_IMAGE), ...LINKED(DOPPLER_LINK), body: { name: "API_KEY" }, http: [DOPPLER_DOWNLOAD()] });
+add({ name: "secret manager: reference, a key that is not a string", token: "write", ...REFERENCE("applications", A_IMAGE), ...LINKED(DOPPLER_LINK), body: { key: ["API_KEY"] }, http: [DOPPLER_DOWNLOAD()] });
+add({ name: "secret manager: reference, a key too long", token: "write", ...REFERENCE("applications", A_IMAGE), ...LINKED(DOPPLER_LINK), body: { key: "K".repeat(256) }, http: [DOPPLER_DOWNLOAD()] });
+add({ name: "secret manager: reference, not JSON", token: "write", ...REFERENCE("applications", A_IMAGE), ...LINKED(DOPPLER_LINK), raw: "key=API_KEY", contentType: "application/x-www-form-urlencoded", http: [DOPPLER_DOWNLOAD()] });
+add({ name: "secret manager: reference, no source", token: "write", ...REFERENCE("applications", A_IMAGE), raw: "key=API_KEY", contentType: "application/x-www-form-urlencoded", http: [] });
+add({ name: "secret manager: reference, the secret manager fails", token: "write", ...REFERENCE("databases", DB_PG), ...LINKED(VAULT_LINK), body: { key: "PORT" }, http: [VAULT_READ(undefined, { errors: ["internal error"] }, 500)], after: SM_VARS_AFTER("StandalonePostgresql", 1) });
+add({ name: "secret manager: reference with a read token", token: "read", ...REFERENCE("applications", A_IMAGE), ...LINKED(DOPPLER_LINK), body: { key: "API_KEY" }, http: [] });
+
+// POST …/import: a {{vault.KEY}} variable for every key of the source without one
+const IMPORT = (type, uuid) => ({ method: "POST", path: SM_PATH(type, uuid, "/import") });
+add({ name: "secret manager: import, an application's keys", token: "write", ...IMPORT("applications", A_IMAGE), ...LINKED(DOPPLER_LINK), http: [DOPPLER_DOWNLOAD()], after: SM_VARS_AFTER("Application", 1) });
+add({ name: "secret manager: import, a service's keys", token: "write", ...IMPORT("services", SV_MAIN), ...LINKED(INFISICAL_LINK), http: [INFISICAL_LOGIN(), INF_SECRETS_V4({ secrets: [{ secretKey: "FOO", secretValue: "x" }, { secretKey: "NEW_ONE", secretValue: "n" }, { secretKey: "my.dotted", secretValue: "d" }] })], after: SM_VARS_AFTER("Service", 1) });
+add({ name: "secret manager: import, a database's keys", token: "write", ...IMPORT("databases", DB_PG), ...LINKED(VAULT_LINK), http: [VAULT_READ()], after: SM_VARS_AFTER("StandalonePostgresql", 1) });
+add({ name: "secret manager: import, nothing new", token: "write", ...IMPORT("applications", A_IMAGE), ...LINKED(DOPPLER_LINK), http: [DOPPLER_DOWNLOAD("format=json", { FOO: "x", MULTI: "y" })], after: SM_VARS_AFTER("Application", 1) });
+add({ name: "secret manager: import, the secret manager fails", token: "write", ...IMPORT("applications", A_IMAGE), ...LINKED(DOPPLER_LINK), http: [DOPPLER_DOWNLOAD("format=json", { messages: ["Could not find requested config"] }, 404)], after: SM_VARS_AFTER("Application", 1) });
+add({ name: "secret manager: import, no source", token: "write", ...IMPORT("services", SV_MAIN), http: [] });
+add({ name: "secret manager: import, another team's service", token: "write", ...IMPORT("services", SV_OTHER), http: [] });
+add({ name: "secret manager: import with a delete token", token: "delete", ...IMPORT("applications", A_IMAGE), ...LINKED(DOPPLER_LINK), http: [] });
+
+// A member whose stored levels allow delete but not write: DELETE asks authorize('update').
+denial("secret manager: remove, an application's source", "memberDelete", DEPLOY_DELETE, DEPLOYER);
+denial("secret manager: remove, a service's source", "memberDelete", DEPLOY_DELETE, DEPLOYER);
+denial("secret manager: remove, a database's source", "memberDelete", DEPLOY_DELETE, DEPLOYER);
+
+// ── DP-106: the instance's email settings (InstanceEmailSettingsController) ──
+// A root-team token (team 0) of a root-team owner or admin: Coolify's instance admin. The fixture has no root team, so
+// `setupCoolify` makes it — the team, the owner's membership and the owner's tokens — and a case names its token in
+// `rootTeamToken` (Freeploy: a token of the platform operator, whose org is any). The settings are row 0 of
+// instance_settings; `after` reads its encrypted columns as whether they are set.
+const ROOT_TEAM_TOKENS = {
+  root: { id: 51, abilities: ["root"], secret: "rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f" },
+  read: { id: 52, abilities: ["read"], secret: "rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f" },
+  sensitive: { id: 53, abilities: ["read", "read:sensitive"], secret: "rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f" },
+  write: { id: 54, abilities: ["read", "write"], secret: "rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f" },
+  writeSensitive: { id: 55, abilities: ["read", "write:sensitive"], secret: "rtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtws4c1d2e3f" },
+};
+const ROOT_TEAM_SETUP = [
+  "insert into teams (id, name, description, personal_team, created_at, updated_at) values (0, 'Root Team', null, false, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+  "insert into team_user (team_id, user_id, role, created_at, updated_at) values (0, 1, 'owner', '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+  ...Object.entries(ROOT_TEAM_TOKENS).map(
+    ([key, t]) => `insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (${t.id}, 'App\\Models\\User', 1, 'Root team ${key}', encode(sha256('${t.secret}'::bytea), 'hex'), '${JSON.stringify(t.abilities)}', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')`,
+  ),
+];
+const AS_ROOT_TEAM = (key) => ({ authorization: `Bearer ${ROOT_TEAM_TOKENS[key].id}|${ROOT_TEAM_TOKENS[key].secret}`, rootTeamToken: { key, user: 1, ...ROOT_TEAM_TOKENS[key] }, setupCoolify: ROOT_TEAM_SETUP });
+const SE = "/api/v1/settings/email";
+const SE_AFTER = {
+  settings:
+    "select smtp_enabled, smtp_port, smtp_encryption, smtp_timeout, smtp_ehlo_domain, resend_enabled, smtp_from_address is not null as has_smtp_from_address, smtp_from_name is not null as has_smtp_from_name, notification_from_address is not null as has_notification_from_address, notification_from_name is not null as has_notification_from_name, smtp_host is not null as has_smtp_host, smtp_username is not null as has_smtp_username, smtp_password is not null as has_smtp_password, resend_api_key is not null as has_resend_api_key, resend_from_address is not null as has_resend_from_address, resend_from_name is not null as has_resend_from_name from instance_settings where id = 0",
+};
+const SMTP_ALL = {
+  smtp_enabled: true,
+  smtp_from_address: "noreply@example.com",
+  smtp_from_name: "Freeploy",
+  notification_from_address: "alerts@example.com",
+  notification_from_name: "Alerts",
+  smtp_host: "smtp.example.com",
+  smtp_port: 587,
+  smtp_encryption: "starttls",
+  smtp_username: "mailer",
+  smtp_password: "smtp-secret",
+  smtp_timeout: 30,
+  smtp_ehlo_domain: "mail.example.com",
+  resend_enabled: false,
+  resend_api_key: "re_parity_key",
+  resend_from_address: "resend@example.com",
+  resend_from_name: "Resend Sender",
+};
+add({ name: "settings email: show, a root-team token", method: "GET", path: SE, ...AS_ROOT_TEAM("root") });
+add({ name: "settings email: show, a root-team read token", method: "GET", path: SE, ...AS_ROOT_TEAM("read") });
+add({ name: "settings email: show, a root-team read:sensitive token", method: "GET", path: SE, ...AS_ROOT_TEAM("sensitive") });
+add({ name: "settings email: show, a team token", token: "root", method: "GET", path: SE });
+add({ name: "settings email: show, a team read token", token: "read", method: "GET", path: SE });
+add({ name: "settings email: show with a write-only token", token: "writeOnly", method: "GET", path: SE });
+add({ name: "settings email: update, every setting", method: "PATCH", path: SE, ...AS_ROOT_TEAM("root"), body: SMTP_ALL, after: SE_AFTER });
+add({ name: "settings email: update with write:sensitive", method: "PATCH", path: SE, ...AS_ROOT_TEAM("writeSensitive"), body: { smtp_enabled: "1", smtp_host: "smtp.example.org", smtp_port: "2525", smtp_encryption: "tls", smtp_password: "pw" }, after: SE_AFTER });
+add({ name: "settings email: update, Resend", method: "PATCH", path: SE, ...AS_ROOT_TEAM("root"), body: { resend_enabled: 1, resend_api_key: "re_123", resend_from_address: "noreply@example.com", resend_from_name: "Freeploy", smtp_encryption: "none", smtp_timeout: 0 }, after: SE_AFTER });
+add({ name: "settings email: update, values cleared", method: "PATCH", path: SE, ...AS_ROOT_TEAM("root"), body: { smtp_host: null, smtp_password: "", smtp_port: null, smtp_ehlo_domain: "", smtp_from_name: null }, after: SE_AFTER });
+add({ name: "settings email: update, fields that are not settings", method: "PATCH", path: SE, ...AS_ROOT_TEAM("root"), body: { smtp_recipients: "a@example.com", is_api_enabled: false, foo: 1, smtp_from_name: "Only this" }, after: SE_AFTER });
+add({
+  name: "settings email: update, invalid",
+  method: "PATCH",
+  path: SE,
+  ...AS_ROOT_TEAM("root"),
+  body: {
+    smtp_enabled: "yes",
+    smtp_from_address: "not-an-email",
+    smtp_from_name: "n".repeat(256),
+    notification_from_address: 5,
+    notification_from_name: ["x"],
+    smtp_host: 25,
+    smtp_port: 70000,
+    smtp_encryption: "ssl",
+    smtp_username: "u".repeat(256),
+    smtp_password: true,
+    smtp_timeout: -1,
+    smtp_ehlo_domain: "bad domain!",
+    resend_enabled: 2,
+    resend_api_key: 7,
+    resend_from_address: "@example.com",
+    resend_from_name: false,
+  },
+  after: SE_AFTER,
+});
+add({ name: "settings email: update, a port that is not a number", method: "PATCH", path: SE, ...AS_ROOT_TEAM("root"), body: { smtp_port: "abc", smtp_timeout: "1.5" }, after: SE_AFTER });
+add({ name: "settings email: update, a port of zero", method: "PATCH", path: SE, ...AS_ROOT_TEAM("root"), body: { smtp_port: 0, smtp_ehlo_domain: "-bad.example.com" } });
+add({ name: "settings email: update, not JSON", method: "PATCH", path: SE, ...AS_ROOT_TEAM("root"), raw: "smtp_enabled=1", contentType: "application/x-www-form-urlencoded", after: SE_AFTER });
+add({ name: "settings email: update, empty JSON", method: "PATCH", path: SE, ...AS_ROOT_TEAM("root"), raw: "{}", after: SE_AFTER });
+add({ name: "settings email: update with a write token", method: "PATCH", path: SE, ...AS_ROOT_TEAM("write"), body: { smtp_enabled: true } });
+add({ name: "settings email: update, a team token", token: "root", method: "PATCH", path: SE, body: { smtp_enabled: true }, after: SE_AFTER });
+add({
+  name: "settings email: update, then show",
+  setupCoolify: ROOT_TEAM_SETUP,
+  rootTeamToken: { key: "root", user: 1, ...ROOT_TEAM_TOKENS.root },
+  method: "PATCH",
+  path: SE,
+  sequence: [
+    { method: "PATCH", path: SE, authorization: AS_ROOT_TEAM("root").authorization, body: SMTP_ALL },
+    { method: "GET", path: SE, authorization: AS_ROOT_TEAM("read").authorization },
+    { method: "GET", path: SE, authorization: AS_ROOT_TEAM("sensitive").authorization },
+  ],
+});
+
 /** The tables whose column order emit.php writes into the goldens (`columns`): what a nested relation serializes in. */
 const columnsOf = ["servers", "server_settings", "standalone_dockers", "application_settings", "applications", "environment_variables", "application_deployment_queues", "scheduled_database_backups", "scheduled_database_backup_executions", "services", "service_applications", "service_databases", "projects", "environments", "standalone_postgresqls", "standalone_redis", "standalone_mongodbs", "standalone_mysqls", "standalone_mariadbs", "standalone_keydbs", "standalone_dragonflies", "standalone_clickhouses", "local_persistent_volumes", "local_file_volumes", "github_apps"];
 

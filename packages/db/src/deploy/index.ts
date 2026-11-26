@@ -671,3 +671,5 @@ export * from "./dashboard.js";
 export * from "./config-subpages.js";
 // DP-104: integration tokens (Cloudflare, Doppler, Infisical, Vault) and the DNS zones of a Cloudflare token.
 export * from "./integration-tokens.js";
+// DP-106: a resource's secret manager source
+export * from "./secret-manager-links.js";

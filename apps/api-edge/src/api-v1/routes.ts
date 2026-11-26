@@ -34,6 +34,9 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("GET", "/teams/current/members", "read", "identity"),
   // DP-85: the team's notification channels
   ...["email", "discord", "slack", "telegram", "pushover", "webhook"].flatMap((channel) => [r("GET", `/notifications/${channel}`, "read", "deploy"), r("PATCH", `/notifications/${channel}`, "write", "deploy")]),
+  // DP-106: the instance's email settings (the platform operator's; deploy-core-worker asks policy-worker)
+  r("GET", "/settings/email", "read", "deploy"),
+  r("PATCH", "/settings/email", "write:sensitive", "deploy"),
   // DP-84: the team's shared variables (deploy-core-worker's, as the other shared variables are)
   r("GET", "/team/envs", "read", "deploy"),
   r("POST", "/team/envs", "write", "deploy"),
@@ -187,6 +190,10 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   // DP-87
   r("PATCH", "/applications/{uuid}", "write", "deploy"),
   r("DELETE", "/applications/{uuid}", "delete", "deploy"),
+  // DP-106: a resource's secret manager source — Route::whereIn('resource_type', ['applications', 'services', 'databases'])
+  // (openapi.json lists PATCH /applications/{uuid}/secret-manager on its own; it is the same route).
+  r("PATCH", "/applications/{uuid}/secret-manager", "write", "deploy"),
+  ...secretManagerRoutes(),
   r("GET", "/applications/{uuid}/envs", "read", "deploy"),
   r("POST", "/applications/{uuid}/envs", "write", "deploy"),
   r("PATCH", "/applications/{uuid}/envs/bulk", "write", "deploy"),
@@ -372,6 +379,21 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("GET", "/services/{uuid}/scheduled-tasks/{task_uuid}/executions", "read", "deploy"),
   r("POST", "/services/{uuid}/scheduled-tasks/{task_uuid}/execute", "deploy", "deploy"),
 ];
+
+/** routes/api.php's secret-manager group: {resource_type} constrained to the three resource groups (->whereIn()). */
+function secretManagerRoutes(): ApiRoute[] {
+  const notAResource = /^\/(?!(?:applications|services|databases)\/)[^/]+\//;
+  return (
+    [
+      ["GET", "", "read"],
+      ["PATCH", "", "write"],
+      ["DELETE", "", "delete"],
+      ["GET", "/keys", "write"],
+      ["POST", "/references", "write"],
+      ["POST", "/import", "write"],
+    ] as const
+  ).map(([method, sub, ability]) => ({ ...r(method, `/{resource_type}/{uuid}/secret-manager${sub}`, ability, "deploy"), except: notAResource }));
+}
 
 /** Laravel's route parameters match one segment ([^/]+). */
 function compile(path: string): RegExp {

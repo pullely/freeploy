@@ -1,0 +1,23 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-106
+  title: "DP9: a resource's secret manager source (Doppler, Infisical, HashiCorp Vault) and its {{vault.KEY}} references, and the platform operator's /api/v1/settings/email"
+spec:
+  goal: deploy-core-worker answers Coolify's SecretManagerController on DP-70's /api/v1 pipeline — GET, PATCH and DELETE /{applications,services,databases}/{uuid}/secret-manager (PATCH /applications/{uuid}/secret-manager is the same route), GET …/secret-manager/keys, POST …/secret-manager/references and POST …/secret-manager/import — on deploy.secret_manager_links and DP-104's integration tokens (the token decrypted with the org's key only to ask its provider), with ResourceSecretManager's rules (the org's secret manager tokens with the secrets capability, a Doppler service account's project and config, Infisical's project, environment and path, Vault's mount and path), the key names asked of Doppler, Infisical (v4, then v3 on a 404, the imports merged) and Vault through the injectable fetch, and the {{vault.KEY}} environment variables created as the Environment Variables page creates them (an application's with its preview copy); and InstanceEmailSettingsController's GET and PATCH /settings/email on DP-101's row 0 of deploy.instance_settings, Coolify's root-team token and instance admin read as the platform operator (policy-worker's platform.settings.read / platform.settings.update for the token's user), the encrypted columns stored as fp1 ciphertexts and answered only to a token that may read sensitive data.
+  affects:
+    - apps/api-edge/**
+    - apps/deploy-core-worker/**
+    - packages/db/**
+    - tests/api-edge/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - every DP-106 case of tests/deploy-core-worker/fixtures/api/cases.json replays against Freeploy's handler byte-equal to goldens.json (status, body, the requests sent to Doppler, Infisical and Vault, and the rows of the writes) in tests/deploy-core-worker/src/api-v1-secret-manager-email.test.ts, and the three member denials answer as Coolify's exception handler does (src/api-v1-denials.test.ts)
+    - tests/api-edge/src/api-v1.test.ts forwards every DP-106 case with Coolify's status and headers (a root-team token resolved as the operator's token of the org) and counts 299 routes of openapi.json
+    - tests/db/src/deploy-secret-manager-links.test.ts runs the new queries on the schema at head, row-level security included
+    - specs/epics/freeploy-coolify-parity/parity/openapi.operations.json marks the 9 operations ported with taskKey DP-106 (299 ported of 330 in all), and node tools/parity/inventory.ts --check passes
+    - on stage, an application's Doppler source is linked with a token whose service token Doppler accepts, its key names are listed and imported as {{vault.KEY}} variables, and the platform operator reads and changes /api/v1/settings/email while an org owner's token is refused
+  gates: []

@@ -31641,6 +31641,2221 @@
    "setupCoolify": [
     "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
    ]
+  },
+  {
+   "name": "secret manager: show, an application without a source",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager"
+  },
+  {
+   "name": "secret manager: show, an application's Doppler source",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ]
+  },
+  {
+   "name": "secret manager: show, a service's Infisical source",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/services/f1parityservice000000001/secret-manager",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"/app\"}', '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"/app\"}', deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ]
+  },
+  {
+   "name": "secret manager: show, a database's Vault source",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/databases/b1paritypostgres00000001/secret-manager",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u3parityvaultlink0000003', 'App\\Models\\StandalonePostgresql', 1, 5, '{\"mount\":\"secret\",\"path\":\"apps/web\"}', '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u3parityvaultlink0000003', 'App\\Models\\StandalonePostgresql', 1, 5, '{\"mount\":\"secret\",\"path\":\"apps/web\"}', deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ]
+  },
+  {
+   "name": "secret manager: show, a redis database",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/databases/b2parityredis00000000002/secret-manager"
+  },
+  {
+   "name": "secret manager: show by a member, the linked token only",
+   "token": "memberRead",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ]
+  },
+  {
+   "name": "secret manager: show by a member, no source",
+   "token": "memberRead",
+   "method": "GET",
+   "path": "/api/v1/services/f1parityservice000000001/secret-manager"
+  },
+  {
+   "name": "secret manager: show, a token without the secrets capability",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/secret-manager",
+   "setup": [
+    "update integration_tokens set capabilities = '[]' where id = 4"
+   ]
+  },
+  {
+   "name": "secret manager: show, unknown application",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/nonexistentuuid/secret-manager"
+  },
+  {
+   "name": "secret manager: show, another team's application",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a3otherteamapp0000000003/secret-manager"
+  },
+  {
+   "name": "secret manager: show, unknown service",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/services/nonexistentuuid/secret-manager"
+  },
+  {
+   "name": "secret manager: show, another team's database",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/databases/b9otherpostgres000000009/secret-manager"
+  },
+  {
+   "name": "secret manager: show, not a resource type",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/servers/s1parityserveruuid000001/secret-manager"
+  },
+  {
+   "name": "secret manager: show with a write-only token",
+   "token": "writeOnly",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager"
+  },
+  {
+   "name": "secret manager: set, a Doppler service token",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager",
+   "body": {
+    "integration_token_uuid": "i3paritydoppler000000003"
+   },
+   "after": {
+    "links": "select resourceable_type, resourceable_id, integration_token_id, settings::jsonb::text as settings, uuid like 'u_parity%' as fixture_link, updated_at = '2025-12-30 00:00:00' as untouched from secret_manager_links order by resourceable_type, resourceable_id"
+   }
+  },
+  {
+   "name": "secret manager: set, a Doppler service token ignores the settings",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager",
+   "body": {
+    "integration_token_uuid": "i3paritydoppler000000003",
+    "settings": {
+     "project": "web",
+     "config": "prd"
+    }
+   },
+   "after": {
+    "links": "select resourceable_type, resourceable_id, integration_token_id, settings::jsonb::text as settings, uuid like 'u_parity%' as fixture_link, updated_at = '2025-12-30 00:00:00' as untouched from secret_manager_links order by resourceable_type, resourceable_id"
+   }
+  },
+  {
+   "name": "secret manager: set, a Doppler service account without settings",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager",
+   "tokenSecrets": [
+    {
+     "id": 3,
+     "token": "dp.sa.team1account"
+    }
+   ],
+   "body": {
+    "integration_token_uuid": "i3paritydoppler000000003"
+   },
+   "after": {
+    "links": "select resourceable_type, resourceable_id, integration_token_id, settings::jsonb::text as settings, uuid like 'u_parity%' as fixture_link, updated_at = '2025-12-30 00:00:00' as untouched from secret_manager_links order by resourceable_type, resourceable_id"
+   }
+  },
+  {
+   "name": "secret manager: set, a Doppler service account",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/secret-manager",
+   "tokenSecrets": [
+    {
+     "id": 3,
+     "token": "dp.sa.team1account"
+    }
+   ],
+   "body": {
+    "integration_token_uuid": "i3paritydoppler000000003",
+    "settings": {
+     "config": "prd",
+     "project": "web",
+     "extra": "dropped"
+    }
+   },
+   "after": {
+    "links": "select resourceable_type, resourceable_id, integration_token_id, settings::jsonb::text as settings, uuid like 'u_parity%' as fixture_link, updated_at = '2025-12-30 00:00:00' as untouched from secret_manager_links order by resourceable_type, resourceable_id"
+   }
+  },
+  {
+   "name": "secret manager: set, an Infisical token for a service",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001/secret-manager",
+   "body": {
+    "integration_token_uuid": "i4parityinfisical0000004",
+    "settings": {
+     "project_id": "proj-1",
+     "environment": "prod",
+     "secret_path": "/app"
+    }
+   },
+   "after": {
+    "links": "select resourceable_type, resourceable_id, integration_token_id, settings::jsonb::text as settings, uuid like 'u_parity%' as fixture_link, updated_at = '2025-12-30 00:00:00' as untouched from secret_manager_links order by resourceable_type, resourceable_id"
+   }
+  },
+  {
+   "name": "secret manager: set, an Infisical token without a secret path",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001/secret-manager",
+   "body": {
+    "integration_token_uuid": "i4parityinfisical0000004",
+    "settings": {
+     "environment": "dev",
+     "project_id": "proj-2",
+     "secret_path": ""
+    }
+   },
+   "after": {
+    "links": "select resourceable_type, resourceable_id, integration_token_id, settings::jsonb::text as settings, uuid like 'u_parity%' as fixture_link, updated_at = '2025-12-30 00:00:00' as untouched from secret_manager_links order by resourceable_type, resourceable_id"
+   }
+  },
+  {
+   "name": "secret manager: set, an Infisical token without settings",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001/secret-manager",
+   "body": {
+    "integration_token_uuid": "i4parityinfisical0000004"
+   },
+   "after": {
+    "links": "select resourceable_type, resourceable_id, integration_token_id, settings::jsonb::text as settings, uuid like 'u_parity%' as fixture_link, updated_at = '2025-12-30 00:00:00' as untouched from secret_manager_links order by resourceable_type, resourceable_id"
+   }
+  },
+  {
+   "name": "secret manager: set, an Infisical token, invalid settings",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001/secret-manager",
+   "body": {
+    "integration_token_uuid": "i4parityinfisical0000004",
+    "settings": {
+     "project_id": 7,
+     "environment": [
+      "prod"
+     ],
+     "secret_path": 5
+    }
+   }
+  },
+  {
+   "name": "secret manager: set, a Vault token for a database",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/databases/b1paritypostgres00000001/secret-manager",
+   "body": {
+    "integration_token_uuid": "i5parityvault00000000005",
+    "settings": {
+     "mount": "secret",
+     "path": "apps/web"
+    }
+   },
+   "after": {
+    "links": "select resourceable_type, resourceable_id, integration_token_id, settings::jsonb::text as settings, uuid like 'u_parity%' as fixture_link, updated_at = '2025-12-30 00:00:00' as untouched from secret_manager_links order by resourceable_type, resourceable_id"
+   }
+  },
+  {
+   "name": "secret manager: set, a Vault token for a redis database",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/databases/b2parityredis00000000002/secret-manager",
+   "body": {
+    "integration_token_uuid": "i5parityvault00000000005",
+    "settings": {
+     "path": "cache",
+     "mount": "kv"
+    }
+   },
+   "after": {
+    "links": "select resourceable_type, resourceable_id, integration_token_id, settings::jsonb::text as settings, uuid like 'u_parity%' as fixture_link, updated_at = '2025-12-30 00:00:00' as untouched from secret_manager_links order by resourceable_type, resourceable_id"
+   }
+  },
+  {
+   "name": "secret manager: set, a Vault token, invalid settings",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/databases/b1paritypostgres00000001/secret-manager",
+   "body": {
+    "integration_token_uuid": "i5parityvault00000000005",
+    "settings": {
+     "mount": ""
+    }
+   }
+  },
+  {
+   "name": "secret manager: set, another token for a linked application",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "body": {
+    "integration_token_uuid": "i5parityvault00000000005",
+    "settings": {
+     "mount": "secret",
+     "path": "apps/image"
+    }
+   },
+   "after": {
+    "links": "select resourceable_type, resourceable_id, integration_token_id, settings::jsonb::text as settings, uuid like 'u_parity%' as fixture_link, updated_at = '2025-12-30 00:00:00' as untouched from secret_manager_links order by resourceable_type, resourceable_id"
+   }
+  },
+  {
+   "name": "secret manager: set, the link as it is",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001/secret-manager",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"/app\"}', '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"/app\"}', deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "body": {
+    "integration_token_uuid": "i4parityinfisical0000004",
+    "settings": {
+     "project_id": "proj-1",
+     "environment": "prod",
+     "secret_path": "/app"
+    }
+   },
+   "after": {
+    "links": "select resourceable_type, resourceable_id, integration_token_id, settings::jsonb::text as settings, uuid like 'u_parity%' as fixture_link, updated_at = '2025-12-30 00:00:00' as untouched from secret_manager_links order by resourceable_type, resourceable_id"
+   }
+  },
+  {
+   "name": "secret manager: set, other settings of the link",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/services/f1parityservice000000001/secret-manager",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"/app\"}', '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"/app\"}', deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "body": {
+    "integration_token_uuid": "i4parityinfisical0000004",
+    "settings": {
+     "project_id": "proj-1",
+     "environment": "staging"
+    }
+   },
+   "after": {
+    "links": "select resourceable_type, resourceable_id, integration_token_id, settings::jsonb::text as settings, uuid like 'u_parity%' as fixture_link, updated_at = '2025-12-30 00:00:00' as untouched from secret_manager_links order by resourceable_type, resourceable_id"
+   }
+  },
+  {
+   "name": "secret manager: set, unknown token",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager",
+   "body": {
+    "integration_token_uuid": "nonexistentuuid"
+   }
+  },
+  {
+   "name": "secret manager: set, a Cloudflare token",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager",
+   "body": {
+    "integration_token_uuid": "i1paritycloudflaredns001"
+   }
+  },
+  {
+   "name": "secret manager: set, another team's token",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager",
+   "body": {
+    "integration_token_uuid": "i6othercloudflare0000006"
+   }
+  },
+  {
+   "name": "secret manager: set, a token without the secrets capability",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager",
+   "setup": [
+    "update integration_tokens set capabilities = '[]' where id = 3"
+   ],
+   "body": {
+    "integration_token_uuid": "i3paritydoppler000000003"
+   }
+  },
+  {
+   "name": "secret manager: set, a token uuid that is not a string",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager",
+   "body": {
+    "integration_token_uuid": 3
+   }
+  },
+  {
+   "name": "secret manager: set, no token",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager",
+   "body": {
+    "settings": {
+     "project": "web"
+    }
+   }
+  },
+  {
+   "name": "secret manager: set, a field that is not allowed",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager",
+   "body": {
+    "integration_token_uuid": "i3paritydoppler000000003",
+    "provider": "doppler",
+    "name": "x"
+   },
+   "after": {
+    "links": "select resourceable_type, resourceable_id, integration_token_id, settings::jsonb::text as settings, uuid like 'u_parity%' as fixture_link, updated_at = '2025-12-30 00:00:00' as untouched from secret_manager_links order by resourceable_type, resourceable_id"
+   }
+  },
+  {
+   "name": "secret manager: set, settings that are not an object",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager",
+   "body": {
+    "integration_token_uuid": "i3paritydoppler000000003",
+    "settings": "web/prd"
+   }
+  },
+  {
+   "name": "secret manager: set, not JSON",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager",
+   "raw": "integration_token_uuid=i3paritydoppler000000003",
+   "contentType": "application/x-www-form-urlencoded"
+  },
+  {
+   "name": "secret manager: set, empty JSON",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager",
+   "raw": "{}"
+  },
+  {
+   "name": "secret manager: set, unknown application",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/applications/nonexistentuuid/secret-manager",
+   "raw": "not json",
+   "contentType": "text/plain"
+  },
+  {
+   "name": "secret manager: set, unknown database",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/databases/nonexistentuuid/secret-manager",
+   "body": {
+    "integration_token_uuid": "i5parityvault00000000005"
+   }
+  },
+  {
+   "name": "secret manager: set with a read token",
+   "token": "read",
+   "method": "PATCH",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager",
+   "body": {
+    "integration_token_uuid": "i3paritydoppler000000003"
+   }
+  },
+  {
+   "name": "secret manager: remove, an application's source",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"/app\"}', '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"/app\"}', deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "after": {
+    "links": "select resourceable_type, resourceable_id, integration_token_id, settings::jsonb::text as settings, uuid like 'u_parity%' as fixture_link, updated_at = '2025-12-30 00:00:00' as untouched from secret_manager_links order by resourceable_type, resourceable_id"
+   }
+  },
+  {
+   "name": "secret manager: remove, a service's source",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/services/f1parityservice000000001/secret-manager",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"/app\"}', '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"/app\"}', deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "after": {
+    "links": "select resourceable_type, resourceable_id, integration_token_id, settings::jsonb::text as settings, uuid like 'u_parity%' as fixture_link, updated_at = '2025-12-30 00:00:00' as untouched from secret_manager_links order by resourceable_type, resourceable_id"
+   }
+  },
+  {
+   "name": "secret manager: remove, a database's source",
+   "token": "root",
+   "method": "DELETE",
+   "path": "/api/v1/databases/b1paritypostgres00000001/secret-manager",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u3parityvaultlink0000003', 'App\\Models\\StandalonePostgresql', 1, 5, '{\"mount\":\"secret\",\"path\":\"apps/web\"}', '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u3parityvaultlink0000003', 'App\\Models\\StandalonePostgresql', 1, 5, '{\"mount\":\"secret\",\"path\":\"apps/web\"}', deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "after": {
+    "links": "select resourceable_type, resourceable_id, integration_token_id, settings::jsonb::text as settings, uuid like 'u_parity%' as fixture_link, updated_at = '2025-12-30 00:00:00' as untouched from secret_manager_links order by resourceable_type, resourceable_id"
+   }
+  },
+  {
+   "name": "secret manager: remove, no source",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/secret-manager",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "after": {
+    "links": "select resourceable_type, resourceable_id, integration_token_id, settings::jsonb::text as settings, uuid like 'u_parity%' as fixture_link, updated_at = '2025-12-30 00:00:00' as untouched from secret_manager_links order by resourceable_type, resourceable_id"
+   }
+  },
+  {
+   "name": "secret manager: remove, unknown service",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/services/nonexistentuuid/secret-manager"
+  },
+  {
+   "name": "secret manager: remove with a write token",
+   "token": "write",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ]
+  },
+  {
+   "name": "secret manager: keys, a Doppler service token",
+   "token": "write",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager/keys",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^GET https://api\\.doppler\\.com/v3/configs/config/secrets/download\\?format=json$",
+     "body": {
+      "9": "nine",
+      "10": "ten",
+      "API_KEY": "a",
+      "DATABASE_URL": "postgres://x",
+      "FOO": "bar",
+      "db-password": "p",
+      "B_KEY": "b"
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "secret manager: keys, a Doppler service account",
+   "token": "write",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager/keys",
+   "tokenSecrets": [
+    {
+     "id": 3,
+     "token": "dp.sa.team1account"
+    }
+   ],
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, '{\"project\":\"web\",\"config\":\"prd\"}', '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, '{\"project\":\"web\",\"config\":\"prd\"}', deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^GET https://api\\.doppler\\.com/v3/configs/config/secrets/download\\?format=json&project=web&config=prd$",
+     "body": {
+      "ZED": "z",
+      "ALPHA": "a"
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "secret manager: keys, Doppler refuses the token",
+   "token": "write",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager/keys",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^GET https://api\\.doppler\\.com/v3/configs/config/secrets/download\\?format=json$",
+     "body": {
+      "messages": [
+       "Invalid Service token"
+      ],
+      "success": false
+     },
+     "status": 401
+    }
+   ]
+  },
+  {
+   "name": "secret manager: keys, a Doppler failure without a message",
+   "token": "write",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager/keys",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^GET https://api\\.doppler\\.com/v3/configs/config/secrets/download\\?format=json$",
+     "body": {
+      "error": "unavailable"
+     },
+     "status": 503
+    }
+   ]
+  },
+  {
+   "name": "secret manager: keys, Doppler has none",
+   "token": "write",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager/keys",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^GET https://api\\.doppler\\.com/v3/configs/config/secrets/download\\?format=json$",
+     "body": {},
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "secret manager: keys, an Infisical source with imports",
+   "token": "write",
+   "method": "GET",
+   "path": "/api/v1/services/f1parityservice000000001/secret-manager/keys",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"/app\"}', '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"/app\"}', deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^POST https://app\\.infisical\\.com/api/v1/auth/universal-auth/login$",
+     "body": {
+      "accessToken": "inf-access-token",
+      "expiresIn": 7200,
+      "tokenType": "Bearer"
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://app\\.infisical\\.com/api/v4/secrets\\?",
+     "body": {
+      "secrets": [
+       {
+        "secretKey": "API_KEY",
+        "secretValue": "a"
+       },
+       {
+        "secretKey": "SHARED",
+        "secretValue": "own"
+       }
+      ],
+      "imports": [
+       {
+        "secretPath": "/shared",
+        "environment": "prod",
+        "secrets": [
+         {
+          "secretKey": "SHARED",
+          "secretValue": "imported"
+         },
+         {
+          "secretKey": "IMPORTED_KEY",
+          "secretValue": "i"
+         }
+        ]
+       }
+      ]
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "secret manager: keys, an older Infisical",
+   "token": "write",
+   "method": "GET",
+   "path": "/api/v1/services/f1parityservice000000001/secret-manager/keys",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\"}', '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\"}', deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^POST https://app\\.infisical\\.com/api/v1/auth/universal-auth/login$",
+     "body": {
+      "accessToken": "inf-access-token",
+      "expiresIn": 7200,
+      "tokenType": "Bearer"
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://app\\.infisical\\.com/api/v4/secrets\\?",
+     "body": {
+      "message": "Not Found"
+     },
+     "status": 404
+    },
+    {
+     "match": "^GET https://app\\.infisical\\.com/api/v3/secrets/raw\\?",
+     "body": {
+      "secrets": [
+       {
+        "secretKey": "LEGACY_KEY",
+        "secretValue": "l"
+       }
+      ]
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "secret manager: keys, the Infisical login refused",
+   "token": "write",
+   "method": "GET",
+   "path": "/api/v1/services/f1parityservice000000001/secret-manager/keys",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"/app\"}', '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"/app\"}', deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^POST https://app\\.infisical\\.com/api/v1/auth/universal-auth/login$",
+     "body": {
+      "message": "Invalid credentials"
+     },
+     "status": 401
+    }
+   ]
+  },
+  {
+   "name": "secret manager: keys, Infisical refuses the secrets",
+   "token": "write",
+   "method": "GET",
+   "path": "/api/v1/services/f1parityservice000000001/secret-manager/keys",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"/app\"}', '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"/app\"}', deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^POST https://app\\.infisical\\.com/api/v1/auth/universal-auth/login$",
+     "body": {
+      "accessToken": "inf-access-token",
+      "expiresIn": 7200,
+      "tokenType": "Bearer"
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://app\\.infisical\\.com/api/v4/secrets\\?",
+     "body": {
+      "message": "You are not allowed to read secrets in this environment"
+     },
+     "status": 403
+    }
+   ]
+  },
+  {
+   "name": "secret manager: keys, an Infisical base URL on a private address",
+   "token": "write",
+   "method": "GET",
+   "path": "/api/v1/services/f1parityservice000000001/secret-manager/keys",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"/app\"}', '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"/app\"}', deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setup": [
+    "update integration_tokens set metadata = '{\"base_url\":\"https://private.example\",\"client_id\":\"client-team1\"}' where id = 4"
+   ],
+   "http": []
+  },
+  {
+   "name": "secret manager: keys, a Vault source",
+   "token": "write",
+   "method": "GET",
+   "path": "/api/v1/databases/b1paritypostgres00000001/secret-manager/keys",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u3parityvaultlink0000003', 'App\\Models\\StandalonePostgresql', 1, 5, '{\"mount\":\"secret\",\"path\":\"apps/web\"}', '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u3parityvaultlink0000003', 'App\\Models\\StandalonePostgresql', 1, 5, '{\"mount\":\"secret\",\"path\":\"apps/web\"}', deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^GET https://vault\\.example\\.com:8200/v1/secret/data/apps/web$",
+     "body": {
+      "data": {
+       "data": {
+        "API_KEY": "v",
+        "PORT": 5432,
+        "NESTED": {
+         "a": 1
+        },
+        "bad key": "x"
+       },
+       "metadata": {
+        "version": 3
+       }
+      }
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "secret manager: keys, a Vault mount and path with slashes",
+   "token": "write",
+   "method": "GET",
+   "path": "/api/v1/databases/b1paritypostgres00000001/secret-manager/keys",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u3parityvaultlink0000003', 'App\\Models\\StandalonePostgresql', 1, 5, '{\"mount\":\"/kv/\",\"path\":\"/team/app/\"}', '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u3parityvaultlink0000003', 'App\\Models\\StandalonePostgresql', 1, 5, '{\"mount\":\"/kv/\",\"path\":\"/team/app/\"}', deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^GET https://vault\\.example\\.com:8200/v1/kv/data/team/app$",
+     "body": {
+      "data": {
+       "data": {
+        "ONE": "1"
+       }
+      }
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "secret manager: keys, Vault refuses the token",
+   "token": "write",
+   "method": "GET",
+   "path": "/api/v1/databases/b1paritypostgres00000001/secret-manager/keys",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u3parityvaultlink0000003', 'App\\Models\\StandalonePostgresql', 1, 5, '{\"mount\":\"secret\",\"path\":\"apps/web\"}', '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u3parityvaultlink0000003', 'App\\Models\\StandalonePostgresql', 1, 5, '{\"mount\":\"secret\",\"path\":\"apps/web\"}', deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^GET https://vault\\.example\\.com:8200/v1/secret/data/apps/web$",
+     "body": {
+      "errors": [
+       "permission denied"
+      ]
+     },
+     "status": 403
+    }
+   ]
+  },
+  {
+   "name": "secret manager: keys, a Vault path without secrets",
+   "token": "write",
+   "method": "GET",
+   "path": "/api/v1/databases/b1paritypostgres00000001/secret-manager/keys",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u3parityvaultlink0000003', 'App\\Models\\StandalonePostgresql', 1, 5, '{\"mount\":\"secret\",\"path\":\"apps/web\"}', '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u3parityvaultlink0000003', 'App\\Models\\StandalonePostgresql', 1, 5, '{\"mount\":\"secret\",\"path\":\"apps/web\"}', deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^GET https://vault\\.example\\.com:8200/v1/secret/data/apps/web$",
+     "body": {
+      "errors": []
+     },
+     "status": 404
+    }
+   ]
+  },
+  {
+   "name": "secret manager: keys, no source",
+   "token": "write",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager/keys",
+   "http": []
+  },
+  {
+   "name": "secret manager: keys, unknown application",
+   "token": "write",
+   "method": "GET",
+   "path": "/api/v1/applications/nonexistentuuid/secret-manager/keys",
+   "http": []
+  },
+  {
+   "name": "secret manager: keys with a read token",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager/keys",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "http": []
+  },
+  {
+   "name": "secret manager: reference, an application's key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager/references",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "body": {
+    "key": "API_KEY"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.doppler\\.com/v3/configs/config/secrets/download\\?format=json$",
+     "body": {
+      "9": "nine",
+      "10": "ten",
+      "API_KEY": "a",
+      "DATABASE_URL": "postgres://x",
+      "FOO": "bar",
+      "db-password": "p",
+      "B_KEY": "b"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, \"order\", version, value is not null as has_value from environment_variables where resourceable_type = 'App\\Models\\Application' and resourceable_id = 1 order by id"
+   }
+  },
+  {
+   "name": "secret manager: reference, a service's key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/secret-manager/references",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"/app\"}', '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"/app\"}', deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "body": {
+    "key": "IMPORTED_KEY"
+   },
+   "http": [
+    {
+     "match": "^POST https://app\\.infisical\\.com/api/v1/auth/universal-auth/login$",
+     "body": {
+      "accessToken": "inf-access-token",
+      "expiresIn": 7200,
+      "tokenType": "Bearer"
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://app\\.infisical\\.com/api/v4/secrets\\?",
+     "body": {
+      "secrets": [
+       {
+        "secretKey": "API_KEY",
+        "secretValue": "a"
+       },
+       {
+        "secretKey": "SHARED",
+        "secretValue": "own"
+       }
+      ],
+      "imports": [
+       {
+        "secretPath": "/shared",
+        "environment": "prod",
+        "secrets": [
+         {
+          "secretKey": "SHARED",
+          "secretValue": "imported"
+         },
+         {
+          "secretKey": "IMPORTED_KEY",
+          "secretValue": "i"
+         }
+        ]
+       }
+      ]
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, \"order\", version, value is not null as has_value from environment_variables where resourceable_type = 'App\\Models\\Service' and resourceable_id = 1 order by id"
+   }
+  },
+  {
+   "name": "secret manager: reference, a database's key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/secret-manager/references",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u3parityvaultlink0000003', 'App\\Models\\StandalonePostgresql', 1, 5, '{\"mount\":\"secret\",\"path\":\"apps/web\"}', '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u3parityvaultlink0000003', 'App\\Models\\StandalonePostgresql', 1, 5, '{\"mount\":\"secret\",\"path\":\"apps/web\"}', deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "body": {
+    "key": "PORT"
+   },
+   "http": [
+    {
+     "match": "^GET https://vault\\.example\\.com:8200/v1/secret/data/apps/web$",
+     "body": {
+      "data": {
+       "data": {
+        "API_KEY": "v",
+        "PORT": 5432,
+        "NESTED": {
+         "a": 1
+        },
+        "bad key": "x"
+       },
+       "metadata": {
+        "version": 3
+       }
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, \"order\", version, value is not null as has_value from environment_variables where resourceable_type = 'App\\Models\\StandalonePostgresql' and resourceable_id = 1 order by id"
+   }
+  },
+  {
+   "name": "secret manager: reference, not a key of the source",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager/references",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "body": {
+    "key": "MISSING"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.doppler\\.com/v3/configs/config/secrets/download\\?format=json$",
+     "body": {
+      "9": "nine",
+      "10": "ten",
+      "API_KEY": "a",
+      "DATABASE_URL": "postgres://x",
+      "FOO": "bar",
+      "db-password": "p",
+      "B_KEY": "b"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, \"order\", version, value is not null as has_value from environment_variables where resourceable_type = 'App\\Models\\Application' and resourceable_id = 1 order by id"
+   }
+  },
+  {
+   "name": "secret manager: reference, not a valid variable name",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager/references",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "body": {
+    "key": "db-password"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.doppler\\.com/v3/configs/config/secrets/download\\?format=json$",
+     "body": {
+      "9": "nine",
+      "10": "ten",
+      "API_KEY": "a",
+      "DATABASE_URL": "postgres://x",
+      "FOO": "bar",
+      "db-password": "p",
+      "B_KEY": "b"
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "secret manager: reference, a numeric key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager/references",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "body": {
+    "key": "10"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.doppler\\.com/v3/configs/config/secrets/download\\?format=json$",
+     "body": {
+      "9": "nine",
+      "10": "ten",
+      "API_KEY": "a",
+      "DATABASE_URL": "postgres://x",
+      "FOO": "bar",
+      "db-password": "p",
+      "B_KEY": "b"
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "secret manager: reference, a variable with the key exists",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager/references",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "body": {
+    "key": "FOO"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.doppler\\.com/v3/configs/config/secrets/download\\?format=json$",
+     "body": {
+      "9": "nine",
+      "10": "ten",
+      "API_KEY": "a",
+      "DATABASE_URL": "postgres://x",
+      "FOO": "bar",
+      "db-password": "p",
+      "B_KEY": "b"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, \"order\", version, value is not null as has_value from environment_variables where resourceable_type = 'App\\Models\\Application' and resourceable_id = 1 order by id"
+   }
+  },
+  {
+   "name": "secret manager: reference, a service variable with the key exists",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/secret-manager/references",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"/app\"}', '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"/app\"}', deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "body": {
+    "key": "FOO"
+   },
+   "http": [
+    {
+     "match": "^POST https://app\\.infisical\\.com/api/v1/auth/universal-auth/login$",
+     "body": {
+      "accessToken": "inf-access-token",
+      "expiresIn": 7200,
+      "tokenType": "Bearer"
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://app\\.infisical\\.com/api/v4/secrets\\?",
+     "body": {
+      "secrets": [
+       {
+        "secretKey": "FOO",
+        "secretValue": "x"
+       }
+      ]
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "secret manager: reference, no key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager/references",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "body": {
+    "name": "API_KEY"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.doppler\\.com/v3/configs/config/secrets/download\\?format=json$",
+     "body": {
+      "9": "nine",
+      "10": "ten",
+      "API_KEY": "a",
+      "DATABASE_URL": "postgres://x",
+      "FOO": "bar",
+      "db-password": "p",
+      "B_KEY": "b"
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "secret manager: reference, a key that is not a string",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager/references",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "body": {
+    "key": [
+     "API_KEY"
+    ]
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.doppler\\.com/v3/configs/config/secrets/download\\?format=json$",
+     "body": {
+      "9": "nine",
+      "10": "ten",
+      "API_KEY": "a",
+      "DATABASE_URL": "postgres://x",
+      "FOO": "bar",
+      "db-password": "p",
+      "B_KEY": "b"
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "secret manager: reference, a key too long",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager/references",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "body": {
+    "key": "KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.doppler\\.com/v3/configs/config/secrets/download\\?format=json$",
+     "body": {
+      "9": "nine",
+      "10": "ten",
+      "API_KEY": "a",
+      "DATABASE_URL": "postgres://x",
+      "FOO": "bar",
+      "db-password": "p",
+      "B_KEY": "b"
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "secret manager: reference, not JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager/references",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "raw": "key=API_KEY",
+   "contentType": "application/x-www-form-urlencoded",
+   "http": [
+    {
+     "match": "^GET https://api\\.doppler\\.com/v3/configs/config/secrets/download\\?format=json$",
+     "body": {
+      "9": "nine",
+      "10": "ten",
+      "API_KEY": "a",
+      "DATABASE_URL": "postgres://x",
+      "FOO": "bar",
+      "db-password": "p",
+      "B_KEY": "b"
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "secret manager: reference, no source",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager/references",
+   "raw": "key=API_KEY",
+   "contentType": "application/x-www-form-urlencoded",
+   "http": []
+  },
+  {
+   "name": "secret manager: reference, the secret manager fails",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/secret-manager/references",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u3parityvaultlink0000003', 'App\\Models\\StandalonePostgresql', 1, 5, '{\"mount\":\"secret\",\"path\":\"apps/web\"}', '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u3parityvaultlink0000003', 'App\\Models\\StandalonePostgresql', 1, 5, '{\"mount\":\"secret\",\"path\":\"apps/web\"}', deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "body": {
+    "key": "PORT"
+   },
+   "http": [
+    {
+     "match": "^GET https://vault\\.example\\.com:8200/v1/secret/data/apps/web$",
+     "body": {
+      "errors": [
+       "internal error"
+      ]
+     },
+     "status": 500
+    }
+   ],
+   "after": {
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, \"order\", version, value is not null as has_value from environment_variables where resourceable_type = 'App\\Models\\StandalonePostgresql' and resourceable_id = 1 order by id"
+   }
+  },
+  {
+   "name": "secret manager: reference with a read token",
+   "token": "read",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager/references",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "body": {
+    "key": "API_KEY"
+   },
+   "http": []
+  },
+  {
+   "name": "secret manager: import, an application's keys",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager/import",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^GET https://api\\.doppler\\.com/v3/configs/config/secrets/download\\?format=json$",
+     "body": {
+      "9": "nine",
+      "10": "ten",
+      "API_KEY": "a",
+      "DATABASE_URL": "postgres://x",
+      "FOO": "bar",
+      "db-password": "p",
+      "B_KEY": "b"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, \"order\", version, value is not null as has_value from environment_variables where resourceable_type = 'App\\Models\\Application' and resourceable_id = 1 order by id"
+   }
+  },
+  {
+   "name": "secret manager: import, a service's keys",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/secret-manager/import",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"/app\"}', '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"/app\"}', deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^POST https://app\\.infisical\\.com/api/v1/auth/universal-auth/login$",
+     "body": {
+      "accessToken": "inf-access-token",
+      "expiresIn": 7200,
+      "tokenType": "Bearer"
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://app\\.infisical\\.com/api/v4/secrets\\?",
+     "body": {
+      "secrets": [
+       {
+        "secretKey": "FOO",
+        "secretValue": "x"
+       },
+       {
+        "secretKey": "NEW_ONE",
+        "secretValue": "n"
+       },
+       {
+        "secretKey": "my.dotted",
+        "secretValue": "d"
+       }
+      ]
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, \"order\", version, value is not null as has_value from environment_variables where resourceable_type = 'App\\Models\\Service' and resourceable_id = 1 order by id"
+   }
+  },
+  {
+   "name": "secret manager: import, a database's keys",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/secret-manager/import",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u3parityvaultlink0000003', 'App\\Models\\StandalonePostgresql', 1, 5, '{\"mount\":\"secret\",\"path\":\"apps/web\"}', '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u3parityvaultlink0000003', 'App\\Models\\StandalonePostgresql', 1, 5, '{\"mount\":\"secret\",\"path\":\"apps/web\"}', deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^GET https://vault\\.example\\.com:8200/v1/secret/data/apps/web$",
+     "body": {
+      "data": {
+       "data": {
+        "API_KEY": "v",
+        "PORT": 5432,
+        "NESTED": {
+         "a": 1
+        },
+        "bad key": "x"
+       },
+       "metadata": {
+        "version": 3
+       }
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, \"order\", version, value is not null as has_value from environment_variables where resourceable_type = 'App\\Models\\StandalonePostgresql' and resourceable_id = 1 order by id"
+   }
+  },
+  {
+   "name": "secret manager: import, nothing new",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager/import",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^GET https://api\\.doppler\\.com/v3/configs/config/secrets/download\\?format=json$",
+     "body": {
+      "FOO": "x",
+      "MULTI": "y"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, \"order\", version, value is not null as has_value from environment_variables where resourceable_type = 'App\\Models\\Application' and resourceable_id = 1 order by id"
+   }
+  },
+  {
+   "name": "secret manager: import, the secret manager fails",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager/import",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^GET https://api\\.doppler\\.com/v3/configs/config/secrets/download\\?format=json$",
+     "body": {
+      "messages": [
+       "Could not find requested config"
+      ]
+     },
+     "status": 404
+    }
+   ],
+   "after": {
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, \"order\", version, value is not null as has_value from environment_variables where resourceable_type = 'App\\Models\\Application' and resourceable_id = 1 order by id"
+   }
+  },
+  {
+   "name": "secret manager: import, no source",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f1parityservice000000001/secret-manager/import",
+   "http": []
+  },
+  {
+   "name": "secret manager: import, another team's service",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/services/f2otherservice0000000002/secret-manager/import",
+   "http": []
+  },
+  {
+   "name": "secret manager: import with a delete token",
+   "token": "delete",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager/import",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "http": []
+  },
+  {
+   "name": "denied: secret manager: remove, an application's source, a member with read:sensitive, deploy and delete",
+   "token": "memberDelete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/secret-manager",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"/app\"}', '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"read:sensitive\",\"deploy\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u1paritydopplerlink00001', 'App\\Models\\Application', 1, 3, null, deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"/app\"}', deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "after": {
+    "links": "select resourceable_type, resourceable_id, integration_token_id, settings::jsonb::text as settings, uuid like 'u_parity%' as fixture_link, updated_at = '2025-12-30 00:00:00' as untouched from secret_manager_links order by resourceable_type, resourceable_id"
+   }
+  },
+  {
+   "name": "denied: secret manager: remove, a service's source, a member with read:sensitive, deploy and delete",
+   "token": "memberDelete",
+   "method": "DELETE",
+   "path": "/api/v1/services/f1parityservice000000001/secret-manager",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"/app\"}', '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"read:sensitive\",\"deploy\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u2parityinfisicallink002', 'App\\Models\\Service', 1, 4, '{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"/app\"}', deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "after": {
+    "links": "select resourceable_type, resourceable_id, integration_token_id, settings::jsonb::text as settings, uuid like 'u_parity%' as fixture_link, updated_at = '2025-12-30 00:00:00' as untouched from secret_manager_links order by resourceable_type, resourceable_id"
+   }
+  },
+  {
+   "name": "denied: secret manager: remove, a database's source, a member with read:sensitive, deploy and delete",
+   "token": "memberDelete",
+   "method": "DELETE",
+   "path": "/api/v1/databases/b1paritypostgres00000001/secret-manager",
+   "setupCoolify": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, created_at, updated_at) values ('u3parityvaultlink0000003', 'App\\Models\\StandalonePostgresql', 1, 5, '{\"mount\":\"secret\",\"path\":\"apps/web\"}', '2025-12-30 00:00:00', '2025-12-30 00:00:00')",
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"read:sensitive\",\"deploy\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ],
+   "setupFreeploy": [
+    "insert into secret_manager_links (uuid, resourceable_type, resourceable_id, integration_token_id, settings, org_id, created_at, updated_at) values ('u3parityvaultlink0000003', 'App\\Models\\StandalonePostgresql', 1, 5, '{\"mount\":\"secret\",\"path\":\"apps/web\"}', deploy.current_org(), '2025-12-30 00:00:00', '2025-12-30 00:00:00')"
+   ],
+   "after": {
+    "links": "select resourceable_type, resourceable_id, integration_token_id, settings::jsonb::text as settings, uuid like 'u_parity%' as fixture_link, updated_at = '2025-12-30 00:00:00' as untouched from secret_manager_links order by resourceable_type, resourceable_id"
+   }
+  },
+  {
+   "name": "settings email: show, a root-team token",
+   "method": "GET",
+   "path": "/api/v1/settings/email",
+   "authorization": "Bearer 51|rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f",
+   "rootTeamToken": {
+    "key": "root",
+    "user": 1,
+    "id": 51,
+    "abilities": [
+     "root"
+    ],
+    "secret": "rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f"
+   },
+   "setupCoolify": [
+    "insert into teams (id, name, description, personal_team, created_at, updated_at) values (0, 'Root Team', null, false, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into team_user (team_id, user_id, role, created_at, updated_at) values (0, 1, 'owner', '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (51, 'App\\Models\\User', 1, 'Root team root', encode(sha256('rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f'::bytea), 'hex'), '[\"root\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (52, 'App\\Models\\User', 1, 'Root team read', encode(sha256('rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f'::bytea), 'hex'), '[\"read\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (53, 'App\\Models\\User', 1, 'Root team sensitive', encode(sha256('rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f'::bytea), 'hex'), '[\"read\",\"read:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (54, 'App\\Models\\User', 1, 'Root team write', encode(sha256('rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f'::bytea), 'hex'), '[\"read\",\"write\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (55, 'App\\Models\\User', 1, 'Root team writeSensitive', encode(sha256('rtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtws4c1d2e3f'::bytea), 'hex'), '[\"read\",\"write:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')"
+   ]
+  },
+  {
+   "name": "settings email: show, a root-team read token",
+   "method": "GET",
+   "path": "/api/v1/settings/email",
+   "authorization": "Bearer 52|rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f",
+   "rootTeamToken": {
+    "key": "read",
+    "user": 1,
+    "id": 52,
+    "abilities": [
+     "read"
+    ],
+    "secret": "rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f"
+   },
+   "setupCoolify": [
+    "insert into teams (id, name, description, personal_team, created_at, updated_at) values (0, 'Root Team', null, false, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into team_user (team_id, user_id, role, created_at, updated_at) values (0, 1, 'owner', '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (51, 'App\\Models\\User', 1, 'Root team root', encode(sha256('rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f'::bytea), 'hex'), '[\"root\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (52, 'App\\Models\\User', 1, 'Root team read', encode(sha256('rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f'::bytea), 'hex'), '[\"read\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (53, 'App\\Models\\User', 1, 'Root team sensitive', encode(sha256('rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f'::bytea), 'hex'), '[\"read\",\"read:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (54, 'App\\Models\\User', 1, 'Root team write', encode(sha256('rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f'::bytea), 'hex'), '[\"read\",\"write\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (55, 'App\\Models\\User', 1, 'Root team writeSensitive', encode(sha256('rtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtws4c1d2e3f'::bytea), 'hex'), '[\"read\",\"write:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')"
+   ]
+  },
+  {
+   "name": "settings email: show, a root-team read:sensitive token",
+   "method": "GET",
+   "path": "/api/v1/settings/email",
+   "authorization": "Bearer 53|rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f",
+   "rootTeamToken": {
+    "key": "sensitive",
+    "user": 1,
+    "id": 53,
+    "abilities": [
+     "read",
+     "read:sensitive"
+    ],
+    "secret": "rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f"
+   },
+   "setupCoolify": [
+    "insert into teams (id, name, description, personal_team, created_at, updated_at) values (0, 'Root Team', null, false, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into team_user (team_id, user_id, role, created_at, updated_at) values (0, 1, 'owner', '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (51, 'App\\Models\\User', 1, 'Root team root', encode(sha256('rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f'::bytea), 'hex'), '[\"root\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (52, 'App\\Models\\User', 1, 'Root team read', encode(sha256('rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f'::bytea), 'hex'), '[\"read\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (53, 'App\\Models\\User', 1, 'Root team sensitive', encode(sha256('rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f'::bytea), 'hex'), '[\"read\",\"read:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (54, 'App\\Models\\User', 1, 'Root team write', encode(sha256('rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f'::bytea), 'hex'), '[\"read\",\"write\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (55, 'App\\Models\\User', 1, 'Root team writeSensitive', encode(sha256('rtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtws4c1d2e3f'::bytea), 'hex'), '[\"read\",\"write:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')"
+   ]
+  },
+  {
+   "name": "settings email: show, a team token",
+   "token": "root",
+   "method": "GET",
+   "path": "/api/v1/settings/email"
+  },
+  {
+   "name": "settings email: show, a team read token",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/settings/email"
+  },
+  {
+   "name": "settings email: show with a write-only token",
+   "token": "writeOnly",
+   "method": "GET",
+   "path": "/api/v1/settings/email"
+  },
+  {
+   "name": "settings email: update, every setting",
+   "method": "PATCH",
+   "path": "/api/v1/settings/email",
+   "authorization": "Bearer 51|rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f",
+   "rootTeamToken": {
+    "key": "root",
+    "user": 1,
+    "id": 51,
+    "abilities": [
+     "root"
+    ],
+    "secret": "rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f"
+   },
+   "setupCoolify": [
+    "insert into teams (id, name, description, personal_team, created_at, updated_at) values (0, 'Root Team', null, false, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into team_user (team_id, user_id, role, created_at, updated_at) values (0, 1, 'owner', '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (51, 'App\\Models\\User', 1, 'Root team root', encode(sha256('rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f'::bytea), 'hex'), '[\"root\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (52, 'App\\Models\\User', 1, 'Root team read', encode(sha256('rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f'::bytea), 'hex'), '[\"read\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (53, 'App\\Models\\User', 1, 'Root team sensitive', encode(sha256('rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f'::bytea), 'hex'), '[\"read\",\"read:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (54, 'App\\Models\\User', 1, 'Root team write', encode(sha256('rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f'::bytea), 'hex'), '[\"read\",\"write\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (55, 'App\\Models\\User', 1, 'Root team writeSensitive', encode(sha256('rtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtws4c1d2e3f'::bytea), 'hex'), '[\"read\",\"write:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')"
+   ],
+   "body": {
+    "smtp_enabled": true,
+    "smtp_from_address": "noreply@example.com",
+    "smtp_from_name": "Freeploy",
+    "notification_from_address": "alerts@example.com",
+    "notification_from_name": "Alerts",
+    "smtp_host": "smtp.example.com",
+    "smtp_port": 587,
+    "smtp_encryption": "starttls",
+    "smtp_username": "mailer",
+    "smtp_password": "smtp-secret",
+    "smtp_timeout": 30,
+    "smtp_ehlo_domain": "mail.example.com",
+    "resend_enabled": false,
+    "resend_api_key": "re_parity_key",
+    "resend_from_address": "resend@example.com",
+    "resend_from_name": "Resend Sender"
+   },
+   "after": {
+    "settings": "select smtp_enabled, smtp_port, smtp_encryption, smtp_timeout, smtp_ehlo_domain, resend_enabled, smtp_from_address is not null as has_smtp_from_address, smtp_from_name is not null as has_smtp_from_name, notification_from_address is not null as has_notification_from_address, notification_from_name is not null as has_notification_from_name, smtp_host is not null as has_smtp_host, smtp_username is not null as has_smtp_username, smtp_password is not null as has_smtp_password, resend_api_key is not null as has_resend_api_key, resend_from_address is not null as has_resend_from_address, resend_from_name is not null as has_resend_from_name from instance_settings where id = 0"
+   }
+  },
+  {
+   "name": "settings email: update with write:sensitive",
+   "method": "PATCH",
+   "path": "/api/v1/settings/email",
+   "authorization": "Bearer 55|rtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtws4c1d2e3f",
+   "rootTeamToken": {
+    "key": "writeSensitive",
+    "user": 1,
+    "id": 55,
+    "abilities": [
+     "read",
+     "write:sensitive"
+    ],
+    "secret": "rtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtws4c1d2e3f"
+   },
+   "setupCoolify": [
+    "insert into teams (id, name, description, personal_team, created_at, updated_at) values (0, 'Root Team', null, false, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into team_user (team_id, user_id, role, created_at, updated_at) values (0, 1, 'owner', '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (51, 'App\\Models\\User', 1, 'Root team root', encode(sha256('rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f'::bytea), 'hex'), '[\"root\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (52, 'App\\Models\\User', 1, 'Root team read', encode(sha256('rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f'::bytea), 'hex'), '[\"read\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (53, 'App\\Models\\User', 1, 'Root team sensitive', encode(sha256('rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f'::bytea), 'hex'), '[\"read\",\"read:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (54, 'App\\Models\\User', 1, 'Root team write', encode(sha256('rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f'::bytea), 'hex'), '[\"read\",\"write\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (55, 'App\\Models\\User', 1, 'Root team writeSensitive', encode(sha256('rtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtws4c1d2e3f'::bytea), 'hex'), '[\"read\",\"write:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')"
+   ],
+   "body": {
+    "smtp_enabled": "1",
+    "smtp_host": "smtp.example.org",
+    "smtp_port": "2525",
+    "smtp_encryption": "tls",
+    "smtp_password": "pw"
+   },
+   "after": {
+    "settings": "select smtp_enabled, smtp_port, smtp_encryption, smtp_timeout, smtp_ehlo_domain, resend_enabled, smtp_from_address is not null as has_smtp_from_address, smtp_from_name is not null as has_smtp_from_name, notification_from_address is not null as has_notification_from_address, notification_from_name is not null as has_notification_from_name, smtp_host is not null as has_smtp_host, smtp_username is not null as has_smtp_username, smtp_password is not null as has_smtp_password, resend_api_key is not null as has_resend_api_key, resend_from_address is not null as has_resend_from_address, resend_from_name is not null as has_resend_from_name from instance_settings where id = 0"
+   }
+  },
+  {
+   "name": "settings email: update, Resend",
+   "method": "PATCH",
+   "path": "/api/v1/settings/email",
+   "authorization": "Bearer 51|rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f",
+   "rootTeamToken": {
+    "key": "root",
+    "user": 1,
+    "id": 51,
+    "abilities": [
+     "root"
+    ],
+    "secret": "rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f"
+   },
+   "setupCoolify": [
+    "insert into teams (id, name, description, personal_team, created_at, updated_at) values (0, 'Root Team', null, false, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into team_user (team_id, user_id, role, created_at, updated_at) values (0, 1, 'owner', '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (51, 'App\\Models\\User', 1, 'Root team root', encode(sha256('rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f'::bytea), 'hex'), '[\"root\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (52, 'App\\Models\\User', 1, 'Root team read', encode(sha256('rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f'::bytea), 'hex'), '[\"read\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (53, 'App\\Models\\User', 1, 'Root team sensitive', encode(sha256('rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f'::bytea), 'hex'), '[\"read\",\"read:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (54, 'App\\Models\\User', 1, 'Root team write', encode(sha256('rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f'::bytea), 'hex'), '[\"read\",\"write\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (55, 'App\\Models\\User', 1, 'Root team writeSensitive', encode(sha256('rtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtws4c1d2e3f'::bytea), 'hex'), '[\"read\",\"write:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')"
+   ],
+   "body": {
+    "resend_enabled": 1,
+    "resend_api_key": "re_123",
+    "resend_from_address": "noreply@example.com",
+    "resend_from_name": "Freeploy",
+    "smtp_encryption": "none",
+    "smtp_timeout": 0
+   },
+   "after": {
+    "settings": "select smtp_enabled, smtp_port, smtp_encryption, smtp_timeout, smtp_ehlo_domain, resend_enabled, smtp_from_address is not null as has_smtp_from_address, smtp_from_name is not null as has_smtp_from_name, notification_from_address is not null as has_notification_from_address, notification_from_name is not null as has_notification_from_name, smtp_host is not null as has_smtp_host, smtp_username is not null as has_smtp_username, smtp_password is not null as has_smtp_password, resend_api_key is not null as has_resend_api_key, resend_from_address is not null as has_resend_from_address, resend_from_name is not null as has_resend_from_name from instance_settings where id = 0"
+   }
+  },
+  {
+   "name": "settings email: update, values cleared",
+   "method": "PATCH",
+   "path": "/api/v1/settings/email",
+   "authorization": "Bearer 51|rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f",
+   "rootTeamToken": {
+    "key": "root",
+    "user": 1,
+    "id": 51,
+    "abilities": [
+     "root"
+    ],
+    "secret": "rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f"
+   },
+   "setupCoolify": [
+    "insert into teams (id, name, description, personal_team, created_at, updated_at) values (0, 'Root Team', null, false, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into team_user (team_id, user_id, role, created_at, updated_at) values (0, 1, 'owner', '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (51, 'App\\Models\\User', 1, 'Root team root', encode(sha256('rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f'::bytea), 'hex'), '[\"root\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (52, 'App\\Models\\User', 1, 'Root team read', encode(sha256('rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f'::bytea), 'hex'), '[\"read\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (53, 'App\\Models\\User', 1, 'Root team sensitive', encode(sha256('rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f'::bytea), 'hex'), '[\"read\",\"read:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (54, 'App\\Models\\User', 1, 'Root team write', encode(sha256('rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f'::bytea), 'hex'), '[\"read\",\"write\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (55, 'App\\Models\\User', 1, 'Root team writeSensitive', encode(sha256('rtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtws4c1d2e3f'::bytea), 'hex'), '[\"read\",\"write:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')"
+   ],
+   "body": {
+    "smtp_host": null,
+    "smtp_password": "",
+    "smtp_port": null,
+    "smtp_ehlo_domain": "",
+    "smtp_from_name": null
+   },
+   "after": {
+    "settings": "select smtp_enabled, smtp_port, smtp_encryption, smtp_timeout, smtp_ehlo_domain, resend_enabled, smtp_from_address is not null as has_smtp_from_address, smtp_from_name is not null as has_smtp_from_name, notification_from_address is not null as has_notification_from_address, notification_from_name is not null as has_notification_from_name, smtp_host is not null as has_smtp_host, smtp_username is not null as has_smtp_username, smtp_password is not null as has_smtp_password, resend_api_key is not null as has_resend_api_key, resend_from_address is not null as has_resend_from_address, resend_from_name is not null as has_resend_from_name from instance_settings where id = 0"
+   }
+  },
+  {
+   "name": "settings email: update, fields that are not settings",
+   "method": "PATCH",
+   "path": "/api/v1/settings/email",
+   "authorization": "Bearer 51|rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f",
+   "rootTeamToken": {
+    "key": "root",
+    "user": 1,
+    "id": 51,
+    "abilities": [
+     "root"
+    ],
+    "secret": "rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f"
+   },
+   "setupCoolify": [
+    "insert into teams (id, name, description, personal_team, created_at, updated_at) values (0, 'Root Team', null, false, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into team_user (team_id, user_id, role, created_at, updated_at) values (0, 1, 'owner', '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (51, 'App\\Models\\User', 1, 'Root team root', encode(sha256('rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f'::bytea), 'hex'), '[\"root\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (52, 'App\\Models\\User', 1, 'Root team read', encode(sha256('rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f'::bytea), 'hex'), '[\"read\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (53, 'App\\Models\\User', 1, 'Root team sensitive', encode(sha256('rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f'::bytea), 'hex'), '[\"read\",\"read:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (54, 'App\\Models\\User', 1, 'Root team write', encode(sha256('rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f'::bytea), 'hex'), '[\"read\",\"write\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (55, 'App\\Models\\User', 1, 'Root team writeSensitive', encode(sha256('rtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtws4c1d2e3f'::bytea), 'hex'), '[\"read\",\"write:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')"
+   ],
+   "body": {
+    "smtp_recipients": "a@example.com",
+    "is_api_enabled": false,
+    "foo": 1,
+    "smtp_from_name": "Only this"
+   },
+   "after": {
+    "settings": "select smtp_enabled, smtp_port, smtp_encryption, smtp_timeout, smtp_ehlo_domain, resend_enabled, smtp_from_address is not null as has_smtp_from_address, smtp_from_name is not null as has_smtp_from_name, notification_from_address is not null as has_notification_from_address, notification_from_name is not null as has_notification_from_name, smtp_host is not null as has_smtp_host, smtp_username is not null as has_smtp_username, smtp_password is not null as has_smtp_password, resend_api_key is not null as has_resend_api_key, resend_from_address is not null as has_resend_from_address, resend_from_name is not null as has_resend_from_name from instance_settings where id = 0"
+   }
+  },
+  {
+   "name": "settings email: update, invalid",
+   "method": "PATCH",
+   "path": "/api/v1/settings/email",
+   "authorization": "Bearer 51|rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f",
+   "rootTeamToken": {
+    "key": "root",
+    "user": 1,
+    "id": 51,
+    "abilities": [
+     "root"
+    ],
+    "secret": "rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f"
+   },
+   "setupCoolify": [
+    "insert into teams (id, name, description, personal_team, created_at, updated_at) values (0, 'Root Team', null, false, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into team_user (team_id, user_id, role, created_at, updated_at) values (0, 1, 'owner', '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (51, 'App\\Models\\User', 1, 'Root team root', encode(sha256('rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f'::bytea), 'hex'), '[\"root\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (52, 'App\\Models\\User', 1, 'Root team read', encode(sha256('rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f'::bytea), 'hex'), '[\"read\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (53, 'App\\Models\\User', 1, 'Root team sensitive', encode(sha256('rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f'::bytea), 'hex'), '[\"read\",\"read:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (54, 'App\\Models\\User', 1, 'Root team write', encode(sha256('rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f'::bytea), 'hex'), '[\"read\",\"write\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (55, 'App\\Models\\User', 1, 'Root team writeSensitive', encode(sha256('rtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtws4c1d2e3f'::bytea), 'hex'), '[\"read\",\"write:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')"
+   ],
+   "body": {
+    "smtp_enabled": "yes",
+    "smtp_from_address": "not-an-email",
+    "smtp_from_name": "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+    "notification_from_address": 5,
+    "notification_from_name": [
+     "x"
+    ],
+    "smtp_host": 25,
+    "smtp_port": 70000,
+    "smtp_encryption": "ssl",
+    "smtp_username": "uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu",
+    "smtp_password": true,
+    "smtp_timeout": -1,
+    "smtp_ehlo_domain": "bad domain!",
+    "resend_enabled": 2,
+    "resend_api_key": 7,
+    "resend_from_address": "@example.com",
+    "resend_from_name": false
+   },
+   "after": {
+    "settings": "select smtp_enabled, smtp_port, smtp_encryption, smtp_timeout, smtp_ehlo_domain, resend_enabled, smtp_from_address is not null as has_smtp_from_address, smtp_from_name is not null as has_smtp_from_name, notification_from_address is not null as has_notification_from_address, notification_from_name is not null as has_notification_from_name, smtp_host is not null as has_smtp_host, smtp_username is not null as has_smtp_username, smtp_password is not null as has_smtp_password, resend_api_key is not null as has_resend_api_key, resend_from_address is not null as has_resend_from_address, resend_from_name is not null as has_resend_from_name from instance_settings where id = 0"
+   }
+  },
+  {
+   "name": "settings email: update, a port that is not a number",
+   "method": "PATCH",
+   "path": "/api/v1/settings/email",
+   "authorization": "Bearer 51|rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f",
+   "rootTeamToken": {
+    "key": "root",
+    "user": 1,
+    "id": 51,
+    "abilities": [
+     "root"
+    ],
+    "secret": "rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f"
+   },
+   "setupCoolify": [
+    "insert into teams (id, name, description, personal_team, created_at, updated_at) values (0, 'Root Team', null, false, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into team_user (team_id, user_id, role, created_at, updated_at) values (0, 1, 'owner', '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (51, 'App\\Models\\User', 1, 'Root team root', encode(sha256('rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f'::bytea), 'hex'), '[\"root\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (52, 'App\\Models\\User', 1, 'Root team read', encode(sha256('rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f'::bytea), 'hex'), '[\"read\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (53, 'App\\Models\\User', 1, 'Root team sensitive', encode(sha256('rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f'::bytea), 'hex'), '[\"read\",\"read:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (54, 'App\\Models\\User', 1, 'Root team write', encode(sha256('rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f'::bytea), 'hex'), '[\"read\",\"write\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (55, 'App\\Models\\User', 1, 'Root team writeSensitive', encode(sha256('rtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtws4c1d2e3f'::bytea), 'hex'), '[\"read\",\"write:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')"
+   ],
+   "body": {
+    "smtp_port": "abc",
+    "smtp_timeout": "1.5"
+   },
+   "after": {
+    "settings": "select smtp_enabled, smtp_port, smtp_encryption, smtp_timeout, smtp_ehlo_domain, resend_enabled, smtp_from_address is not null as has_smtp_from_address, smtp_from_name is not null as has_smtp_from_name, notification_from_address is not null as has_notification_from_address, notification_from_name is not null as has_notification_from_name, smtp_host is not null as has_smtp_host, smtp_username is not null as has_smtp_username, smtp_password is not null as has_smtp_password, resend_api_key is not null as has_resend_api_key, resend_from_address is not null as has_resend_from_address, resend_from_name is not null as has_resend_from_name from instance_settings where id = 0"
+   }
+  },
+  {
+   "name": "settings email: update, a port of zero",
+   "method": "PATCH",
+   "path": "/api/v1/settings/email",
+   "authorization": "Bearer 51|rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f",
+   "rootTeamToken": {
+    "key": "root",
+    "user": 1,
+    "id": 51,
+    "abilities": [
+     "root"
+    ],
+    "secret": "rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f"
+   },
+   "setupCoolify": [
+    "insert into teams (id, name, description, personal_team, created_at, updated_at) values (0, 'Root Team', null, false, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into team_user (team_id, user_id, role, created_at, updated_at) values (0, 1, 'owner', '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (51, 'App\\Models\\User', 1, 'Root team root', encode(sha256('rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f'::bytea), 'hex'), '[\"root\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (52, 'App\\Models\\User', 1, 'Root team read', encode(sha256('rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f'::bytea), 'hex'), '[\"read\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (53, 'App\\Models\\User', 1, 'Root team sensitive', encode(sha256('rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f'::bytea), 'hex'), '[\"read\",\"read:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (54, 'App\\Models\\User', 1, 'Root team write', encode(sha256('rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f'::bytea), 'hex'), '[\"read\",\"write\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (55, 'App\\Models\\User', 1, 'Root team writeSensitive', encode(sha256('rtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtws4c1d2e3f'::bytea), 'hex'), '[\"read\",\"write:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')"
+   ],
+   "body": {
+    "smtp_port": 0,
+    "smtp_ehlo_domain": "-bad.example.com"
+   }
+  },
+  {
+   "name": "settings email: update, not JSON",
+   "method": "PATCH",
+   "path": "/api/v1/settings/email",
+   "authorization": "Bearer 51|rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f",
+   "rootTeamToken": {
+    "key": "root",
+    "user": 1,
+    "id": 51,
+    "abilities": [
+     "root"
+    ],
+    "secret": "rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f"
+   },
+   "setupCoolify": [
+    "insert into teams (id, name, description, personal_team, created_at, updated_at) values (0, 'Root Team', null, false, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into team_user (team_id, user_id, role, created_at, updated_at) values (0, 1, 'owner', '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (51, 'App\\Models\\User', 1, 'Root team root', encode(sha256('rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f'::bytea), 'hex'), '[\"root\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (52, 'App\\Models\\User', 1, 'Root team read', encode(sha256('rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f'::bytea), 'hex'), '[\"read\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (53, 'App\\Models\\User', 1, 'Root team sensitive', encode(sha256('rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f'::bytea), 'hex'), '[\"read\",\"read:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (54, 'App\\Models\\User', 1, 'Root team write', encode(sha256('rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f'::bytea), 'hex'), '[\"read\",\"write\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (55, 'App\\Models\\User', 1, 'Root team writeSensitive', encode(sha256('rtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtws4c1d2e3f'::bytea), 'hex'), '[\"read\",\"write:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')"
+   ],
+   "raw": "smtp_enabled=1",
+   "contentType": "application/x-www-form-urlencoded",
+   "after": {
+    "settings": "select smtp_enabled, smtp_port, smtp_encryption, smtp_timeout, smtp_ehlo_domain, resend_enabled, smtp_from_address is not null as has_smtp_from_address, smtp_from_name is not null as has_smtp_from_name, notification_from_address is not null as has_notification_from_address, notification_from_name is not null as has_notification_from_name, smtp_host is not null as has_smtp_host, smtp_username is not null as has_smtp_username, smtp_password is not null as has_smtp_password, resend_api_key is not null as has_resend_api_key, resend_from_address is not null as has_resend_from_address, resend_from_name is not null as has_resend_from_name from instance_settings where id = 0"
+   }
+  },
+  {
+   "name": "settings email: update, empty JSON",
+   "method": "PATCH",
+   "path": "/api/v1/settings/email",
+   "authorization": "Bearer 51|rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f",
+   "rootTeamToken": {
+    "key": "root",
+    "user": 1,
+    "id": 51,
+    "abilities": [
+     "root"
+    ],
+    "secret": "rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f"
+   },
+   "setupCoolify": [
+    "insert into teams (id, name, description, personal_team, created_at, updated_at) values (0, 'Root Team', null, false, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into team_user (team_id, user_id, role, created_at, updated_at) values (0, 1, 'owner', '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (51, 'App\\Models\\User', 1, 'Root team root', encode(sha256('rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f'::bytea), 'hex'), '[\"root\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (52, 'App\\Models\\User', 1, 'Root team read', encode(sha256('rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f'::bytea), 'hex'), '[\"read\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (53, 'App\\Models\\User', 1, 'Root team sensitive', encode(sha256('rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f'::bytea), 'hex'), '[\"read\",\"read:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (54, 'App\\Models\\User', 1, 'Root team write', encode(sha256('rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f'::bytea), 'hex'), '[\"read\",\"write\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (55, 'App\\Models\\User', 1, 'Root team writeSensitive', encode(sha256('rtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtws4c1d2e3f'::bytea), 'hex'), '[\"read\",\"write:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')"
+   ],
+   "raw": "{}",
+   "after": {
+    "settings": "select smtp_enabled, smtp_port, smtp_encryption, smtp_timeout, smtp_ehlo_domain, resend_enabled, smtp_from_address is not null as has_smtp_from_address, smtp_from_name is not null as has_smtp_from_name, notification_from_address is not null as has_notification_from_address, notification_from_name is not null as has_notification_from_name, smtp_host is not null as has_smtp_host, smtp_username is not null as has_smtp_username, smtp_password is not null as has_smtp_password, resend_api_key is not null as has_resend_api_key, resend_from_address is not null as has_resend_from_address, resend_from_name is not null as has_resend_from_name from instance_settings where id = 0"
+   }
+  },
+  {
+   "name": "settings email: update with a write token",
+   "method": "PATCH",
+   "path": "/api/v1/settings/email",
+   "authorization": "Bearer 54|rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f",
+   "rootTeamToken": {
+    "key": "write",
+    "user": 1,
+    "id": 54,
+    "abilities": [
+     "read",
+     "write"
+    ],
+    "secret": "rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f"
+   },
+   "setupCoolify": [
+    "insert into teams (id, name, description, personal_team, created_at, updated_at) values (0, 'Root Team', null, false, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into team_user (team_id, user_id, role, created_at, updated_at) values (0, 1, 'owner', '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (51, 'App\\Models\\User', 1, 'Root team root', encode(sha256('rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f'::bytea), 'hex'), '[\"root\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (52, 'App\\Models\\User', 1, 'Root team read', encode(sha256('rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f'::bytea), 'hex'), '[\"read\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (53, 'App\\Models\\User', 1, 'Root team sensitive', encode(sha256('rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f'::bytea), 'hex'), '[\"read\",\"read:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (54, 'App\\Models\\User', 1, 'Root team write', encode(sha256('rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f'::bytea), 'hex'), '[\"read\",\"write\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (55, 'App\\Models\\User', 1, 'Root team writeSensitive', encode(sha256('rtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtws4c1d2e3f'::bytea), 'hex'), '[\"read\",\"write:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')"
+   ],
+   "body": {
+    "smtp_enabled": true
+   }
+  },
+  {
+   "name": "settings email: update, a team token",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/settings/email",
+   "body": {
+    "smtp_enabled": true
+   },
+   "after": {
+    "settings": "select smtp_enabled, smtp_port, smtp_encryption, smtp_timeout, smtp_ehlo_domain, resend_enabled, smtp_from_address is not null as has_smtp_from_address, smtp_from_name is not null as has_smtp_from_name, notification_from_address is not null as has_notification_from_address, notification_from_name is not null as has_notification_from_name, smtp_host is not null as has_smtp_host, smtp_username is not null as has_smtp_username, smtp_password is not null as has_smtp_password, resend_api_key is not null as has_resend_api_key, resend_from_address is not null as has_resend_from_address, resend_from_name is not null as has_resend_from_name from instance_settings where id = 0"
+   }
+  },
+  {
+   "name": "settings email: update, then show",
+   "setupCoolify": [
+    "insert into teams (id, name, description, personal_team, created_at, updated_at) values (0, 'Root Team', null, false, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into team_user (team_id, user_id, role, created_at, updated_at) values (0, 1, 'owner', '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (51, 'App\\Models\\User', 1, 'Root team root', encode(sha256('rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f'::bytea), 'hex'), '[\"root\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (52, 'App\\Models\\User', 1, 'Root team read', encode(sha256('rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f'::bytea), 'hex'), '[\"read\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (53, 'App\\Models\\User', 1, 'Root team sensitive', encode(sha256('rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f'::bytea), 'hex'), '[\"read\",\"read:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (54, 'App\\Models\\User', 1, 'Root team write', encode(sha256('rtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwrrtwr3c1d2e3f'::bytea), 'hex'), '[\"read\",\"write\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')",
+    "insert into personal_access_tokens (id, tokenable_type, tokenable_id, name, token, abilities, team_id, created_at, updated_at) values (55, 'App\\Models\\User', 1, 'Root team writeSensitive', encode(sha256('rtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtwsrtws4c1d2e3f'::bytea), 'hex'), '[\"read\",\"write:sensitive\"]', 0, '2025-12-01 00:00:00', '2025-12-01 00:00:00')"
+   ],
+   "rootTeamToken": {
+    "key": "root",
+    "user": 1,
+    "id": 51,
+    "abilities": [
+     "root"
+    ],
+    "secret": "rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f"
+   },
+   "method": "PATCH",
+   "path": "/api/v1/settings/email",
+   "sequence": [
+    {
+     "method": "PATCH",
+     "path": "/api/v1/settings/email",
+     "authorization": "Bearer 51|rtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrtrt0c1d2e3f",
+     "body": {
+      "smtp_enabled": true,
+      "smtp_from_address": "noreply@example.com",
+      "smtp_from_name": "Freeploy",
+      "notification_from_address": "alerts@example.com",
+      "notification_from_name": "Alerts",
+      "smtp_host": "smtp.example.com",
+      "smtp_port": 587,
+      "smtp_encryption": "starttls",
+      "smtp_username": "mailer",
+      "smtp_password": "smtp-secret",
+      "smtp_timeout": 30,
+      "smtp_ehlo_domain": "mail.example.com",
+      "resend_enabled": false,
+      "resend_api_key": "re_parity_key",
+      "resend_from_address": "resend@example.com",
+      "resend_from_name": "Resend Sender"
+     }
+    },
+    {
+     "method": "GET",
+     "path": "/api/v1/settings/email",
+     "authorization": "Bearer 52|rtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrdrtrd1c1d2e3f"
+    },
+    {
+     "method": "GET",
+     "path": "/api/v1/settings/email",
+     "authorization": "Bearer 53|rtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsnrtsn2c1d2e3f"
+    }
+   ]
   }
  ]
 }

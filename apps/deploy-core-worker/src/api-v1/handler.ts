@@ -49,6 +49,8 @@
 //   GET /v1/internal/api-v1/{org}/github-apps/{id}/repositories[/{owner}/{repo}/branches]                        github-repositories.ts (DP-93)
 //   /v1/internal/api-v1/{org}/gitlab-apps[/{gitlab_app_id}], GET /v1/internal/api-v1/{org}/gitea-apps              oauth-source-apps.ts (DP-103)
 //   POST /v1/internal/api-v1/{org}/servers/hostinger                                                            hostinger-servers.ts (DP-93)
+//   /v1/internal/api-v1/{org}/{applications,services,databases}/{uuid}/secret-manager[/keys|/references|/import] secret-manager.ts (DP-106)
+//   GET|PATCH /v1/internal/api-v1/{org}/settings/email: the platform operator's (DP-101's row 0)                 instance-email.ts (DP-106)
 //
 // $this->authorize(…) is policy-worker's deploy.resource.read (view) or deploy.resource.write (create,
 // update, delete) for the token's user; a denial is the exception handler's 403 (COOLIFY_API.unauthorized(), DP-93).
@@ -120,6 +122,9 @@ import { giteaAppsApi, gitlabAppsApi } from "./oauth-source-apps.js";
 import { createHostingerServer } from "./hostinger-servers.js";
 import { cloudProviderTokensApi } from "./cloud-provider-tokens.js";
 import { integrationTokensApi } from "./integration-tokens.js";
+import { SECRET_MANAGER_RESOURCE_TYPES, secretManagerApi, type SecretManagerResourceType } from "./secret-manager.js";
+import { instanceEmailApi } from "./instance-email.js";
+import { runPlatformMoreAsAdmin, type PlatformMoreRunner } from "../handlers/platform-settings-more.js";
 import { cloudCatalogsApi } from "./cloud-catalogs.js";
 import type { ProviderNetwork } from "./cloud-providers.js";
 import { saveProxyConfiguration } from "./proxy-configuration.js";
@@ -162,6 +167,10 @@ export interface ApiV1Runners {
   s3?: S3StorageNetwork;
   /** A cloud provider's API: the fetch and the retries' sleep (DP-90); replaceable for tests. */
   providers?: ProviderNetwork;
+  /** policy-worker's platform action for the token's user: the platform operator's gate (DP-79, DP-106); replaceable for tests. */
+  operator?: (action: "platform.settings.read" | "platform.settings.update") => Promise<boolean>;
+  /** The platform's settings stores in asPlatformAdmin() (DP-101, DP-106); replaceable for tests. */
+  platform?: PlatformMoreRunner;
 }
 
 const PROVIDER_NETWORK: ProviderNetwork = { fetch: (input, init) => fetch(input, init), sleep: (ms) => new Promise((done) => setTimeout(done, ms)) };
@@ -218,6 +227,18 @@ export async function handleApiV1(request: Request, env: Env, requestId: string,
       return send(await environmentDetails(context, second, third, () => authorize(false)));
     }
     if (first === "projects") return send(await projects(second, third, fourth, fifth));
+    // DP-106: the instance's email settings, the platform operator's.
+    if (first === "settings" && second === "email" && third === undefined) {
+      const operator =
+        r.operator ??
+        (async (action: "platform.settings.read" | "platform.settings.update") =>
+          (await authorizeViaPolicy(env.POLICY_WORKER!, actor.subjectId, actor.subjectType, action, { kind: "platform", orgId: "platform" as never }, [], requestId)).allow);
+      return send((await instanceEmailApi(context, { operator, platform: r.platform ?? runPlatformMoreAsAdmin })) ?? COOLIFY_API.notFound());
+    }
+    // DP-106: a resource's secret manager source (routes/api.php's whereIn('resource_type', …) group).
+    if (SECRET_MANAGER_RESOURCE_TYPES.includes(first ?? "") && second !== undefined && third === "secret-manager") {
+      return send((await secretManagerApi(context, first as SecretManagerResourceType, second, segments.slice(3))) ?? COOLIFY_API.notFound());
+    }
     // DP-104: the org's integration tokens (Cloudflare, Doppler, Infisical, Vault).
     if (first === "security" && second === "integration-tokens") return send((await integrationTokensApi(context, segments.slice(2))) ?? COOLIFY_API.notFound());
     if (first === "security" && second === "keys") return send(await keys(third, fourth));

@@ -69988,6 +69988,2896 @@
                     }
                 ]
             }
+        },
+        {
+            "name": "secret manager: show, an application without a source",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"linked\":false,\"integration_token_uuid\":null,\"provider\":null,\"settings\":null,\"available_tokens\":[{\"uuid\":\"i3paritydoppler000000003\",\"name\":\"Parity Doppler\",\"provider\":\"doppler\"},{\"uuid\":\"i4parityinfisical0000004\",\"name\":\"Parity Infisical\",\"provider\":\"infisical\"},{\"uuid\":\"i5parityvault00000000005\",\"name\":\"Parity Vault\",\"provider\":\"vault\"}]}"
+            }
+        },
+        {
+            "name": "secret manager: show, an application's Doppler source",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"linked\":true,\"integration_token_uuid\":\"i3paritydoppler000000003\",\"provider\":\"doppler\",\"settings\":null,\"available_tokens\":[{\"uuid\":\"i3paritydoppler000000003\",\"name\":\"Parity Doppler\",\"provider\":\"doppler\"},{\"uuid\":\"i4parityinfisical0000004\",\"name\":\"Parity Infisical\",\"provider\":\"infisical\"},{\"uuid\":\"i5parityvault00000000005\",\"name\":\"Parity Vault\",\"provider\":\"vault\"}]}"
+            }
+        },
+        {
+            "name": "secret manager: show, a service's Infisical source",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"linked\":true,\"integration_token_uuid\":\"i4parityinfisical0000004\",\"provider\":\"infisical\",\"settings\":{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"\\/app\"},\"available_tokens\":[{\"uuid\":\"i3paritydoppler000000003\",\"name\":\"Parity Doppler\",\"provider\":\"doppler\"},{\"uuid\":\"i4parityinfisical0000004\",\"name\":\"Parity Infisical\",\"provider\":\"infisical\"},{\"uuid\":\"i5parityvault00000000005\",\"name\":\"Parity Vault\",\"provider\":\"vault\"}]}"
+            }
+        },
+        {
+            "name": "secret manager: show, a database's Vault source",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"linked\":true,\"integration_token_uuid\":\"i5parityvault00000000005\",\"provider\":\"vault\",\"settings\":{\"mount\":\"secret\",\"path\":\"apps\\/web\"},\"available_tokens\":[{\"uuid\":\"i3paritydoppler000000003\",\"name\":\"Parity Doppler\",\"provider\":\"doppler\"},{\"uuid\":\"i4parityinfisical0000004\",\"name\":\"Parity Infisical\",\"provider\":\"infisical\"},{\"uuid\":\"i5parityvault00000000005\",\"name\":\"Parity Vault\",\"provider\":\"vault\"}]}"
+            }
+        },
+        {
+            "name": "secret manager: show, a redis database",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"linked\":false,\"integration_token_uuid\":null,\"provider\":null,\"settings\":null,\"available_tokens\":[{\"uuid\":\"i3paritydoppler000000003\",\"name\":\"Parity Doppler\",\"provider\":\"doppler\"},{\"uuid\":\"i4parityinfisical0000004\",\"name\":\"Parity Infisical\",\"provider\":\"infisical\"},{\"uuid\":\"i5parityvault00000000005\",\"name\":\"Parity Vault\",\"provider\":\"vault\"}]}"
+            }
+        },
+        {
+            "name": "secret manager: show by a member, the linked token only",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"linked\":true,\"integration_token_uuid\":\"i3paritydoppler000000003\",\"provider\":\"doppler\",\"settings\":null,\"available_tokens\":[{\"uuid\":\"i3paritydoppler000000003\",\"name\":\"Parity Doppler\",\"provider\":\"doppler\"}]}"
+            }
+        },
+        {
+            "name": "secret manager: show by a member, no source",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"linked\":false,\"integration_token_uuid\":null,\"provider\":null,\"settings\":null,\"available_tokens\":[]}"
+            }
+        },
+        {
+            "name": "secret manager: show, a token without the secrets capability",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"linked\":false,\"integration_token_uuid\":null,\"provider\":null,\"settings\":null,\"available_tokens\":[{\"uuid\":\"i3paritydoppler000000003\",\"name\":\"Parity Doppler\",\"provider\":\"doppler\"},{\"uuid\":\"i5parityvault00000000005\",\"name\":\"Parity Vault\",\"provider\":\"vault\"}]}"
+            }
+        },
+        {
+            "name": "secret manager: show, unknown application",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Application not found.\"}"
+            }
+        },
+        {
+            "name": "secret manager: show, another team's application",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Application not found.\"}"
+            }
+        },
+        {
+            "name": "secret manager: show, unknown service",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Service not found.\"}"
+            }
+        },
+        {
+            "name": "secret manager: show, another team's database",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Database not found.\"}"
+            }
+        },
+        {
+            "name": "secret manager: show, not a resource type",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Not found.\",\"docs\":\"https:\\/\\/coolify.io\\/docs\"}"
+            }
+        },
+        {
+            "name": "secret manager: show with a write-only token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: read\"}"
+            }
+        },
+        {
+            "name": "secret manager: set, a Doppler service token",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"integration_token_uuid\":\"i3paritydoppler000000003\",\"provider\":\"doppler\",\"settings\":null}"
+            },
+            "after": {
+                "links": [
+                    {
+                        "resourceable_type": "App\\Models\\Application",
+                        "resourceable_id": 1,
+                        "integration_token_id": 3,
+                        "settings": null,
+                        "fixture_link": false,
+                        "untouched": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "secret manager: set, a Doppler service token ignores the settings",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"integration_token_uuid\":\"i3paritydoppler000000003\",\"provider\":\"doppler\",\"settings\":null}"
+            },
+            "after": {
+                "links": [
+                    {
+                        "resourceable_type": "App\\Models\\Application",
+                        "resourceable_id": 1,
+                        "integration_token_id": 3,
+                        "settings": null,
+                        "fixture_link": false,
+                        "untouched": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "secret manager: set, a Doppler service account without settings",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"settings.project\":[\"This field is required.\"],\"settings.config\":[\"This field is required.\"]}}"
+            },
+            "after": {
+                "links": []
+            }
+        },
+        {
+            "name": "secret manager: set, a Doppler service account",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"integration_token_uuid\":\"i3paritydoppler000000003\",\"provider\":\"doppler\",\"settings\":{\"project\":\"web\",\"config\":\"prd\"}}"
+            },
+            "after": {
+                "links": [
+                    {
+                        "resourceable_type": "App\\Models\\Application",
+                        "resourceable_id": 2,
+                        "integration_token_id": 3,
+                        "settings": "{\"config\": \"prd\", \"project\": \"web\"}",
+                        "fixture_link": false,
+                        "untouched": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "secret manager: set, an Infisical token for a service",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"integration_token_uuid\":\"i4parityinfisical0000004\",\"provider\":\"infisical\",\"settings\":{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"\\/app\"}}"
+            },
+            "after": {
+                "links": [
+                    {
+                        "resourceable_type": "App\\Models\\Service",
+                        "resourceable_id": 1,
+                        "integration_token_id": 4,
+                        "settings": "{\"project_id\": \"proj-1\", \"environment\": \"prod\", \"secret_path\": \"/app\"}",
+                        "fixture_link": false,
+                        "untouched": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "secret manager: set, an Infisical token without a secret path",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"integration_token_uuid\":\"i4parityinfisical0000004\",\"provider\":\"infisical\",\"settings\":{\"project_id\":\"proj-2\",\"environment\":\"dev\"}}"
+            },
+            "after": {
+                "links": [
+                    {
+                        "resourceable_type": "App\\Models\\Service",
+                        "resourceable_id": 1,
+                        "integration_token_id": 4,
+                        "settings": "{\"project_id\": \"proj-2\", \"environment\": \"dev\"}",
+                        "fixture_link": false,
+                        "untouched": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "secret manager: set, an Infisical token without settings",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"settings.project_id\":[\"This field is required.\"],\"settings.environment\":[\"This field is required.\"]}}"
+            },
+            "after": {
+                "links": []
+            }
+        },
+        {
+            "name": "secret manager: set, an Infisical token, invalid settings",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"settings.project_id\":[\"The settings.project id field must be a string.\"],\"settings.environment\":[\"The settings.environment field must be a string.\"],\"settings.secret_path\":[\"The settings.secret path field must be a string.\"]}}"
+            }
+        },
+        {
+            "name": "secret manager: set, a Vault token for a database",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"integration_token_uuid\":\"i5parityvault00000000005\",\"provider\":\"vault\",\"settings\":{\"mount\":\"secret\",\"path\":\"apps\\/web\"}}"
+            },
+            "after": {
+                "links": [
+                    {
+                        "resourceable_type": "App\\Models\\StandalonePostgresql",
+                        "resourceable_id": 1,
+                        "integration_token_id": 5,
+                        "settings": "{\"path\": \"apps/web\", \"mount\": \"secret\"}",
+                        "fixture_link": false,
+                        "untouched": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "secret manager: set, a Vault token for a redis database",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"integration_token_uuid\":\"i5parityvault00000000005\",\"provider\":\"vault\",\"settings\":{\"mount\":\"kv\",\"path\":\"cache\"}}"
+            },
+            "after": {
+                "links": [
+                    {
+                        "resourceable_type": "App\\Models\\StandaloneRedis",
+                        "resourceable_id": 1,
+                        "integration_token_id": 5,
+                        "settings": "{\"path\": \"cache\", \"mount\": \"kv\"}",
+                        "fixture_link": false,
+                        "untouched": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "secret manager: set, a Vault token, invalid settings",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"settings.mount\":[\"This field is required.\"],\"settings.path\":[\"This field is required.\"]}}"
+            }
+        },
+        {
+            "name": "secret manager: set, another token for a linked application",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"integration_token_uuid\":\"i5parityvault00000000005\",\"provider\":\"vault\",\"settings\":{\"mount\":\"secret\",\"path\":\"apps\\/image\"}}"
+            },
+            "after": {
+                "links": [
+                    {
+                        "resourceable_type": "App\\Models\\Application",
+                        "resourceable_id": 1,
+                        "integration_token_id": 5,
+                        "settings": "{\"path\": \"apps/image\", \"mount\": \"secret\"}",
+                        "fixture_link": true,
+                        "untouched": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "secret manager: set, the link as it is",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"integration_token_uuid\":\"i4parityinfisical0000004\",\"provider\":\"infisical\",\"settings\":{\"project_id\":\"proj-1\",\"environment\":\"prod\",\"secret_path\":\"\\/app\"}}"
+            },
+            "after": {
+                "links": [
+                    {
+                        "resourceable_type": "App\\Models\\Service",
+                        "resourceable_id": 1,
+                        "integration_token_id": 4,
+                        "settings": "{\"project_id\": \"proj-1\", \"environment\": \"prod\", \"secret_path\": \"/app\"}",
+                        "fixture_link": true,
+                        "untouched": true
+                    }
+                ]
+            }
+        },
+        {
+            "name": "secret manager: set, other settings of the link",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"integration_token_uuid\":\"i4parityinfisical0000004\",\"provider\":\"infisical\",\"settings\":{\"project_id\":\"proj-1\",\"environment\":\"staging\"}}"
+            },
+            "after": {
+                "links": [
+                    {
+                        "resourceable_type": "App\\Models\\Service",
+                        "resourceable_id": 1,
+                        "integration_token_id": 4,
+                        "settings": "{\"project_id\": \"proj-1\", \"environment\": \"staging\"}",
+                        "fixture_link": true,
+                        "untouched": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "secret manager: set, unknown token",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Secret manager integration token not found.\"}"
+            }
+        },
+        {
+            "name": "secret manager: set, a Cloudflare token",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Secret manager integration token not found.\"}"
+            }
+        },
+        {
+            "name": "secret manager: set, another team's token",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Secret manager integration token not found.\"}"
+            }
+        },
+        {
+            "name": "secret manager: set, a token without the secrets capability",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Secret manager integration token not found.\"}"
+            }
+        },
+        {
+            "name": "secret manager: set, a token uuid that is not a string",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Secret manager integration token not found.\"}"
+            }
+        },
+        {
+            "name": "secret manager: set, no token",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Secret manager integration token not found.\"}"
+            }
+        },
+        {
+            "name": "secret manager: set, a field that is not allowed",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"provider\":[\"This field is not allowed.\"],\"name\":[\"This field is not allowed.\"]}}"
+            },
+            "after": {
+                "links": []
+            }
+        },
+        {
+            "name": "secret manager: set, settings that are not an object",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"settings\":[\"The settings field must be an array.\"]}}"
+            }
+        },
+        {
+            "name": "secret manager: set, not JSON",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Invalid request.\",\"error\":\"Content-Type must be application\\/json.\"}"
+            }
+        },
+        {
+            "name": "secret manager: set, empty JSON",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Invalid request.\",\"error\":\"Empty JSON.\"}"
+            }
+        },
+        {
+            "name": "secret manager: set, unknown application",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Application not found.\"}"
+            }
+        },
+        {
+            "name": "secret manager: set, unknown database",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Database not found.\"}"
+            }
+        },
+        {
+            "name": "secret manager: set with a read token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: write\"}"
+            }
+        },
+        {
+            "name": "secret manager: remove, an application's source",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Secret manager source removed. Existing {{vault.*}} variables fail the next deployment until they are removed.\"}"
+            },
+            "after": {
+                "links": [
+                    {
+                        "resourceable_type": "App\\Models\\Service",
+                        "resourceable_id": 1,
+                        "integration_token_id": 4,
+                        "settings": "{\"project_id\": \"proj-1\", \"environment\": \"prod\", \"secret_path\": \"/app\"}",
+                        "fixture_link": true,
+                        "untouched": true
+                    }
+                ]
+            }
+        },
+        {
+            "name": "secret manager: remove, a service's source",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Secret manager source removed. Existing {{vault.*}} variables fail the next deployment until they are removed.\"}"
+            },
+            "after": {
+                "links": []
+            }
+        },
+        {
+            "name": "secret manager: remove, a database's source",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Secret manager source removed. Existing {{vault.*}} variables fail the next deployment until they are removed.\"}"
+            },
+            "after": {
+                "links": []
+            }
+        },
+        {
+            "name": "secret manager: remove, no source",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"The resource has no secret manager source.\"}"
+            },
+            "after": {
+                "links": [
+                    {
+                        "resourceable_type": "App\\Models\\Application",
+                        "resourceable_id": 1,
+                        "integration_token_id": 3,
+                        "settings": null,
+                        "fixture_link": true,
+                        "untouched": true
+                    }
+                ]
+            }
+        },
+        {
+            "name": "secret manager: remove, unknown service",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Service not found.\"}"
+            }
+        },
+        {
+            "name": "secret manager: remove with a write token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: delete\"}"
+            }
+        },
+        {
+            "name": "secret manager: keys, a Doppler service token",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"keys\":[\"9\",\"10\",\"API_KEY\",\"B_KEY\",\"DATABASE_URL\",\"FOO\",\"db-password\"]}"
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.doppler.com/v3/configs/config/secrets/download?format=json",
+                    "authorization": "Bearer dp.st.team1token"
+                }
+            ]
+        },
+        {
+            "name": "secret manager: keys, a Doppler service account",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"keys\":[\"ALPHA\",\"ZED\"]}"
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.doppler.com/v3/configs/config/secrets/download?format=json&project=web&config=prd",
+                    "authorization": "Bearer dp.sa.team1account"
+                }
+            ]
+        },
+        {
+            "name": "secret manager: keys, Doppler refuses the token",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Could not fetch keys: Doppler API error: Invalid Service token\"}"
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.doppler.com/v3/configs/config/secrets/download?format=json",
+                    "authorization": "Bearer dp.st.team1token"
+                }
+            ]
+        },
+        {
+            "name": "secret manager: keys, a Doppler failure without a message",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Could not fetch keys: Doppler API error: HTTP 503\"}"
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.doppler.com/v3/configs/config/secrets/download?format=json",
+                    "authorization": "Bearer dp.st.team1token"
+                }
+            ]
+        },
+        {
+            "name": "secret manager: keys, Doppler has none",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"keys\":[]}"
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.doppler.com/v3/configs/config/secrets/download?format=json",
+                    "authorization": "Bearer dp.st.team1token"
+                }
+            ]
+        },
+        {
+            "name": "secret manager: keys, an Infisical source with imports",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"keys\":[\"API_KEY\",\"IMPORTED_KEY\",\"SHARED\"]}"
+            },
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://app.infisical.com/api/v1/auth/universal-auth/login",
+                    "body": {
+                        "clientId": "client-team1",
+                        "clientSecret": "inf-team1-secret"
+                    }
+                },
+                {
+                    "method": "GET",
+                    "url": "https://app.infisical.com/api/v4/secrets?projectId=proj-1&environment=prod&secretPath=%2Fapp&includeImports=true&expandSecretReferences=true&viewSecretValue=true",
+                    "authorization": "Bearer inf-access-token"
+                }
+            ]
+        },
+        {
+            "name": "secret manager: keys, an older Infisical",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"keys\":[\"LEGACY_KEY\"]}"
+            },
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://app.infisical.com/api/v1/auth/universal-auth/login",
+                    "body": {
+                        "clientId": "client-team1",
+                        "clientSecret": "inf-team1-secret"
+                    }
+                },
+                {
+                    "method": "GET",
+                    "url": "https://app.infisical.com/api/v4/secrets?projectId=proj-1&environment=prod&secretPath=%2F&includeImports=true&expandSecretReferences=true&viewSecretValue=true",
+                    "authorization": "Bearer inf-access-token"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://app.infisical.com/api/v3/secrets/raw?workspaceId=proj-1&environment=prod&secretPath=%2F&include_imports=true&expandSecretReferences=true&viewSecretValue=true",
+                    "authorization": "Bearer inf-access-token"
+                }
+            ]
+        },
+        {
+            "name": "secret manager: keys, the Infisical login refused",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Could not fetch keys: Infisical login failed: Invalid credentials\"}"
+            },
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://app.infisical.com/api/v1/auth/universal-auth/login",
+                    "body": {
+                        "clientId": "client-team1",
+                        "clientSecret": "inf-team1-secret"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "secret manager: keys, Infisical refuses the secrets",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Could not fetch keys: Infisical API error: You are not allowed to read secrets in this environment\"}"
+            },
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://app.infisical.com/api/v1/auth/universal-auth/login",
+                    "body": {
+                        "clientId": "client-team1",
+                        "clientSecret": "inf-team1-secret"
+                    }
+                },
+                {
+                    "method": "GET",
+                    "url": "https://app.infisical.com/api/v4/secrets?projectId=proj-1&environment=prod&secretPath=%2Fapp&includeImports=true&expandSecretReferences=true&viewSecretValue=true",
+                    "authorization": "Bearer inf-access-token"
+                }
+            ]
+        },
+        {
+            "name": "secret manager: keys, an Infisical base URL on a private address",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Could not fetch keys: The base_url points to a local or private address that is not allowed. Configure allowed internal targets: http:\\/\\/localhost\\/settings\\/advanced#endpoint-section\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "secret manager: keys, a Vault source",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"keys\":[\"API_KEY\",\"NESTED\",\"PORT\",\"bad key\"]}"
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://vault.example.com:8200/v1/secret/data/apps/web",
+                    "x-vault-token": "hvs.team1token",
+                    "x-vault-namespace": "admin/team-a"
+                }
+            ]
+        },
+        {
+            "name": "secret manager: keys, a Vault mount and path with slashes",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"keys\":[\"ONE\"]}"
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://vault.example.com:8200/v1/kv/data/team/app",
+                    "x-vault-token": "hvs.team1token",
+                    "x-vault-namespace": "admin/team-a"
+                }
+            ]
+        },
+        {
+            "name": "secret manager: keys, Vault refuses the token",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Could not fetch keys: Vault API error: permission denied\"}"
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://vault.example.com:8200/v1/secret/data/apps/web",
+                    "x-vault-token": "hvs.team1token",
+                    "x-vault-namespace": "admin/team-a"
+                }
+            ]
+        },
+        {
+            "name": "secret manager: keys, a Vault path without secrets",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Could not fetch keys: Vault API error: HTTP 404\"}"
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://vault.example.com:8200/v1/secret/data/apps/web",
+                    "x-vault-token": "hvs.team1token",
+                    "x-vault-namespace": "admin/team-a"
+                }
+            ]
+        },
+        {
+            "name": "secret manager: keys, no source",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"The resource has no secret manager source.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "secret manager: keys, unknown application",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Application not found.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "secret manager: keys with a read token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: write\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "secret manager: reference, an application's key",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"key\":\"API_KEY\",\"value\":\"{{vault.API_KEY}}\"}"
+            },
+            "after": {
+                "variables": [
+                    {
+                        "key": "FOO",
+                        "is_preview": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "FOO",
+                        "is_preview": true,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "SECRET_TOKEN",
+                        "is_preview": false,
+                        "is_literal": true,
+                        "is_multiline": false,
+                        "is_shown_once": true,
+                        "is_runtime": true,
+                        "is_buildtime": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": "Shown once",
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "SECRET_TOKEN",
+                        "is_preview": true,
+                        "is_literal": true,
+                        "is_multiline": false,
+                        "is_shown_once": true,
+                        "is_runtime": true,
+                        "is_buildtime": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": "Shown once",
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "MULTI",
+                        "is_preview": false,
+                        "is_literal": false,
+                        "is_multiline": true,
+                        "is_shown_once": false,
+                        "is_runtime": false,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "MULTI",
+                        "is_preview": true,
+                        "is_literal": false,
+                        "is_multiline": true,
+                        "is_shown_once": false,
+                        "is_runtime": false,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "API_KEY",
+                        "is_preview": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "API_KEY",
+                        "is_preview": true,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.doppler.com/v3/configs/config/secrets/download?format=json",
+                    "authorization": "Bearer dp.st.team1token"
+                }
+            ]
+        },
+        {
+            "name": "secret manager: reference, a service's key",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"key\":\"IMPORTED_KEY\",\"value\":\"{{vault.IMPORTED_KEY}}\"}"
+            },
+            "after": {
+                "variables": [
+                    {
+                        "key": "FOO",
+                        "is_preview": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "DB_PASSWORD",
+                        "is_preview": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": true,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": "Locked",
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "IMPORTED_KEY",
+                        "is_preview": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://app.infisical.com/api/v1/auth/universal-auth/login",
+                    "body": {
+                        "clientId": "client-team1",
+                        "clientSecret": "inf-team1-secret"
+                    }
+                },
+                {
+                    "method": "GET",
+                    "url": "https://app.infisical.com/api/v4/secrets?projectId=proj-1&environment=prod&secretPath=%2Fapp&includeImports=true&expandSecretReferences=true&viewSecretValue=true",
+                    "authorization": "Bearer inf-access-token"
+                }
+            ]
+        },
+        {
+            "name": "secret manager: reference, a database's key",
+            "status": 201,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"key\":\"PORT\",\"value\":\"{{vault.PORT}}\"}"
+            },
+            "after": {
+                "variables": [
+                    {
+                        "key": "PORT",
+                        "is_preview": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://vault.example.com:8200/v1/secret/data/apps/web",
+                    "x-vault-token": "hvs.team1token",
+                    "x-vault-namespace": "admin/team-a"
+                }
+            ]
+        },
+        {
+            "name": "secret manager: reference, not a key of the source",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"key\":[\"MISSING is not a key of the secret manager source.\"]}}"
+            },
+            "after": {
+                "variables": [
+                    {
+                        "key": "FOO",
+                        "is_preview": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "FOO",
+                        "is_preview": true,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "SECRET_TOKEN",
+                        "is_preview": false,
+                        "is_literal": true,
+                        "is_multiline": false,
+                        "is_shown_once": true,
+                        "is_runtime": true,
+                        "is_buildtime": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": "Shown once",
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "SECRET_TOKEN",
+                        "is_preview": true,
+                        "is_literal": true,
+                        "is_multiline": false,
+                        "is_shown_once": true,
+                        "is_runtime": true,
+                        "is_buildtime": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": "Shown once",
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "MULTI",
+                        "is_preview": false,
+                        "is_literal": false,
+                        "is_multiline": true,
+                        "is_shown_once": false,
+                        "is_runtime": false,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "MULTI",
+                        "is_preview": true,
+                        "is_literal": false,
+                        "is_multiline": true,
+                        "is_shown_once": false,
+                        "is_runtime": false,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.doppler.com/v3/configs/config/secrets/download?format=json",
+                    "authorization": "Bearer dp.st.team1token"
+                }
+            ]
+        },
+        {
+            "name": "secret manager: reference, not a valid variable name",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"key\":[\"db-password is not a valid variable name.\"]}}"
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.doppler.com/v3/configs/config/secrets/download?format=json",
+                    "authorization": "Bearer dp.st.team1token"
+                }
+            ]
+        },
+        {
+            "name": "secret manager: reference, a numeric key",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"key\":[\"10 is not a valid variable name.\"]}}"
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.doppler.com/v3/configs/config/secrets/download?format=json",
+                    "authorization": "Bearer dp.st.team1token"
+                }
+            ]
+        },
+        {
+            "name": "secret manager: reference, a variable with the key exists",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"key\":[\"A variable with the key FOO already exists.\"]}}"
+            },
+            "after": {
+                "variables": [
+                    {
+                        "key": "FOO",
+                        "is_preview": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "FOO",
+                        "is_preview": true,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "SECRET_TOKEN",
+                        "is_preview": false,
+                        "is_literal": true,
+                        "is_multiline": false,
+                        "is_shown_once": true,
+                        "is_runtime": true,
+                        "is_buildtime": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": "Shown once",
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "SECRET_TOKEN",
+                        "is_preview": true,
+                        "is_literal": true,
+                        "is_multiline": false,
+                        "is_shown_once": true,
+                        "is_runtime": true,
+                        "is_buildtime": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": "Shown once",
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "MULTI",
+                        "is_preview": false,
+                        "is_literal": false,
+                        "is_multiline": true,
+                        "is_shown_once": false,
+                        "is_runtime": false,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "MULTI",
+                        "is_preview": true,
+                        "is_literal": false,
+                        "is_multiline": true,
+                        "is_shown_once": false,
+                        "is_runtime": false,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.doppler.com/v3/configs/config/secrets/download?format=json",
+                    "authorization": "Bearer dp.st.team1token"
+                }
+            ]
+        },
+        {
+            "name": "secret manager: reference, a service variable with the key exists",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"key\":[\"A variable with the key FOO already exists.\"]}}"
+            },
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://app.infisical.com/api/v1/auth/universal-auth/login",
+                    "body": {
+                        "clientId": "client-team1",
+                        "clientSecret": "inf-team1-secret"
+                    }
+                },
+                {
+                    "method": "GET",
+                    "url": "https://app.infisical.com/api/v4/secrets?projectId=proj-1&environment=prod&secretPath=%2Fapp&includeImports=true&expandSecretReferences=true&viewSecretValue=true",
+                    "authorization": "Bearer inf-access-token"
+                }
+            ]
+        },
+        {
+            "name": "secret manager: reference, no key",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"key\":[\"This field is required.\"],\"name\":[\"This field is not allowed.\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "secret manager: reference, a key that is not a string",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"key\":[\"The key field must be a string.\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "secret manager: reference, a key too long",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"key\":[\"The key field must not be greater than 255 characters.\"]}}"
+            },
+            "requests": []
+        },
+        {
+            "name": "secret manager: reference, not JSON",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Invalid request.\",\"error\":\"Content-Type must be application\\/json.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "secret manager: reference, no source",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"The resource has no secret manager source.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "secret manager: reference, the secret manager fails",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Could not fetch keys: Vault API error: internal error\"}"
+            },
+            "after": {
+                "variables": []
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://vault.example.com:8200/v1/secret/data/apps/web",
+                    "x-vault-token": "hvs.team1token",
+                    "x-vault-namespace": "admin/team-a"
+                }
+            ]
+        },
+        {
+            "name": "secret manager: reference with a read token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: write\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "secret manager: import, an application's keys",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"imported\":[\"API_KEY\",\"B_KEY\",\"DATABASE_URL\"],\"skipped\":[\"9\",\"10\",\"db-password\"]}"
+            },
+            "after": {
+                "variables": [
+                    {
+                        "key": "FOO",
+                        "is_preview": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "FOO",
+                        "is_preview": true,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "SECRET_TOKEN",
+                        "is_preview": false,
+                        "is_literal": true,
+                        "is_multiline": false,
+                        "is_shown_once": true,
+                        "is_runtime": true,
+                        "is_buildtime": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": "Shown once",
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "SECRET_TOKEN",
+                        "is_preview": true,
+                        "is_literal": true,
+                        "is_multiline": false,
+                        "is_shown_once": true,
+                        "is_runtime": true,
+                        "is_buildtime": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": "Shown once",
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "MULTI",
+                        "is_preview": false,
+                        "is_literal": false,
+                        "is_multiline": true,
+                        "is_shown_once": false,
+                        "is_runtime": false,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "MULTI",
+                        "is_preview": true,
+                        "is_literal": false,
+                        "is_multiline": true,
+                        "is_shown_once": false,
+                        "is_runtime": false,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "API_KEY",
+                        "is_preview": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "API_KEY",
+                        "is_preview": true,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "B_KEY",
+                        "is_preview": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "B_KEY",
+                        "is_preview": true,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "DATABASE_URL",
+                        "is_preview": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "DATABASE_URL",
+                        "is_preview": true,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.doppler.com/v3/configs/config/secrets/download?format=json",
+                    "authorization": "Bearer dp.st.team1token"
+                }
+            ]
+        },
+        {
+            "name": "secret manager: import, a service's keys",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"imported\":[\"NEW_ONE\",\"my.dotted\"],\"skipped\":[]}"
+            },
+            "after": {
+                "variables": [
+                    {
+                        "key": "FOO",
+                        "is_preview": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "DB_PASSWORD",
+                        "is_preview": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": true,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": "Locked",
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "NEW_ONE",
+                        "is_preview": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "my.dotted",
+                        "is_preview": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://app.infisical.com/api/v1/auth/universal-auth/login",
+                    "body": {
+                        "clientId": "client-team1",
+                        "clientSecret": "inf-team1-secret"
+                    }
+                },
+                {
+                    "method": "GET",
+                    "url": "https://app.infisical.com/api/v4/secrets?projectId=proj-1&environment=prod&secretPath=%2Fapp&includeImports=true&expandSecretReferences=true&viewSecretValue=true",
+                    "authorization": "Bearer inf-access-token"
+                }
+            ]
+        },
+        {
+            "name": "secret manager: import, a database's keys",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"imported\":[\"API_KEY\",\"NESTED\",\"PORT\"],\"skipped\":[\"bad key\"]}"
+            },
+            "after": {
+                "variables": [
+                    {
+                        "key": "API_KEY",
+                        "is_preview": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "NESTED",
+                        "is_preview": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "PORT",
+                        "is_preview": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://vault.example.com:8200/v1/secret/data/apps/web",
+                    "x-vault-token": "hvs.team1token",
+                    "x-vault-namespace": "admin/team-a"
+                }
+            ]
+        },
+        {
+            "name": "secret manager: import, nothing new",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"imported\":[],\"skipped\":[]}"
+            },
+            "after": {
+                "variables": [
+                    {
+                        "key": "FOO",
+                        "is_preview": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "FOO",
+                        "is_preview": true,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "SECRET_TOKEN",
+                        "is_preview": false,
+                        "is_literal": true,
+                        "is_multiline": false,
+                        "is_shown_once": true,
+                        "is_runtime": true,
+                        "is_buildtime": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": "Shown once",
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "SECRET_TOKEN",
+                        "is_preview": true,
+                        "is_literal": true,
+                        "is_multiline": false,
+                        "is_shown_once": true,
+                        "is_runtime": true,
+                        "is_buildtime": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": "Shown once",
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "MULTI",
+                        "is_preview": false,
+                        "is_literal": false,
+                        "is_multiline": true,
+                        "is_shown_once": false,
+                        "is_runtime": false,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "MULTI",
+                        "is_preview": true,
+                        "is_literal": false,
+                        "is_multiline": true,
+                        "is_shown_once": false,
+                        "is_runtime": false,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.doppler.com/v3/configs/config/secrets/download?format=json",
+                    "authorization": "Bearer dp.st.team1token"
+                }
+            ]
+        },
+        {
+            "name": "secret manager: import, the secret manager fails",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Could not fetch keys: Doppler API error: Could not find requested config\"}"
+            },
+            "after": {
+                "variables": [
+                    {
+                        "key": "FOO",
+                        "is_preview": false,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "FOO",
+                        "is_preview": true,
+                        "is_literal": false,
+                        "is_multiline": false,
+                        "is_shown_once": false,
+                        "is_runtime": true,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "SECRET_TOKEN",
+                        "is_preview": false,
+                        "is_literal": true,
+                        "is_multiline": false,
+                        "is_shown_once": true,
+                        "is_runtime": true,
+                        "is_buildtime": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": "Shown once",
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "SECRET_TOKEN",
+                        "is_preview": true,
+                        "is_literal": true,
+                        "is_multiline": false,
+                        "is_shown_once": true,
+                        "is_runtime": true,
+                        "is_buildtime": false,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": "Shown once",
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "MULTI",
+                        "is_preview": false,
+                        "is_literal": false,
+                        "is_multiline": true,
+                        "is_shown_once": false,
+                        "is_runtime": false,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    },
+                    {
+                        "key": "MULTI",
+                        "is_preview": true,
+                        "is_literal": false,
+                        "is_multiline": true,
+                        "is_shown_once": false,
+                        "is_runtime": false,
+                        "is_buildtime": true,
+                        "is_required": false,
+                        "is_shared": false,
+                        "comment": null,
+                        "order": null,
+                        "version": "4.7.6",
+                        "has_value": true
+                    }
+                ]
+            },
+            "requests": [
+                {
+                    "method": "GET",
+                    "url": "https://api.doppler.com/v3/configs/config/secrets/download?format=json",
+                    "authorization": "Bearer dp.st.team1token"
+                }
+            ]
+        },
+        {
+            "name": "secret manager: import, no source",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"The resource has no secret manager source.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "secret manager: import, another team's service",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Service not found.\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "secret manager: import with a delete token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: write\"}"
+            },
+            "requests": []
+        },
+        {
+            "name": "denied: secret manager: remove, an application's source, a member with read:sensitive, deploy and delete",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"You need at least admin or owner permissions to update this application.\",\"error\":\"Unauthorized\"}"
+            },
+            "after": {
+                "links": [
+                    {
+                        "resourceable_type": "App\\Models\\Application",
+                        "resourceable_id": 1,
+                        "integration_token_id": 3,
+                        "settings": null,
+                        "fixture_link": true,
+                        "untouched": true
+                    },
+                    {
+                        "resourceable_type": "App\\Models\\Service",
+                        "resourceable_id": 1,
+                        "integration_token_id": 4,
+                        "settings": "{\"project_id\": \"proj-1\", \"environment\": \"prod\", \"secret_path\": \"/app\"}",
+                        "fixture_link": true,
+                        "untouched": true
+                    }
+                ]
+            }
+        },
+        {
+            "name": "denied: secret manager: remove, a service's source, a member with read:sensitive, deploy and delete",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"You are not authorized to perform this action.\",\"error\":\"Unauthorized\"}"
+            },
+            "after": {
+                "links": [
+                    {
+                        "resourceable_type": "App\\Models\\Service",
+                        "resourceable_id": 1,
+                        "integration_token_id": 4,
+                        "settings": "{\"project_id\": \"proj-1\", \"environment\": \"prod\", \"secret_path\": \"/app\"}",
+                        "fixture_link": true,
+                        "untouched": true
+                    }
+                ]
+            }
+        },
+        {
+            "name": "denied: secret manager: remove, a database's source, a member with read:sensitive, deploy and delete",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"You need at least admin or owner permissions to update this database.\",\"error\":\"Unauthorized\"}"
+            },
+            "after": {
+                "links": [
+                    {
+                        "resourceable_type": "App\\Models\\StandalonePostgresql",
+                        "resourceable_id": 1,
+                        "integration_token_id": 5,
+                        "settings": "{\"path\": \"apps/web\", \"mount\": \"secret\"}",
+                        "fixture_link": true,
+                        "untouched": true
+                    }
+                ]
+            }
+        },
+        {
+            "name": "settings email: show, a root-team token",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"smtp_enabled\":false,\"smtp_from_address\":null,\"smtp_from_name\":null,\"smtp_host\":null,\"smtp_port\":null,\"smtp_encryption\":null,\"smtp_username\":null,\"smtp_password\":null,\"smtp_timeout\":null,\"resend_enabled\":false,\"resend_api_key\":null,\"smtp_ehlo_domain\":null,\"notification_from_address\":null,\"notification_from_name\":null,\"resend_from_address\":null,\"resend_from_name\":null}"
+            }
+        },
+        {
+            "name": "settings email: show, a root-team read token",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"smtp_enabled\":false,\"smtp_port\":null,\"smtp_encryption\":null,\"smtp_timeout\":null,\"resend_enabled\":false,\"smtp_ehlo_domain\":null}"
+            }
+        },
+        {
+            "name": "settings email: show, a root-team read:sensitive token",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"smtp_enabled\":false,\"smtp_from_address\":null,\"smtp_from_name\":null,\"smtp_host\":null,\"smtp_port\":null,\"smtp_encryption\":null,\"smtp_username\":null,\"smtp_password\":null,\"smtp_timeout\":null,\"resend_enabled\":false,\"resend_api_key\":null,\"smtp_ehlo_domain\":null,\"notification_from_address\":null,\"notification_from_name\":null,\"resend_from_address\":null,\"resend_from_name\":null}"
+            }
+        },
+        {
+            "name": "settings email: show, a team token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\n    \"message\": \"Instance email settings require a root-team API token.\"\n}"
+            }
+        },
+        {
+            "name": "settings email: show, a team read token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\n    \"message\": \"Instance email settings require a root-team API token.\"\n}"
+            }
+        },
+        {
+            "name": "settings email: show with a write-only token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: read\"}"
+            }
+        },
+        {
+            "name": "settings email: update, every setting",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"smtp_enabled\":true,\"smtp_from_address\":\"noreply@example.com\",\"smtp_from_name\":\"Freeploy\",\"smtp_host\":\"smtp.example.com\",\"smtp_port\":587,\"smtp_encryption\":\"starttls\",\"smtp_username\":\"mailer\",\"smtp_password\":\"smtp-secret\",\"smtp_timeout\":30,\"resend_enabled\":false,\"resend_api_key\":\"re_parity_key\",\"smtp_ehlo_domain\":\"mail.example.com\",\"notification_from_address\":\"alerts@example.com\",\"notification_from_name\":\"Alerts\",\"resend_from_address\":\"resend@example.com\",\"resend_from_name\":\"Resend Sender\"}"
+            },
+            "after": {
+                "settings": [
+                    {
+                        "smtp_enabled": true,
+                        "smtp_port": 587,
+                        "smtp_encryption": "starttls",
+                        "smtp_timeout": 30,
+                        "smtp_ehlo_domain": "mail.example.com",
+                        "resend_enabled": false,
+                        "has_smtp_from_address": true,
+                        "has_smtp_from_name": true,
+                        "has_notification_from_address": true,
+                        "has_notification_from_name": true,
+                        "has_smtp_host": true,
+                        "has_smtp_username": true,
+                        "has_smtp_password": true,
+                        "has_resend_api_key": true,
+                        "has_resend_from_address": true,
+                        "has_resend_from_name": true
+                    }
+                ]
+            }
+        },
+        {
+            "name": "settings email: update with write:sensitive",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"smtp_enabled\":true,\"smtp_port\":2525,\"smtp_encryption\":\"tls\",\"smtp_timeout\":null,\"resend_enabled\":false,\"smtp_ehlo_domain\":null}"
+            },
+            "after": {
+                "settings": [
+                    {
+                        "smtp_enabled": true,
+                        "smtp_port": 2525,
+                        "smtp_encryption": "tls",
+                        "smtp_timeout": null,
+                        "smtp_ehlo_domain": null,
+                        "resend_enabled": false,
+                        "has_smtp_from_address": false,
+                        "has_smtp_from_name": false,
+                        "has_notification_from_address": false,
+                        "has_notification_from_name": false,
+                        "has_smtp_host": true,
+                        "has_smtp_username": false,
+                        "has_smtp_password": true,
+                        "has_resend_api_key": false,
+                        "has_resend_from_address": false,
+                        "has_resend_from_name": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "settings email: update, Resend",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"smtp_enabled\":false,\"smtp_from_address\":null,\"smtp_from_name\":null,\"smtp_host\":null,\"smtp_port\":null,\"smtp_encryption\":\"none\",\"smtp_username\":null,\"smtp_password\":null,\"smtp_timeout\":0,\"resend_enabled\":true,\"resend_api_key\":\"re_123\",\"smtp_ehlo_domain\":null,\"notification_from_address\":null,\"notification_from_name\":null,\"resend_from_address\":\"noreply@example.com\",\"resend_from_name\":\"Freeploy\"}"
+            },
+            "after": {
+                "settings": [
+                    {
+                        "smtp_enabled": false,
+                        "smtp_port": null,
+                        "smtp_encryption": "none",
+                        "smtp_timeout": 0,
+                        "smtp_ehlo_domain": null,
+                        "resend_enabled": true,
+                        "has_smtp_from_address": false,
+                        "has_smtp_from_name": false,
+                        "has_notification_from_address": false,
+                        "has_notification_from_name": false,
+                        "has_smtp_host": false,
+                        "has_smtp_username": false,
+                        "has_smtp_password": false,
+                        "has_resend_api_key": true,
+                        "has_resend_from_address": true,
+                        "has_resend_from_name": true
+                    }
+                ]
+            }
+        },
+        {
+            "name": "settings email: update, values cleared",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"smtp_enabled\":false,\"smtp_from_address\":null,\"smtp_from_name\":null,\"smtp_host\":null,\"smtp_port\":null,\"smtp_encryption\":null,\"smtp_username\":null,\"smtp_password\":null,\"smtp_timeout\":null,\"resend_enabled\":false,\"resend_api_key\":null,\"smtp_ehlo_domain\":null,\"notification_from_address\":null,\"notification_from_name\":null,\"resend_from_address\":null,\"resend_from_name\":null}"
+            },
+            "after": {
+                "settings": [
+                    {
+                        "smtp_enabled": false,
+                        "smtp_port": null,
+                        "smtp_encryption": null,
+                        "smtp_timeout": null,
+                        "smtp_ehlo_domain": null,
+                        "resend_enabled": false,
+                        "has_smtp_from_address": false,
+                        "has_smtp_from_name": false,
+                        "has_notification_from_address": false,
+                        "has_notification_from_name": false,
+                        "has_smtp_host": false,
+                        "has_smtp_username": false,
+                        "has_smtp_password": false,
+                        "has_resend_api_key": false,
+                        "has_resend_from_address": false,
+                        "has_resend_from_name": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "settings email: update, fields that are not settings",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"smtp_enabled\":false,\"smtp_from_address\":null,\"smtp_from_name\":\"Only this\",\"smtp_host\":null,\"smtp_port\":null,\"smtp_encryption\":null,\"smtp_username\":null,\"smtp_password\":null,\"smtp_timeout\":null,\"resend_enabled\":false,\"resend_api_key\":null,\"smtp_ehlo_domain\":null,\"notification_from_address\":null,\"notification_from_name\":null,\"resend_from_address\":null,\"resend_from_name\":null}"
+            },
+            "after": {
+                "settings": [
+                    {
+                        "smtp_enabled": false,
+                        "smtp_port": null,
+                        "smtp_encryption": null,
+                        "smtp_timeout": null,
+                        "smtp_ehlo_domain": null,
+                        "resend_enabled": false,
+                        "has_smtp_from_address": false,
+                        "has_smtp_from_name": true,
+                        "has_notification_from_address": false,
+                        "has_notification_from_name": false,
+                        "has_smtp_host": false,
+                        "has_smtp_username": false,
+                        "has_smtp_password": false,
+                        "has_resend_api_key": false,
+                        "has_resend_from_address": false,
+                        "has_resend_from_name": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "settings email: update, invalid",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"smtp_enabled\":[\"The smtp enabled field must be true or false.\"],\"smtp_from_address\":[\"The smtp from address field must be a valid email address.\"],\"smtp_from_name\":[\"The smtp from name field must not be greater than 255 characters.\"],\"notification_from_address\":[\"The notification from address field must be a valid email address.\"],\"notification_from_name\":[\"The notification from name field must be a string.\"],\"smtp_host\":[\"The smtp host field must be a string.\"],\"smtp_port\":[\"The smtp port field must not be greater than 65535.\"],\"smtp_encryption\":[\"The selected smtp encryption is invalid.\"],\"smtp_username\":[\"The smtp username field must not be greater than 255 characters.\"],\"smtp_password\":[\"The smtp password field must be a string.\"],\"smtp_timeout\":[\"The smtp timeout field must be at least 0.\"],\"smtp_ehlo_domain\":[\"The smtp ehlo domain contains invalid characters. Only letters (a-z, A-Z), numbers (0-9), hyphens (-), and dots (.) are allowed.\"],\"resend_enabled\":[\"The resend enabled field must be true or false.\"],\"resend_api_key\":[\"The resend api key field must be a string.\"],\"resend_from_address\":[\"The resend from address field must be a valid email address.\"],\"resend_from_name\":[\"The resend from name field must be a string.\"]}}"
+            },
+            "after": {
+                "settings": [
+                    {
+                        "smtp_enabled": false,
+                        "smtp_port": null,
+                        "smtp_encryption": null,
+                        "smtp_timeout": null,
+                        "smtp_ehlo_domain": null,
+                        "resend_enabled": false,
+                        "has_smtp_from_address": false,
+                        "has_smtp_from_name": false,
+                        "has_notification_from_address": false,
+                        "has_notification_from_name": false,
+                        "has_smtp_host": false,
+                        "has_smtp_username": false,
+                        "has_smtp_password": false,
+                        "has_resend_api_key": false,
+                        "has_resend_from_address": false,
+                        "has_resend_from_name": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "settings email: update, a port that is not a number",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"smtp_port\":[\"The smtp port field must be an integer.\"],\"smtp_timeout\":[\"The smtp timeout field must be an integer.\"]}}"
+            },
+            "after": {
+                "settings": [
+                    {
+                        "smtp_enabled": false,
+                        "smtp_port": null,
+                        "smtp_encryption": null,
+                        "smtp_timeout": null,
+                        "smtp_ehlo_domain": null,
+                        "resend_enabled": false,
+                        "has_smtp_from_address": false,
+                        "has_smtp_from_name": false,
+                        "has_notification_from_address": false,
+                        "has_notification_from_name": false,
+                        "has_smtp_host": false,
+                        "has_smtp_username": false,
+                        "has_smtp_password": false,
+                        "has_resend_api_key": false,
+                        "has_resend_from_address": false,
+                        "has_resend_from_name": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "settings email: update, a port of zero",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"smtp_port\":[\"The smtp port field must be at least 1.\"],\"smtp_ehlo_domain\":[\"The smtp ehlo domain contains an invalid label. Labels cannot start or end with a hyphen.\"]}}"
+            }
+        },
+        {
+            "name": "settings email: update, not JSON",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"smtp_enabled\":false,\"smtp_from_address\":null,\"smtp_from_name\":null,\"smtp_host\":null,\"smtp_port\":null,\"smtp_encryption\":null,\"smtp_username\":null,\"smtp_password\":null,\"smtp_timeout\":null,\"resend_enabled\":false,\"resend_api_key\":null,\"smtp_ehlo_domain\":null,\"notification_from_address\":null,\"notification_from_name\":null,\"resend_from_address\":null,\"resend_from_name\":null}"
+            },
+            "after": {
+                "settings": [
+                    {
+                        "smtp_enabled": false,
+                        "smtp_port": null,
+                        "smtp_encryption": null,
+                        "smtp_timeout": null,
+                        "smtp_ehlo_domain": null,
+                        "resend_enabled": false,
+                        "has_smtp_from_address": false,
+                        "has_smtp_from_name": false,
+                        "has_notification_from_address": false,
+                        "has_notification_from_name": false,
+                        "has_smtp_host": false,
+                        "has_smtp_username": false,
+                        "has_smtp_password": false,
+                        "has_resend_api_key": false,
+                        "has_resend_from_address": false,
+                        "has_resend_from_name": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "settings email: update, empty JSON",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"smtp_enabled\":false,\"smtp_from_address\":null,\"smtp_from_name\":null,\"smtp_host\":null,\"smtp_port\":null,\"smtp_encryption\":null,\"smtp_username\":null,\"smtp_password\":null,\"smtp_timeout\":null,\"resend_enabled\":false,\"resend_api_key\":null,\"smtp_ehlo_domain\":null,\"notification_from_address\":null,\"notification_from_name\":null,\"resend_from_address\":null,\"resend_from_name\":null}"
+            },
+            "after": {
+                "settings": [
+                    {
+                        "smtp_enabled": false,
+                        "smtp_port": null,
+                        "smtp_encryption": null,
+                        "smtp_timeout": null,
+                        "smtp_ehlo_domain": null,
+                        "resend_enabled": false,
+                        "has_smtp_from_address": false,
+                        "has_smtp_from_name": false,
+                        "has_notification_from_address": false,
+                        "has_notification_from_name": false,
+                        "has_smtp_host": false,
+                        "has_smtp_username": false,
+                        "has_smtp_password": false,
+                        "has_resend_api_key": false,
+                        "has_resend_from_address": false,
+                        "has_resend_from_name": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "settings email: update with a write token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: write:sensitive\"}"
+            }
+        },
+        {
+            "name": "settings email: update, a team token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\n    \"message\": \"Instance email settings require a root-team API token.\"\n}"
+            },
+            "after": {
+                "settings": [
+                    {
+                        "smtp_enabled": false,
+                        "smtp_port": null,
+                        "smtp_encryption": null,
+                        "smtp_timeout": null,
+                        "smtp_ehlo_domain": null,
+                        "resend_enabled": false,
+                        "has_smtp_from_address": false,
+                        "has_smtp_from_name": false,
+                        "has_notification_from_address": false,
+                        "has_notification_from_name": false,
+                        "has_smtp_host": false,
+                        "has_smtp_username": false,
+                        "has_smtp_password": false,
+                        "has_resend_api_key": false,
+                        "has_resend_from_address": false,
+                        "has_resend_from_name": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "settings email: update, then show",
+            "steps": [
+                {
+                    "status": 200,
+                    "headers": {
+                        "content-type": "application/json",
+                        "x-ratelimit-limit": "200",
+                        "x-ratelimit-remaining": "199"
+                    },
+                    "body": {
+                        "json": "{\"smtp_enabled\":true,\"smtp_from_address\":\"noreply@example.com\",\"smtp_from_name\":\"Freeploy\",\"smtp_host\":\"smtp.example.com\",\"smtp_port\":587,\"smtp_encryption\":\"starttls\",\"smtp_username\":\"mailer\",\"smtp_password\":\"smtp-secret\",\"smtp_timeout\":30,\"resend_enabled\":false,\"resend_api_key\":\"re_parity_key\",\"smtp_ehlo_domain\":\"mail.example.com\",\"notification_from_address\":\"alerts@example.com\",\"notification_from_name\":\"Alerts\",\"resend_from_address\":\"resend@example.com\",\"resend_from_name\":\"Resend Sender\"}"
+                    }
+                },
+                {
+                    "status": 200,
+                    "headers": {
+                        "content-type": "application/json",
+                        "x-ratelimit-limit": "200",
+                        "x-ratelimit-remaining": "198"
+                    },
+                    "body": {
+                        "json": "{\"smtp_enabled\":true,\"smtp_port\":587,\"smtp_encryption\":\"starttls\",\"smtp_timeout\":30,\"resend_enabled\":false,\"smtp_ehlo_domain\":\"mail.example.com\"}"
+                    }
+                },
+                {
+                    "status": 200,
+                    "headers": {
+                        "content-type": "application/json",
+                        "x-ratelimit-limit": "200",
+                        "x-ratelimit-remaining": "197"
+                    },
+                    "body": {
+                        "json": "{\"smtp_enabled\":true,\"smtp_from_address\":\"noreply@example.com\",\"smtp_from_name\":\"Freeploy\",\"smtp_host\":\"smtp.example.com\",\"smtp_port\":587,\"smtp_encryption\":\"starttls\",\"smtp_username\":\"mailer\",\"smtp_password\":\"smtp-secret\",\"smtp_timeout\":30,\"resend_enabled\":false,\"resend_api_key\":\"re_parity_key\",\"smtp_ehlo_domain\":\"mail.example.com\",\"notification_from_address\":\"alerts@example.com\",\"notification_from_name\":\"Alerts\",\"resend_from_address\":\"resend@example.com\",\"resend_from_name\":\"Resend Sender\"}"
+                    }
+                }
+            ]
         }
     ]
 }
