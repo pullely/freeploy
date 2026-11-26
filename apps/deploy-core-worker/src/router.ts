@@ -1,5 +1,5 @@
 import type { Env } from "./env.js";
-import { ENVIRONMENT_RESOURCE_PAGES, handleApplications, handleEnvironmentResources } from "./handlers/applications.js";
+import { ENVIRONMENT_RESOURCE_PAGES, handleApplications, handleEnvironmentCanvas, handleEnvironmentResources } from "./handlers/applications.js";
 import { handleDatabases } from "./handlers/databases.js";
 import { handleDestinations } from "./handlers/destinations.js";
 import { handleHealth } from "./handlers/health.js";
@@ -38,8 +38,8 @@ function resolveActor(request: Request): ActorContext | null {
   return subjectId && subjectType ? { subjectId, subjectType } : null;
 }
 
-/** Projects: the collection and up to four segments below it (a page of a project's environment). */
-export const ORG_DEPLOY_PROJECTS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/projects((?:\/[^/]+){0,4})\/?$/;
+/** Projects: the collection and up to four segments below it (a page of a project's environment), six for the environment canvas's save actions (DP-92). */
+export const ORG_DEPLOY_PROJECTS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/projects((?:\/[^/]+){0,6})\/?$/;
 /** Applications: the collection and up to four segments below it (an application, one of its actions or pages, a row of a page). */
 export const ORG_DEPLOY_APPLICATIONS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/applications((?:\/[^/]+){0,4})\/?$/;
 /** Standalone databases: the collection and up to four segments below it (a database, one of its actions or pages, a row of a page). */
@@ -101,7 +101,9 @@ export async function route(request: Request, env: Env): Promise<Response> {
     }
 
     const projects = url.pathname.match(ORG_DEPLOY_PROJECTS_RE);
-    if (projects) {
+    const below = (projects?.[2] ?? "").split("/").filter(Boolean);
+    // Five or six segments are the canvas's save actions only; any other path that deep is not a route of projects.
+    if (projects && (below.length <= 4 || (below[1] === "environments" && below[3] === "canvas"))) {
       const orgId = parseOrgPublicId(projects[1]!);
       if (!orgId) return errorResponse("not_found", "Not found", 404, requestId);
       const actor = resolveActor(request);
@@ -110,6 +112,10 @@ export async function route(request: Request, env: Env): Promise<Response> {
       // …/projects/{uuid}/environments/{env_uuid}/{new,resources}: the New Resource page and the environment's resources.
       if (segments.length === 4 && segments[1] === "environments" && ENVIRONMENT_RESOURCE_PAGES.includes(segments[3]!)) {
         return handleEnvironmentResources(env, requestId, actor, orgId, { projectUuid: segments[0]!, environmentUuid: segments[2]!, page: segments[3]! }, request);
+      }
+      // …/projects/{uuid}/environments/{env_uuid}/canvas/{positions,links[/{link_uuid}]}: the canvas's save actions (DP-92).
+      if (segments.length > 4 && segments[1] === "environments" && segments[3] === "canvas") {
+        return handleEnvironmentCanvas(env, requestId, actor, orgId, { projectUuid: segments[0]!, environmentUuid: segments[2]!, rest: segments.slice(4) }, request);
       }
       return handleProjects(env, requestId, actor, orgId, segments, request);
     }

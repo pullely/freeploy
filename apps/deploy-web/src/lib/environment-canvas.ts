@@ -9,8 +9,9 @@
 //
 // Only what the environment canvas uses is ported: the server, project, dashboard,
 // shared variable and tag canvases (layoutServerView, layoutConnectView, the filters,
-// the group frames and drags) are not, and neither is anything that moves cards or
-// draws links, since Freeploy saves neither yet.
+// the group frames and drags) are not. DP-92 adds what moves cards and draws links:
+// canvas-core.js' freeSpot, dragRules (without the server view's groups), canConnect
+// (without the connect and server views' rules) and ApiError's message.
 
 export const MIN_ZOOM = 0.25;
 export const MAX_ZOOM = 2;
@@ -147,6 +148,30 @@ export const zoneHeader = (zone: CanvasZone | null | undefined) => (zone?.detail
 /** True when boxes a and b are at least `gap` apart. */
 export const apart = (a: Box, b: Box, gap = BOX_GAP) => a.x >= b.x + b.w + gap || a.x + a.w + gap <= b.x || a.y >= b.y + b.h + gap || a.y + a.h + gap <= b.y;
 
+/**
+ * The free spot nearest to `box` that keeps `gap` clear of every box in `others` (and passes `fits`,
+ * when given): the box itself, or it pushed against an edge (or a corner) of the boxes in the way.
+ * Null when no such spot is found.
+ */
+export function freeSpot(box: Box, others: readonly Box[], gap = BOX_GAP, fits: (b: Box) => boolean = () => true): Box | null {
+  const free = (b: Box) => others.every((o) => apart(b, o, gap)) && fits(b);
+  if (free(box)) return box;
+  const xs = [box.x, ...others.flatMap((o) => [o.x - box.w - gap, o.x + o.w + gap])];
+  const ys = [box.y, ...others.flatMap((o) => [o.y - box.h - gap, o.y + o.h + gap])];
+  let best: Box | null = null;
+  let bestDistance = Infinity;
+  for (const x of xs) {
+    for (const y of ys) {
+      const distance = Math.hypot(x - box.x, y - box.y);
+      if (distance < bestDistance && free({ ...box, x, y })) {
+        best = { ...box, x, y };
+        bestDistance = distance;
+      }
+    }
+  }
+  return best;
+}
+
 // ── Layout ───────────────────────────────────────────────────────────
 
 /** Estimated card height in px; matches the rendered card closely enough for auto placement. */
@@ -272,6 +297,61 @@ export function zoneBoxes(graph: CanvasGraph, positions: Record<string, Point>, 
     });
   }
   return boxes;
+}
+
+/** A rect as a collision box. */
+export const toBox = (r: Rect): Box => ({ x: r.x, y: r.y, w: r.width, h: r.height });
+// A frame reaches `side` past its cards left, right and below, and `top` above them.
+const grow = (b: Box, side: number, top: number): Box => ({ x: b.x - side, y: b.y - top, w: b.w + side * 2, h: b.h + side + top });
+const frameAround = (boxes: readonly Box[], side: number, top: number): Box => {
+  const x = Math.min(...boxes.map((b) => b.x));
+  const y = Math.min(...boxes.map((b) => b.y));
+  return grow({ x, y, w: Math.max(...boxes.map((b) => b.x + b.w)) - x, h: Math.max(...boxes.map((b) => b.y + b.h)) - y }, side, top);
+};
+// Area of `b` within `gap` of `a`: 0 when they are apart().
+const crowding = (a: Box, b: Box, gap: number) =>
+  Math.max(0, Math.min(a.x + a.w + gap, b.x + b.w) - Math.max(a.x - gap, b.x)) * Math.max(0, Math.min(a.y + a.h + gap, b.y + b.h) - Math.max(a.y - gap, b.y));
+
+/**
+ * What a dragged card must keep clear of, for freeSpot(): `others` are the other cards and the other
+ * zone frames, grown by the room the card's own zone frame takes around it. `fits` checks the card's
+ * zone frame, which also spans its other cards, against those frames: it must not come closer to them
+ * than at the start of the drag. Frames that are already too close (the layout uses estimated card
+ * heights) do not lock the cards in place. The server view's project / environment groups are not
+ * ported: the environment canvas has none.
+ */
+export function dragRules(graph: CanvasGraph, positions: Record<string, Point>, sizes: Record<string, Size>, id: string): { others: Box[]; fits: (box: Box) => boolean } {
+  const node = graph.nodes.find((n) => n.id === id);
+  const own = zoneGroups(graph).find((z) => z.nodes.some((n) => n.id === id));
+  const rects = (nodes: readonly CanvasNode[]) =>
+    nodes
+      .filter((n) => n.id !== id)
+      .map((n) => cardRect(n, positions, sizes))
+      .filter((r): r is Rect => !!r)
+      .map(toBox);
+  const side = ZONE_PADDING;
+  const top = ZONE_PADDING + zoneHeader(own?.zone);
+  const zones = zoneBoxes(graph, positions, sizes)
+    .filter((z) => !z.nodes.includes(id))
+    .map(toBox);
+  const zoneMates = rects(own?.nodes ?? []);
+  // The other box must keep the frame's room on the side that faces the card.
+  const room = (b: Box, s: number, t: number): Box => ({ x: b.x - s, y: b.y - s, w: b.w + s * 2, h: b.h + s + t });
+  const at = node ? cardRect(node, positions, sizes) : null;
+  const start = at ? frameAround([...zoneMates, toBox(at)], side, top) : null;
+  const zoneFits = (box: Box) => {
+    const moved = frameAround([...zoneMates, box], side, top);
+    return zones.every((b) => crowding(moved, b, BOX_GAP) <= (start ? crowding(start, b, BOX_GAP) : 0));
+  };
+  return {
+    others: [...rects(graph.nodes), ...zones.map((z) => room(z, side, top))],
+    fits: zoneFits,
+  };
+}
+
+/** A link may be drawn from a card to another card (the connect and server views' rules are not ported). */
+export function canConnect(graph: CanvasGraph | null, source: string, target: string): boolean {
+  return !!graph && !!source && !!target && source !== target;
 }
 
 export interface LinkPath {
@@ -442,6 +522,21 @@ export function readView(key: string, storage: Pick<Storage, "getItem"> | undefi
   } catch {
     return null;
   }
+}
+
+// ── API errors (canvas-core.js ApiError) ─────────────────────────────
+
+/** A failed answer of the canvas endpoints, in Freeploy's envelope. */
+export interface CanvasErrorBody {
+  error?: { message?: string; details?: { fields?: Record<string, string[]> } };
+}
+
+/** ApiError's message: the body's message (or "Request failed (HTTP n)."), then every field error that is not that message. */
+export function canvasErrorMessage(status: number, body: CanvasErrorBody | null): string {
+  const message = body?.error?.message;
+  const fields = body?.error?.details?.fields;
+  const errors = fields ? Object.values(fields).flat().map(String) : [];
+  return [message || `Request failed (HTTP ${status}).`, ...errors.filter((e) => e !== message)].join(" ");
 }
 
 /** Small screens: the notice that the canvas is not optimized for mobile; closed once, it stays closed on every canvas. */

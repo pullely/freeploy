@@ -18,8 +18,8 @@ import { environmentPath, environmentUuidFromPath, projectsApi, projectUuidFromP
 const VIEW_ITEM = "relative flex h-7.5 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 text-[12px] font-medium transition-colors";
 const VIEW_IDLE = "text-neutral-400 hover:bg-neutral-100 hover:text-black dark:hover:text-white";
 
-/** The environment canvas is read only until Freeploy saves card positions and links. */
-export const ENVIRONMENT_CANVAS_VIEW_ONLY = "You can look around. Moving cards and drawing links are not available yet.";
+/** EnvironmentCanvas.svelte's viewOnlyTitle for those who may not edit the environment (deploy.resource.write). */
+export const ENVIRONMENT_CANVAS_VIEW_ONLY = "You can look around. Only team admins can move cards and edit links.";
 
 function EnvironmentCanvasContent() {
   const { me } = useSignedIn();

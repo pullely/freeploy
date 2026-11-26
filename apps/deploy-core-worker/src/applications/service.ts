@@ -35,6 +35,7 @@ import { domainConflicts, generateUrl, normalizeApplicationDomains, normalizeDom
 import type { CreateDockerImageInput, GeneralInput } from "./validation.js";
 import type { ApplicationLabelContext } from "./labels-service.js";
 import type { ApplicationBuildContext } from "./create.js";
+import type { CanvasStore } from "./canvas.js";
 import type { ServiceListResource } from "../services/resources.js";
 import { databaseResources, type DatabaseResource } from "../databases/service.js";
 
@@ -62,6 +63,8 @@ export interface ApplicationStore {
   listServicesForEnvironment?(environmentId: string | number): Promise<ServiceListResource[]>;
   /** The environment's services with their server and their parts, as the canvas draws them (DP-91); none when the store does not list them. */
   listServiceCanvasRows?(environmentId: string | number): Promise<DeployEnvironmentServiceCanvasRow[]>;
+  /** The environment canvas's saved card positions and links (DP-92, applications/canvas.ts); none when the store keeps none. */
+  canvas?: CanvasStore;
 }
 
 export interface ApplicationContext {

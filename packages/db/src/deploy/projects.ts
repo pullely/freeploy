@@ -124,6 +124,8 @@ export async function deleteProject(tx: SqlExecutor, id: string | number): Promi
     "DELETE FROM deploy.shared_environment_variables WHERE type = 'environment' AND environment_id IN (SELECT id FROM deploy.environments WHERE project_id = $1)",
     [id],
   );
+  // The environments' canvas links (Coolify: resource_links.environment_id cascadeOnDelete).
+  await tx.execute("DELETE FROM deploy.resource_links WHERE environment_id IN (SELECT id FROM deploy.environments WHERE project_id = $1)", [id]);
   await tx.execute("DELETE FROM deploy.environments WHERE project_id = $1", [id]);
   await tx.execute("DELETE FROM deploy.project_settings WHERE project_id = $1", [id]);
   await tx.execute("DELETE FROM deploy.shared_environment_variables WHERE type = 'project' AND project_id = $1", [id]);

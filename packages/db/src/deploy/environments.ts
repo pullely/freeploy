@@ -127,9 +127,13 @@ export async function environmentHasResources(tx: SqlExecutor, id: string | numb
   return Boolean(r.rows[0]?.has);
 }
 
-/** Environment::delete() with its deleting hook: the environment's shared variables go with it. */
+/**
+ * Environment::delete() with its deleting hook: the environment's shared variables go with it, and its
+ * canvas links (resource_links.environment_id is cascadeOnDelete in Coolify; Freeploy's schema has no foreign keys).
+ */
 export async function deleteEnvironment(tx: SqlExecutor, id: string | number): Promise<boolean> {
   await tx.execute("DELETE FROM deploy.shared_environment_variables WHERE type = 'environment' AND environment_id = $1", [id]);
+  await tx.execute("DELETE FROM deploy.resource_links WHERE environment_id = $1", [id]);
   const r = await tx.execute("DELETE FROM deploy.environments WHERE id = $1 RETURNING id", [id]);
   return r.rows.length > 0;
 }

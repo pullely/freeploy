@@ -27,6 +27,10 @@
 //   GET    /projects/{uuid}/environments/{env_uuid}/new         Select: servers, destinations, resource types
 //   GET    /projects/{uuid}/environments/{env_uuid}/resources   Resource\Index: the environment's applications
 //   GET    /projects/{uuid}/environments/{env_uuid}/canvas      EnvironmentCanvasController::show (applications/canvas.ts)
+//   PATCH  /projects/{uuid}/environments/{env_uuid}/canvas/positions           updatePositions (DP-92)
+//   POST   /projects/{uuid}/environments/{env_uuid}/canvas/links               storeLink
+//   PATCH  /projects/{uuid}/environments/{env_uuid}/canvas/links/{link_uuid}   updateLink
+//   DELETE /projects/{uuid}/environments/{env_uuid}/canvas/links/{link_uuid}   destroyLink
 //
 // The Persistent Storage, Tags, Resource Operations and Danger Zone pages
 // (/applications/{uuid}/{storages,tags,resource-operations,danger}…) and
@@ -57,6 +61,16 @@ import {
   listEnvironmentDatabases,
   listEnvironmentServiceResources,
   listEnvironmentServiceCanvasRows,
+  listEnvironmentCanvasResources,
+  findEnvironmentCanvasPositions,
+  lockEnvironmentCanvasPositions,
+  saveEnvironmentCanvasPositions,
+  listEnvironmentResourceLinks,
+  findEnvironmentResourceLink,
+  resourceLinkExists,
+  insertResourceLink,
+  updateResourceLinkLabel,
+  deleteResourceLink,
   listResourceTags,
   SERVICE_MORPH_CLASS,
   insertDockerImageApplication,
@@ -80,7 +94,8 @@ import type { GithubDeps } from "../applications/github.js";
 import { handleApplicationResources, isApplicationResourceRoute } from "./application-resources.js";
 import { handleApplicationMore, isApplicationMoreRoute } from "./application-more.js";
 import { serviceListResources } from "../services/resources.js";
-import { environmentCanvas } from "../applications/canvas.js";
+import { destroyCanvasLink, environmentCanvas, storeCanvasLink, updateCanvasLink, updateCanvasPositions, type CanvasAnswer } from "../applications/canvas.js";
+import { readApiBody } from "../api-v1/request.js";
 import {
   ApplicationError,
   createDockerImageApplication,
@@ -125,6 +140,18 @@ function sqlStore(tx: SqlExecutor, orgId: string): ApplicationStore {
       return serviceListResources(services, tags);
     },
     listServiceCanvasRows: (environmentId) => listEnvironmentServiceCanvasRows(tx, environmentId),
+    canvas: {
+      resources: (environmentId) => listEnvironmentCanvasResources(tx, environmentId),
+      positions: (environmentId) => findEnvironmentCanvasPositions(tx, environmentId),
+      lockPositions: (environmentId) => lockEnvironmentCanvasPositions(tx, environmentId),
+      savePositions: (environmentId, positions) => saveEnvironmentCanvasPositions(tx, environmentId, positions),
+      links: (environmentId) => listEnvironmentResourceLinks(tx, environmentId),
+      findLink: (environmentId, uuid) => findEnvironmentResourceLink(tx, environmentId, uuid),
+      linkExists: (ends) => resourceLinkExists(tx, ends),
+      insertLink: (link) => insertResourceLink(tx, { ...link, orgId }),
+      updateLabel: (id, label) => updateResourceLinkLabel(tx, id, label),
+      deleteLink: (id) => deleteResourceLink(tx, id),
+    },
   };
 }
 
@@ -334,10 +361,10 @@ export async function handleEnvironmentResources(
         }
       : path.page === "canvas"
         ? {
-            // EnvironmentCanvasController::show(): $this->authorize('view', $environment).
+            // EnvironmentCanvasController::show(): $this->authorize('view', $environment); can_edit is $user->can('update', $environment).
             write: false,
-            run: async () => {
-              const data = await runner(env, orgId, (c) => environmentCanvas(c, path.projectUuid, path.environmentUuid));
+            run: async (canWrite) => {
+              const data = await runner(env, orgId, (c) => environmentCanvas(c, path.projectUuid, path.environmentUuid, canWrite));
               return data ? successResponse(data, requestId) : notFound();
             },
           }
@@ -350,4 +377,59 @@ export async function handleEnvironmentResources(
           },
         };
   return authorized(env, requestId, actor, orgId, op);
+}
+
+/** The canvas's save actions under …/canvas: positions, links, links/{link_uuid} (DP-92). */
+export const isEnvironmentCanvasEdit = (rest: readonly string[]): boolean =>
+  (rest.length === 1 && (rest[0] === "positions" || rest[0] === "links")) || (rest.length === 2 && rest[0] === "links" && UUID_RE.test(rest[1]!));
+
+/**
+ * The environment canvas's save actions (EnvironmentCanvasController::updatePositions, storeLink, updateLink,
+ * destroyLink): /projects/{projectUuid}/environments/{environmentUuid}/canvas/{rest}. Each is
+ * $this->authorize('update', $environment): deploy.resource.write, a denial 404; then the controller's
+ * rules and messages, inside withOrg.
+ */
+export async function handleEnvironmentCanvas(
+  env: Env,
+  requestId: string,
+  actor: ActorContext,
+  orgId: string,
+  path: { projectUuid: string; environmentUuid: string; rest: string[] },
+  request: Request,
+  runner: ApplicationRunner = runApplicationsInOrg,
+): Promise<Response> {
+  const notFound = () => errorResponse("not_found", "Not found", 404, requestId);
+  const { projectUuid, environmentUuid, rest } = path;
+  if (!UUID_RE.test(projectUuid) || !UUID_RE.test(environmentUuid) || !isEnvironmentCanvasEdit(rest)) return notFound();
+  const method = request.method;
+  const link = rest[1];
+  let save: ((c: ApplicationContext) => Promise<CanvasAnswer>) | null = null;
+  if (rest[0] === "positions" && method === "PATCH") {
+    const body = await readApiBody(request);
+    save = (c) => updateCanvasPositions(c, projectUuid, environmentUuid, body);
+  } else if (rest[0] === "links" && !link && method === "POST") {
+    const body = await readApiBody(request);
+    save = (c) => storeCanvasLink(c, projectUuid, environmentUuid, body);
+  } else if (link && method === "PATCH") {
+    const body = await readApiBody(request);
+    save = (c) => updateCanvasLink(c, projectUuid, environmentUuid, link, body);
+  } else if (link && method === "DELETE") {
+    save = (c) => destroyCanvasLink(c, projectUuid, environmentUuid, link);
+  }
+  if (!save) return methodNotAllowed(requestId);
+  const run = save;
+  return authorized(env, requestId, actor, orgId, {
+    write: true,
+    run: async () => canvasResponse(await runner(env, orgId, run), requestId),
+  });
+}
+
+/** A save action's answer in Freeploy's envelope: its data, or Coolify's message with the field errors (422) or the body's fault (400). */
+function canvasResponse(answer: CanvasAnswer, requestId: string): Response {
+  if (answer.ok) return successResponse(answer.data, requestId, answer.status);
+  const code = answer.status === 404 ? "not_found" : answer.status === 400 ? "bad_request" : "validation_failed";
+  const details: Record<string, unknown> = {};
+  if (answer.errors) details.fields = Object.fromEntries(answer.errors);
+  if (answer.error) details.error = answer.error;
+  return errorResponse(code, answer.message, answer.status, requestId, details);
 }
