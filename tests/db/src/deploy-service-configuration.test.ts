@@ -29,6 +29,7 @@ import {
   deleteService,
   listDomainOwners,
   listEnvironmentServiceResources,
+  listEnvironmentServiceCanvasRows,
   findEnvironmentVariableResource,
   updateEnvironmentVariableSettings,
   environmentVariableSettingColumns,
@@ -243,6 +244,25 @@ describe("a service's rows for its configuration pages", () => {
       { status: "exited", exclude_from_status: false, is_removed_from_compose: false },
     ]);
     expect(await withOrg(ex, B, (tx) => listEnvironmentServiceResources(tx, fx.a!.environmentId))).toEqual([]);
+  });
+
+  it("lists the environment's services for the canvas: their server and their parts by name, applications first (DP-91)", async () => {
+    const rows = await withOrg(ex, A, (tx) => listEnvironmentServiceCanvasRows(tx, fx.a!.environmentId));
+    const listed = await withOrg(ex, A, (tx) => listEnvironmentServiceResources(tx, fx.a!.environmentId));
+    expect(rows.map((r) => [r.uuid, r.server_name])).toEqual([
+      ["cfga", "server-a"],
+      ["cfgo", "server-a"],
+    ]);
+    expect(rows[0]!.server_uuid).toEqual(expect.any(String));
+    expect(rows[0]!.server_is_reachable).toBe(listed[0]!.server_is_reachable);
+    const parts = rows[0]!.parts as Array<{ name: string; kind: string; status: string; fqdn: string | null; exclude_from_status: boolean; is_removed_from_compose: boolean }>;
+    // The same parts, in the same order, as the resources list reads for the status.
+    expect(parts.map(({ status, exclude_from_status, is_removed_from_compose }) => ({ status, exclude_from_status, is_removed_from_compose }))).toEqual(listed[0]!.parts);
+    expect(parts.every((p) => typeof p.name === "string" && p.name.length > 0)).toBe(true);
+    const kinds = parts.map((p) => p.kind);
+    expect(kinds).toEqual([...kinds].sort());
+    expect(parts.filter((p) => p.kind === "database").every((p) => p.fqdn === null)).toBe(true);
+    expect(await withOrg(ex, B, (tx) => listEnvironmentServiceCanvasRows(tx, fx.a!.environmentId))).toEqual([]);
   });
 
   it("keys the Environment Variables page by 'service', with the two switches on the service's own row", async () => {

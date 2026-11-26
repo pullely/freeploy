@@ -43,6 +43,13 @@
     ]
   },
   {
+    "find": "<div className=\"app-shell dark:text-inherit text-black\"",
+    "replace": "<div className={props.shellClass}",
+    "props": [
+      "shellClass: string"
+    ]
+  },
+  {
     "find": "title=\"Team: (?:Root Team|Parity Root's Team|Parity User's Team)\"",
     "replace": "title={`Team: ${props.teamName}`}"
   },

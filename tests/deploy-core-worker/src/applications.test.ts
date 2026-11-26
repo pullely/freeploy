@@ -1004,10 +1004,10 @@ describe("routing and authorization", () => {
     expect(t.orgs).toHaveLength(0);
   });
 
-  it("route() sends the applications paths and the two environment pages to the handler behind the same checks", async () => {
+  it("route() sends the applications paths and the three environment pages to the handler behind the same checks", async () => {
     const bare: Env = { ENVIRONMENT: "test" };
     const headers = { "x-actor-subject-id": "usr_1", "x-actor-subject-type": "user" };
-    for (const path of ["/applications", "/applications/app1", "/applications/app1/deploy", "/projects/prj1/environments/env1/new", "/projects/prj1/environments/env1/resources"]) {
+    for (const path of ["/applications", "/applications/app1", "/applications/app1/deploy", "/projects/prj1/environments/env1/new", "/projects/prj1/environments/env1/resources", "/projects/prj1/environments/env1/canvas"]) {
       const method = path === "/applications" || path.endsWith("/deploy") ? "POST" : "GET";
       expect([path, (await route(new Request(`${BASE}${path}`, { method }), bare)).status]).toEqual([path, 401]);
       expect([path, (await route(new Request(`https://x/v1/organizations/not-an-org/deploy${path}`, { method, headers }), bare)).status]).toEqual([path, 404]);
@@ -1019,7 +1019,7 @@ describe("routing and authorization", () => {
     expect((await route(new Request(`${BASE}/applications`, { method: "DELETE", headers }), bare)).status).toBe(405);
     expect((await route(new Request(`${BASE}/projects/prj1/environments/env1/new`, { method: "POST", headers }), bare)).status).toBe(405);
     // Another fourth segment is still the projects handler's 404.
-    expect((await route(new Request(`${BASE}/projects/prj1/environments/env1/canvas`, { headers }), bare)).status).toBe(404);
+    expect((await route(new Request(`${BASE}/projects/prj1/environments/env1/clone`, { headers }), bare)).status).toBe(404);
     expect((await route(new Request(`${BASE}/projects/prj1/other/env1/new`, { headers }), bare)).status).toBe(404);
   });
 });

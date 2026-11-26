@@ -26,6 +26,7 @@
 //
 //   GET    /projects/{uuid}/environments/{env_uuid}/new         Select: servers, destinations, resource types
 //   GET    /projects/{uuid}/environments/{env_uuid}/resources   Resource\Index: the environment's applications
+//   GET    /projects/{uuid}/environments/{env_uuid}/canvas      EnvironmentCanvasController::show (applications/canvas.ts)
 //
 // The Persistent Storage, Tags, Resource Operations and Danger Zone pages
 // (/applications/{uuid}/{storages,tags,resource-operations,danger}…) and
@@ -55,6 +56,7 @@ import {
   listEnvironmentApplications,
   listEnvironmentDatabases,
   listEnvironmentServiceResources,
+  listEnvironmentServiceCanvasRows,
   listResourceTags,
   SERVICE_MORPH_CLASS,
   insertDockerImageApplication,
@@ -78,6 +80,7 @@ import type { GithubDeps } from "../applications/github.js";
 import { handleApplicationResources, isApplicationResourceRoute } from "./application-resources.js";
 import { handleApplicationMore, isApplicationMoreRoute } from "./application-more.js";
 import { serviceListResources } from "../services/resources.js";
+import { environmentCanvas } from "../applications/canvas.js";
 import {
   ApplicationError,
   createDockerImageApplication,
@@ -95,7 +98,7 @@ const UUID_RE = /^[A-Za-z0-9-]{1,255}$/;
 const ACTIONS: readonly string[] = ["deploy", "restart", "stop"];
 
 /** The pages of a project's environment that this handler serves. */
-export const ENVIRONMENT_RESOURCE_PAGES: readonly string[] = ["new", "resources"];
+export const ENVIRONMENT_RESOURCE_PAGES: readonly string[] = ["new", "resources", "canvas"];
 
 /** Runs fn with one org's application store and cipher, in one transaction confined to that org. */
 export type ApplicationRunner = <T>(env: Env, orgId: string, fn: (ctx: ApplicationContext) => Promise<T>) => Promise<T>;
@@ -121,6 +124,7 @@ function sqlStore(tx: SqlExecutor, orgId: string): ApplicationStore {
       for (const service of services) tags.set(service.uuid, (await listResourceTags(tx, { type: SERVICE_MORPH_CLASS, id: service.id })).map((tag) => ({ id: String(tag.id), name: tag.name })));
       return serviceListResources(services, tags);
     },
+    listServiceCanvasRows: (environmentId) => listEnvironmentServiceCanvasRows(tx, environmentId),
   };
 }
 
@@ -328,7 +332,16 @@ export async function handleEnvironmentResources(
             return page ? successResponse(page, requestId) : notFound();
           },
         }
-      : {
+      : path.page === "canvas"
+        ? {
+            // EnvironmentCanvasController::show(): $this->authorize('view', $environment).
+            write: false,
+            run: async () => {
+              const data = await runner(env, orgId, (c) => environmentCanvas(c, path.projectUuid, path.environmentUuid));
+              return data ? successResponse(data, requestId) : notFound();
+            },
+          }
+        : {
           write: false,
           run: async (canWrite) => {
             const data = await runner(env, orgId, (c) => environmentResources(c, path.projectUuid, path.environmentUuid));

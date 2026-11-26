@@ -24,6 +24,10 @@ export interface Me {
   avatarUrl: string | null;
 }
 
+/** layouts/app.blade.php with $fullBleed (the canvases): the shell is a full-height column and main fills it. */
+const SHELL = "app-shell dark:text-inherit text-black";
+const SHELL_CANVAS = `${SHELL} app-shell-canvas flex h-dvh flex-col`;
+const MAIN_FULL = "app-main app-main-full relative min-h-0 flex-1 bg-neutral-50 dark:bg-app lg:pt-12 lg:ml-56 transition-[margin] duration-200";
 const MAIN = "app-main min-h-screen bg-neutral-50 dark:bg-app px-5 py-6 sm:px-8 lg:px-10 lg:pt-[calc(3rem+1.75rem)] lg:pb-10 lg:ml-56 transition-[margin] duration-200";
 
 /** The signed-in user and team for pages inside the layout, and a way to update them after a save. */
@@ -90,6 +94,8 @@ export interface LayoutProps {
   portal?: ReactNode;
   /** The main menu item to mark current, when it is not this page's path (a server's pages mark Servers). */
   navHref?: string;
+  /** Full-bleed pages (canvases) fill the space between the top bar and the sidebar. */
+  fullBleed?: boolean;
   children: ReactNode;
 }
 
@@ -167,7 +173,8 @@ export function Layout(props: LayoutProps) {
       {...(operator ? { platform: platformSlots(nav) } : {})}
       desktopMenu={sidebarMenu(desktopNav, active, setDesktopNav)}
       mobileMenu={sidebarMenu(mobileNav, active, setMobileNav)}
-      mainClass={pageWidth === "centered" ? MAIN : `${MAIN} app-main-wide`}
+      mainClass={props.fullBleed ? MAIN_FULL : pageWidth === "centered" ? MAIN : `${MAIN} app-main-wide`}
+      shellClass={props.fullBleed ? SHELL_CANVAS : SHELL}
       teamName={teamName}
       teamInitial={initial(teamName)}
       userName={userName}
@@ -181,7 +188,7 @@ export function Layout(props: LayoutProps) {
       portal={props.portal}
       toasts={<Toasts />}
     >
-      <div className={pageWidth === "centered" ? "w-full mx-auto max-w-[1400px]" : "w-full max-w-none"}>{props.children}</div>
+      <div className={props.fullBleed ? "relative h-full" : pageWidth === "centered" ? "w-full mx-auto max-w-[1400px]" : "w-full max-w-none"}>{props.children}</div>
     </LayoutMarkup>
     </MeContext.Provider>
   );

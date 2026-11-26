@@ -10,8 +10,8 @@
    "milestone": "DP11",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
    "parityTest": "parity/svelte/canvas-beta-badge",
-   "taskKey": null,
-   "status": "planned",
+   "taskKey": "DP-91",
+   "status": "ported",
    "lines": 10
   },
   {
@@ -20,8 +20,8 @@
    "milestone": "DP11",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
    "parityTest": "parity/svelte/canvas-canvas-controls",
-   "taskKey": null,
-   "status": "planned",
+   "taskKey": "DP-91",
+   "status": "ported",
    "lines": 36
   },
   {
@@ -120,8 +120,8 @@
    "milestone": "DP11",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
    "parityTest": "parity/svelte/canvas-environment-card",
-   "taskKey": null,
-   "status": "planned",
+   "taskKey": "DP-91",
+   "status": "in_progress",
    "lines": 161
   },
   {
@@ -150,8 +150,8 @@
    "milestone": "DP11",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
    "parityTest": "parity/svelte/canvas-environment-environment-canvas",
-   "taskKey": null,
-   "status": "planned",
+   "taskKey": "DP-91",
+   "status": "in_progress",
    "lines": 1141
   },
   {
@@ -160,8 +160,8 @@
    "milestone": "DP11",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
    "parityTest": "parity/svelte/canvas-environment-icon",
-   "taskKey": null,
-   "status": "planned",
+   "taskKey": "DP-91",
+   "status": "ported",
    "lines": 11
   },
   {
@@ -170,8 +170,8 @@
    "milestone": "DP11",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
    "parityTest": "parity/svelte/canvas-environment-node-icon",
-   "taskKey": null,
-   "status": "planned",
+   "taskKey": "DP-91",
+   "status": "ported",
    "lines": 38
   },
   {
@@ -180,8 +180,8 @@
    "milestone": "DP11",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
    "parityTest": "parity/svelte/canvas-environment-panel",
-   "taskKey": null,
-   "status": "planned",
+   "taskKey": "DP-91",
+   "status": "in_progress",
    "lines": 317
   },
   {
@@ -200,8 +200,8 @@
    "milestone": "DP11",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
    "parityTest": "parity/svelte/canvas-environment-status-dot",
-   "taskKey": null,
-   "status": "planned",
+   "taskKey": "DP-91",
+   "status": "ported",
    "lines": 14
   },
   {
@@ -210,8 +210,8 @@
    "milestone": "DP11",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
    "parityTest": "parity/svelte/canvas-environment-toolbar",
-   "taskKey": null,
-   "status": "planned",
+   "taskKey": "DP-91",
+   "status": "in_progress",
    "lines": 39
   },
   {
@@ -220,8 +220,8 @@
    "milestone": "DP11",
    "component": "apps/deploy-core-worker + apps/ssh-executor",
    "parityTest": "parity/svelte/canvas-environment-zone",
-   "taskKey": null,
-   "status": "planned",
+   "taskKey": "DP-91",
+   "status": "ported",
    "lines": 108
   }
  ]

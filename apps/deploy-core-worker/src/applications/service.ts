@@ -12,6 +12,7 @@
 // Stop need the SSH executor and the deployment Workflow, which do not exist
 // yet.
 import type {
+  DeployEnvironmentServiceCanvasRow,
   ApplicationGeneralChanges,
   ApplicationWebhookSecretColumn,
   DeployApplicationDomainsRow,
@@ -59,6 +60,8 @@ export interface ApplicationStore {
   listDatabasesForEnvironment?(environmentId: string | number): Promise<DeployDatabaseRow[]>;
   /** The environment's services with their tags (DP-66); none when the store does not list them. */
   listServicesForEnvironment?(environmentId: string | number): Promise<ServiceListResource[]>;
+  /** The environment's services with their server and their parts, as the canvas draws them (DP-91); none when the store does not list them. */
+  listServiceCanvasRows?(environmentId: string | number): Promise<DeployEnvironmentServiceCanvasRow[]>;
 }
 
 export interface ApplicationContext {

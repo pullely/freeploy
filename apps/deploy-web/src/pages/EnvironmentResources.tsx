@@ -6,8 +6,7 @@
 // resources — applications and standalone databases — as a table or a grid, with search, sort
 // and paging; "No resources yet" when it has none. The filters (type, status,
 // server, tags), the tags column's values, the image scan markers and a
-// resource's favicon are not ported; "Shared variables" and the canvas lead
-// to pages that are not ported yet.
+// resource's favicon are not ported; "Canvas" leads to the environment canvas (DP-91).
 import { useEffect, useState } from "react";
 import { Layout, useSignedIn } from "../layout/Layout";
 import { getJson } from "../lib/api";
