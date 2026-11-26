@@ -47,6 +47,14 @@ const TABLES = [
   "local_file_volumes",
   "scheduled_tasks",
   "scheduled_task_executions",
+  // DP-85: a Swarm destination (a service part's server), the six notification channels' settings
+  "swarm_dockers",
+  "email_notification_settings",
+  "discord_notification_settings",
+  "slack_notification_settings",
+  "telegram_notification_settings",
+  "pushover_notification_settings",
+  "webhook_notification_settings",
 ] as const;
 export type ApiTable = (typeof TABLES)[number];
 

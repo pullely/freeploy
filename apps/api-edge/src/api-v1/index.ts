@@ -159,6 +159,10 @@ async function handleRoute(request: Request, env: Env, requestId: string, limite
   if (!token.abilities.includes("root") && !route.abilities.some((a) => token.abilities.includes(a) || token.abilities.includes("*"))) {
     return toResponse(COOLIFY_API.missingAbilities(route.abilities), rl);
   }
+  // A second api.ability middleware (DP-85: api.ability:write then api.ability:deploy): each in turn.
+  for (const ability of route.alsoAbilities ?? []) {
+    if (!token.abilities.includes("root") && !token.abilities.includes(ability) && !token.abilities.includes("*")) return toResponse(COOLIFY_API.missingAbilities([ability]), rl);
+  }
 
   if (route.target === "edge") return toResponse(coolifyText(COOLIFY_API.version), rl);
   const res = await forward(request, env, requestId, route.target, path.slice("/api/v1".length), token);

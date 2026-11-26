@@ -1,4 +1,4 @@
-# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84)
+# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85)
 
 What Coolify's real API answers, so that Freeploy's `/api/v1` (api-edge's middleware and limiters,
 identity-worker's teams and tokens, deploy-core-worker's projects, environments, private keys and servers —
@@ -8,8 +8,9 @@ deploying by uuid or tag — DP-74 — and the deployments in progress and one d
 environment's resources, creating and deleting a server and a server's resources and domains — DP-78 — and the team's
 tags and those of an application, a database and a service, the shared variables of a project and of an environment, and
 S3 storages — DP-81 — and the storages of an application, a database and a service, the scheduled tasks of an
-application and of a service, a database's environment variables and the team's shared variables — DP-84) can be
-replayed against it byte for byte.
+application and of a service, a database's environment variables and the team's shared variables — DP-84 — and the
+team's notification channels, a service's applications and databases, destinations, a server's shared variables and
+its Docker cleanup — DP-85) can be replayed against it byte for byte.
 
 | File | What it is |
 |---|---|
@@ -61,6 +62,17 @@ three executions. A case's `after` reads a created row's id as null (`case when 
 queries leave out the fixture's volume of the service's web part (`v.uuid <> 'l2parityservicevolume002'`), so those
 goldens are unchanged. The storages are answered with `response()->json()` of the models (unsorted), so `columns` gains
 `local_persistent_volumes` and `local_file_volumes`.
+DP-85's replay (`src/api-v1-notifications-parts-destinations.test.ts`: the six notification channels, a service's
+applications and databases, destinations, a server's shared variables and its Docker cleanup) adds three Docker cleanup
+runs at the end of both fixtures, and Freeploy's fixture now makes the rows Coolify's Team created hook makes — the six
+notification channels' settings of each team, team 1's first, so their ids are 1 and 2 on both sides — and the servers'
+predefined variables literal, as Freeploy's server creation and Coolify's hook make them. A case's `config` may set
+`self_hosted: false`: emit.php then runs it as Coolify Cloud (`constants.coolify.self_hosted`), whose SafeSmtpHost
+blocks private networks, as Freeploy (a hosted service) does; the email cases that check an SMTP host run so. The `after`
+queries read a channel's encrypted columns as whether they are set (`has_<column>`: the ciphertexts differ), the JSON
+columns of a service application as `::jsonb::text` (Coolify's text columns hold `\/`), and the fixture's default
+destination's name as `<default-destination-name>` (Coolify's `coolify`, Freeploy's `freeploy`); the cases that answer it
+name it first (`setup`). No masking is added.
 
 ## How the goldens are made
 

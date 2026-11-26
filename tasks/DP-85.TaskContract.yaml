@@ -1,0 +1,22 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-85
+  title: "DP9: /api/v1 for notification channels, a service's applications and databases, destinations, a server's shared variables and Docker cleanup"
+spec:
+  goal: Coolify's /api/v1 answers, on DP-70's pipeline (api-edge's middleware and routes, deploy-core-worker's internal mount), for the team's notification channels (NotificationsController — GET and PATCH /notifications/{email,discord,slack,telegram,pushover,webhook} on DP-67's settings rows, with the controller's rules, SafeWebhookUrl and SafeSmtpHost through the context's resolver, only the dirty columns written), a service's applications and databases (ServiceApplicationsController and ServiceDatabasesController — index, show, update, logs, start, restart, stop on DP-66's service rows and DP-74's url, domain and updateCompose() ports), destinations (DestinationsController — index, show, update, delete, a server's index and create on the console's destination store), a server's shared variables (SharedEnvironmentVariablesController — server_envs, server_create_env, server_update_env, server_delete_env on DP-81's code) and its Docker cleanup (ServerDockerCleanupController — show, update, run, executions, with DP-68's cron validator), with Coolify's validation, messages, status codes and key order, every body in Coolify's own JSON bytes. 41 more of openapi.json's 330 operations are ported (180 in all), each replayed byte for byte (masked ids, uuids, dates, the team) against goldens emitted by Coolify's real PHP, and each write's rows compared with the rows Coolify's left; the other 150 answer Coolify's 404 shape. Where Coolify runs or queues work on the server — a service part's start, restart, stop and container logs on a functional server, the TCP proxy a service database's is_public starts or stops, creating a standalone destination on a functional server (docker network ls, then the network), deleting a standalone destination without resources (docker network rm), running a Docker cleanup now — Freeploy answers 501 in Coolify's envelope ("… needs the SSH executor, which is not available yet.") after Coolify's own refusals and before anything is stored. Not ported in the groups done — a service database's imports (uploads, an import, its status: the file is copied to the server and restored there) and the security integration tokens (Cloudflare, Doppler, Infisical, Vault: provider APIs). Cut — GitHub Apps and their repositories, a server's registries and proxy settings, an application's previews.
+  affects:
+    - apps/api-edge/**
+    - apps/deploy-core-worker/**
+    - packages/db/**
+    - tests/api-edge/**
+    - tests/deploy-core-worker/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - every case of tests/deploy-core-worker/fixtures/api/cases.json (1109 cases, 243 of them DP-85's) replays against Freeploy byte-equal to goldens.json after the documented masking, except the listed departures (the twelve server operations that answer 501) and the middleware answers, which tests/api-edge replays
+    - the rows each DP-85 write leaves in Freeploy's database (PGlite with the deploy schema at head) equal the golden's `after` rows — the notification settings, the service's parts, Compose files and variables, the destinations, the server's shared variables and its Docker cleanup settings — except the departures, which store nothing
+    - the earlier cases' goldens change only in random values (uuids, ciphertexts, generated passwords and names)
+    - specs/epics/freeploy-coolify-parity/parity/openapi.operations.json marks the 41 operations ported with taskKey DP-85 (180 ported of 330 in all), and node tools/parity/inventory.ts --check passes
+    - on stage, GET https://<edge>/api/v1/notifications/email and GET /api/v1/destinations with a read token answer as Coolify does
+  gates: []

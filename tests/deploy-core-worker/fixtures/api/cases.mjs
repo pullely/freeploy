@@ -257,6 +257,12 @@ const fixture = {
     { id: 11, team: T1, key: "TEAM_SECRET", value: "t-secret", is_literal: true, is_multiline: false, is_shown_once: true, comment: "Locked" },
     { id: 12, team: T2, key: "OTHER_TEAM", value: "theirs", is_literal: false, is_multiline: false, is_shown_once: false, comment: null },
   ],
+  // DP-85: a server's Docker cleanup runs (DockerCleanupExecution::forceCreate(), the timestamps fixed).
+  dockerCleanupExecutions: [
+    { id: 1, uuid: "y1paritycleanupok0000001", server_id: 1, status: "success", message: "Removed 3 images.", created_at: "2025-12-30 01:00:00", finished_at: "2025-12-30 01:00:30" },
+    { id: 2, uuid: "y2paritycleanupfailed002", server_id: 1, status: "failed", message: "Error: docker system prune failed", created_at: "2025-12-31 01:00:00", finished_at: "2025-12-31 01:00:05" },
+    { id: 3, uuid: "y3othercleanup0000000003", server_id: 2, status: "running", message: null, created_at: "2025-12-31 02:00:00", finished_at: null },
+  ],
   // secret: what follows "<id>|" in the bearer token (Sanctum's 40 random characters and crc32b).
   tokens: [
     { key: "root", id: 1, user: 1, team: T1, name: "Root token", abilities: ["root"], secret: "rootrootrootrootrootrootrootrootrootroot5a1b2c3d" },
@@ -1229,6 +1235,240 @@ add({ name: "team envs: delete", token: "delete", method: "DELETE", path: "/api/
 add({ name: "team envs: delete unknown", token: "delete", method: "DELETE", path: "/api/v1/team/envs/999" });
 add({ name: "team envs: delete a server's variable", token: "delete", method: "DELETE", path: "/api/v1/team/envs/1" });
 add({ name: "team envs: delete another team's", token: "delete", method: "DELETE", path: "/api/v1/team/envs/12" });
+
+// ── DP-85: the team's notification channels ─────────────────────────────────
+/** A channel's columns as both sides store them: the encrypted ones read as whether they are set (their ciphertexts differ). */
+const NOTIFICATION_EVENTS = ["deployment_success", "deployment_failure", "status_change", "restart_limit_reached", "backup_success", "backup_failure", "scheduled_task_success", "scheduled_task_failure", "docker_cleanup_success", "docker_cleanup_failure", "server_disk_usage", "server_reachable", "server_unreachable", "server_patch", "traefik_outdated", "image_vulnerabilities"];
+const NOTIFICATION_COLUMNS = {
+  email: { plain: ["smtp_enabled", "smtp_port", "smtp_encryption", "smtp_timeout", "smtp_ehlo_domain", "smtp_server_name", "resend_enabled", "use_instance_email_settings", "deployment_commit_details_email_notifications"], encrypted: ["smtp_from_address", "smtp_from_name", "smtp_recipients", "smtp_host", "smtp_username", "smtp_password", "resend_api_key", "resend_from_address", "resend_from_name", "smtp_servers"] },
+  discord: { plain: ["discord_enabled", "discord_ping_enabled"], encrypted: ["discord_webhook_url"] },
+  slack: { plain: ["slack_enabled"], encrypted: ["slack_webhook_url"] },
+  telegram: { plain: ["telegram_enabled"], encrypted: ["telegram_token", "telegram_chat_id", ...NOTIFICATION_EVENTS.map((e) => `telegram_notifications_${e}_thread_id`)] },
+  pushover: { plain: ["pushover_enabled"], encrypted: ["pushover_user_key", "pushover_api_token"] },
+  webhook: { plain: ["webhook_enabled"], encrypted: ["webhook_url"] },
+};
+/** Team 1's row of a channel (id 1 on both sides: the fixture makes team 1's rows first). */
+const notificationAfter = (channel) => {
+  const { plain, encrypted } = NOTIFICATION_COLUMNS[channel];
+  const columns = ["id", ...plain, ...NOTIFICATION_EVENTS.map((e) => `${e}_${channel}_notifications`), ...encrypted.map((c) => `${c} is not null as has_${c}`), "failure_count"];
+  return { settings: `select ${columns.join(", ")} from ${channel}_notification_settings where id = 1` };
+};
+const NOTIFY = (channel) => `/api/v1/notifications/${channel}`;
+/** SafeSmtpHost as on Coolify Cloud (private networks blocked), which Freeploy is: `self_hosted` off for the case. */
+const CLOUD = { self_hosted: false };
+for (const channel of ["email", "discord", "slack", "telegram", "pushover", "webhook"]) {
+  add({ name: `notifications ${channel}: show`, token: "read", method: "GET", path: NOTIFY(channel) });
+  add({ name: `notifications ${channel}: show, read:sensitive`, token: "sensitive", method: "GET", path: NOTIFY(channel) });
+  add({ name: `notifications ${channel}: show, a member`, token: "memberRead", method: "GET", path: NOTIFY(channel) });
+  add({ name: `notifications ${channel}: update, not JSON`, token: "write", method: "PATCH", path: NOTIFY(channel), raw: `${channel}_enabled=1`, contentType: "application/x-www-form-urlencoded" });
+  add({ name: `notifications ${channel}: update, empty`, token: "write", method: "PATCH", path: NOTIFY(channel), raw: "{}" });
+  add({ name: `notifications ${channel}: update, a field of another channel`, token: "write", method: "PATCH", path: NOTIFY(channel), body: { team_id: 2, [`${channel === "email" ? "discord" : "email"}_enabled`]: true, [`deployment_success_${channel}_notifications`]: "maybe" }, after: notificationAfter(channel) });
+  add({ name: `notifications ${channel}: update the events`, token: "write", method: "PATCH", path: NOTIFY(channel), body: { [`deployment_success_${channel}_notifications`]: "1", [`backup_failure_${channel}_notifications`]: 0, [`docker_cleanup_success_${channel}_notifications`]: true, [`image_vulnerabilities_${channel}_notifications`]: false }, after: notificationAfter(channel) });
+  add({ name: `notifications ${channel}: update the events, a failure count kept`, token: "write", method: "PATCH", path: NOTIFY(channel), setup: [`update ${channel}_notification_settings set failure_count = 2 where id = 1`], body: { [`backup_failure_${channel}_notifications`]: true, [`docker_cleanup_failure_${channel}_notifications`]: true }, after: notificationAfter(channel) });
+  // docker_cleanup_*_notifications has no cast on most channels (the casts name docker_cleanup_<channel>_notifications): "1" is not true.
+  add({ name: `notifications ${channel}: update an event to the same value as a string`, token: "write", method: "PATCH", path: NOTIFY(channel), setup: [`update ${channel}_notification_settings set failure_count = 2 where id = 1`], body: { [`docker_cleanup_failure_${channel}_notifications`]: "1", [`backup_failure_${channel}_notifications`]: "1" }, after: notificationAfter(channel) });
+}
+add({ name: "notifications email: show, a member with read:sensitive", token: "memberSensitive", method: "GET", path: NOTIFY("email") });
+add({ name: "notifications email: update", token: "write", config: CLOUD, method: "PATCH", path: NOTIFY("email"), body: { smtp_enabled: true, smtp_from_address: "alerts@example.com", smtp_from_name: " Parity Alerts ", smtp_recipients: "ops@example.com,dev@example.com", smtp_host: "SMTP.Example.com", smtp_port: "587", smtp_encryption: "starttls", smtp_username: "mailer", smtp_password: " secret pass ", smtp_timeout: 30, smtp_ehlo_domain: "mail.example.com" }, after: notificationAfter("email") });
+add({ name: "notifications email: update, read:sensitive answer", token: "root", config: CLOUD, method: "PATCH", path: NOTIFY("email"), body: { resend_enabled: true, resend_api_key: "re_parity_key", resend_from_address: "resend@example.com", resend_from_name: "Parity", use_instance_email_settings: "0", smtp_host: "203.0.113.25" }, after: notificationAfter("email") });
+add({ name: "notifications email: update to nulls", token: "root", method: "PATCH", path: NOTIFY("email"), setup: ["update email_notification_settings set smtp_port = 25, smtp_timeout = 10, smtp_encryption = 'tls', failure_count = 1 where id = 1"], body: { smtp_port: null, smtp_timeout: "", smtp_encryption: null, smtp_from_address: "", smtp_host: null }, after: notificationAfter("email") });
+add({ name: "notifications email: update, invalid", token: "write", config: CLOUD, method: "PATCH", path: NOTIFY("email"), body: { smtp_enabled: "yes", smtp_from_address: "not-an-email", smtp_from_name: "x".repeat(256), smtp_recipients: ["a@example.com"], smtp_host: "bad host!", smtp_port: 70000, smtp_encryption: "ssl", smtp_username: 5, smtp_timeout: -1, smtp_ehlo_domain: "-bad-.example", resend_from_address: "a b@example.com", resend_api_key: false, smtp_server_name: "Main", smtp_servers: [] } });
+add({ name: "notifications email: update, a port that is not an integer", token: "write", method: "PATCH", path: NOTIFY("email"), body: { smtp_port: "25.5", smtp_timeout: "ten" } });
+for (const [label, host] of [["an unresolvable SMTP host", "unresolvable.example"], ["a private SMTP host", "10.0.0.5"], ["an SMTP host that resolves to a private address", "private.example"], ["a link-local SMTP host", "169.254.169.254"], ["localhost as the SMTP host", "localhost"], ["an internal SMTP host name", "mail.internal"], ["an SMTP host with a trailing dot", "smtp.example.com."], ["an IPv6 SMTP host", "[2001:db8::1]"], ["a public IPv6 SMTP host", "[2606:4700::1111]"]]) {
+  add({ name: `notifications email: update, ${label}`, token: "write", config: CLOUD, method: "PATCH", path: NOTIFY("email"), body: { smtp_host: host }, after: notificationAfter("email") });
+}
+add({ name: "notifications discord: update", token: "write", method: "PATCH", path: NOTIFY("discord"), body: { discord_enabled: true, discord_webhook_url: "https://discord.com/api/webhooks/1/parity", discord_ping_enabled: false, server_patch_discord_notifications: "0" }, after: notificationAfter("discord") });
+add({ name: "notifications discord: update, read:sensitive answer", token: "root", method: "PATCH", path: NOTIFY("discord"), body: { discord_webhook_url: "https://discord.com/api/webhooks/2/parity" }, after: notificationAfter("discord") });
+add({ name: "notifications discord: update, invalid", token: "write", method: "PATCH", path: NOTIFY("discord"), body: { discord_enabled: "on", discord_webhook_url: 5, discord_ping_enabled: null } });
+for (const [label, url] of [["not a URL", "discord webhook"], ["another scheme", "ftp://discord.com/hook"], ["a host that does not resolve", "https://unresolvable.example/hook"], ["a link-local address", "http://169.254.169.254/latest/meta-data"], ["a host with a trailing dot", "https://discord.com./api/webhooks"], ["a URL without a host", "https:///hook"]]) {
+  add({ name: `notifications discord: update, ${label}`, token: "write", method: "PATCH", path: NOTIFY("discord"), body: { discord_webhook_url: url }, after: notificationAfter("discord") });
+}
+add({ name: "notifications discord: update to null", token: "write", method: "PATCH", path: NOTIFY("discord"), body: { discord_webhook_url: null, discord_enabled: false }, after: notificationAfter("discord") });
+add({ name: "notifications slack: update", token: "root", method: "PATCH", path: NOTIFY("slack"), body: { slack_enabled: 1, slack_webhook_url: "https://hooks.slack.com/services/T000/B000/parity" }, after: notificationAfter("slack") });
+add({ name: "notifications slack: update, invalid", token: "write", method: "PATCH", path: NOTIFY("slack"), body: { slack_enabled: 2, slack_webhook_url: "mailto:ops@example.com", discord_ping_enabled: true } });
+add({ name: "notifications telegram: update", token: "root", method: "PATCH", path: NOTIFY("telegram"), body: { telegram_enabled: true, telegram_token: "123456:parity-token", telegram_chat_id: "-100123", telegram_notifications_deployment_success_thread_id: "42", telegram_notifications_image_vulnerabilities_thread_id: "7" }, after: notificationAfter("telegram") });
+add({ name: "notifications telegram: update, a write token", token: "write", method: "PATCH", path: NOTIFY("telegram"), body: { telegram_chat_id: "-100999", telegram_notifications_backup_failure_thread_id: null }, after: notificationAfter("telegram") });
+add({ name: "notifications telegram: update, invalid", token: "write", method: "PATCH", path: NOTIFY("telegram"), body: { telegram_token: 5, telegram_chat_id: "x".repeat(256), telegram_notifications_server_patch_thread_id: ["1"], telegram_enabled: "true" } });
+add({ name: "notifications pushover: update", token: "root", method: "PATCH", path: NOTIFY("pushover"), body: { pushover_enabled: "1", pushover_user_key: "parity-user-key", pushover_api_token: "parity-api-token", status_change_pushover_notifications: true }, after: notificationAfter("pushover") });
+add({ name: "notifications pushover: update, invalid", token: "write", method: "PATCH", path: NOTIFY("pushover"), body: { pushover_user_key: "k".repeat(256), pushover_api_token: true } });
+add({ name: "notifications webhook: update", token: "root", method: "PATCH", path: NOTIFY("webhook"), body: { webhook_enabled: true, webhook_url: "https://hooks.example.com/coolify?team=1" }, after: notificationAfter("webhook") });
+add({ name: "notifications webhook: update, a write token", token: "write", method: "PATCH", path: NOTIFY("webhook"), body: { webhook_url: "http://93.184.216.34/hook", server_patch_webhook_notifications: true }, after: notificationAfter("webhook") });
+add({ name: "notifications webhook: update, invalid", token: "write", method: "PATCH", path: NOTIFY("webhook"), body: { webhook_url: "javascript:alert(1)", webhook_enabled: [] } });
+add({ name: "notifications: an unknown channel", token: "read", method: "GET", path: "/api/v1/notifications/sms" });
+add({ name: "notifications: update with a read token", token: "read", method: "PATCH", path: NOTIFY("email"), body: { smtp_enabled: true } });
+
+// ── DP-85: a service's applications and databases ───────────────────────────
+const SVC_APPS = `/api/v1/services/${SV_MAIN}/applications`;
+const SVC_DBS = `/api/v1/services/${SV_MAIN}/databases`;
+/** isFunctional(): the fixture's server, reachable and usable. */
+const FUNCTIONAL = ["update server_settings set is_reachable = true, is_usable = true where server_id = 1"];
+/** Team 1's service, its parts and variables as both sides store them. */
+const SERVICE_PARTS_AFTER = {
+  service: `select docker_compose_raw, docker_compose from services where uuid = '${SV_MAIN}'`,
+  applications: `select uuid, name, human_name, description, fqdn, noindex_domains::jsonb::text as noindex_domains, redirect, domain_port_overrides::jsonb::text as domain_port_overrides, image, exclude_from_status, is_log_drain_enabled, is_gzip_enabled, is_stripprefix_enabled, is_force_https_enabled, is_permanent_redirect_enabled, traefik_certificate_resolver, max_restart_count, restart_limit_reached from service_applications where service_id = 1 order by id`,
+  databases: `select uuid, name, human_name, description, image, exclude_from_status, is_log_drain_enabled, is_public, public_port, public_port_timeout from service_databases where service_id = 1 order by id`,
+  variables: `select key, is_preview, is_shown_once, comment from environment_variables where resourceable_type = 'App\\Models\\Service' and resourceable_id = 1 order by key`,
+};
+add({ name: "service applications: list", token: "read", method: "GET", path: SVC_APPS });
+add({ name: "service applications: list, read:sensitive", token: "sensitive", method: "GET", path: SVC_APPS });
+add({ name: "service applications: list of unknown", token: "read", method: "GET", path: "/api/v1/services/nonexistentuuid/applications" });
+add({ name: "service applications: list another team's", token: "read", method: "GET", path: `/api/v1/services/${SV_OTHER}/applications` });
+add({ name: "service applications: show", token: "read", method: "GET", path: `${SVC_APPS}/${SA_WEB}` });
+add({ name: "service applications: show with domains and overrides", token: "read", method: "GET", path: `${SVC_APPS}/${SA_WEB}`, setup: [`update service_applications set fqdn = 'https://web.example.com:8080,http://www.web.example.com', domain_port_overrides = '{"https://web.example.com":8080}', noindex_domains = '["http://www.web.example.com"]', human_name = 'Web' where id = 1`] });
+add({ name: "service applications: show unknown", token: "read", method: "GET", path: `${SVC_APPS}/nonexistentuuid` });
+add({ name: "service applications: show another service's", token: "read", method: "GET", path: `${SVC_APPS}/${SA_OTHER}` });
+add({ name: "service applications: show a database as an application", token: "read", method: "GET", path: `${SVC_APPS}/${SD_DB}` });
+add({ name: "service applications: show in unknown", token: "read", method: "GET", path: `/api/v1/services/nonexistentuuid/applications/${SA_WEB}` });
+add({ name: "service applications: update", token: "write", method: "PATCH", path: `${SVC_APPS}/${SA_WEB}`, body: { human_name: "Web", description: "The web part", exclude_from_status: "1", is_gzip_enabled: false, is_stripprefix_enabled: 0, is_force_https_enabled: false, is_permanent_redirect_enabled: true, traefik_certificate_resolver: "letsencrypt", max_restart_count: 5 }, after: SERVICE_PARTS_AFTER });
+add({ name: "service applications: update the url", token: "write", method: "PATCH", path: `${SVC_APPS}/${SA_WEB}`, body: { url: ",https://New.example.com, https://www.new.example.com," }, after: SERVICE_PARTS_AFTER });
+add({ name: "service applications: update the url with a port", token: "write", method: "PATCH", path: `${SVC_APPS}/${SA_WEB}`, body: { url: "https://web.example.com:8443" }, after: SERVICE_PARTS_AFTER });
+add({ name: "service applications: update the url and the redirect", token: "write", method: "PATCH", path: `${SVC_APPS}/${SA_WEB}`, body: { url: "https://www.web.example.com,https://web.example.com", redirect: "www", noindex_domains: ["https://www.web.example.com", "https://elsewhere.example.com", 5] }, after: SERVICE_PARTS_AFTER });
+add({ name: "service applications: update the url, the redirect and the noindex flags", token: "write", method: "PATCH", path: `${SVC_APPS}/${SA_WEB}`, body: { url: "https://www.web.example.com,https://web.example.com:8080", redirect: "non-www", noindex_domains: ["HTTPS://WWW.web.example.com", "https://web.example.com:9999", "https://elsewhere.example.com"] }, after: SERVICE_PARTS_AFTER });
+add({ name: "service applications: update the url to none", token: "write", method: "PATCH", path: `${SVC_APPS}/${SA_WEB}`, body: { url: null, noindex_domains: null }, after: SERVICE_PARTS_AFTER });
+add({ name: "service applications: update the url, a conflict", token: "write", method: "PATCH", path: `${SVC_APPS}/${SA_WEB}`, body: { url: "https://image.example.com" }, after: SERVICE_PARTS_AFTER });
+add({ name: "service applications: update the url, a conflict forced", token: "write", method: "PATCH", path: `${SVC_APPS}/${SA_WEB}?force_domain_override=true`, body: { url: "https://image.example.com" }, after: SERVICE_PARTS_AFTER });
+add({ name: "service applications: update the url, invalid", token: "write", method: "PATCH", path: `${SVC_APPS}/${SA_WEB}`, body: { url: "https://bad domain!.example.com" } });
+add({ name: "service applications: update the url, duplicates", token: "write", method: "PATCH", path: `${SVC_APPS}/${SA_WEB}`, body: { url: "https://a.example.com,https://a.example.com" } });
+add({ name: "service applications: update the url, not a string", token: "write", method: "PATCH", path: `${SVC_APPS}/${SA_WEB}`, body: { url: 5 } });
+add({ name: "service applications: update the redirect without both domains", token: "write", method: "PATCH", path: `${SVC_APPS}/${SA_WEB}`, body: { redirect: "non-www" }, after: SERVICE_PARTS_AFTER });
+add({ name: "service applications: update the redirect, invalid", token: "write", method: "PATCH", path: `${SVC_APPS}/${SA_WEB}`, body: { redirect: "sometimes" } });
+add({ name: "service applications: update the image", token: "write", method: "PATCH", path: `${SVC_APPS}/${SA_WEB}`, body: { image: "nginx:1.27-alpine" }, after: SERVICE_PARTS_AFTER });
+add({ name: "service applications: update the log drain, off on the server", token: "write", method: "PATCH", path: `${SVC_APPS}/${SA_WEB}`, body: { human_name: "Before", is_log_drain_enabled: true }, after: SERVICE_PARTS_AFTER });
+add({ name: "service applications: update the log drain off", token: "write", method: "PATCH", path: `${SVC_APPS}/${SA_WEB}`, body: { is_log_drain_enabled: "0", traefik_certificate_resolver: "" }, after: SERVICE_PARTS_AFTER });
+add({ name: "service applications: update, invalid", token: "write", method: "PATCH", path: `${SVC_APPS}/${SA_WEB}`, body: { human_name: 5, description: ["x"], image: false, exclude_from_status: "maybe", traefik_certificate_resolver: "bad resolver!", max_restart_count: -1, noindex_domains: "https://web.example.com", name: "renamed", force_domain_override: true } });
+add({ name: "service applications: update, empty", token: "write", method: "PATCH", path: `${SVC_APPS}/${SA_WEB}`, raw: "{}" });
+add({ name: "service applications: update, not JSON", token: "write", method: "PATCH", path: `${SVC_APPS}/${SA_WEB}`, raw: "human_name=x", contentType: "application/x-www-form-urlencoded" });
+add({ name: "service applications: update unknown", token: "write", method: "PATCH", path: `${SVC_APPS}/nonexistentuuid`, body: { human_name: "x" } });
+add({ name: "service applications: update another team's", token: "write", method: "PATCH", path: `/api/v1/services/${SV_OTHER}/applications/${SA_OTHER}`, body: { human_name: "x" } });
+for (const action of ["start", "restart", "stop"]) {
+  add({ name: `service applications: ${action}, the server not functional`, token: "root", method: "POST", path: `${SVC_APPS}/${SA_WEB}/${action}` });
+  add({ name: `service applications: ${action}`, token: "root", method: "POST", path: `${SVC_APPS}/${SA_WEB}/${action}`, setup: FUNCTIONAL });
+  add({ name: `service applications: ${action} unknown`, token: "root", method: "POST", path: `${SVC_APPS}/nonexistentuuid/${action}` });
+  add({ name: `service applications: ${action} with GET`, token: "root", method: "GET", path: `${SVC_APPS}/${SA_WEB}/${action}` });
+  add({ name: `service databases: ${action}, the server not functional`, token: "root", method: "POST", path: `${SVC_DBS}/${SD_DB}/${action}` });
+  add({ name: `service databases: ${action}`, token: "root", method: "POST", path: `${SVC_DBS}/${SD_DB}/${action}`, setup: FUNCTIONAL });
+  add({ name: `service databases: ${action} unknown`, token: "root", method: "POST", path: `${SVC_DBS}/nonexistentuuid/${action}` });
+}
+add({ name: "service applications: start with a write token", token: "write", method: "POST", path: `${SVC_APPS}/${SA_WEB}/start` });
+add({ name: "service applications: logs, the server not functional", token: "root", method: "GET", path: `${SVC_APPS}/${SA_WEB}/logs` });
+add({ name: "service applications: logs with POST, the server not functional", token: "root", method: "POST", path: `${SVC_APPS}/${SA_WEB}/logs` });
+add({ name: "service applications: logs", token: "root", method: "GET", path: `${SVC_APPS}/${SA_WEB}/logs?lines=50`, setup: FUNCTIONAL });
+add({ name: "service applications: logs of unknown", token: "root", method: "GET", path: `${SVC_APPS}/nonexistentuuid/logs` });
+add({ name: "service applications: logs with a read token", token: "read", method: "GET", path: `${SVC_APPS}/${SA_WEB}/logs` });
+add({ name: "service databases: logs, the server not functional", token: "root", method: "GET", path: `${SVC_DBS}/${SD_DB}/logs` });
+add({ name: "service databases: logs", token: "root", method: "GET", path: `${SVC_DBS}/${SD_DB}/logs`, setup: FUNCTIONAL });
+add({ name: "service databases: logs of unknown", token: "root", method: "GET", path: `${SVC_DBS}/nonexistentuuid/logs` });
+add({ name: "service databases: list", token: "read", method: "GET", path: SVC_DBS });
+add({ name: "service databases: list, read:sensitive", token: "sensitive", method: "GET", path: SVC_DBS });
+add({ name: "service databases: list of unknown", token: "read", method: "GET", path: "/api/v1/services/nonexistentuuid/databases" });
+add({ name: "service databases: show", token: "read", method: "GET", path: `${SVC_DBS}/${SD_DB}` });
+add({ name: "service databases: show unknown", token: "read", method: "GET", path: `${SVC_DBS}/nonexistentuuid` });
+add({ name: "service databases: show an application as a database", token: "read", method: "GET", path: `${SVC_DBS}/${SA_WEB}` });
+add({ name: "service databases: update", token: "write", method: "PATCH", path: `${SVC_DBS}/${SD_DB}`, body: { human_name: "Database", description: "The db part", exclude_from_status: true, public_port: 5440, public_port_timeout: "3600" }, after: SERVICE_PARTS_AFTER });
+add({ name: "service databases: update the image", token: "write", method: "PATCH", path: `${SVC_DBS}/${SD_DB}`, body: { image: "postgres:17-alpine" }, after: SERVICE_PARTS_AFTER });
+add({ name: "service databases: make public, no port", token: "root", method: "PATCH", path: `${SVC_DBS}/${SD_DB}`, body: { is_public: true } });
+add({ name: "service databases: make public, a write token", token: "write", method: "PATCH", path: `${SVC_DBS}/${SD_DB}`, body: { is_public: true, public_port: 5440 } });
+add({ name: "service databases: make public, a port another database of the same id has", token: "root", method: "PATCH", path: `${SVC_DBS}/${SD_DB}`, body: { is_public: true, public_port: 5433 }, after: SERVICE_PARTS_AFTER });
+add({ name: "service databases: make private", token: "root", method: "PATCH", path: `${SVC_DBS}/${SD_DB}`, setup: ["update service_databases set is_public = true, public_port = 5441 where id = 1"], body: { is_public: false }, after: SERVICE_PARTS_AFTER });
+add({ name: "service databases: update a public database's port", token: "write", method: "PATCH", path: `${SVC_DBS}/${SD_DB}`, setup: ["update service_databases set is_public = true, public_port = 5441 where id = 1"], body: { public_port: 5442, is_public: "1" }, after: SERVICE_PARTS_AFTER });
+add({ name: "service databases: update the log drain, off on the server", token: "write", method: "PATCH", path: `${SVC_DBS}/${SD_DB}`, body: { is_log_drain_enabled: 1 } });
+add({ name: "service databases: update, invalid", token: "write", method: "PATCH", path: `${SVC_DBS}/${SD_DB}`, body: { human_name: "x".repeat(256), description: 5, image: null, is_public: "maybe", public_port: 70000, public_port_timeout: 0, name: "renamed" } });
+add({ name: "service databases: update, empty", token: "write", method: "PATCH", path: `${SVC_DBS}/${SD_DB}`, raw: "{}" });
+add({ name: "service databases: update unknown", token: "write", method: "PATCH", path: `${SVC_DBS}/nonexistentuuid`, body: { human_name: "x" } });
+add({ name: "service databases: update in unknown", token: "write", method: "PATCH", path: `/api/v1/services/nonexistentuuid/databases/${SD_DB}`, body: { human_name: "x" } });
+
+// ── DP-85: a server's shared variables ──────────────────────────────────────
+/** Team 1's server's variables (its created hook's two first). A created row's id is the sequence's: only a fixture's id is read. */
+const SERVER_ENVS_AFTER = { variables: "select case when id <= 12 then id end as fixture_id, key, type, project_id, environment_id, server_id, is_shown_once, is_multiline, is_literal, comment, version from shared_environment_variables where type = 'server' and server_id = 1 order by id" };
+const SERVER_ENVS = `/api/v1/servers/${S_MAIN}/envs`;
+add({ name: "server envs: list", token: "read", method: "GET", path: SERVER_ENVS });
+add({ name: "server envs: list, read:sensitive", token: "sensitive", method: "GET", path: SERVER_ENVS });
+add({ name: "server envs: list of unknown", token: "read", method: "GET", path: "/api/v1/servers/nonexistentuuid/envs" });
+add({ name: "server envs: list another team's", token: "read", method: "GET", path: `/api/v1/servers/${S_OTHER}/envs` });
+add({ name: "server envs: create", token: "write", method: "POST", path: SERVER_ENVS, body: { key: " NEW_SERVER_KEY ", value: "  kept  ", is_multiline: true, is_shown_once: "0", comment: "On the server" }, after: SERVER_ENVS_AFTER });
+add({ name: "server envs: create, a key the team has", token: "write", method: "POST", path: SERVER_ENVS, body: { key: "TEAM_FOO", value: "server-level", is_literal: 1 }, after: SERVER_ENVS_AFTER });
+add({ name: "server envs: create, a key of the server", token: "write", method: "POST", path: SERVER_ENVS, body: { key: "COOLIFY_SERVER_NAME", value: "again" } });
+add({ name: "server envs: create, invalid", token: "write", method: "POST", path: SERVER_ENVS, body: { key: "bad key", value: 5, comment: "x".repeat(257), server_id: 2 } });
+add({ name: "server envs: create, not JSON", token: "write", method: "POST", path: SERVER_ENVS, raw: "key=A", contentType: "application/x-www-form-urlencoded" });
+add({ name: "server envs: create in unknown", token: "write", method: "POST", path: "/api/v1/servers/nonexistentuuid/envs", body: { key: "A", value: "v" } });
+add({ name: "server envs: update", token: "write", method: "PATCH", path: `${SERVER_ENVS}/2`, body: { value: "renamed-server", comment: "Changed" }, after: SERVER_ENVS_AFTER });
+add({ name: "server envs: update, read:sensitive answer", token: "root", method: "PATCH", path: `${SERVER_ENVS}/1`, body: { is_shown_once: true, is_literal: "1" }, after: SERVER_ENVS_AFTER });
+add({ name: "server envs: update to an existing key", token: "write", method: "PATCH", path: `${SERVER_ENVS}/1`, body: { key: "COOLIFY_SERVER_NAME" } });
+add({ name: "server envs: update, nothing", token: "write", method: "PATCH", path: `${SERVER_ENVS}/1`, raw: "{}" });
+add({ name: "server envs: update, invalid", token: "write", method: "PATCH", path: `${SERVER_ENVS}/1`, body: { is_literal: "maybe", key: "1-bad" } });
+add({ name: "server envs: update unknown", token: "write", method: "PATCH", path: `${SERVER_ENVS}/999`, body: { value: "x" } });
+add({ name: "server envs: update the team's variable", token: "write", method: "PATCH", path: `${SERVER_ENVS}/10`, body: { value: "x" } });
+add({ name: "server envs: update another server's", token: "write", method: "PATCH", path: `${SERVER_ENVS}/3`, body: { value: "x" } });
+add({ name: "server envs: update in unknown", token: "write", method: "PATCH", path: "/api/v1/servers/nonexistentuuid/envs/1", body: { value: "x" } });
+add({ name: "server envs: delete", token: "delete", method: "DELETE", path: `${SERVER_ENVS}/2`, after: SERVER_ENVS_AFTER });
+add({ name: "server envs: delete unknown", token: "delete", method: "DELETE", path: `${SERVER_ENVS}/999` });
+add({ name: "server envs: delete a project's variable", token: "delete", method: "DELETE", path: `${SERVER_ENVS}/5` });
+add({ name: "server envs: delete another team's", token: "delete", method: "DELETE", path: `/api/v1/servers/${S_OTHER}/envs/3` });
+
+// ── DP-85: destinations ─────────────────────────────────────────────────────
+/** The fixture's default destination is named by each side's product (coolify, freeploy): the cases that show it name it first. */
+const NAMED_DESTINATION = ["update standalone_dockers set name = 'parity-destination' where id = 1"];
+const SWARM_SERVER = ["update server_settings set is_swarm_manager = true where server_id = 1"];
+/** Team 1's destinations (the other team's are not the org's). A created row's uuid is the request's. */
+const DESTINATIONS_AFTER = {
+  standalone: "select case when uuid = 'd1paritydestination00001' then uuid end as fixture_uuid, case when uuid = 'd1paritydestination00001' and name in ('coolify', 'freeploy') then '<default-destination-name>' else name end as name, network, server_id from standalone_dockers where server_id = 1 order by id",
+  swarm: "select name, network, server_id from swarm_dockers where server_id = 1 order by id",
+};
+add({ name: "destinations: list", token: "read", method: "GET", path: "/api/v1/destinations", setup: NAMED_DESTINATION });
+add({ name: "destinations: list of a server", token: "read", method: "GET", path: `/api/v1/servers/${S_MAIN}/destinations`, setup: NAMED_DESTINATION });
+add({ name: "destinations: list of unknown server", token: "read", method: "GET", path: "/api/v1/servers/nonexistentuuid/destinations" });
+add({ name: "destinations: list of another team's server", token: "read", method: "GET", path: `/api/v1/servers/${S_OTHER}/destinations` });
+add({ name: "destinations: show", token: "read", method: "GET", path: `/api/v1/destinations/${D_MAIN}`, setup: NAMED_DESTINATION });
+add({ name: "destinations: show unknown", token: "read", method: "GET", path: "/api/v1/destinations/nonexistentuuid" });
+add({ name: "destinations: show another team's", token: "read", method: "GET", path: `/api/v1/destinations/${D_OTHER}` });
+const NEW_DESTINATION = `/api/v1/servers/${S_MAIN}/destinations`;
+add({ name: "destinations: create, the server not functional", token: "write", method: "POST", path: NEW_DESTINATION, body: { network: "parity-net" }, after: DESTINATIONS_AFTER });
+add({ name: "destinations: create", token: "write", method: "POST", path: NEW_DESTINATION, setup: FUNCTIONAL, body: { network: "parity-net", name: "Parity network" }, after: DESTINATIONS_AFTER });
+add({ name: "destinations: create on a Swarm server", token: "write", method: "POST", path: NEW_DESTINATION, setup: SWARM_SERVER, body: { network: "parity-swarm", type: "swarm" }, after: DESTINATIONS_AFTER });
+add({ name: "destinations: create on a Swarm server, named", token: "root", method: "POST", path: NEW_DESTINATION, setup: SWARM_SERVER, body: { network: "named.swarm-1", name: "Swarm one" }, after: DESTINATIONS_AFTER });
+add({ name: "destinations: create on a Swarm server, an existing network", token: "write", method: "POST", path: NEW_DESTINATION, setup: SWARM_SERVER, body: { network: "coolify", type: "swarm" }, after: DESTINATIONS_AFTER });
+add({ name: "destinations: create, the wrong type", token: "write", method: "POST", path: NEW_DESTINATION, body: { network: "parity-net", type: "swarm" } });
+add({ name: "destinations: create, an existing network", token: "write", method: "POST", path: NEW_DESTINATION, body: { network: "coolify" } });
+add({ name: "destinations: create, a reserved network", token: "write", method: "POST", path: NEW_DESTINATION, body: { network: "Bridge" } });
+add({ name: "destinations: create, invalid", token: "write", method: "POST", path: NEW_DESTINATION, body: { network: "-bad", type: "overlay", name: 5, server_id: 2 } });
+add({ name: "destinations: create, no network", token: "write", method: "POST", path: NEW_DESTINATION, body: { name: "x".repeat(256) } });
+add({ name: "destinations: create, not JSON", token: "write", method: "POST", path: NEW_DESTINATION, raw: "network=x", contentType: "application/x-www-form-urlencoded" });
+add({ name: "destinations: create on unknown server", token: "write", method: "POST", path: "/api/v1/servers/nonexistentuuid/destinations", body: { network: "x" } });
+add({ name: "destinations: create on another team's server", token: "write", method: "POST", path: `/api/v1/servers/${S_OTHER}/destinations`, body: { network: "x" } });
+add({ name: "destinations: update", token: "write", method: "PATCH", path: `/api/v1/destinations/${D_MAIN}`, body: { name: " Renamed destination " }, after: DESTINATIONS_AFTER });
+add({ name: "destinations: update, invalid", token: "write", method: "PATCH", path: `/api/v1/destinations/${D_MAIN}`, body: { name: "", network: "other" } });
+add({ name: "destinations: update, empty", token: "write", method: "PATCH", path: `/api/v1/destinations/${D_MAIN}`, raw: "{}" });
+add({ name: "destinations: update unknown", token: "write", method: "PATCH", path: "/api/v1/destinations/nonexistentuuid", body: { name: "x" } });
+add({ name: "destinations: update another team's", token: "write", method: "PATCH", path: `/api/v1/destinations/${D_OTHER}`, body: { name: "x" } });
+add({ name: "destinations: delete with resources", token: "delete", method: "DELETE", path: `/api/v1/destinations/${D_MAIN}`, after: DESTINATIONS_AFTER });
+add({ name: "destinations: delete unknown", token: "delete", method: "DELETE", path: "/api/v1/destinations/nonexistentuuid" });
+add({ name: "destinations: delete another team's", token: "delete", method: "DELETE", path: `/api/v1/destinations/${D_OTHER}` });
+
+// ── DP-85: a server's Docker cleanup settings and runs ──────────────────────
+const CLEANUP = `/api/v1/servers/${S_MAIN}/docker-cleanup`;
+const CLEANUP_AFTER = { settings: "select force_docker_cleanup, docker_cleanup_frequency, docker_cleanup_threshold, delete_unused_volumes, delete_unused_networks, disable_application_image_retention from server_settings where server_id = 1" };
+add({ name: "docker cleanup: show", token: "read", method: "GET", path: CLEANUP });
+add({ name: "docker cleanup: show of unknown", token: "read", method: "GET", path: "/api/v1/servers/nonexistentuuid/docker-cleanup" });
+add({ name: "docker cleanup: show another team's", token: "read", method: "GET", path: `/api/v1/servers/${S_OTHER}/docker-cleanup` });
+add({ name: "docker cleanup: update", token: "write", method: "PATCH", path: CLEANUP, body: { docker_cleanup_frequency: "0 4 * * 0", docker_cleanup_threshold: "70", force_docker_cleanup: false, delete_unused_networks: "1", disable_application_image_retention: 1 }, after: CLEANUP_AFTER });
+add({ name: "docker cleanup: update to a preset", token: "write", method: "PATCH", path: CLEANUP, body: { docker_cleanup_frequency: "weekly" }, after: CLEANUP_AFTER });
+add({ name: "docker cleanup: update, volumes with a write token", token: "write", method: "PATCH", path: CLEANUP, body: { delete_unused_volumes: true }, after: CLEANUP_AFTER });
+add({ name: "docker cleanup: update, volumes with a deploy token", token: "root", method: "PATCH", path: CLEANUP, body: { delete_unused_volumes: true, docker_cleanup_threshold: 99 }, after: CLEANUP_AFTER });
+add({ name: "docker cleanup: update, volumes off", token: "write", method: "PATCH", path: CLEANUP, setup: ["update server_settings set delete_unused_volumes = true where server_id = 1"], body: { delete_unused_volumes: "0" }, after: CLEANUP_AFTER });
+add({ name: "docker cleanup: update, a bad frequency", token: "write", method: "PATCH", path: CLEANUP, body: { docker_cleanup_frequency: "every hour" }, after: CLEANUP_AFTER });
+add({ name: "docker cleanup: update, invalid", token: "write", method: "PATCH", path: CLEANUP, body: { docker_cleanup_frequency: 5, docker_cleanup_threshold: 100, force_docker_cleanup: "yes", delete_unused_volumes: [], server_id: 2 } });
+add({ name: "docker cleanup: update, a threshold below 1", token: "write", method: "PATCH", path: CLEANUP, body: { docker_cleanup_threshold: 0 } });
+add({ name: "docker cleanup: update, empty", token: "write", method: "PATCH", path: CLEANUP, raw: "{}" });
+add({ name: "docker cleanup: update, not JSON", token: "write", method: "PATCH", path: CLEANUP, raw: "force_docker_cleanup=1", contentType: "application/x-www-form-urlencoded" });
+add({ name: "docker cleanup: update unknown", token: "write", method: "PATCH", path: "/api/v1/servers/nonexistentuuid/docker-cleanup", body: { force_docker_cleanup: true } });
+add({ name: "docker cleanup: run", token: "root", method: "POST", path: `${CLEANUP}/run` });
+add({ name: "docker cleanup: run, invalid", token: "root", method: "POST", path: `${CLEANUP}/run`, body: { delete_unused_volumes: "maybe", force: true } });
+add({ name: "docker cleanup: run unknown", token: "root", method: "POST", path: "/api/v1/servers/nonexistentuuid/docker-cleanup/run" });
+add({ name: "docker cleanup: run with a write token", token: "write", method: "POST", path: `${CLEANUP}/run` });
+add({ name: "docker cleanup: executions", token: "read", method: "GET", path: `${CLEANUP}/executions` });
+add({ name: "docker cleanup: executions, none", token: "read", method: "GET", path: `/api/v1/servers/${S_MAIN}/docker-cleanup/executions`, setup: ["delete from docker_cleanup_executions where server_id = 1"] });
+add({ name: "docker cleanup: executions of unknown", token: "read", method: "GET", path: "/api/v1/servers/nonexistentuuid/docker-cleanup/executions" });
+add({ name: "docker cleanup: executions of another team's server", token: "read", method: "GET", path: `/api/v1/servers/${S_OTHER}/docker-cleanup/executions` });
 
 /** The tables whose column order emit.php writes into the goldens (`columns`): what a nested relation serializes in. */
 const columnsOf = ["servers", "server_settings", "standalone_dockers", "application_settings", "applications", "environment_variables", "application_deployment_queues", "scheduled_database_backups", "scheduled_database_backup_executions", "services", "service_applications", "service_databases", "projects", "environments", "standalone_postgresqls", "standalone_redis", "standalone_mongodbs", "standalone_mysqls", "standalone_mariadbs", "standalone_keydbs", "standalone_dragonflies", "standalone_clickhouses", "local_persistent_volumes", "local_file_volumes"];

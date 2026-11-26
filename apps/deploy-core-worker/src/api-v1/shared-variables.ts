@@ -9,8 +9,8 @@
 // Coolify's /api/v1 for the shared variables of a project and of an environment (DP-81) and of the team (DP-84: team_envs,
 // team_create_env, team_update_env, team_delete_env), on the shared variable store the console's Shared Variables pages
 // use (packages/db's deploy/shared-variables.ts); the value is the `encrypted` cast's column
-// ("shared_environment_variables.value"). A server's shared variables (/servers/{uuid}/envs) are other routes, not
-// ported here.
+// ("shared_environment_variables.value"), and of a server (DP-85: server_envs, server_create_env, server_update_env,
+// server_delete_env).
 import type { SqlExecutor } from "@saas/db/hyperdrive";
 import {
   deleteSharedVariable,
@@ -33,7 +33,7 @@ const VALUE_COLUMN = "shared_environment_variables.value";
 /** $hidden (value) with removeSensitiveData()'s makeHidden(); the team is Freeploy's org_id, which a row never carries. */
 const SHARED_VARIABLE: ModelShape = { hidden: ["value", "team_id", "project_id", "environment_id", "server_id", "version"], dates: ["created_at", "updated_at"] };
 
-type Scope = { type: "team" } | { type: "project" | "environment"; id: unknown };
+type Scope = { type: "team" } | { type: "project" | "environment" | "server"; id: unknown };
 const ownerOf = (scope: Scope): SharedVariableOwner => (scope.type === "team" ? { type: "team", id: null } : { type: scope.type, id: scope.id as string | number });
 /**
  * findEnvInScope() and listEnvs(): the scope's column ($n, appended to params); the team's variables have none.
@@ -42,6 +42,7 @@ const ownerOf = (scope: Scope): SharedVariableOwner => (scope.type === "team" ? 
 function inScope(scope: Scope, params: unknown[], forKey = false): string {
   if (scope.type === "team") return forKey ? "t.project_id IS NULL AND t.environment_id IS NULL AND t.server_id IS NULL" : "TRUE";
   params.push(scope.id);
+  if (scope.type === "server") return `t.server_id = $${params.length}${forKey ? " AND t.project_id IS NULL AND t.environment_id IS NULL" : ""}`;
   return `t.${scope.type === "project" ? "project_id" : "environment_id"} = $${params.length}`;
 }
 
@@ -121,6 +122,41 @@ export async function teamSharedVariablesApi(c: ApiV1Context, rest: string[]): P
     if (!row) return message("Environment variable not found.", 404);
     const no = await denied(c, true);
     if (no) return no;
+    if (m === "DELETE") {
+      await deleteSharedVariable(tx, rowValue(row, "id") as string | number);
+      return message("Environment variable deleted.", 200);
+    }
+    return updateEnv(tx, c, rows, scope, row, body!.incomingError, body!.all);
+  });
+}
+
+/**
+ * The /servers/{uuid}/envs routes (DP-85): resolveServer() and its 404 first; server_envs asks viewSharedVariables of the
+ * server, the others its view; then as the team's — the payload validated before authorize('create',
+ * SharedEnvironmentVariable::class), the variable found before its update or delete policy. `rest` follows /envs.
+ */
+export async function serverSharedVariablesApi(c: ApiV1Context, serverUuid: string, rest: string[]): Promise<CoolifyAnswer | null> {
+  const [envId, extra] = rest;
+  if (extra !== undefined) return null;
+  const m = c.method;
+  if (envId === undefined && m !== "GET" && m !== "POST") return null;
+  if (envId !== undefined && m !== "PATCH" && m !== "DELETE") return null;
+  const body = m === "POST" || m === "PATCH" ? await readApiBody(c.request) : null;
+  return c.sql(c.env, c.orgId, async (tx) => {
+    const rows = rowsOf(tx);
+    // Server::whereTeamId()->whereUuid()->first(): the org's server, not deleted.
+    const server = (await rows("servers", "t.deleted_at IS NULL AND t.uuid = $1", [serverUuid]))[0];
+    if (!server) return message("Server not found.", 404);
+    const scope: Scope = { type: "server", id: rowValue(server, "id") };
+    // viewSharedVariables (the list) or view of the server.
+    const no = await denied(c, false);
+    if (no) return no;
+    if (envId === undefined && m === "GET") return listEnvs(tx, c, rows, scope);
+    if (envId === undefined) return createEnv(tx, c, rows, scope, body!.incomingError, body!.all, () => denied(c, true));
+    const row = await findEnvInScope(rows, scope, envId);
+    if (!row) return message("Environment variable not found.", 404);
+    const no2 = await denied(c, true);
+    if (no2) return no2;
     if (m === "DELETE") {
       await deleteSharedVariable(tx, rowValue(row, "id") as string | number);
       return message("Environment variable deleted.", 200);
