@@ -164,7 +164,8 @@ export async function insertFileVolume(tx: SqlExecutor, volume: NewFileVolume): 
   return (await findFileVolume(tx, volume.owner, r.rows[0]!.id))!;
 }
 
-export const FILE_VOLUME_COLUMNS = ["content", "is_based_on_git", "is_preview_suffix_enabled"] as const;
+/** The columns a save writes; `mount_path` is the API's (DP-84: update_storage). */
+export const FILE_VOLUME_COLUMNS = ["content", "is_based_on_git", "is_preview_suffix_enabled", "mount_path"] as const;
 export type FileVolumeChanges = Partial<Record<(typeof FILE_VOLUME_COLUMNS)[number], string | boolean | null>>;
 
 /** $fileStorage->save(): only the given columns, and updated_at. False when the mount is not this resource's. */

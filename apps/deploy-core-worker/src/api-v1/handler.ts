@@ -19,6 +19,10 @@
 //   /v1/internal/api-v1/{org}/projects/{uuid}[/environments/{environment_name_or_uuid}]/envs[/{env_id}]       shared-variables.ts (DP-81)
 //   /v1/internal/api-v1/{org}/tags[/{uuid}], /{applications,databases,services}/{uuid}/tags[/{tag_uuid}]    tags.ts (DP-81)
 //   /v1/internal/api-v1/{org}/s3-storages[/{uuid}[/validate]]                                                 s3-storages.ts (DP-81)
+//   /v1/internal/api-v1/{org}/{applications,databases,services}/{uuid}/storages[/{storage_uuid}]             storages.ts (DP-84)
+//   /v1/internal/api-v1/{org}/{applications,services}/{uuid}/scheduled-tasks[/{task_uuid}[/executions]]     scheduled-tasks.ts (DP-84)
+//   /v1/internal/api-v1/{org}/databases/{uuid}/envs[/bulk|/{env_uuid}]                                       database-envs.ts (DP-84)
+//   /v1/internal/api-v1/{org}/team/envs[/{env_id}]                                                           shared-variables.ts (DP-84)
 //
 // $this->authorize(…) is policy-worker's deploy.resource.read (view) or deploy.resource.write (create,
 // update, delete) for the token's user; a denial is Laravel's 403 "This action is unauthorized.".
@@ -67,8 +71,11 @@ import { deployApi, deploymentsApi } from "./deployments.js";
 import { environmentDetails, listResources } from "./resources.js";
 import { serverResourcesPayload, serversApi } from "./servers.js";
 import { resourceTagsApi, tagsApi, type TaggableKind } from "./tags.js";
-import { sharedVariablesApi } from "./shared-variables.js";
+import { sharedVariablesApi, teamSharedVariablesApi } from "./shared-variables.js";
 import { s3StoragesApi } from "./s3-storages.js";
+import { storagesApi, type StorageKind } from "./storages.js";
+import { scheduledTasksApi } from "./scheduled-tasks.js";
+import { databaseEnvsApi } from "./database-envs.js";
 import { s3Fetch } from "../s3-storages/connection.js";
 import { dohResolver } from "../s3-storages/safe-url.js";
 import type { S3StorageNetwork } from "../s3-storages/service.js";
@@ -77,6 +84,8 @@ import { ENVIRONMENT, PRIVATE_KEY, PROJECT, SERVER, SERVER_SETTING, onlyColumns,
 
 /** The groups whose resources HandlesTagsApi tags (DP-81). */
 const TAGGABLES: Record<string, TaggableKind> = { applications: "application", databases: "database", services: "service" };
+/** The groups whose resources have storages (DP-84); an application's and a service's have scheduled tasks. */
+const STORAGE_OWNERS: Record<string, StorageKind> = { applications: "application", databases: "database", services: "service" };
 
 export const API_V1_INTERNAL_RE =/^\/v1\/internal\/api-v1\/(org_[0-9a-f]{32})(\/.*)$/;
 
@@ -168,6 +177,14 @@ export async function handleApiV1(request: Request, env: Env, requestId: string,
     if (taggable && second !== undefined && third === "tags") return send((await resourceTagsApi(context, taggable, second, segments.slice(3))) ?? COOLIFY_API.notFound());
     // DP-81: S3 storages
     if (first === "s3-storages") return send((await s3StoragesApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
+    // DP-84: a resource's storages, an application's and a service's scheduled tasks, a database's variables, the team's shared variables.
+    const storageOwner = STORAGE_OWNERS[first ?? ""];
+    if (storageOwner && second !== undefined && third === "storages") return send((await storagesApi(context, storageOwner, second, segments.slice(3))) ?? COOLIFY_API.notFound());
+    if ((first === "applications" || first === "services") && second !== undefined && third === "scheduled-tasks") {
+      return send((await scheduledTasksApi(context, first === "applications" ? "application" : "service", second, segments.slice(3))) ?? COOLIFY_API.notFound());
+    }
+    if (first === "databases" && second !== undefined && third === "envs") return send((await databaseEnvsApi(context, second, segments.slice(3))) ?? COOLIFY_API.notFound());
+    if (first === "team" && second === "envs") return send((await teamSharedVariablesApi(context, segments.slice(2))) ?? COOLIFY_API.notFound());
     if (first === "applications") return send((await applicationsApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
     if (first === "databases") return send((await databasesApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());
     if (first === "services") return send((await servicesApi(context, segments.slice(1))) ?? COOLIFY_API.notFound());

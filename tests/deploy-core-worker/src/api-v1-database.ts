@@ -34,6 +34,10 @@ import {
   insertSharedVariable,
   APPLICATION_MORPH_CLASS,
   SERVICE_MORPH_CLASS,
+  SERVICE_PART_MORPH_CLASS,
+  insertPersistentVolume,
+  insertFileVolume,
+  insertScheduledTask,
   withOrg,
 } from "@saas/db/deploy";
 import { columnCipher } from "@deploy-core-worker/handlers/cloud-tokens";
@@ -177,6 +181,8 @@ export async function fixtureDatabase(): Promise<FixtureDatabase> {
       });
     });
   }
+  // emit.php's $advanceSequences() moved the volumes' sequence before the first was made (setval(…, 1)): their ids start at 2 (DP-84).
+  await pg.exec("SELECT setval(pg_get_serial_sequence('deploy.local_persistent_volumes', 'id'), 1)");
   for (const d of f.databases) {
     const engine = d.engine as DatabaseEngine;
     await withOrg(db, org(d.team), async (tx) => {
@@ -265,6 +271,52 @@ export async function fixtureDatabase(): Promise<FixtureDatabase> {
       const owner = v.type === "project" ? { type: "project" as const, id: v.project_id } : { type: "environment" as const, id: v.environment_id };
       const row = await insertSharedVariable(tx, { orgId: org(v.team), owner, key: v.key, value: await encrypt(tx, v.team, "shared_environment_variables.value", v.value), comment: v.comment, isLiteral: v.is_literal, isMultiline: v.is_multiline, isShownOnce: v.is_shown_once });
       if (Number(row.id) !== v.id) throw new Error(`shared variable ${v.key}: id ${row.id}, not ${v.id}`);
+    });
+  }
+  // DP-84: the teams' own shared variables, the storages, the scheduled tasks and their executions, each table in id order
+  // (the identity gives the fixture's ids, which are checked).
+  const same = (what: string, id: unknown, expected: number) => {
+    if (Number(id) !== expected) throw new Error(`${what}: id ${String(id)}, not ${expected}`);
+  };
+  for (const v of f.teamVariables) {
+    await withOrg(db, org(v.team), async (tx) => {
+      const row = await insertSharedVariable(tx, { orgId: org(v.team), owner: { type: "team", id: null }, key: v.key, value: await encrypt(tx, v.team, "shared_environment_variables.value", v.value), comment: v.comment, isLiteral: v.is_literal, isMultiline: v.is_multiline, isShownOnce: v.is_shown_once });
+      same(`team variable ${v.key}`, row.id, v.id);
+    });
+  }
+  const STORAGE_OWNER = { application: APPLICATION_MORPH_CLASS, postgresql: DATABASE_TABLES.postgresql.morphClass, serviceApplication: SERVICE_PART_MORPH_CLASS.application } as const;
+  const teamOfStorage = (resource: keyof typeof STORAGE_OWNER, id: number) => (resource === "application" ? f.applications.find((a) => a.id === id)!.team : resource === "postgresql" ? f.databases.find((d) => d.engine === "postgresql" && d.id === id)!.team : f.services.find((s) => s.id === f.serviceApplications.find((a) => a.id === id)!.service)!.team);
+  for (const v of f.persistentStorages) {
+    const team = teamOfStorage(v.resource, v.resource_id);
+    await withOrg(db, org(team), async (tx) => {
+      const row = await insertPersistentVolume(tx, { orgId: org(team), owner: { type: STORAGE_OWNER[v.resource], id: v.resource_id }, uuid: v.uuid, name: v.name, mountPath: v.mount_path, hostPath: null });
+      same(`volume ${v.name}`, row.id, v.id);
+    });
+  }
+  for (const s of f.fileStorages) {
+    const team = teamOfStorage(s.resource, s.resource_id);
+    await withOrg(db, org(team), async (tx) => {
+      const content = s.content === null ? null : await encrypt(tx, team, "local_file_volumes.content", s.content);
+      const row = await insertFileVolume(tx, { orgId: org(team), owner: { type: STORAGE_OWNER[s.resource], id: s.resource_id }, uuid: s.uuid, fsPath: s.fs_path, mountPath: s.mount_path, content, isDirectory: s.is_directory, isHostFile: s.is_host_file });
+      same(`file ${s.mount_path}`, row.id, s.id);
+    });
+  }
+  for (const t of f.scheduledTasks) {
+    await withOrg(db, org(t.team), async (tx) => {
+      const owner = t.application_id !== null ? { kind: "application" as const, id: t.application_id } : { kind: "service" as const, id: t.service_id! };
+      const row = await insertScheduledTask(tx, { orgId: org(t.team), owner, uuid: t.uuid, name: t.name, command: t.command, frequency: t.frequency, container: t.container, timeout: t.timeout, useShell: t.use_shell, enabled: t.enabled });
+      same(`task ${t.name}`, row.id, t.id);
+      await tx.execute("UPDATE deploy.scheduled_tasks SET created_at = $2, updated_at = $2 WHERE id = $1", [row.id, t.created_at]);
+    });
+  }
+  for (const x of f.scheduledTaskExecutions) {
+    const team = f.scheduledTasks.find((t) => t.id === x.task)!.team;
+    await withOrg(db, org(team), async (tx) => {
+      await tx.execute(
+        `INSERT INTO deploy.scheduled_task_executions (id, uuid, scheduled_task_id, status, message, started_at, finished_at, duration, retry_count, created_at, updated_at, org_id)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $10, $11)`,
+        [x.id, x.uuid, x.task, x.status, x.message, x.started_at, x.finished_at, x.duration, x.retry_count, x.created_at, org(team)],
+      );
     });
   }
   return {

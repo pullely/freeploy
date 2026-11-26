@@ -27,6 +27,11 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("GET", "/team/members", "read", "identity"),
   r("GET", "/teams/current", "read", "identity"),
   r("GET", "/teams/current/members", "read", "identity"),
+  // DP-84: the team's shared variables (deploy-core-worker's, as the other shared variables are)
+  r("GET", "/team/envs", "read", "deploy"),
+  r("POST", "/team/envs", "write", "deploy"),
+  r("PATCH", "/team/envs/{env_id}", "write", "deploy"),
+  r("DELETE", "/team/envs/{env_id}", "delete", "deploy"),
   r("GET", "/teams/{id}", "read", "identity"),
   r("GET", "/teams/{id}/members", "read", "identity"),
 
@@ -91,6 +96,12 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("PATCH", "/applications/{uuid}/envs", "write", "deploy"),
   r("DELETE", "/applications/{uuid}/envs/{env_uuid}", "delete", "deploy"),
   r("GET", "/applications/{uuid}/logs", "read:sensitive", "deploy"),
+  // DP-84: an application's storages (PUT and DELETE …/storages/{storage_uuid}/backups and POST …/backups/run are not
+  // ported: a volume backup runs on the server)
+  r("GET", "/applications/{uuid}/storages", "read", "deploy"),
+  r("POST", "/applications/{uuid}/storages", "write", "deploy"),
+  r("PATCH", "/applications/{uuid}/storages", "write", "deploy"),
+  r("DELETE", "/applications/{uuid}/storages/{storage_uuid}", "delete", "deploy"),
   // OtherController::post_required: "This endpoint has changed to a POST request."
   r("GET", "/applications/{uuid}/start", "deploy", "deploy"),
   r("GET", "/applications/{uuid}/restart", "deploy", "deploy"),
@@ -123,6 +134,16 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("DELETE", "/databases/{uuid}", "delete", "deploy"),
   r("DELETE", "/databases/{uuid}/backups/{scheduled_backup_uuid}", "delete", "deploy"),
   r("DELETE", "/databases/{uuid}/backups/{scheduled_backup_uuid}/executions/{execution_uuid}", "delete", "deploy"),
+  // DP-84: a database's storages and environment variables
+  r("GET", "/databases/{uuid}/storages", "read", "deploy"),
+  r("POST", "/databases/{uuid}/storages", "write", "deploy"),
+  r("PATCH", "/databases/{uuid}/storages", "write", "deploy"),
+  r("DELETE", "/databases/{uuid}/storages/{storage_uuid}", "delete", "deploy"),
+  r("GET", "/databases/{uuid}/envs", "read", "deploy"),
+  r("POST", "/databases/{uuid}/envs", "write", "deploy"),
+  r("PATCH", "/databases/{uuid}/envs/bulk", "write", "deploy"),
+  r("PATCH", "/databases/{uuid}/envs", "write", "deploy"),
+  r("DELETE", "/databases/{uuid}/envs/{env_uuid}", "delete", "deploy"),
   // OtherController::post_required
   r("GET", "/databases/{uuid}/start", "deploy", "deploy"),
   r("GET", "/databases/{uuid}/restart", "deploy", "deploy"),
@@ -151,6 +172,11 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("GET", "/services/{uuid}", "read", "deploy"),
   r("PATCH", "/services/{uuid}", "write", "deploy"),
   r("DELETE", "/services/{uuid}", "delete", "deploy"),
+  // DP-84: a service's storages
+  r("GET", "/services/{uuid}/storages", "read", "deploy"),
+  r("POST", "/services/{uuid}/storages", "write", "deploy"),
+  r("PATCH", "/services/{uuid}/storages", "write", "deploy"),
+  r("DELETE", "/services/{uuid}/storages/{storage_uuid}", "delete", "deploy"),
   r("GET", "/services/{uuid}/envs", "read", "deploy"),
   r("POST", "/services/{uuid}/envs", "write", "deploy"),
   r("PATCH", "/services/{uuid}/envs/bulk", "write", "deploy"),
@@ -167,6 +193,19 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("GET", "/services/{uuid}/tags", "read", "deploy"),
   r("POST", "/services/{uuid}/tags", "write", "deploy"),
   r("DELETE", "/services/{uuid}/tags/{tag_uuid}", "delete", "deploy"),
+
+  // DP-84: the scheduled tasks of an application and of a service (POST …/{task_uuid}/execute is not ported: it runs the
+  // command on the server)
+  r("GET", "/applications/{uuid}/scheduled-tasks", "read", "deploy"),
+  r("POST", "/applications/{uuid}/scheduled-tasks", "write", "deploy"),
+  r("PATCH", "/applications/{uuid}/scheduled-tasks/{task_uuid}", "write", "deploy"),
+  r("DELETE", "/applications/{uuid}/scheduled-tasks/{task_uuid}", "delete", "deploy"),
+  r("GET", "/applications/{uuid}/scheduled-tasks/{task_uuid}/executions", "read", "deploy"),
+  r("GET", "/services/{uuid}/scheduled-tasks", "read", "deploy"),
+  r("POST", "/services/{uuid}/scheduled-tasks", "write", "deploy"),
+  r("PATCH", "/services/{uuid}/scheduled-tasks/{task_uuid}", "write", "deploy"),
+  r("DELETE", "/services/{uuid}/scheduled-tasks/{task_uuid}", "delete", "deploy"),
+  r("GET", "/services/{uuid}/scheduled-tasks/{task_uuid}/executions", "read", "deploy"),
 ];
 
 /** Laravel's route parameters match one segment ([^/]+). */

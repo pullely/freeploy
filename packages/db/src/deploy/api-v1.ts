@@ -42,6 +42,11 @@ const TABLES = [
   "service_databases",
   // DP-81: the shared variables of projects and environments
   "shared_environment_variables",
+  // DP-84: a resource's storages, and scheduled tasks with their executions
+  "local_persistent_volumes",
+  "local_file_volumes",
+  "scheduled_tasks",
+  "scheduled_task_executions",
 ] as const;
 export type ApiTable = (typeof TABLES)[number];
 

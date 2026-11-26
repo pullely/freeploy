@@ -78,7 +78,17 @@ export interface Fixture {
   taggables: Array<{ tag: number; type: "application" | "redis" | "service"; id: number }>;
   /** DP-81: shared variables of projects and environments (ids after the servers' four predefined ones). */
   sharedVariables: Array<{ id: number; team: number; type: "project" | "environment"; project_id: number | null; environment_id: number | null; key: string; value: string; is_literal: boolean; is_multiline: boolean; is_shown_once: boolean; comment: string | null }>;
+  /** DP-84: the teams' own shared variables (type team). */
+  teamVariables: Array<{ id: number; team: number; key: string; value: string; is_literal: boolean; is_multiline: boolean; is_shown_once: boolean; comment: string | null }>;
+  /** DP-84: the storages of an application, a PostgreSQL and a service's application ("application", "postgresql", "serviceApplication"). */
+  persistentStorages: Array<{ id: number; uuid: string; name: string; mount_path: string; resource: StorageResource; resource_id: number }>;
+  fileStorages: Array<{ id: number; uuid: string; fs_path: string; mount_path: string; content: string | null; is_directory: boolean; is_host_file: boolean; resource: StorageResource; resource_id: number }>;
+  /** DP-84: scheduled tasks and their executions. */
+  scheduledTasks: Array<{ id: number; uuid: string; team: number; application_id: number | null; service_id: number | null; name: string; command: string; frequency: string; container: string | null; timeout: number; use_shell: boolean; enabled: boolean; created_at: string }>;
+  scheduledTaskExecutions: Array<{ id: number; uuid: string; task: number; status: string; message: string | null; started_at: string | null; finished_at: string | null; duration: number | null; retry_count: number; created_at: string }>;
 }
+
+export type StorageResource = "application" | "postgresql" | "serviceApplication";
 
 export const CASES = JSON.parse(readFileSync(resolve(API_FIXTURES, "cases.json"), "utf8")) as { fixture: Fixture; cases: Case[] };
 export const GOLDENS = JSON.parse(readFileSync(resolve(API_FIXTURES, "goldens.json"), "utf8")) as { version: string; columns: Record<string, string[]>; cases: Golden[] };
@@ -108,6 +118,10 @@ const FIXTURE_UUIDS = new Set<string>([
   ...CASES.fixture.serviceVariables.map((v) => v.uuid),
   ...CASES.fixture.deployments.map((d) => d.uuid),
   ...CASES.fixture.tags.map((t) => t.uuid),
+  ...CASES.fixture.persistentStorages.map((v) => v.uuid),
+  ...CASES.fixture.fileStorages.map((f) => f.uuid),
+  ...CASES.fixture.scheduledTasks.map((t) => t.uuid),
+  ...CASES.fixture.scheduledTaskExecutions.map((x) => x.uuid),
 ]);
 
 const LARAVEL_DATE = /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{6}Z$/;
@@ -128,6 +142,9 @@ export function mask(value: PhpValue, context: { teamIdKey?: boolean } = {}, par
   if (isObj(value) && parentKey === "" && value.entries.length === 1 && value.entries[0]![0] === "id" && typeof value.entries[0]![1] === "number") return obj({ id: "<new-id>" });
   if (isObj(value)) {
     const email = value.entries.find(([k]) => k === "email")?.[1];
+    // A row the request made (its uuid is new, DP-84: a created storage): its id is the sequence's, which earlier cases moved.
+    const uuid = value.entries.find(([k]) => k === "uuid")?.[1];
+    const madeByRequest = typeof uuid === "string" && PUBLIC_ID.test(uuid) && !FIXTURE_UUIDS.has(uuid);
     return obj(
       value.entries.map(([k, v]): [string, PhpValue] => {
         if (TEAM_KEYS.has(k) && v !== null) return [k, "<team>"];
@@ -138,6 +155,7 @@ export function mask(value: PhpValue, context: { teamIdKey?: boolean } = {}, par
         if (k === "id" && parentKey === "team") return [k, "<team>"];
         if (k === "id" && typeof email === "string") return [k, `<user:${email}>`];
         if (k === "id" && parentKey === "settings") return [k, "<settings-id>"];
+        if (k === "id" && typeof v === "number" && madeByRequest) return [k, "<new-id>"];
         // A server's default destination: Coolify names it "coolify", Freeploy "freeploy" (a label; the network is "coolify" on both, DP-71).
         if (k === "name" && parentKey === "destination" && (v === "coolify" || v === "freeploy")) return [k, "<default-destination-name>"];
         return [k, mask(v, context, k)];

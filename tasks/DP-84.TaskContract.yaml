@@ -1,0 +1,22 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-84
+  title: "DP9: /api/v1 for the storages of applications, databases and services, the scheduled tasks of applications and services, database environment variables and the team's shared variables"
+spec:
+  goal: Coolify's /api/v1 answers, on DP-70's pipeline (api-edge's middleware and routes, deploy-core-worker's internal mount), for the storages of an application, a standalone database and a service (ApplicationsController, DatabasesController and ServicesController — storages, create_storage, update_storage, delete_storage — on the console's storage rows; volumes and host file mounts are rows, the models answered with response()->json() unsorted and the relations the controller loaded), the scheduled tasks of an application and of a service (ScheduledTasksController — list, create, update, delete, executions — on DP-58's task rows and DP-68's cron validator), a standalone database's environment variables (DatabasesController — envs, create_env, update_env_by_uuid, create_bulk_envs, delete_env_by_uuid — on DP-64's resource-generic variable code) and the team's shared variables (SharedEnvironmentVariablesController — team_envs, team_create_env, team_update_env, team_delete_env), with Coolify's validation, messages, status codes and key order, every body in Coolify's own JSON bytes. 31 more of openapi.json's 330 operations are ported (139 in all), each replayed byte for byte (masked ids, uuids, dates, the team, a created shared variable's id and a created storage's id) against goldens emitted by Coolify's real PHP, and each write's rows compared with the rows Coolify's left; the other 191 answer Coolify's 404 shape. Where Coolify writes to the server — a managed file's content, the path check of a directory or of a file's source path, deleting a mount inside the resource directory — Freeploy answers 501 in Coolify's envelope ("… needs the SSH executor, which is not available yet.") after Coolify's own refusals and before anything is stored. Not ported in the groups done — executing a scheduled task now (it runs the command over SSH), the volume backups of a storage (PUT, DELETE …/backups and POST …/backups/run) and PATCH /team (DP-78's judgement stands).
+  affects:
+    - apps/api-edge/**
+    - apps/deploy-core-worker/**
+    - packages/db/**
+    - tests/api-edge/**
+    - tests/deploy-core-worker/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - every case of tests/deploy-core-worker/fixtures/api/cases.json (866 cases, 228 of them DP-84's) replays against Freeploy byte-equal to goldens.json after the documented masking, except the listed departures (the eleven server writes that answer 501) and the middleware answers, which tests/api-edge replays
+    - the rows each DP-84 write leaves in Freeploy's database (PGlite with the deploy schema at head) equal the golden's `after` rows — the volumes and file mounts, the scheduled tasks and their executions, the databases' variables, the team's shared variables — except the departures, which store nothing
+    - the earlier cases' goldens change only in random values (uuids, ciphertexts, generated passwords and names) and in the masked ids of created shared variables, which the fixture's three team variables move
+    - specs/epics/freeploy-coolify-parity/parity/openapi.operations.json marks the 31 operations ported with taskKey DP-84 (139 ported of 330 in all), and node tools/parity/inventory.ts --check passes
+    - on stage, GET https://<edge>/api/v1/team/envs and GET /api/v1/applications/{uuid}/storages with a read token answer as Coolify does
+  gates: []
