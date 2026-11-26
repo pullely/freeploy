@@ -1,0 +1,14 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-80
+  title: "Status: the milestone table names every task landed for DP1–DP12"
+spec:
+  goal: The milestone table of IMPLEMENTATION-STATUS.md stopped at DP4 while DP-44 to DP-79 landed. Fill in each milestone's state and its tasks with their pull requests, saying for each what waits on the SSH executor (W3), a test VM (W1) or email delivery (W5); mark nothing Done whose gates are still open.
+  affects:
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - every task merged from #54 to #89 appears once in the milestone table with its pull request
+    - DP4–DP10 and DP12 read In progress with what they wait on; DP11 and DP13 stay empty
+  gates: []
