@@ -1,4 +1,4 @@
-# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85, DP-86, DP-87, DP-88, DP-90, DP-93, DP-103, DP-104, DP-105, DP-106, DP-107, DP-108, DP-110, DP-111, DP-112)
+# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85, DP-86, DP-87, DP-88, DP-90, DP-93, DP-103, DP-104, DP-105, DP-106, DP-107, DP-108, DP-110, DP-111, DP-112, DP-113)
 
 What Coolify's real API answers, so that Freeploy's `/api/v1` (api-edge's middleware and limiters,
 identity-worker's teams and tokens, deploy-core-worker's projects, environments, private keys and servers —
@@ -24,7 +24,8 @@ records of an application's and a service's domains — DP-105 — and a resourc
 instance's email settings — DP-106 — and the team's two settings, the team's audit events, the instance's API and MCP
 switches and a server's update — DP-107 — and cloning a service — DP-108 — and the cloud-init scripts and the servers made through
 a Hetzner, Vultr or DigitalOcean token — DP-110 — and a server transfer bundle's checks and dry run and a transfer marked
-complete — DP-111 — and SQLite, the ninth standalone database engine — DP-112) can be replayed against it byte for byte.
+complete — DP-111 — and SQLite, the ninth standalone database engine — DP-112 — and the stored image scan results of the
+team and of an application, a service and a database — DP-113) can be replayed against it byte for byte.
 
 | File | What it is |
 |---|---|
@@ -252,6 +253,23 @@ writes unsorted, is the worker's `COOLIFY_COLUMNS`, and the two `sqlite: resourc
 read a created database's generated name as `<uuid>` inside it. The departures are the start, the restart, the stop of a
 running one and `instant_deploy`, which answer 501 and store nothing. One `denied:` case is added (52 in all). Only the new
 entries were inserted into goldens.json, after DP-111's; the committed ones are kept byte for byte. No masking is added.
+
+DP-113's replay (`src/api-v1-vulnerabilities.test.ts`: GET /vulnerabilities and GET /{applications,services,databases}/{uuid}/
+vulnerabilities) adds no fixture rows. A case may carry `imageScans` (`[{uuid, server_id, image_id, owner, resource_id, image_ref,
+deployment_queue_id, status, findings, candidates, base_image_ref, builds_image, grype_db_built_at, scanned_at, eol_distro,
+truncated, …}]`, `owner` the resource kind emit.php maps to its model): emit.php makes each through the model (the JSON casts)
+and writes its summary as the scanner does — `ResourceScans::refreshSummaries()`: summaryFor() and SecurityStatus::store() —
+one after the other, so a scan's stored status sees the scans, ignores, policies and deployments before it (`stored: false`
+keeps the summary given, a row stored before the status was); the test inserts the same rows (a scan of the other team's
+server into that team's org) and writes each summary with the port of refreshSummaries(). A case may also carry
+`serviceVariables` (`[{service, key, value}]`, made through the model: the `encrypted` value; the test encrypts it with the
+org's key). The ignores and scan policies are rows of `setupCoolify` (Coolify's ignores have team_id, its policies no team)
+and `setupFreeploy` (org_id); a policy's id starts at 11 (Coolify's instance row is 1). The `after` queries read the stored
+summaries of the team's server (`summary::jsonb::text`), compared parsed: they are the engine's stored statuses on both sides.
+Time-dependent copy ("the last check was 4 days ago") is fixed by the clock, which the test gives the handler (`now`).
+`../image-scan/` holds what Coolify's SecuritySentences say about those stored statuses (its own README). No member denial is
+added: Coolify's default member may view a resource. Only the new entries were inserted into goldens.json, after DP-112's; the
+committed ones are kept byte for byte. No masking is added.
 
 ## How the goldens are made
 

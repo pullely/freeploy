@@ -81,6 +81,8 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   // DP-78: after /projects/{uuid}/environments and the shared variables' routes (routes/api.php's order).
   r("GET", "/projects/{uuid}/{environment_name_or_uuid}", "read", "deploy"),
   r("GET", "/resources", "read", "deploy"),
+  // DP-113: the stored image scan results of the team (VulnerabilitiesController)
+  r("GET", "/vulnerabilities", "read", "deploy"),
   // DP-81: the team's tags
   r("GET", "/tags", "read", "deploy"),
   r("POST", "/tags", "write", "deploy"),
@@ -219,6 +221,8 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("POST", "/applications/dockerfile", "write", "deploy"),
   r("POST", "/applications/dockerimage", "write", "deploy"),
   r("GET", "/applications/{uuid}", "read", "deploy"),
+  // DP-113
+  r("GET", "/applications/{uuid}/vulnerabilities", "read", "deploy"),
   // DP-87
   r("PATCH", "/applications/{uuid}", "write", "deploy"),
   r("DELETE", "/applications/{uuid}", "delete", "deploy"),
@@ -289,6 +293,8 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("POST", "/databases/keydb", "write", "deploy"),
   r("POST", "/databases/sqlite", "write", "deploy"),
   r("GET", "/databases/{uuid}", "read", "deploy"),
+  // DP-113
+  r("GET", "/databases/{uuid}/vulnerabilities", "read", "deploy"),
   r("GET", "/databases/{uuid}/backups", "read", "deploy"),
   r("GET", "/databases/{uuid}/backups/{scheduled_backup_uuid}/executions", "read", "deploy"),
   r("PATCH", "/databases/{uuid}", "write", "deploy"),
@@ -346,6 +352,8 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("GET", "/services", "read", "deploy"),
   r("POST", "/services", "write", "deploy"),
   r("GET", "/services/{uuid}", "read", "deploy"),
+  // DP-113
+  r("GET", "/services/{uuid}/vulnerabilities", "read", "deploy"),
   r("PATCH", "/services/{uuid}", "write", "deploy"),
   r("DELETE", "/services/{uuid}", "delete", "deploy"),
   // DP-84: a service's storages

@@ -1,0 +1,22 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-113
+  title: "DP11: Coolify's security status engine and the four vulnerabilities GETs on /api/v1"
+spec:
+  goal: Coolify's security status engine (TeamVulnerabilities, ResourceScans, SecurityStatus, ResourceSecurity, SecurityActions, SecurityAction, BaseImageCheck, SecuritySentences, ImageScanPolicyResolver, SecurityRules, IgnoreMatcher, RelevanceRules, Finding, ScannerText's stored titles, ImageRef, ComposeImageVariable, VulnerabilityMarkers and the parts of UpdateResourceImage and RefreshCandidates they call) is ported as pure TypeScript (apps/deploy-core-worker/src/image-scan/) over the stored scan rows packages/db reads in the org's transaction, and, on DP-70's pipeline, GET /vulnerabilities and GET /{applications,services,databases}/{uuid}/vulnerabilities (VulnerabilitiesController) are ported and held to goldens emitted by Coolify's PHP over scans made through its model; 4 more of openapi.json's 330 operations are ported (330 in all, with DP-112's). Nothing scans. No migration, no binding. The console pages on the engine stay not-ported.
+  affects:
+    - apps/api-edge/**
+    - apps/deploy-core-worker/**
+    - packages/db/**
+    - tests/api-edge/**
+    - tests/deploy-core-worker/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - every DP-113 case of tests/deploy-core-worker/fixtures/api/cases.json replays byte-equal to goldens.json against deploy-core-worker's handler, with every summary the port stores equal to the one Coolify's SecurityStatus::store() stored (tests/deploy-core-worker/src/api-v1-vulnerabilities.test.ts), and the middleware's answers at the edge
+    - SecuritySentences', TeamVulnerabilities' and VulnerabilityMarkers' copy of every stored status of those goldens equals Coolify's own (tests/deploy-core-worker/src/image-scan-sentences.test.ts over fixtures/image-scan/sentences.json)
+    - specs/epics/freeploy-coolify-parity/parity/openapi.operations.json marks the 4 operations ported with taskKey DP-113 (330 ported of 330), tests/api-edge/src/api-v1.test.ts counts 330, and node tools/parity/inventory.ts --check passes
+    - IMPLEMENTATION-STATUS.md's DP11 notes say what the engine covers, its departures and which console pages stay cut
+    - on stage, GET /api/v1/vulnerabilities answers the org's resources (not_checked while no server scans images), and GET /api/v1/applications/{uuid}/vulnerabilities of an application answers its off reason
+  gates: []
