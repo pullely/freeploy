@@ -111,6 +111,14 @@ export function Layout(props: LayoutProps) {
     window.addEventListener("page-width-changed", onWidth);
     return () => window.removeEventListener("page-width-changed", onWidth);
   }, []);
+  // @if (!currentTeam()->isAnyNotificationEnabled()): whether one of the org's channels is on (DP-67).
+  // Unknown until the answer comes, and then the reminder stays hidden; a failed read shows it.
+  const [notificationsOn, setNotificationsOn] = useState<boolean | null>(null);
+  const teamId = me?.team?.id ?? null;
+  useEffect(() => {
+    if (!teamId) return;
+    void getJson<{ anyEnabled: boolean }>(`/v1/organizations/${teamId}/deploy/notifications`).then((r) => setNotificationsOn(r.data ? r.data.anyEnabled : false));
+  }, [teamId]);
   if (!me) return null;
 
   const userName = me.user.displayName?.trim() || me.user.email;
@@ -147,8 +155,8 @@ export function Layout(props: LayoutProps) {
       userEmail={me.user.email}
       avatarUrl={me.avatarUrl}
       onLogout={onLogout}
-      // Freeploy has no notification channels yet (DP9), so the reminder shows until dismissed.
-      {...(reminderHidden ? { reminderStyle: { display: "none" as const } } : {})}
+      // The reminder: no channel is on, and it was not dismissed this month.
+      {...(reminderHidden || notificationsOn !== false ? { reminderStyle: { display: "none" as const } } : {})}
       onDismissReminder={dismissReminder}
       portal={props.portal}
       toasts={<Toasts />}

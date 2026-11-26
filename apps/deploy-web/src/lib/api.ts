@@ -55,6 +55,8 @@ export interface ApiError {
   messages: string[];
   /** The messages per field, when the edge answered a validation error. */
   fields?: Record<string, string[]>;
+  /** A toast's second line, when the API gives one (dispatch('error', $message, $description)). */
+  description?: string;
 }
 
 /** Laravel's ValidationException message: the first error, then "(and N more error[s])". */
@@ -72,9 +74,10 @@ export async function postJson<T>(path: string, body: unknown, method: "POST" | 
   } catch {
     return { ok: false, error: { status: 0, messages: ["Network error. Please try again."] } };
   }
-  const json = (await res.json().catch(() => null)) as { data?: T; error?: { message?: string; details?: { fields?: Record<string, string[]> } } } | null;
+  const json = (await res.json().catch(() => null)) as { data?: T; error?: { message?: string; details?: { fields?: Record<string, string[]>; description?: string } } } | null;
   if (res.ok && json?.data !== undefined) return { ok: true, data: json.data };
   const fields = json?.error?.details?.fields;
   const messages = fields ? Object.values(fields).flat() : [json?.error?.message ?? "Something went wrong."];
-  return { ok: false, error: { status: res.status, messages, ...(fields ? { fields } : {}) } };
+  const description = json?.error?.details?.description;
+  return { ok: false, error: { status: res.status, messages, ...(fields ? { fields } : {}), ...(typeof description === "string" ? { description } : {}) } };
 }
