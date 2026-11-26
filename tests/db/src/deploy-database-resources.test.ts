@@ -81,7 +81,8 @@ const raw = async (table: string, where: string, params: unknown[]) => (await ad
 /** A database of the engine as create_standalone_*() leaves it (a ciphertext in each password column), with one data volume. */
 async function newDatabase(org: string, engine: DatabaseEngine, uuid: string): Promise<string | number> {
   const t = DATABASE_TABLES[engine];
-  const values = Object.fromEntries(t.encrypted.map((c) => [c, `fp1:1:${c}`]));
+  // SQLite's image has no default (DP-112): create_standalone_sqlite() sets it.
+  const values = { ...Object.fromEntries(t.encrypted.map((c) => [c, `fp1:1:${c}`])), ...(engine === "sqlite" ? { image: "peakimages/sqlite:3.54.1-v0.2.0" } : {}) };
   const row = await withOrg(ex, org, (tx) =>
     insertDatabase(tx, engine, {
       orgId: org, uuid, name: `${engine}-database-${uuid}`, environmentId: fx[org === A ? "a" : "b"]!.environmentId, destinationId: fx[org === A ? "a" : "b"]!.destination.id,
@@ -155,7 +156,8 @@ describe("a database's Resource Operations", () => {
     const uuid = `ro${engine}aaaaaaaaaaaaaaa`;
     const id = await newDatabase(A, engine, uuid);
     const t = DATABASE_TABLES[engine];
-    await admin(`UPDATE deploy.${t.table} SET status = 'running:healthy', started_at = '2026-11-01 10:00:00', is_public = true, public_port = 54321, limits_memory = '256m' WHERE id = $1`, [id]);
+    // SQLite's table has no public port (DP-112).
+    await admin(`UPDATE deploy.${t.table} SET status = 'running:healthy', started_at = '2026-11-01 10:00:00', is_public = true,${t.publicPort ? " public_port = 54321," : ""} limits_memory = '256m' WHERE id = $1`, [id]);
     expect(await withOrg(ex, A, (tx) => moveDatabase(tx, engine, id, fx.a!.stagingId))).toBe(true);
     const source = (await raw(t.table, "id = $1", [id]))[0]!;
     expect(String(source.environment_id)).toBe(String(fx.a!.stagingId));
@@ -168,7 +170,7 @@ describe("a database's Resource Operations", () => {
     const replica = (await raw(t.table, "id = $1", [cloneId]))[0]!;
     const differs = ["id", "uuid", "name", "status", "started_at", "environment_id", "created_at", "updated_at", "last_online_at"];
     for (const [column, value] of Object.entries(source)) if (!differs.includes(column)) expect([column, replica[column]]).toEqual([column, value]);
-    expect(replica).toMatchObject({ uuid: clone, name: `name-clone-${clone}`, status: "exited:unhealthy", started_at: null, is_public: true, public_port: 54321, limits_memory: "256m", org_id: A });
+    expect(replica).toMatchObject({ uuid: clone, name: `name-clone-${clone}`, status: "exited:unhealthy", started_at: null, is_public: true, ...(t.publicPort ? { public_port: 54321 } : {}), limits_memory: "256m", org_id: A });
     expect(String(replica.environment_id)).toBe(String(fx.a!.environmentId));
     expect(replica.last_online_at).not.toBeNull();
     expect(replica.created_at).not.toBeNull();

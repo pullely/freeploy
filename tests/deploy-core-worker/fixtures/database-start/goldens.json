@@ -64,7 +64,9 @@
         "docker inspect --format '{{range .Mounts}}{{if eq .Destination \"/var/lib/clickhouse\"}}{{.Type}} {{.Name}}{{end}}{{end}}' 'db0000000000000000000001' 2>/dev/null || true",
         "echo 'Starting database.'\nmkdir -p /data/coolify/databases/db0000000000000000000001\necho 'c2VydmljZXM6CiAgICBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgaW1hZ2U6ICdjbGlja2hvdXNlL2NsaWNraG91c2Utc2VydmVyOjI1LjExJwogICAgICAgIGNvbnRhaW5lcl9uYW1lOiBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBlbnZpcm9ubWVudDoKICAgICAgICAgICAgLSBDTElDS0hPVVNFX1VTRVI9ZGVmYXVsdAogICAgICAgICAgICAtIENMSUNLSE9VU0VfUEFTU1dPUkQ9UzNjcmV0UGFzcwogICAgICAgICAgICAtIENMSUNLSE9VU0VfREI9ZGVmYXVsdAogICAgICAgICAgICAtIENPT0xJRllfUkVTT1VSQ0VfVVVJRD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBDT09MSUZZX0NPTlRBSU5FUl9OQU1FPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIENPT0xJRllfQVBQX05BTUU9Y2xpY2tob3VzZS1kYXRhYmFzZS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSAnQ09PTElGWV9QUk9KRUNUX05BTUU9TXkgUHJvamVjdCcKICAgICAgICAgICAgLSBDT09MSUZZX0VOVklST05NRU5UX05BTUU9cHJvZHVjdGlvbgogICAgICAgICAgICAtIENPT0xJRllfU0VSVkVSX0lQPTEwLjAuMC41CiAgICAgICAgcmVzdGFydDogdW5sZXNzLXN0b3BwZWQKICAgICAgICBuZXR3b3JrczoKICAgICAgICAgICAgLSBjb29saWZ5CiAgICAgICAgdWxpbWl0czoKICAgICAgICAgICAgbm9maWxlOgogICAgICAgICAgICAgICAgc29mdDogMjYyMTQ0CiAgICAgICAgICAgICAgICBoYXJkOiAyNjIxNDQKICAgICAgICBsYWJlbHM6CiAgICAgICAgICAgIC0gY29vbGlmeS5tYW5hZ2VkPXRydWUKICAgICAgICAgICAgLSBjb29saWZ5LnR5cGU9ZGF0YWJhc2UKICAgICAgICAgICAgLSBjb29saWZ5LmRhdGFiYXNlVXVpZD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnJlc291cmNlTmFtZT1jbGlja2hvdXNlLWRhdGFiYXNlLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIGNvb2xpZnkuc2VydmljZU5hbWU9Y2xpY2tob3VzZS1kYXRhYmFzZS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnByb2plY3ROYW1lPW15LXByb2plY3QKICAgICAgICAgICAgLSBjb29saWZ5LmVudmlyb25tZW50TmFtZT1wcm9kdWN0aW9uCiAgICAgICAgICAgIC0gY29vbGlmeS5kYXRhYmFzZS5zdWJUeXBlPXN0YW5kYWxvbmUtY2xpY2tob3VzZQogICAgICAgIGhlYWx0aGNoZWNrOgogICAgICAgICAgICB0ZXN0OgogICAgICAgICAgICAgICAgLSBDTUQKICAgICAgICAgICAgICAgIC0gY2xpY2tob3VzZS1jbGllbnQKICAgICAgICAgICAgICAgIC0gJy0tdXNlcicKICAgICAgICAgICAgICAgIC0gZGVmYXVsdAogICAgICAgICAgICAgICAgLSAnLS1wYXNzd29yZCcKICAgICAgICAgICAgICAgIC0gUzNjcmV0UGFzcwogICAgICAgICAgICAgICAgLSAnLS1xdWVyeScKICAgICAgICAgICAgICAgIC0gJ1NFTEVDVCAxJwogICAgICAgICAgICBpbnRlcnZhbDogMTVzCiAgICAgICAgICAgIHRpbWVvdXQ6IDVzCiAgICAgICAgICAgIHJldHJpZXM6IDUKICAgICAgICAgICAgc3RhcnRfcGVyaW9kOiA1cwogICAgICAgIG1lbV9saW1pdDogJzAnCiAgICAgICAgbWVtc3dhcF9saW1pdDogJzAnCiAgICAgICAgbWVtX3N3YXBwaW5lc3M6IDYwCiAgICAgICAgbWVtX3Jlc2VydmF0aW9uOiAnMCcKICAgICAgICBjcHVzOiAwLjAKICAgICAgICBjcHVfc2hhcmVzOiAxMDI0CiAgICAgICAgdm9sdW1lczoKICAgICAgICAgICAgLSAnY2xpY2tob3VzZS1kYXRhLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMTovdmFyL2xpYi9jbGlja2hvdXNlJwpuZXR3b3JrczoKICAgIGNvb2xpZnk6CiAgICAgICAgZXh0ZXJuYWw6IHRydWUKICAgICAgICBuYW1lOiBjb29saWZ5CiAgICAgICAgYXR0YWNoYWJsZTogdHJ1ZQp2b2x1bWVzOgogICAgY2xpY2tob3VzZS1kYXRhLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMToKICAgICAgICBuYW1lOiBjbGlja2hvdXNlLWRhdGEtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgZXh0ZXJuYWw6IGZhbHNlCg==' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/docker-compose.yml > /dev/null\necho 'Resource name: clickhouse-database-db0000000000000000000001\nLatest Deployment Date: 2026-11-20 10:11:12' | tee /data/coolify/databases/db0000000000000000000001/README.md > /dev/null\necho 'Pulling clickhouse/clickhouse-server:25.11 image.'\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml pull\ndocker stop --time=30 db0000000000000000000001 2>/dev/null || true\ndocker rm -f db0000000000000000000001 2>/dev/null || true\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml up -d\necho 'Database started.'",
         "This ClickHouse database keeps its current data in the unnamed Docker volume 0123456789abcdef, not in its data volume. A start or restart would use the data volume, and the current data would seem lost. On the database's General page, click \"Keep current data\" first.",
-        "mkdir -p /data/coolify/databases/db0000000000000000000001/proxy\necho 'dXNlciAgbmdpbng7Cndvcmtlcl9wcm9jZXNzZXMgIGF1dG87CgplcnJvcl9sb2cgIC92YXIvbG9nL25naW54L2Vycm9yLmxvZzsKCmV2ZW50cyB7CiAgICB3b3JrZXJfY29ubmVjdGlvbnMgIDEwMjQ7Cn0Kc3RyZWFtIHsKICAgcmVzb2x2ZXIgMTI3LjAuMC4xMSB2YWxpZD0xMHM7CiAgIHNlcnZlciB7CiAgICAgICAgbGlzdGVuIDE1NDMyOwogICAgICAgIHNldCAkdXBzdHJlYW0gZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxOjkwMDA7CiAgICAgICAgcHJveHlfcGFzcyAkdXBzdHJlYW07CiAgICAgICAgcHJveHlfdGltZW91dCAzNjAwczsKICAgfQp9' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/proxy/nginx.conf > /dev/null\necho 'c2VydmljZXM6CiAgZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxLXByb3h5OgogICAgaW1hZ2U6ICduZ2lueDpzdGFibGUtYWxwaW5lJwogICAgY29udGFpbmVyX25hbWU6IGRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMS1wcm94eQogICAgcmVzdGFydDogdW5sZXNzLXN0b3BwZWQKICAgIGxhYmVsczoKICAgICAgY29vbGlmeS5kYXRhYmFzZVByb3h5Q29uZmlnVmVyc2lvbjogJzInCiAgICBwb3J0czoKICAgICAgLSAnMTU0MzI6MTU0MzInCiAgICBuZXR3b3JrczoKICAgICAgLSBjb29saWZ5CiAgICB2b2x1bWVzOgogICAgICAtIHsgdHlwZTogYmluZCwgc291cmNlOiAvZGF0YS9jb29saWZ5L2RhdGFiYXNlcy9kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEvcHJveHkvbmdpbnguY29uZiwgdGFyZ2V0OiAvZXRjL25naW54L25naW54LmNvbmYgfQogICAgaGVhbHRoY2hlY2s6CiAgICAgIHRlc3Q6IFtDTUQsIHN0YXQsIC9ldGMvbmdpbngvbmdpbnguY29uZl0KICAgICAgaW50ZXJ2YWw6IDVzCiAgICAgIHRpbWVvdXQ6IDVzCiAgICAgIHJldHJpZXM6IDMKICAgICAgc3RhcnRfcGVyaW9kOiAxcwpuZXR3b3JrczoKICBjb29saWZ5OgogICAgZXh0ZXJuYWw6IHRydWUKICAgIG5hbWU6IGNvb2xpZnkKICAgIGF0dGFjaGFibGU6IHRydWUK' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/proxy/docker-compose.yaml > /dev/null\ndocker compose --project-directory /data/coolify/databases/db0000000000000000000001/proxy -f /data/coolify/databases/db0000000000000000000001/proxy/docker-compose.yaml pull\nbash -c 'output=$(docker rm -f '\\''db0000000000000000000001-proxy'\\'' 2>&1); exit_code=$?; if [ \"$exit_code\" -ne 0 ] && printf '\\''%s'\\'' \"$output\" | grep -Eq '\\''No such container:'\\''; then exit 0; fi; if [ \"$exit_code\" -ne 0 ]; then printf '\\''%s\\n'\\'' \"$output\" >&2; else printf '\\''%s\\n'\\'' \"$output\"; fi; exit $exit_code'\ndocker compose --project-directory /data/coolify/databases/db0000000000000000000001/proxy -f /data/coolify/databases/db0000000000000000000001/proxy/docker-compose.yaml up -d"
+        "mkdir -p /data/coolify/databases/db0000000000000000000001/proxy\necho 'dXNlciAgbmdpbng7Cndvcmtlcl9wcm9jZXNzZXMgIGF1dG87CgplcnJvcl9sb2cgIC92YXIvbG9nL25naW54L2Vycm9yLmxvZzsKCmV2ZW50cyB7CiAgICB3b3JrZXJfY29ubmVjdGlvbnMgIDEwMjQ7Cn0Kc3RyZWFtIHsKICAgcmVzb2x2ZXIgMTI3LjAuMC4xMSB2YWxpZD0xMHM7CiAgIHNlcnZlciB7CiAgICAgICAgbGlzdGVuIDE1NDMyOwogICAgICAgIHNldCAkdXBzdHJlYW0gZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxOjkwMDA7CiAgICAgICAgcHJveHlfcGFzcyAkdXBzdHJlYW07CiAgICAgICAgcHJveHlfdGltZW91dCAzNjAwczsKICAgfQp9' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/proxy/nginx.conf > /dev/null\necho 'c2VydmljZXM6CiAgZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxLXByb3h5OgogICAgaW1hZ2U6ICduZ2lueDpzdGFibGUtYWxwaW5lJwogICAgY29udGFpbmVyX25hbWU6IGRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMS1wcm94eQogICAgcmVzdGFydDogdW5sZXNzLXN0b3BwZWQKICAgIGxhYmVsczoKICAgICAgY29vbGlmeS5kYXRhYmFzZVByb3h5Q29uZmlnVmVyc2lvbjogJzInCiAgICBwb3J0czoKICAgICAgLSAnMTU0MzI6MTU0MzInCiAgICBuZXR3b3JrczoKICAgICAgLSBjb29saWZ5CiAgICB2b2x1bWVzOgogICAgICAtIHsgdHlwZTogYmluZCwgc291cmNlOiAvZGF0YS9jb29saWZ5L2RhdGFiYXNlcy9kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEvcHJveHkvbmdpbnguY29uZiwgdGFyZ2V0OiAvZXRjL25naW54L25naW54LmNvbmYgfQogICAgaGVhbHRoY2hlY2s6CiAgICAgIHRlc3Q6IFtDTUQsIHN0YXQsIC9ldGMvbmdpbngvbmdpbnguY29uZl0KICAgICAgaW50ZXJ2YWw6IDVzCiAgICAgIHRpbWVvdXQ6IDVzCiAgICAgIHJldHJpZXM6IDMKICAgICAgc3RhcnRfcGVyaW9kOiAxcwpuZXR3b3JrczoKICBjb29saWZ5OgogICAgZXh0ZXJuYWw6IHRydWUKICAgIG5hbWU6IGNvb2xpZnkKICAgIGF0dGFjaGFibGU6IHRydWUK' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/proxy/docker-compose.yaml > /dev/null\ndocker compose --project-directory /data/coolify/databases/db0000000000000000000001/proxy -f /data/coolify/databases/db0000000000000000000001/proxy/docker-compose.yaml pull\nbash -c 'output=$(docker rm -f '\\''db0000000000000000000001-proxy'\\'' 2>&1); exit_code=$?; if [ \"$exit_code\" -ne 0 ] && printf '\\''%s'\\'' \"$output\" | grep -Eq '\\''No such container:'\\''; then exit 0; fi; if [ \"$exit_code\" -ne 0 ]; then printf '\\''%s\\n'\\'' \"$output\" >&2; else printf '\\''%s\\n'\\'' \"$output\"; fi; exit $exit_code'\ndocker compose --project-directory /data/coolify/databases/db0000000000000000000001/proxy -f /data/coolify/databases/db0000000000000000000001/proxy/docker-compose.yaml up -d",
+        "echo 'Starting database.'\nmkdir -p /data/coolify/databases/db0000000000000000000001\necho 'c2VydmljZXM6CiAgICBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgaW1hZ2U6ICdwZWFraW1hZ2VzL3NxbGl0ZTozLjU0LjEtdjAuMi4wJwogICAgICAgIGNvbnRhaW5lcl9uYW1lOiBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBlbnZpcm9ubWVudDoKICAgICAgICAgICAgLSBTUUxJVEVfREFUQUJBU0VTPWRhdGFiYXNlLnNxbGl0ZQogICAgICAgICAgICAtIENPT0xJRllfUkVTT1VSQ0VfVVVJRD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBDT09MSUZZX0NPTlRBSU5FUl9OQU1FPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIENPT0xJRllfQVBQX05BTUU9c3FsaXRlLWRhdGFiYXNlLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtICdDT09MSUZZX1BST0pFQ1RfTkFNRT1NeSBQcm9qZWN0JwogICAgICAgICAgICAtIENPT0xJRllfRU5WSVJPTk1FTlRfTkFNRT1wcm9kdWN0aW9uCiAgICAgICAgICAgIC0gQ09PTElGWV9TRVJWRVJfSVA9MTAuMC4wLjUKICAgICAgICByZXN0YXJ0OiB1bmxlc3Mtc3RvcHBlZAogICAgICAgIG5ldHdvcmtzOgogICAgICAgICAgICAtIGNvb2xpZnkKICAgICAgICBsYWJlbHM6CiAgICAgICAgICAgIC0gY29vbGlmeS5tYW5hZ2VkPXRydWUKICAgICAgICAgICAgLSBjb29saWZ5LnR5cGU9ZGF0YWJhc2UKICAgICAgICAgICAgLSBjb29saWZ5LmRhdGFiYXNlVXVpZD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnJlc291cmNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5zZXJ2aWNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5wcm9qZWN0TmFtZT1teS1wcm9qZWN0CiAgICAgICAgICAgIC0gY29vbGlmeS5lbnZpcm9ubWVudE5hbWU9cHJvZHVjdGlvbgogICAgICAgICAgICAtIGNvb2xpZnkuZGF0YWJhc2Uuc3ViVHlwZT1zdGFuZGFsb25lLXNxbGl0ZQogICAgICAgIGhlYWx0aGNoZWNrOgogICAgICAgICAgICB0ZXN0OgogICAgICAgICAgICAgICAgLSBDTUQKICAgICAgICAgICAgICAgIC0gaGVhbHRoY2hlY2suc2gKICAgICAgICAgICAgaW50ZXJ2YWw6IDE1cwogICAgICAgICAgICB0aW1lb3V0OiA1cwogICAgICAgICAgICByZXRyaWVzOiA1CiAgICAgICAgICAgIHN0YXJ0X3BlcmlvZDogNXMKICAgICAgICBtZW1fbGltaXQ6ICcwJwogICAgICAgIG1lbXN3YXBfbGltaXQ6ICcwJwogICAgICAgIG1lbV9zd2FwcGluZXNzOiA2MAogICAgICAgIG1lbV9yZXNlcnZhdGlvbjogJzAnCiAgICAgICAgY3B1czogMC4wCiAgICAgICAgY3B1X3NoYXJlczogMTAyNAogICAgICAgIHZvbHVtZXM6CiAgICAgICAgICAgIC0gJ3NxbGl0ZS1kYXRhLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMTovdmFyL2xpYi9zcWxpdGUnCm5ldHdvcmtzOgogICAgY29vbGlmeToKICAgICAgICBleHRlcm5hbDogdHJ1ZQogICAgICAgIG5hbWU6IGNvb2xpZnkKICAgICAgICBhdHRhY2hhYmxlOiB0cnVlCnZvbHVtZXM6CiAgICBzcWxpdGUtZGF0YS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgbmFtZTogc3FsaXRlLWRhdGEtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgZXh0ZXJuYWw6IGZhbHNlCg==' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/docker-compose.yml > /dev/null\necho 'Resource name: sqlite-database-db0000000000000000000001\nLatest Deployment Date: 2026-11-20 10:11:12' | tee /data/coolify/databases/db0000000000000000000001/README.md > /dev/null\necho 'Pulling peakimages/sqlite:3.54.1-v0.2.0 image.'\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml pull\ndocker stop --time=30 db0000000000000000000001 2>/dev/null || true\ndocker rm -f db0000000000000000000001 2>/dev/null || true\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml up -d\necho 'Database started.'",
+        "echo 'Starting database.'\nmkdir -p /data/coolify/databases/db0000000000000000000001\necho 'c2VydmljZXM6CiAgICBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgaW1hZ2U6ICdwZWFraW1hZ2VzL3NxbGl0ZTozLjU0LjEtdjAuMi4wJwogICAgICAgIGNvbnRhaW5lcl9uYW1lOiBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBlbnZpcm9ubWVudDoKICAgICAgICAgICAgLSAnU1FMSVRFX0RBVEFCQVNFUz1hcHAuc3FsaXRlLGNhY2hlLmRiJwogICAgICAgICAgICAtIENPT0xJRllfUkVTT1VSQ0VfVVVJRD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBDT09MSUZZX0NPTlRBSU5FUl9OQU1FPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIENPT0xJRllfQVBQX05BTUU9c3FsaXRlLWRhdGFiYXNlLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtICdDT09MSUZZX1BST0pFQ1RfTkFNRT1NeSBQcm9qZWN0JwogICAgICAgICAgICAtIENPT0xJRllfRU5WSVJPTk1FTlRfTkFNRT1wcm9kdWN0aW9uCiAgICAgICAgICAgIC0gQ09PTElGWV9TRVJWRVJfSVA9MTAuMC4wLjUKICAgICAgICByZXN0YXJ0OiB1bmxlc3Mtc3RvcHBlZAogICAgICAgIG5ldHdvcmtzOgogICAgICAgICAgICAtIGNvb2xpZnkKICAgICAgICBsYWJlbHM6CiAgICAgICAgICAgIC0gY29vbGlmeS5tYW5hZ2VkPXRydWUKICAgICAgICAgICAgLSBjb29saWZ5LnR5cGU9ZGF0YWJhc2UKICAgICAgICAgICAgLSBjb29saWZ5LmRhdGFiYXNlVXVpZD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnJlc291cmNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5zZXJ2aWNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5wcm9qZWN0TmFtZT1teS1wcm9qZWN0CiAgICAgICAgICAgIC0gY29vbGlmeS5lbnZpcm9ubWVudE5hbWU9cHJvZHVjdGlvbgogICAgICAgICAgICAtIGNvb2xpZnkuZGF0YWJhc2Uuc3ViVHlwZT1zdGFuZGFsb25lLXNxbGl0ZQogICAgICAgIGhlYWx0aGNoZWNrOgogICAgICAgICAgICB0ZXN0OgogICAgICAgICAgICAgICAgLSBDTUQKICAgICAgICAgICAgICAgIC0gaGVhbHRoY2hlY2suc2gKICAgICAgICAgICAgaW50ZXJ2YWw6IDE1cwogICAgICAgICAgICB0aW1lb3V0OiA1cwogICAgICAgICAgICByZXRyaWVzOiA1CiAgICAgICAgICAgIHN0YXJ0X3BlcmlvZDogNXMKICAgICAgICBtZW1fbGltaXQ6ICcwJwogICAgICAgIG1lbXN3YXBfbGltaXQ6ICcwJwogICAgICAgIG1lbV9zd2FwcGluZXNzOiA2MAogICAgICAgIG1lbV9yZXNlcnZhdGlvbjogJzAnCiAgICAgICAgY3B1czogMC4wCiAgICAgICAgY3B1X3NoYXJlczogMTAyNAogICAgICAgIHZvbHVtZXM6CiAgICAgICAgICAgIC0gJ3NxbGl0ZS1kYXRhLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMTovdmFyL2xpYi9zcWxpdGUnCm5ldHdvcmtzOgogICAgY29vbGlmeToKICAgICAgICBleHRlcm5hbDogdHJ1ZQogICAgICAgIG5hbWU6IGNvb2xpZnkKICAgICAgICBhdHRhY2hhYmxlOiB0cnVlCnZvbHVtZXM6CiAgICBzcWxpdGUtZGF0YS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgbmFtZTogc3FsaXRlLWRhdGEtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgZXh0ZXJuYWw6IGZhbHNlCg==' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/docker-compose.yml > /dev/null\necho 'Resource name: sqlite-database-db0000000000000000000001\nLatest Deployment Date: 2026-11-20 10:11:12' | tee /data/coolify/databases/db0000000000000000000001/README.md > /dev/null\necho 'Pulling peakimages/sqlite:3.54.1-v0.2.0 image.'\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml pull\ndocker stop --time=30 db0000000000000000000001 2>/dev/null || true\ndocker rm -f db0000000000000000000001 2>/dev/null || true\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml up -d\necho 'Database started.'"
     ],
     "runs": {
         "postgresql.defaults": {
@@ -38011,6 +38013,2890 @@
             "notifications": [],
             "jobs": [],
             "events": []
+        },
+        "sqlite.defaults": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": {
+                        "$string": 64
+                    },
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.custom image": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": "echo 'Starting database.'\nmkdir -p /data/coolify/databases/db0000000000000000000001\necho 'c2VydmljZXM6CiAgICBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgaW1hZ2U6ICdwZWFraW1hZ2VzL3NxbGl0ZTozLjUzLjQtdjAuMS4wJwogICAgICAgIGNvbnRhaW5lcl9uYW1lOiBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBlbnZpcm9ubWVudDoKICAgICAgICAgICAgLSBTUUxJVEVfREFUQUJBU0VTPWRhdGFiYXNlLnNxbGl0ZQogICAgICAgICAgICAtIENPT0xJRllfUkVTT1VSQ0VfVVVJRD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBDT09MSUZZX0NPTlRBSU5FUl9OQU1FPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIENPT0xJRllfQVBQX05BTUU9c3FsaXRlLWRhdGFiYXNlLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtICdDT09MSUZZX1BST0pFQ1RfTkFNRT1NeSBQcm9qZWN0JwogICAgICAgICAgICAtIENPT0xJRllfRU5WSVJPTk1FTlRfTkFNRT1wcm9kdWN0aW9uCiAgICAgICAgICAgIC0gQ09PTElGWV9TRVJWRVJfSVA9MTAuMC4wLjUKICAgICAgICByZXN0YXJ0OiB1bmxlc3Mtc3RvcHBlZAogICAgICAgIG5ldHdvcmtzOgogICAgICAgICAgICAtIGNvb2xpZnkKICAgICAgICBsYWJlbHM6CiAgICAgICAgICAgIC0gY29vbGlmeS5tYW5hZ2VkPXRydWUKICAgICAgICAgICAgLSBjb29saWZ5LnR5cGU9ZGF0YWJhc2UKICAgICAgICAgICAgLSBjb29saWZ5LmRhdGFiYXNlVXVpZD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnJlc291cmNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5zZXJ2aWNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5wcm9qZWN0TmFtZT1teS1wcm9qZWN0CiAgICAgICAgICAgIC0gY29vbGlmeS5lbnZpcm9ubWVudE5hbWU9cHJvZHVjdGlvbgogICAgICAgICAgICAtIGNvb2xpZnkuZGF0YWJhc2Uuc3ViVHlwZT1zdGFuZGFsb25lLXNxbGl0ZQogICAgICAgIGhlYWx0aGNoZWNrOgogICAgICAgICAgICB0ZXN0OgogICAgICAgICAgICAgICAgLSBDTUQKICAgICAgICAgICAgICAgIC0gaGVhbHRoY2hlY2suc2gKICAgICAgICAgICAgaW50ZXJ2YWw6IDE1cwogICAgICAgICAgICB0aW1lb3V0OiA1cwogICAgICAgICAgICByZXRyaWVzOiA1CiAgICAgICAgICAgIHN0YXJ0X3BlcmlvZDogNXMKICAgICAgICBtZW1fbGltaXQ6ICcwJwogICAgICAgIG1lbXN3YXBfbGltaXQ6ICcwJwogICAgICAgIG1lbV9zd2FwcGluZXNzOiA2MAogICAgICAgIG1lbV9yZXNlcnZhdGlvbjogJzAnCiAgICAgICAgY3B1czogMC4wCiAgICAgICAgY3B1X3NoYXJlczogMTAyNAogICAgICAgIHZvbHVtZXM6CiAgICAgICAgICAgIC0gJ3NxbGl0ZS1kYXRhLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMTovdmFyL2xpYi9zcWxpdGUnCm5ldHdvcmtzOgogICAgY29vbGlmeToKICAgICAgICBleHRlcm5hbDogdHJ1ZQogICAgICAgIG5hbWU6IGNvb2xpZnkKICAgICAgICBhdHRhY2hhYmxlOiB0cnVlCnZvbHVtZXM6CiAgICBzcWxpdGUtZGF0YS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgbmFtZTogc3FsaXRlLWRhdGEtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgZXh0ZXJuYWw6IGZhbHNlCg==' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/docker-compose.yml > /dev/null\necho 'Resource name: sqlite-database-db0000000000000000000001\nLatest Deployment Date: 2026-11-20 10:11:12' | tee /data/coolify/databases/db0000000000000000000001/README.md > /dev/null\necho 'Pulling peakimages/sqlite:3.53.4-v0.1.0 image.'\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml pull\ndocker stop --time=30 db0000000000000000000001 2>/dev/null || true\ndocker rm -f db0000000000000000000001 2>/dev/null || true\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml up -d\necho 'Database started.'",
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.custom image 2": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": "echo 'Starting database.'\nmkdir -p /data/coolify/databases/db0000000000000000000001\necho 'c2VydmljZXM6CiAgICBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgaW1hZ2U6ICdyZWdpc3RyeS5leGFtcGxlLmNvbTo1MDAwL3RlYW0vc3FsaXRlOjMnCiAgICAgICAgY29udGFpbmVyX25hbWU6IGRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgIGVudmlyb25tZW50OgogICAgICAgICAgICAtIFNRTElURV9EQVRBQkFTRVM9ZGF0YWJhc2Uuc3FsaXRlCiAgICAgICAgICAgIC0gQ09PTElGWV9SRVNPVVJDRV9VVUlEPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIENPT0xJRllfQ09OVEFJTkVSX05BTUU9ZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gQ09PTElGWV9BUFBfTkFNRT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gJ0NPT0xJRllfUFJPSkVDVF9OQU1FPU15IFByb2plY3QnCiAgICAgICAgICAgIC0gQ09PTElGWV9FTlZJUk9OTUVOVF9OQU1FPXByb2R1Y3Rpb24KICAgICAgICAgICAgLSBDT09MSUZZX1NFUlZFUl9JUD0xMC4wLjAuNQogICAgICAgIHJlc3RhcnQ6IHVubGVzcy1zdG9wcGVkCiAgICAgICAgbmV0d29ya3M6CiAgICAgICAgICAgIC0gY29vbGlmeQogICAgICAgIGxhYmVsczoKICAgICAgICAgICAgLSBjb29saWZ5Lm1hbmFnZWQ9dHJ1ZQogICAgICAgICAgICAtIGNvb2xpZnkudHlwZT1kYXRhYmFzZQogICAgICAgICAgICAtIGNvb2xpZnkuZGF0YWJhc2VVdWlkPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIGNvb2xpZnkucmVzb3VyY2VOYW1lPXNxbGl0ZS1kYXRhYmFzZS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnNlcnZpY2VOYW1lPXNxbGl0ZS1kYXRhYmFzZS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnByb2plY3ROYW1lPW15LXByb2plY3QKICAgICAgICAgICAgLSBjb29saWZ5LmVudmlyb25tZW50TmFtZT1wcm9kdWN0aW9uCiAgICAgICAgICAgIC0gY29vbGlmeS5kYXRhYmFzZS5zdWJUeXBlPXN0YW5kYWxvbmUtc3FsaXRlCiAgICAgICAgaGVhbHRoY2hlY2s6CiAgICAgICAgICAgIHRlc3Q6CiAgICAgICAgICAgICAgICAtIENNRAogICAgICAgICAgICAgICAgLSBoZWFsdGhjaGVjay5zaAogICAgICAgICAgICBpbnRlcnZhbDogMTVzCiAgICAgICAgICAgIHRpbWVvdXQ6IDVzCiAgICAgICAgICAgIHJldHJpZXM6IDUKICAgICAgICAgICAgc3RhcnRfcGVyaW9kOiA1cwogICAgICAgIG1lbV9saW1pdDogJzAnCiAgICAgICAgbWVtc3dhcF9saW1pdDogJzAnCiAgICAgICAgbWVtX3N3YXBwaW5lc3M6IDYwCiAgICAgICAgbWVtX3Jlc2VydmF0aW9uOiAnMCcKICAgICAgICBjcHVzOiAwLjAKICAgICAgICBjcHVfc2hhcmVzOiAxMDI0CiAgICAgICAgdm9sdW1lczoKICAgICAgICAgICAgLSAnc3FsaXRlLWRhdGEtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxOi92YXIvbGliL3NxbGl0ZScKbmV0d29ya3M6CiAgICBjb29saWZ5OgogICAgICAgIGV4dGVybmFsOiB0cnVlCiAgICAgICAgbmFtZTogY29vbGlmeQogICAgICAgIGF0dGFjaGFibGU6IHRydWUKdm9sdW1lczoKICAgIHNxbGl0ZS1kYXRhLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMToKICAgICAgICBuYW1lOiBzcWxpdGUtZGF0YS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBleHRlcm5hbDogZmFsc2UK' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/docker-compose.yml > /dev/null\necho 'Resource name: sqlite-database-db0000000000000000000001\nLatest Deployment Date: 2026-11-20 10:11:12' | tee /data/coolify/databases/db0000000000000000000001/README.md > /dev/null\necho 'Pulling registry.example.com:5000/team/sqlite:3 image.'\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml pull\ndocker stop --time=30 db0000000000000000000001 2>/dev/null || true\ndocker rm -f db0000000000000000000001 2>/dev/null || true\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml up -d\necho 'Database started.'",
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.database files": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": "echo 'Starting database.'\nmkdir -p /data/coolify/databases/db0000000000000000000001\necho 'c2VydmljZXM6CiAgICBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgaW1hZ2U6ICdwZWFraW1hZ2VzL3NxbGl0ZTozLjU0LjEtdjAuMi4wJwogICAgICAgIGNvbnRhaW5lcl9uYW1lOiBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBlbnZpcm9ubWVudDoKICAgICAgICAgICAgLSAnU1FMSVRFX0RBVEFCQVNFUz1hcHAuc3FsaXRlLGNhY2hlLmRiLGxvZ3MuZGInCiAgICAgICAgICAgIC0gQ09PTElGWV9SRVNPVVJDRV9VVUlEPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIENPT0xJRllfQ09OVEFJTkVSX05BTUU9ZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gQ09PTElGWV9BUFBfTkFNRT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gJ0NPT0xJRllfUFJPSkVDVF9OQU1FPU15IFByb2plY3QnCiAgICAgICAgICAgIC0gQ09PTElGWV9FTlZJUk9OTUVOVF9OQU1FPXByb2R1Y3Rpb24KICAgICAgICAgICAgLSBDT09MSUZZX1NFUlZFUl9JUD0xMC4wLjAuNQogICAgICAgIHJlc3RhcnQ6IHVubGVzcy1zdG9wcGVkCiAgICAgICAgbmV0d29ya3M6CiAgICAgICAgICAgIC0gY29vbGlmeQogICAgICAgIGxhYmVsczoKICAgICAgICAgICAgLSBjb29saWZ5Lm1hbmFnZWQ9dHJ1ZQogICAgICAgICAgICAtIGNvb2xpZnkudHlwZT1kYXRhYmFzZQogICAgICAgICAgICAtIGNvb2xpZnkuZGF0YWJhc2VVdWlkPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIGNvb2xpZnkucmVzb3VyY2VOYW1lPXNxbGl0ZS1kYXRhYmFzZS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnNlcnZpY2VOYW1lPXNxbGl0ZS1kYXRhYmFzZS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnByb2plY3ROYW1lPW15LXByb2plY3QKICAgICAgICAgICAgLSBjb29saWZ5LmVudmlyb25tZW50TmFtZT1wcm9kdWN0aW9uCiAgICAgICAgICAgIC0gY29vbGlmeS5kYXRhYmFzZS5zdWJUeXBlPXN0YW5kYWxvbmUtc3FsaXRlCiAgICAgICAgaGVhbHRoY2hlY2s6CiAgICAgICAgICAgIHRlc3Q6CiAgICAgICAgICAgICAgICAtIENNRAogICAgICAgICAgICAgICAgLSBoZWFsdGhjaGVjay5zaAogICAgICAgICAgICBpbnRlcnZhbDogMTVzCiAgICAgICAgICAgIHRpbWVvdXQ6IDVzCiAgICAgICAgICAgIHJldHJpZXM6IDUKICAgICAgICAgICAgc3RhcnRfcGVyaW9kOiA1cwogICAgICAgIG1lbV9saW1pdDogJzAnCiAgICAgICAgbWVtc3dhcF9saW1pdDogJzAnCiAgICAgICAgbWVtX3N3YXBwaW5lc3M6IDYwCiAgICAgICAgbWVtX3Jlc2VydmF0aW9uOiAnMCcKICAgICAgICBjcHVzOiAwLjAKICAgICAgICBjcHVfc2hhcmVzOiAxMDI0CiAgICAgICAgdm9sdW1lczoKICAgICAgICAgICAgLSAnc3FsaXRlLWRhdGEtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxOi92YXIvbGliL3NxbGl0ZScKbmV0d29ya3M6CiAgICBjb29saWZ5OgogICAgICAgIGV4dGVybmFsOiB0cnVlCiAgICAgICAgbmFtZTogY29vbGlmeQogICAgICAgIGF0dGFjaGFibGU6IHRydWUKdm9sdW1lczoKICAgIHNxbGl0ZS1kYXRhLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMToKICAgICAgICBuYW1lOiBzcWxpdGUtZGF0YS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBleHRlcm5hbDogZmFsc2UK' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/docker-compose.yml > /dev/null\necho 'Resource name: sqlite-database-db0000000000000000000001\nLatest Deployment Date: 2026-11-20 10:11:12' | tee /data/coolify/databases/db0000000000000000000001/README.md > /dev/null\necho 'Pulling peakimages/sqlite:3.54.1-v0.2.0 image.'\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml pull\ndocker stop --time=30 db0000000000000000000001 2>/dev/null || true\ndocker rm -f db0000000000000000000001 2>/dev/null || true\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml up -d\necho 'Database started.'",
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.extra volumes": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": "echo 'Starting database.'\nmkdir -p /data/coolify/databases/db0000000000000000000001\necho 'c2VydmljZXM6CiAgICBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgaW1hZ2U6ICdwZWFraW1hZ2VzL3NxbGl0ZTozLjU0LjEtdjAuMi4wJwogICAgICAgIGNvbnRhaW5lcl9uYW1lOiBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBlbnZpcm9ubWVudDoKICAgICAgICAgICAgLSBTUUxJVEVfREFUQUJBU0VTPWRhdGFiYXNlLnNxbGl0ZQogICAgICAgICAgICAtIENPT0xJRllfUkVTT1VSQ0VfVVVJRD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBDT09MSUZZX0NPTlRBSU5FUl9OQU1FPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIENPT0xJRllfQVBQX05BTUU9c3FsaXRlLWRhdGFiYXNlLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtICdDT09MSUZZX1BST0pFQ1RfTkFNRT1NeSBQcm9qZWN0JwogICAgICAgICAgICAtIENPT0xJRllfRU5WSVJPTk1FTlRfTkFNRT1wcm9kdWN0aW9uCiAgICAgICAgICAgIC0gQ09PTElGWV9TRVJWRVJfSVA9MTAuMC4wLjUKICAgICAgICByZXN0YXJ0OiB1bmxlc3Mtc3RvcHBlZAogICAgICAgIG5ldHdvcmtzOgogICAgICAgICAgICAtIGNvb2xpZnkKICAgICAgICBsYWJlbHM6CiAgICAgICAgICAgIC0gY29vbGlmeS5tYW5hZ2VkPXRydWUKICAgICAgICAgICAgLSBjb29saWZ5LnR5cGU9ZGF0YWJhc2UKICAgICAgICAgICAgLSBjb29saWZ5LmRhdGFiYXNlVXVpZD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnJlc291cmNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5zZXJ2aWNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5wcm9qZWN0TmFtZT1teS1wcm9qZWN0CiAgICAgICAgICAgIC0gY29vbGlmeS5lbnZpcm9ubWVudE5hbWU9cHJvZHVjdGlvbgogICAgICAgICAgICAtIGNvb2xpZnkuZGF0YWJhc2Uuc3ViVHlwZT1zdGFuZGFsb25lLXNxbGl0ZQogICAgICAgIGhlYWx0aGNoZWNrOgogICAgICAgICAgICB0ZXN0OgogICAgICAgICAgICAgICAgLSBDTUQKICAgICAgICAgICAgICAgIC0gaGVhbHRoY2hlY2suc2gKICAgICAgICAgICAgaW50ZXJ2YWw6IDE1cwogICAgICAgICAgICB0aW1lb3V0OiA1cwogICAgICAgICAgICByZXRyaWVzOiA1CiAgICAgICAgICAgIHN0YXJ0X3BlcmlvZDogNXMKICAgICAgICBtZW1fbGltaXQ6ICcwJwogICAgICAgIG1lbXN3YXBfbGltaXQ6ICcwJwogICAgICAgIG1lbV9zd2FwcGluZXNzOiA2MAogICAgICAgIG1lbV9yZXNlcnZhdGlvbjogJzAnCiAgICAgICAgY3B1czogMC4wCiAgICAgICAgY3B1X3NoYXJlczogMTAyNAogICAgICAgIHZvbHVtZXM6CiAgICAgICAgICAgIC0gJ3NxbGl0ZS1kYXRhLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMTovdmFyL2xpYi9zcWxpdGUnCiAgICAgICAgICAgIC0gJ2RiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMS1leHRyYTovZXh0cmEnCiAgICAgICAgICAgIC0gJy9zcnYvZGF0YTovaG9zdC1kYXRhJwogICAgICAgICAgICAtICdkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEtZW1wdHktaG9zdDovb3RoZXInCm5ldHdvcmtzOgogICAgY29vbGlmeToKICAgICAgICBleHRlcm5hbDogdHJ1ZQogICAgICAgIG5hbWU6IGNvb2xpZnkKICAgICAgICBhdHRhY2hhYmxlOiB0cnVlCnZvbHVtZXM6CiAgICBzcWxpdGUtZGF0YS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgbmFtZTogc3FsaXRlLWRhdGEtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgZXh0ZXJuYWw6IGZhbHNlCiAgICBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEtZXh0cmE6CiAgICAgICAgbmFtZTogZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxLWV4dHJhCiAgICAgICAgZXh0ZXJuYWw6IGZhbHNlCiAgICBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEtZW1wdHktaG9zdDoKICAgICAgICBuYW1lOiBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEtZW1wdHktaG9zdAogICAgICAgIGV4dGVybmFsOiBmYWxzZQo=' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/docker-compose.yml > /dev/null\necho 'Resource name: sqlite-database-db0000000000000000000001\nLatest Deployment Date: 2026-11-20 10:11:12' | tee /data/coolify/databases/db0000000000000000000001/README.md > /dev/null\necho 'Pulling peakimages/sqlite:3.54.1-v0.2.0 image.'\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml pull\ndocker stop --time=30 db0000000000000000000001 2>/dev/null || true\ndocker rm -f db0000000000000000000001 2>/dev/null || true\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml up -d\necho 'Database started.'",
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.without volumes": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": "echo 'Starting database.'\nmkdir -p /data/coolify/databases/db0000000000000000000001\necho 'c2VydmljZXM6CiAgICBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgaW1hZ2U6ICdwZWFraW1hZ2VzL3NxbGl0ZTozLjU0LjEtdjAuMi4wJwogICAgICAgIGNvbnRhaW5lcl9uYW1lOiBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBlbnZpcm9ubWVudDoKICAgICAgICAgICAgLSBTUUxJVEVfREFUQUJBU0VTPWRhdGFiYXNlLnNxbGl0ZQogICAgICAgICAgICAtIENPT0xJRllfUkVTT1VSQ0VfVVVJRD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBDT09MSUZZX0NPTlRBSU5FUl9OQU1FPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIENPT0xJRllfQVBQX05BTUU9c3FsaXRlLWRhdGFiYXNlLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtICdDT09MSUZZX1BST0pFQ1RfTkFNRT1NeSBQcm9qZWN0JwogICAgICAgICAgICAtIENPT0xJRllfRU5WSVJPTk1FTlRfTkFNRT1wcm9kdWN0aW9uCiAgICAgICAgICAgIC0gQ09PTElGWV9TRVJWRVJfSVA9MTAuMC4wLjUKICAgICAgICByZXN0YXJ0OiB1bmxlc3Mtc3RvcHBlZAogICAgICAgIG5ldHdvcmtzOgogICAgICAgICAgICAtIGNvb2xpZnkKICAgICAgICBsYWJlbHM6CiAgICAgICAgICAgIC0gY29vbGlmeS5tYW5hZ2VkPXRydWUKICAgICAgICAgICAgLSBjb29saWZ5LnR5cGU9ZGF0YWJhc2UKICAgICAgICAgICAgLSBjb29saWZ5LmRhdGFiYXNlVXVpZD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnJlc291cmNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5zZXJ2aWNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5wcm9qZWN0TmFtZT1teS1wcm9qZWN0CiAgICAgICAgICAgIC0gY29vbGlmeS5lbnZpcm9ubWVudE5hbWU9cHJvZHVjdGlvbgogICAgICAgICAgICAtIGNvb2xpZnkuZGF0YWJhc2Uuc3ViVHlwZT1zdGFuZGFsb25lLXNxbGl0ZQogICAgICAgIGhlYWx0aGNoZWNrOgogICAgICAgICAgICB0ZXN0OgogICAgICAgICAgICAgICAgLSBDTUQKICAgICAgICAgICAgICAgIC0gaGVhbHRoY2hlY2suc2gKICAgICAgICAgICAgaW50ZXJ2YWw6IDE1cwogICAgICAgICAgICB0aW1lb3V0OiA1cwogICAgICAgICAgICByZXRyaWVzOiA1CiAgICAgICAgICAgIHN0YXJ0X3BlcmlvZDogNXMKICAgICAgICBtZW1fbGltaXQ6ICcwJwogICAgICAgIG1lbXN3YXBfbGltaXQ6ICcwJwogICAgICAgIG1lbV9zd2FwcGluZXNzOiA2MAogICAgICAgIG1lbV9yZXNlcnZhdGlvbjogJzAnCiAgICAgICAgY3B1czogMC4wCiAgICAgICAgY3B1X3NoYXJlczogMTAyNApuZXR3b3JrczoKICAgIGNvb2xpZnk6CiAgICAgICAgZXh0ZXJuYWw6IHRydWUKICAgICAgICBuYW1lOiBjb29saWZ5CiAgICAgICAgYXR0YWNoYWJsZTogdHJ1ZQo=' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/docker-compose.yml > /dev/null\necho 'Resource name: sqlite-database-db0000000000000000000001\nLatest Deployment Date: 2026-11-20 10:11:12' | tee /data/coolify/databases/db0000000000000000000001/README.md > /dev/null\necho 'Pulling peakimages/sqlite:3.54.1-v0.2.0 image.'\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml pull\ndocker stop --time=30 db0000000000000000000001 2>/dev/null || true\ndocker rm -f db0000000000000000000001 2>/dev/null || true\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml up -d\necho 'Database started.'",
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.file mounts": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": {
+                        "$string": 14
+                    },
+                    "output": "1:missing\n2:empty-directory\n3:file\n"
+                },
+                {
+                    "script": {
+                        "$string": 15
+                    },
+                    "output": "OK\n"
+                },
+                {
+                    "script": {
+                        "$string": 16
+                    },
+                    "output": "1:missing\n"
+                },
+                {
+                    "script": {
+                        "$string": 17
+                    }
+                },
+                {
+                    "script": {
+                        "$string": 18
+                    },
+                    "output": "OK\n"
+                },
+                {
+                    "script": {
+                        "$string": 19
+                    },
+                    "output": "1:empty-directory\n"
+                },
+                {
+                    "script": {
+                        "$string": 20
+                    }
+                },
+                {
+                    "script": "echo 'Starting database.'\nmkdir -p /data/coolify/databases/db0000000000000000000001\necho 'Writing 2 missing configuration files.'\necho 'c2VydmljZXM6CiAgICBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgaW1hZ2U6ICdwZWFraW1hZ2VzL3NxbGl0ZTozLjU0LjEtdjAuMi4wJwogICAgICAgIGNvbnRhaW5lcl9uYW1lOiBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBlbnZpcm9ubWVudDoKICAgICAgICAgICAgLSBTUUxJVEVfREFUQUJBU0VTPWRhdGFiYXNlLnNxbGl0ZQogICAgICAgICAgICAtIENPT0xJRllfUkVTT1VSQ0VfVVVJRD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBDT09MSUZZX0NPTlRBSU5FUl9OQU1FPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIENPT0xJRllfQVBQX05BTUU9c3FsaXRlLWRhdGFiYXNlLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtICdDT09MSUZZX1BST0pFQ1RfTkFNRT1NeSBQcm9qZWN0JwogICAgICAgICAgICAtIENPT0xJRllfRU5WSVJPTk1FTlRfTkFNRT1wcm9kdWN0aW9uCiAgICAgICAgICAgIC0gQ09PTElGWV9TRVJWRVJfSVA9MTAuMC4wLjUKICAgICAgICByZXN0YXJ0OiB1bmxlc3Mtc3RvcHBlZAogICAgICAgIG5ldHdvcmtzOgogICAgICAgICAgICAtIGNvb2xpZnkKICAgICAgICBsYWJlbHM6CiAgICAgICAgICAgIC0gY29vbGlmeS5tYW5hZ2VkPXRydWUKICAgICAgICAgICAgLSBjb29saWZ5LnR5cGU9ZGF0YWJhc2UKICAgICAgICAgICAgLSBjb29saWZ5LmRhdGFiYXNlVXVpZD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnJlc291cmNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5zZXJ2aWNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5wcm9qZWN0TmFtZT1teS1wcm9qZWN0CiAgICAgICAgICAgIC0gY29vbGlmeS5lbnZpcm9ubWVudE5hbWU9cHJvZHVjdGlvbgogICAgICAgICAgICAtIGNvb2xpZnkuZGF0YWJhc2Uuc3ViVHlwZT1zdGFuZGFsb25lLXNxbGl0ZQogICAgICAgIGhlYWx0aGNoZWNrOgogICAgICAgICAgICB0ZXN0OgogICAgICAgICAgICAgICAgLSBDTUQKICAgICAgICAgICAgICAgIC0gaGVhbHRoY2hlY2suc2gKICAgICAgICAgICAgaW50ZXJ2YWw6IDE1cwogICAgICAgICAgICB0aW1lb3V0OiA1cwogICAgICAgICAgICByZXRyaWVzOiA1CiAgICAgICAgICAgIHN0YXJ0X3BlcmlvZDogNXMKICAgICAgICBtZW1fbGltaXQ6ICcwJwogICAgICAgIG1lbXN3YXBfbGltaXQ6ICcwJwogICAgICAgIG1lbV9zd2FwcGluZXNzOiA2MAogICAgICAgIG1lbV9yZXNlcnZhdGlvbjogJzAnCiAgICAgICAgY3B1czogMC4wCiAgICAgICAgY3B1X3NoYXJlczogMTAyNAogICAgICAgIHZvbHVtZXM6CiAgICAgICAgICAgIC0gJ3NxbGl0ZS1kYXRhLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMTovdmFyL2xpYi9zcWxpdGUnCiAgICAgICAgICAgIC0gJy9kYXRhL2Nvb2xpZnkvZGF0YWJhc2VzL2RiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMS9jb25mLmQ6L2NvbmYuZCcKICAgICAgICAgICAgLSAnL2RhdGEvY29vbGlmeS9kYXRhYmFzZXMvZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxL2V4dHJhLmNvbmY6L2V0Yy9leHRyYS5jb25mJwogICAgICAgICAgICAtICcvZGF0YS9jb29saWZ5L2RhdGFiYXNlcy9kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEvZW1wdHkuY29uZjovZXRjL2VtcHR5LmNvbmYnCiAgICAgICAgICAgIC0gJy9kYXRhL2Nvb2xpZnkvZGF0YWJhc2VzL2RiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMS9wcmVzZW50LmNvbmY6L2V0Yy9wcmVzZW50LmNvbmYnCiAgICAgICAgICAgIC0gJy9ldGMvaG9zdHM6L2V0Yy9ob3N0cy5ob3N0JwpuZXR3b3JrczoKICAgIGNvb2xpZnk6CiAgICAgICAgZXh0ZXJuYWw6IHRydWUKICAgICAgICBuYW1lOiBjb29saWZ5CiAgICAgICAgYXR0YWNoYWJsZTogdHJ1ZQp2b2x1bWVzOgogICAgc3FsaXRlLWRhdGEtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxOgogICAgICAgIG5hbWU6IHNxbGl0ZS1kYXRhLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgIGV4dGVybmFsOiBmYWxzZQo=' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/docker-compose.yml > /dev/null\necho 'Resource name: sqlite-database-db0000000000000000000001\nLatest Deployment Date: 2026-11-20 10:11:12' | tee /data/coolify/databases/db0000000000000000000001/README.md > /dev/null\necho 'Pulling peakimages/sqlite:3.54.1-v0.2.0 image.'\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml pull\ndocker stop --time=30 db0000000000000000000001 2>/dev/null || true\ndocker rm -f db0000000000000000000001 2>/dev/null || true\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml up -d\necho 'Database started.'",
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [
+                {
+                    "fs_path": "/data/coolify/databases/db0000000000000000000001/conf.d",
+                    "mount_path": "/conf.d",
+                    "content": null,
+                    "is_directory": true,
+                    "chmod": null,
+                    "chown": null
+                },
+                {
+                    "fs_path": "/data/coolify/databases/db0000000000000000000001/extra.conf",
+                    "mount_path": "/etc/extra.conf",
+                    "content": "key = value\nother = 'quoted'\n",
+                    "is_directory": false,
+                    "chmod": null,
+                    "chown": null
+                },
+                {
+                    "fs_path": "/data/coolify/databases/db0000000000000000000001/empty.conf",
+                    "mount_path": "/etc/empty.conf",
+                    "content": null,
+                    "is_directory": false,
+                    "chmod": null,
+                    "chown": null
+                },
+                {
+                    "fs_path": "/data/coolify/databases/db0000000000000000000001/present.conf",
+                    "mount_path": "/etc/present.conf",
+                    "content": "already there",
+                    "is_directory": false,
+                    "chmod": "640",
+                    "chown": "999:999"
+                },
+                {
+                    "fs_path": "/etc/hosts",
+                    "mount_path": "/etc/hosts.host",
+                    "content": null,
+                    "is_directory": false,
+                    "chmod": null,
+                    "chown": null
+                }
+            ],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "FileStorageChanged",
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.file mounts outside the directory": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": {
+                        "$string": 21
+                    },
+                    "output": "1:missing\n2:missing\n3:missing\n4:missing\n"
+                },
+                {
+                    "script": "test -L '/srv/conf/outside.conf' && echo LINK || echo OK",
+                    "output": "OK\n"
+                },
+                {
+                    "script": {
+                        "$string": 22
+                    },
+                    "output": "1:missing\n"
+                },
+                {
+                    "script": {
+                        "$string": 23
+                    }
+                },
+                {
+                    "script": "test -L '/srv/conf/link.conf' && echo LINK || echo OK",
+                    "output": "LINK\n"
+                },
+                {
+                    "script": {
+                        "$string": 24
+                    },
+                    "output": "OK\n"
+                },
+                {
+                    "script": {
+                        "$string": 25
+                    },
+                    "output": "1:directory\n"
+                },
+                {
+                    "script": "echo 'Starting database.'\nmkdir -p /data/coolify/databases/db0000000000000000000001\necho 'Warning: Invalid storage path: use an absolute path instead of ~.'\necho 'Warning: Invalid storage path: contains forbidden character '\\'';'\\'' (command separator). Shell metacharacters are not allowed for security reasons.'\necho 'Warning: Invalid storage path: '\\''.'\\'' and '\\''..'\\'' segments are not allowed.'\necho 'Writing 3 missing configuration files.'\necho 'Warning: Coolify cannot write the configuration file /srv/conf/link.conf: /srv/conf/link.conf is a symbolic link on the server. Coolify does not write a file through a symbolic link. Remove the link or use another path.'\necho 'Warning: Coolify cannot write the configuration file /data/coolify/databases/db0000000000000000000001/relative.conf: The following file is a directory on the server, but you are trying to mark it as a file: /data/coolify/databases/db0000000000000000000001/relative.conf Please delete the directory on the server or mark it as directory.'\necho 'c2VydmljZXM6CiAgICBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgaW1hZ2U6ICdwZWFraW1hZ2VzL3NxbGl0ZTozLjU0LjEtdjAuMi4wJwogICAgICAgIGNvbnRhaW5lcl9uYW1lOiBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBlbnZpcm9ubWVudDoKICAgICAgICAgICAgLSBTUUxJVEVfREFUQUJBU0VTPWRhdGFiYXNlLnNxbGl0ZQogICAgICAgICAgICAtIENPT0xJRllfUkVTT1VSQ0VfVVVJRD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBDT09MSUZZX0NPTlRBSU5FUl9OQU1FPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIENPT0xJRllfQVBQX05BTUU9c3FsaXRlLWRhdGFiYXNlLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtICdDT09MSUZZX1BST0pFQ1RfTkFNRT1NeSBQcm9qZWN0JwogICAgICAgICAgICAtIENPT0xJRllfRU5WSVJPTk1FTlRfTkFNRT1wcm9kdWN0aW9uCiAgICAgICAgICAgIC0gQ09PTElGWV9TRVJWRVJfSVA9MTAuMC4wLjUKICAgICAgICByZXN0YXJ0OiB1bmxlc3Mtc3RvcHBlZAogICAgICAgIG5ldHdvcmtzOgogICAgICAgICAgICAtIGNvb2xpZnkKICAgICAgICBsYWJlbHM6CiAgICAgICAgICAgIC0gY29vbGlmeS5tYW5hZ2VkPXRydWUKICAgICAgICAgICAgLSBjb29saWZ5LnR5cGU9ZGF0YWJhc2UKICAgICAgICAgICAgLSBjb29saWZ5LmRhdGFiYXNlVXVpZD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnJlc291cmNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5zZXJ2aWNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5wcm9qZWN0TmFtZT1teS1wcm9qZWN0CiAgICAgICAgICAgIC0gY29vbGlmeS5lbnZpcm9ubWVudE5hbWU9cHJvZHVjdGlvbgogICAgICAgICAgICAtIGNvb2xpZnkuZGF0YWJhc2Uuc3ViVHlwZT1zdGFuZGFsb25lLXNxbGl0ZQogICAgICAgIGhlYWx0aGNoZWNrOgogICAgICAgICAgICB0ZXN0OgogICAgICAgICAgICAgICAgLSBDTUQKICAgICAgICAgICAgICAgIC0gaGVhbHRoY2hlY2suc2gKICAgICAgICAgICAgaW50ZXJ2YWw6IDE1cwogICAgICAgICAgICB0aW1lb3V0OiA1cwogICAgICAgICAgICByZXRyaWVzOiA1CiAgICAgICAgICAgIHN0YXJ0X3BlcmlvZDogNXMKICAgICAgICBtZW1fbGltaXQ6ICcwJwogICAgICAgIG1lbXN3YXBfbGltaXQ6ICcwJwogICAgICAgIG1lbV9zd2FwcGluZXNzOiA2MAogICAgICAgIG1lbV9yZXNlcnZhdGlvbjogJzAnCiAgICAgICAgY3B1czogMC4wCiAgICAgICAgY3B1X3NoYXJlczogMTAyNAogICAgICAgIHZvbHVtZXM6CiAgICAgICAgICAgIC0gJ3NxbGl0ZS1kYXRhLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMTovdmFyL2xpYi9zcWxpdGUnCiAgICAgICAgICAgIC0gJy9zcnYvY29uZi9vdXRzaWRlLmNvbmY6L2V0Yy9vdXRzaWRlLmNvbmYnCiAgICAgICAgICAgIC0gJy9zcnYvY29uZi9saW5rLmNvbmY6L2V0Yy9saW5rLmNvbmYnCiAgICAgICAgICAgIC0gJy4vcmVsYXRpdmUuY29uZjovZXRjL3JlbGF0aXZlLmNvbmYnCiAgICAgICAgICAgIC0gJ34vaG9tZS5jb25mOi9ldGMvaG9tZS5jb25mJwogICAgICAgICAgICAtICcvc3J2L2E7Yi5jb25mOi9ldGMvYWIuY29uZicKICAgICAgICAgICAgLSAnL2RhdGEvY29vbGlmeS9kYXRhYmFzZXMvZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxLy4uL290aGVyL2VzY2FwZS5jb25mOi9ldGMvZXNjYXBlLmNvbmYnCiAgICAgICAgICAgIC0gJy9kYXRhL2Nvb2xpZnkvZGF0YWJhc2VzL2RiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMS9iaW5hcnkuZGF0Oi9ldGMvYmluYXJ5LmRhdCcKbmV0d29ya3M6CiAgICBjb29saWZ5OgogICAgICAgIGV4dGVybmFsOiB0cnVlCiAgICAgICAgbmFtZTogY29vbGlmeQogICAgICAgIGF0dGFjaGFibGU6IHRydWUKdm9sdW1lczoKICAgIHNxbGl0ZS1kYXRhLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMToKICAgICAgICBuYW1lOiBzcWxpdGUtZGF0YS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBleHRlcm5hbDogZmFsc2UK' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/docker-compose.yml > /dev/null\necho 'Resource name: sqlite-database-db0000000000000000000001\nLatest Deployment Date: 2026-11-20 10:11:12' | tee /data/coolify/databases/db0000000000000000000001/README.md > /dev/null\necho 'Pulling peakimages/sqlite:3.54.1-v0.2.0 image.'\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml pull\ndocker stop --time=30 db0000000000000000000001 2>/dev/null || true\ndocker rm -f db0000000000000000000001 2>/dev/null || true\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml up -d\necho 'Database started.'",
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [
+                {
+                    "fs_path": "/srv/conf/outside.conf",
+                    "mount_path": "/etc/outside.conf",
+                    "content": "x = 1\n",
+                    "is_directory": false,
+                    "chmod": "600",
+                    "chown": null
+                },
+                {
+                    "fs_path": "/srv/conf/link.conf",
+                    "mount_path": "/etc/link.conf",
+                    "content": "y = 2\n",
+                    "is_directory": false,
+                    "chmod": null,
+                    "chown": null
+                },
+                {
+                    "fs_path": "./relative.conf",
+                    "mount_path": "/etc/relative.conf",
+                    "content": "z = 3\n",
+                    "is_directory": false,
+                    "chmod": null,
+                    "chown": null
+                },
+                {
+                    "fs_path": "~/home.conf",
+                    "mount_path": "/etc/home.conf",
+                    "content": "h = 4\n",
+                    "is_directory": false,
+                    "chmod": null,
+                    "chown": null
+                },
+                {
+                    "fs_path": "/srv/a;b.conf",
+                    "mount_path": "/etc/ab.conf",
+                    "content": "i = 5\n",
+                    "is_directory": false,
+                    "chmod": null,
+                    "chown": null
+                },
+                {
+                    "fs_path": "/data/coolify/databases/db0000000000000000000001/../other/escape.conf",
+                    "mount_path": "/etc/escape.conf",
+                    "content": "j = 6\n",
+                    "is_directory": false,
+                    "chmod": null,
+                    "chown": null
+                },
+                {
+                    "fs_path": "/data/coolify/databases/db0000000000000000000001/binary.dat",
+                    "mount_path": "/etc/binary.dat",
+                    "content": "[binary file]",
+                    "is_directory": false,
+                    "chmod": null,
+                    "chown": null
+                }
+            ],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.file mounts the server refuses": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": {
+                        "$string": 26
+                    },
+                    "output": "1:missing\n2:missing\n3:missing\n4:missing\n"
+                },
+                {
+                    "script": {
+                        "$string": 27
+                    },
+                    "output": "NOK\n"
+                },
+                {
+                    "script": {
+                        "$string": 28
+                    },
+                    "output": "OK\n"
+                },
+                {
+                    "script": {
+                        "$string": 29
+                    },
+                    "output": "garbage\n"
+                },
+                {
+                    "script": {
+                        "$string": 30
+                    },
+                    "output": "OK\n"
+                },
+                {
+                    "script": {
+                        "$string": 31
+                    },
+                    "output": "1:other\n"
+                },
+                {
+                    "script": {
+                        "$string": 32
+                    },
+                    "output": "OK\n"
+                },
+                {
+                    "script": {
+                        "$string": 33
+                    },
+                    "output": "1:missing\n"
+                },
+                {
+                    "script": {
+                        "$string": 34
+                    },
+                    "errorOutput": "touch: cannot touch: Read-only file system\n",
+                    "exitCode": 1
+                },
+                {
+                    "script": "echo 'Starting database.'\nmkdir -p /data/coolify/databases/db0000000000000000000001\necho 'Writing 4 missing configuration files.'\necho 'Warning: Coolify cannot write the configuration file /data/coolify/databases/db0000000000000000000001/a.conf: Invalid storage path: resolved path must stay inside the resource configuration directory.'\necho 'Warning: Coolify cannot write the configuration file /data/coolify/databases/db0000000000000000000001/b.conf: Coolify cannot check the file /data/coolify/databases/db0000000000000000000001/b.conf on the server.'\necho 'Warning: Coolify cannot write the configuration file /data/coolify/databases/db0000000000000000000001/c.conf: A symbolic link or a special file is at /data/coolify/databases/db0000000000000000000001/c.conf on the server. Coolify did not write the file.'\necho 'Warning: Coolify cannot write the configuration file /data/coolify/databases/db0000000000000000000001/d.conf: touch: cannot touch: Read-only file system'\necho 'c2VydmljZXM6CiAgICBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgaW1hZ2U6ICdwZWFraW1hZ2VzL3NxbGl0ZTozLjU0LjEtdjAuMi4wJwogICAgICAgIGNvbnRhaW5lcl9uYW1lOiBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBlbnZpcm9ubWVudDoKICAgICAgICAgICAgLSBTUUxJVEVfREFUQUJBU0VTPWRhdGFiYXNlLnNxbGl0ZQogICAgICAgICAgICAtIENPT0xJRllfUkVTT1VSQ0VfVVVJRD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBDT09MSUZZX0NPTlRBSU5FUl9OQU1FPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIENPT0xJRllfQVBQX05BTUU9c3FsaXRlLWRhdGFiYXNlLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtICdDT09MSUZZX1BST0pFQ1RfTkFNRT1NeSBQcm9qZWN0JwogICAgICAgICAgICAtIENPT0xJRllfRU5WSVJPTk1FTlRfTkFNRT1wcm9kdWN0aW9uCiAgICAgICAgICAgIC0gQ09PTElGWV9TRVJWRVJfSVA9MTAuMC4wLjUKICAgICAgICByZXN0YXJ0OiB1bmxlc3Mtc3RvcHBlZAogICAgICAgIG5ldHdvcmtzOgogICAgICAgICAgICAtIGNvb2xpZnkKICAgICAgICBsYWJlbHM6CiAgICAgICAgICAgIC0gY29vbGlmeS5tYW5hZ2VkPXRydWUKICAgICAgICAgICAgLSBjb29saWZ5LnR5cGU9ZGF0YWJhc2UKICAgICAgICAgICAgLSBjb29saWZ5LmRhdGFiYXNlVXVpZD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnJlc291cmNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5zZXJ2aWNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5wcm9qZWN0TmFtZT1teS1wcm9qZWN0CiAgICAgICAgICAgIC0gY29vbGlmeS5lbnZpcm9ubWVudE5hbWU9cHJvZHVjdGlvbgogICAgICAgICAgICAtIGNvb2xpZnkuZGF0YWJhc2Uuc3ViVHlwZT1zdGFuZGFsb25lLXNxbGl0ZQogICAgICAgIGhlYWx0aGNoZWNrOgogICAgICAgICAgICB0ZXN0OgogICAgICAgICAgICAgICAgLSBDTUQKICAgICAgICAgICAgICAgIC0gaGVhbHRoY2hlY2suc2gKICAgICAgICAgICAgaW50ZXJ2YWw6IDE1cwogICAgICAgICAgICB0aW1lb3V0OiA1cwogICAgICAgICAgICByZXRyaWVzOiA1CiAgICAgICAgICAgIHN0YXJ0X3BlcmlvZDogNXMKICAgICAgICBtZW1fbGltaXQ6ICcwJwogICAgICAgIG1lbXN3YXBfbGltaXQ6ICcwJwogICAgICAgIG1lbV9zd2FwcGluZXNzOiA2MAogICAgICAgIG1lbV9yZXNlcnZhdGlvbjogJzAnCiAgICAgICAgY3B1czogMC4wCiAgICAgICAgY3B1X3NoYXJlczogMTAyNAogICAgICAgIHZvbHVtZXM6CiAgICAgICAgICAgIC0gJ3NxbGl0ZS1kYXRhLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMTovdmFyL2xpYi9zcWxpdGUnCiAgICAgICAgICAgIC0gJy9kYXRhL2Nvb2xpZnkvZGF0YWJhc2VzL2RiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMS9hLmNvbmY6L2V0Yy9hLmNvbmYnCiAgICAgICAgICAgIC0gJy9kYXRhL2Nvb2xpZnkvZGF0YWJhc2VzL2RiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMS9iLmNvbmY6L2V0Yy9iLmNvbmYnCiAgICAgICAgICAgIC0gJy9kYXRhL2Nvb2xpZnkvZGF0YWJhc2VzL2RiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMS9jLmNvbmY6L2V0Yy9jLmNvbmYnCiAgICAgICAgICAgIC0gJy9kYXRhL2Nvb2xpZnkvZGF0YWJhc2VzL2RiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMS9kLmNvbmY6L2V0Yy9kLmNvbmYnCm5ldHdvcmtzOgogICAgY29vbGlmeToKICAgICAgICBleHRlcm5hbDogdHJ1ZQogICAgICAgIG5hbWU6IGNvb2xpZnkKICAgICAgICBhdHRhY2hhYmxlOiB0cnVlCnZvbHVtZXM6CiAgICBzcWxpdGUtZGF0YS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgbmFtZTogc3FsaXRlLWRhdGEtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgZXh0ZXJuYWw6IGZhbHNlCg==' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/docker-compose.yml > /dev/null\necho 'Resource name: sqlite-database-db0000000000000000000001\nLatest Deployment Date: 2026-11-20 10:11:12' | tee /data/coolify/databases/db0000000000000000000001/README.md > /dev/null\necho 'Pulling peakimages/sqlite:3.54.1-v0.2.0 image.'\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml pull\ndocker stop --time=30 db0000000000000000000001 2>/dev/null || true\ndocker rm -f db0000000000000000000001 2>/dev/null || true\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml up -d\necho 'Database started.'",
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [
+                {
+                    "fs_path": "/data/coolify/databases/db0000000000000000000001/a.conf",
+                    "mount_path": "/etc/a.conf",
+                    "content": "a",
+                    "is_directory": false,
+                    "chmod": null,
+                    "chown": null
+                },
+                {
+                    "fs_path": "/data/coolify/databases/db0000000000000000000001/b.conf",
+                    "mount_path": "/etc/b.conf",
+                    "content": "b",
+                    "is_directory": false,
+                    "chmod": null,
+                    "chown": null
+                },
+                {
+                    "fs_path": "/data/coolify/databases/db0000000000000000000001/c.conf",
+                    "mount_path": "/etc/c.conf",
+                    "content": "c",
+                    "is_directory": false,
+                    "chmod": null,
+                    "chown": null
+                },
+                {
+                    "fs_path": "/data/coolify/databases/db0000000000000000000001/d.conf",
+                    "mount_path": "/etc/d.conf",
+                    "content": "0",
+                    "is_directory": false,
+                    "chmod": null,
+                    "chown": null
+                }
+            ],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.variables": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": "echo 'Starting database.'\nmkdir -p /data/coolify/databases/db0000000000000000000001\necho 'c2VydmljZXM6CiAgICBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgaW1hZ2U6ICdwZWFraW1hZ2VzL3NxbGl0ZTozLjU0LjEtdjAuMi4wJwogICAgICAgIGNvbnRhaW5lcl9uYW1lOiBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBlbnZpcm9ubWVudDoKICAgICAgICAgICAgLSBQTEFJTj12YWx1ZQogICAgICAgICAgICAtICdET0xMQVI9cGEkJHdvcmQgYW5kICR7T1RIRVJ9JwogICAgICAgICAgICAtICdMSVRFUkFMPXBhJCQkJHdvcmQgYW5kICQke09USEVSfScKICAgICAgICAgICAgLSAiTVVMVElMSU5FPWxpbmUgb25lXG5saW5lIHR3byB3aXRoICQkeFxuIgogICAgICAgICAgICAtICdKU09OPXsiYSI6IiQkYiIsImMiOlsxLDJdfScKICAgICAgICAgICAgLSAnU1BBQ0VTPSAgcGFkZGVkIHZhbHVlICAnCiAgICAgICAgICAgIC0gJ1FVT1RFUz1pdCcncyAicXVvdGVkIiAjaGFzaCcKICAgICAgICAgICAgLSBFTVBUWT0KICAgICAgICAgICAgLSBTSEFSRUQ9dGVhbSR2YWx1ZS1zdWZmaXgKICAgICAgICAgICAgLSAnU0hBUkVEX1BST0pFQ1Q9ZGIuaW50ZXJuYWw6NTQzMkBldS1jZW50cmFsJwogICAgICAgICAgICAtICdTSEFSRURfTUlTU0lORz17e3RlYW0uTk9UX1RIRVJFfX0nCiAgICAgICAgICAgIC0gJ0JVSUxEX09OTFk9c3RpbGwgaW4gdGhlIGNvbnRhaW5lcicKICAgICAgICAgICAgLSAnTE9DS0VEPWxvY2tlZCB2YWx1ZScKICAgICAgICAgICAgLSBTUUxJVEVfREFUQUJBU0VTPWRhdGFiYXNlLnNxbGl0ZQogICAgICAgICAgICAtIENPT0xJRllfUkVTT1VSQ0VfVVVJRD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBDT09MSUZZX0NPTlRBSU5FUl9OQU1FPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIENPT0xJRllfQVBQX05BTUU9c3FsaXRlLWRhdGFiYXNlLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtICdDT09MSUZZX1BST0pFQ1RfTkFNRT1NeSBQcm9qZWN0JwogICAgICAgICAgICAtIENPT0xJRllfRU5WSVJPTk1FTlRfTkFNRT1wcm9kdWN0aW9uCiAgICAgICAgICAgIC0gQ09PTElGWV9TRVJWRVJfSVA9MTAuMC4wLjUKICAgICAgICByZXN0YXJ0OiB1bmxlc3Mtc3RvcHBlZAogICAgICAgIG5ldHdvcmtzOgogICAgICAgICAgICAtIGNvb2xpZnkKICAgICAgICBsYWJlbHM6CiAgICAgICAgICAgIC0gY29vbGlmeS5tYW5hZ2VkPXRydWUKICAgICAgICAgICAgLSBjb29saWZ5LnR5cGU9ZGF0YWJhc2UKICAgICAgICAgICAgLSBjb29saWZ5LmRhdGFiYXNlVXVpZD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnJlc291cmNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5zZXJ2aWNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5wcm9qZWN0TmFtZT1teS1wcm9qZWN0CiAgICAgICAgICAgIC0gY29vbGlmeS5lbnZpcm9ubWVudE5hbWU9cHJvZHVjdGlvbgogICAgICAgICAgICAtIGNvb2xpZnkuZGF0YWJhc2Uuc3ViVHlwZT1zdGFuZGFsb25lLXNxbGl0ZQogICAgICAgIGhlYWx0aGNoZWNrOgogICAgICAgICAgICB0ZXN0OgogICAgICAgICAgICAgICAgLSBDTUQKICAgICAgICAgICAgICAgIC0gaGVhbHRoY2hlY2suc2gKICAgICAgICAgICAgaW50ZXJ2YWw6IDE1cwogICAgICAgICAgICB0aW1lb3V0OiA1cwogICAgICAgICAgICByZXRyaWVzOiA1CiAgICAgICAgICAgIHN0YXJ0X3BlcmlvZDogNXMKICAgICAgICBtZW1fbGltaXQ6ICcwJwogICAgICAgIG1lbXN3YXBfbGltaXQ6ICcwJwogICAgICAgIG1lbV9zd2FwcGluZXNzOiA2MAogICAgICAgIG1lbV9yZXNlcnZhdGlvbjogJzAnCiAgICAgICAgY3B1czogMC4wCiAgICAgICAgY3B1X3NoYXJlczogMTAyNAogICAgICAgIHZvbHVtZXM6CiAgICAgICAgICAgIC0gJ3NxbGl0ZS1kYXRhLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMTovdmFyL2xpYi9zcWxpdGUnCm5ldHdvcmtzOgogICAgY29vbGlmeToKICAgICAgICBleHRlcm5hbDogdHJ1ZQogICAgICAgIG5hbWU6IGNvb2xpZnkKICAgICAgICBhdHRhY2hhYmxlOiB0cnVlCnZvbHVtZXM6CiAgICBzcWxpdGUtZGF0YS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgbmFtZTogc3FsaXRlLWRhdGEtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgZXh0ZXJuYWw6IGZhbHNlCg==' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/docker-compose.yml > /dev/null\necho 'Resource name: sqlite-database-db0000000000000000000001\nLatest Deployment Date: 2026-11-20 10:11:12' | tee /data/coolify/databases/db0000000000000000000001/README.md > /dev/null\necho 'Pulling peakimages/sqlite:3.54.1-v0.2.0 image.'\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml pull\ndocker stop --time=30 db0000000000000000000001 2>/dev/null || true\ndocker rm -f db0000000000000000000001 2>/dev/null || true\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml up -d\necho 'Database started.'",
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [
+                {
+                    "key": "PLAIN",
+                    "value": "value"
+                },
+                {
+                    "key": "DOLLAR",
+                    "value": "pa$$word and ${OTHER}"
+                },
+                {
+                    "key": "LITERAL",
+                    "value": "pa$$word and ${OTHER}"
+                },
+                {
+                    "key": "MULTILINE",
+                    "value": "line one\nline two with $x\n"
+                },
+                {
+                    "key": "JSON",
+                    "value": "{\"a\":\"$b\",\"c\":[1,2]}"
+                },
+                {
+                    "key": "SPACES",
+                    "value": "  padded value  "
+                },
+                {
+                    "key": "QUOTES",
+                    "value": "it's \"quoted\" #hash"
+                },
+                {
+                    "key": "EMPTY",
+                    "value": ""
+                },
+                {
+                    "key": "SHARED",
+                    "value": "{{team.SHARED_KEY}}-suffix"
+                },
+                {
+                    "key": "SHARED_PROJECT",
+                    "value": "{{project.DB_HOST}}:{{environment.DB_PORT}}@{{server.REGION}}"
+                },
+                {
+                    "key": "SHARED_MISSING",
+                    "value": "{{team.NOT_THERE}}"
+                },
+                {
+                    "key": "BUILD_ONLY",
+                    "value": "still in the container"
+                },
+                {
+                    "key": "LOCKED",
+                    "value": "locked value"
+                }
+            ],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.credential variables": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": {
+                        "$string": 65
+                    },
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [
+                {
+                    "key": "SQLITE_DATABASES",
+                    "value": "app.sqlite,cache.db"
+                }
+            ],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.literal credential variables": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": {
+                        "$string": 65
+                    },
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [
+                {
+                    "key": "SQLITE_DATABASES",
+                    "value": "app.sqlite,cache.db"
+                }
+            ],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.legacy escaped variables": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": "echo 'Starting database.'\nmkdir -p /data/coolify/databases/db0000000000000000000001\necho 'c2VydmljZXM6CiAgICBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgaW1hZ2U6ICdwZWFraW1hZ2VzL3NxbGl0ZTozLjU0LjEtdjAuMi4wJwogICAgICAgIGNvbnRhaW5lcl9uYW1lOiBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBlbnZpcm9ubWVudDoKICAgICAgICAgICAgLSBQTEFJTj1wYSR3b3JkCiAgICAgICAgICAgIC0gIkxJVEVSQUw9J3BhJHdvcmQgJ3gnJyIKICAgICAgICAgICAgLSAnSlNPTj17ImEiOiIkYiJ9JwogICAgICAgICAgICAtICdFREdFPSBlZGdlICcKICAgICAgICAgICAgLSAnU1FMSVRFX0RBVEFCQVNFUz1hcHAuc3FsaXRlLGNhY2hlLmRiJwogICAgICAgICAgICAtIENPT0xJRllfUkVTT1VSQ0VfVVVJRD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBDT09MSUZZX0NPTlRBSU5FUl9OQU1FPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIENPT0xJRllfQVBQX05BTUU9c3FsaXRlLWRhdGFiYXNlLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtICdDT09MSUZZX1BST0pFQ1RfTkFNRT1NeSBQcm9qZWN0JwogICAgICAgICAgICAtIENPT0xJRllfRU5WSVJPTk1FTlRfTkFNRT1wcm9kdWN0aW9uCiAgICAgICAgICAgIC0gQ09PTElGWV9TRVJWRVJfSVA9MTAuMC4wLjUKICAgICAgICByZXN0YXJ0OiB1bmxlc3Mtc3RvcHBlZAogICAgICAgIG5ldHdvcmtzOgogICAgICAgICAgICAtIGNvb2xpZnkKICAgICAgICBsYWJlbHM6CiAgICAgICAgICAgIC0gY29vbGlmeS5tYW5hZ2VkPXRydWUKICAgICAgICAgICAgLSBjb29saWZ5LnR5cGU9ZGF0YWJhc2UKICAgICAgICAgICAgLSBjb29saWZ5LmRhdGFiYXNlVXVpZD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnJlc291cmNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5zZXJ2aWNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5wcm9qZWN0TmFtZT1teS1wcm9qZWN0CiAgICAgICAgICAgIC0gY29vbGlmeS5lbnZpcm9ubWVudE5hbWU9cHJvZHVjdGlvbgogICAgICAgICAgICAtIGNvb2xpZnkuZGF0YWJhc2Uuc3ViVHlwZT1zdGFuZGFsb25lLXNxbGl0ZQogICAgICAgIGhlYWx0aGNoZWNrOgogICAgICAgICAgICB0ZXN0OgogICAgICAgICAgICAgICAgLSBDTUQKICAgICAgICAgICAgICAgIC0gaGVhbHRoY2hlY2suc2gKICAgICAgICAgICAgaW50ZXJ2YWw6IDE1cwogICAgICAgICAgICB0aW1lb3V0OiA1cwogICAgICAgICAgICByZXRyaWVzOiA1CiAgICAgICAgICAgIHN0YXJ0X3BlcmlvZDogNXMKICAgICAgICBtZW1fbGltaXQ6ICcwJwogICAgICAgIG1lbXN3YXBfbGltaXQ6ICcwJwogICAgICAgIG1lbV9zd2FwcGluZXNzOiA2MAogICAgICAgIG1lbV9yZXNlcnZhdGlvbjogJzAnCiAgICAgICAgY3B1czogMC4wCiAgICAgICAgY3B1X3NoYXJlczogMTAyNAogICAgICAgIHZvbHVtZXM6CiAgICAgICAgICAgIC0gJ3NxbGl0ZS1kYXRhLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMTovdmFyL2xpYi9zcWxpdGUnCm5ldHdvcmtzOgogICAgY29vbGlmeToKICAgICAgICBleHRlcm5hbDogdHJ1ZQogICAgICAgIG5hbWU6IGNvb2xpZnkKICAgICAgICBhdHRhY2hhYmxlOiB0cnVlCnZvbHVtZXM6CiAgICBzcWxpdGUtZGF0YS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgbmFtZTogc3FsaXRlLWRhdGEtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgZXh0ZXJuYWw6IGZhbHNlCg==' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/docker-compose.yml > /dev/null\necho 'Resource name: sqlite-database-db0000000000000000000001\nLatest Deployment Date: 2026-11-20 10:11:12' | tee /data/coolify/databases/db0000000000000000000001/README.md > /dev/null\necho 'Pulling peakimages/sqlite:3.54.1-v0.2.0 image.'\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml pull\ndocker stop --time=30 db0000000000000000000001 2>/dev/null || true\ndocker rm -f db0000000000000000000001 2>/dev/null || true\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml up -d\necho 'Database started.'",
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [
+                {
+                    "key": "PLAIN",
+                    "value": "pa$word"
+                },
+                {
+                    "key": "LITERAL",
+                    "value": "pa$word 'x'"
+                },
+                {
+                    "key": "JSON",
+                    "value": "{\"a\":\"$b\"}"
+                },
+                {
+                    "key": "EDGE",
+                    "value": " edge "
+                },
+                {
+                    "key": "SQLITE_DATABASES",
+                    "value": "app.sqlite,cache.db"
+                }
+            ],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.coolify variables overridden": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": "echo 'Starting database.'\nmkdir -p /data/coolify/databases/db0000000000000000000001\necho 'c2VydmljZXM6CiAgICBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgaW1hZ2U6ICdwZWFraW1hZ2VzL3NxbGl0ZTozLjU0LjEtdjAuMi4wJwogICAgICAgIGNvbnRhaW5lcl9uYW1lOiBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBlbnZpcm9ubWVudDoKICAgICAgICAgICAgLSBDT09MSUZZX1JFU09VUkNFX1VVSUQ9bWluZQogICAgICAgICAgICAtIENPT0xJRllfQVBQX05BTUU9bXktYXBwCiAgICAgICAgICAgIC0gQ09PTElGWV9TRVJWRVJfSVA9MS4yLjMuNAogICAgICAgICAgICAtIFNRTElURV9EQVRBQkFTRVM9ZGF0YWJhc2Uuc3FsaXRlCiAgICAgICAgICAgIC0gQ09PTElGWV9DT05UQUlORVJfTkFNRT1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSAnQ09PTElGWV9QUk9KRUNUX05BTUU9TXkgUHJvamVjdCcKICAgICAgICAgICAgLSBDT09MSUZZX0VOVklST05NRU5UX05BTUU9cHJvZHVjdGlvbgogICAgICAgIHJlc3RhcnQ6IHVubGVzcy1zdG9wcGVkCiAgICAgICAgbmV0d29ya3M6CiAgICAgICAgICAgIC0gY29vbGlmeQogICAgICAgIGxhYmVsczoKICAgICAgICAgICAgLSBjb29saWZ5Lm1hbmFnZWQ9dHJ1ZQogICAgICAgICAgICAtIGNvb2xpZnkudHlwZT1kYXRhYmFzZQogICAgICAgICAgICAtIGNvb2xpZnkuZGF0YWJhc2VVdWlkPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIGNvb2xpZnkucmVzb3VyY2VOYW1lPXNxbGl0ZS1kYXRhYmFzZS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnNlcnZpY2VOYW1lPXNxbGl0ZS1kYXRhYmFzZS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnByb2plY3ROYW1lPW15LXByb2plY3QKICAgICAgICAgICAgLSBjb29saWZ5LmVudmlyb25tZW50TmFtZT1wcm9kdWN0aW9uCiAgICAgICAgICAgIC0gY29vbGlmeS5kYXRhYmFzZS5zdWJUeXBlPXN0YW5kYWxvbmUtc3FsaXRlCiAgICAgICAgaGVhbHRoY2hlY2s6CiAgICAgICAgICAgIHRlc3Q6CiAgICAgICAgICAgICAgICAtIENNRAogICAgICAgICAgICAgICAgLSBoZWFsdGhjaGVjay5zaAogICAgICAgICAgICBpbnRlcnZhbDogMTVzCiAgICAgICAgICAgIHRpbWVvdXQ6IDVzCiAgICAgICAgICAgIHJldHJpZXM6IDUKICAgICAgICAgICAgc3RhcnRfcGVyaW9kOiA1cwogICAgICAgIG1lbV9saW1pdDogJzAnCiAgICAgICAgbWVtc3dhcF9saW1pdDogJzAnCiAgICAgICAgbWVtX3N3YXBwaW5lc3M6IDYwCiAgICAgICAgbWVtX3Jlc2VydmF0aW9uOiAnMCcKICAgICAgICBjcHVzOiAwLjAKICAgICAgICBjcHVfc2hhcmVzOiAxMDI0CiAgICAgICAgdm9sdW1lczoKICAgICAgICAgICAgLSAnc3FsaXRlLWRhdGEtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxOi92YXIvbGliL3NxbGl0ZScKbmV0d29ya3M6CiAgICBjb29saWZ5OgogICAgICAgIGV4dGVybmFsOiB0cnVlCiAgICAgICAgbmFtZTogY29vbGlmeQogICAgICAgIGF0dGFjaGFibGU6IHRydWUKdm9sdW1lczoKICAgIHNxbGl0ZS1kYXRhLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMToKICAgICAgICBuYW1lOiBzcWxpdGUtZGF0YS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBleHRlcm5hbDogZmFsc2UK' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/docker-compose.yml > /dev/null\necho 'Resource name: sqlite-database-db0000000000000000000001\nLatest Deployment Date: 2026-11-20 10:11:12' | tee /data/coolify/databases/db0000000000000000000001/README.md > /dev/null\necho 'Pulling peakimages/sqlite:3.54.1-v0.2.0 image.'\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml pull\ndocker stop --time=30 db0000000000000000000001 2>/dev/null || true\ndocker rm -f db0000000000000000000001 2>/dev/null || true\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml up -d\necho 'Database started.'",
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [
+                {
+                    "key": "COOLIFY_RESOURCE_UUID",
+                    "value": "mine"
+                },
+                {
+                    "key": "COOLIFY_APP_NAME",
+                    "value": "my-app"
+                },
+                {
+                    "key": "COOLIFY_SERVER_IP",
+                    "value": "1.2.3.4"
+                }
+            ],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.without coolify variables": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": "echo 'Starting database.'\nmkdir -p /data/coolify/databases/db0000000000000000000001\necho 'c2VydmljZXM6CiAgICBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgaW1hZ2U6ICdwZWFraW1hZ2VzL3NxbGl0ZTozLjU0LjEtdjAuMi4wJwogICAgICAgIGNvbnRhaW5lcl9uYW1lOiBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBlbnZpcm9ubWVudDoKICAgICAgICAgICAgLSBTUUxJVEVfREFUQUJBU0VTPWRhdGFiYXNlLnNxbGl0ZQogICAgICAgICAgICAtIENPT0xJRllfUkVTT1VSQ0VfVVVJRD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBDT09MSUZZX0NPTlRBSU5FUl9OQU1FPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgIHJlc3RhcnQ6IHVubGVzcy1zdG9wcGVkCiAgICAgICAgbmV0d29ya3M6CiAgICAgICAgICAgIC0gY29vbGlmeQogICAgICAgIGxhYmVsczoKICAgICAgICAgICAgLSBjb29saWZ5Lm1hbmFnZWQ9dHJ1ZQogICAgICAgICAgICAtIGNvb2xpZnkudHlwZT1kYXRhYmFzZQogICAgICAgICAgICAtIGNvb2xpZnkuZGF0YWJhc2VVdWlkPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIGNvb2xpZnkucmVzb3VyY2VOYW1lPXNxbGl0ZS1kYXRhYmFzZS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnNlcnZpY2VOYW1lPXNxbGl0ZS1kYXRhYmFzZS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnByb2plY3ROYW1lPW15LXByb2plY3QKICAgICAgICAgICAgLSBjb29saWZ5LmVudmlyb25tZW50TmFtZT1wcm9kdWN0aW9uCiAgICAgICAgICAgIC0gY29vbGlmeS5kYXRhYmFzZS5zdWJUeXBlPXN0YW5kYWxvbmUtc3FsaXRlCiAgICAgICAgaGVhbHRoY2hlY2s6CiAgICAgICAgICAgIHRlc3Q6CiAgICAgICAgICAgICAgICAtIENNRAogICAgICAgICAgICAgICAgLSBoZWFsdGhjaGVjay5zaAogICAgICAgICAgICBpbnRlcnZhbDogMTVzCiAgICAgICAgICAgIHRpbWVvdXQ6IDVzCiAgICAgICAgICAgIHJldHJpZXM6IDUKICAgICAgICAgICAgc3RhcnRfcGVyaW9kOiA1cwogICAgICAgIG1lbV9saW1pdDogJzAnCiAgICAgICAgbWVtc3dhcF9saW1pdDogJzAnCiAgICAgICAgbWVtX3N3YXBwaW5lc3M6IDYwCiAgICAgICAgbWVtX3Jlc2VydmF0aW9uOiAnMCcKICAgICAgICBjcHVzOiAwLjAKICAgICAgICBjcHVfc2hhcmVzOiAxMDI0CiAgICAgICAgdm9sdW1lczoKICAgICAgICAgICAgLSAnc3FsaXRlLWRhdGEtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxOi92YXIvbGliL3NxbGl0ZScKbmV0d29ya3M6CiAgICBjb29saWZ5OgogICAgICAgIGV4dGVybmFsOiB0cnVlCiAgICAgICAgbmFtZTogY29vbGlmeQogICAgICAgIGF0dGFjaGFibGU6IHRydWUKdm9sdW1lczoKICAgIHNxbGl0ZS1kYXRhLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMToKICAgICAgICBuYW1lOiBzcWxpdGUtZGF0YS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBleHRlcm5hbDogZmFsc2UK' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/docker-compose.yml > /dev/null\necho 'Resource name: sqlite-database-db0000000000000000000001\nLatest Deployment Date: 2026-11-20 10:11:12' | tee /data/coolify/databases/db0000000000000000000001/README.md > /dev/null\necho 'Pulling peakimages/sqlite:3.54.1-v0.2.0 image.'\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml pull\ndocker stop --time=30 db0000000000000000000001 2>/dev/null || true\ndocker rm -f db0000000000000000000001 2>/dev/null || true\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml up -d\necho 'Database started.'",
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.vault reference in a literal": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": "echo 'Starting database.'\nmkdir -p /data/coolify/databases/db0000000000000000000001\necho 'c2VydmljZXM6CiAgICBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgaW1hZ2U6ICdwZWFraW1hZ2VzL3NxbGl0ZTozLjU0LjEtdjAuMi4wJwogICAgICAgIGNvbnRhaW5lcl9uYW1lOiBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBlbnZpcm9ubWVudDoKICAgICAgICAgICAgLSAnVE9LRU49e3t2YXVsdC5BUElfVE9LRU59fScKICAgICAgICAgICAgLSBTUUxJVEVfREFUQUJBU0VTPWRhdGFiYXNlLnNxbGl0ZQogICAgICAgICAgICAtIENPT0xJRllfUkVTT1VSQ0VfVVVJRD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBDT09MSUZZX0NPTlRBSU5FUl9OQU1FPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIENPT0xJRllfQVBQX05BTUU9c3FsaXRlLWRhdGFiYXNlLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtICdDT09MSUZZX1BST0pFQ1RfTkFNRT1NeSBQcm9qZWN0JwogICAgICAgICAgICAtIENPT0xJRllfRU5WSVJPTk1FTlRfTkFNRT1wcm9kdWN0aW9uCiAgICAgICAgICAgIC0gQ09PTElGWV9TRVJWRVJfSVA9MTAuMC4wLjUKICAgICAgICByZXN0YXJ0OiB1bmxlc3Mtc3RvcHBlZAogICAgICAgIG5ldHdvcmtzOgogICAgICAgICAgICAtIGNvb2xpZnkKICAgICAgICBsYWJlbHM6CiAgICAgICAgICAgIC0gY29vbGlmeS5tYW5hZ2VkPXRydWUKICAgICAgICAgICAgLSBjb29saWZ5LnR5cGU9ZGF0YWJhc2UKICAgICAgICAgICAgLSBjb29saWZ5LmRhdGFiYXNlVXVpZD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnJlc291cmNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5zZXJ2aWNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5wcm9qZWN0TmFtZT1teS1wcm9qZWN0CiAgICAgICAgICAgIC0gY29vbGlmeS5lbnZpcm9ubWVudE5hbWU9cHJvZHVjdGlvbgogICAgICAgICAgICAtIGNvb2xpZnkuZGF0YWJhc2Uuc3ViVHlwZT1zdGFuZGFsb25lLXNxbGl0ZQogICAgICAgIGhlYWx0aGNoZWNrOgogICAgICAgICAgICB0ZXN0OgogICAgICAgICAgICAgICAgLSBDTUQKICAgICAgICAgICAgICAgIC0gaGVhbHRoY2hlY2suc2gKICAgICAgICAgICAgaW50ZXJ2YWw6IDE1cwogICAgICAgICAgICB0aW1lb3V0OiA1cwogICAgICAgICAgICByZXRyaWVzOiA1CiAgICAgICAgICAgIHN0YXJ0X3BlcmlvZDogNXMKICAgICAgICBtZW1fbGltaXQ6ICcwJwogICAgICAgIG1lbXN3YXBfbGltaXQ6ICcwJwogICAgICAgIG1lbV9zd2FwcGluZXNzOiA2MAogICAgICAgIG1lbV9yZXNlcnZhdGlvbjogJzAnCiAgICAgICAgY3B1czogMC4wCiAgICAgICAgY3B1X3NoYXJlczogMTAyNAogICAgICAgIHZvbHVtZXM6CiAgICAgICAgICAgIC0gJ3NxbGl0ZS1kYXRhLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMTovdmFyL2xpYi9zcWxpdGUnCm5ldHdvcmtzOgogICAgY29vbGlmeToKICAgICAgICBleHRlcm5hbDogdHJ1ZQogICAgICAgIG5hbWU6IGNvb2xpZnkKICAgICAgICBhdHRhY2hhYmxlOiB0cnVlCnZvbHVtZXM6CiAgICBzcWxpdGUtZGF0YS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgbmFtZTogc3FsaXRlLWRhdGEtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgZXh0ZXJuYWw6IGZhbHNlCg==' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/docker-compose.yml > /dev/null\necho 'Resource name: sqlite-database-db0000000000000000000001\nLatest Deployment Date: 2026-11-20 10:11:12' | tee /data/coolify/databases/db0000000000000000000001/README.md > /dev/null\necho 'Pulling peakimages/sqlite:3.54.1-v0.2.0 image.'\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml pull\ndocker stop --time=30 db0000000000000000000001 2>/dev/null || true\ndocker rm -f db0000000000000000000001 2>/dev/null || true\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml up -d\necho 'Database started.'",
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [
+                {
+                    "key": "TOKEN",
+                    "value": "{{vault.API_TOKEN}}"
+                }
+            ],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.vault reference": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": "App\\Exceptions\\RemoteSecretException: Environment variables reference remote secrets, but no secret manager source is configured.",
+            "processes": [],
+            "activity": {
+                "status": "error",
+                "exitCode": 1,
+                "error": "Environment variables reference remote secrets, but no secret manager source is configured.",
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "stderr",
+                        "output": "\nEnvironment variables reference remote secrets, but no secret manager source is configured.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "exited",
+                "started_at": null,
+                "last_online_at": "2026-11-01 00:00:00",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [
+                {
+                    "key": "TOKEN",
+                    "value": "{{vault.API_TOKEN}}"
+                }
+            ],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.names to slug": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": "echo 'Starting database.'\nmkdir -p /data/coolify/databases/db0000000000000000000001\necho 'c2VydmljZXM6CiAgICBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgaW1hZ2U6ICdwZWFraW1hZ2VzL3NxbGl0ZTozLjU0LjEtdjAuMi4wJwogICAgICAgIGNvbnRhaW5lcl9uYW1lOiBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBlbnZpcm9ubWVudDoKICAgICAgICAgICAgLSBTUUxJVEVfREFUQUJBU0VTPWRhdGFiYXNlLnNxbGl0ZQogICAgICAgICAgICAtIENPT0xJRllfUkVTT1VSQ0VfVVVJRD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBDT09MSUZZX0NPTlRBSU5FUl9OQU1FPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtICdDT09MSUZZX0FQUF9OQU1FPcOcbsOvY29kZSBEYXRlbmJhbmsgJiBTw7ZobmVfMicKICAgICAgICAgICAgLSAnQ09PTElGWV9QUk9KRUNUX05BTUU9UHJvamVrdCBHcsO2w59lIC8gWndlaScKICAgICAgICAgICAgLSAnQ09PTElGWV9FTlZJUk9OTUVOVF9OQU1FPXN0YWdlICMxJwogICAgICAgICAgICAtIENPT0xJRllfU0VSVkVSX0lQPTEwLjAuMC41CiAgICAgICAgcmVzdGFydDogdW5sZXNzLXN0b3BwZWQKICAgICAgICBuZXR3b3JrczoKICAgICAgICAgICAgLSBjb29saWZ5CiAgICAgICAgbGFiZWxzOgogICAgICAgICAgICAtIGNvb2xpZnkubWFuYWdlZD10cnVlCiAgICAgICAgICAgIC0gY29vbGlmeS50eXBlPWRhdGFiYXNlCiAgICAgICAgICAgIC0gY29vbGlmeS5kYXRhYmFzZVV1aWQ9ZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5yZXNvdXJjZU5hbWU9dW5pY29kZS1kYXRlbmJhbmstc29obmUtMgogICAgICAgICAgICAtIGNvb2xpZnkuc2VydmljZU5hbWU9dW5pY29kZS1kYXRlbmJhbmstc29obmUtMgogICAgICAgICAgICAtIGNvb2xpZnkucHJvamVjdE5hbWU9cHJvamVrdC1ncm9zc2UtendlaQogICAgICAgICAgICAtIGNvb2xpZnkuZW52aXJvbm1lbnROYW1lPXN0YWdlLTEKICAgICAgICAgICAgLSBjb29saWZ5LmRhdGFiYXNlLnN1YlR5cGU9c3RhbmRhbG9uZS1zcWxpdGUKICAgICAgICBoZWFsdGhjaGVjazoKICAgICAgICAgICAgdGVzdDoKICAgICAgICAgICAgICAgIC0gQ01ECiAgICAgICAgICAgICAgICAtIGhlYWx0aGNoZWNrLnNoCiAgICAgICAgICAgIGludGVydmFsOiAxNXMKICAgICAgICAgICAgdGltZW91dDogNXMKICAgICAgICAgICAgcmV0cmllczogNQogICAgICAgICAgICBzdGFydF9wZXJpb2Q6IDVzCiAgICAgICAgbWVtX2xpbWl0OiAnMCcKICAgICAgICBtZW1zd2FwX2xpbWl0OiAnMCcKICAgICAgICBtZW1fc3dhcHBpbmVzczogNjAKICAgICAgICBtZW1fcmVzZXJ2YXRpb246ICcwJwogICAgICAgIGNwdXM6IDAuMAogICAgICAgIGNwdV9zaGFyZXM6IDEwMjQKICAgICAgICB2b2x1bWVzOgogICAgICAgICAgICAtICdzcWxpdGUtZGF0YS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6L3Zhci9saWIvc3FsaXRlJwpuZXR3b3JrczoKICAgIGNvb2xpZnk6CiAgICAgICAgZXh0ZXJuYWw6IHRydWUKICAgICAgICBuYW1lOiBjb29saWZ5CiAgICAgICAgYXR0YWNoYWJsZTogdHJ1ZQp2b2x1bWVzOgogICAgc3FsaXRlLWRhdGEtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxOgogICAgICAgIG5hbWU6IHNxbGl0ZS1kYXRhLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgIGV4dGVybmFsOiBmYWxzZQo=' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/docker-compose.yml > /dev/null\necho 'Resource name: Ünïcode Datenbank &amp; Söhne_2\nLatest Deployment Date: 2026-11-20 10:11:12' | tee /data/coolify/databases/db0000000000000000000001/README.md > /dev/null\necho 'Pulling peakimages/sqlite:3.54.1-v0.2.0 image.'\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml pull\ndocker stop --time=30 db0000000000000000000001 2>/dev/null || true\ndocker rm -f db0000000000000000000001 2>/dev/null || true\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml up -d\necho 'Database started.'",
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.resource limits": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": "echo 'Starting database.'\nmkdir -p /data/coolify/databases/db0000000000000000000001\necho 'c2VydmljZXM6CiAgICBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgaW1hZ2U6ICdwZWFraW1hZ2VzL3NxbGl0ZTozLjU0LjEtdjAuMi4wJwogICAgICAgIGNvbnRhaW5lcl9uYW1lOiBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBlbnZpcm9ubWVudDoKICAgICAgICAgICAgLSBTUUxJVEVfREFUQUJBU0VTPWRhdGFiYXNlLnNxbGl0ZQogICAgICAgICAgICAtIENPT0xJRllfUkVTT1VSQ0VfVVVJRD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBDT09MSUZZX0NPTlRBSU5FUl9OQU1FPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIENPT0xJRllfQVBQX05BTUU9c3FsaXRlLWRhdGFiYXNlLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtICdDT09MSUZZX1BST0pFQ1RfTkFNRT1NeSBQcm9qZWN0JwogICAgICAgICAgICAtIENPT0xJRllfRU5WSVJPTk1FTlRfTkFNRT1wcm9kdWN0aW9uCiAgICAgICAgICAgIC0gQ09PTElGWV9TRVJWRVJfSVA9MTAuMC4wLjUKICAgICAgICByZXN0YXJ0OiB1bmxlc3Mtc3RvcHBlZAogICAgICAgIG5ldHdvcmtzOgogICAgICAgICAgICAtIGNvb2xpZnkKICAgICAgICBsYWJlbHM6CiAgICAgICAgICAgIC0gY29vbGlmeS5tYW5hZ2VkPXRydWUKICAgICAgICAgICAgLSBjb29saWZ5LnR5cGU9ZGF0YWJhc2UKICAgICAgICAgICAgLSBjb29saWZ5LmRhdGFiYXNlVXVpZD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnJlc291cmNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5zZXJ2aWNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5wcm9qZWN0TmFtZT1teS1wcm9qZWN0CiAgICAgICAgICAgIC0gY29vbGlmeS5lbnZpcm9ubWVudE5hbWU9cHJvZHVjdGlvbgogICAgICAgICAgICAtIGNvb2xpZnkuZGF0YWJhc2Uuc3ViVHlwZT1zdGFuZGFsb25lLXNxbGl0ZQogICAgICAgIGhlYWx0aGNoZWNrOgogICAgICAgICAgICB0ZXN0OgogICAgICAgICAgICAgICAgLSBDTUQKICAgICAgICAgICAgICAgIC0gaGVhbHRoY2hlY2suc2gKICAgICAgICAgICAgaW50ZXJ2YWw6IDE1cwogICAgICAgICAgICB0aW1lb3V0OiA1cwogICAgICAgICAgICByZXRyaWVzOiA1CiAgICAgICAgICAgIHN0YXJ0X3BlcmlvZDogNXMKICAgICAgICBtZW1fbGltaXQ6IDUxMm0KICAgICAgICBtZW1zd2FwX2xpbWl0OiAxZwogICAgICAgIG1lbV9zd2FwcGluZXNzOiAxMAogICAgICAgIG1lbV9yZXNlcnZhdGlvbjogMjU2bQogICAgICAgIGNwdXM6IDEuNQogICAgICAgIGNwdV9zaGFyZXM6IDUxMgogICAgICAgIGNwdXNldDogMC0xCiAgICAgICAgdm9sdW1lczoKICAgICAgICAgICAgLSAnc3FsaXRlLWRhdGEtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxOi92YXIvbGliL3NxbGl0ZScKbmV0d29ya3M6CiAgICBjb29saWZ5OgogICAgICAgIGV4dGVybmFsOiB0cnVlCiAgICAgICAgbmFtZTogY29vbGlmeQogICAgICAgIGF0dGFjaGFibGU6IHRydWUKdm9sdW1lczoKICAgIHNxbGl0ZS1kYXRhLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMToKICAgICAgICBuYW1lOiBzcWxpdGUtZGF0YS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBleHRlcm5hbDogZmFsc2UK' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/docker-compose.yml > /dev/null\necho 'Resource name: sqlite-database-db0000000000000000000001\nLatest Deployment Date: 2026-11-20 10:11:12' | tee /data/coolify/databases/db0000000000000000000001/README.md > /dev/null\necho 'Pulling peakimages/sqlite:3.54.1-v0.2.0 image.'\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml pull\ndocker stop --time=30 db0000000000000000000001 2>/dev/null || true\ndocker rm -f db0000000000000000000001 2>/dev/null || true\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml up -d\necho 'Database started.'",
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.resource limits whole cpus": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": "echo 'Starting database.'\nmkdir -p /data/coolify/databases/db0000000000000000000001\necho 'c2VydmljZXM6CiAgICBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgaW1hZ2U6ICdwZWFraW1hZ2VzL3NxbGl0ZTozLjU0LjEtdjAuMi4wJwogICAgICAgIGNvbnRhaW5lcl9uYW1lOiBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBlbnZpcm9ubWVudDoKICAgICAgICAgICAgLSBTUUxJVEVfREFUQUJBU0VTPWRhdGFiYXNlLnNxbGl0ZQogICAgICAgICAgICAtIENPT0xJRllfUkVTT1VSQ0VfVVVJRD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBDT09MSUZZX0NPTlRBSU5FUl9OQU1FPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIENPT0xJRllfQVBQX05BTUU9c3FsaXRlLWRhdGFiYXNlLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtICdDT09MSUZZX1BST0pFQ1RfTkFNRT1NeSBQcm9qZWN0JwogICAgICAgICAgICAtIENPT0xJRllfRU5WSVJPTk1FTlRfTkFNRT1wcm9kdWN0aW9uCiAgICAgICAgICAgIC0gQ09PTElGWV9TRVJWRVJfSVA9MTAuMC4wLjUKICAgICAgICByZXN0YXJ0OiB1bmxlc3Mtc3RvcHBlZAogICAgICAgIG5ldHdvcmtzOgogICAgICAgICAgICAtIGNvb2xpZnkKICAgICAgICBsYWJlbHM6CiAgICAgICAgICAgIC0gY29vbGlmeS5tYW5hZ2VkPXRydWUKICAgICAgICAgICAgLSBjb29saWZ5LnR5cGU9ZGF0YWJhc2UKICAgICAgICAgICAgLSBjb29saWZ5LmRhdGFiYXNlVXVpZD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnJlc291cmNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5zZXJ2aWNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5wcm9qZWN0TmFtZT1teS1wcm9qZWN0CiAgICAgICAgICAgIC0gY29vbGlmeS5lbnZpcm9ubWVudE5hbWU9cHJvZHVjdGlvbgogICAgICAgICAgICAtIGNvb2xpZnkuZGF0YWJhc2Uuc3ViVHlwZT1zdGFuZGFsb25lLXNxbGl0ZQogICAgICAgIGhlYWx0aGNoZWNrOgogICAgICAgICAgICB0ZXN0OgogICAgICAgICAgICAgICAgLSBDTUQKICAgICAgICAgICAgICAgIC0gaGVhbHRoY2hlY2suc2gKICAgICAgICAgICAgaW50ZXJ2YWw6IDE1cwogICAgICAgICAgICB0aW1lb3V0OiA1cwogICAgICAgICAgICByZXRyaWVzOiA1CiAgICAgICAgICAgIHN0YXJ0X3BlcmlvZDogNXMKICAgICAgICBtZW1fbGltaXQ6ICcwJwogICAgICAgIG1lbXN3YXBfbGltaXQ6ICcwJwogICAgICAgIG1lbV9zd2FwcGluZXNzOiA2MAogICAgICAgIG1lbV9yZXNlcnZhdGlvbjogJzAnCiAgICAgICAgY3B1czogMi4wCiAgICAgICAgY3B1X3NoYXJlczogMTAyNAogICAgICAgIGNwdXNldDogJycKICAgICAgICB2b2x1bWVzOgogICAgICAgICAgICAtICdzcWxpdGUtZGF0YS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6L3Zhci9saWIvc3FsaXRlJwpuZXR3b3JrczoKICAgIGNvb2xpZnk6CiAgICAgICAgZXh0ZXJuYWw6IHRydWUKICAgICAgICBuYW1lOiBjb29saWZ5CiAgICAgICAgYXR0YWNoYWJsZTogdHJ1ZQp2b2x1bWVzOgogICAgc3FsaXRlLWRhdGEtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxOgogICAgICAgIG5hbWU6IHNxbGl0ZS1kYXRhLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgIGV4dGVybmFsOiBmYWxzZQo=' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/docker-compose.yml > /dev/null\necho 'Resource name: sqlite-database-db0000000000000000000001\nLatest Deployment Date: 2026-11-20 10:11:12' | tee /data/coolify/databases/db0000000000000000000001/README.md > /dev/null\necho 'Pulling peakimages/sqlite:3.54.1-v0.2.0 image.'\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml pull\ndocker stop --time=30 db0000000000000000000001 2>/dev/null || true\ndocker rm -f db0000000000000000000001 2>/dev/null || true\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml up -d\necho 'Database started.'",
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.log drain": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": "echo 'Starting database.'\nmkdir -p /data/coolify/databases/db0000000000000000000001\necho 'c2VydmljZXM6CiAgICBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgaW1hZ2U6ICdwZWFraW1hZ2VzL3NxbGl0ZTozLjU0LjEtdjAuMi4wJwogICAgICAgIGNvbnRhaW5lcl9uYW1lOiBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBlbnZpcm9ubWVudDoKICAgICAgICAgICAgLSBTUUxJVEVfREFUQUJBU0VTPWRhdGFiYXNlLnNxbGl0ZQogICAgICAgICAgICAtIENPT0xJRllfUkVTT1VSQ0VfVVVJRD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBDT09MSUZZX0NPTlRBSU5FUl9OQU1FPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIENPT0xJRllfQVBQX05BTUU9c3FsaXRlLWRhdGFiYXNlLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtICdDT09MSUZZX1BST0pFQ1RfTkFNRT1NeSBQcm9qZWN0JwogICAgICAgICAgICAtIENPT0xJRllfRU5WSVJPTk1FTlRfTkFNRT1wcm9kdWN0aW9uCiAgICAgICAgICAgIC0gQ09PTElGWV9TRVJWRVJfSVA9MTAuMC4wLjUKICAgICAgICByZXN0YXJ0OiB1bmxlc3Mtc3RvcHBlZAogICAgICAgIG5ldHdvcmtzOgogICAgICAgICAgICAtIGNvb2xpZnkKICAgICAgICBsYWJlbHM6CiAgICAgICAgICAgIC0gY29vbGlmeS5tYW5hZ2VkPXRydWUKICAgICAgICAgICAgLSBjb29saWZ5LnR5cGU9ZGF0YWJhc2UKICAgICAgICAgICAgLSBjb29saWZ5LmRhdGFiYXNlVXVpZD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnJlc291cmNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5zZXJ2aWNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5wcm9qZWN0TmFtZT1teS1wcm9qZWN0CiAgICAgICAgICAgIC0gY29vbGlmeS5lbnZpcm9ubWVudE5hbWU9cHJvZHVjdGlvbgogICAgICAgICAgICAtIGNvb2xpZnkuZGF0YWJhc2Uuc3ViVHlwZT1zdGFuZGFsb25lLXNxbGl0ZQogICAgICAgIGhlYWx0aGNoZWNrOgogICAgICAgICAgICB0ZXN0OgogICAgICAgICAgICAgICAgLSBDTUQKICAgICAgICAgICAgICAgIC0gaGVhbHRoY2hlY2suc2gKICAgICAgICAgICAgaW50ZXJ2YWw6IDE1cwogICAgICAgICAgICB0aW1lb3V0OiA1cwogICAgICAgICAgICByZXRyaWVzOiA1CiAgICAgICAgICAgIHN0YXJ0X3BlcmlvZDogNXMKICAgICAgICBtZW1fbGltaXQ6ICcwJwogICAgICAgIG1lbXN3YXBfbGltaXQ6ICcwJwogICAgICAgIG1lbV9zd2FwcGluZXNzOiA2MAogICAgICAgIG1lbV9yZXNlcnZhdGlvbjogJzAnCiAgICAgICAgY3B1czogMC4wCiAgICAgICAgY3B1X3NoYXJlczogMTAyNAogICAgICAgIGxvZ2dpbmc6CiAgICAgICAgICAgIGRyaXZlcjogZmx1ZW50ZAogICAgICAgICAgICBvcHRpb25zOgogICAgICAgICAgICAgICAgZmx1ZW50ZC1hZGRyZXNzOiAndGNwOi8vMTI3LjAuMC4xOjI0MjI0JwogICAgICAgICAgICAgICAgZmx1ZW50ZC1hc3luYzogJ3RydWUnCiAgICAgICAgICAgICAgICBmbHVlbnRkLXN1Yi1zZWNvbmQtcHJlY2lzaW9uOiAndHJ1ZScKICAgICAgICAgICAgICAgIGVudjogJ0NPT0xJRllfQVBQX05BTUUsQ09PTElGWV9QUk9KRUNUX05BTUUsQ09PTElGWV9TRVJWRVJfSVAsQ09PTElGWV9FTlZJUk9OTUVOVF9OQU1FJwogICAgICAgICAgICAgICAgbGFiZWxzOiAnY29vbGlmeS5wcm9qZWN0TmFtZSxjb29saWZ5LmVudmlyb25tZW50TmFtZSxjb29saWZ5LnJlc291cmNlTmFtZSxjb29saWZ5LnNlcnZpY2VOYW1lJwogICAgICAgIHZvbHVtZXM6CiAgICAgICAgICAgIC0gJ3NxbGl0ZS1kYXRhLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMTovdmFyL2xpYi9zcWxpdGUnCm5ldHdvcmtzOgogICAgY29vbGlmeToKICAgICAgICBleHRlcm5hbDogdHJ1ZQogICAgICAgIG5hbWU6IGNvb2xpZnkKICAgICAgICBhdHRhY2hhYmxlOiB0cnVlCnZvbHVtZXM6CiAgICBzcWxpdGUtZGF0YS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgbmFtZTogc3FsaXRlLWRhdGEtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgZXh0ZXJuYWw6IGZhbHNlCg==' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/docker-compose.yml > /dev/null\necho 'Resource name: sqlite-database-db0000000000000000000001\nLatest Deployment Date: 2026-11-20 10:11:12' | tee /data/coolify/databases/db0000000000000000000001/README.md > /dev/null\necho 'Pulling peakimages/sqlite:3.54.1-v0.2.0 image.'\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml pull\ndocker stop --time=30 db0000000000000000000001 2>/dev/null || true\ndocker rm -f db0000000000000000000001 2>/dev/null || true\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml up -d\necho 'Database started.'",
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.log drain cloudwatch": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": "echo 'Starting database.'\nmkdir -p /data/coolify/databases/db0000000000000000000001\necho 'c2VydmljZXM6CiAgICBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgaW1hZ2U6ICdwZWFraW1hZ2VzL3NxbGl0ZTozLjU0LjEtdjAuMi4wJwogICAgICAgIGNvbnRhaW5lcl9uYW1lOiBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBlbnZpcm9ubWVudDoKICAgICAgICAgICAgLSBTUUxJVEVfREFUQUJBU0VTPWRhdGFiYXNlLnNxbGl0ZQogICAgICAgICAgICAtIENPT0xJRllfUkVTT1VSQ0VfVVVJRD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBDT09MSUZZX0NPTlRBSU5FUl9OQU1FPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIENPT0xJRllfQVBQX05BTUU9c3FsaXRlLWRhdGFiYXNlLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtICdDT09MSUZZX1BST0pFQ1RfTkFNRT1NeSBQcm9qZWN0JwogICAgICAgICAgICAtIENPT0xJRllfRU5WSVJPTk1FTlRfTkFNRT1wcm9kdWN0aW9uCiAgICAgICAgICAgIC0gQ09PTElGWV9TRVJWRVJfSVA9MTAuMC4wLjUKICAgICAgICByZXN0YXJ0OiB1bmxlc3Mtc3RvcHBlZAogICAgICAgIG5ldHdvcmtzOgogICAgICAgICAgICAtIGNvb2xpZnkKICAgICAgICBsYWJlbHM6CiAgICAgICAgICAgIC0gY29vbGlmeS5tYW5hZ2VkPXRydWUKICAgICAgICAgICAgLSBjb29saWZ5LnR5cGU9ZGF0YWJhc2UKICAgICAgICAgICAgLSBjb29saWZ5LmRhdGFiYXNlVXVpZD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnJlc291cmNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5zZXJ2aWNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5wcm9qZWN0TmFtZT1teS1wcm9qZWN0CiAgICAgICAgICAgIC0gY29vbGlmeS5lbnZpcm9ubWVudE5hbWU9cHJvZHVjdGlvbgogICAgICAgICAgICAtIGNvb2xpZnkuZGF0YWJhc2Uuc3ViVHlwZT1zdGFuZGFsb25lLXNxbGl0ZQogICAgICAgIGhlYWx0aGNoZWNrOgogICAgICAgICAgICB0ZXN0OgogICAgICAgICAgICAgICAgLSBDTUQKICAgICAgICAgICAgICAgIC0gaGVhbHRoY2hlY2suc2gKICAgICAgICAgICAgaW50ZXJ2YWw6IDE1cwogICAgICAgICAgICB0aW1lb3V0OiA1cwogICAgICAgICAgICByZXRyaWVzOiA1CiAgICAgICAgICAgIHN0YXJ0X3BlcmlvZDogNXMKICAgICAgICBtZW1fbGltaXQ6ICcwJwogICAgICAgIG1lbXN3YXBfbGltaXQ6ICcwJwogICAgICAgIG1lbV9zd2FwcGluZXNzOiA2MAogICAgICAgIG1lbV9yZXNlcnZhdGlvbjogJzAnCiAgICAgICAgY3B1czogMC4wCiAgICAgICAgY3B1X3NoYXJlczogMTAyNAogICAgICAgIGxvZ2dpbmc6CiAgICAgICAgICAgIGRyaXZlcjogYXdzbG9ncwogICAgICAgICAgICBvcHRpb25zOgogICAgICAgICAgICAgICAgYXdzbG9ncy1yZWdpb246IGV1LWNlbnRyYWwtMQogICAgICAgICAgICAgICAgYXdzbG9ncy1ncm91cDogZnJlZXBsb3kKICAgICAgICAgICAgICAgIGF3c2xvZ3MtY3JlYXRlLWdyb3VwOiAndHJ1ZScKICAgICAgICAgICAgICAgIG1vZGU6IG5vbi1ibG9ja2luZwogICAgICAgICAgICAgICAgdGFnOiAnZGIte3suTmFtZX19JwogICAgICAgIHZvbHVtZXM6CiAgICAgICAgICAgIC0gJ3NxbGl0ZS1kYXRhLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMTovdmFyL2xpYi9zcWxpdGUnCm5ldHdvcmtzOgogICAgY29vbGlmeToKICAgICAgICBleHRlcm5hbDogdHJ1ZQogICAgICAgIG5hbWU6IGNvb2xpZnkKICAgICAgICBhdHRhY2hhYmxlOiB0cnVlCnZvbHVtZXM6CiAgICBzcWxpdGUtZGF0YS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgbmFtZTogc3FsaXRlLWRhdGEtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgZXh0ZXJuYWw6IGZhbHNlCg==' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/docker-compose.yml > /dev/null\necho 'Resource name: sqlite-database-db0000000000000000000001\nLatest Deployment Date: 2026-11-20 10:11:12' | tee /data/coolify/databases/db0000000000000000000001/README.md > /dev/null\necho 'Pulling peakimages/sqlite:3.54.1-v0.2.0 image.'\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml pull\ndocker stop --time=30 db0000000000000000000001 2>/dev/null || true\ndocker rm -f db0000000000000000000001 2>/dev/null || true\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml up -d\necho 'Database started.'",
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.log drain off on the server": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": {
+                        "$string": 64
+                    },
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.log drain off on the database": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": {
+                        "$string": 64
+                    },
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.custom docker options": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": "echo 'Starting database.'\nmkdir -p /data/coolify/databases/db0000000000000000000001\necho 'c2VydmljZXM6CiAgICBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgaW1hZ2U6ICdwZWFraW1hZ2VzL3NxbGl0ZTozLjU0LjEtdjAuMi4wJwogICAgICAgIGNvbnRhaW5lcl9uYW1lOiBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBlbnZpcm9ubWVudDoKICAgICAgICAgICAgLSBTUUxJVEVfREFUQUJBU0VTPWRhdGFiYXNlLnNxbGl0ZQogICAgICAgICAgICAtIENPT0xJRllfUkVTT1VSQ0VfVVVJRD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBDT09MSUZZX0NPTlRBSU5FUl9OQU1FPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIENPT0xJRllfQVBQX05BTUU9c3FsaXRlLWRhdGFiYXNlLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtICdDT09MSUZZX1BST0pFQ1RfTkFNRT1NeSBQcm9qZWN0JwogICAgICAgICAgICAtIENPT0xJRllfRU5WSVJPTk1FTlRfTkFNRT1wcm9kdWN0aW9uCiAgICAgICAgICAgIC0gQ09PTElGWV9TRVJWRVJfSVA9MTAuMC4wLjUKICAgICAgICByZXN0YXJ0OiB1bmxlc3Mtc3RvcHBlZAogICAgICAgIG5ldHdvcmtzOgogICAgICAgICAgICAtIGNvb2xpZnkKICAgICAgICBsYWJlbHM6CiAgICAgICAgICAgIC0gY29vbGlmeS5tYW5hZ2VkPXRydWUKICAgICAgICAgICAgLSBjb29saWZ5LnR5cGU9ZGF0YWJhc2UKICAgICAgICAgICAgLSBjb29saWZ5LmRhdGFiYXNlVXVpZD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnJlc291cmNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5zZXJ2aWNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5wcm9qZWN0TmFtZT1teS1wcm9qZWN0CiAgICAgICAgICAgIC0gY29vbGlmeS5lbnZpcm9ubWVudE5hbWU9cHJvZHVjdGlvbgogICAgICAgICAgICAtIGNvb2xpZnkuZGF0YWJhc2Uuc3ViVHlwZT1zdGFuZGFsb25lLXNxbGl0ZQogICAgICAgIGhlYWx0aGNoZWNrOgogICAgICAgICAgICB0ZXN0OgogICAgICAgICAgICAgICAgLSBDTUQKICAgICAgICAgICAgICAgIC0gaGVhbHRoY2hlY2suc2gKICAgICAgICAgICAgaW50ZXJ2YWw6IDE1cwogICAgICAgICAgICB0aW1lb3V0OiA1cwogICAgICAgICAgICByZXRyaWVzOiA1CiAgICAgICAgICAgIHN0YXJ0X3BlcmlvZDogNXMKICAgICAgICBtZW1fbGltaXQ6ICcwJwogICAgICAgIG1lbXN3YXBfbGltaXQ6ICcwJwogICAgICAgIG1lbV9zd2FwcGluZXNzOiA2MAogICAgICAgIG1lbV9yZXNlcnZhdGlvbjogJzAnCiAgICAgICAgY3B1czogMC4wCiAgICAgICAgY3B1X3NoYXJlczogMTAyNAogICAgICAgIHZvbHVtZXM6CiAgICAgICAgICAgIC0gJ3NxbGl0ZS1kYXRhLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMTovdmFyL2xpYi9zcWxpdGUnCiAgICAgICAgY2FwX2FkZDoKICAgICAgICAgICAgLSBTWVNfTklDRQogICAgICAgIHVsaW1pdHM6CiAgICAgICAgICAgIG5vZmlsZToKICAgICAgICAgICAgICAgIHNvZnQ6ICcxMDI0JwogICAgICAgICAgICAgICAgaGFyZDogJzIwNDgnCiAgICAgICAgc2htX3NpemU6IDI1Nm0KICAgICAgICBob3N0bmFtZTogZGItaG9zdAogICAgICAgIGV4dHJhX2hvc3RzOgogICAgICAgICAgICAtICdob3N0LmRvY2tlci5pbnRlcm5hbDpob3N0LWdhdGV3YXknCm5ldHdvcmtzOgogICAgY29vbGlmeToKICAgICAgICBleHRlcm5hbDogdHJ1ZQogICAgICAgIG5hbWU6IGNvb2xpZnkKICAgICAgICBhdHRhY2hhYmxlOiB0cnVlCnZvbHVtZXM6CiAgICBzcWxpdGUtZGF0YS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgbmFtZTogc3FsaXRlLWRhdGEtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgZXh0ZXJuYWw6IGZhbHNlCg==' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/docker-compose.yml > /dev/null\necho 'Resource name: sqlite-database-db0000000000000000000001\nLatest Deployment Date: 2026-11-20 10:11:12' | tee /data/coolify/databases/db0000000000000000000001/README.md > /dev/null\necho 'Pulling peakimages/sqlite:3.54.1-v0.2.0 image.'\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml pull\ndocker stop --time=30 db0000000000000000000001 2>/dev/null || true\ndocker rm -f db0000000000000000000001 2>/dev/null || true\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml up -d\necho 'Database started.'",
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.custom docker options with an address": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": "echo 'Starting database.'\nmkdir -p /data/coolify/databases/db0000000000000000000001\necho 'c2VydmljZXM6CiAgICBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgaW1hZ2U6ICdwZWFraW1hZ2VzL3NxbGl0ZTozLjU0LjEtdjAuMi4wJwogICAgICAgIGNvbnRhaW5lcl9uYW1lOiBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBlbnZpcm9ubWVudDoKICAgICAgICAgICAgLSBTUUxJVEVfREFUQUJBU0VTPWRhdGFiYXNlLnNxbGl0ZQogICAgICAgICAgICAtIENPT0xJRllfUkVTT1VSQ0VfVVVJRD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBDT09MSUZZX0NPTlRBSU5FUl9OQU1FPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIENPT0xJRllfQVBQX05BTUU9c3FsaXRlLWRhdGFiYXNlLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtICdDT09MSUZZX1BST0pFQ1RfTkFNRT1NeSBQcm9qZWN0JwogICAgICAgICAgICAtIENPT0xJRllfRU5WSVJPTk1FTlRfTkFNRT1wcm9kdWN0aW9uCiAgICAgICAgICAgIC0gQ09PTElGWV9TRVJWRVJfSVA9MTAuMC4wLjUKICAgICAgICByZXN0YXJ0OiB1bmxlc3Mtc3RvcHBlZAogICAgICAgIGxhYmVsczoKICAgICAgICAgICAgLSBjb29saWZ5Lm1hbmFnZWQ9dHJ1ZQogICAgICAgICAgICAtIGNvb2xpZnkudHlwZT1kYXRhYmFzZQogICAgICAgICAgICAtIGNvb2xpZnkuZGF0YWJhc2VVdWlkPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIGNvb2xpZnkucmVzb3VyY2VOYW1lPXNxbGl0ZS1kYXRhYmFzZS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnNlcnZpY2VOYW1lPXNxbGl0ZS1kYXRhYmFzZS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnByb2plY3ROYW1lPW15LXByb2plY3QKICAgICAgICAgICAgLSBjb29saWZ5LmVudmlyb25tZW50TmFtZT1wcm9kdWN0aW9uCiAgICAgICAgICAgIC0gY29vbGlmeS5kYXRhYmFzZS5zdWJUeXBlPXN0YW5kYWxvbmUtc3FsaXRlCiAgICAgICAgaGVhbHRoY2hlY2s6CiAgICAgICAgICAgIHRlc3Q6CiAgICAgICAgICAgICAgICAtIENNRAogICAgICAgICAgICAgICAgLSBoZWFsdGhjaGVjay5zaAogICAgICAgICAgICBpbnRlcnZhbDogMTVzCiAgICAgICAgICAgIHRpbWVvdXQ6IDVzCiAgICAgICAgICAgIHJldHJpZXM6IDUKICAgICAgICAgICAgc3RhcnRfcGVyaW9kOiA1cwogICAgICAgIG1lbV9saW1pdDogJzAnCiAgICAgICAgbWVtc3dhcF9saW1pdDogJzAnCiAgICAgICAgbWVtX3N3YXBwaW5lc3M6IDYwCiAgICAgICAgbWVtX3Jlc2VydmF0aW9uOiAnMCcKICAgICAgICBjcHVzOiAwLjAKICAgICAgICBjcHVfc2hhcmVzOiAxMDI0CiAgICAgICAgdm9sdW1lczoKICAgICAgICAgICAgLSAnc3FsaXRlLWRhdGEtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxOi92YXIvbGliL3NxbGl0ZScKICAgICAgICBuZXR3b3JrczoKICAgICAgICAgICAgY29vbGlmeToKICAgICAgICAgICAgICAgIGlwdjRfYWRkcmVzczogMTcyLjIwLjAuNQogICAgICAgICAgICAgICAgaXB2Nl9hZGRyZXNzOiAnZmQwMDo6NScKICAgICAgICBwcml2aWxlZ2VkOiB0cnVlCiAgICAgICAgZGV2aWNlczoKICAgICAgICAgICAgLSAvZGV2L2Z1c2UKbmV0d29ya3M6CiAgICBjb29saWZ5OgogICAgICAgIGV4dGVybmFsOiB0cnVlCiAgICAgICAgbmFtZTogY29vbGlmeQogICAgICAgIGF0dGFjaGFibGU6IHRydWUKdm9sdW1lczoKICAgIHNxbGl0ZS1kYXRhLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMToKICAgICAgICBuYW1lOiBzcWxpdGUtZGF0YS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBleHRlcm5hbDogZmFsc2UK' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/docker-compose.yml > /dev/null\necho 'Resource name: sqlite-database-db0000000000000000000001\nLatest Deployment Date: 2026-11-20 10:11:12' | tee /data/coolify/databases/db0000000000000000000001/README.md > /dev/null\necho 'Pulling peakimages/sqlite:3.54.1-v0.2.0 image.'\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml pull\ndocker stop --time=30 db0000000000000000000001 2>/dev/null || true\ndocker rm -f db0000000000000000000001 2>/dev/null || true\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml up -d\necho 'Database started.'",
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.health check settings": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": "echo 'Starting database.'\nmkdir -p /data/coolify/databases/db0000000000000000000001\necho 'c2VydmljZXM6CiAgICBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgaW1hZ2U6ICdwZWFraW1hZ2VzL3NxbGl0ZTozLjU0LjEtdjAuMi4wJwogICAgICAgIGNvbnRhaW5lcl9uYW1lOiBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBlbnZpcm9ubWVudDoKICAgICAgICAgICAgLSBTUUxJVEVfREFUQUJBU0VTPWRhdGFiYXNlLnNxbGl0ZQogICAgICAgICAgICAtIENPT0xJRllfUkVTT1VSQ0VfVVVJRD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBDT09MSUZZX0NPTlRBSU5FUl9OQU1FPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIENPT0xJRllfQVBQX05BTUU9c3FsaXRlLWRhdGFiYXNlLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtICdDT09MSUZZX1BST0pFQ1RfTkFNRT1NeSBQcm9qZWN0JwogICAgICAgICAgICAtIENPT0xJRllfRU5WSVJPTk1FTlRfTkFNRT1wcm9kdWN0aW9uCiAgICAgICAgICAgIC0gQ09PTElGWV9TRVJWRVJfSVA9MTAuMC4wLjUKICAgICAgICByZXN0YXJ0OiB1bmxlc3Mtc3RvcHBlZAogICAgICAgIG5ldHdvcmtzOgogICAgICAgICAgICAtIGNvb2xpZnkKICAgICAgICBsYWJlbHM6CiAgICAgICAgICAgIC0gY29vbGlmeS5tYW5hZ2VkPXRydWUKICAgICAgICAgICAgLSBjb29saWZ5LnR5cGU9ZGF0YWJhc2UKICAgICAgICAgICAgLSBjb29saWZ5LmRhdGFiYXNlVXVpZD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnJlc291cmNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5zZXJ2aWNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5wcm9qZWN0TmFtZT1teS1wcm9qZWN0CiAgICAgICAgICAgIC0gY29vbGlmeS5lbnZpcm9ubWVudE5hbWU9cHJvZHVjdGlvbgogICAgICAgICAgICAtIGNvb2xpZnkuZGF0YWJhc2Uuc3ViVHlwZT1zdGFuZGFsb25lLXNxbGl0ZQogICAgICAgIGhlYWx0aGNoZWNrOgogICAgICAgICAgICB0ZXN0OgogICAgICAgICAgICAgICAgLSBDTUQKICAgICAgICAgICAgICAgIC0gaGVhbHRoY2hlY2suc2gKICAgICAgICAgICAgaW50ZXJ2YWw6IDMwcwogICAgICAgICAgICB0aW1lb3V0OiAxMHMKICAgICAgICAgICAgcmV0cmllczogMwogICAgICAgICAgICBzdGFydF9wZXJpb2Q6IDYwcwogICAgICAgIG1lbV9saW1pdDogJzAnCiAgICAgICAgbWVtc3dhcF9saW1pdDogJzAnCiAgICAgICAgbWVtX3N3YXBwaW5lc3M6IDYwCiAgICAgICAgbWVtX3Jlc2VydmF0aW9uOiAnMCcKICAgICAgICBjcHVzOiAwLjAKICAgICAgICBjcHVfc2hhcmVzOiAxMDI0CiAgICAgICAgdm9sdW1lczoKICAgICAgICAgICAgLSAnc3FsaXRlLWRhdGEtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxOi92YXIvbGliL3NxbGl0ZScKbmV0d29ya3M6CiAgICBjb29saWZ5OgogICAgICAgIGV4dGVybmFsOiB0cnVlCiAgICAgICAgbmFtZTogY29vbGlmeQogICAgICAgIGF0dGFjaGFibGU6IHRydWUKdm9sdW1lczoKICAgIHNxbGl0ZS1kYXRhLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMToKICAgICAgICBuYW1lOiBzcWxpdGUtZGF0YS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBleHRlcm5hbDogZmFsc2UK' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/docker-compose.yml > /dev/null\necho 'Resource name: sqlite-database-db0000000000000000000001\nLatest Deployment Date: 2026-11-20 10:11:12' | tee /data/coolify/databases/db0000000000000000000001/README.md > /dev/null\necho 'Pulling peakimages/sqlite:3.54.1-v0.2.0 image.'\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml pull\ndocker stop --time=30 db0000000000000000000001 2>/dev/null || true\ndocker rm -f db0000000000000000000001 2>/dev/null || true\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml up -d\necho 'Database started.'",
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.health check disabled": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": "echo 'Starting database.'\nmkdir -p /data/coolify/databases/db0000000000000000000001\necho 'c2VydmljZXM6CiAgICBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgaW1hZ2U6ICdwZWFraW1hZ2VzL3NxbGl0ZTozLjU0LjEtdjAuMi4wJwogICAgICAgIGNvbnRhaW5lcl9uYW1lOiBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBlbnZpcm9ubWVudDoKICAgICAgICAgICAgLSBTUUxJVEVfREFUQUJBU0VTPWRhdGFiYXNlLnNxbGl0ZQogICAgICAgICAgICAtIENPT0xJRllfUkVTT1VSQ0VfVVVJRD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBDT09MSUZZX0NPTlRBSU5FUl9OQU1FPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIENPT0xJRllfQVBQX05BTUU9c3FsaXRlLWRhdGFiYXNlLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtICdDT09MSUZZX1BST0pFQ1RfTkFNRT1NeSBQcm9qZWN0JwogICAgICAgICAgICAtIENPT0xJRllfRU5WSVJPTk1FTlRfTkFNRT1wcm9kdWN0aW9uCiAgICAgICAgICAgIC0gQ09PTElGWV9TRVJWRVJfSVA9MTAuMC4wLjUKICAgICAgICByZXN0YXJ0OiB1bmxlc3Mtc3RvcHBlZAogICAgICAgIG5ldHdvcmtzOgogICAgICAgICAgICAtIGNvb2xpZnkKICAgICAgICBsYWJlbHM6CiAgICAgICAgICAgIC0gY29vbGlmeS5tYW5hZ2VkPXRydWUKICAgICAgICAgICAgLSBjb29saWZ5LnR5cGU9ZGF0YWJhc2UKICAgICAgICAgICAgLSBjb29saWZ5LmRhdGFiYXNlVXVpZD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnJlc291cmNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5zZXJ2aWNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5wcm9qZWN0TmFtZT1teS1wcm9qZWN0CiAgICAgICAgICAgIC0gY29vbGlmeS5lbnZpcm9ubWVudE5hbWU9cHJvZHVjdGlvbgogICAgICAgICAgICAtIGNvb2xpZnkuZGF0YWJhc2Uuc3ViVHlwZT1zdGFuZGFsb25lLXNxbGl0ZQogICAgICAgIG1lbV9saW1pdDogJzAnCiAgICAgICAgbWVtc3dhcF9saW1pdDogJzAnCiAgICAgICAgbWVtX3N3YXBwaW5lc3M6IDYwCiAgICAgICAgbWVtX3Jlc2VydmF0aW9uOiAnMCcKICAgICAgICBjcHVzOiAwLjAKICAgICAgICBjcHVfc2hhcmVzOiAxMDI0CiAgICAgICAgdm9sdW1lczoKICAgICAgICAgICAgLSAnc3FsaXRlLWRhdGEtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxOi92YXIvbGliL3NxbGl0ZScKbmV0d29ya3M6CiAgICBjb29saWZ5OgogICAgICAgIGV4dGVybmFsOiB0cnVlCiAgICAgICAgbmFtZTogY29vbGlmeQogICAgICAgIGF0dGFjaGFibGU6IHRydWUKdm9sdW1lczoKICAgIHNxbGl0ZS1kYXRhLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMToKICAgICAgICBuYW1lOiBzcWxpdGUtZGF0YS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBleHRlcm5hbDogZmFsc2UK' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/docker-compose.yml > /dev/null\necho 'Resource name: sqlite-database-db0000000000000000000001\nLatest Deployment Date: 2026-11-20 10:11:12' | tee /data/coolify/databases/db0000000000000000000001/README.md > /dev/null\necho 'Pulling peakimages/sqlite:3.54.1-v0.2.0 image.'\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml pull\ndocker stop --time=30 db0000000000000000000001 2>/dev/null || true\ndocker rm -f db0000000000000000000001 2>/dev/null || true\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml up -d\necho 'Database started.'",
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.ipv6 server": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": "echo 'Starting database.'\nmkdir -p /data/coolify/databases/db0000000000000000000001\necho 'c2VydmljZXM6CiAgICBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgaW1hZ2U6ICdwZWFraW1hZ2VzL3NxbGl0ZTozLjU0LjEtdjAuMi4wJwogICAgICAgIGNvbnRhaW5lcl9uYW1lOiBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBlbnZpcm9ubWVudDoKICAgICAgICAgICAgLSBTUUxJVEVfREFUQUJBU0VTPWRhdGFiYXNlLnNxbGl0ZQogICAgICAgICAgICAtIENPT0xJRllfUkVTT1VSQ0VfVVVJRD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBDT09MSUZZX0NPTlRBSU5FUl9OQU1FPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIENPT0xJRllfQVBQX05BTUU9c3FsaXRlLWRhdGFiYXNlLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtICdDT09MSUZZX1BST0pFQ1RfTkFNRT1NeSBQcm9qZWN0JwogICAgICAgICAgICAtIENPT0xJRllfRU5WSVJPTk1FTlRfTkFNRT1wcm9kdWN0aW9uCiAgICAgICAgICAgIC0gJ0NPT0xJRllfU0VSVkVSX0lQPTJhMDE6NGY4OjoxJwogICAgICAgIHJlc3RhcnQ6IHVubGVzcy1zdG9wcGVkCiAgICAgICAgbmV0d29ya3M6CiAgICAgICAgICAgIC0gY29vbGlmeQogICAgICAgIGxhYmVsczoKICAgICAgICAgICAgLSBjb29saWZ5Lm1hbmFnZWQ9dHJ1ZQogICAgICAgICAgICAtIGNvb2xpZnkudHlwZT1kYXRhYmFzZQogICAgICAgICAgICAtIGNvb2xpZnkuZGF0YWJhc2VVdWlkPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIGNvb2xpZnkucmVzb3VyY2VOYW1lPXNxbGl0ZS1kYXRhYmFzZS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnNlcnZpY2VOYW1lPXNxbGl0ZS1kYXRhYmFzZS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnByb2plY3ROYW1lPW15LXByb2plY3QKICAgICAgICAgICAgLSBjb29saWZ5LmVudmlyb25tZW50TmFtZT1wcm9kdWN0aW9uCiAgICAgICAgICAgIC0gY29vbGlmeS5kYXRhYmFzZS5zdWJUeXBlPXN0YW5kYWxvbmUtc3FsaXRlCiAgICAgICAgaGVhbHRoY2hlY2s6CiAgICAgICAgICAgIHRlc3Q6CiAgICAgICAgICAgICAgICAtIENNRAogICAgICAgICAgICAgICAgLSBoZWFsdGhjaGVjay5zaAogICAgICAgICAgICBpbnRlcnZhbDogMTVzCiAgICAgICAgICAgIHRpbWVvdXQ6IDVzCiAgICAgICAgICAgIHJldHJpZXM6IDUKICAgICAgICAgICAgc3RhcnRfcGVyaW9kOiA1cwogICAgICAgIG1lbV9saW1pdDogJzAnCiAgICAgICAgbWVtc3dhcF9saW1pdDogJzAnCiAgICAgICAgbWVtX3N3YXBwaW5lc3M6IDYwCiAgICAgICAgbWVtX3Jlc2VydmF0aW9uOiAnMCcKICAgICAgICBjcHVzOiAwLjAKICAgICAgICBjcHVfc2hhcmVzOiAxMDI0CiAgICAgICAgdm9sdW1lczoKICAgICAgICAgICAgLSAnc3FsaXRlLWRhdGEtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxOi92YXIvbGliL3NxbGl0ZScKbmV0d29ya3M6CiAgICBjb29saWZ5OgogICAgICAgIGV4dGVybmFsOiB0cnVlCiAgICAgICAgbmFtZTogY29vbGlmeQogICAgICAgIGF0dGFjaGFibGU6IHRydWUKdm9sdW1lczoKICAgIHNxbGl0ZS1kYXRhLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMToKICAgICAgICBuYW1lOiBzcWxpdGUtZGF0YS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBleHRlcm5hbDogZmFsc2UK' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/docker-compose.yml > /dev/null\necho 'Resource name: sqlite-database-db0000000000000000000001\nLatest Deployment Date: 2026-11-20 10:11:12' | tee /data/coolify/databases/db0000000000000000000001/README.md > /dev/null\necho 'Pulling peakimages/sqlite:3.54.1-v0.2.0 image.'\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml pull\ndocker stop --time=30 db0000000000000000000001 2>/dev/null || true\ndocker rm -f db0000000000000000000001 2>/dev/null || true\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml up -d\necho 'Database started.'",
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.docker 29": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": "echo 'Starting database.'\nmkdir -p /data/coolify/databases/db0000000000000000000001\necho 'c2VydmljZXM6CiAgICBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgaW1hZ2U6ICdwZWFraW1hZ2VzL3NxbGl0ZTozLjU0LjEtdjAuMi4wJwogICAgICAgIGNvbnRhaW5lcl9uYW1lOiBkYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICBlbnZpcm9ubWVudDoKICAgICAgICAgICAgLSBTUUxJVEVfREFUQUJBU0VTPWRhdGFiYXNlLnNxbGl0ZQogICAgICAgICAgICAtIENPT0xJRllfUkVTT1VSQ0VfVVVJRD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBDT09MSUZZX0NPTlRBSU5FUl9OQU1FPWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtIENPT0xJRllfQVBQX05BTUU9c3FsaXRlLWRhdGFiYXNlLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQogICAgICAgICAgICAtICdDT09MSUZZX1BST0pFQ1RfTkFNRT1NeSBQcm9qZWN0JwogICAgICAgICAgICAtIENPT0xJRllfRU5WSVJPTk1FTlRfTkFNRT1wcm9kdWN0aW9uCiAgICAgICAgICAgIC0gQ09PTElGWV9TRVJWRVJfSVA9MTAuMC4wLjUKICAgICAgICByZXN0YXJ0OiB1bmxlc3Mtc3RvcHBlZAogICAgICAgIG5ldHdvcmtzOgogICAgICAgICAgICAtIGNvb2xpZnkKICAgICAgICBsYWJlbHM6CiAgICAgICAgICAgIC0gY29vbGlmeS5tYW5hZ2VkPXRydWUKICAgICAgICAgICAgLSBjb29saWZ5LnR5cGU9ZGF0YWJhc2UKICAgICAgICAgICAgLSBjb29saWZ5LmRhdGFiYXNlVXVpZD1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDEKICAgICAgICAgICAgLSBjb29saWZ5LnJlc291cmNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5zZXJ2aWNlTmFtZT1zcWxpdGUtZGF0YWJhc2UtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgICAgIC0gY29vbGlmeS5wcm9qZWN0TmFtZT1teS1wcm9qZWN0CiAgICAgICAgICAgIC0gY29vbGlmeS5lbnZpcm9ubWVudE5hbWU9cHJvZHVjdGlvbgogICAgICAgICAgICAtIGNvb2xpZnkuZGF0YWJhc2Uuc3ViVHlwZT1zdGFuZGFsb25lLXNxbGl0ZQogICAgICAgIGhlYWx0aGNoZWNrOgogICAgICAgICAgICB0ZXN0OgogICAgICAgICAgICAgICAgLSBDTUQKICAgICAgICAgICAgICAgIC0gaGVhbHRoY2hlY2suc2gKICAgICAgICAgICAgaW50ZXJ2YWw6IDE1cwogICAgICAgICAgICB0aW1lb3V0OiA1cwogICAgICAgICAgICByZXRyaWVzOiA1CiAgICAgICAgICAgIHN0YXJ0X3BlcmlvZDogNXMKICAgICAgICBtZW1fbGltaXQ6ICcwJwogICAgICAgIG1lbXN3YXBfbGltaXQ6ICcwJwogICAgICAgIG1lbV9zd2FwcGluZXNzOiA2MAogICAgICAgIG1lbV9yZXNlcnZhdGlvbjogJzAnCiAgICAgICAgY3B1czogMC4wCiAgICAgICAgY3B1X3NoYXJlczogMTAyNAogICAgICAgIHZvbHVtZXM6CiAgICAgICAgICAgIC0gJ3NxbGl0ZS1kYXRhLWRiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMTovdmFyL2xpYi9zcWxpdGUnCm5ldHdvcmtzOgogICAgY29vbGlmeToKICAgICAgICBleHRlcm5hbDogdHJ1ZQogICAgICAgIG5hbWU6IGNvb2xpZnkKICAgICAgICBhdHRhY2hhYmxlOiB0cnVlCnZvbHVtZXM6CiAgICBzcWxpdGUtZGF0YS1kYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDE6CiAgICAgICAgbmFtZTogc3FsaXRlLWRhdGEtZGIwMDAwMDAwMDAwMDAwMDAwMDAwMDAxCiAgICAgICAgZXh0ZXJuYWw6IGZhbHNlCg==' | base64 -d | tee /data/coolify/databases/db0000000000000000000001/docker-compose.yml > /dev/null\necho 'Resource name: sqlite-database-db0000000000000000000001\nLatest Deployment Date: 2026-11-20 10:11:12' | tee /data/coolify/databases/db0000000000000000000001/README.md > /dev/null\necho 'Pulling peakimages/sqlite:3.54.1-v0.2.0 image.'\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml pull\ndocker stop --timeout=30 db0000000000000000000001 2>/dev/null || true\ndocker rm -f db0000000000000000000001 2>/dev/null || true\ndocker compose -f /data/coolify/databases/db0000000000000000000001/docker-compose.yml up -d\necho 'Database started.'",
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.pull fails": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": "RuntimeException: Error response from daemon: pull access denied for nope, repository does not exist\n",
+            "processes": [
+                {
+                    "script": {
+                        "$string": 64
+                    },
+                    "output": "Starting database.\nPulling image.\n",
+                    "errorOutput": "Error response from daemon: pull access denied for nope, repository does not exist\n",
+                    "exitCode": 1
+                }
+            ],
+            "activity": {
+                "status": "error",
+                "exitCode": 1,
+                "error": "Database start failed.",
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nPulling image.\n"
+                    },
+                    {
+                        "type": "err",
+                        "output": "Error response from daemon: pull access denied for nope, repository does not exist\n"
+                    },
+                    {
+                        "type": "stderr",
+                        "output": "\nDatabase start failed.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "exited",
+                "started_at": null,
+                "last_online_at": "2026-11-01 00:00:00",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.command fails without output": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": "RuntimeException: ",
+            "processes": [
+                {
+                    "script": {
+                        "$string": 64
+                    },
+                    "exitCode": 125
+                }
+            ],
+            "activity": {
+                "status": "error",
+                "exitCode": 125,
+                "error": "Database start failed.",
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "stderr",
+                        "output": "\nDatabase start failed.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "exited",
+                "started_at": null,
+                "last_online_at": "2026-11-01 00:00:00",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.output in pieces": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": {
+                        "$string": 64
+                    },
+                    "output": "Starting database.\r\nsecond line\nno line break at the end",
+                    "errorOutput": "warning: something\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\r\nsecond line\nno line break at the end\n"
+                    },
+                    {
+                        "type": "err",
+                        "output": "warning: something\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.server unreachable": {
+            "result": "Server is not functional",
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [],
+            "activity": null,
+            "database": {
+                "status": "exited",
+                "started_at": null,
+                "last_online_at": "2026-11-01 00:00:00",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [],
+            "events": []
+        },
+        "sqlite.server disabled": {
+            "result": "Server is not functional",
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [],
+            "activity": null,
+            "database": {
+                "status": "exited",
+                "started_at": null,
+                "last_online_at": "2026-11-01 00:00:00",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [],
+            "events": []
+        },
+        "sqlite.container still starting": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": {
+                        "$string": 64
+                    },
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"starting\"}}}\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"starting\"}}}\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [
+                2.0,
+                2.0
+            ],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.container never healthy": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": {
+                        "$string": 64
+                    },
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"starting\"}}}\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"starting\"}}}\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"starting\"}}}\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"starting\"}}}\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"starting\"}}}\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"starting\"}}}\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"starting\"}}}\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"starting\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:starting",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [
+                2.0,
+                2.0,
+                2.0,
+                2.0,
+                2.0,
+                2.0,
+                2.0
+            ],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.container without a health check": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": {
+                        "$string": 64
+                    },
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\"}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:unknown",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.container exited": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": {
+                        "$string": 64
+                    },
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"exited\"}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "exited:unhealthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.container not found": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": {
+                        "$string": 64
+                    },
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "errorOutput": "Error response from daemon: No such container\n",
+                    "exitCode": 1
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "exited",
+                "started_at": null,
+                "last_online_at": "2026-11-01 00:00:00",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.already running": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": {
+                        "$string": 64
+                    },
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": "2026-11-01 08:00:00",
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.after crash restarts": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": {
+                        "$string": 64
+                    },
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.after crash restarts on an unreachable server": {
+            "result": "Server is not functional",
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [],
+            "activity": null,
+            "database": {
+                "status": "exited:unhealthy",
+                "started_at": null,
+                "last_online_at": "2026-11-01 00:00:00",
+                "is_public": false,
+                "restart_count": 3,
+                "last_restart_at": "2026-11-19 08:00:00",
+                "last_restart_type": "crash"
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [],
+            "events": []
+        },
+        "sqlite.restart": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": {
+                        "$string": 64
+                    },
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": "2026-11-01 08:00:00",
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.restart on an unreachable server": {
+            "result": "Server is not functional",
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [],
+            "activity": null,
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-01 00:00:00",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [],
+            "events": []
+        },
+        "sqlite.restart with a vault reference": {
+            "result": "Environment variables reference remote secrets, but no secret manager source is configured.",
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [],
+            "activity": null,
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-01 00:00:00",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [
+                {
+                    "key": "TOKEN",
+                    "value": "{{vault.API_TOKEN}}"
+                }
+            ],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [],
+            "events": []
+        },
+        "sqlite.restart after crash restarts": {
+            "result": {
+                "activity": true
+            },
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": {
+                        "$string": 64
+                    },
+                    "output": "Starting database.\nDatabase started.\n"
+                },
+                {
+                    "script": "docker container inspect 'db0000000000000000000001' --format '{{json .}}'",
+                    "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+                }
+            ],
+            "activity": {
+                "status": "finished",
+                "exitCode": 0,
+                "error": null,
+                "operation": "database-start",
+                "log": [
+                    {
+                        "type": "out",
+                        "output": "Starting database.\nDatabase started.\n"
+                    }
+                ]
+            },
+            "database": {
+                "status": "running:healthy",
+                "started_at": "2026-11-01 08:00:00",
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [
+                "DatabaseStartJob"
+            ],
+            "events": [
+                "DatabaseStatusChanged"
+            ]
+        },
+        "sqlite.stop": {
+            "result": "Database stopped successfully",
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": "docker stop --time=30 db0000000000000000000001\ndocker rm -f db0000000000000000000001"
+                }
+            ],
+            "activity": null,
+            "database": {
+                "status": "exited:unhealthy",
+                "started_at": "2026-11-01 08:00:00",
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [],
+            "events": [
+                "ServiceStatusChanged"
+            ]
+        },
+        "sqlite.stop after crash restarts": {
+            "result": "Database stopped successfully",
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": "docker stop --time=30 db0000000000000000000001\ndocker rm -f db0000000000000000000001"
+                }
+            ],
+            "activity": null,
+            "database": {
+                "status": "exited:unhealthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [],
+            "events": [
+                "ServiceStatusChanged"
+            ]
+        },
+        "sqlite.stop without cleanup after crash restarts": {
+            "result": "Database stopped successfully",
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": "docker stop --time=30 db0000000000000000000001\ndocker rm -f db0000000000000000000001"
+                }
+            ],
+            "activity": null,
+            "database": {
+                "status": "exited:unhealthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 3,
+                "last_restart_at": "2026-11-19 08:00:00",
+                "last_restart_type": "crash"
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [],
+            "events": [
+                "ServiceStatusChanged"
+            ]
+        },
+        "sqlite.stop without cleanup": {
+            "result": "Database stopped successfully",
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": "docker stop --time=30 db0000000000000000000001\ndocker rm -f db0000000000000000000001"
+                }
+            ],
+            "activity": null,
+            "database": {
+                "status": "exited:unhealthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [],
+            "events": [
+                "ServiceStatusChanged"
+            ]
+        },
+        "sqlite.stop fails": {
+            "result": "Database stopped successfully",
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": "docker stop --time=30 db0000000000000000000001\ndocker rm -f db0000000000000000000001",
+                    "errorOutput": "Cannot connect to the Docker daemon\n",
+                    "exitCode": 1
+                }
+            ],
+            "activity": null,
+            "database": {
+                "status": "exited:unhealthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [],
+            "events": [
+                "ServiceStatusChanged"
+            ]
+        },
+        "sqlite.stop on an unreachable server": {
+            "result": "Server is not functional",
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [],
+            "activity": null,
+            "database": {
+                "status": "running:healthy",
+                "started_at": null,
+                "last_online_at": "2026-11-01 00:00:00",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [],
+            "events": [
+                "ServiceStatusChanged"
+            ]
+        },
+        "sqlite.stop on docker 29": {
+            "result": "Database stopped successfully",
+            "thrown": null,
+            "jobThrown": null,
+            "processes": [
+                {
+                    "script": "docker stop --timeout=30 db0000000000000000000001\ndocker rm -f db0000000000000000000001"
+                }
+            ],
+            "activity": null,
+            "database": {
+                "status": "exited:unhealthy",
+                "started_at": null,
+                "last_online_at": "2026-11-20 10:11:12",
+                "is_public": false,
+                "restart_count": 0,
+                "last_restart_at": null,
+                "last_restart_type": null
+            },
+            "certificates": [],
+            "fileStorages": [],
+            "variables": [],
+            "generated": null,
+            "sleeps": [],
+            "notifications": [],
+            "jobs": [],
+            "events": [
+                "ServiceStatusChanged"
+            ]
         }
     }
 }

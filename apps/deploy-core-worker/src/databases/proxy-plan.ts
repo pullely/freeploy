@@ -37,6 +37,9 @@ export function databaseInternalPort(engine: DatabaseEngine, enableSsl: boolean)
       return 9000;
     case "mongodb":
       return 27017;
+    case "sqlite":
+      // A SQLite database is never public: its table has no public_port, and General no Access section.
+      throw new Error("A SQLite database has no port.");
   }
 }
 

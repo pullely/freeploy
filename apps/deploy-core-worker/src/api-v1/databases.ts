@@ -1,5 +1,5 @@
 // Derived from coollabsio/coolify@91b7e3e:app/Http/Controllers/Api/DatabasesController.php (databases,
-// database_by_uuid, create_database and its eight create_database_<engine> routes, update_by_uuid, delete_by_uuid,
+// database_by_uuid, create_database and its nine create_database_<engine> routes, update_by_uuid, delete_by_uuid,
 // action_deploy, action_restart, action_stop, database_backup_details_uuid, create_backup, update_backup,
 // delete_backup_by_uuid, list_backup_executions, delete_execution_by_uuid, removeSensitiveData,
 // hideNestedServerSecrets, exposeNestedServerSecrets, createdDatabasePayload, normalizeNumericLimits,
@@ -10,7 +10,7 @@
 // redactLockedApiResourceValues, isPublicPortAlreadyUsed, queryDatabaseByUuidWithinTeam, isBase64Encoded) and
 // app/Models/EnvironmentVariable.php (logRedactionSecretsFor) (Apache-2.0), modified.
 //
-// Coolify's /api/v1 for the standalone databases (DP-73) — the eight engines Freeploy creates — and their backup
+// Coolify's /api/v1 for the standalone databases (DP-73) — the nine engines Freeploy creates, SQLite since DP-112 — and their backup
 // schedules, on the services and stores the console uses: a database is created by createDatabase() (DP-57, with the
 // API's fields as create_standalone_*()'s $otherData), its connection URLs are showDatabase()'s, it is deleted by
 // deleteDatabaseNow() (the never-started rule), its columns are written through the console's store, and a schedule
@@ -47,7 +47,7 @@ import { coolifyJson, obj, serializeApiResponse, COOLIFY_API, POLICY_DENIALS, ty
 import { columnCipher } from "../handlers/cloud-tokens.js";
 import { sqlStore } from "../handlers/databases.js";
 import type { KeyCipher } from "../private-keys/service.js";
-import { DATABASE_ENGINE_SPECS, isDatabaseEngine } from "../databases/engines.js";
+import { DATABASE_ENGINE_SPECS, SQLITE_DATABASES_PATTERN, isDatabaseEngine } from "../databases/engines.js";
 import { DATABASE_SERVICE_MESSAGES, DatabaseError, createDatabase, databaseStatus, deleteDatabaseNow, saveRedisPasswordVariable, showDatabase, type DatabaseContext } from "../databases/service.js";
 import { DB_IDENTIFIER_PATTERN, DB_PASSWORD_PATTERN } from "../databases/validation.js";
 import { BACKUP_MESSAGES, BackupError, backupSolutionAvailable, validateDatabasesBackupInput } from "../databases/backups.js";
@@ -105,14 +105,20 @@ const ENGINE_API: Record<DatabaseEngine, { fields: string[]; rules: Rules; conf:
     rules: [["mysql_root_password", PASSWORD_RULES], ["mysql_password", PASSWORD_RULES], ["mysql_user", ID_RULES], ["mysql_database", ID_RULES], ["mysql_conf", ["string"]]],
     conf: "mysql_conf",
   },
+  // 'sqlite_databases' => ['string', 'max:255', 'regex:'.StandaloneSqlite::DATABASES_PATTERN] (PCRE's `$` takes a final newline).
+  sqlite: { fields: ["sqlite_databases"], rules: [["sqlite_databases", ["string", "max:255", { regex: new RegExp(SQLITE_DATABASES_PATTERN.source.replace(/\$$/, "\n?$")) }]]], conf: null },
 };
+
+/** The Access fields: SQLite's $allowedFields leave them out (its table has no public port). */
+const ACCESS_FIELDS = ["public_port", "public_port_timeout", "is_public"];
+const withoutAccess = (engine: DatabaseEngine, fields: string[]): string[] => (DATABASE_ENGINE_SPECS[engine].access ? fields : fields.filter((f) => !ACCESS_FIELDS.includes(f)));
 
 const LIMITS = ["limits_memory", "limits_memory_swap", "limits_memory_swappiness", "limits_memory_reservation", "limits_cpus", "limits_cpuset", "limits_cpu_shares"];
 const HEALTH_CHECKS = ["health_check_enabled", "health_check_interval", "health_check_timeout", "health_check_retries", "health_check_start_period"];
 const CREATE_COMMON = ["name", "description", "image", "public_port", "public_port_timeout", "is_public", "project_uuid", "environment_name", "environment_uuid", "server_uuid", "destination_uuid", "instant_deploy", ...LIMITS];
 const UPDATE_COMMON = ["name", "description", "image", "public_port", "public_port_timeout", "is_public", "instant_deploy", ...LIMITS];
 /** create_database's first $allowedFields: every engine's fields (SQLite's too), before the engine is known. */
-const CREATE_ANY = [...CREATE_COMMON, ...Object.values(ENGINE_API).flatMap((e) => e.fields), "sqlite_databases", "tags"];
+const CREATE_ANY = [...CREATE_COMMON, ...Object.values(ENGINE_API).flatMap((e) => e.fields), "tags"];
 /** The columns whose value Eloquent casts to a boolean on the way in (PostgreSQL takes no 0 or "1"). */
 const BOOLEAN_COLUMNS = ["is_public", "health_check_enabled"];
 /** removeUnnecessaryFieldsFromRequest(): what the database endpoints send that it removes. */
@@ -231,6 +237,7 @@ const CONFIGURATION: Record<DatabaseEngine, string[]> = {
   keydb: ["keydb_conf"],
   dragonfly: [],
   clickhouse: [],
+  sqlite: [],
 };
 
 /** The model's $hidden; legacy_password_quoting is the start command's, never the API's. */
@@ -282,7 +289,8 @@ async function databaseSerialization(tx: SqlExecutor, c: ApiV1Context, found: Fo
   if (sensitive) for (const column of table.encrypted) extras.push([column, await decryptColumn(tx, c, table.table, column, rowValue(row, column))]);
   extras.push(["status", databaseStatus(rowValue(row, "status") as string | null)]);
   if (resource && resource.throughKey !== undefined) extras.push(["laravel_through_key", resource.throughKey as PhpValue]);
-  if (sensitive) extras.push(["internal_db_url", shown.dbUrl], ["external_db_url", shown.dbUrlPublic]);
+  // SQLite's model appends no connection URLs.
+  if (sensitive && DATABASE_ENGINE_SPECS[engine].access) extras.push(["internal_db_url", shown.dbUrl], ["external_db_url", shown.dbUrlPublic]);
   extras.push(["database_type", DATABASE_ENGINE_SPECS[engine].databaseType], ["server_status", shown.serverStatus]);
   extras.push(...extra);
   if (resource) {
@@ -330,7 +338,7 @@ async function showDatabaseApi(c: ApiV1Context, uuid: string): Promise<CoolifyAn
 
 // ── creating ────────────────────────────────────────────────────────────────
 
-/** create_database() for one of the eight engines Freeploy has (SQLite is not one of them). */
+/** create_database() for one of the nine engines (SQLite's branch since DP-112). */
 async function createDatabaseApi(c: ApiV1Context, engine: DatabaseEngine): Promise<CoolifyAnswer> {
   const body = await readApiBody(c.request);
   if (requestBoolean(body.all, "instant_deploy") && !hasDeployAbility(c)) return ABORT_DEPLOY;
@@ -402,7 +410,7 @@ async function createDatabaseApi(c: ApiV1Context, engine: DatabaseEngine): Promi
       return coolifyJson(obj({ message: "Validation failed.", errors: obj({ public_port: "The public port should be between 1024 and 65535." }) }), 422);
     }
     const spec = ENGINE_API[engine];
-    const allowed = [...CREATE_COMMON, ...spec.fields, "tags"];
+    const allowed = [...withoutAccess(engine, CREATE_COMMON), ...spec.fields, "tags"];
     const engineErrors: Errors = [];
     await validateRules(engineErrors, all, spec.rules);
     for (const k of Object.keys(all)) if (!allowed.includes(k)) addError(engineErrors, k, "This field is not allowed.");
@@ -434,9 +442,9 @@ async function createDatabaseApi(c: ApiV1Context, engine: DatabaseEngine): Promi
     );
     const db = (await findDatabaseByUuid(tx, created!.uuid))!;
     for (const name of tags) await attachTagTo(tx, c, { type: DATABASE_TABLES[engine].morphClass, id: db.id }, name);
-    // createdDatabasePayload(): the connection URLs need sensitive read access; Dragonfly answers the uuid only.
+    // createdDatabasePayload(): the connection URLs need sensitive read access; Dragonfly and SQLite answer the uuid only.
     const payload: Array<[string, PhpValue]> = [["uuid", db.uuid]];
-    if (c.canReadSensitive && engine !== "dragonfly") {
+    if (c.canReadSensitive && engine !== "dragonfly" && engine !== "sqlite") {
       const shown = (await showDatabase(ctx, db.uuid, true))!;
       payload.push(["internal_db_url", shown.dbUrl]);
       if (db.is_public && db.public_port) payload.push(["external_db_url", shown.dbUrlPublic]);
@@ -532,7 +540,7 @@ async function updateDatabase(c: ApiV1Context, routeUuid: string): Promise<Cooli
       return message("Public port already used by another database.", 400);
     }
     const spec = ENGINE_API[engine];
-    const allowed = [...UPDATE_COMMON, ...spec.fields, ...HEALTH_CHECKS];
+    const allowed = [...withoutAccess(engine, UPDATE_COMMON), ...spec.fields, ...HEALTH_CHECKS];
     if (spec.conf && spec.conf in data) {
       const decoded = decodeBase64Text(data[spec.conf]);
       if (decoded === null) return notBase64(spec.conf);
@@ -589,7 +597,8 @@ async function deleteDatabase(c: ApiV1Context, routeUuid: string): Promise<Cooli
     try {
       await deleteDatabaseNow(databaseContext(tx, c), found.db.uuid, deleteOptions(c.url.searchParams));
     } catch (e) {
-      if (e instanceof DatabaseError) return unavailable(e.message);
+      // A SQLite database an application mounts: Coolify's 422; anything else that would run on the server: 501.
+      if (e instanceof DatabaseError) return e.status === 501 ? unavailable(e.message) : message(e.message, e.status);
       throw e;
     }
     return message("Database deletion request queued.", 200);

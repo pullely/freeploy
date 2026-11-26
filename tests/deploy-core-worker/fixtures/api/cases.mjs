@@ -4132,6 +4132,135 @@ add({ name: "transfer complete: another team's server", token: "write", method: 
 add({ name: "transfer complete: with a read token", token: "read", method: "POST", path: COMPLETE(), body: {} });
 denial("transfer complete: marked", "memberWrite", WRITE_DELETE, WRITER);
 
+// ── DP-112: SQLite, the ninth standalone database engine ────────────────────
+// POST /databases/sqlite (create_database()'s SQLite branch) and SQLite in the database operations Coolify extends to it
+// (DATABASE_TYPES, Project::databases()). The fixture has no SQLite database: a case that needs one makes it in its
+// `setupCoolify` and `setupFreeploy` (the tenancy column of each side), with the data volume the created hook makes, so
+// that no committed golden changes.
+const SQ = "q6paritysqlite0000000001";
+const SQ_VOLUME = "l9paritysqlitevolume0009";
+/** Beyond what the sequence gives in a run of the cases: a row a case makes beside it (a clone) takes the next. */
+const SQ_ID = 900;
+const SQLITE_IMAGE = "peakimages/sqlite:3.54.1-v0.2.0";
+const sqliteRow = (environment = 1) => ({
+  coolify: [
+    `insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (${SQ_ID}, '${SQ}', 'parity-sqlite', 'The fixture''s SQLite', '${SQLITE_IMAGE}', ${environment}, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')`,
+    `insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, '${SQ_VOLUME}', 'sqlite-data-${SQ}', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', ${SQ_ID}, '2025-12-31 00:00:00', '2025-12-31 00:00:00')`,
+  ],
+  freeploy: [
+    `insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (${SQ_ID}, '${SQ}', 'parity-sqlite', 'The fixture''s SQLite', '${SQLITE_IMAGE}', ${environment}, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')`,
+    `insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, '${SQ_VOLUME}', 'sqlite-data-${SQ}', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', ${SQ_ID}, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')`,
+  ],
+});
+const WITH_SQLITE = (environment = 1, coolify = [], freeploy = []) => {
+  const row = sqliteRow(environment);
+  return { setupCoolify: [...row.coolify, ...coolify], setupFreeploy: [...row.freeploy, ...freeploy] };
+};
+const SQLITE_COLUMNS = "description, image, status, is_public, sqlite_databases, limits_memory, limits_memory_swap, limits_memory_swappiness, limits_memory_reservation, limits_cpus, limits_cpuset, limits_cpu_shares, environment_id, destination_id, destination_type, is_log_drain_enabled, is_include_timestamps, custom_docker_run_options, health_check_enabled, health_check_interval, health_check_timeout, health_check_retries, health_check_start_period, redact_all_env_values_in_logs, include_coolify_default_variables, restart_count, started_at, deleted_at";
+/** The rows a create leaves: the new database (its generated name as a flag), its data volume, its tags. */
+const SQLITE_CREATED = {
+  database: `select name = 'sqlite-database-' || uuid as default_name, replace(name, uuid, '<uuid>') as name, ${SQLITE_COLUMNS} from standalone_sqlites order by id`,
+  volumes: "select v.name = 'sqlite-data-' || d.uuid as default_name, v.mount_path, v.host_path, v.standalone_sqlite_id from local_persistent_volumes v join standalone_sqlites d on d.id = v.resource_id where v.resource_type = 'App\\Models\\StandaloneSqlite' order by v.id",
+  variables: "select e.key from environment_variables e where e.resourceable_type = 'App\\Models\\StandaloneSqlite' order by e.id",
+  tags: `select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\StandaloneSqlite' and t.id > ${FIXTURE_TAGS} order by t.name`,
+};
+const SQLITE_AFTER = { database: `select name, ${SQLITE_COLUMNS} from standalone_sqlites where uuid = '${SQ}'` };
+const SQLITE_VISIBLE = { database: `select count(*)::int as n from standalone_sqlites where uuid = '${SQ}' and deleted_at is null` };
+/** A refused delete: the database and every volume of it or connected to it are kept. */
+const SQLITE_KEPT = { ...SQLITE_VISIBLE, volumes: "select name, mount_path, resource_type, resource_id, standalone_sqlite_id from local_persistent_volumes where resource_type = 'App\\Models\\StandaloneSqlite' or standalone_sqlite_id is not null order by id" };
+const SQLITE_PATH = `/api/v1/databases/${SQ}`;
+
+// Creating one.
+add({ name: "sqlite: create", token: "write", method: "POST", path: "/api/v1/databases/sqlite", body: ON, after: SQLITE_CREATED });
+add({
+  name: "sqlite: create with every field",
+  token: "root",
+  method: "POST",
+  path: "/api/v1/databases/sqlite",
+  body: { project_uuid: P_ALPHA, environment_uuid: E_STAGING, server_uuid: S_MAIN, destination_uuid: D_MAIN, name: "api-sqlite", description: "From the API", image: "peakimages/sqlite:3.53.4-v0.1.0", sqlite_databases: "app.sqlite,cache.db", limits_memory: "256m", limits_cpus: 0.5, limits_cpu_shares: 256, limits_memory_swappiness: 10, tags: ["sqlite-tag", "Backend"] },
+  after: SQLITE_CREATED,
+});
+add({ name: "sqlite: create, read:sensitive", token: "root", method: "POST", path: "/api/v1/databases/sqlite", body: { ...ON, sqlite_databases: "one.db" }, after: SQLITE_CREATED });
+add({ name: "sqlite: create, invalid file names", token: "write", method: "POST", path: "/api/v1/databases/sqlite", body: { ...ON, sqlite_databases: "data/app.db,,x" } });
+add({ name: "sqlite: create, file names too long", token: "write", method: "POST", path: "/api/v1/databases/sqlite", body: { ...ON, sqlite_databases: "a ".repeat(130) } });
+add({ name: "sqlite: create, file names not a string", token: "write", method: "POST", path: "/api/v1/databases/sqlite", body: { ...ON, sqlite_databases: ["a.db"] } });
+add({ name: "sqlite: create, a field SQLite does not have", token: "write", method: "POST", path: "/api/v1/databases/sqlite", body: { ...ON, public_port: 5544, postgres_user: "x" } });
+add({ name: "sqlite: create, public", token: "write", method: "POST", path: "/api/v1/databases/sqlite", body: { ...ON, is_public: true, public_port: 5544 } });
+add({ name: "sqlite: create, public without a port", token: "write", method: "POST", path: "/api/v1/databases/sqlite", body: { ...ON, is_public: true } });
+add({ name: "sqlite: create, invalid", token: "write", method: "POST", path: "/api/v1/databases/sqlite", body: { ...ON, name: "x", image: 5, limits_cpuset: 3, sqlite_databases: ".hidden" } });
+add({ name: "sqlite: create, an unknown field", token: "write", method: "POST", path: "/api/v1/databases/sqlite", body: { ...ON, foo: 1 } });
+add({ name: "sqlite: create, no environment", token: "write", method: "POST", path: "/api/v1/databases/sqlite", body: { project_uuid: P_ALPHA, server_uuid: S_MAIN } });
+add({ name: "sqlite: create on another team's server", token: "write", method: "POST", path: "/api/v1/databases/sqlite", body: { ...ON, server_uuid: S_OTHER } });
+add({ name: "sqlite: create, instant deploy without the deploy permission", token: "write", method: "POST", path: "/api/v1/databases/sqlite", body: { ...ON, instant_deploy: true } });
+add({ name: "sqlite: create, instant deploy", token: "root", method: "POST", path: "/api/v1/databases/sqlite", body: { ...ON, instant_deploy: true } });
+add({ name: "sqlite: create with a read token", token: "read", method: "POST", path: "/api/v1/databases/sqlite", body: ON });
+add({ name: "sqlite: create with GET", token: "read", method: "GET", path: "/api/v1/databases/sqlite" });
+
+// Reading it.
+add({ name: "sqlite: list", token: "read", method: "GET", path: "/api/v1/databases", ...WITH_SQLITE() });
+add({ name: "sqlite: list, read:sensitive", token: "sensitive", method: "GET", path: "/api/v1/databases", ...WITH_SQLITE() });
+add({ name: "sqlite: show", token: "read", method: "GET", path: SQLITE_PATH, ...WITH_SQLITE() });
+add({ name: "sqlite: show, read:sensitive", token: "sensitive", method: "GET", path: SQLITE_PATH, ...WITH_SQLITE() });
+add({ name: "sqlite: resources", token: "read", method: "GET", path: "/api/v1/resources", ...WITH_SQLITE() });
+add({ name: "sqlite: resources, read:sensitive", token: "sensitive", method: "GET", path: "/api/v1/resources", ...WITH_SQLITE() });
+
+// Changing it.
+add({ name: "sqlite: update", token: "write", method: "PATCH", path: SQLITE_PATH, ...WITH_SQLITE(), body: { name: "renamed-sqlite", description: "Renamed", sqlite_databases: "a.db,b.db", image: "peakimages/sqlite:3.53.4-v0.1.0", limits_memory: "1g", health_check_interval: 20 }, after: SQLITE_AFTER });
+add({ name: "sqlite: update the log settings", token: "write", method: "PATCH", path: SQLITE_PATH, ...WITH_SQLITE(), body: { redact_all_env_values_in_logs: false, include_coolify_default_variables: false, is_log_drain_enabled: false }, after: SQLITE_AFTER });
+add({ name: "sqlite: update, invalid file names", token: "write", method: "PATCH", path: SQLITE_PATH, ...WITH_SQLITE(), body: { sqlite_databases: ".bad", health_check_retries: 0 } });
+add({ name: "sqlite: update, a field SQLite does not have", token: "write", method: "PATCH", path: SQLITE_PATH, ...WITH_SQLITE(), body: { public_port: 5544, public_port_timeout: 60, postgres_user: "x" } });
+add({ name: "sqlite: update, made public without the deploy permission", token: "write", method: "PATCH", path: SQLITE_PATH, ...WITH_SQLITE(), body: { is_public: true } });
+add({ name: "sqlite: update, made public", token: "root", method: "PATCH", path: SQLITE_PATH, ...WITH_SQLITE(), body: { is_public: true, public_port: 5544 } });
+add({ name: "sqlite: update, private as it is", token: "write", method: "PATCH", path: SQLITE_PATH, ...WITH_SQLITE(), body: { is_public: false } });
+add({ name: "sqlite: update, instant deploy", token: "root", method: "PATCH", path: SQLITE_PATH, ...WITH_SQLITE(), body: { name: "x-sqlite", instant_deploy: true } });
+
+// Deleting, starting, stopping it.
+add({ name: "sqlite: delete", token: "delete", method: "DELETE", path: SQLITE_PATH, ...WITH_SQLITE(), after: SQLITE_VISIBLE });
+const SQLITE_MOUNT = (id, resource) => [
+  `insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, standalone_sqlite_id, created_at, updated_at) values (${id}, 'l${id}paritysqlitemount0000'::text, 'sqlite-data-${SQ}', '/app/data', 'App\\Models\\Application', ${resource}, ${SQ_ID}, '2025-12-31 00:00:00', '2025-12-31 00:00:00')`,
+];
+const sqliteMountFreeploy = (id, resource) => [
+  `insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, standalone_sqlite_id, org_id, created_at, updated_at) values (${id}, 'l${id}paritysqlitemount0000'::text, 'sqlite-data-${SQ}', '/app/data', 'App\\Models\\Application', ${resource}, ${SQ_ID}, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')`,
+];
+add({ name: "sqlite: delete, mounted by an application", token: "delete", method: "DELETE", path: SQLITE_PATH, ...WITH_SQLITE(1, SQLITE_MOUNT(41, 1), sqliteMountFreeploy(41, 1)), after: SQLITE_KEPT });
+add({ name: "sqlite: delete, mounted by two applications", token: "delete", method: "DELETE", path: SQLITE_PATH, ...WITH_SQLITE(1, [...SQLITE_MOUNT(41, 2), ...SQLITE_MOUNT(42, 1)], [...sqliteMountFreeploy(41, 2), ...sqliteMountFreeploy(42, 1)]), after: SQLITE_KEPT });
+const SQLITE_COMPOSE = `services:\n  app:\n    image: nginx:alpine\n    volumes:\n      - sqlite-data-${SQ}:/data\nvolumes:\n  sqlite-data-${SQ}:\n    external: true\n`;
+add({
+  name: "sqlite: delete, mounted by a Docker Compose application",
+  token: "delete",
+  method: "DELETE",
+  path: SQLITE_PATH,
+  ...WITH_SQLITE(),
+  setup: [`update applications set build_pack = 'dockercompose', docker_compose_raw = '${SQLITE_COMPOSE}' where id = 2`],
+  after: SQLITE_KEPT,
+});
+add({
+  name: "sqlite: delete, a Docker Compose application with another external volume",
+  token: "delete",
+  method: "DELETE",
+  path: SQLITE_PATH,
+  ...WITH_SQLITE(),
+  setup: [`update applications set build_pack = 'dockercompose', docker_compose_raw = 'services:\n  app:\n    image: nginx\nvolumes:\n  other:\n    external: true\n    name: other-volume\n' where id = 2`],
+  after: SQLITE_VISIBLE,
+});
+add({ name: "sqlite: delete an environment that holds one", token: "delete", method: "DELETE", path: `/api/v1/projects/${P_ALPHA}/environments/staging`, ...WITH_SQLITE(2), after: { environments: "select name from environments where project_id = 1 order by id" } });
+for (const action of ["start", "restart", "stop"]) add({ name: `sqlite: ${action}`, token: "root", method: "POST", path: `${SQLITE_PATH}/${action}`, ...WITH_SQLITE() });
+add({ name: "sqlite: stop a running one", token: "root", method: "POST", path: `${SQLITE_PATH}/stop`, ...WITH_SQLITE(1, [`update standalone_sqlites set status = 'running:healthy' where id = ${SQ_ID}`], [`update standalone_sqlites set status = 'running:healthy' where id = ${SQ_ID}`]) });
+
+// The database operations Coolify extends to it.
+add({ name: "sqlite: envs", token: "read", method: "GET", path: `${SQLITE_PATH}/envs`, ...WITH_SQLITE() });
+add({ name: "sqlite: envs, create", token: "write", method: "POST", path: `${SQLITE_PATH}/envs`, ...WITH_SQLITE(), body: { key: "SQLITE_DATABASES", value: "from.db" }, after: SQLITE_CREATED });
+add({ name: "sqlite: storages", token: "read", method: "GET", path: `${SQLITE_PATH}/storages`, ...WITH_SQLITE() });
+add({ name: "sqlite: backups", token: "read", method: "GET", path: `${SQLITE_PATH}/backups`, ...WITH_SQLITE() });
+add({ name: "sqlite: create a backup schedule", token: "write", method: "POST", path: `${SQLITE_PATH}/backups`, ...WITH_SQLITE(), body: { frequency: "daily" }, after: { backups: "select description, enabled, save_s3, frequency, database_type, database_id, databases_to_backup, dump_all from scheduled_database_backups where database_type = 'App\\Models\\StandaloneSqlite' order by id" } });
+const SQLITE_CLONE_AFTER = {
+  database: `select replace(name, uuid, '<uuid>') as name, description, status, image, sqlite_databases, environment_id, destination_id from standalone_sqlites where uuid <> '${SQ}'`,
+  volumes: `select replace(v.name, d.uuid, '<uuid>') as name, v.mount_path, v.standalone_sqlite_id from local_persistent_volumes v join standalone_sqlites d on d.id = v.resource_id where v.resource_type = 'App\\Models\\StandaloneSqlite' and d.uuid <> '${SQ}' order by v.name`,
+};
+add({ name: "sqlite: clone", token: "write", method: "POST", path: `${SQLITE_PATH}/clone`, ...WITH_SQLITE(1, [`update standalone_sqlites set sqlite_databases = 'app.db' where id = ${SQ_ID}`], [`update standalone_sqlites set sqlite_databases = 'app.db' where id = ${SQ_ID}`]), body: { destination_uuid: D_MAIN }, after: SQLITE_CLONE_AFTER });
+add({ name: "sqlite: tags", token: "read", method: "GET", path: `${SQLITE_PATH}/tags`, ...WITH_SQLITE() });
+denial("sqlite: start", "memberDeploy", DEPLOY_DELETE, DEPLOYER);
+
 /** The tables whose column order emit.php writes into the goldens (`columns`): what a nested relation serializes in. */
 const columnsOf = ["servers", "server_settings", "standalone_dockers", "application_settings", "applications", "environment_variables", "application_deployment_queues", "scheduled_database_backups", "scheduled_database_backup_executions", "services", "service_applications", "service_databases", "projects", "environments", "standalone_postgresqls", "standalone_redis", "standalone_mongodbs", "standalone_mysqls", "standalone_mariadbs", "standalone_keydbs", "standalone_dragonflies", "standalone_clickhouses", "local_persistent_volumes", "local_file_volumes", "github_apps"];
 

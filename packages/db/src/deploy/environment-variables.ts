@@ -11,7 +11,7 @@
 // decrypt.
 //
 // A variable belongs to a resource through Coolify's polymorphic
-// resourceable_type / resourceable_id. Applications and the eight standalone
+// resourceable_type / resourceable_id. Applications and the nine standalone
 // databases are wired (a database's type is Coolify's type(), e.g.
 // 'standalone-postgresql'); a service is one more entry in
 // ENVIRONMENT_VARIABLE_RESOURCES.

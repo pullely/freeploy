@@ -1,0 +1,24 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-112
+  title: "DP7: SQLite, the ninth standalone database engine, in the console and on /api/v1"
+spec:
+  goal: Coolify's StandaloneSqlite is Freeploy's ninth standalone database engine. The engine records (DATABASE_ENGINES, DATABASE_TABLES with a publicPort flag, the engine spec, the start plan's StartSqlite, the URL, proxy and backup records) know SQLite; New Resource creates one (create_standalone_sqlite()), its General page has its database files and no Access section, and the shared database pages take it. On DP-70's pipeline POST /databases/sqlite is ported and SQLite joins GET /databases, GET/PATCH/DELETE /databases/{uuid}, start, restart and stop, GET /resources, an environment's delete, and a database's envs, storages, backup schedules, tags and clone; deleting a SQLite database an application mounts is refused as Coolify refuses it. 1 more of openapi.json's 330 operations is ported (326 in all). No migration (the table already has Coolify's columns), no binding. Sqlite\ConnectApplication is not ported.
+  affects:
+    - apps/api-edge/**
+    - apps/deploy-core-worker/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/api-edge/**
+    - tests/db/**
+    - tests/deploy-core-worker/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - every DP-112 case of tests/deploy-core-worker/fixtures/api/cases.json replays byte-equal to goldens.json against deploy-core-worker's handler with the rows of the writes (tests/deploy-core-worker/src/api-v1-sqlite.test.ts), the middleware's answers at the edge, and the member denial (52 in all) as Coolify's exception handler answers it; the committed goldens.json and cases.json are byte prefixes of the new ones
+    - the departures (start, restart, the stop of a running database, instant_deploy) answer 501 and store nothing
+    - fixtures/databases and fixtures/database-start hold SQLite's model, created row, Sqlite\General validation and StartSqlite runs, every committed line unchanged, and all replay byte-equal
+    - specs/epics/freeploy-coolify-parity/parity/openapi.operations.json marks POST /api/v1/databases/sqlite ported with taskKey DP-112 (326 ported of 330), tests/api-edge/src/api-v1.test.ts counts 326, and node tools/parity/inventory.ts --check passes
+    - on stage, New Resource → SQLite creates a database whose General page shows its database files, POST /api/v1/databases/sqlite answers its uuid, GET /api/v1/databases lists it last, and deleting it (never started) removes it
+  gates: []

@@ -196,6 +196,9 @@ function url(d: DatabaseUrlInput, host: string, port: number | null): string {
       if (d.enableSsl && d.sslMode === "verify-ca") out += "?cacert=/etc/ssl/certs/coolify-ca.crt";
       return out;
     }
+    case "sqlite":
+      // StandaloneSqlite has no internal_db_url or external_db_url accessor: a file in a volume, not a server.
+      throw new Error("A SQLite database has no connection URL.");
   }
 }
 

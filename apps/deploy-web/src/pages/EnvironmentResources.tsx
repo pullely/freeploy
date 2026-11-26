@@ -84,7 +84,7 @@ function ResourceLogo({ item }: { item: ResourceItem }) {
     // resource_logo(): the engine's logo, with a dark variant for KeyDB and Dragonfly.
     const engine = (item.databaseType ?? "").replace(/^standalone-/, "");
     const logo = engine === "postgresql" ? "postgres" : engine;
-    if (!["postgres", "mysql", "mariadb", "mongodb", "redis", "keydb", "dragonfly", "clickhouse"].includes(logo)) return <Reicon name="database" className="size-4" />;
+    if (!["postgres", "mysql", "mariadb", "mongodb", "redis", "keydb", "dragonfly", "clickhouse", "sqlite"].includes(logo)) return <Reicon name="database" className="size-4" />;
     const dark = logo === "keydb" || logo === "dragonfly";
     return (
       <span className="flex size-full items-center justify-center" data-resource-logo-image="">

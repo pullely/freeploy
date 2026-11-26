@@ -77,7 +77,7 @@ interface BackupDetail {
   availableS3Storages: Array<{ uuid: string; name: string; isUsable: boolean }>;
   status: string;
   databaseName: string;
-  selection: "dump-all" | "mongodb" | "clickhouse" | null;
+  selection: "dump-all" | "mongodb" | "clickhouse" | "sqlite" | null;
 }
 
 /** "3 minutes ago", as Carbon's diffForHumans() words it. */
@@ -291,6 +291,15 @@ function BackupEditGeneral({ api, detail, canManage, onChanged }: { api: string;
             />
           ) : detail.selection === "clickhouse" ? (
             <FormInput id="databasesToBackup" label="Databases to back up" helper="Comma-separated database names. Leave empty to include the default database." value={form.databasesToBackup ?? ""} onChange={set("databasesToBackup")} disabled={!canManage} />
+          ) : detail.selection === "sqlite" ? (
+            <FormInput
+              id="databasesToBackup"
+              label="Database files to back up"
+              helper="Comma-separated file names inside the data volume. Leave empty to back up every configured file."
+              value={form.databasesToBackup ?? ""}
+              onChange={set("databasesToBackup")}
+              disabled={!canManage}
+            />
           ) : null}
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

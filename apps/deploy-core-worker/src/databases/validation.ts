@@ -1,6 +1,6 @@
 // Derived from coollabsio/coolify@91b7e3e:app/Support/ValidationPatterns.php (DB_IDENTIFIER_PATTERN, DB_PASSWORD_PATTERN,
 // databaseIdentifierRules, databasePasswordRules and their messages, portMappingRules),
-// app/Livewire/Project/Database/{Postgresql,Redis,Mysql,Mariadb,Mongodb,Keydb,Dragonfly,Clickhouse}/General.php (the
+// app/Livewire/Project/Database/{Postgresql,Redis,Mysql,Mariadb,Mongodb,Keydb,Dragonfly,Clickhouse,Sqlite}/General.php (the
 // typed properties, rules(), messages(), $validationAttributes; save_new_init_script's rules) and
 // bootstrap/helpers/shared.php (validateFilenameSafe) (Apache-2.0), modified.
 //
@@ -19,7 +19,7 @@ import { add, blank, descriptionRules, length, nameRules, type FieldErrors } fro
 import { LARAVEL } from "../servers/settings-validation.js";
 import { APPLICATION_MESSAGES, PORT_MAPPINGS_PATTERN } from "../applications/validation.js";
 import { StoragePathError, validateShellSafePath } from "../applications/storage-paths.js";
-import { DATABASE_ENGINE_SPECS, isDatabaseEngine, type DatabaseEngineSpec, type DatabaseField } from "./engines.js";
+import { DATABASE_ENGINE_SPECS, SQLITE_DATABASES_PATTERN, isDatabaseEngine, type DatabaseEngineSpec, type DatabaseField } from "./engines.js";
 
 /**
  * ValidationPatterns::DB_IDENTIFIER_PATTERN and DB_PASSWORD_PATTERN. PCRE's
@@ -186,6 +186,9 @@ export interface DatabaseGeneralInput {
   fields: Record<string, string | null>;
 }
 
+/** The Access section's properties, which an engine without it (spec.access) does not have. */
+const ACCESS_PROPERTIES = ["portsMappings", "isPublic", "publicPort", "publicPortTimeout"];
+
 /** Laravel's `string` message for a value the typed property cannot hold. */
 const notAString = (attribute: string): string => `The ${attribute} field must be a string.`;
 
@@ -206,6 +209,29 @@ function credentialRules(errors: FieldErrors, field: DatabaseField, value: strin
 }
 
 /**
+ * Sqlite\General: 'sqliteDatabases' => ['required', 'string', 'max:255', 'regex:'.StandaloneSqlite::DATABASES_PATTERN],
+ * with its messages for `required` and `regex` and Laravel's for `max`. PCRE's `$` also matches before a final newline.
+ */
+function filesRules(errors: FieldErrors, spec: DatabaseEngineSpec, field: DatabaseField, value: string): void {
+  const { property } = field;
+  if (blank(value)) return add(errors, property, spec.messages?.[`${property}.required`] ?? DATABASE_MESSAGES.required(field.attribute));
+  if (length(value) > 255) add(errors, property, `The ${field.attribute} field must not be greater than 255 characters.`);
+  if (!SQLITE_DATABASES_PATTERN.test(value.replace(/\n$/, ""))) add(errors, property, spec.messages?.[`${property}.regex`] ?? LARAVEL.regex(field.attribute));
+}
+
+/**
+ * Sqlite\General::submit(): the file names trimmed and the empty ones dropped before the validator sees them —
+ * collect(explode(',', ...))->map(trim)->filter(!== '')->implode(','). PHP's trim() takes " \t\n\r\0\x0B".
+ */
+export function normalizeSqliteDatabases(value: string): string {
+  return value
+    .split(",")
+    .map((name) => name.replace(/^[ \t\n\r\0\x0B]+|[ \t\n\r\0\x0B]+$/g, ""))
+    .filter((name) => name !== "")
+    .join(",");
+}
+
+/**
  * General::validate() with rules() and messages(), for the properties the
  * body gives. The values are checked as given: what submit() does to the port
  * mappings first (spaces removed) is the caller's part.
@@ -213,7 +239,8 @@ function credentialRules(errors: FieldErrors, field: DatabaseField, value: strin
 export function validateDatabaseGeneral(spec: DatabaseEngineSpec, body: Body, ctx: GeneralValidationContext): Result<DatabaseGeneralInput> {
   const errors: FieldErrors = {};
   const input: DatabaseGeneralInput = { fields: {} };
-  const has = (field: string): boolean => body[field] !== undefined;
+  // An engine without the Access section (SQLite) has no such properties: they are not read.
+  const has = (field: string): boolean => body[field] !== undefined && (spec.access || !ACCESS_PROPERTIES.includes(field));
 
   if (has("name")) {
     const name = coerceString(body.name, false);
@@ -274,14 +301,15 @@ export function validateDatabaseGeneral(spec: DatabaseEngineSpec, body: Body, ct
 
   for (const field of spec.fields) {
     if (!has(field.property)) continue;
-    // Every credential is a `string` property but Redis's password (?string); free text is ?string.
+    // Every credential is a `string` property but Redis's password (?string); free text is ?string; SQLite's files a `string`.
     const nullable = field.kind === "text" || field.variable === "REDIS_PASSWORD";
     const value = coerceString(body[field.property], nullable);
     if (value === undefined) {
       add(errors, field.property, notAString(field.attribute));
       continue;
     }
-    if (field.kind !== "text") credentialRules(errors, field, value, ctx);
+    if (field.kind === "files") filesRules(errors, spec, field, value as string);
+    else if (field.kind !== "text") credentialRules(errors, field, value, ctx);
     input.fields[field.property] = value;
   }
   return Object.keys(errors).length ? { ok: false, errors } : { ok: true, input };

@@ -49768,6 +49768,787 @@
    "setupCoolify": [
     "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
    ]
+  },
+  {
+   "name": "sqlite: create",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/sqlite",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001"
+   },
+   "after": {
+    "database": "select name = 'sqlite-database-' || uuid as default_name, replace(name, uuid, '<uuid>') as name, description, image, status, is_public, sqlite_databases, limits_memory, limits_memory_swap, limits_memory_swappiness, limits_memory_reservation, limits_cpus, limits_cpuset, limits_cpu_shares, environment_id, destination_id, destination_type, is_log_drain_enabled, is_include_timestamps, custom_docker_run_options, health_check_enabled, health_check_interval, health_check_timeout, health_check_retries, health_check_start_period, redact_all_env_values_in_logs, include_coolify_default_variables, restart_count, started_at, deleted_at from standalone_sqlites order by id",
+    "volumes": "select v.name = 'sqlite-data-' || d.uuid as default_name, v.mount_path, v.host_path, v.standalone_sqlite_id from local_persistent_volumes v join standalone_sqlites d on d.id = v.resource_id where v.resource_type = 'App\\Models\\StandaloneSqlite' order by v.id",
+    "variables": "select e.key from environment_variables e where e.resourceable_type = 'App\\Models\\StandaloneSqlite' order by e.id",
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\StandaloneSqlite' and t.id > 4 order by t.name"
+   }
+  },
+  {
+   "name": "sqlite: create with every field",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/databases/sqlite",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_uuid": "e2alphastaging0000000002",
+    "server_uuid": "s1parityserveruuid000001",
+    "destination_uuid": "d1paritydestination00001",
+    "name": "api-sqlite",
+    "description": "From the API",
+    "image": "peakimages/sqlite:3.53.4-v0.1.0",
+    "sqlite_databases": "app.sqlite,cache.db",
+    "limits_memory": "256m",
+    "limits_cpus": 0.5,
+    "limits_cpu_shares": 256,
+    "limits_memory_swappiness": 10,
+    "tags": [
+     "sqlite-tag",
+     "Backend"
+    ]
+   },
+   "after": {
+    "database": "select name = 'sqlite-database-' || uuid as default_name, replace(name, uuid, '<uuid>') as name, description, image, status, is_public, sqlite_databases, limits_memory, limits_memory_swap, limits_memory_swappiness, limits_memory_reservation, limits_cpus, limits_cpuset, limits_cpu_shares, environment_id, destination_id, destination_type, is_log_drain_enabled, is_include_timestamps, custom_docker_run_options, health_check_enabled, health_check_interval, health_check_timeout, health_check_retries, health_check_start_period, redact_all_env_values_in_logs, include_coolify_default_variables, restart_count, started_at, deleted_at from standalone_sqlites order by id",
+    "volumes": "select v.name = 'sqlite-data-' || d.uuid as default_name, v.mount_path, v.host_path, v.standalone_sqlite_id from local_persistent_volumes v join standalone_sqlites d on d.id = v.resource_id where v.resource_type = 'App\\Models\\StandaloneSqlite' order by v.id",
+    "variables": "select e.key from environment_variables e where e.resourceable_type = 'App\\Models\\StandaloneSqlite' order by e.id",
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\StandaloneSqlite' and t.id > 4 order by t.name"
+   }
+  },
+  {
+   "name": "sqlite: create, read:sensitive",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/databases/sqlite",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "sqlite_databases": "one.db"
+   },
+   "after": {
+    "database": "select name = 'sqlite-database-' || uuid as default_name, replace(name, uuid, '<uuid>') as name, description, image, status, is_public, sqlite_databases, limits_memory, limits_memory_swap, limits_memory_swappiness, limits_memory_reservation, limits_cpus, limits_cpuset, limits_cpu_shares, environment_id, destination_id, destination_type, is_log_drain_enabled, is_include_timestamps, custom_docker_run_options, health_check_enabled, health_check_interval, health_check_timeout, health_check_retries, health_check_start_period, redact_all_env_values_in_logs, include_coolify_default_variables, restart_count, started_at, deleted_at from standalone_sqlites order by id",
+    "volumes": "select v.name = 'sqlite-data-' || d.uuid as default_name, v.mount_path, v.host_path, v.standalone_sqlite_id from local_persistent_volumes v join standalone_sqlites d on d.id = v.resource_id where v.resource_type = 'App\\Models\\StandaloneSqlite' order by v.id",
+    "variables": "select e.key from environment_variables e where e.resourceable_type = 'App\\Models\\StandaloneSqlite' order by e.id",
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\StandaloneSqlite' and t.id > 4 order by t.name"
+   }
+  },
+  {
+   "name": "sqlite: create, invalid file names",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/sqlite",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "sqlite_databases": "data/app.db,,x"
+   }
+  },
+  {
+   "name": "sqlite: create, file names too long",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/sqlite",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "sqlite_databases": "a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a "
+   }
+  },
+  {
+   "name": "sqlite: create, file names not a string",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/sqlite",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "sqlite_databases": [
+     "a.db"
+    ]
+   }
+  },
+  {
+   "name": "sqlite: create, a field SQLite does not have",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/sqlite",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "public_port": 5544,
+    "postgres_user": "x"
+   }
+  },
+  {
+   "name": "sqlite: create, public",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/sqlite",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "is_public": true,
+    "public_port": 5544
+   }
+  },
+  {
+   "name": "sqlite: create, public without a port",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/sqlite",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "is_public": true
+   }
+  },
+  {
+   "name": "sqlite: create, invalid",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/sqlite",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "name": "x",
+    "image": 5,
+    "limits_cpuset": 3,
+    "sqlite_databases": ".hidden"
+   }
+  },
+  {
+   "name": "sqlite: create, an unknown field",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/sqlite",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "foo": 1
+   }
+  },
+  {
+   "name": "sqlite: create, no environment",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/sqlite",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "server_uuid": "s1parityserveruuid000001"
+   }
+  },
+  {
+   "name": "sqlite: create on another team's server",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/sqlite",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s2otherteamserver0000002"
+   }
+  },
+  {
+   "name": "sqlite: create, instant deploy without the deploy permission",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/sqlite",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "instant_deploy": true
+   }
+  },
+  {
+   "name": "sqlite: create, instant deploy",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/databases/sqlite",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "instant_deploy": true
+   }
+  },
+  {
+   "name": "sqlite: create with a read token",
+   "token": "read",
+   "method": "POST",
+   "path": "/api/v1/databases/sqlite",
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001"
+   }
+  },
+  {
+   "name": "sqlite: create with GET",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/databases/sqlite"
+  },
+  {
+   "name": "sqlite: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/databases",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ]
+  },
+  {
+   "name": "sqlite: list, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/databases",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ]
+  },
+  {
+   "name": "sqlite: show",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/databases/q6paritysqlite0000000001",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ]
+  },
+  {
+   "name": "sqlite: show, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/databases/q6paritysqlite0000000001",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ]
+  },
+  {
+   "name": "sqlite: resources",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/resources",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ]
+  },
+  {
+   "name": "sqlite: resources, read:sensitive",
+   "token": "sensitive",
+   "method": "GET",
+   "path": "/api/v1/resources",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ]
+  },
+  {
+   "name": "sqlite: update",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/databases/q6paritysqlite0000000001",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "body": {
+    "name": "renamed-sqlite",
+    "description": "Renamed",
+    "sqlite_databases": "a.db,b.db",
+    "image": "peakimages/sqlite:3.53.4-v0.1.0",
+    "limits_memory": "1g",
+    "health_check_interval": 20
+   },
+   "after": {
+    "database": "select name, description, image, status, is_public, sqlite_databases, limits_memory, limits_memory_swap, limits_memory_swappiness, limits_memory_reservation, limits_cpus, limits_cpuset, limits_cpu_shares, environment_id, destination_id, destination_type, is_log_drain_enabled, is_include_timestamps, custom_docker_run_options, health_check_enabled, health_check_interval, health_check_timeout, health_check_retries, health_check_start_period, redact_all_env_values_in_logs, include_coolify_default_variables, restart_count, started_at, deleted_at from standalone_sqlites where uuid = 'q6paritysqlite0000000001'"
+   }
+  },
+  {
+   "name": "sqlite: update the log settings",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/databases/q6paritysqlite0000000001",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "body": {
+    "redact_all_env_values_in_logs": false,
+    "include_coolify_default_variables": false,
+    "is_log_drain_enabled": false
+   },
+   "after": {
+    "database": "select name, description, image, status, is_public, sqlite_databases, limits_memory, limits_memory_swap, limits_memory_swappiness, limits_memory_reservation, limits_cpus, limits_cpuset, limits_cpu_shares, environment_id, destination_id, destination_type, is_log_drain_enabled, is_include_timestamps, custom_docker_run_options, health_check_enabled, health_check_interval, health_check_timeout, health_check_retries, health_check_start_period, redact_all_env_values_in_logs, include_coolify_default_variables, restart_count, started_at, deleted_at from standalone_sqlites where uuid = 'q6paritysqlite0000000001'"
+   }
+  },
+  {
+   "name": "sqlite: update, invalid file names",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/databases/q6paritysqlite0000000001",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "body": {
+    "sqlite_databases": ".bad",
+    "health_check_retries": 0
+   }
+  },
+  {
+   "name": "sqlite: update, a field SQLite does not have",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/databases/q6paritysqlite0000000001",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "body": {
+    "public_port": 5544,
+    "public_port_timeout": 60,
+    "postgres_user": "x"
+   }
+  },
+  {
+   "name": "sqlite: update, made public without the deploy permission",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/databases/q6paritysqlite0000000001",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "body": {
+    "is_public": true
+   }
+  },
+  {
+   "name": "sqlite: update, made public",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/databases/q6paritysqlite0000000001",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "body": {
+    "is_public": true,
+    "public_port": 5544
+   }
+  },
+  {
+   "name": "sqlite: update, private as it is",
+   "token": "write",
+   "method": "PATCH",
+   "path": "/api/v1/databases/q6paritysqlite0000000001",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "body": {
+    "is_public": false
+   }
+  },
+  {
+   "name": "sqlite: update, instant deploy",
+   "token": "root",
+   "method": "PATCH",
+   "path": "/api/v1/databases/q6paritysqlite0000000001",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "body": {
+    "name": "x-sqlite",
+    "instant_deploy": true
+   }
+  },
+  {
+   "name": "sqlite: delete",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/databases/q6paritysqlite0000000001",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "after": {
+    "database": "select count(*)::int as n from standalone_sqlites where uuid = 'q6paritysqlite0000000001' and deleted_at is null"
+   }
+  },
+  {
+   "name": "sqlite: delete, mounted by an application",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/databases/q6paritysqlite0000000001",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, standalone_sqlite_id, created_at, updated_at) values (41, 'l41paritysqlitemount0000'::text, 'sqlite-data-q6paritysqlite0000000001', '/app/data', 'App\\Models\\Application', 1, 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, standalone_sqlite_id, org_id, created_at, updated_at) values (41, 'l41paritysqlitemount0000'::text, 'sqlite-data-q6paritysqlite0000000001', '/app/data', 'App\\Models\\Application', 1, 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "after": {
+    "database": "select count(*)::int as n from standalone_sqlites where uuid = 'q6paritysqlite0000000001' and deleted_at is null",
+    "volumes": "select name, mount_path, resource_type, resource_id, standalone_sqlite_id from local_persistent_volumes where resource_type = 'App\\Models\\StandaloneSqlite' or standalone_sqlite_id is not null order by id"
+   }
+  },
+  {
+   "name": "sqlite: delete, mounted by two applications",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/databases/q6paritysqlite0000000001",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, standalone_sqlite_id, created_at, updated_at) values (41, 'l41paritysqlitemount0000'::text, 'sqlite-data-q6paritysqlite0000000001', '/app/data', 'App\\Models\\Application', 2, 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, standalone_sqlite_id, created_at, updated_at) values (42, 'l42paritysqlitemount0000'::text, 'sqlite-data-q6paritysqlite0000000001', '/app/data', 'App\\Models\\Application', 1, 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, standalone_sqlite_id, org_id, created_at, updated_at) values (41, 'l41paritysqlitemount0000'::text, 'sqlite-data-q6paritysqlite0000000001', '/app/data', 'App\\Models\\Application', 2, 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, standalone_sqlite_id, org_id, created_at, updated_at) values (42, 'l42paritysqlitemount0000'::text, 'sqlite-data-q6paritysqlite0000000001', '/app/data', 'App\\Models\\Application', 1, 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "after": {
+    "database": "select count(*)::int as n from standalone_sqlites where uuid = 'q6paritysqlite0000000001' and deleted_at is null",
+    "volumes": "select name, mount_path, resource_type, resource_id, standalone_sqlite_id from local_persistent_volumes where resource_type = 'App\\Models\\StandaloneSqlite' or standalone_sqlite_id is not null order by id"
+   }
+  },
+  {
+   "name": "sqlite: delete, mounted by a Docker Compose application",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/databases/q6paritysqlite0000000001",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setup": [
+    "update applications set build_pack = 'dockercompose', docker_compose_raw = 'services:\n  app:\n    image: nginx:alpine\n    volumes:\n      - sqlite-data-q6paritysqlite0000000001:/data\nvolumes:\n  sqlite-data-q6paritysqlite0000000001:\n    external: true\n' where id = 2"
+   ],
+   "after": {
+    "database": "select count(*)::int as n from standalone_sqlites where uuid = 'q6paritysqlite0000000001' and deleted_at is null",
+    "volumes": "select name, mount_path, resource_type, resource_id, standalone_sqlite_id from local_persistent_volumes where resource_type = 'App\\Models\\StandaloneSqlite' or standalone_sqlite_id is not null order by id"
+   }
+  },
+  {
+   "name": "sqlite: delete, a Docker Compose application with another external volume",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/databases/q6paritysqlite0000000001",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setup": [
+    "update applications set build_pack = 'dockercompose', docker_compose_raw = 'services:\n  app:\n    image: nginx\nvolumes:\n  other:\n    external: true\n    name: other-volume\n' where id = 2"
+   ],
+   "after": {
+    "database": "select count(*)::int as n from standalone_sqlites where uuid = 'q6paritysqlite0000000001' and deleted_at is null"
+   }
+  },
+  {
+   "name": "sqlite: delete an environment that holds one",
+   "token": "delete",
+   "method": "DELETE",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/environments/staging",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 2, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 2, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "after": {
+    "environments": "select name from environments where project_id = 1 order by id"
+   }
+  },
+  {
+   "name": "sqlite: start",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/databases/q6paritysqlite0000000001/start",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ]
+  },
+  {
+   "name": "sqlite: restart",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/databases/q6paritysqlite0000000001/restart",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ]
+  },
+  {
+   "name": "sqlite: stop",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/databases/q6paritysqlite0000000001/stop",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ]
+  },
+  {
+   "name": "sqlite: stop a running one",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/databases/q6paritysqlite0000000001/stop",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "update standalone_sqlites set status = 'running:healthy' where id = 900"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "update standalone_sqlites set status = 'running:healthy' where id = 900"
+   ]
+  },
+  {
+   "name": "sqlite: envs",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/databases/q6paritysqlite0000000001/envs",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ]
+  },
+  {
+   "name": "sqlite: envs, create",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/q6paritysqlite0000000001/envs",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "body": {
+    "key": "SQLITE_DATABASES",
+    "value": "from.db"
+   },
+   "after": {
+    "database": "select name = 'sqlite-database-' || uuid as default_name, replace(name, uuid, '<uuid>') as name, description, image, status, is_public, sqlite_databases, limits_memory, limits_memory_swap, limits_memory_swappiness, limits_memory_reservation, limits_cpus, limits_cpuset, limits_cpu_shares, environment_id, destination_id, destination_type, is_log_drain_enabled, is_include_timestamps, custom_docker_run_options, health_check_enabled, health_check_interval, health_check_timeout, health_check_retries, health_check_start_period, redact_all_env_values_in_logs, include_coolify_default_variables, restart_count, started_at, deleted_at from standalone_sqlites order by id",
+    "volumes": "select v.name = 'sqlite-data-' || d.uuid as default_name, v.mount_path, v.host_path, v.standalone_sqlite_id from local_persistent_volumes v join standalone_sqlites d on d.id = v.resource_id where v.resource_type = 'App\\Models\\StandaloneSqlite' order by v.id",
+    "variables": "select e.key from environment_variables e where e.resourceable_type = 'App\\Models\\StandaloneSqlite' order by e.id",
+    "tags": "select t.name from tags t join taggables tg on tg.tag_id = t.id where tg.taggable_type = 'App\\Models\\StandaloneSqlite' and t.id > 4 order by t.name"
+   }
+  },
+  {
+   "name": "sqlite: storages",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/databases/q6paritysqlite0000000001/storages",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ]
+  },
+  {
+   "name": "sqlite: backups",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/databases/q6paritysqlite0000000001/backups",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ]
+  },
+  {
+   "name": "sqlite: create a backup schedule",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/q6paritysqlite0000000001/backups",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "body": {
+    "frequency": "daily"
+   },
+   "after": {
+    "backups": "select description, enabled, save_s3, frequency, database_type, database_id, databases_to_backup, dump_all from scheduled_database_backups where database_type = 'App\\Models\\StandaloneSqlite' order by id"
+   }
+  },
+  {
+   "name": "sqlite: clone",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/databases/q6paritysqlite0000000001/clone",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "update standalone_sqlites set sqlite_databases = 'app.db' where id = 900"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "update standalone_sqlites set sqlite_databases = 'app.db' where id = 900"
+   ],
+   "body": {
+    "destination_uuid": "d1paritydestination00001"
+   },
+   "after": {
+    "database": "select replace(name, uuid, '<uuid>') as name, description, status, image, sqlite_databases, environment_id, destination_id from standalone_sqlites where uuid <> 'q6paritysqlite0000000001'",
+    "volumes": "select replace(v.name, d.uuid, '<uuid>') as name, v.mount_path, v.standalone_sqlite_id from local_persistent_volumes v join standalone_sqlites d on d.id = v.resource_id where v.resource_type = 'App\\Models\\StandaloneSqlite' and d.uuid <> 'q6paritysqlite0000000001' order by v.name"
+   }
+  },
+  {
+   "name": "sqlite: tags",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/databases/q6paritysqlite0000000001/tags",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ]
+  },
+  {
+   "name": "denied: sqlite: start, a member with read:sensitive, deploy and delete",
+   "token": "memberDeploy",
+   "method": "POST",
+   "path": "/api/v1/databases/q6paritysqlite0000000001/start",
+   "setupCoolify": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"read:sensitive\",\"deploy\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ],
+   "setupFreeploy": [
+    "insert into standalone_sqlites (id, uuid, name, description, image, environment_id, destination_id, destination_type, org_id, created_at, updated_at, last_online_at) values (900, 'q6paritysqlite0000000001', 'parity-sqlite', 'The fixture''s SQLite', 'peakimages/sqlite:3.54.1-v0.2.0', 1, 1, 'App\\Models\\StandaloneDocker', deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00', '2025-12-31 00:00:00')",
+    "insert into local_persistent_volumes (id, uuid, name, mount_path, resource_type, resource_id, org_id, created_at, updated_at) values (40, 'l9paritysqlitevolume0009', 'sqlite-data-q6paritysqlite0000000001', '/var/lib/sqlite', 'App\\Models\\StandaloneSqlite', 900, deploy.current_org(), '2025-12-31 00:00:00', '2025-12-31 00:00:00')"
+   ]
   }
  ]
 }

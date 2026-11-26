@@ -276,7 +276,7 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("POST", "/applications/{uuid}/destinations", "write", "deploy"),
   r("DELETE", "/applications/{uuid}/destinations/{destination_uuid}", "delete", "deploy"),
 
-  // DP-73: the standalone databases (the eight engines Freeploy has; POST /databases/sqlite is not ported) and their
+  // DP-73: the standalone databases (the eight engines Freeploy had then; POST /databases/sqlite since DP-112) and their
   // backup schedules
   r("GET", "/databases", "read", "deploy"),
   r("POST", "/databases/postgresql", "write", "deploy"),
@@ -287,6 +287,7 @@ export const API_V1_ROUTES: readonly ApiRoute[] = [
   r("POST", "/databases/clickhouse", "write", "deploy"),
   r("POST", "/databases/dragonfly", "write", "deploy"),
   r("POST", "/databases/keydb", "write", "deploy"),
+  r("POST", "/databases/sqlite", "write", "deploy"),
   r("GET", "/databases/{uuid}", "read", "deploy"),
   r("GET", "/databases/{uuid}/backups", "read", "deploy"),
   r("GET", "/databases/{uuid}/backups/{scheduled_backup_uuid}/executions", "read", "deploy"),

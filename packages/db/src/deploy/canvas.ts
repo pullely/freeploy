@@ -12,7 +12,7 @@
 // what Coolify's Project::whereTeamId() does for the canvas API.
 import type { SqlExecutor, SqlRow } from "../hyperdrive/executor.js";
 import { APPLICATION_MORPH_CLASS } from "./application-create.js";
-import { DATABASE_TABLES } from "./databases.js";
+import { DATABASE_ENGINES, DATABASE_TABLES } from "./databases.js";
 import { SERVICE_MORPH_CLASS } from "./services.js";
 
 type Id = string | number;
@@ -22,12 +22,12 @@ const NOW = "date_trunc('second', timezone('UTC', now()))";
 
 /**
  * The tables EnvironmentCanvas::resourceIndex() reads, in its order: applications, services, then
- * DATABASE_RELATIONS' standalone databases (the engines Freeploy has cards for; SQLite is not ported).
+ * DATABASE_RELATIONS' standalone databases (SQLite's since DP-112).
  */
 export const CANVAS_RESOURCE_TABLES: ReadonlyArray<{ table: string; type: string }> = [
   { table: "applications", type: APPLICATION_MORPH_CLASS },
   { table: "services", type: SERVICE_MORPH_CLASS },
-  ...(["postgresql", "redis", "mongodb", "mysql", "mariadb", "keydb", "dragonfly", "clickhouse"] as const).map((engine) => ({ table: DATABASE_TABLES[engine].table, type: DATABASE_TABLES[engine].morphClass })),
+  ...DATABASE_ENGINES.map((engine) => ({ table: DATABASE_TABLES[engine].table, type: DATABASE_TABLES[engine].morphClass })),
 ];
 
 /** One top-level resource of an environment: its uuid, morph type and id. */

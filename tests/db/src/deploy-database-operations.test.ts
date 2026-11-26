@@ -78,6 +78,8 @@ const REQUIRED: Record<DatabaseEngine, Record<string, string>> = {
   keydb: { keydb_password: "fp1:1:pw" },
   dragonfly: { dragonfly_password: "fp1:1:pw" },
   clickhouse: { clickhouse_admin_password: "fp1:1:pw" },
+  // The image has no default since Coolify's 2026_10_30_171359 (DP-112).
+  sqlite: { image: "peakimages/sqlite:3.54.1-v0.2.0" },
 };
 
 function newDatabase(org: string, f: Fixture, engine: DatabaseEngine, uuid: string): NewDatabase {
@@ -111,9 +113,8 @@ describe("findDatabaseForOperation", () => {
       name: `${engine}-database-${engine}a`,
       status: "exited",
       is_public: false,
-      public_port: null,
-      public_port_timeout: 3600,
-      ports_mappings: null,
+      // SQLite's table has no public port (DP-112): the start reads every column of the table.
+      ...(DATABASE_TABLES[engine].publicPort ? { public_port: null, public_port_timeout: 3600, ports_mappings: null } : {}),
       // The schema's defaults, which are Coolify's.
       limits_memory: "0",
       limits_memory_swap: "0",

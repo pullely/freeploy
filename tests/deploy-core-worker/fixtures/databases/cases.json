@@ -16,7 +16,8 @@
   "mongodb": {"type":"mongodb"},
   "keydb": {"type":"keydb"},
   "dragonfly": {"type":"dragonfly"},
-  "clickhouse": {"type":"clickhouse"}
+  "clickhouse": {"type":"clickhouse"},
+  "sqlite": {"type":"sqlite"}
  },
  "urls": {
   "postgresql private": {"type":"postgresql","attributes":{"postgres_user":"postgres","postgres_password":"S3cretPass","postgres_db":"postgres"}},
@@ -144,7 +145,8 @@
   "mongodb": {"stored":{"mongo_initdb_root_username":"root","mongo_initdb_root_password":"Stored1","mongo_initdb_database":"default"},"environmentVariables":[],"input":{"name":"My database","description":"A description","image":"postgres:18-alpine","portsMappings":"3000:5432","isPublic":false,"publicPort":5432,"publicPortTimeout":3600,"isLogDrainEnabled":false,"customDockerRunOptions":"--cap-add SYS_ADMIN","mongoConf":null,"mongoInitdbRootUsername":"root","mongoInitdbDatabase":"default","mongoInitdbRootPassword":"Stored1"}},
   "keydb": {"stored":{"keydb_password":"Stored1"},"environmentVariables":[],"input":{"name":"My database","description":"A description","image":"postgres:18-alpine","portsMappings":"3000:5432","isPublic":false,"publicPort":5432,"publicPortTimeout":3600,"isLogDrainEnabled":false,"customDockerRunOptions":"--cap-add SYS_ADMIN","keydbConf":null,"keydbPassword":"Stored1"}},
   "dragonfly": {"stored":{"dragonfly_password":"Stored1"},"environmentVariables":[],"input":{"name":"My database","description":"A description","image":"postgres:18-alpine","portsMappings":"3000:5432","isPublic":false,"publicPort":5432,"publicPortTimeout":3600,"isLogDrainEnabled":false,"customDockerRunOptions":"--cap-add SYS_ADMIN","dragonflyPassword":"Stored1"}},
-  "clickhouse": {"stored":{"clickhouse_admin_user":"default","clickhouse_admin_password":"Stored1"},"environmentVariables":[],"input":{"name":"My database","description":"A description","image":"postgres:18-alpine","portsMappings":"3000:5432","isPublic":false,"publicPort":5432,"publicPortTimeout":3600,"isLogDrainEnabled":false,"customDockerRunOptions":"--cap-add SYS_ADMIN","clickhouseAdminUser":"default","clickhouseAdminPassword":"Stored1"}}
+  "clickhouse": {"stored":{"clickhouse_admin_user":"default","clickhouse_admin_password":"Stored1"},"environmentVariables":[],"input":{"name":"My database","description":"A description","image":"postgres:18-alpine","portsMappings":"3000:5432","isPublic":false,"publicPort":5432,"publicPortTimeout":3600,"isLogDrainEnabled":false,"customDockerRunOptions":"--cap-add SYS_ADMIN","clickhouseAdminUser":"default","clickhouseAdminPassword":"Stored1"}},
+  "sqlite": {"stored":{"sqlite_databases":"database.sqlite"},"environmentVariables":[],"input":{"name":"My database","description":"A description","image":"peakimages/sqlite:3.54.1-v0.2.0","sqliteDatabases":"database.sqlite","isLogDrainEnabled":false,"customDockerRunOptions":"--cap-add SYS_ADMIN"}}
  },
  "validation": {
   "postgresql everything valid": {"type":"postgresql","input":{"postgresUser":"new_user1","postgresDb":"new_user1","postgresPassword":"N3w-Pass.word!"}},
@@ -1020,6 +1022,38 @@
   "clickhouse clickhouseAdminPassword with unicode": {"type":"clickhouse","input":{"clickhouseAdminPassword":"pässword"}},
   "clickhouse clickhouseAdminPassword with one character": {"type":"clickhouse","input":{"clickhouseAdminPassword":"a"}},
   "redis locked password": {"type":"redis","environmentVariables":[{"key":"REDIS_PASSWORD","value":"Stored1","is_shown_once":true},{"key":"REDIS_USERNAME","value":"default"}],"input":{"redisPassword":"bad pass$"}},
-  "redis locked password left empty": {"type":"redis","environmentVariables":[{"key":"REDIS_PASSWORD","value":"Stored1","is_shown_once":true},{"key":"REDIS_USERNAME","value":"default"}],"input":{"redisPassword":null}}
+  "redis locked password left empty": {"type":"redis","environmentVariables":[{"key":"REDIS_PASSWORD","value":"Stored1","is_shown_once":true},{"key":"REDIS_USERNAME","value":"default"}],"input":{"redisPassword":null}},
+  "sqlite everything valid": {"type":"sqlite","input":{}},
+  "sqlite everything invalid": {"type":"sqlite","input":{"name":"","description":"bad <script>","image":"","sqliteDatabases":"","isLogDrainEnabled":"maybe","customDockerRunOptions":null}},
+  "sqlite name too long": {"type":"sqlite","input":{"name":"nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn"}},
+  "sqlite name not a string": {"type":"sqlite","input":{"name":12}},
+  "sqlite image null": {"type":"sqlite","input":{"image":null}},
+  "sqlite image not a string": {"type":"sqlite","input":{"image":42}},
+  "sqlite database files two files": {"type":"sqlite","input":{"sqliteDatabases":"app.sqlite,cache.db"}},
+  "sqlite database files a dot first": {"type":"sqlite","input":{"sqliteDatabases":".hidden"}},
+  "sqlite database files a slash": {"type":"sqlite","input":{"sqliteDatabases":"data/app.sqlite"}},
+  "sqlite database files a space": {"type":"sqlite","input":{"sqliteDatabases":"app sqlite"}},
+  "sqlite database files spaces after a comma": {"type":"sqlite","input":{"sqliteDatabases":"a.db, b.db"}},
+  "sqlite database files a trailing comma": {"type":"sqlite","input":{"sqliteDatabases":"a.db,"}},
+  "sqlite database files two commas": {"type":"sqlite","input":{"sqliteDatabases":"a.db,,b.db"}},
+  "sqlite database files a hyphen first": {"type":"sqlite","input":{"sqliteDatabases":"-a.db"}},
+  "sqlite database files an underscore first": {"type":"sqlite","input":{"sqliteDatabases":"_a.db"}},
+  "sqlite database files unicode": {"type":"sqlite","input":{"sqliteDatabases":"äpp.db"}},
+  "sqlite database files a trailing newline": {"type":"sqlite","input":{"sqliteDatabases":"app.db\n"}},
+  "sqlite database files at its longest": {"type":"sqlite","input":{"sqliteDatabases":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}},
+  "sqlite database files too long": {"type":"sqlite","input":{"sqliteDatabases":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}},
+  "sqlite database files too long and invalid": {"type":"sqlite","input":{"sqliteDatabases":"a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a "}},
+  "sqlite database files blank": {"type":"sqlite","input":{"sqliteDatabases":""}},
+  "sqlite database files only spaces": {"type":"sqlite","input":{"sqliteDatabases":"   "}},
+  "sqlite database files null": {"type":"sqlite","input":{"sqliteDatabases":null}},
+  "sqlite database files a number": {"type":"sqlite","input":{"sqliteDatabases":5}},
+  "sqlite database files a list": {"type":"sqlite","input":{"sqliteDatabases":["a.db"]}},
+  "sqlite log drain true": {"type":"sqlite","input":{"isLogDrainEnabled":true}},
+  "sqlite log drain zero": {"type":"sqlite","input":{"isLogDrainEnabled":0}},
+  "sqlite log drain yes": {"type":"sqlite","input":{"isLogDrainEnabled":"yes"}},
+  "sqlite log drain null": {"type":"sqlite","input":{"isLogDrainEnabled":null}},
+  "sqlite docker options a number": {"type":"sqlite","input":{"customDockerRunOptions":5}},
+  "sqlite docker options null": {"type":"sqlite","input":{"customDockerRunOptions":null}},
+  "sqlite docker options blank": {"type":"sqlite","input":{"customDockerRunOptions":""}}
  }
 }

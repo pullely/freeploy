@@ -1,4 +1,4 @@
-# Database goldens (DP-57)
+# Database goldens (DP-57, DP-112)
 
 What Coolify's own PHP does for a standalone database, so that the TypeScript ports in
 `apps/deploy-core-worker/src/databases/` and the SQL in `packages/db/src/deploy/databases.ts` can be
@@ -16,7 +16,7 @@ held to it (`src/databases.test.ts` here, `tests/db/src/deploy-databases.test.ts
   - `types`: each model's table, `getMorphClass()`, `type()`, `encrypted` casts and
     `isBackupSolutionAvailable()`.
   - `created`: `create_standalone_postgresql()`, `_redis()`, `_mongodb()`, `_mysql()`, `_mariadb()`,
-    `_keydb()`, `_dragonfly()` and `_clickhouse()`, called as `Resource\Create::createResource()`
+    `_keydb()`, `_dragonfly()`, `_clickhouse()` and — since DP-112 — `_sqlite()`, called as `Resource\Create::createResource()`
     calls them, against an in-memory SQLite database that holds only the tables they write, with
     every column nullable: what is read back non-null is what Coolify's code set (the helper, the
     models' hooks), not a schema default. A random value is given as its shape (length, character
@@ -44,7 +44,9 @@ php /path/to/freeploy/tests/deploy-core-worker/fixtures/databases/emit.php "$PWD
   > /path/to/freeploy/tests/deploy-core-worker/fixtures/databases/goldens.json
 ```
 
-The committed file was emitted with PHP 8.3.6 (cli) with pdo_sqlite. Nothing in it changes between
+The committed file was emitted with PHP 8.3.6 (cli) with pdo_sqlite. DP-112 emitted it again with SQLite's
+`types`, `created`, `validationBase` and `validation` cases (`Sqlite\General` has no Access section and
+no credentials: its cases are its own, after the eight engines'); every earlier line came out unchanged. Nothing in it changes between
 two runs: the random values are recorded as shapes.
 
 ## Not covered

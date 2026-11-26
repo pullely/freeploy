@@ -17,7 +17,7 @@ import { environmentPath, ProjectBreadcrumb } from "./ProjectChrome";
 import { SplitAction, StatusSummary } from "./ApplicationChrome";
 import { BetaBadge } from "./ServerChrome";
 
-export type DatabaseEngine = "postgresql" | "redis" | "mongodb" | "mysql" | "mariadb" | "keydb" | "dragonfly" | "clickhouse";
+export type DatabaseEngine = "postgresql" | "redis" | "mongodb" | "mysql" | "mariadb" | "keydb" | "dragonfly" | "clickhouse" | "sqlite";
 
 export interface InitScript {
   index: number;
@@ -215,7 +215,8 @@ interface MenuItem {
 export function generalSections(database: DatabaseInfo): Array<{ id: string; label: string }> {
   return [
     { id: "database-details-section", label: "Database details" },
-    { id: "access-section", label: "Access" },
+    // "$database->type() === 'standalone-sqlite' ? null : […'Access']"
+    ...(database.databaseType === "standalone-sqlite" ? [] : [{ id: "access-section", label: "Access" }]),
     { id: "container-section", label: "Container" },
     ...(database.databaseType === "standalone-postgresql" ? [{ id: "initialization-scripts-section", label: "Initialization scripts" }] : []),
   ];

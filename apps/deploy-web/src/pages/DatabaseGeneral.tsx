@@ -1,14 +1,16 @@
 // Derived from coollabsio/coolify@91b7e3e:resources/views/livewire/project/database/configuration.blade.php,
-// resources/views/livewire/project/database/{postgresql,redis,mysql,mariadb,mongodb,keydb,dragonfly,clickhouse}/general.blade.php,
+// resources/views/livewire/project/database/{postgresql,redis,mysql,mariadb,mongodb,keydb,dragonfly,clickhouse,sqlite}/general.blade.php,
 // resources/views/livewire/project/database/init-script.blade.php, resources/views/components/database-status-info.blade.php
 // and app/Livewire/Project/Database/*/General.php (Apache-2.0), modified.
 //
 // /project/{uuid}/environment/{env_uuid}/database/{db_uuid}
 // (project.database.configuration): the configuration frame and the General
-// page of a standalone database, for the eight engines. The eight Blade views
+// page of a standalone database, for the nine engines. The nine Blade views
 // are one page here: what differs between them — the copy, the credentials,
 // the configuration field — is ENGINES below and <Credentials>, word for word
-// ("Coolify" reads "Freeploy").
+// ("Coolify" reads "Freeploy"). SQLite's (DP-112) has its database files in the
+// place of the credentials, and no Access section; its "Connect application"
+// part (connect-application.blade.php) is not ported.
 // Not here: the "Details" dialog (resource details), the proxy's "View logs"
 // dialog, and ClickHouse's "Current data is not in the data volume" warning,
 // which Coolify reads from the container on the server.
@@ -17,7 +19,7 @@ import { Layout, useSignedIn } from "../layout/Layout";
 import { getJson, postJson, summarize } from "../lib/api";
 import { notify } from "../lib/toast";
 import { Reicon } from "../components/Reicon";
-import { Button, Callout, CopyButton, Empty, FormInput, FormTextarea, Helper, Listbox, ModalConfirmation, ModalInput, SettingsSection, SettingsSubsection, UnsavedBar } from "../components/Coolify";
+import { Button, Callout, CopyButton, Empty, FormInput, FormTextarea, Helper, Listbox, ModalConfirmation, ModalInput, SettingsSection, SettingsSubsection, StatusBadge, UnsavedBar } from "../components/Coolify";
 import { environmentPath, environmentUuidFromPath, limit, projectUuidFromPath } from "./ProjectChrome";
 import { databasesApi, databaseUuidFromPath, DatabaseWorkspace, type DatabaseEngine, type DatabaseInfo, type DatabaseShowData, type InitScript } from "./DatabaseChrome";
 
@@ -124,6 +126,15 @@ const ENGINES: Record<DatabaseEngine, EngineCopy> = {
     port: 8123,
     containerDescription: WITHOUT_CONFIGURATION,
     fields: ["clickhouseAdminUser", "clickhouseAdminPassword"],
+  },
+  sqlite: {
+    product: "SQLite",
+    imageHelper: "Use a published peakimages/sqlite image from Docker Hub.",
+    credentialsHelper: "",
+    // Never reached over TCP: there is no Access section.
+    port: 0,
+    containerDescription: WITHOUT_CONFIGURATION,
+    fields: ["sqliteDatabases"],
   },
 };
 
@@ -249,6 +260,8 @@ function Credentials({ database, field, hidden }: { database: DatabaseInfo; fiel
         </>
       );
     }
+    case "sqlite":
+      return null;
     case "clickhouse":
       return (
         <>
@@ -506,6 +519,7 @@ function DatabaseGeneralContent() {
   if (!data || !form || !saved) return null;
   const { database, canUpdate } = data;
   const copy = ENGINES[database.engine];
+  const sqlite = database.engine === "sqlite";
   const hidden = database.isPasswordHiddenForMember;
   const dirty = Object.keys(form).some((f) => form[f] !== saved[f]);
   const field = (name: string): FieldProps => ({ id: name, value: form[name] ?? "", onChange: (v: string) => setForm({ ...form, [name]: v }), error: errors[name], disabled: !canUpdate });
@@ -540,7 +554,12 @@ function DatabaseGeneralContent() {
         <form onSubmit={onSubmit} className="flex flex-col gap-6">
           <UnsavedBar dirty={dirty} saving={saving} onSave={() => void submit()} />
 
-          <SettingsSection id="database-details-section" title="Database details" helper={`Manage the identity, container image, and credentials of this ${copy.product} database.`}>
+          <SettingsSection
+            id="database-details-section"
+            title="Database details"
+            helper={sqlite ? "Manage the identity, container image, and database files of this SQLite database." : `Manage the identity, container image, and credentials of this ${copy.product} database.`}
+            {...(sqlite ? { actions: <StatusBadge label="Experimental" type="warning" /> } : {})}
+          >
             <div className="grid gap-4 lg:grid-cols-2">
               <FormInput {...field("name")} label="Name" />
               <FormInput {...field("description")} label="Description" />
@@ -548,9 +567,23 @@ function DatabaseGeneralContent() {
                 <FormInput {...field("image")} label="Image" required {...defined({ helper: copy.imageHelper })} />
               </div>
             </div>
-            <SettingsSubsection id="credentials-section" title="Credentials" helper={copy.credentialsHelper}>
-              <Credentials database={database} field={field} hidden={hidden} />
-            </SettingsSubsection>
+            {sqlite ? (
+              <SettingsSubsection id="database-files-section" title="Database files" helper="Applications use these databases by mounting the data volume.">
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <FormInput
+                    {...field("sqliteDatabases")}
+                    label="File names"
+                    placeholder="database.sqlite"
+                    required
+                    helper="Comma-separated file names. Missing files are created in the data volume on the next start. Removing a name does not delete its file. Backups restore into the first file."
+                  />
+                </div>
+              </SettingsSubsection>
+            ) : (
+              <SettingsSubsection id="credentials-section" title="Credentials" helper={copy.credentialsHelper}>
+                <Credentials database={database} field={field} hidden={hidden} />
+              </SettingsSubsection>
+            )}
             {database.engine === "postgresql" ? (
               <SettingsSubsection id="initialization-section" title="Initialization" helper="Configure the options used when PostgreSQL creates its initial data directory.">
                 <div className="grid gap-4 lg:grid-cols-2">
@@ -573,31 +606,33 @@ function DatabaseGeneralContent() {
             ) : null}
           </SettingsSection>
 
-          <SettingsSection id="access-section" title="Access" helper="How applications and clients connect to this database, and whether it is reachable from the internet.">
-            <SettingsSubsection id="connection-section" title="Connection" helper="Use these URLs to connect to the database." first>
-              <StatusInfo database={database} canUpdate={canUpdate} onSsl={(body) => instant("instantSaveSSL", body)} onRegenerate={regenerate} />
-            </SettingsSubsection>
-            <SettingsSubsection id="public-access-section" title="Public access" helper="Expose this database through the managed TCP proxy.">
-              <div className="grid gap-4 lg:grid-cols-2">
-                <div>
-                  <Listbox
-                    id="isPublic"
-                    label="Access"
-                    disabled={!canUpdate}
-                    options={[
-                      { value: "false", label: "Private" },
-                      { value: "true", label: noPort ? "Public through TCP proxy (set public port first)" : "Public through TCP proxy", disabled: noPort },
-                    ]}
-                    value={database.isPublic ? "true" : "false"}
-                    onChange={(v) => instant("instantSave", { isPublic: v === "true", publicPort: form.publicPort, publicPortTimeout: form.publicPortTimeout })}
-                  />
+          {sqlite ? null : (
+            <SettingsSection id="access-section" title="Access" helper="How applications and clients connect to this database, and whether it is reachable from the internet.">
+              <SettingsSubsection id="connection-section" title="Connection" helper="Use these URLs to connect to the database." first>
+                <StatusInfo database={database} canUpdate={canUpdate} onSsl={(body) => instant("instantSaveSSL", body)} onRegenerate={regenerate} />
+              </SettingsSubsection>
+              <SettingsSubsection id="public-access-section" title="Public access" helper="Expose this database through the managed TCP proxy.">
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <div>
+                    <Listbox
+                      id="isPublic"
+                      label="Access"
+                      disabled={!canUpdate}
+                      options={[
+                        { value: "false", label: "Private" },
+                        { value: "true", label: noPort ? "Public through TCP proxy (set public port first)" : "Public through TCP proxy", disabled: noPort },
+                      ]}
+                      value={database.isPublic ? "true" : "false"}
+                      onChange={(v) => instant("instantSave", { isPublic: v === "true", publicPort: form.publicPort, publicPortTimeout: form.publicPortTimeout })}
+                    />
+                  </div>
+                  <FormInput {...field("publicPort")} {...(database.isPublic ? { disabled: true } : {})} type="number" placeholder={String(copy.port)} label="Public port" />
+                  <FormInput {...field("publicPortTimeout")} {...(database.isPublic ? { disabled: true } : {})} type="number" placeholder="3600" label="Proxy timeout" helper="Timeout in seconds. The default is 3600." />
+                  <FormInput {...field("portsMappings")} placeholder={`3000:${copy.port}`} label="Port mappings" helper={`Comma-separated host-to-container mappings, for example 3000:${copy.port}.`} />
                 </div>
-                <FormInput {...field("publicPort")} {...(database.isPublic ? { disabled: true } : {})} type="number" placeholder={String(copy.port)} label="Public port" />
-                <FormInput {...field("publicPortTimeout")} {...(database.isPublic ? { disabled: true } : {})} type="number" placeholder="3600" label="Proxy timeout" helper="Timeout in seconds. The default is 3600." />
-                <FormInput {...field("portsMappings")} placeholder={`3000:${copy.port}`} label="Port mappings" helper={`Comma-separated host-to-container mappings, for example 3000:${copy.port}.`} />
-              </div>
-            </SettingsSubsection>
-          </SettingsSection>
+              </SettingsSubsection>
+            </SettingsSection>
+          )}
 
           <SettingsSection id="container-section" title="Container" helper={copy.containerDescription}>
             {hidden ? (

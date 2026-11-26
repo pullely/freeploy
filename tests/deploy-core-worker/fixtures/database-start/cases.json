@@ -14796,6 +14796,1051 @@
      "exitCode": 1
     }
    ]
+  },
+  {
+   "id": "sqlite.defaults",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0"
+   },
+   "variables": []
+  },
+  {
+   "id": "sqlite.custom image",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.53.4-v0.1.0"
+   },
+   "variables": []
+  },
+  {
+   "id": "sqlite.custom image 2",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "registry.example.com:5000/team/sqlite:3"
+   },
+   "variables": []
+  },
+  {
+   "id": "sqlite.database files",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0",
+    "sqlite_databases": "app.sqlite,cache.db,logs.db"
+   },
+   "variables": []
+  },
+  {
+   "id": "sqlite.extra volumes",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0"
+   },
+   "variables": [],
+   "persistentStorages": [
+    {
+     "name": "db0000000000000000000001-extra",
+     "mount_path": "/extra"
+    },
+    {
+     "name": "db0000000000000000000001-host",
+     "mount_path": "/host-data",
+     "host_path": "/srv/data"
+    },
+    {
+     "name": "db0000000000000000000001-empty-host",
+     "mount_path": "/other",
+     "host_path": ""
+    }
+   ]
+  },
+  {
+   "id": "sqlite.without volumes",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0"
+   },
+   "variables": [],
+   "defaultVolumes": false
+  },
+  {
+   "id": "sqlite.file mounts",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0"
+   },
+   "variables": [],
+   "fileStorages": [
+    {
+     "fs_path": "/data/coolify/databases/db0000000000000000000001/conf.d",
+     "mount_path": "/conf.d",
+     "is_directory": true
+    },
+    {
+     "fs_path": "/data/coolify/databases/db0000000000000000000001/extra.conf",
+     "mount_path": "/etc/extra.conf",
+     "content": "key = value\nother = 'quoted'\n"
+    },
+    {
+     "fs_path": "/data/coolify/databases/db0000000000000000000001/empty.conf",
+     "mount_path": "/etc/empty.conf"
+    },
+    {
+     "fs_path": "/data/coolify/databases/db0000000000000000000001/present.conf",
+     "mount_path": "/etc/present.conf",
+     "content": "already there",
+     "chown": "999:999",
+     "chmod": "640"
+    },
+    {
+     "fs_path": "/etc/hosts",
+     "mount_path": "/etc/hosts.host",
+     "is_host_file": true
+    }
+   ],
+   "responses": [
+    {
+     "match": "sh -c 'i=0",
+     "sequence": [
+      {
+       "output": "1:missing\n2:empty-directory\n3:file\n"
+      },
+      {
+       "output": "1:missing\n"
+      },
+      {
+       "output": "1:empty-directory\n"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "sqlite.file mounts outside the directory",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0"
+   },
+   "variables": [],
+   "fileStorages": [
+    {
+     "fs_path": "/srv/conf/outside.conf",
+     "mount_path": "/etc/outside.conf",
+     "content": "x = 1\n",
+     "chmod": "600"
+    },
+    {
+     "fs_path": "/srv/conf/link.conf",
+     "mount_path": "/etc/link.conf",
+     "content": "y = 2\n"
+    },
+    {
+     "fs_path": "./relative.conf",
+     "mount_path": "/etc/relative.conf",
+     "content": "z = 3\n"
+    },
+    {
+     "fs_path": "~/home.conf",
+     "mount_path": "/etc/home.conf",
+     "content": "h = 4\n"
+    },
+    {
+     "fs_path": "/srv/a;b.conf",
+     "mount_path": "/etc/ab.conf",
+     "content": "i = 5\n"
+    },
+    {
+     "fs_path": "/data/coolify/databases/db0000000000000000000001/../other/escape.conf",
+     "mount_path": "/etc/escape.conf",
+     "content": "j = 6\n"
+    },
+    {
+     "fs_path": "/data/coolify/databases/db0000000000000000000001/binary.dat",
+     "mount_path": "/etc/binary.dat",
+     "content": "[binary file]"
+    }
+   ],
+   "responses": [
+    {
+     "match": "sh -c 'i=0",
+     "sequence": [
+      {
+       "output": "1:missing\n2:missing\n3:missing\n4:missing\n"
+      },
+      {
+       "output": "1:missing\n"
+      },
+      {
+       "output": "1:directory\n"
+      },
+      {
+       "output": "1:empty-directory\n"
+      }
+     ]
+    },
+    {
+     "match": "test -L",
+     "sequence": [
+      {
+       "output": "OK\n"
+      },
+      {
+       "output": "LINK\n"
+      },
+      {
+       "output": "OK\n"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "sqlite.file mounts the server refuses",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0"
+   },
+   "variables": [],
+   "fileStorages": [
+    {
+     "fs_path": "/data/coolify/databases/db0000000000000000000001/a.conf",
+     "mount_path": "/etc/a.conf",
+     "content": "a"
+    },
+    {
+     "fs_path": "/data/coolify/databases/db0000000000000000000001/b.conf",
+     "mount_path": "/etc/b.conf",
+     "content": "b"
+    },
+    {
+     "fs_path": "/data/coolify/databases/db0000000000000000000001/c.conf",
+     "mount_path": "/etc/c.conf",
+     "content": "c"
+    },
+    {
+     "fs_path": "/data/coolify/databases/db0000000000000000000001/d.conf",
+     "mount_path": "/etc/d.conf",
+     "content": "0"
+    }
+   ],
+   "responses": [
+    {
+     "match": "sh -c 'i=0",
+     "sequence": [
+      {
+       "output": "1:missing\n2:missing\n3:missing\n4:missing\n"
+      },
+      {
+       "output": "garbage\n"
+      },
+      {
+       "output": "1:other\n"
+      },
+      {
+       "output": "1:missing\n"
+      }
+     ]
+    },
+    {
+     "match": "resolve() {",
+     "sequence": [
+      {
+       "output": "NOK\n"
+      },
+      {
+       "output": "OK\n"
+      }
+     ]
+    },
+    {
+     "match": "touch ",
+     "errorOutput": "touch: cannot touch: Read-only file system\n",
+     "exitCode": 1
+    }
+   ]
+  },
+  {
+   "id": "sqlite.variables",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0"
+   },
+   "variables": [
+    {
+     "key": "PLAIN",
+     "value": "value"
+    },
+    {
+     "key": "DOLLAR",
+     "value": "pa$$word and ${OTHER}"
+    },
+    {
+     "key": "LITERAL",
+     "value": "pa$$word and ${OTHER}",
+     "is_literal": true
+    },
+    {
+     "key": "MULTILINE",
+     "value": "line one\nline two with $x\n",
+     "is_multiline": true
+    },
+    {
+     "key": "JSON",
+     "value": "{\"a\":\"$b\",\"c\":[1,2]}"
+    },
+    {
+     "key": "SPACES",
+     "value": "  padded value  "
+    },
+    {
+     "key": "QUOTES",
+     "value": "it's \"quoted\" #hash"
+    },
+    {
+     "key": "EMPTY",
+     "value": ""
+    },
+    {
+     "key": "SHARED",
+     "value": "{{team.SHARED_KEY}}-suffix"
+    },
+    {
+     "key": "SHARED_PROJECT",
+     "value": "{{project.DB_HOST}}:{{environment.DB_PORT}}@{{server.REGION}}"
+    },
+    {
+     "key": "SHARED_MISSING",
+     "value": "{{team.NOT_THERE}}"
+    },
+    {
+     "key": "BUILD_ONLY",
+     "value": "still in the container",
+     "is_buildtime": true,
+     "is_runtime": false
+    },
+    {
+     "key": "LOCKED",
+     "value": "locked value",
+     "is_shown_once": true
+    }
+   ],
+   "sharedVariables": [
+    {
+     "type": "team",
+     "key": "SHARED_KEY",
+     "value": "team$value"
+    },
+    {
+     "type": "project",
+     "key": "DB_HOST",
+     "value": "db.internal"
+    },
+    {
+     "type": "environment",
+     "key": "DB_PORT",
+     "value": "5432"
+    },
+    {
+     "type": "server",
+     "key": "REGION",
+     "value": "eu-central",
+     "is_shown_once": true
+    }
+   ]
+  },
+  {
+   "id": "sqlite.credential variables",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0"
+   },
+   "variables": [
+    {
+     "key": "SQLITE_DATABASES",
+     "value": "app.sqlite,cache.db"
+    }
+   ]
+  },
+  {
+   "id": "sqlite.literal credential variables",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0"
+   },
+   "variables": [
+    {
+     "key": "SQLITE_DATABASES",
+     "value": "app.sqlite,cache.db",
+     "is_literal": true
+    }
+   ]
+  },
+  {
+   "id": "sqlite.legacy escaped variables",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0"
+   },
+   "variables": [
+    {
+     "key": "PLAIN",
+     "value": "pa$word",
+     "uses_legacy_escaping": true
+    },
+    {
+     "key": "LITERAL",
+     "value": "pa$word 'x'",
+     "is_literal": true,
+     "uses_legacy_escaping": true
+    },
+    {
+     "key": "JSON",
+     "value": "{\"a\":\"$b\"}",
+     "uses_legacy_escaping": true
+    },
+    {
+     "key": "EDGE",
+     "value": " edge ",
+     "uses_legacy_escaping": true
+    },
+    {
+     "key": "SQLITE_DATABASES",
+     "value": "app.sqlite,cache.db",
+     "uses_legacy_escaping": true
+    }
+   ]
+  },
+  {
+   "id": "sqlite.coolify variables overridden",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0"
+   },
+   "variables": [
+    {
+     "key": "COOLIFY_RESOURCE_UUID",
+     "value": "mine"
+    },
+    {
+     "key": "COOLIFY_APP_NAME",
+     "value": "my-app"
+    },
+    {
+     "key": "COOLIFY_SERVER_IP",
+     "value": "1.2.3.4"
+    }
+   ]
+  },
+  {
+   "id": "sqlite.without coolify variables",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0",
+    "include_coolify_default_variables": false
+   },
+   "variables": []
+  },
+  {
+   "id": "sqlite.vault reference in a literal",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0"
+   },
+   "variables": [
+    {
+     "key": "TOKEN",
+     "value": "{{vault.API_TOKEN}}",
+     "is_literal": true
+    }
+   ]
+  },
+  {
+   "id": "sqlite.vault reference",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0"
+   },
+   "variables": [
+    {
+     "key": "TOKEN",
+     "value": "{{vault.API_TOKEN}}"
+    }
+   ]
+  },
+  {
+   "id": "sqlite.names to slug",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "Ünïcode Datenbank & Söhne_2",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0"
+   },
+   "variables": [],
+   "project": {
+    "name": "Projekt Größe / Zwei"
+   },
+   "environment": {
+    "name": "Stage #1"
+   }
+  },
+  {
+   "id": "sqlite.resource limits",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0",
+    "limits_memory": "512m",
+    "limits_memory_swap": "1g",
+    "limits_memory_swappiness": 10,
+    "limits_memory_reservation": "256m",
+    "limits_cpus": "1.5",
+    "limits_cpuset": "0-1",
+    "limits_cpu_shares": 512
+   },
+   "variables": []
+  },
+  {
+   "id": "sqlite.resource limits whole cpus",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0",
+    "limits_cpus": "2",
+    "limits_cpuset": ""
+   },
+   "variables": []
+  },
+  {
+   "id": "sqlite.log drain",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0",
+    "is_log_drain_enabled": true
+   },
+   "variables": [],
+   "serverSettings": {
+    "is_logdrain_axiom_enabled": true
+   }
+  },
+  {
+   "id": "sqlite.log drain cloudwatch",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0",
+    "is_log_drain_enabled": true
+   },
+   "variables": [],
+   "serverSettings": {
+    "is_logdrain_cloudwatch_enabled": true,
+    "logdrain_cloudwatch_region": "eu-central-1",
+    "logdrain_cloudwatch_group": "freeploy",
+    "logdrain_cloudwatch_stream_prefix": "db-"
+   }
+  },
+  {
+   "id": "sqlite.log drain off on the server",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0",
+    "is_log_drain_enabled": true
+   },
+   "variables": []
+  },
+  {
+   "id": "sqlite.log drain off on the database",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0"
+   },
+   "variables": [],
+   "serverSettings": {
+    "is_logdrain_custom_enabled": true
+   }
+  },
+  {
+   "id": "sqlite.custom docker options",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0",
+    "custom_docker_run_options": "--cap-add SYS_NICE --ulimit nofile=1024:2048 --shm-size 256m --hostname db-host --add-host host.docker.internal:host-gateway"
+   },
+   "variables": []
+  },
+  {
+   "id": "sqlite.custom docker options with an address",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0",
+    "custom_docker_run_options": "--ip 172.20.0.5 --ip6 fd00::5 --memory 1g --privileged --device /dev/fuse"
+   },
+   "variables": []
+  },
+  {
+   "id": "sqlite.health check settings",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0",
+    "health_check_interval": 30,
+    "health_check_timeout": 10,
+    "health_check_retries": 3,
+    "health_check_start_period": 60
+   },
+   "variables": []
+  },
+  {
+   "id": "sqlite.health check disabled",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0",
+    "health_check_enabled": false
+   },
+   "variables": []
+  },
+  {
+   "id": "sqlite.ipv6 server",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0"
+   },
+   "variables": [],
+   "server": {
+    "ip": "2a01:4f8::1"
+   }
+  },
+  {
+   "id": "sqlite.docker 29",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0"
+   },
+   "variables": [],
+   "serverSettings": {
+    "docker_version": "29.0.1"
+   }
+  },
+  {
+   "id": "sqlite.pull fails",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0"
+   },
+   "variables": [],
+   "responses": [
+    {
+     "match": "echo 'Starting database.'",
+     "output": "Starting database.\nPulling image.\n",
+     "errorOutput": "Error response from daemon: pull access denied for nope, repository does not exist\n",
+     "exitCode": 1
+    }
+   ]
+  },
+  {
+   "id": "sqlite.command fails without output",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0"
+   },
+   "variables": [],
+   "responses": [
+    {
+     "match": "echo 'Starting database.'",
+     "exitCode": 125
+    }
+   ]
+  },
+  {
+   "id": "sqlite.output in pieces",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0"
+   },
+   "variables": [],
+   "responses": [
+    {
+     "match": "echo 'Starting database.'",
+     "output": "Starting database.\r\nsecond line\nno line break at the end",
+     "errorOutput": "warning: something\n"
+    }
+   ]
+  },
+  {
+   "id": "sqlite.server unreachable",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0"
+   },
+   "variables": [],
+   "serverSettings": {
+    "is_reachable": false
+   }
+  },
+  {
+   "id": "sqlite.server disabled",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0"
+   },
+   "variables": [],
+   "serverSettings": {
+    "force_disabled": true
+   }
+  },
+  {
+   "id": "sqlite.container still starting",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0"
+   },
+   "variables": [],
+   "responses": [
+    {
+     "match": "docker container inspect",
+     "sequence": [
+      {
+       "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"starting\"}}}\n"
+      },
+      {
+       "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"starting\"}}}\n"
+      },
+      {
+       "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"healthy\"}}}\n"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "sqlite.container never healthy",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0"
+   },
+   "variables": [],
+   "responses": [
+    {
+     "match": "docker container inspect",
+     "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\",\"Health\":{\"Status\":\"starting\"}}}\n"
+    }
+   ]
+  },
+  {
+   "id": "sqlite.container without a health check",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0"
+   },
+   "variables": [],
+   "responses": [
+    {
+     "match": "docker container inspect",
+     "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"running\"}}\n"
+    }
+   ]
+  },
+  {
+   "id": "sqlite.container exited",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0"
+   },
+   "variables": [],
+   "responses": [
+    {
+     "match": "docker container inspect",
+     "output": "{\"Name\":\"/db0000000000000000000001\",\"State\":{\"Status\":\"exited\"}}\n"
+    }
+   ]
+  },
+  {
+   "id": "sqlite.container not found",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0"
+   },
+   "variables": [],
+   "responses": [
+    {
+     "match": "docker container inspect",
+     "output": "",
+     "errorOutput": "Error response from daemon: No such container\n",
+     "exitCode": 1
+    }
+   ]
+  },
+  {
+   "id": "sqlite.already running",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0",
+    "status": "running:healthy",
+    "started_at": "2026-11-01 08:00:00"
+   },
+   "variables": []
+  },
+  {
+   "id": "sqlite.after crash restarts",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0",
+    "status": "exited",
+    "restart_count": 3,
+    "last_restart_at": "2026-11-19 08:00:00",
+    "last_restart_type": "crash"
+   },
+   "variables": []
+  },
+  {
+   "id": "sqlite.after crash restarts on an unreachable server",
+   "engine": "sqlite",
+   "action": "start",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0",
+    "status": "exited",
+    "restart_count": 3,
+    "last_restart_at": "2026-11-19 08:00:00",
+    "last_restart_type": "crash"
+   },
+   "variables": [],
+   "serverSettings": {
+    "is_reachable": false
+   }
+  },
+  {
+   "id": "sqlite.restart",
+   "engine": "sqlite",
+   "action": "restart",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0",
+    "status": "running:healthy",
+    "started_at": "2026-11-01 08:00:00"
+   },
+   "variables": []
+  },
+  {
+   "id": "sqlite.restart on an unreachable server",
+   "engine": "sqlite",
+   "action": "restart",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0",
+    "status": "running:healthy"
+   },
+   "variables": [],
+   "serverSettings": {
+    "is_usable": false
+   }
+  },
+  {
+   "id": "sqlite.restart with a vault reference",
+   "engine": "sqlite",
+   "action": "restart",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0",
+    "status": "running:healthy"
+   },
+   "variables": [
+    {
+     "key": "TOKEN",
+     "value": "{{vault.API_TOKEN}}"
+    }
+   ]
+  },
+  {
+   "id": "sqlite.restart after crash restarts",
+   "engine": "sqlite",
+   "action": "restart",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0",
+    "status": "running:healthy",
+    "started_at": "2026-11-01 08:00:00",
+    "restart_count": 3,
+    "last_restart_at": "2026-11-19 08:00:00",
+    "last_restart_type": "crash"
+   },
+   "variables": []
+  },
+  {
+   "id": "sqlite.stop",
+   "engine": "sqlite",
+   "action": "stop",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0",
+    "status": "running:healthy",
+    "started_at": "2026-11-01 08:00:00"
+   },
+   "variables": []
+  },
+  {
+   "id": "sqlite.stop after crash restarts",
+   "engine": "sqlite",
+   "action": "stop",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0",
+    "status": "running:healthy",
+    "restart_count": 3,
+    "last_restart_at": "2026-11-19 08:00:00",
+    "last_restart_type": "crash"
+   },
+   "variables": []
+  },
+  {
+   "id": "sqlite.stop without cleanup after crash restarts",
+   "engine": "sqlite",
+   "action": "stop",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0",
+    "status": "running:healthy",
+    "restart_count": 3,
+    "last_restart_at": "2026-11-19 08:00:00",
+    "last_restart_type": "crash"
+   },
+   "variables": [],
+   "dockerCleanup": false
+  },
+  {
+   "id": "sqlite.stop without cleanup",
+   "engine": "sqlite",
+   "action": "stop",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0",
+    "status": "running:healthy"
+   },
+   "variables": [],
+   "dockerCleanup": false
+  },
+  {
+   "id": "sqlite.stop fails",
+   "engine": "sqlite",
+   "action": "stop",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0",
+    "status": "running:healthy"
+   },
+   "variables": [],
+   "responses": [
+    {
+     "match": "docker stop",
+     "errorOutput": "Cannot connect to the Docker daemon\n",
+     "exitCode": 1
+    }
+   ]
+  },
+  {
+   "id": "sqlite.stop on an unreachable server",
+   "engine": "sqlite",
+   "action": "stop",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0",
+    "status": "running:healthy"
+   },
+   "variables": [],
+   "serverSettings": {
+    "is_reachable": false
+   }
+  },
+  {
+   "id": "sqlite.stop on docker 29",
+   "engine": "sqlite",
+   "action": "stop",
+   "database": {
+    "name": "sqlite-database-db0000000000000000000001",
+    "image": "peakimages/sqlite:3.54.1-v0.2.0",
+    "status": "running:healthy"
+   },
+   "variables": [],
+   "serverSettings": {
+    "docker_version": "29.0.1"
+   }
   }
  ]
 }

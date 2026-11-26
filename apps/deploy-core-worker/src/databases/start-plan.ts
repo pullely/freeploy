@@ -1,5 +1,5 @@
 // Derived from coollabsio/coolify@91b7e3e:app/Actions/Database/Start{Postgresql,Redis,Mongodb,Mysql,Mariadb,Keydb,
-// Dragonfly,Clickhouse}.php (handle and their private methods), app/Traits/{ExecutesDatabaseStartCommands,
+// Dragonfly,Clickhouse,Sqlite}.php (handle and their private methods), app/Traits/{ExecutesDatabaseStartCommands,
 // HasDatabaseHealthCheck,HasSecretManager}.php (pullImageCommands, hasEnvironmentVariable,
 // addCoolifyEnvironmentVariables; healthCheckConfiguration, healthCheckPortArguments; the value formatting of a
 // variable), app/Support/PostgresUser.php, app/Models/Standalone*.php (ports_mappings_array, redis_username,
@@ -7,7 +7,7 @@
 // (defaultDatabaseLabels, generateCustomDockerRunOptionsForDatabases, coolifyDefaultEnvironmentVariables,
 // database_configuration_dir, generate_readme_file) (Apache-2.0), modified.
 //
-// What starting a standalone database sends to its server, for the eight engines: the docker-compose file and
+// What starting a standalone database sends to its server, for the nine engines: the docker-compose file and
 // the ordered command list of one start. A pure function of plain row data — nothing here reads a row or talks
 // to a server; start-engine.ts does both. Byte-equal to Coolify's PHP for every run of
 // tests/deploy-core-worker/fixtures/database-start.
@@ -44,6 +44,7 @@ export const DATABASE_TYPE: Readonly<Record<DatabaseEngine, string>> = {
   keydb: "standalone-keydb",
   dragonfly: "standalone-dragonfly",
   clickhouse: "standalone-clickhouse",
+  sqlite: "standalone-sqlite",
 };
 
 /** Where an engine's certificate files are mounted in its container; null for an engine without SSL. */
@@ -56,6 +57,7 @@ export const SSL_MOUNT_PATH: Readonly<Record<DatabaseEngine, string | null>> = {
   keydb: "/etc/keydb/certs",
   dragonfly: "/etc/dragonfly/certs",
   clickhouse: null,
+  sqlite: null,
 };
 
 /** MongoDB reads its certificate and key from one file (isPemKeyFileRequired). */
@@ -324,6 +326,8 @@ interface EnginePart {
   afterOptions?(service: Map<string, YamlValue>): void;
   /** Commands between the image pull and the stop of the old container. */
   afterPull: string[];
+  /** StartSqlite sets `volumes` only when there is one ("if (count(...) > 0)"); every other engine always. */
+  volumesWhenEmpty?: false;
 }
 
 interface Building {
@@ -670,6 +674,14 @@ function clickhouse(b: Building): EnginePart {
   };
 }
 
+function sqlite(b: Building): EnginePart {
+  // generate_environment_variables()
+  const environment = environmentOf(b);
+  if (!hasVariable(environment, "SQLITE_DATABASES")) environment.push(`SQLITE_DATABASES=${value(b, "sqlite_databases")}`);
+  addCoolifyVariables(b.input, environment);
+  return { environment, healthTest: ["CMD", "healthcheck.sh"], finish: () => undefined, afterPull: [], volumesWhenEmpty: false };
+}
+
 const ENGINE_PARTS: Readonly<Record<Engine, (b: Building) => EnginePart>> = {
   postgresql,
   redis,
@@ -679,6 +691,7 @@ const ENGINE_PARTS: Readonly<Record<Engine, (b: Building) => EnginePart>> = {
   keydb,
   dragonfly,
   clickhouse,
+  sqlite,
 };
 
 // ── The plan ───────────────────────────────────────────────────────────────────────────────────────────
@@ -720,7 +733,7 @@ export function buildStartPlan(input: StartPlanInput): StartPlan {
   const composeFile = `${dir}/docker-compose.yml`;
   const b: Building = { input, commands: [], dir, changes: {} };
 
-  if (engine === "clickhouse") {
+  if (engine === "clickhouse" || engine === "sqlite") {
     b.commands.push("echo 'Starting database.'", `mkdir -p ${dir}`);
   } else {
     b.commands.push("echo 'Starting database.'", "echo 'Creating directories.'", `mkdir -p ${dir}`);
@@ -768,6 +781,7 @@ export function buildStartPlan(input: StartPlanInput): StartPlan {
   addVolumes(input.persistentStorages.map((storage) => `${storage.host_path !== "" && storage.host_path !== null ? storage.host_path : storage.name}:${storage.mount_path}`));
   addVolumes(input.fileStorages.map((storage) => `${storage.fs_path}:${storage.mount_path ?? ""}`));
   part.finish(service, addVolumes);
+  if (part.volumesWhenEmpty === false && volumes.length === 0) service.delete("volumes");
 
   const compose = new Map<string, YamlValue>();
   const services = new Map<string, YamlValue>();

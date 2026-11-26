@@ -4,7 +4,7 @@
 // last_online_at, runtime_environment_variables()) and app/Models/Server.php (isFunctional, isSwarm,
 // dockerVersion) (Apache-2.0), modified.
 //
-// What starting, restarting and stopping a standalone database reads and writes (DP-62), for the eight engines
+// What starting, restarting and stopping a standalone database reads and writes (DP-62), for the nine engines
 // at once. Every function takes the transaction of withOrg(): row-level security confines each query to that
 // org. Encrypted columns stay as stored — these functions never decrypt.
 import type { SqlExecutor, SqlRow } from "../hyperdrive/executor.js";

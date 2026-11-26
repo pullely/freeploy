@@ -13,8 +13,8 @@ import { Reicon } from "../components/Reicon";
 import { Loading } from "../components/Coolify";
 import { databasePath, databasesApi, type DatabaseEngine } from "./DatabaseChrome";
 
-/** DATABASE_TYPES without SQLite: the types POST /databases creates. */
-export const DATABASE_TYPES: readonly string[] = ["postgresql", "redis", "mongodb", "mysql", "mariadb", "keydb", "dragonfly", "clickhouse"];
+/** DATABASE_TYPES: the types POST /databases creates (SQLite since DP-112). */
+export const DATABASE_TYPES: readonly string[] = ["postgresql", "redis", "mongodb", "mysql", "mariadb", "keydb", "dragonfly", "clickhouse", "sqlite"];
 export const isDatabaseType = (type: string | null): type is DatabaseEngine => type !== null && DATABASE_TYPES.includes(type);
 
 interface ImageChoice {

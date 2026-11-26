@@ -92,7 +92,8 @@ describe("fixtures/database-start", () => {
     for (const engine of ENGINES) {
       const starts = runCases.filter((run) => run.engine === engine && run.action === "start");
       expect(starts.length).toBeGreaterThanOrEqual(12);
-      expect(runCases.filter((run) => run.engine === engine && run.action !== "start").length).toBeGreaterThanOrEqual(12);
+      // SQLite (DP-112) has no TCP proxy, so no proxy runs and no public restart or stop.
+      expect(runCases.filter((run) => run.engine === engine && run.action !== "start").length).toBeGreaterThanOrEqual(engine === "sqlite" ? 11 : 12);
     }
     for (const run of runCases) expect(goldenRun(run.id)).toBeDefined();
     expect(KNOWN_DIFFERENCES.size).toBe(0);

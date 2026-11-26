@@ -135,6 +135,18 @@ const ENGINES = {
     conf: null,
     credentials: [["CLICKHOUSE_USER", "appuser"], ["CLICKHOUSE_PASSWORD", "Fr0m$Var"], ["CLICKHOUSE_DB", "appdb"]],
   },
+  // DP-112: a file in a volume, never reached over TCP — its table has no public port or port mappings, so the runs
+  // that need them (and the proxy's) are left out (`tcp: false`).
+  sqlite: {
+    base: { name: `sqlite-database-${UUID}`, image: "peakimages/sqlite:3.54.1-v0.2.0" },
+    customImage: "peakimages/sqlite:3.53.4-v0.1.0",
+    otherImages: ["registry.example.com:5000/team/sqlite:3"],
+    mount: null,
+    modes: [],
+    conf: null,
+    credentials: [["SQLITE_DATABASES", "app.sqlite,cache.db"]],
+    tcp: false,
+  },
 };
 
 const runs = [];
@@ -165,8 +177,11 @@ for (const [engine, e] of Object.entries(ENGINES)) {
   start("defaults");
   start("custom image", { database: { image: e.customImage } });
   e.otherImages.forEach((image, i) => start(`custom image ${i + 2}`, { database: { image } }));
-  start("public port", { database: { is_public: true, public_port: 15432, public_port_timeout: 600 } });
-  start("ports mappings", { database: { ports_mappings: "15432:5432,127.0.0.1:15433:5433" } });
+  if (e.tcp !== false) {
+    start("public port", { database: { is_public: true, public_port: 15432, public_port_timeout: 600 } });
+    start("ports mappings", { database: { ports_mappings: "15432:5432,127.0.0.1:15433:5433" } });
+  }
+  if (engine === "sqlite") start("database files", { database: { sqlite_databases: "app.sqlite,cache.db,logs.db" } });
   if (e.mount) {
     // Nothing exists: Coolify makes the server's CA and the database's certificate, and writes the missing files.
     start("ssl generated", { database: { enable_ssl: true }, responses: [{ match: "sh -c 'i=0", output: states(...certFiles.map(() => "missing")) }] });
@@ -350,7 +365,7 @@ for (const [engine, e] of Object.entries(ENGINES)) {
 
   // ── restart, stop, the TCP proxy ──
   run("restart", "restart", { database: { status: "running:healthy", started_at: "2026-11-01 08:00:00" } });
-  run("restart public", "restart", { database: { status: "running:healthy", started_at: "2026-11-01 08:00:00", is_public: true, public_port: 15432 } });
+  if (e.tcp !== false) run("restart public", "restart", { database: { status: "running:healthy", started_at: "2026-11-01 08:00:00", is_public: true, public_port: 15432 } });
   run("restart on an unreachable server", "restart", { database: { status: "running:healthy" }, serverSettings: { is_usable: false } });
   run("restart with a vault reference", "restart", { database: { status: "running:healthy" }, variables: [{ key: "TOKEN", value: "{{vault.API_TOKEN}}" }] });
   run("restart after crash restarts", "restart", { database: { status: "running:healthy", started_at: "2026-11-01 08:00:00", ...restarts } });
@@ -358,11 +373,12 @@ for (const [engine, e] of Object.entries(ENGINES)) {
   run("stop after crash restarts", "stop", { database: { status: "running:healthy", ...restarts } });
   run("stop without cleanup after crash restarts", "stop", { database: { status: "running:healthy", ...restarts }, dockerCleanup: false });
   run("stop without cleanup", "stop", { database: { status: "running:healthy" }, dockerCleanup: false });
-  run("stop public", "stop", { database: { status: "running:healthy", is_public: true, public_port: 15432 } });
+  if (e.tcp !== false) run("stop public", "stop", { database: { status: "running:healthy", is_public: true, public_port: 15432 } });
   run("stop fails", "stop", { database: { status: "running:healthy" }, responses: [{ match: "docker stop", errorOutput: "Cannot connect to the Docker daemon\n", exitCode: 1 }] });
-  run("stop public and the proxy fails", "stop", { database: { status: "running:healthy", is_public: true, public_port: 15432 }, responses: [{ match: "-proxy", errorOutput: "permission denied\n", exitCode: 1 }] });
+  if (e.tcp !== false) run("stop public and the proxy fails", "stop", { database: { status: "running:healthy", is_public: true, public_port: 15432 }, responses: [{ match: "-proxy", errorOutput: "permission denied\n", exitCode: 1 }] });
   run("stop on an unreachable server", "stop", { database: { status: "running:healthy" }, serverSettings: { is_reachable: false } });
   run("stop on docker 29", "stop", { database: { status: "running:healthy" }, serverSettings: { docker_version: "29.0.1" } });
+  if (e.tcp === false) continue;
   run("proxy start", "proxy-start", { database: { status: "running:healthy", is_public: true, public_port: 15432 } });
   run("proxy start with ipv6 and a timeout", "proxy-start", { database: { status: "running:healthy", is_public: true, public_port: 15432, public_port_timeout: 120 }, responses: [{ match: "docker network inspect", output: "true\n" }] });
   run("proxy start with a zero timeout", "proxy-start", { database: { status: "running:healthy", is_public: true, public_port: 15432, public_port_timeout: 0 }, destination: { network: "custom-net_1" } });

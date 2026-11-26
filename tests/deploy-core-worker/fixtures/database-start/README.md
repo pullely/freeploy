@@ -1,4 +1,4 @@
-# Database start goldens (DP-62)
+# Database start goldens (DP-62, DP-112)
 
 What Coolify's own PHP does when it starts, restarts or stops a standalone database and when it
 starts or stops a database's TCP proxy, so that the TypeScript ports in
@@ -7,8 +7,9 @@ starts or stops a database's TCP proxy, so that the TypeScript ports in
 for byte, and every action process by process.
 
 - `cases.mjs` — writes `cases.json` (`node cases.mjs cases.json`). The cases are generated so that
-  each of the eight engines gets the same ones.
-- `cases.json` — the cases: 644 runs. A run is one action on one database: the engine, the action
+  each of the nine engines gets the same ones (SQLite, which has no TCP proxy, none of the public-port, port-mapping
+  and proxy runs, and one with its database files).
+- `cases.json` — the cases: 698 runs (SQLite's 54 since DP-112, after the eight engines' 644). A run is one action on one database: the engine, the action
   (`start`, `restart`, `stop`, `proxy-start`, `proxy-stop`), the database's row, its variables,
   volumes, file mounts and certificates, its server and destination (only what differs from
   `defaults`), and what each SSH process answers (`responses`). A value `"@text:<name>"` stands for
@@ -124,13 +125,15 @@ It takes about ten seconds. A third argument keeps only the cases whose id start
 (`php emit.php "$PWD" cases.json postgresql.ssl` — for looking at one case, not for the committed
 file). The committed file was emitted with PHP 8.3.6 (cli) with the sqlite3 and openssl
 extensions, OpenSSL 3.0.13, Laravel 12.72.0 and Coolify 4.7.6. The `APP_KEY` only serves the
-models' `encrypted` casts in memory. Two runs of the emitter give the same file.
+models' `encrypted` casts in memory. Two runs of the emitter give the same file. DP-112 emitted the
+whole file again with SQLite's runs: the 644 committed runs came out unchanged, and the new runs and
+their two new `strings` (indices 64 and 65) were appended.
 
 ## How the tests use it
 
-`src/database-start.test.ts` replays all 644 runs through the engine with an executor that plays
+`src/database-start.test.ts` replays all 698 runs through the engine with an executor that plays
 the same server: it refuses a process that is not the one Coolify started at that point, and
-answers what the case scripted. All 644 match: no case is excluded, and nothing but what is listed
+answers what the case scripted. All 698 match: no case is excluded, and nothing but what is listed
 below is read with a rule.
 Beside the processes it compares what the action answered, the start's activity and log, the rows,
 the sleeps, and what was queued, broadcast and notified. `src/database-operations-api.test.ts`

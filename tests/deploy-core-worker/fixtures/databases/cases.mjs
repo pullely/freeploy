@@ -8,7 +8,7 @@ for (const image of ["postgres:18-alpine", "postgres:17-alpine", "postgres:16-al
   out.created[`postgresql ${image}`] = { type: "postgresql", database_image: image };
 }
 for (const image of ["valkey/valkey:9-alpine", "redis:8"]) out.created[`redis ${image}`] = { type: "redis", database_image: image };
-for (const type of ["mysql", "mariadb", "mongodb", "keydb", "dragonfly", "clickhouse"]) out.created[type] = { type };
+for (const type of ["mysql", "mariadb", "mongodb", "keydb", "dragonfly", "clickhouse", "sqlite"]) out.created[type] = { type };
 
 // ---- urls
 const ENGINES = {
@@ -196,6 +196,46 @@ out.validation["redis locked password left empty"] = {
   environmentVariables: [{ key: "REDIS_PASSWORD", value: "Stored1", is_shown_once: true }, { key: "REDIS_USERNAME", value: "default" }],
   input: { redisPassword: null },
 };
+
+// SQLite (DP-112): Sqlite\General has no Access section and no credentials; its database files are one property.
+{
+  const base = { stored: { sqlite_databases: "database.sqlite" }, environmentVariables: [], input: { name: "My database", description: "A description", image: "peakimages/sqlite:3.54.1-v0.2.0", sqliteDatabases: "database.sqlite", isLogDrainEnabled: false, customDockerRunOptions: "--cap-add SYS_ADMIN" } };
+  out.validationBase.sqlite = base;
+  const one = (id, input) => {
+    out.validation[`sqlite ${id}`] = { type: "sqlite", input };
+  };
+  one("everything valid", {});
+  one("everything invalid", { name: "", description: "bad <script>", image: "", sqliteDatabases: "", isLogDrainEnabled: "maybe", customDockerRunOptions: null });
+  one("name too long", { name: "n".repeat(256) });
+  one("name not a string", { name: 12 });
+  one("image null", { image: null });
+  one("image not a string", { image: 42 });
+  for (const [id, value] of Object.entries({
+    "two files": "app.sqlite,cache.db",
+    "a dot first": ".hidden",
+    "a slash": "data/app.sqlite",
+    "a space": "app sqlite",
+    "spaces after a comma": "a.db, b.db",
+    "a trailing comma": "a.db,",
+    "two commas": "a.db,,b.db",
+    "a hyphen first": "-a.db",
+    "an underscore first": "_a.db",
+    "unicode": "äpp.db",
+    "a trailing newline": "app.db\n",
+    "at its longest": "a".repeat(255),
+    "too long": "a".repeat(256),
+    "too long and invalid": "a ".repeat(130),
+    blank: "",
+    "only spaces": "   ",
+    "null": null,
+    "a number": 5,
+    "a list": ["a.db"],
+  })) {
+    one(`database files ${id}`, { sqliteDatabases: value });
+  }
+  for (const [id, value] of Object.entries({ "true": true, "zero": 0, "yes": "yes", "null": null })) one(`log drain ${id}`, { isLogDrainEnabled: value });
+  for (const [id, value] of Object.entries({ "a number": 5, "null": null, blank: "" })) one(`docker options ${id}`, { customDockerRunOptions: value });
+}
 
 const section = (cases) => "{\n" + Object.entries(cases).map(([id, c]) => `  ${JSON.stringify(id)}: ${JSON.stringify(c)}`).join(",\n") + "\n }";
 writeFileSync(process.argv[2], "{\n" + Object.entries(out).map(([name, cases]) => ` ${JSON.stringify(name)}: ${section(cases)}`).join(",\n") + "\n}\n");

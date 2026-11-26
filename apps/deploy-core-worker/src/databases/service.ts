@@ -8,7 +8,7 @@
 // (Apache-2.0), modified; Str::password() follows laravel/framework's Illuminate\Support\Str (MIT).
 //
 // What creating a standalone database and its General page do, as plain
-// operations on one org's databases, for the eight engines at once (what
+// operations on one org's databases, for the nine engines at once (what
 // differs between them is engines.ts). Nothing here talks to a server:
 // creating a database stores its rows and starts nothing, as
 // Create::createResource() does. Start, Restart and Stop (operations.ts), the
@@ -32,7 +32,7 @@ import { DATABASE_ENGINE_SPECS, SUPABASE_ADMIN, defaultVolumes, isSupabaseImage,
 import { externalDbUrl, internalDbUrl, redisHasUsername, redisUsername, redisVersion, sanitizeString, type DatabaseUrlInput } from "./urls.js";
 import { OPERATION_MESSAGES, regenerateCertificate, startDatabaseProxy, stopDatabaseProxy, type DatabaseServerAccess } from "./operations.js";
 import { RemoteCommandError } from "./content-files.js";
-import { FilenameError, coerceBoolean, validateDatabaseGeneral, validateFilenameSafe, validateNewInitScript, type CreateDatabaseInput } from "./validation.js";
+import { FilenameError, coerceBoolean, normalizeSqliteDatabases, validateDatabaseGeneral, validateFilenameSafe, validateNewInitScript, type CreateDatabaseInput } from "./validation.js";
 
 type Id = string | number;
 type Body = Record<string, unknown>;
@@ -55,6 +55,11 @@ export interface DatabaseStore {
   certificateValidUntil(engine: DatabaseEngine, id: Id): Promise<string | Date | null>;
   /** deleteLocalResource() and forceDelete() */
   delete(engine: DatabaseEngine, id: Id): Promise<boolean>;
+  /**
+   * StandaloneSqlite::connectedApplicationNames() when hasConnectedApplications(), else null: who mounts a SQLite
+   * database's data volume. Absent, nothing does.
+   */
+  sqliteMounts?(id: Id, serverId: Id | null): Promise<string[] | null>;
 }
 
 /** The two random sources of create_standalone_*(), replaceable in tests. */
@@ -113,6 +118,10 @@ export const DATABASE_SERVICE_MESSAGES = {
   certificateUnavailable: "Regenerating the database's SSL certificate is not available yet.",
   certificateFilesUnavailable: needsExecutor("Writing the new certificate files to the server"),
   sslUnsupported: "This database has no SSL configuration.",
+  /** Freeploy's: Sqlite\General has no instantSave() (a SQLite database is never reached over TCP). */
+  accessUnsupported: "This database has no Access settings.",
+  /** Danger::delete() and delete_by_uuid() for a SQLite database whose data volume an application mounts. */
+  sqliteMounted: (names: readonly string[]) => `This database volume is mounted by ${names.join(", ")}. Remove those mounts before deleting the database.`,
   notPostgresql: "Only a PostgreSQL database has initialization scripts.",
 } as const;
 
@@ -203,6 +212,8 @@ export async function createDatabase(ctx: DatabaseContext, input: CreateDatabase
 
   const uuid = random.publicId();
   const values: Record<string, DatabaseColumnValue> = {};
+  // create_standalone_sqlite(): "$database->image = 'peakimages/sqlite:…'" (the column has no default).
+  if (spec.image !== null) values.image = spec.image;
   if (spec.imageStep && input.databaseImage !== null) values.image = input.databaseImage;
   // Redis's password is a variable, drawn before the row is saved.
   const generatedRedisPassword = input.engine === "redis" ? random.password() : null;
@@ -428,7 +439,8 @@ async function show(ctx: DatabaseContext, l: Loaded, canUpdate: boolean): Promis
     else fields[field.property] = value;
   }
   const hidden = !canUpdate || locked;
-  const urls = hidden ? null : urlInput(l);
+  // SQLite's model has no internal_db_url or external_db_url accessor.
+  const urls = hidden || !spec.access ? null : urlInput(l);
   const validUntil = spec.supportsSsl ? await ctx.store.certificateValidUntil(row.engine, row.id) : null;
   return {
     uuid: row.uuid,
@@ -544,6 +556,8 @@ export async function updateGeneral(ctx: DatabaseContext, uuid: string, body: Bo
   if (typeof prepared.portsMappings === "string" && prepared.portsMappings !== "" && prepared.portsMappings !== "0") prepared.portsMappings = prepared.portsMappings.replace(/ /g, "").trim();
   // Mongodb\General::submit(): "if (str($this->mongoConf)->isEmpty()) { $this->mongoConf = null; }"
   if (row.engine === "mongodb" && prepared.mongoConf === "") prepared.mongoConf = null;
+  // Sqlite\General::submit(): the file names trimmed, the empty ones dropped.
+  if (row.engine === "sqlite" && typeof prepared.sqliteDatabases === "string") prepared.sqliteDatabases = normalizeSqliteDatabases(prepared.sqliteDatabases);
   const v = validateDatabaseGeneral(spec, prepared, { stored: storedCredentials(l), credentialLocked: credentialLocked(l) });
   if (!v.ok) throw new DatabaseFieldErrors(v.errors);
   const input = v.input;
@@ -604,6 +618,7 @@ export async function instantSavePublic(ctx: DatabaseContext, uuid: string, body
   const l = await load(ctx, uuid);
   if (!l) return null;
   const { row, spec } = l;
+  if (!spec.access) throw new DatabaseError(DATABASE_SERVICE_MESSAGES.accessUnsupported);
   const v = validateDatabaseGeneral(spec, { isPublic: body.isPublic ?? null, ...(body.publicPort !== undefined ? { publicPort: body.publicPort } : {}), ...(body.publicPortTimeout !== undefined ? { publicPortTimeout: body.publicPortTimeout } : {}) }, { stored: {} });
   if (!v.ok) throw new DatabaseFieldErrors(v.errors);
   const isPublic = v.input.isPublic === true;
@@ -835,6 +850,9 @@ export interface DatabaseDeleted {
 export async function deleteDatabaseNow(ctx: DatabaseContext, uuid: string, options: DeleteOptions): Promise<DatabaseDeleted | null> {
   const row = await ctx.store.findByUuid(uuid);
   if (!row) return null;
+  // "if ($this->resource instanceof StandaloneSqlite && $this->resource->hasConnectedApplications())": nothing is deleted.
+  const mounts = row.engine === "sqlite" && ctx.store.sqliteMounts ? await ctx.store.sqliteMounts(row.id, row.server_id) : null;
+  if (mounts !== null) throw new DatabaseError(DATABASE_SERVICE_MESSAGES.sqliteMounted(mounts));
   if (!neverStarted(row)) throw new DatabaseError(DATABASE_SERVICE_MESSAGES.deleteUnavailable, 501);
   await ctx.store.delete(row.engine, row.id);
   return { deleted: true, projectUuid: row.project_uuid, environmentUuid: row.environment_uuid, options };

@@ -119,6 +119,7 @@ const GOLDEN: Record<DatabaseEngine, string> = {
   keydb: "keydb",
   dragonfly: "dragonfly",
   clickhouse: "clickhouse",
+  sqlite: "sqlite",
 };
 
 function newDatabase(org: string, f: Fixture, engine: DatabaseEngine, uuid: string, over: Partial<NewDatabase> = {}): NewDatabase {
@@ -145,7 +146,8 @@ beforeAll(async () => {
 afterAll(async () => db?.close());
 
 describe("630_deploy_database_public_port_timeout", () => {
-  const TABLES = [...DATABASE_ENGINES.map((e) => DATABASE_TABLES[e].table), "service_databases"];
+  // SQLite (DP-112) has no proxy, so no public port: Coolify's migration leaves it out.
+  const TABLES = [...DATABASE_ENGINES.filter((e) => DATABASE_TABLES[e].publicPort).map((e) => DATABASE_TABLES[e].table), "service_databases"];
   const columns = async (of: PGlite = step) =>
     (await of.query<{ table_name: string; column_default: string | null; is_nullable: string; data_type: string }>("SELECT table_name, column_default, is_nullable, data_type FROM information_schema.columns WHERE table_schema = 'deploy' AND column_name = 'public_port_timeout' ORDER BY table_name")).rows;
   let step: PGlite;
@@ -189,7 +191,9 @@ describe("the engines' tables", () => {
       const existing = (await admin("SELECT column_name FROM information_schema.columns WHERE table_schema = 'deploy' AND table_name = $1", [t.table])).rows.map((r) => r.column_name);
       for (const column of writableDatabaseColumns(engine)) expect([engine, column, existing.includes(column)]).toEqual([engine, column, true]);
       expect([engine, existing.includes("enable_ssl"), existing.includes("ssl_mode"), existing.includes("legacy_password_quoting")]).toEqual([engine, t.enableSsl, t.sslMode, t.legacyPasswordQuoting]);
-      for (const column of DATABASE_GENERAL_COLUMNS) expect(writableDatabaseColumns(engine)).toContain(column);
+      // SQLite's table has no public port and no port mappings (DP-112).
+      for (const column of DATABASE_GENERAL_COLUMNS) expect([engine, column, writableDatabaseColumns(engine).includes(column)]).toEqual([engine, column, t.publicPort || !["public_port", "public_port_timeout", "ports_mappings"].includes(column)]);
+      expect([engine, existing.includes("public_port")]).toEqual([engine, t.publicPort]);
     }
   });
 });
@@ -208,7 +212,8 @@ describe("insertDatabase — create_standalone_*() and the created hook", () => 
       status: "exited",
       is_public: false,
       public_port: null,
-      public_port_timeout: 3600,
+      // null where the table has no such column (SQLite, DP-112).
+      public_port_timeout: t.publicPort ? 3600 : null,
       ports_mappings: null,
       started_at: null,
       is_log_drain_enabled: false,
@@ -306,6 +311,7 @@ describe("reading databases", () => {
       ["keydb", "dbkeydbaaaaaaaaaaaa"],
       ["dragonfly", "dbdragonflyaaaaaaaaaaaa"],
       ["clickhouse", "dbclickhouseaaaaaaaaaaaa"],
+      ["sqlite", "dbsqliteaaaaaaaaaaaa"],
     ]);
     // What the list needs of each: its status, its server.
     expect(list[0]).toMatchObject({ status: "exited", name: "postgresql-database-dbpostgresqlaaaaaaaaaaaa", server_name: "server-a", server_is_reachable: false, server_is_usable: false, server_force_disabled: false });
