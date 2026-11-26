@@ -1,0 +1,14 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-89
+  title: "Status: the milestone table names the tasks landed from #91 to #98"
+spec:
+  goal: Bring IMPLEMENTATION-STATUS.md's milestone table up to date with DP-81 to DP-88 (the /api/v1 groups, now 248 of 330 operations), DP-82's subscription pages and DP-83's billing fix, and say what the remaining /api/v1 operations wait on.
+  affects:
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - every task merged from #91 to #98 appears in the milestone table with its pull request
+    - DP9's state gives 248 of 330 /api/v1 operations and what the rest need
+  gates: []
