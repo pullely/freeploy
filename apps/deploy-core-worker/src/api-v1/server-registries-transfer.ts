@@ -19,7 +19,7 @@ import { REGISTRY_MESSAGES, registryUsers, type RegistryStore } from "../registr
 import { normalizeRegistry, REGISTRY_PATTERN, registryRows } from "../registries/logins.js";
 import { isFunctional } from "../servers/service.js";
 import { serverIpError } from "../servers/ip.js";
-import { filterValidateUrl } from "../s3-storages/safe-url.js";
+import { filterValidateUrl, type HostResolver } from "../s3-storages/safe-url.js";
 import { DEFAULT_CONSOLE_URL } from "../handlers/notifications.js";
 import { message, rowsOf, unavailable, type ApiV1Context } from "./context.js";
 import { rowValue } from "./models.js";
@@ -141,7 +141,7 @@ async function onRegistry(c: ApiV1Context, uuid: string, raw: string, what: stri
 
 // ── transfer ────────────────────────────────────────────────────────────────
 
-const metadataOf = (server: ApiRow): Record<string, unknown> => {
+export const metadataOf = (server: ApiRow): Record<string, unknown> => {
   const m = rowValue(server, "server_metadata");
   return m && typeof m === "object" && !Array.isArray(m) ? (m as Record<string, unknown>) : {};
 };
@@ -194,21 +194,31 @@ async function migrate(c: ApiV1Context, uuid: string): Promise<CoolifyAnswer> {
     ]);
     extraFields(errors, all, ["target_url", "target_token"]);
     if (errors.length) return validationFailed(errors);
-    // validateInstanceUrl()
-    const url = String(all.target_url).trim().replace(/\/+$/, "");
-    if (url === "" || !filterValidateUrl(url)) return message("A valid target instance URL is required (e.g. https://coolify.example.com).", 422);
-    if ((/^([a-z][a-z0-9+.-]*):/i.exec(url)?.[1] ?? "").toLowerCase() !== "https") return message("The target instance URL must use https, because the transfer sends credentials.", 422);
-    const unsafe = await safeExternalUrlMessage(c, url, "target_url", c.s3.resolve);
-    if (unsafe) return message(unsafe, 422);
-    // normalizeToken()
-    let token = String(all.target_token).trim();
-    if (token.toLowerCase().startsWith("bearer ")) token = token.slice(7).trim();
-    if (token === "") return message("A target instance API token is required (root or write + deploy).", 422);
-    // hasRunningMigration()
-    const running = metadataOf(f.server).migration as Record<string, unknown> | undefined;
-    if (running && running.status === "running" && typeof running.started_at === "string" && Date.parse(running.started_at) > Date.now() - STALE_MIGRATION_SECONDS * 1000) return message("A transfer of this server is already running.", 422);
+    const refused = await transferStartError(c, all.target_url, all.target_token, f.server, c.s3.resolve);
+    if (refused) return message(refused, 422);
     return unavailable(REGISTRIES_TRANSFER_API_MESSAGES.migrateUnavailable);
   });
+}
+
+/**
+ * ServerTransferMigrator::start()'s own checks, before its SSH and target checks: validateInstanceUrl(), normalizeToken()
+ * and hasRunningMigration(). The first refusal's message, or null. The console's Transfer page (DP-96) asks the same.
+ */
+export async function transferStartError(c: { env: Pick<ApiV1Context["env"], "DEPLOY_CONSOLE_URL"> }, targetUrl: unknown, targetToken: unknown, server: ApiRow, resolve: HostResolver): Promise<string | null> {
+  // validateInstanceUrl()
+  const url = String(targetUrl ?? "").trim().replace(/\/+$/, "");
+  if (url === "" || !filterValidateUrl(url)) return "A valid target instance URL is required (e.g. https://coolify.example.com).";
+  if ((/^([a-z][a-z0-9+.-]*):/i.exec(url)?.[1] ?? "").toLowerCase() !== "https") return "The target instance URL must use https, because the transfer sends credentials.";
+  const unsafe = await safeExternalUrlMessage(c, url, "target_url", resolve);
+  if (unsafe) return unsafe;
+  // normalizeToken()
+  let token = String(targetToken ?? "").trim();
+  if (token.toLowerCase().startsWith("bearer ")) token = token.slice(7).trim();
+  if (token === "") return "A target instance API token is required (root or write + deploy).";
+  // hasRunningMigration()
+  const running = metadataOf(server).migration as Record<string, unknown> | undefined;
+  if (running && running.status === "running" && typeof running.started_at === "string" && Date.parse(running.started_at) > Date.now() - STALE_MIGRATION_SECONDS * 1000) return "A transfer of this server is already running.";
+  return null;
 }
 
 /** $request->query() as PHP parses it (`a[]=x` an array), after TrimStrings and ConvertEmptyStringsToNull. */

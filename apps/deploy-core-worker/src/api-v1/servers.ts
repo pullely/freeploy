@@ -67,7 +67,7 @@ async function serverRow(rows: Rows, uuid: string): Promise<ApiRow | null> {
 
 // ── a server's resources ────────────────────────────────────────────────────
 
-type Resource = { kind: "application" | "service" | "database"; type: string; row: ApiRow };
+export type Resource = { kind: "application" | "service" | "database"; type: string; row: ApiRow };
 
 /** The server's standalone destinations (Freeploy makes no Swarm one). */
 const destinationIds = async (rows: Rows, server: ApiRow): Promise<unknown[]> => (await rows("standalone_dockers", "t.server_id = $1", [rowValue(server, "id")])).map((d) => rowValue(d, "id"));
@@ -106,10 +106,15 @@ async function additionalApplications(rows: Rows, server: ApiRow): Promise<ApiRo
 }
 
 /** definedResources(): applications() (the primary ones, then the additional ones), databases(), services(). */
-async function definedResources(rows: Rows, server: ApiRow): Promise<Resource[]> {
+export async function definedResources(rows: Rows, server: ApiRow): Promise<Resource[]> {
   const ids = await destinationIds(rows, server);
   const applications = [...(await primaryApplications(rows, ids)), ...(await additionalApplications(rows, server))];
   return [...applications.map((row) => ({ kind: "application" as const, type: "application", row })), ...(await serverDatabases(rows, ids)), ...(await serverServices(rows, server))];
+}
+
+/** The resource's status accessor: an application's (its additional servers too), a service's parts', a database's column. */
+export async function resourceStatus(rows: Rows, r: Resource): Promise<string> {
+  return r.kind === "application" ? applicationStatus(rows, r.row) : r.kind === "service" ? serviceStatusOf(rows, rowValue(r.row, "id")) : databaseStatus(rowValue(r.row, "status") as string | null);
 }
 
 /** The payload resources_by_server() and server_by_uuid()'s ?resources make of each: id, uuid, name, type, the dates, the status accessor. */
@@ -118,7 +123,7 @@ export async function serverResourcesPayload(tx: SqlExecutor, server: ApiRow): P
   const out: PhpObject[] = [];
   for (const r of await definedResources(rows, server)) {
     const dates = toModel(r.row.filter(([k]) => k === "created_at" || k === "updated_at"), DATE_SHAPE);
-    const status = r.kind === "application" ? await applicationStatus(rows, r.row) : r.kind === "service" ? await serviceStatusOf(rows, rowValue(r.row, "id")) : databaseStatus(rowValue(r.row, "status") as string | null);
+    const status = await resourceStatus(rows, r);
     out.push(
       obj([
         ["id", rowValue(r.row, "id") as PhpValue],

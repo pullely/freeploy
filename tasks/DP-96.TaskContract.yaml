@@ -1,0 +1,19 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-96
+  title: "DP4: a server's proxy, security, Cloudflare Tunnel, Sentinel logs, transfer, resources and images pages, as their unvalidated states and their row-only actions"
+spec:
+  goal: deploy-web ports the server pages it still lacked from Coolify 91b7e3e's routes/web.php — /server/{uuid}/proxy, /proxy/dynamic, /proxy/certificates, /proxy/logs, /security, /security/patches, /cloudflare-tunnel, /sentinel/logs, /transfer, /resources and /images — hand-ported from their Blade views with Coolify's copy, the server sidebar's Proxy, Security and Sentinel submenus, and console routes under /v1/organizations/{org}/deploy/servers/{uuid}/… in deploy-core-worker that reuse DP-88's helpers for the server and server_settings rows (findServer, functional, setTunnel, saveSettings, ServerTransferMigrator's checks, definedResources and the status accessors), inside withOrg with deploy.resource.read/write and a 404 on denial. What is rows only is done — terminal access, marking a Cloudflare Tunnel as configured and disabling it (the previous IP restored), the stored patch check, the transfer's metadata, the resources defined on the server — and what Coolify runs on the server (the proxy's files and logs, the host key's connection check, the patch check, cloudflared, Sentinel's logs, the transfer's SSH and target checks, the containers and images) answers "… needs the SSH executor, which is not available yet." after Coolify's own checks, storing nothing; where Coolify runs a command without waiting for it (docker rm of cloudflared) the rows change and the answer says so. GitHub Runners is cut (its save calls the GitHub API and checks Sysbox over SSH); /security/vulnerabilities is not in this task. No migration, no binding, no dependency.
+  affects:
+    - apps/deploy-core-worker/**
+    - apps/deploy-web/**
+    - tests/deploy-core-worker/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - apps/deploy-web/test/routes.test.ts maps the eleven paths to their pages and leaves /security/vulnerabilities, the old security sub pages, /github-runners and /canvas not ported
+    - apps/deploy-web/test/server-pages.test.ts holds Str::headline(), Server\Resources' sorts, search and pages and the status badges
+    - tests/deploy-core-worker/src/server-pages.test.ts holds every route's authorization (reads for a member, the others for who may update, a 404 on denial), org isolation by row-level security, Coolify's messages, what is stored and that what needs the SSH executor stores nothing
+    - on stage, /server/{uuid}/proxy, /proxy/dynamic and /proxy/certificates of an unvalidated server show "Server validation required"; /security toggles terminal access with "Terminal access has been disabled."; /cloudflare-tunnel marks a manual configuration as complete and disables it again; /resources lists the server's resources
+  gates: []

@@ -72,10 +72,10 @@ const castBool = (v: unknown): boolean => !(v === undefined || v === null || v =
 const castInt = (v: unknown): number => (typeof v === "number" ? Math.trunc(v) : typeof v === "boolean" ? (v ? 1 : 0) : typeof v === "string" ? Number.parseInt(/^\s*[+-]?\d+/.exec(v)?.[0] ?? "0", 10) : 0);
 
 /** route('settings.advanced'): the console's Advanced settings, where Coolify's message points. */
-const consoleUrl = (c: ApiV1Context): string => (c.env.DEPLOY_CONSOLE_URL || DEFAULT_CONSOLE_URL).replace(/\/+$/, "");
+const consoleUrl = (c: { env: Pick<ApiV1Context["env"], "DEPLOY_CONSOLE_URL"> }): string => (c.env.DEPLOY_CONSOLE_URL || DEFAULT_CONSOLE_URL).replace(/\/+$/, "");
 
 /** SafeWebhookUrl (SafeExternalUrl): the first failure's message, a private target's with privateTargetMessage()'s link. */
-export async function safeExternalUrlMessage(c: ApiV1Context, value: unknown, attribute: string, resolve: HostResolver): Promise<string | null> {
+export async function safeExternalUrlMessage(c: { env: Pick<ApiV1Context["env"], "DEPLOY_CONSOLE_URL"> }, value: unknown, attribute: string, resolve: HostResolver): Promise<string | null> {
   const error = await safeUrlError(value, attribute.replace(/_/g, " "), attribute, resolve, ["http", "https"]);
   if (error && error.endsWith("points to a local or private address that is not allowed.")) return `${error} Configure allowed internal targets: ${consoleUrl(c)}/settings/advanced#endpoint-section`;
   return error;
@@ -113,13 +113,13 @@ const setting = (f: Found, k: string): unknown => rowValue(f.settings, k);
 export const functional = (f: Found): boolean =>
   isFunctional({ is_reachable: setting(f, "is_reachable") as boolean, is_usable: setting(f, "is_usable") as boolean, force_disabled: setting(f, "force_disabled") as boolean, ip: String(rowValue(f.server, "ip")) });
 export const isSwarm = (f: Found): boolean => setting(f, "is_swarm_manager") === true || setting(f, "is_swarm_worker") === true;
-const isBuildServer = (f: Found): boolean => {
+export const isBuildServer = (f: Found): boolean => {
   const role = setting(f, "server_role");
   return role === "build" || (role !== "deployment" && role !== "both" && setting(f, "is_build_server") === true);
 };
-const transferredAway = (f: Found): boolean => isTransferredAway({ server_metadata: rowValue(f.server, "server_metadata") });
+export const transferredAway = (f: Found): boolean => isTransferredAway({ server_metadata: rowValue(f.server, "server_metadata") });
 /** Server::isSentinelEnabled() */
-const sentinelEnabled = (f: Found): boolean => !isBuildServer(f) && !isSwarm(f) && setting(f, "force_disabled") !== true && !transferredAway(f);
+export const sentinelEnabled = (f: Found): boolean => !isBuildServer(f) && !isSwarm(f) && setting(f, "force_disabled") !== true && !transferredAway(f);
 /** Server::isLocalhost() */
 const isLocalhost = (f: Found): boolean => rowValue(f.server, "ip") === "host.docker.internal" || Number(rowValue(f.server, "id")) === 0;
 
@@ -148,7 +148,7 @@ async function sealed(tx: SqlExecutor, c: ApiV1Context, column: string, value: u
 }
 
 /** $settings->save() of these columns, with updated_at. */
-async function saveSettings(tx: SqlExecutor, f: Found, changes: Record<string, unknown>): Promise<void> {
+export async function saveSettings(tx: SqlExecutor, f: Found, changes: Record<string, unknown>): Promise<void> {
   const keys = Object.keys(changes);
   if (keys.length === 0) return;
   const sets = keys.map((k, i) => `"${k}" = $${i + 2}`).join(", ");
@@ -620,7 +620,7 @@ async function showTunnel(c: ApiV1Context, uuid: string): Promise<CoolifyAnswer>
 }
 
 /** $settings->is_cloudflare_tunnel = …; save() (the updated hook forgets the host key when it changed), then the previous IP when turned off. */
-async function setTunnel(tx: SqlExecutor, f: Found, enabled: boolean): Promise<Found> {
+export async function setTunnel(tx: SqlExecutor, f: Found, enabled: boolean): Promise<Found> {
   if (enabled !== (setting(f, "is_cloudflare_tunnel") === true)) {
     await saveSettings(tx, f, { is_cloudflare_tunnel: enabled });
     await forgetSshHostKey(tx, f);
