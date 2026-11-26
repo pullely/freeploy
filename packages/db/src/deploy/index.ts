@@ -721,3 +721,6 @@ export * from "./integration-tokens.js";
 export * from "./secret-manager-links.js";
 // DP-105: managed DNS records, their references, and what the DNS API reads around them.
 export * from "./managed-dns.js";
+// DP-114: the console's Security pages — ignores, stored package lists, an application's image overrides and scan
+// settings, an application's policy row, the team page's environments and servers.
+export * from "./image-scan-pages.js";

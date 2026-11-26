@@ -146,6 +146,14 @@ const SelectTeamPage = lazy(() => import("./pages/ConfigSubpages").then((m) => (
 // DP-103: a GitLab App's and a Gitea / Forgejo App's pages, and their OAuth redirects.
 const OauthSourcePage = lazy(() => import("./pages/SourceOauth").then((m) => ({ default: m.OauthSourcePage })));
 const OauthCallbackPage = lazy(() => import("./pages/SourceOauth").then((m) => ({ default: m.OauthCallbackPage })));
+// DP-114: a resource's Security page and its SBOM downloads, and the team's Security page.
+const ApplicationVulnerabilitiesPage = lazy(() => import("./pages/ImageScan").then((m) => ({ default: m.ApplicationVulnerabilitiesPage })));
+const ApplicationSbomPage = lazy(() => import("./pages/ImageScan").then((m) => ({ default: m.ApplicationSbomPage })));
+const ServiceVulnerabilitiesPage = lazy(() => import("./pages/ImageScan").then((m) => ({ default: m.ServiceVulnerabilitiesPage })));
+const ServiceSbomPage = lazy(() => import("./pages/ImageScan").then((m) => ({ default: m.ServiceSbomPage })));
+const DatabaseVulnerabilitiesPage = lazy(() => import("./pages/ImageScan").then((m) => ({ default: m.DatabaseVulnerabilitiesPage })));
+const DatabaseSbomPage = lazy(() => import("./pages/ImageScan").then((m) => ({ default: m.DatabaseSbomPage })));
+const FleetVulnerabilitiesPage = lazy(() => import("./pages/ImageScan").then((m) => ({ default: m.FleetVulnerabilitiesPage })));
 
 /** routes/web.php: security.private-key.show is redirect()->route('security.private-key.index'). */
 function RedirectTo({ path }: { path: string }) {
@@ -1014,6 +1022,49 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <OauthCallbackPage kind="gitea" />
+        </Suspense>
+      );
+    // DP-114: the Security pages.
+    case "project.application.vulnerabilities":
+      return (
+        <Suspense fallback={null}>
+          <ApplicationVulnerabilitiesPage />
+        </Suspense>
+      );
+    case "project.application.vulnerabilities.sbom":
+      return (
+        <Suspense fallback={null}>
+          <ApplicationSbomPage />
+        </Suspense>
+      );
+    case "project.service.vulnerabilities":
+      return (
+        <Suspense fallback={null}>
+          <ServiceVulnerabilitiesPage />
+        </Suspense>
+      );
+    case "project.service.vulnerabilities.sbom":
+      return (
+        <Suspense fallback={null}>
+          <ServiceSbomPage />
+        </Suspense>
+      );
+    case "project.database.vulnerabilities":
+      return (
+        <Suspense fallback={null}>
+          <DatabaseVulnerabilitiesPage />
+        </Suspense>
+      );
+    case "project.database.vulnerabilities.sbom":
+      return (
+        <Suspense fallback={null}>
+          <DatabaseSbomPage />
+        </Suspense>
+      );
+    case "vulnerabilities":
+      return (
+        <Suspense fallback={null}>
+          <FleetVulnerabilitiesPage />
         </Suspense>
       );
     default:

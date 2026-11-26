@@ -1,0 +1,22 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-114
+  title: "DP11: a resource's Security page with its SBOM downloads and the team's Security page, on DP-113's engine"
+spec:
+  goal: On DP-113's security status engine, Coolify's console pages that read stored scans are ported to deploy-web with their handlers in deploy-core-worker and their queries in packages/db — a resource's Security page (…/application|service|database/{uuid}/vulnerabilities: Livewire ImageScan\Vulnerabilities with SecurityCard's main card, the findings in their fix states, filters, views and pages, the ignore modal, the exports; ImageScan\Packages with the SBOM downloads of ImageScanSbomController over the stored image_sboms; ImageScan\ScanSettings of the application, database and service scopes) and the team's /vulnerabilities (FleetVulnerabilities with its search, filters, labels, actions and exports). Ignores, rule rows, an application's scan settings and image overrides are written; Scan now, Update, Pull latest and Rebuild answer 501 after Coolify's checks and store nothing. No migration, no binding. The image scanning settings of the instance, the team and a server, and a server's vulnerabilities, stay not-ported.
+  affects:
+    - apps/deploy-core-worker/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - apps/deploy-web/src/routes.ts maps project.{application,service,database}.vulnerabilities, their .sbom downloads and vulnerabilities to DP-114's pages (ImageScanPageKey), and apps/deploy-web/test passes (routes, lib/image-scan.ts)
+    - tests/deploy-core-worker/src/image-scan-pages.test.ts passes over DP-113's seeded scans: the card's status and the findings' states equal DP-113's API goldens, Vulnerabilities' and ScanSettings' rules, messages and toasts, the ignore stored and the summaries written again, the 501s storing nothing, the SBOM documents and exports, the team page's order, search and export, the authorization 404 that runs nothing, and org isolation
+    - tests/db/src/deploy-image-scan-pages.test.ts passes (DP-114's queries under row-level security)
+    - IMPLEMENTATION-STATUS.md's DP11 notes say what DP-114 ports, its departures and what stays cut, and DP-113's cut list names what DP-114 ported
+    - on stage, …/application/{uuid}/vulnerabilities of an application answers its off state while its server does not scan images, and /vulnerabilities lists the org's resources (not checked)
+  gates: []

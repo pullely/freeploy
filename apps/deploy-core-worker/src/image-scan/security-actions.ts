@@ -424,7 +424,7 @@ function composeRefusal(application: Extract<ScanOwner, { kind: "application" }>
 }
 
 /** data_get(parseDockerComposeYaml($docker_compose_raw), 'services', []), or undefined when it does not parse. */
-function composeServicesValue(application: Extract<ScanOwner, { kind: "application" }>): PhpValue | undefined {
+export function composeServicesValue(application: Extract<ScanOwner, { kind: "application" }>): PhpValue | undefined {
   try {
     const compose = parseDockerComposeYaml(str(application.dockerComposeRaw));
     return compose instanceof PhpArray ? compose.get("services") : undefined;

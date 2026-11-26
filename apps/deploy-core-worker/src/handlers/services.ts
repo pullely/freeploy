@@ -35,6 +35,7 @@ import { authorizeDeploy, columnCipher, readJson } from "./cloud-tokens.js";
 import { handleServiceConfiguration, isServiceConfigurationRoute } from "./service-configuration.js";
 import { handleVolumeBackupPages, isVolumeBackupRoute } from "./volume-backup-pages.js";
 import { handleConfigSubpages, isConfigSubpageRoute } from "./config-subpages.js";
+import { handleImageScanPages, isImageScanPageRoute } from "./image-scan-pages.js";
 import { ServiceError, createOneClickService, listServiceTemplates, showService, validateCreateService, type ServiceContext, type ServiceCreateDependencies, type ServiceStore } from "../services/service.js";
 
 const UUID_RE = /^[A-Za-z0-9-]{1,255}$/;
@@ -93,6 +94,8 @@ export async function handleServices(
   if (isVolumeBackupRoute("service", segments)) return handleVolumeBackupPages(env, requestId, actor, orgId, "service", segments, request);
   // The Domains and Maintenance Mode pages (DP-102: config-subpages.ts).
   if (isConfigSubpageRoute("service", segments)) return handleConfigSubpages(env, requestId, actor, orgId, "service", segments, request);
+  // The Security page and its SBOM downloads (DP-114: image-scan-pages.ts).
+  if (isImageScanPageRoute(segments)) return handleImageScanPages(env, requestId, actor, orgId, "service", segments, request);
   const method = request.method;
   const [first] = segments;
   const notFound = () => errorResponse("not_found", "Not found", 404, requestId);
