@@ -1,5 +1,6 @@
 // Keys & Tokens → Cloud-Init Scripts (DP-45): Coolify's rules and messages
-// (with the one YAML error ValidCloudInitYaml's port can tell), the script
+// (ValidCloudInitYaml with Symfony's parse errors, DP-110; symfony-yaml.test.ts
+// holds the parser to PHP), the script
 // stored encrypted and shown only to who may write, and the handler's routing
 // and authorization. The SQL behind the store is tested in tests/db.
 import { route } from "@deploy-core-worker/router";
@@ -127,6 +128,13 @@ describe("Coolify's validation rules and messages", () => {
     expect(!r.ok && r.errors.script).toEqual([
       'The script must be either a valid bash script (starting with #!) or valid cloud-config YAML. YAML parse error: A YAML file cannot contain tabs as indentation at line 2 (near "\tpackages: []").',
     ]);
+  });
+
+  it("ValidCloudInitYaml: every other Symfony parse error too, as /api/v1 gives it (DP-110)", () => {
+    const r = validateScript({ name: "dup", script: "#cloud-config\npackages: [a]\npackages: [b]\n" });
+    // The API's golden "cloud-init scripts: create, invalid YAML, a duplicate key" has the same words.
+    expect(!r.ok && r.errors.script).toEqual(['The script must be valid YAML format. Error: Duplicate key "packages" detected at line 2 (near "packages: [b]").']);
+    expect(cloudInitYamlError("#cloud-config\nruncmd: [ls, -l\n")).toBe('The script must be valid YAML format. Error: Malformed inline YAML string at line 1 (near "runcmd: [ls, -l").');
   });
 });
 

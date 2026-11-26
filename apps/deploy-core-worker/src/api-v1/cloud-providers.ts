@@ -322,6 +322,16 @@ function resetBackoff(attempt: number, f: Failure): number {
 
 // ── the four services ───────────────────────────────────────────────────────
 
+/**
+ * A service request's data as PendingRequest sends it: a GET's query, a POST's JSON body (`[]` included), and a DELETE's
+ * JSON body only when there is data (delete() sends none for an empty array, DP-110).
+ */
+function requestOptions(method: ProviderRequest["method"], data: unknown): Pick<ProviderRequest, "query" | "json"> {
+  if (method === "get") return { query: data as Array<[string, string | number]> };
+  if (method === "delete" && (data === undefined || data === null || (typeof data === "object" && Object.keys(data).length === 0))) return {};
+  return { json: data };
+}
+
 export interface ProviderClient {
   request(method: ProviderRequest["method"], endpoint: string, data?: Array<[string, string | number]> | unknown): Promise<PhpValue>;
 }
@@ -333,7 +343,7 @@ export function hetznerClient(net: ProviderNetwork, token: string): ProviderClie
       const response = await providerSend(net, {
         method,
         url: `https://api.hetzner.cloud/v1${endpoint}`,
-        ...(method === "get" ? { query: data as Array<[string, string | number]> } : { json: data }),
+        ...requestOptions(method, data),
         headers: { Authorization: `Bearer ${token}` },
         timeoutMs: 30_000,
         retry: {
@@ -421,7 +431,7 @@ export function digitalOceanClient(net: ProviderNetwork, token: string): Provide
       const response = await providerSend(net, {
         method,
         url: `https://api.digitalocean.com/v2${endpoint}`,
-        ...(method === "get" ? { query: data as Array<[string, string | number]> } : { json: data }),
+        ...requestOptions(method, data),
         headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
         timeoutMs: 30_000,
         retry: { tries: 3, sleep: resetBackoff },
@@ -467,7 +477,7 @@ export function vultrClient(net: ProviderNetwork, token: string): ProviderClient
       const response = await providerSend(net, {
         method,
         url: `https://api.vultr.com/v2${endpoint}`,
-        ...(method === "get" ? { query: data as Array<[string, string | number]> } : { json: data }),
+        ...requestOptions(method, data),
         headers: { Authorization: `Bearer ${token}` },
         timeoutMs: 30_000,
         retry: { tries: 3, sleep: (attempt) => attempt * 100 },
@@ -522,7 +532,7 @@ export function hostingerClient(net: ProviderNetwork, token: string): ProviderCl
       const response = await providerSend(net, {
         method,
         url: `https://developers.hostinger.com${endpoint}`,
-        ...(method === "get" ? { query: data as Array<[string, string | number]> } : { json: data }),
+        ...requestOptions(method, data),
         headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
         timeoutMs: 30_000,
         retry: {

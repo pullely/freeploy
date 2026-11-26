@@ -1,4 +1,4 @@
-# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85, DP-86, DP-87, DP-88, DP-90, DP-93, DP-103, DP-104, DP-105, DP-106, DP-107, DP-108)
+# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85, DP-86, DP-87, DP-88, DP-90, DP-93, DP-103, DP-104, DP-105, DP-106, DP-107, DP-108, DP-110)
 
 What Coolify's real API answers, so that Freeploy's `/api/v1` (api-edge's middleware and limiters,
 identity-worker's teams and tokens, deploy-core-worker's projects, environments, private keys and servers —
@@ -22,7 +22,8 @@ and a Cloudflare token's zones — DP-104 — and the GitLab Apps, the Gitea App
 through a Gitea App and an application's source changed to one — DP-103 — and the team's Cloudflare zones and the managed DNS
 records of an application's and a service's domains — DP-105 — and a resource's secret manager source and the
 instance's email settings — DP-106 — and the team's two settings, the team's audit events, the instance's API and MCP
-switches and a server's update — DP-107 — and cloning a service — DP-108) can be replayed against it byte for byte.
+switches and a server's update — DP-107 — and cloning a service — DP-108 — and the cloud-init scripts and the servers made through
+a Hetzner, Vultr or DigitalOcean token — DP-110) can be replayed against it byte for byte.
 
 | File | What it is |
 |---|---|
@@ -211,6 +212,20 @@ Coolify's integers, Freeploy's text ids) is that test's own, as tests/identity-w
 raw `{}`: emit.php writes an empty JSON object body as `[]` (json_encode() of the decoded case), which validateIncomingRequest()
 calls invalid where `{}` is empty. One member denial is added (46 in all). Only the new entries were inserted into
 goldens.json, after DP-108's; the committed ones are kept byte for byte. No masking is added to `src/api-v1-goldens.ts`.
+
+DP-110's replay (`src/api-v1-cloud-init-servers.test.ts`: GET/POST /cloud-init-scripts, GET/PATCH/DELETE
+/cloud-init-scripts/{uuid}, POST /servers/hetzner, /servers/vultr and /servers/digitalocean) adds no fixture rows. A case may
+carry `cloudInitScripts` (`[{uuid, team, name, script, created_at}]`): emit.php makes each through the model (the `encrypted`
+cast; the id is the sequence's, which no answer shows), the test with Freeploy's insert and the org's key, in the team's own
+org. The `after` queries read a script's uuid only when it is the fixture's (a new one as whether it is a public id) and its
+encrypted script as whether it is set; the test also decrypts what Freeploy stored and compares it with what was sent. The
+providers are faked through `http` (DP-90's): the account's SSH keys — the fixture key K_MAIN found by its MD5 fingerprint
+(Hetzner, DigitalOcean) or its text (Vultr), both read from `../ssh-keys/expected.json` — the server's creation and its
+address. A request's recorded `body` is the decoded JSON whenever there is one (a POST with no data sends `[]`; a DELETE with
+none sends no body). The test masks generate_random_name() in the requests it compares (`<random-name>`, as `after` does).
+ValidCloudInitYaml's refusals carry Symfony YAML's ParseException messages (`../symfony-yaml` holds the parser to PHP). Four
+`denied:` cases are added (50 in all). Only the new entries were inserted into goldens.json, after DP-107's; the committed
+ones are kept byte for byte. No masking is added to `src/api-v1-goldens.ts`.
 
 ## How the goldens are made
 

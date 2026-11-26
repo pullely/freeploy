@@ -64,6 +64,8 @@ const TABLES = [
   // DP-103: GitLab and Gitea Apps
   "gitlab_apps",
   "gitea_apps",
+  // DP-110: cloud-init scripts
+  "cloud_init_scripts",
 ] as const;
 export type ApiTable = (typeof TABLES)[number];
 
