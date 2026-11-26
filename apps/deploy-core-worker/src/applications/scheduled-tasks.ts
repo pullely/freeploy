@@ -79,14 +79,43 @@ export interface TaskExecution {
   message: string | null;
 }
 
-export interface ScheduledTasksPage {
-  application: ApplicationShow;
+/** What the list answers beside the resource's frame. */
+export interface TasksPageBody {
   tasks: TaskItem[];
-  /** All::mount(): the Compose services of a Docker Compose application, else none. Compose files are not parsed here yet: none. */
+  /**
+   * All::mount(): a service's applications' and databases' names; the Compose services of a Docker Compose
+   * application (Compose files are not parsed here yet: none); else none.
+   */
   containerNames: string[];
   /** getServerTimezone(): the server's timezone setting. */
   serverTimezone: string;
   /** $resource->isRunning(): "Execute now" shows. */
+  isRunning: boolean;
+}
+
+export interface ScheduledTasksPage extends TasksPageBody {
+  application: ApplicationShow;
+}
+
+/** One task owner's rows: an application's or a service's (scheduled_tasks.application_id / service_id). */
+export interface TaskRows {
+  tasks(): Promise<DeployScheduledTaskRow[]>;
+  findTask(uuid: string): Promise<DeployScheduledTaskRow | null>;
+  insertTask(task: { uuid: string; name: string; command: string; frequency: string; container: string | null; timeout: number; useShell: boolean }): Promise<DeployScheduledTaskRow>;
+  updateTask(id: string | number, changes: ScheduledTaskChanges): Promise<boolean>;
+  deleteTask(id: string | number): Promise<boolean>;
+  executions(taskId: string | number): Promise<DeployScheduledTaskExecutionRow[]>;
+}
+
+/** The resource All, Add and Show are given (`:resource`): an application or, since DP-97, a service. */
+export interface TaskHost {
+  /** $resource->type() */
+  kind: "application" | "service";
+  /** The page's frame: { application } or { service }. */
+  frame: object;
+  rows: TaskRows;
+  containerNames: string[];
+  serverTimezone: string;
   isRunning: boolean;
 }
 
@@ -113,37 +142,62 @@ const execution = (e: DeployScheduledTaskExecutionRow, canUpdate: boolean): Task
   message: canUpdate ? (e.message ?? null) : null,
 });
 
-async function page(ctx: ApplicationMoreContext, l: LoadedApplication): Promise<ScheduledTasksPage> {
+async function hostPage(host: TaskHost): Promise<TasksPageBody> {
+  return { ...host.frame, tasks: (await host.rows.tasks()).map(item), containerNames: host.containerNames, serverTimezone: host.serverTimezone, isRunning: host.isRunning };
+}
+
+/** An application as All's resource. */
+async function applicationHost(ctx: ApplicationMoreContext, l: LoadedApplication): Promise<TaskHost> {
+  const id = l.row.id;
   return {
-    application: l.application,
-    tasks: (await ctx.store.tasks(l.row.id)).map(item),
+    kind: "application",
+    frame: { application: l.application },
+    rows: {
+      tasks: () => ctx.store.tasks(id),
+      findTask: (uuid) => ctx.store.findTask(id, uuid),
+      insertTask: (t) => ctx.store.insertTask({ applicationId: id, ...t }),
+      updateTask: (taskId, changes) => ctx.store.updateTask(id, taskId, changes),
+      deleteTask: (taskId) => ctx.store.deleteTask(id, taskId),
+      executions: (taskId) => ctx.store.executions(taskId),
+    },
     containerNames: [],
     serverTimezone: (await ctx.store.rollback(l.row.uuid))?.server_timezone || "UTC",
     isRunning: isRunning(l.frame.status),
   };
 }
 
-/** All::mount() */
-export async function showScheduledTasks(ctx: ApplicationMoreContext, uuid: string, canUpdate: boolean): Promise<ScheduledTasksPage | null> {
+async function hostOf(ctx: ApplicationMoreContext, uuid: string, canUpdate: boolean): Promise<TaskHost | null> {
   const l = await loadApplication(ctx, uuid, canUpdate);
-  return l ? page(ctx, l) : null;
+  return l ? applicationHost(ctx, l) : null;
 }
 
-export interface TaskPage extends ScheduledTasksPage {
+/** All::mount() for any resource. */
+export const showHostTasks = (host: TaskHost): Promise<TasksPageBody> => hostPage(host);
+
+/** All::mount() */
+export async function showScheduledTasks(ctx: ApplicationMoreContext, uuid: string, canUpdate: boolean): Promise<ScheduledTasksPage | null> {
+  const host = await hostOf(ctx, uuid, canUpdate);
+  return host ? ((await hostPage(host)) as ScheduledTasksPage) : null;
+}
+
+export interface TaskPageBody extends TasksPageBody {
   task: TaskDetail;
   /** Executions::mount(): the last 20, the newest first. */
   executions: TaskExecution[];
 }
 
-async function taskPage(ctx: ApplicationMoreContext, l: LoadedApplication, task: DeployScheduledTaskRow, canUpdate: boolean): Promise<TaskPage> {
-  return { ...(await page(ctx, l)), task: detail(task, canUpdate), executions: (await ctx.store.executions(task.id)).map((e) => execution(e, canUpdate)) };
+export type TaskPage = TaskPageBody & ScheduledTasksPage;
+
+/** All::openTask() with Show::mount(): one task of the resource. */
+export async function showHostTask(host: TaskHost, taskUuid: string, canUpdate: boolean): Promise<TaskPageBody | null> {
+  const task = await host.rows.findTask(taskUuid);
+  return task ? { ...(await hostPage(host)), task: detail(task, canUpdate), executions: (await host.rows.executions(task.id)).map((e) => execution(e, canUpdate)) } : null;
 }
 
 /** All::openTask() with Show::mount(): one task of the application. */
 export async function showScheduledTask(ctx: ApplicationMoreContext, uuid: string, taskUuid: string, canUpdate: boolean): Promise<TaskPage | null> {
-  const l = await loadApplication(ctx, uuid, canUpdate);
-  const task = l ? await ctx.store.findTask(l.row.id, taskUuid) : null;
-  return l && task ? taskPage(ctx, l, task, canUpdate) : null;
+  const host = await hostOf(ctx, uuid, canUpdate);
+  return host ? ((await showHostTask(host, taskUuid, canUpdate)) as TaskPage | null) : null;
 }
 
 interface TaskInput {
@@ -202,34 +256,45 @@ function validate(body: Body, attributes: Record<string, string>, defaults: { ti
   return { name, command, frequency, container, timeout: timeout!, useShell, ...(isEnabled === undefined ? {} : { isEnabled }) };
 }
 
-export interface TasksSaved extends ScheduledTasksPage {
+export interface TasksSaved extends TasksPageBody {
   message: string;
   /** The task that was added or changed (absent after a deletion). */
   task?: TaskDetail;
 }
 
+export const ADD_MESSAGES = {
+  /**
+   * Add::submit() for a service whose task names no container: `$this->container = $this->subServiceName`, a
+   * property Add does not declare — Livewire's PropertyNotFoundException, as handleError() toasts it.
+   */
+  subServiceName: "Property [$subServiceName] not found on component: [project.shared.scheduled-task.add]",
+} as const;
+
 /**
  * Add::submit(): the fields as typed (Add does not trim), the task enabled.
- * An empty container stays empty: an application has one container unless it
- * is a Docker Compose one.
+ * An empty container stays empty for an application (it has one container
+ * unless it is a Docker Compose one); for a service it is refused as above.
  */
-export async function addScheduledTask(ctx: ApplicationMoreContext, uuid: string, body: Body): Promise<TasksSaved | null> {
-  const l = await loadApplication(ctx, uuid, true);
-  if (!l) return null;
+export async function addHostTask(host: TaskHost, body: Body): Promise<TasksSaved> {
   const input = validate(body, ATTRIBUTES, { timeout: TASK_TIMEOUT.default, useShell: true, container: "" }, false);
   if (!validateCronExpression(input.frequency)) throw new SettingsError(TASK_MESSAGES.invalidCron, 422);
-  const task = await ctx.store.insertTask({ applicationId: l.row.id, uuid: newPublicId(), name: input.name, command: input.command, frequency: input.frequency, container: input.container, timeout: input.timeout, useShell: input.useShell });
-  return { ...(await page(ctx, l)), task: detail(task, true), message: TASK_MESSAGES.added };
+  if (host.kind === "service" && (input.container === null || input.container === "" || input.container === "null")) throw new SettingsError(ADD_MESSAGES.subServiceName, 422);
+  const task = await host.rows.insertTask({ uuid: newPublicId(), name: input.name, command: input.command, frequency: input.frequency, container: input.container, timeout: input.timeout, useShell: input.useShell });
+  return { ...(await hostPage(host)), task: detail(task, true), message: TASK_MESSAGES.added };
+}
+
+export async function addScheduledTask(ctx: ApplicationMoreContext, uuid: string, body: Body): Promise<TasksSaved | null> {
+  const host = await hostOf(ctx, uuid, true);
+  return host ? addHostTask(host, body) : null;
 }
 
 /** Show's attribute names: the property's own words. */
 const SHOW_ATTRIBUTES: Record<string, string> = { ...ATTRIBUTES, useShell: "use shell", isEnabled: "is enabled" };
 
 /** Show::submit() / instantSave(): syncData(true) — validated, the cron expression checked, the texts trimmed. */
-export async function updateScheduledTask(ctx: ApplicationMoreContext, uuid: string, taskUuid: string, body: Body): Promise<TasksSaved | null> {
-  const l = await loadApplication(ctx, uuid, true);
-  const task = l ? await ctx.store.findTask(l.row.id, taskUuid) : null;
-  if (!l || !task) return null;
+export async function updateHostTask(host: TaskHost, taskUuid: string, body: Body): Promise<TasksSaved | null> {
+  const task = await host.rows.findTask(taskUuid);
+  if (!task) return null;
   const input = validate({ isEnabled: task.enabled, ...body }, SHOW_ATTRIBUTES, { timeout: task.timeout, useShell: task.use_shell, container: task.container }, true);
   if (!validateCronExpression(input.frequency)) throw new SettingsError(TASK_MESSAGES.invalidCron, 422);
   const changes: ScheduledTaskChanges = {
@@ -242,37 +307,53 @@ export async function updateScheduledTask(ctx: ApplicationMoreContext, uuid: str
     timeout: input.timeout,
     use_shell: input.useShell,
   };
-  await ctx.store.updateTask(l.row.id, task.id, changes);
-  return afterWrite(ctx, l, taskUuid, TASK_MESSAGES.updated);
+  await host.rows.updateTask(task.id, changes);
+  return afterWrite(host, taskUuid, TASK_MESSAGES.updated);
 }
 
-async function afterWrite(ctx: ApplicationMoreContext, l: LoadedApplication, taskUuid: string, message: string): Promise<TasksSaved | null> {
-  const task = await ctx.store.findTask(l.row.id, taskUuid);
-  return task && { ...(await page(ctx, l)), task: detail(task, true), message };
+export async function updateScheduledTask(ctx: ApplicationMoreContext, uuid: string, taskUuid: string, body: Body): Promise<TasksSaved | null> {
+  const host = await hostOf(ctx, uuid, true);
+  return host ? updateHostTask(host, taskUuid, body) : null;
+}
+
+async function afterWrite(host: TaskHost, taskUuid: string, message: string): Promise<TasksSaved | null> {
+  const task = await host.rows.findTask(taskUuid);
+  return task && { ...(await hostPage(host)), task: detail(task, true), message };
 }
 
 /** Show::toggleEnabled() */
+export async function toggleHostTask(host: TaskHost, taskUuid: string): Promise<TasksSaved | null> {
+  const task = await host.rows.findTask(taskUuid);
+  if (!task) return null;
+  await host.rows.updateTask(task.id, { enabled: !task.enabled });
+  return afterWrite(host, taskUuid, task.enabled ? TASK_MESSAGES.disabled : TASK_MESSAGES.enabled);
+}
+
 export async function toggleScheduledTask(ctx: ApplicationMoreContext, uuid: string, taskUuid: string): Promise<TasksSaved | null> {
-  const l = await loadApplication(ctx, uuid, true);
-  const task = l ? await ctx.store.findTask(l.row.id, taskUuid) : null;
-  if (!l || !task) return null;
-  await ctx.store.updateTask(l.row.id, task.id, { enabled: !task.enabled });
-  return afterWrite(ctx, l, taskUuid, task.enabled ? TASK_MESSAGES.disabled : TASK_MESSAGES.enabled);
+  const host = await hostOf(ctx, uuid, true);
+  return host ? toggleHostTask(host, taskUuid) : null;
 }
 
 /** Show::delete(): the task and its execution history. */
+export async function deleteHostTask(host: TaskHost, taskUuid: string): Promise<TasksSaved | null> {
+  const task = await host.rows.findTask(taskUuid);
+  if (!task) return null;
+  await host.rows.deleteTask(task.id);
+  return { ...(await hostPage(host)), message: TASK_MESSAGES.deleted };
+}
+
 export async function deleteScheduledTask(ctx: ApplicationMoreContext, uuid: string, taskUuid: string): Promise<TasksSaved | null> {
-  const l = await loadApplication(ctx, uuid, true);
-  const task = l ? await ctx.store.findTask(l.row.id, taskUuid) : null;
-  if (!l || !task) return null;
-  await ctx.store.deleteTask(l.row.id, task.id);
-  return { ...(await page(ctx, l)), message: TASK_MESSAGES.deleted };
+  const host = await hostOf(ctx, uuid, true);
+  return host ? deleteHostTask(host, taskUuid) : null;
 }
 
 /** Show::executeNow(): ScheduledTaskJob runs the command in the container, which needs the SSH executor. */
-export async function executeScheduledTask(ctx: ApplicationMoreContext, uuid: string, taskUuid: string): Promise<null> {
-  const l = await loadApplication(ctx, uuid, true);
-  const task = l ? await ctx.store.findTask(l.row.id, taskUuid) : null;
-  if (!l || !task) return null;
+export async function executeHostTask(host: TaskHost, taskUuid: string): Promise<null> {
+  if (!(await host.rows.findTask(taskUuid))) return null;
   throw new SettingsError(TASK_MESSAGES.executeUnavailable, 501);
+}
+
+export async function executeScheduledTask(ctx: ApplicationMoreContext, uuid: string, taskUuid: string): Promise<null> {
+  const host = await hostOf(ctx, uuid, true);
+  return host ? executeHostTask(host, taskUuid) : null;
 }

@@ -5,13 +5,17 @@
 // (project.application.scheduled-tasks): commands run inside the application
 // on a cron schedule. A task opens in a dialog (?task_uuid=…, as Coolify's
 // #[Url]) with its configuration, its executions and its deletion.
+//
+// The same component is a service's Scheduled Tasks page (ScheduledTasksContent with kind "service", DP-97:
+// configuration.blade.php's <livewire:project.shared.scheduled-task.all :resource="$service" />), whose Add
+// picks the container from the service's applications and databases.
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Layout } from "../layout/Layout";
 import { getJson } from "../lib/api";
 import { Reicon } from "../components/Reicon";
-import { Button, Checkbox, DangerCallout, DangerZone, Empty, FormInput, ModalConfirmation, ModalInput, SettingsSection, StatusBadge, UnsavedBar } from "../components/Coolify";
-import { applicationsApi, ApplicationWorkspace } from "./ApplicationChrome";
-import { inlineErrors, useApplicationSection, type ApplicationSectionData } from "./ApplicationSection";
+import { Button, Checkbox, DangerCallout, DangerZone, Empty, FormInput, Listbox, ModalConfirmation, ModalInput, SettingsSection, StatusBadge, UnsavedBar } from "../components/Coolify";
+import { inlineErrors, resourceApi, resourceFrame, useResourceSection, type ResourceKind, type ResourceSectionData } from "./ApplicationSection";
+import { ResourceWorkspace } from "./ResourceWorkspace";
 import { sendJson, showError, showSaved } from "./ApplicationResource";
 
 interface TaskItem {
@@ -50,7 +54,7 @@ interface Tasks {
   isRunning: boolean;
 }
 
-type Data = ApplicationSectionData & Tasks;
+type Data = ResourceSectionData & Tasks;
 type Saved = Tasks & { message: string; task?: TaskDetail };
 type TaskPage = Tasks & { task: TaskDetail; executions: Execution[] };
 
@@ -63,9 +67,12 @@ const ICON = "flex shrink-0 items-center justify-center rounded-lg bg-neutral-10
 
 const EMPTY_FORM = { name: "", command: "", frequency: "", container: "", timeout: "300", useShell: true };
 
-/** scheduled-task/add.blade.php */
-function AddTask({ base, timezone, onAdded }: { base: string; timezone: string; onAdded: (saved: Saved) => void }) {
-  const [form, setForm] = useState(EMPTY_FORM);
+/**
+ * scheduled-task/add.blade.php. Add::mount(): the first container is chosen; a service's container, and an
+ * application's when it has more than one, is a listbox of the names.
+ */
+function AddTask({ base, timezone, kind, containerNames, onAdded }: { base: string; timezone: string; kind: ResourceKind; containerNames: string[]; onAdded: (saved: Saved) => void }) {
+  const [form, setForm] = useState({ ...EMPTY_FORM, container: containerNames[0] ?? "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const set = (field: "name" | "command" | "frequency" | "container" | "timeout") => (value: string) => setForm({ ...form, [field]: value });
   async function submit(e: FormEvent<HTMLFormElement>) {
@@ -77,7 +84,7 @@ function AddTask({ base, timezone, onAdded }: { base: string; timezone: string; 
       return;
     }
     // Add::clear()
-    setForm(EMPTY_FORM);
+    setForm({ ...EMPTY_FORM, container: "" });
     setErrors({});
     onAdded(r.data);
   }
@@ -91,7 +98,11 @@ function AddTask({ base, timezone, onAdded }: { base: string; timezone: string; 
       <Checkbox id="useShell" label="Run in a shell" helper={SHELL_HELPER} checked={form.useShell} onChange={(useShell) => setForm({ ...form, useShell })} />
       <div className="grid gap-4 sm:grid-cols-2">
         <FormInput type="number" placeholder="300" id="timeout" helper="Maximum execution time from 60 to 36,000 seconds." label="Timeout (seconds)" value={form.timeout} onChange={set("timeout")} error={errors.timeout} />
-        <FormInput placeholder="php" id="container" helper="Leave empty when the resource only has one container." label="Container" value={form.container} onChange={set("container")} error={errors.container} />
+        {kind === "service" || (kind === "application" && containerNames.length > 1) ? (
+          <Listbox id="container" label="Container" options={containerNames.map((name) => ({ value: name, label: name }))} value={form.container} onChange={set("container")} error={errors.container} />
+        ) : (
+          <FormInput placeholder="php" id="container" helper="Leave empty when the resource only has one container." label="Container" value={form.container} onChange={set("container")} error={errors.container} />
+        )}
       </div>
       <div className="flex justify-end border-t border-neutral-200 pt-4 dark:border-white/[0.07]">
         <Button type="submit">Add task</Button>
@@ -288,11 +299,12 @@ function ShowTask(props: { base: string; page: TaskPage; canUpdate: boolean; onS
   );
 }
 
-function ApplicationScheduledTasksContent() {
-  const { me, data, setData } = useApplicationSection<Data>("scheduled-tasks");
+/** scheduled-task/all.blade.php with an application or a service as its resource. */
+export function ScheduledTasksContent({ kind }: { kind: ResourceKind }) {
+  const { me, data, setData } = useResourceSection<Data>(kind, "scheduled-tasks");
   const [adding, setAdding] = useState(false);
   const [open, setOpen] = useState<TaskPage | null>(null);
-  const base = `${applicationsApi(me.team?.id)}/${encodeURIComponent(data?.application.uuid ?? "")}/scheduled-tasks`;
+  const base = `${resourceApi(kind, me.team?.id, data ? resourceFrame(data).uuid : "")}/scheduled-tasks`;
 
   /** All::openTask(): the task in the dialog, and its uuid in the URL. */
   const openTask = useCallback(
@@ -320,14 +332,14 @@ function ApplicationScheduledTasksContent() {
     if (ready && uuid) void openTask(uuid);
   }, [ready, openTask]);
   if (!data) return null;
-  const { application, canUpdate } = data;
+  const { canUpdate } = data;
   const apply = (saved: Saved) => {
     setData({ ...data, tasks: saved.tasks, containerNames: saved.containerNames, serverTimezone: saved.serverTimezone, isRunning: saved.isRunning });
     showSaved(saved);
   };
 
   return (
-    <ApplicationWorkspace application={application} orgId={me.team?.id} active="Scheduled Tasks" canUpdate={canUpdate} canDeploy={data.canDeploy}>
+    <ResourceWorkspace data={data} orgId={me.team?.id} active="Scheduled Tasks">
       <div>
         {open ? (
           <ModalInput title="Edit scheduled task" subtitle={open.task.name} open onOpenChange={(next) => (next ? undefined : closeTask())}>
@@ -354,7 +366,7 @@ function ApplicationScheduledTasksContent() {
                   </button>
                 }
               >
-                <AddTask base={base} timezone={data.serverTimezone} onAdded={(saved) => (setAdding(false), apply(saved))} />
+                <AddTask base={base} timezone={data.serverTimezone} kind={kind} containerNames={data.containerNames} onAdded={(saved) => (setAdding(false), apply(saved))} />
               </ModalInput>
             ) : undefined
           }
@@ -391,14 +403,14 @@ function ApplicationScheduledTasksContent() {
           )}
         </SettingsSection>
       </div>
-    </ApplicationWorkspace>
+    </ResourceWorkspace>
   );
 }
 
 export function ApplicationScheduledTasksPage() {
   return (
     <Layout title="Projects" href="/projects" navHref="/projects" documentTitle="Configuration">
-      <ApplicationScheduledTasksContent />
+      <ScheduledTasksContent kind="application" />
     </Layout>
   );
 }

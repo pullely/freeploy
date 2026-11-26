@@ -16,6 +16,8 @@ import { showStorages, type StoragesPage } from "../applications/storages.js";
 import type { KeyCipher } from "../private-keys/service.js";
 import { BASE_CONFIGURATION_DIR } from "./parser.js";
 import { isFunctional } from "../servers/service.js";
+import type { ServicePagesStore } from "./resource-pages.js";
+import type { ServiceCloneStore } from "./clone.js";
 import { loadServiceInfo, ServiceConfigurationError, serviceStatus, type ServiceConfigurationContext, type ServiceInfo } from "./configuration.js";
 
 type Id = string | number;
@@ -31,6 +33,10 @@ export interface ServiceResourcesContext {
   content: KeyCipher;
   /** Every row of the service and the service (deleteService). */
   deleteService(serviceId: Id): Promise<boolean>;
+  /** The rows of Scheduled Tasks and Resource Operations (DP-97, resource-pages.ts). */
+  pages?: ServicePagesStore;
+  /** The destination lookups of Clone (DP-97, clone.ts). */
+  clone?: ServiceCloneStore;
 }
 
 export const SERVICE_RESOURCE_MESSAGES = {

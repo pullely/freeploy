@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { pageFor, backupScheduleRedirect } from "../src/routes.ts";
+import { pageFor, backupScheduleRedirect, scheduledTaskRedirect } from "../src/routes.ts";
 import { showMonthlyReminder } from "../src/lib/reminder.ts";
 import { summarize } from "../src/lib/api.ts";
 import { splitPastedImageName } from "../src/lib/docker-image.ts";
@@ -149,7 +149,8 @@ test("a database's configuration route maps to General, its shared pages to thei
     assert.equal(pageFor(`${database}/${page}/more`), "not-ported", page);
   }
   // routes/web.php's other project.database.* routes (the backups page is ported: see below).
-  for (const page of ["servers", "import-backup", "healthcheck", "metrics", "vulnerabilities", "logs", "terminal", "files"]) {
+  // (Healthcheck and Servers are ported by DP-97: see below.)
+  for (const page of ["import-backup", "metrics", "vulnerabilities", "logs", "terminal", "files"]) {
     assert.equal(pageFor(`${database}/${page}`), "not-ported", page);
   }
   // A database is not an application, whatever its uuid.
@@ -296,7 +297,8 @@ test("a service's configuration route maps to General, its shared pages to their
   assert.equal(pageFor(`${service}/danger`), "project.service.danger");
   assert.equal(pageFor(`${service}/sub000000000000000000001`), "project.service.index");
   assert.equal(pageFor(`${service}/sub000000000000000000001/`), "project.service.index");
-  for (const notPorted of ["domains", "maintenance", "logs", "analytics", "vulnerabilities", "storage-backups", "scheduled-tasks", "webhooks", "resource-operations", "terminal", "files", "import-backup"]) {
+  // (Scheduled Tasks, Webhooks and Resource Operations are ported by DP-97: see below.)
+  for (const notPorted of ["domains", "maintenance", "logs", "analytics", "vulnerabilities", "storage-backups", "terminal", "files", "import-backup"]) {
     assert.equal(pageFor(`${service}/${notPorted}`), "not-ported", notPorted);
   }
   assert.equal(pageFor(`${service}/sub000000000000000000001/backups`), "not-ported");
@@ -390,4 +392,38 @@ test("a server's proxy, security, Cloudflare Tunnel, Sentinel logs, transfer, re
   // The pages before DP-96 keep their keys.
   assert.equal(pageFor(`${server}/sentinel`), "server.sentinel");
   assert.equal(pageFor(`${server}/registries`), "server.registries");
+});
+
+test("DP-97: a service's Scheduled Tasks, Webhooks, Resource Operations and a part's Advanced; the task links of a service and an application redirect to the list", () => {
+  const environment = "/project/abc123def456ghi789jkl012/environment/mno345pqr678stu901vwx234";
+  const service = `${environment}/service/svc1`;
+  assert.equal(pageFor(`${service}/scheduled-tasks`), "project.service.scheduled-tasks.show");
+  assert.equal(pageFor(`${service}/scheduled-tasks/`), "project.service.scheduled-tasks.show");
+  assert.equal(pageFor(`${service}/webhooks`), "project.service.webhooks");
+  assert.equal(pageFor(`${service}/resource-operations/`), "project.service.resource-operations");
+  assert.equal(pageFor(`${service}/tasks/tsk000000000000000000001`), "project.service.scheduled-tasks");
+  assert.equal(pageFor(`${service}/sub000000000000000000001/advanced`), "project.service.index.advanced");
+  assert.equal(pageFor(`${service}/sub000000000000000000001/advanced/`), "project.service.index.advanced");
+  // A route of the service is no part.
+  assert.equal(pageFor(`${service}/storage-backups/advanced`), "not-ported");
+  assert.equal(pageFor(`${service}/tasks/advanced`), "project.service.scheduled-tasks");
+  for (const page of ["scheduled-tasks/x", "webhooks/x", "resource-operations/clone", "tasks", "sub000000000000000000001/advanced/more"]) assert.equal(pageFor(`${service}/${page}`), "not-ported", page);
+
+  const application = `${environment}/application/yza567bcd890efg123hij456`;
+  assert.equal(pageFor(`${application}/tasks/tsk000000000000000000001`), "project.application.scheduled-tasks.task");
+  assert.equal(pageFor(`${application}/tasks/tsk000000000000000000001/`), "project.application.scheduled-tasks.task");
+  assert.equal(pageFor(`${application}/tasks`), "not-ported");
+  // redirect()->route('….scheduled-tasks.show', get_route_parameters()): the task's uuid goes to the query.
+  assert.equal(scheduledTaskRedirect(`${application}/tasks/tsk1`), `${application}/scheduled-tasks?task_uuid=tsk1`);
+  assert.equal(scheduledTaskRedirect(`${service}/tasks/tsk1/`), `${service}/scheduled-tasks?task_uuid=tsk1`);
+  assert.equal(scheduledTaskRedirect(`${service}/tasks/a%20b`), `${service}/scheduled-tasks?task_uuid=a%20b`);
+});
+
+test("DP-97: a database's Healthcheck and Servers", () => {
+  const database = "/project/abc123def456ghi789jkl012/environment/mno345pqr678stu901vwx234/database/yza567bcd890efg123hij456";
+  for (const page of ["healthcheck", "servers"]) {
+    assert.equal(pageFor(`${database}/${page}`), `project.database.${page}`, page);
+    assert.equal(pageFor(`${database}/${page}/`), `project.database.${page}`, page);
+    assert.equal(pageFor(`${database}/${page}/more`), "not-ported", page);
+  }
 });

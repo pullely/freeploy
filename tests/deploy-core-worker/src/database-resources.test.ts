@@ -14,7 +14,7 @@ import type { EnvironmentVariableRunner } from "@deploy-core-worker/handlers/env
 import type { EnvironmentVariableStore } from "@deploy-core-worker/environment-variables/service";
 import type { ResourceRowsStore } from "@deploy-core-worker/applications/resources";
 import type { DatabaseStore } from "@deploy-core-worker/databases/service";
-import { cloneResourceName, clonedDatabaseVolumeName, type DatabaseResourcesStore } from "@deploy-core-worker/databases/resources";
+import { cloneResourceName, clonedDatabaseVolumeName, type DatabaseHealthStore, type DatabaseResourcesStore } from "@deploy-core-worker/databases/resources";
 import { DATABASE_ENGINE_SPECS, defaultVolumes } from "@deploy-core-worker/databases/engines";
 import { DATABASE_ENGINES, DATABASE_TABLES, ENVIRONMENT_VARIABLE_MORPH_CLASS, databaseEnvironmentVariableResourceType, environmentVariableSettingColumns } from "@saas/db/deploy";
 import type {
@@ -22,6 +22,7 @@ import type {
   DatabaseLimitChanges,
   DatabaseReplica,
   DeployDatabaseLimitsRow,
+  DeployDatabaseHealthRow,
   DeployDatabaseRow,
   DeployDestinationRow,
   DeployEnvironmentVariableResourceRow,
@@ -115,6 +116,22 @@ class World implements DatabaseResourcesStore {
     this.limitRows.set(String(row.id), { limits_memory: "0", limits_memory_swap: "0", limits_memory_swappiness: 60, limits_memory_reservation: "0", limits_cpus: "0", limits_cpuset: null, limits_cpu_shares: 1024 });
     for (const v of defaultVolumes(engine, uuid, row.image)) this.addVolume(this.owner(row), v.name, v.mountPath);
     return row;
+  }
+  /** DP-97: the Healthcheck page's columns, the schema's defaults until written. */
+  healthRows = new Map<string, DeployDatabaseHealthRow>();
+  healthStore(): DatabaseHealthStore {
+    const key = (engine: DatabaseEngine, id: Id) => `${engine}:${id}`;
+    return {
+      find: async (engine, id) => {
+        if (!this.databases.some((d) => d.engine === engine && same(d.id, id))) return null;
+        return { ...(this.healthRows.get(key(engine, id)) ?? { health_check_enabled: true, health_check_interval: 15, health_check_timeout: 5, health_check_retries: 5, health_check_start_period: 5 }) };
+      },
+      update: async (engine, id, changes) => {
+        const current = (await this.healthStore().find(engine, id))!;
+        this.healthRows.set(key(engine, id), { ...current, ...changes } as DeployDatabaseHealthRow);
+        return true;
+      },
+    };
   }
   owner(row: DeployDatabaseRow): Owner {
     return { type: DATABASE_TABLES[row.engine].morphClass, id: row.id };
@@ -362,6 +379,7 @@ function setup(opts: { write?: boolean; read?: boolean } = {}) {
       rows: world.rows(found ? DATABASE_TABLES[found.engine].morphClass : ""),
       content: cipher("local_file_volumes.content"),
       store: world,
+      health: world.healthStore(),
     });
   };
   const variablesRunner: EnvironmentVariableRunner = async (_env, orgId, type, fn) => {
@@ -388,7 +406,7 @@ const frameOf = (r: Answer) => r.data.database as { uuid: string; engine: string
 
 describe("the routes", () => {
   it("handleDatabaseResources serves the shared pages below a database; the router takes four segments below /databases", () => {
-    expect(DATABASE_RESOURCE_PAGES).toEqual(["environment-variables", "storages", "tags", "resource-operations", "resource-limits", "webhooks", "danger"]);
+    expect(DATABASE_RESOURCE_PAGES).toEqual(["environment-variables", "storages", "tags", "resource-operations", "resource-limits", "webhooks", "danger", "healthcheck"]);
     for (const page of DATABASE_RESOURCE_PAGES) expect(isDatabaseResourceRoute(["db1", page])).toBe(true);
     for (const segments of [[], ["db1"], ["db1", "start"], ["db1", "init-scripts"], ["db1", "ssl", "regenerate"], ["db1", "backups"], ["db1", "servers"], ["db1", "logs"]]) {
       expect(isDatabaseResourceRoute(segments)).toBe(false);
@@ -745,6 +763,65 @@ describe("Webhooks and the Danger Zone of a database", () => {
     expect((await t.call("GET", "pg1/danger")).data.neverDeployed).toBe(false);
     expect(t.refused(await t.call("POST", "rd1/danger/flush", {}))).toEqual([501, UNAVAILABLE("Flushing the database's data on the server")]);
     expect((await t.call("POST", "pg1/danger/flush", {})).status).toBe(404);
+  });
+});
+
+// ---------------------------------------------------------------- Healthcheck (DP-97)
+
+describe("Healthcheck of a database (Database\\Health)", () => {
+  it("reads the five columns with the frame; submit saves them with Health's toast", async () => {
+    const t = setup();
+    t.world.add("postgresql", "pg1");
+    const r = await t.call("GET", "pg1/healthcheck");
+    expect([r.status, frameOf(r).uuid, r.data.canUpdate]).toEqual([200, "pg1", true]);
+    expect(r.data.health).toEqual({ healthCheckEnabled: true, healthCheckInterval: 15, healthCheckTimeout: 5, healthCheckRetries: 5, healthCheckStartPeriod: 5 });
+    const saved = await t.call("PATCH", "pg1/healthcheck", { healthCheckInterval: "30", healthCheckTimeout: 10, healthCheckRetries: 3, healthCheckStartPeriod: 0 });
+    expect(saved.status).toBe(200);
+    expect(saved.data.message).toBe("Healthcheck updated. Restart the database to apply the changes.");
+    expect(saved.data.health).toEqual({ healthCheckEnabled: true, healthCheckInterval: 30, healthCheckTimeout: 10, healthCheckRetries: 3, healthCheckStartPeriod: 0 });
+  });
+
+  it("refuses what #[Validate] refuses, with Laravel's messages and the property as the attribute, and stores nothing", async () => {
+    const t = setup();
+    t.world.add("redis", "rd1");
+    const r = await t.call("PATCH", "rd1/healthcheck", { healthCheckInterval: 0, healthCheckTimeout: "x", healthCheckRetries: 1.5, healthCheckStartPeriod: -1, healthCheckEnabled: "maybe" });
+    expect(r.status).toBe(422);
+    expect(r.error.details.fields).toEqual({
+      healthCheckEnabled: ["The health check enabled field must be true or false."],
+      healthCheckInterval: ["The health check interval field must be at least 1."],
+      healthCheckTimeout: ["The health check timeout field must be an integer."],
+      healthCheckRetries: ["The health check retries field must be an integer."],
+      healthCheckStartPeriod: ["The health check start period field must be at least 0."],
+    });
+    expect(t.world.healthRows.size).toBe(0);
+  });
+
+  it("toggleHealthcheck flips the switch and saves the form's values, with its own toast", async () => {
+    const t = setup();
+    t.world.add("mysql", "my1");
+    const off = await t.call("POST", "my1/healthcheck/toggle", { healthCheckInterval: 20 });
+    expect([off.status, off.data.message]).toEqual([200, "Healthcheck disabled. Restart the database to apply the changes."]);
+    expect(off.data.health).toMatchObject({ healthCheckEnabled: false, healthCheckInterval: 20 });
+    const on = await t.call("POST", "my1/healthcheck/toggle", {});
+    expect([on.data.message, (on.data.health as { healthCheckEnabled: boolean }).healthCheckEnabled]).toEqual(["Healthcheck enabled. Restart the database to apply the changes.", true]);
+  });
+
+  it("asks deploy.resource.read to read and deploy.resource.write to save; a denial and another org's database are a 404", async () => {
+    const reader = setup({ write: false });
+    reader.world.add("postgresql", "pg1");
+    expect((await reader.call("GET", "pg1/healthcheck")).data.canUpdate).toBe(false);
+    expect((await reader.call("PATCH", "pg1/healthcheck", { healthCheckInterval: 30 })).status).toBe(404);
+    expect((await reader.call("POST", "pg1/healthcheck/toggle", {})).status).toBe(404);
+    expect(reader.world.healthRows.size).toBe(0);
+    const denied = setup({ read: false, write: false });
+    denied.world.add("postgresql", "pg1");
+    expect((await denied.call("GET", "pg1/healthcheck")).status).toBe(404);
+    const t = setup();
+    expect((await t.call("GET", "other/healthcheck")).status).toBe(404);
+    expect((await t.call("PATCH", "other/healthcheck", {})).status).toBe(404);
+    expect((await t.call("PUT", "other/healthcheck", {})).status).toBe(405);
+    expect((await t.call("GET", "other/healthcheck/toggle")).status).toBe(405);
+    expect(t.orgs.every((o) => o === ORG_UUID)).toBe(true);
   });
 });
 

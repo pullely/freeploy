@@ -111,7 +111,8 @@ export function useResourceSection<D extends ResourceSectionData>(kind: Resource
   const projectUuid = projectUuidFromPath();
   const environmentUuid = environmentUuidFromPath();
   const uuid = resourceUuidFromPath(kind);
-  const base = `${resourceApi(kind, me.team?.id, uuid)}/${section}`;
+  // An empty section is the resource's own GET (a database's Servers page, DP-97).
+  const base = section ? `${resourceApi(kind, me.team?.id, uuid)}/${section}` : resourceApi(kind, me.team?.id, uuid);
   const [data, setData] = useState<D | null>(null);
   const [saving, setSaving] = useState(false);
 

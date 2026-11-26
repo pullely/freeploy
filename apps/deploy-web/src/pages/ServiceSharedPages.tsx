@@ -1,5 +1,6 @@
-// Derived from coollabsio/coolify@91b7e3e:resources/views/livewire/project/service/{configuration,storage}.blade.php
-// and routes/web.php (project.service.*) (Apache-2.0), modified.
+// Derived from coollabsio/coolify@91b7e3e:resources/views/livewire/project/service/{configuration,storage}.blade.php,
+// resources/views/livewire/project/shared/webhooks.blade.php and routes/web.php (project.service.*) (Apache-2.0),
+// modified.
 //
 // The pages of a service that are Coolify's shared components with the service as their resource —
 // configuration.blade.php renders <livewire:project.shared.environment-variable.all :resource="$service" />, the
@@ -10,6 +11,9 @@
 //   …/storages   project.service.storages
 //   …/tags       project.service.tags
 //   …/danger     project.service.danger
+//   …/scheduled-tasks      project.service.scheduled-tasks.show (DP-97)
+//   …/webhooks             project.service.webhooks (DP-97)
+//   …/resource-operations  project.service.resource-operations (DP-97)
 //
 // Each is the application's page with kind "service", inside the service's frame; storage lists every part's
 // volumes (read-only: the Compose file defines them), files and directories, under the service's directory.
@@ -24,6 +28,10 @@ import { DangerContent } from "./ApplicationDanger";
 import { defaultTab, FileStorage, TAB_ACTIVE, TAB_BASE, TAB_INACTIVE, VolumeList, type Mount, type Saved, type Send, type Storages, type Tab } from "./ApplicationStorages";
 import { sendJson, showSaved } from "./ApplicationResource";
 import { serviceApi } from "./ServiceChrome";
+import { edgeBase } from "../lib/api";
+import { CopyInput } from "./ApplicationWebhooks";
+import { ScheduledTasksContent } from "./ApplicationScheduledTasks";
+import { ResourceOperationsContent } from "./ApplicationResourceOperations";
 
 /** Configuration's layout and title, as for every page of a service. */
 const page = (content: ReactNode) => (
@@ -35,6 +43,29 @@ const page = (content: ReactNode) => (
 export const ServiceEnvironmentVariablesPage = () => page(<EnvironmentVariablesContent kind="service" />);
 export const ServiceTagsPage = () => page(<TagsContent kind="service" />);
 export const ServiceDangerPage = () => page(<DangerContent kind="service" />);
+// DP-97: …/scheduled-tasks (project.service.scheduled-tasks.show) and …/resource-operations.
+export const ServiceScheduledTasksPage = () => page(<ScheduledTasksContent kind="service" />);
+export const ServiceResourceOperationsPage = () => page(<ResourceOperationsContent kind="service" />);
+
+/**
+ * …/webhooks (project.service.webhooks, DP-97): webhooks.blade.php for what is not an application — the
+ * deploy webhook only, its URL Coolify's path on this environment's API origin, as on a database's page.
+ */
+function ServiceWebhooksContent() {
+  const { me, data } = useResourceSection<ServiceSectionData & { deployWebhookPath: string }>("service", "webhooks");
+  if (!data) return null;
+  return (
+    <ResourceWorkspace data={data} orgId={me.team?.id} active="Webhooks">
+      <div className="application-settings-form">
+        <SettingsSection title="Deploy webhook" helper="Trigger an external deployment with a valid Freeploy API authorization token.">
+          <CopyInput label="Deploy webhook URL" text={edgeBase() + data.deployWebhookPath} />
+        </SettingsSection>
+      </div>
+    </ResourceWorkspace>
+  );
+}
+
+export const ServiceWebhooksPage = () => page(<ServiceWebhooksContent />);
 
 interface Section {
   kind: "application" | "database";

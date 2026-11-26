@@ -334,6 +334,16 @@ export {
   type DeployTagRow,
   type Taggable,
 } from "./tags.js";
+// DP-97: the team's Tags page.
+export {
+  listTagsWithCounts,
+  listTagApplications,
+  listTagServices,
+  listActiveDeployments,
+  type DeployTagCountRow,
+  type DeployTaggedResourceRow,
+  type DeployActiveDeploymentRow,
+} from "./tag-pages.js";
 export {
   listOperationEnvironments,
   listOperationServers,
@@ -364,6 +374,12 @@ export {
   findDatabaseLimits,
   updateDatabaseLimits,
   DATABASE_LIMIT_COLUMNS,
+  // DP-97: a standalone database's Healthcheck page.
+  findDatabaseHealth,
+  updateDatabaseHealth,
+  DATABASE_HEALTH_COLUMNS,
+  type DeployDatabaseHealthRow,
+  type DatabaseHealthChanges,
   type DatabaseReplica,
   type DeployDatabaseLimitsRow,
   type DatabaseLimitChanges,
