@@ -1,0 +1,18 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-95
+  title: "DP11: the deploy canvas's Git repository step gains Coolify's GitHub app access — the App, repository and branch dropdowns loaded through /api/v1's GitHub App routes, and the create through POST /applications/private-github-app"
+spec:
+  goal: DP-94 cut the Git repository step's "GitHub app" access because Freeploy's /api/v1 had none of its routes; DP-93 added them. The deploy canvas (apps/deploy-web, lib/deploy-canvas.ts) offers Coolify's three accesses again — Public, GitHub app, Deploy key — with deploy-canvas.js' ghApp, ghRepo and ghBranch selects (required, shown in GitHub mode, the App and the repository reloading what follows them) and its LOADERS ghApps, repos and branches (loaderKey gh, repos:{app}, br:{app}:{repo}; the App's value "{id}|{uuid}"). deploy-core-worker gains three option lists, built on the server as [value, label] the way DP-94's are, each asking deploy.resource.write first (a denial 404) and answered in process by /api/v1 inside withOrg — GET …/deploy/canvas/options/github-apps (GET /github-apps, the Apps not public with an App ID), …/github-apps/{id}/repositories (DP-93's load_repositories) and …/github-apps/{id}/repositories/{owner}/{repo}/branches (DP-93's load_branches), GitHub reached through /api/v1's injectable fetch. The run's validate() asks for the App, the repository and the branch in GitHub mode, and the Git step calls POST /applications/private-github-app with Coolify's body (common(), build_pack, ports_exposes, github_app_uuid, git_repository, git_branch). No migration, no binding, no dependency, no api-edge change.
+  affects:
+    - apps/deploy-web/**
+    - apps/deploy-core-worker/**
+    - tests/deploy-core-worker/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - tests/deploy-core-worker/src/deploy-canvas.test.ts holds, with GitHub faked, the GitHub Apps' list (id|uuid, public Apps and those without an App ID left out, another org's empty), an App's repositories (the installation token, every page, sorted by name), a repository's branches, GitHub's and /api/v1's failures as the list's message and status, a run creating the application through POST /applications/private-github-app (its repository, branch, source and repository id), a repository the App cannot read stopping the run with nothing created, validate()'s problem for an empty App, repository and branch, the three lists a denied 404 that asks GitHub nothing, and the seven-segment route
+    - apps/deploy-web/test/deploy-canvas.test.ts holds the three accesses and the fields each shows in Coolify's order, validate() in GitHub mode, the plan sent with the App, repository and branch, and the three loaders' paths, keys and rerender
+    - on stage, an admin of an org with a GitHub App opens /canvas, picks GitHub app, the App, a repository and a branch from the dropdowns, presses "Save only" and finds the application in the environment with the App as its source
+  gates: []
