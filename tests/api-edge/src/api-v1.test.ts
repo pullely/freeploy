@@ -215,7 +215,7 @@ describe("what the edge sends a worker", () => {
 });
 
 describe("the routes", () => {
-  it("are the 323 ported operations of openapi.json (health, the deprecated team aliases and the GET answers of start, restart and stop aside)", () => {
+  it("are the 325 ported operations of openapi.json (health, the deprecated team aliases and the GET answers of start, restart and stop aside)", () => {
     const openapi = JSON.parse(readFileSync(resolve(FIXTURES, "../../../../specs/epics/freeploy-coolify-parity/parity/openapi.operations.json"), "utf8")) as { rows: Array<{ method: string; path: string }> };
     const ops = new Set(openapi.rows.map((r) => `${r.method} ${r.path}`));
     const routes = API_V1_ROUTES.map((r) => `${r.method} /api/v1${r.path}`);
@@ -243,7 +243,7 @@ describe("the routes", () => {
       "GET /api/v1/services/{uuid}/restart",
       "GET /api/v1/services/{uuid}/stop",
     ]);
-    expect(inOpenapi.length + 1 /* GET /api/v1/health */).toBe(323);
+    expect(inOpenapi.length + 1 /* GET /api/v1/health */).toBe(325);
   });
 
   it("take the first match in routes/api.php's order and ignore a trailing slash", () => {
@@ -255,6 +255,10 @@ describe("the routes", () => {
     expect(matchApiRoute("POST", "/databases/postgresql")?.path).toBe("/databases/postgresql");
     expect(matchApiRoute("GET", "/databases/postgresql")?.path).toBe("/databases/{uuid}");
     expect(matchApiRoute("POST", "/databases/sqlite")).toBeNull();
+    // DP-111: POST /servers/import is its own route (GET /servers/import names a server), with write and deploy.
+    expect(matchApiRoute("POST", "/servers/import")?.alsoAbilities).toEqual(["deploy"]);
+    expect(matchApiRoute("GET", "/servers/import")?.path).toBe("/servers/{uuid}");
+    expect(matchApiRoute("POST", "/servers/s1/transfer/complete")?.path).toBe("/servers/{uuid}/transfer/complete");
     expect(matchApiRoute("GET", "/databases/b1/backups/c1/executions")?.path).toBe("/databases/{uuid}/backups/{scheduled_backup_uuid}/executions");
     expect(matchApiRoute("GET", "/services")?.path).toBe("/services");
     expect(matchApiRoute("PATCH", "/services/s1/envs/bulk")?.path).toBe("/services/{uuid}/envs/bulk");
@@ -277,13 +281,11 @@ describe("the routes", () => {
     expect(matchApiRoute("POST", "/cloud-tokens/c1/validate")?.path).toBe("/cloud-tokens/{uuid}/validate");
     expect(matchApiRoute("GET", "/hetzner/server-types")?.target).toBe("deploy");
     expect(matchApiRoute("GET", "/hetzner/volumes")).toBeNull();
-    expect(matchApiRoute("POST", "/servers/s1/transfer/complete")).toBeNull();
     expect(matchApiRoute("PATCH", "/team/envs/10")?.target).toBe("deploy");
     // DP-107: the team's settings (identity-worker) and the instance routes' group.
     expect(matchApiRoute("PATCH", "/team")?.target).toBe("identity");
     expect(matchApiRoute("POST", "/mcp/enable")?.instance).toBe(true);
     expect(matchApiRoute("GET", "/mcp/enable")).toBeNull();
-    expect(matchApiRoute("POST", "/servers/import")).toBeNull();
     expect(matchApiRoute("GET", "/deployments/applications/a1")?.path).toBe("/deployments/applications/{uuid}");
     // DP-78
     expect(matchApiRoute("GET", "/deployments/q1")?.path).toBe("/deployments/{uuid}");

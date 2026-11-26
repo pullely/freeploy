@@ -83608,6 +83608,896 @@
                 "destination": []
             },
             "requests": []
+        },
+        {
+            "name": "server import: dry run",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"dry_run\":true,\"warnings\":[\"The source had a warning.\"],\"server_uuid\":\"s9importedserver00000009\",\"private_key_uuid\":\"k9importedprivatekey0009\",\"created\":{\"projects\":1,\"environments\":2,\"applications\":1,\"databases\":1,\"services\":1,\"destinations\":1,\"private_keys\":1,\"github_apps\":1,\"gitlab_apps\":0,\"gitea_apps\":0,\"s3_storages\":2,\"cloud_provider_tokens\":0,\"integration_tokens\":0,\"managed_dns_records\":0,\"ssl_certificates\":0,\"image_scan_policies\":0,\"image_scan_ignores\":0,\"volume_backups\":0,\"previews\":1},\"preserved_uuids\":true,\"export_id\":\"exp-parity-1\",\"claimed\":false,\"claim\":null,\"checklist\":[\"Point the DNS records to http:\\/\\/localhost.\",\"Check the backups.\"]}"
+            }
+        },
+        {
+            "name": "server import: dry run without preserving uuids or adopting",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"dry_run\":true,\"warnings\":[\"The source had a warning.\"],\"server_uuid\":null,\"private_key_uuid\":\"k9importedprivatekey0009\",\"created\":{\"projects\":1,\"environments\":2,\"applications\":1,\"databases\":1,\"services\":1,\"destinations\":1,\"private_keys\":1,\"github_apps\":1,\"gitlab_apps\":0,\"gitea_apps\":0,\"s3_storages\":2,\"cloud_provider_tokens\":0,\"integration_tokens\":0,\"managed_dns_records\":0,\"ssl_certificates\":0,\"image_scan_policies\":0,\"image_scan_ignores\":0,\"volume_backups\":0,\"previews\":1},\"preserved_uuids\":false,\"export_id\":\"exp-parity-1\",\"claimed\":false,\"claim\":null,\"checklist\":[\"Point the DNS records to http:\\/\\/localhost.\",\"Check the backups.\"]}"
+            }
+        },
+        {
+            "name": "server import: dry run, nulls as false",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"dry_run\":true,\"warnings\":[\"Bundle has no destinations; a default destination will be used.\"],\"server_uuid\":null,\"private_key_uuid\":\"k9importedprivatekey0009\",\"created\":{\"projects\":1,\"environments\":2,\"applications\":1,\"databases\":1,\"services\":1,\"destinations\":0,\"private_keys\":1,\"github_apps\":1,\"gitlab_apps\":0,\"gitea_apps\":0,\"s3_storages\":2,\"cloud_provider_tokens\":0,\"integration_tokens\":0,\"managed_dns_records\":0,\"ssl_certificates\":0,\"image_scan_policies\":0,\"image_scan_ignores\":0,\"volume_backups\":0,\"previews\":1},\"preserved_uuids\":false,\"export_id\":\"exp-parity-1\",\"claimed\":false,\"claim\":null,\"checklist\":[\"Check http:\\/\\/localhost\"]}"
+            }
+        },
+        {
+            "name": "server import: dry run, the server's uuid and address in use",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"dry_run\":true,\"warnings\":[\"The source had a warning.\",\"A server with UUID s1parityserveruuid000001 already exists on this instance.\",\"A server with IP\\/domain 203.0.113.10 and SSH port 22 already exists on this instance.\"],\"server_uuid\":\"s1parityserveruuid000001\",\"private_key_uuid\":\"k9importedprivatekey0009\",\"created\":{\"projects\":1,\"environments\":2,\"applications\":1,\"databases\":1,\"services\":1,\"destinations\":1,\"private_keys\":1,\"github_apps\":1,\"gitlab_apps\":0,\"gitea_apps\":0,\"s3_storages\":2,\"cloud_provider_tokens\":0,\"integration_tokens\":0,\"managed_dns_records\":0,\"ssl_certificates\":0,\"image_scan_policies\":0,\"image_scan_ignores\":0,\"volume_backups\":0,\"previews\":1},\"preserved_uuids\":true,\"export_id\":\"exp-parity-1\",\"claimed\":false,\"claim\":null,\"checklist\":[\"Point the DNS records to http:\\/\\/localhost.\",\"Check the backups.\"]}"
+            }
+        },
+        {
+            "name": "server import: dry run, another port of the address",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"dry_run\":true,\"warnings\":[\"The source had a warning.\"],\"server_uuid\":\"s9importedserver00000009\",\"private_key_uuid\":\"k9importedprivatekey0009\",\"created\":{\"projects\":1,\"environments\":2,\"applications\":1,\"databases\":1,\"services\":1,\"destinations\":1,\"private_keys\":1,\"github_apps\":1,\"gitlab_apps\":0,\"gitea_apps\":0,\"s3_storages\":2,\"cloud_provider_tokens\":0,\"integration_tokens\":0,\"managed_dns_records\":0,\"ssl_certificates\":0,\"image_scan_policies\":0,\"image_scan_ignores\":0,\"volume_backups\":0,\"previews\":1},\"preserved_uuids\":true,\"export_id\":\"exp-parity-1\",\"claimed\":false,\"claim\":null,\"checklist\":[\"Point the DNS records to http:\\/\\/localhost.\",\"Check the backups.\"]}"
+            }
+        },
+        {
+            "name": "server import: dry run, the archive of a transferred server",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"dry_run\":true,\"warnings\":[\"The source had a warning.\"],\"server_uuid\":\"s1parityserveruuid000001\",\"private_key_uuid\":\"k9importedprivatekey0009\",\"created\":{\"projects\":1,\"environments\":2,\"applications\":1,\"databases\":1,\"services\":1,\"destinations\":1,\"private_keys\":1,\"github_apps\":1,\"gitlab_apps\":0,\"gitea_apps\":0,\"s3_storages\":2,\"cloud_provider_tokens\":0,\"integration_tokens\":0,\"managed_dns_records\":0,\"ssl_certificates\":0,\"image_scan_policies\":0,\"image_scan_ignores\":0,\"volume_backups\":0,\"previews\":1},\"preserved_uuids\":true,\"export_id\":\"exp-parity-1\",\"claimed\":false,\"claim\":null,\"checklist\":[\"Point the DNS records to http:\\/\\/localhost.\",\"Check the backups.\"]}"
+            }
+        },
+        {
+            "name": "server import: adopting without preserving uuids",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Adopt mode keeps the running containers, so it needs the original UUIDs. Import with preserve_uuids=true.\",\"errors\":{\"preserve_uuids\":[\"Adopt mode keeps the running containers, so it needs the original UUIDs. Import with preserve_uuids=true.\"]}}"
+            }
+        },
+        {
+            "name": "server import: import",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"The private key is invalid. Paste an unencrypted private key, not a public key or a certificate.\",\"errors\":{\"private_key\":[\"The private key is invalid. Paste an unencrypted private key, not a public key or a certificate.\"]}}"
+            },
+            "after": {
+                "imported": []
+            }
+        },
+        {
+            "name": "server import: import, the uuid in use",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"A server with UUID s1parityserveruuid000001 already exists on this instance. Delete\\/transfer it first, or import with preserve_uuids=false.\",\"errors\":{\"server.uuid\":[\"A server with UUID s1parityserveruuid000001 already exists on this instance. Delete\\/transfer it first, or import with preserve_uuids=false.\"]}}"
+            },
+            "after": {
+                "imported": []
+            }
+        },
+        {
+            "name": "server import: import, the address in use",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"A server with IP\\/domain 203.0.113.10 and SSH port 22 already exists on this instance. Remove it first.\",\"errors\":{\"server.ip\":[\"A server with IP\\/domain 203.0.113.10 and SSH port 22 already exists on this instance. Remove it first.\"]}}"
+            },
+            "after": {
+                "imported": []
+            }
+        },
+        {
+            "name": "server import: import, a server being deleted",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"The server with UUID s1parityserveruuid000001 is still being deleted on this instance. Wait a minute, then transfer again.\",\"errors\":{\"server.uuid\":[\"The server with UUID s1parityserveruuid000001 is still being deleted on this instance. Wait a minute, then transfer again.\"]}}"
+            },
+            "after": {
+                "imported": []
+            }
+        },
+        {
+            "name": "server import: import over the archive of a transferred server",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"The private key is invalid. Paste an unencrypted private key, not a public key or a certificate.\",\"errors\":{\"private_key\":[\"The private key is invalid. Paste an unencrypted private key, not a public key or a certificate.\"]}}"
+            },
+            "after": {
+                "archive": [
+                    {
+                        "uuid": "s1parityserveruuid000001",
+                        "name": "parity-server",
+                        "ip": "203.0.113.10"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "server import: an empty bundle",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"bundle\":[\"This field is required.\"]}}"
+            }
+        },
+        {
+            "name": "server import: invalid",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"bundle\":[\"The bundle field must be an array.\"],\"dry_run\":[\"The dry run field must be true or false.\"],\"preserve_uuids\":[\"The preserve uuids field must be true or false.\"],\"adopt_mode\":[\"The adopt mode field must be true or false.\"],\"extra\":[\"This field is not allowed.\"]}}"
+            }
+        },
+        {
+            "name": "server import: nothing",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"bundle\":[\"This field is required.\"]}}"
+            }
+        },
+        {
+            "name": "server import: not JSON",
+            "status": 400,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Invalid request.\",\"error\":\"Content-Type must be application\\/json.\"}"
+            }
+        },
+        {
+            "name": "server import: with a write token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: deploy\"}"
+            }
+        },
+        {
+            "name": "server import: a bundle without its parts",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing schema_version. (and 6 more errors)\",\"errors\":{\"bundle\":[\"Missing schema_version.\",\"Missing coolify_version. Export the server again with Coolify 4.7.6 or newer.\",\"Missing export_id.\",\"Missing server payload.\",\"Missing private_key payload.\",\"Missing destinations array.\",\"Missing projects array.\"]}}"
+            }
+        },
+        {
+            "name": "server import: a bundle with the wrong versions",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Unsupported schema_version 2. Expected 1. (and 2 more errors)\",\"errors\":{\"bundle\":[\"Unsupported schema_version 2. Expected 1.\",\"This bundle was exported from Coolify 4.7.10. Upgrade this instance (Coolify 4.7.6) to 4.7.10 or newer before you import it.\",\"Missing export_id.\"]}}"
+            }
+        },
+        {
+            "name": "server import: a bundle of a newer beta",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"This bundle was exported from Coolify 4.8.0-beta.1. Upgrade this instance (Coolify 4.7.6) to 4.8.0-beta.1 or newer before you import it.\",\"errors\":{\"bundle\":[\"This bundle was exported from Coolify 4.8.0-beta.1. Upgrade this instance (Coolify 4.7.6) to 4.8.0-beta.1 or newer before you import it.\"]}}"
+            }
+        },
+        {
+            "name": "server import: a bundle of an older version",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"dry_run\":true,\"warnings\":[\"The source had a warning.\"],\"server_uuid\":\"s9importedserver00000009\",\"private_key_uuid\":\"k9importedprivatekey0009\",\"created\":{\"projects\":1,\"environments\":2,\"applications\":1,\"databases\":1,\"services\":1,\"destinations\":1,\"private_keys\":1,\"github_apps\":1,\"gitlab_apps\":0,\"gitea_apps\":0,\"s3_storages\":2,\"cloud_provider_tokens\":0,\"integration_tokens\":0,\"managed_dns_records\":0,\"ssl_certificates\":0,\"image_scan_policies\":0,\"image_scan_ignores\":0,\"volume_backups\":0,\"previews\":1},\"preserved_uuids\":true,\"export_id\":\"exp-parity-1\",\"claimed\":false,\"claim\":null,\"checklist\":[\"Point the DNS records to http:\\/\\/localhost.\",\"Check the backups.\"]}"
+            }
+        },
+        {
+            "name": "server import: a bundle without a version string",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Unsupported schema_version abc. Expected 1. (and 1 more error)\",\"errors\":{\"bundle\":[\"Unsupported schema_version abc. Expected 1.\",\"Missing coolify_version. Export the server again with Coolify 4.7.6 or newer.\"]}}"
+            }
+        },
+        {
+            "name": "server import: a bundle with an array as its schema version",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"dry_run\":true,\"warnings\":[\"The source had a warning.\"],\"server_uuid\":\"s9importedserver00000009\",\"private_key_uuid\":\"k9importedprivatekey0009\",\"created\":{\"projects\":1,\"environments\":2,\"applications\":1,\"databases\":1,\"services\":1,\"destinations\":1,\"private_keys\":1,\"github_apps\":1,\"gitlab_apps\":0,\"gitea_apps\":0,\"s3_storages\":2,\"cloud_provider_tokens\":0,\"integration_tokens\":0,\"managed_dns_records\":0,\"ssl_certificates\":0,\"image_scan_policies\":0,\"image_scan_ignores\":0,\"volume_backups\":0,\"previews\":1},\"preserved_uuids\":true,\"export_id\":\"exp-parity-1\",\"claimed\":false,\"claim\":null,\"checklist\":[\"Point the DNS records to http:\\/\\/localhost.\",\"Check the backups.\"]}"
+            }
+        },
+        {
+            "name": "server import: a bundle with an empty array as its schema version",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Array to string conversion\"}"
+            }
+        },
+        {
+            "name": "server import: dry run, a warning that is an array",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Array to string conversion\"}"
+            }
+        },
+        {
+            "name": "server import: a bundle with missing server fields and key material",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing server.name. (and 4 more errors)\",\"errors\":{\"bundle\":[\"Missing server.name.\",\"Missing server.port.\",\"Missing server.user.\",\"Missing private_key.private_key material.\",\"Missing destinations array.\"]}}"
+            }
+        },
+        {
+            "name": "server import: a bundle with invalid ids",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"server.uuid is not a valid id. An id may only contain letters, digits, hyphens, and underscores (at most 64 characters). (and 8 more errors)\",\"errors\":{\"bundle\":[\"server.uuid is not a valid id. An id may only contain letters, digits, hyphens, and underscores (at most 64 characters).\",\"private_key.uuid is not a valid id. An id may only contain letters, digits, hyphens, and underscores (at most 64 characters).\",\"destinations.0.uuid is not a valid id. An id may only contain letters, digits, hyphens, and underscores (at most 64 characters).\",\"destinations.0.server_uuid is not a valid id. An id may only contain letters, digits, hyphens, and underscores (at most 64 characters).\",\"projects.0.environments.0.uuid is not a valid id. An id may only contain letters, digits, hyphens, and underscores (at most 64 characters).\",\"projects.0.environments.0.applications.0.uuid is not a valid id. An id may only contain letters, digits, hyphens, and underscores (at most 64 characters).\",\"projects.0.environments.0.applications.0.tag_uuids.1 is not a valid id. An id may only contain letters, digits, hyphens, and underscores (at most 64 characters).\",\"projects.0.environments.0.applications.0.tag_uuids.3 is not a valid id. An id may only contain letters, digits, hyphens, and underscores (at most 64 characters).\",\"projects.0.environments.0.applications.0.storage_uuids.0 is not a valid id. An id may only contain letters, digits, hyphens, and underscores (at most 64 characters).\"]}}"
+            }
+        },
+        {
+            "name": "server import: a bundle with too many items",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"destinations.0.uuid is not a valid id. An id may only contain letters, digits, hyphens, and underscores (at most 64 characters). (and 2 more errors)\",\"errors\":{\"bundle\":[\"destinations.0.uuid is not a valid id. An id may only contain letters, digits, hyphens, and underscores (at most 64 characters).\",\"The bundle has 1001 private_keys. A bundle can have at most 1000 private_keys.\",\"The bundle has 1001 warnings. A bundle can have at most 1000 warnings.\"]}}"
+            }
+        },
+        {
+            "name": "server import: a bundle with invalid values",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"The destinations.0.network field format is invalid. (and 47 more errors)\",\"errors\":{\"bundle\":[\"The destinations.0.network field format is invalid.\",\"The destinations.1.network field must not be greater than 255 characters.\",\"The destinations.2.network field must be a string.\",\"The destinations.2.network field format is invalid.\",\"The github_apps.0.html_url must use the http or https scheme.\",\"The github_apps.0.api_url field must be a valid URL.\",\"The github_apps.0.api_url must use the http or https scheme.\",\"The github_apps.1.html_url field must be a string.\",\"The github_apps.1.html_url field must be a valid URL.\",\"The gitlab_apps.1.html_url field must be a valid URL.\",\"The gitlab_apps.1.html_url must use the http or https scheme.\",\"The gitea_apps.first.api_url field must be a valid URL.\",\"The gitea_apps.first.api_url must use the http or https scheme.\",\"Invalid ssl_certificates.0.configuration_dir: contains forbidden character ';' (command separator). Shell metacharacters are not allowed for security reasons.\",\"ssl_certificates.0.mount_path must be a string.\",\"Invalid ssl_certificates.1.mount_path: contains forbidden character '|' (pipe operator). Shell metacharacters are not allowed for security reasons.\",\"volume_backups.0.frequency is not a valid cron expression or frequency.\",\"volume_backups.2.frequency is not a valid cron expression or frequency.\",\"projects.0.environments.0.applications.0.fqdn: Invalid URL: javascript:alert(1)\",\"projects.0.environments.0.applications.0.fqdn: Invalid URL: ftp:\\/\\/files.example.com\",\"projects.0.environments.0.applications.0.docker_compose_domains.web.domain: Invalid URL: ftp:\\/\\/web.example.com\",\"Invalid projects.0.environments.0.applications.0.persistent_storages.0.mount_path: contains forbidden character '|' (pipe operator). Shell metacharacters are not allowed for security reasons.\",\"Invalid projects.0.environments.0.applications.0.persistent_storages.0.host_path: contains forbidden character '$(' (command substitution). Shell metacharacters are not allowed for security reasons.\",\"projects.0.environments.0.applications.0.persistent_storages.1.mount_path must be a string.\",\"Invalid projects.0.environments.0.applications.0.file_storages.0.fs_path: contains forbidden character '`' (backtick (command substitution)). Shell metacharacters are not allowed for security reasons.\",\"Invalid projects.0.environments.0.applications.0.file_storages.0.mount_path: contains forbidden character '>' (output redirection). Shell metacharacters are not allowed for security reasons.\",\"The projects.0.environments.0.applications.0.scheduled_tasks.0.command field is required.\",\"The projects.0.environments.0.applications.0.scheduled_tasks.0.container field format is invalid.\",\"projects.0.environments.0.applications.0.scheduled_tasks.0.frequency is not a valid cron expression or frequency.\",\"The projects.0.environments.0.applications.0.scheduled_tasks.0.disabled_reason field must not be greater than 1000 characters.\",\"The projects.0.environments.0.applications.0.scheduled_tasks.1.command field must be a string.\",\"The projects.0.environments.0.applications.0.scheduled_tasks.1.container field format is invalid.\",\"projects.0.environments.0.applications.0.scheduled_tasks.1.frequency is not a valid cron expression or frequency.\",\"projects.0.environments.0.applications.0.previews.0.fqdn: The domains field must be a string.\",\"projects.0.environments.0.applications.0.previews.0.docker_compose_domains.web.domain: Invalid URL: javascript:x\",\"Invalid projects.0.environments.0.applications.0.previews.0.persistent_storages.0.mount_path: contains forbidden character '&' (background\\/AND operator). Shell metacharacters are not allowed for security reasons.\",\"The projects.0.environments.0.databases.0.public_port field must be between 1 and 65535.\",\"projects.0.environments.0.databases.0.ports_mappings must be a comma-separated list of port mappings (e.g. 5432:5432,127.0.0.1:8080:80\\/udp).\",\"Invalid projects.0.environments.0.databases.0.persistent_storages.0.host_path: contains forbidden character '\\t' (tab (token separator)). Shell metacharacters are not allowed for security reasons.\",\"projects.0.environments.0.databases.0.scheduled_backups.0.frequency is not a valid cron expression or frequency.\",\"Invalid projects.0.environments.0.databases.0.scheduled_backups.0.databases_to_backup: contains forbidden character '&' (background\\/AND operator). Shell metacharacters are not allowed for security reasons.\",\"The projects.0.environments.0.databases.1.public_port field must be an integer.\",\"projects.0.environments.0.databases.1.ports_mappings must be a string.\",\"projects.0.environments.0.services.0.scheduled_tasks.0.frequency is not a valid cron expression or frequency.\",\"projects.0.environments.0.services.0.applications.0.fqdn: Invalid URL: https:\\/\\/svc;x.example.com\",\"projects.0.environments.0.services.0.applications.1.fqdn: Invalid URL: javascript:svc\",\"Invalid projects.0.environments.0.services.0.databases.0.persistent_storages.0.mount_path: contains forbidden character ';' (command separator). Shell metacharacters are not allowed for security reasons.\",\"Invalid projects.0.environments.0.services.0.databases.0.scheduled_backups.0.databases_to_backup: contains forbidden character '|' (pipe operator). Shell metacharacters are not allowed for security reasons.\"]}}"
+            }
+        },
+        {
+            "name": "server import: a server payload Coolify refuses",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"The name field must not be greater than 255 characters. (and 3 more errors)\",\"errors\":{\"name\":[\"The name field must not be greater than 255 characters.\"],\"ip\":[\"The server.ip must be a valid IPv4 address, IPv6 address, or hostname.\"],\"port\":[\"The server.port field must be between 1 and 65535.\"],\"user\":[\"The server.user field format is invalid.\"]}}"
+            }
+        },
+        {
+            "name": "server import: a server payload without a port",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"The name field must be a string. (and 4 more errors)\",\"errors\":{\"name\":[\"The name field must be a string.\"],\"ip\":[\"The server.ip field must be a string.\"],\"port\":[\"The server.port field is required.\"],\"user\":[\"The server.user field must be a string.\",\"The server.user field format is invalid.\"]}}"
+            }
+        },
+        {
+            "name": "server import: a server payload with an array as its address",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"trim(): Argument #1 ($string) must be of type string, array given\"}"
+            }
+        },
+        {
+            "name": "server import: dry run, environments PHP cannot loop over",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"foreach() argument must be of type array|object, string given\"}"
+            }
+        },
+        {
+            "name": "server import: dry run, GitHub Apps PHP cannot count",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"count(): Argument #1 ($value) must be of type Countable|array, string given\"}"
+            }
+        },
+        {
+            "name": "server import: dry run, applications PHP cannot count",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"count(): Argument #1 ($value) must be of type Countable|array, int given\"}"
+            }
+        },
+        {
+            "name": "transfer complete: marked",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"server_uuid\":\"s1parityserveruuid000001\",\"message\":\"Server marked as transferred. Automations disabled on this instance.\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "metadata": "{\"transfer\": {\"status\": \"transferred\", \"export_id\": \"exp-9\", \"claimed_by_marker\": false, \"target_instance_url\": null}}",
+                        "has_transferred_at": true,
+                        "transferred_at_iso": true,
+                        "parked": "[]",
+                        "parked_type": "array"
+                    }
+                ],
+                "settings": [
+                    {
+                        "force_disabled": true,
+                        "is_sentinel_enabled": false
+                    }
+                ],
+                "runners": [],
+                "executions": [],
+                "records": [],
+                "references": []
+            }
+        },
+        {
+            "name": "transfer complete: with runners and DNS records",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"server_uuid\":\"s1parityserveruuid000001\",\"message\":\"Server marked as transferred. Automations disabled on this instance.\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "metadata": "{\"transfer\": {\"status\": \"transferred\", \"export_id\": \"exp-9\", \"claimed_by_marker\": false, \"target_instance_url\": null}}",
+                        "has_transferred_at": true,
+                        "transferred_at_iso": true,
+                        "parked": "[\"m5paritytransfersrv00005\", \"m6paritytransferapp00006\", \"m7paritytransferpr000007\", \"m8paritytransfersvc00008\"]",
+                        "parked_type": "array"
+                    }
+                ],
+                "settings": [
+                    {
+                        "force_disabled": true,
+                        "is_sentinel_enabled": false
+                    }
+                ],
+                "runners": [
+                    {
+                        "uuid": "gparityrunnerconfig00001",
+                        "is_enabled": false
+                    }
+                ],
+                "executions": [
+                    {
+                        "uuid": "h1parityrunnerqueued0001",
+                        "status": "cancelled",
+                        "error_message": "The server was transferred to another Coolify instance. This instance stopped managing its runners.",
+                        "has_completed_at": true,
+                        "kept_completed_at": false
+                    },
+                    {
+                        "uuid": "h2parityrunnerprovision2",
+                        "status": "cancelled",
+                        "error_message": "The server was transferred to another Coolify instance. This instance stopped managing its runners.",
+                        "has_completed_at": true,
+                        "kept_completed_at": false
+                    },
+                    {
+                        "uuid": "h3parityrunneridle000003",
+                        "status": "cancelled",
+                        "error_message": "The server was transferred to another Coolify instance. This instance stopped managing its runners.",
+                        "has_completed_at": true,
+                        "kept_completed_at": true
+                    },
+                    {
+                        "uuid": "h4parityrunnerrunning004",
+                        "status": "cancelled",
+                        "error_message": "The server was transferred to another Coolify instance. This instance stopped managing its runners.",
+                        "has_completed_at": true,
+                        "kept_completed_at": false
+                    },
+                    {
+                        "uuid": "h5parityrunnercompleted5",
+                        "status": "completed",
+                        "error_message": "earlier",
+                        "has_completed_at": true,
+                        "kept_completed_at": true
+                    },
+                    {
+                        "uuid": "h6parityrunnerfailed0006",
+                        "status": "failed",
+                        "error_message": "earlier",
+                        "has_completed_at": false,
+                        "kept_completed_at": null
+                    }
+                ],
+                "records": [
+                    {
+                        "uuid": "m5paritytransfersrv00005",
+                        "owned": false
+                    },
+                    {
+                        "uuid": "m6paritytransferapp00006",
+                        "owned": false
+                    },
+                    {
+                        "uuid": "m7paritytransferpr000007",
+                        "owned": false
+                    },
+                    {
+                        "uuid": "m8paritytransfersvc00008",
+                        "owned": false
+                    },
+                    {
+                        "uuid": "m9paritytransfershared09",
+                        "owned": true
+                    },
+                    {
+                        "uuid": "mAparitytransferunowned0",
+                        "owned": false
+                    },
+                    {
+                        "uuid": "mBparitytransferelse0000",
+                        "owned": true
+                    }
+                ],
+                "references": [
+                    {
+                        "uuid": "m5paritytransfersrv00005",
+                        "resource_type": "App\\Models\\Server",
+                        "resource_id": 1
+                    },
+                    {
+                        "uuid": "m6paritytransferapp00006",
+                        "resource_type": "App\\Models\\Application",
+                        "resource_id": 1
+                    },
+                    {
+                        "uuid": "m7paritytransferpr000007",
+                        "resource_type": "App\\Models\\ApplicationPreview",
+                        "resource_id": 3
+                    },
+                    {
+                        "uuid": "m8paritytransfersvc00008",
+                        "resource_type": "App\\Models\\ServiceApplication",
+                        "resource_id": 1
+                    },
+                    {
+                        "uuid": "m9paritytransfershared09",
+                        "resource_type": "App\\Models\\Application",
+                        "resource_id": 3
+                    },
+                    {
+                        "uuid": "mAparitytransferunowned0",
+                        "resource_type": "App\\Models\\Application",
+                        "resource_id": 2
+                    },
+                    {
+                        "uuid": "mBparitytransferelse0000",
+                        "resource_type": "App\\Models\\Application",
+                        "resource_id": 3
+                    }
+                ]
+            }
+        },
+        {
+            "name": "transfer complete: with a target URL, the earlier transfer kept",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"server_uuid\":\"s1parityserveruuid000001\",\"message\":\"Server marked as transferred. Automations disabled on this instance.\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "metadata": "{\"transfer\": {\"claim\": {\"claim_id\": \"c-1\"}, \"status\": \"transferred\", \"export_id\": \"exp-1\", \"claimed_by_marker\": false, \"target_instance_url\": \"https://target.example.com\"}, \"migration\": {\"status\": \"done\"}}",
+                        "has_transferred_at": true,
+                        "transferred_at_iso": true,
+                        "parked": "[]",
+                        "parked_type": "array"
+                    }
+                ],
+                "settings": [
+                    {
+                        "force_disabled": true,
+                        "is_sentinel_enabled": false
+                    }
+                ],
+                "runners": [],
+                "executions": [],
+                "records": [],
+                "references": []
+            }
+        },
+        {
+            "name": "transfer complete: without a body",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"server_uuid\":\"s1parityserveruuid000001\",\"message\":\"Server marked as transferred. Automations disabled on this instance.\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "metadata": "{\"transfer\": {\"status\": \"transferred\", \"export_id\": \"exp-3\", \"claimed_by_marker\": false, \"target_instance_url\": null}}",
+                        "has_transferred_at": true,
+                        "transferred_at_iso": true,
+                        "parked": "[]",
+                        "parked_type": "array"
+                    }
+                ],
+                "settings": [
+                    {
+                        "force_disabled": true,
+                        "is_sentinel_enabled": false
+                    }
+                ],
+                "runners": [],
+                "executions": [],
+                "records": [],
+                "references": []
+            }
+        },
+        {
+            "name": "transfer complete: a form body",
+            "status": 200,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"server_uuid\":\"s1parityserveruuid000001\",\"message\":\"Server marked as transferred. Automations disabled on this instance.\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "metadata": "{\"transfer\": {\"status\": \"transferred\", \"export_id\": \"exp-form\", \"claimed_by_marker\": false, \"target_instance_url\": null}}",
+                        "has_transferred_at": true,
+                        "transferred_at_iso": true,
+                        "parked": "[]",
+                        "parked_type": "array"
+                    }
+                ],
+                "settings": [
+                    {
+                        "force_disabled": true,
+                        "is_sentinel_enabled": false
+                    }
+                ],
+                "runners": [],
+                "executions": [],
+                "records": [],
+                "references": []
+            }
+        },
+        {
+            "name": "transfer complete: to an http URL",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"target_instance_url\":[\"The target instance URL must use https, because the transfer sends credentials.\"]}}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "metadata": null,
+                        "has_transferred_at": false,
+                        "transferred_at_iso": null,
+                        "parked": "[]",
+                        "parked_type": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "force_disabled": false,
+                        "is_sentinel_enabled": true
+                    }
+                ],
+                "runners": [],
+                "executions": [],
+                "records": [],
+                "references": []
+            }
+        },
+        {
+            "name": "transfer complete: to a private URL",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"target_instance_url\":[\"The target_url points to a local or private address that is not allowed. Configure allowed internal targets: http:\\/\\/localhost\\/settings\\/advanced#endpoint-section\"]}}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "metadata": null,
+                        "has_transferred_at": false,
+                        "transferred_at_iso": null,
+                        "parked": "[]",
+                        "parked_type": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "force_disabled": false,
+                        "is_sentinel_enabled": true
+                    }
+                ],
+                "runners": [],
+                "executions": [],
+                "records": [],
+                "references": []
+            }
+        },
+        {
+            "name": "transfer complete: to an internal address",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"target_instance_url\":[\"The target_url points to a local or private address that is not allowed. Configure allowed internal targets: http:\\/\\/localhost\\/settings\\/advanced#endpoint-section\"]}}"
+            }
+        },
+        {
+            "name": "transfer complete: to an invalid URL",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"target_instance_url\":[\"A valid target instance URL is required (e.g. https:\\/\\/coolify.example.com).\"]}}"
+            }
+        },
+        {
+            "name": "transfer complete: invalid",
+            "status": 422,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Validation failed.\",\"errors\":{\"export_id\":[\"The export id field must be a string.\"],\"target_instance_url\":[\"The target instance url field must be a string.\"]}}"
+            }
+        },
+        {
+            "name": "transfer complete: unknown",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Server not found.\"}"
+            }
+        },
+        {
+            "name": "transfer complete: another team's server",
+            "status": 404,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Server not found.\"}"
+            }
+        },
+        {
+            "name": "transfer complete: with a read token",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"Missing required permissions: write\"}"
+            }
+        },
+        {
+            "name": "denied: transfer complete: marked, a member with write and delete",
+            "status": 403,
+            "headers": {
+                "content-type": "application/json",
+                "x-ratelimit-limit": "200",
+                "x-ratelimit-remaining": "199"
+            },
+            "body": {
+                "json": "{\"message\":\"You are not authorized to perform this action.\",\"error\":\"Unauthorized\"}"
+            },
+            "after": {
+                "server": [
+                    {
+                        "metadata": null,
+                        "has_transferred_at": false,
+                        "transferred_at_iso": null,
+                        "parked": "[]",
+                        "parked_type": null
+                    }
+                ],
+                "settings": [
+                    {
+                        "force_disabled": false,
+                        "is_sentinel_enabled": true
+                    }
+                ],
+                "runners": [],
+                "executions": [],
+                "records": [],
+                "references": []
+            }
         }
     ]
 }

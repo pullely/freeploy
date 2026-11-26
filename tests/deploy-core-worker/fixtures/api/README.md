@@ -1,4 +1,4 @@
-# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85, DP-86, DP-87, DP-88, DP-90, DP-93, DP-103, DP-104, DP-105, DP-106, DP-107, DP-108, DP-110)
+# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85, DP-86, DP-87, DP-88, DP-90, DP-93, DP-103, DP-104, DP-105, DP-106, DP-107, DP-108, DP-110, DP-111)
 
 What Coolify's real API answers, so that Freeploy's `/api/v1` (api-edge's middleware and limiters,
 identity-worker's teams and tokens, deploy-core-worker's projects, environments, private keys and servers —
@@ -23,7 +23,8 @@ through a Gitea App and an application's source changed to one — DP-103 — an
 records of an application's and a service's domains — DP-105 — and a resource's secret manager source and the
 instance's email settings — DP-106 — and the team's two settings, the team's audit events, the instance's API and MCP
 switches and a server's update — DP-107 — and cloning a service — DP-108 — and the cloud-init scripts and the servers made through
-a Hetzner, Vultr or DigitalOcean token — DP-110) can be replayed against it byte for byte.
+a Hetzner, Vultr or DigitalOcean token — DP-110 — and a server transfer bundle's checks and dry run and a transfer marked
+complete — DP-111) can be replayed against it byte for byte.
 
 | File | What it is |
 |---|---|
@@ -226,6 +227,18 @@ none sends no body). The test masks generate_random_name() in the requests it co
 ValidCloudInitYaml's refusals carry Symfony YAML's ParseException messages (`../symfony-yaml` holds the parser to PHP). Four
 `denied:` cases are added (50 in all). Only the new entries were inserted into goldens.json, after DP-107's; the committed
 ones are kept byte for byte. No masking is added to `src/api-v1-goldens.ts`.
+
+DP-111's replay (`src/api-v1-server-transfer.test.ts`: POST /servers/import and POST /servers/{uuid}/transfer/complete) adds no
+fixture rows. An import's bundle is the case's body: its private key is a placeholder (ServerTransferBundle::validate() only
+asks whether the material is blank), so a real import — not a dry run — that passes the import checks reaches Coolify's
+importer, which refuses the key inside the transaction that would write the bundle (422); Freeploy answers 501 there and
+stores nothing (the departure). A transfer's GitHub runner config and runners (`github_runner_configs`,
+`github_runner_executions`, with DP-88's GitHub App 1) and its managed DNS records and their references (DP-105's helpers) are
+rows of `setupCoolify` (team_id) and `setupFreeploy` (org_id). The `after` queries read the server's metadata as jsonb without
+its time (`transferred_at`, whether it is an ISO 8601 time instead: Freeploy's clock is the test's) and its parked record ids
+as the records' uuids, the runners' completion times as whether they are set and kept. One `denied:` case is added (51 in
+all). Only the new entries were inserted into goldens.json, after DP-110's; the committed ones are kept byte for byte. No
+masking is added.
 
 ## How the goldens are made
 

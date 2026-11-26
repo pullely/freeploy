@@ -3929,6 +3929,209 @@ add({ name: "server via DigitalOcean: create, not JSON", token: "write", method:
 add({ name: "server via DigitalOcean: create with a read token", token: "read", method: "POST", path: DOS, body: DO_BODY, http: [] });
 denial("server via DigitalOcean: create", "memberWrite", WRITE_DELETE, WRITER);
 
+// ── DP-111: POST /servers/import (ServerTransferBundle::validate(), the dry run, the import checks) ──
+// The bundle's private key is a placeholder: validate() only asks whether the material is blank. A real import (not a
+// dry run) writes every row of the bundle and claims the server over SSH; Freeploy answers 501 after the import checks.
+const SRV_IMPORT = "/api/v1/servers/import";
+const SRV_IMPORTED = "s9importedserver00000009";
+const BUNDLE = {
+  schema_version: 1,
+  coolify_version: "4.7.6",
+  exported_at: "2025-12-31T00:00:00+00:00",
+  export_id: "exp-parity-1",
+  source_instance: { url: "https://source.example.com" },
+  server: { uuid: SRV_IMPORTED, name: "imported", description: null, ip: "203.0.113.90", port: 22, user: "root" },
+  private_key: { uuid: "k9importedprivatekey0009", name: "Imported key", private_key: "placeholder, not a key" },
+  private_keys: [],
+  destinations: [{ uuid: "d9importeddestination009", name: "default", network: "coolify" }],
+  github_apps: [{ uuid: "j9importedgithubapp00009", html_url: "https://github.com", api_url: "https://api.github.com" }],
+  s3_storages: [{ uuid: "o9importeds3storage00009" }, { uuid: "o8importeds3storage00008" }],
+  projects: [
+    {
+      uuid: "p9importedproject0000009",
+      name: "Imported",
+      environments: [
+        {
+          uuid: "e9importedenvironment009",
+          name: "production",
+          applications: [
+            {
+              uuid: "a9importedapplication009",
+              attributes: { fqdn: "https://app.example.com,http://www.example.com", docker_compose_domains: '{"web":{"domain":"https://web.example.com"}}' },
+              previews: [{ uuid: "r9importedpreview0000009", fqdn: "https://pr-1.app.example.com" }],
+              persistent_storages: [{ uuid: "v9importedvolume00000009", mount_path: "/data", host_path: null }],
+              scheduled_tasks: [{ uuid: "t9importedtask0000000009", command: "php artisan schedule:run", container: "web", frequency: "* * * * *" }],
+              tag_uuids: ["g9importedtag00000000009"],
+            },
+          ],
+          databases: [{ uuid: "b9importeddatabase000009", type: "standalone-postgresql", attributes: { public_port: 5432, ports_mappings: "5432:5432, 127.0.0.1:8080:80/udp" }, scheduled_backups: [{ frequency: "daily", databases_to_backup: "app" }] }],
+          services: [{ uuid: "f9importedservice0000009", applications: [{ uuid: "y9importedserviceapp0009", fqdn: "https://svc.example.com" }], databases: [{ uuid: "z9importedservicedb00009" }] }],
+        },
+        { uuid: "e8importedenvironment008", name: "staging" },
+      ],
+    },
+  ],
+  warnings: ["The source had a warning.", "The source had a warning."],
+  post_transfer_checklist: ["Point the DNS records to {target_url}.", "Check the backups.", "Check the backups.", 5, null],
+};
+const withBundle = (patch) => ({ ...BUNDLE, ...patch });
+const withServer = (patch) => withBundle({ server: { ...BUNDLE.server, ...patch } });
+const SRV_IMPORT_AFTER = { imported: `select uuid, name, ip from servers where uuid = '${SRV_IMPORTED}' order by id` };
+add({ name: "server import: dry run", token: "root", method: "POST", path: SRV_IMPORT, body: { bundle: BUNDLE, dry_run: true } });
+add({ name: "server import: dry run without preserving uuids or adopting", token: "root", method: "POST", path: SRV_IMPORT, body: { bundle: BUNDLE, dry_run: 1, preserve_uuids: false, adopt_mode: "0" } });
+add({ name: "server import: dry run, nulls as false", token: "root", method: "POST", path: SRV_IMPORT, body: { bundle: withBundle({ destinations: [], warnings: null, post_transfer_checklist: "Check {target_url}" }), dry_run: true, preserve_uuids: null, adopt_mode: null } });
+add({ name: "server import: dry run, the server's uuid and address in use", token: "root", method: "POST", path: SRV_IMPORT, body: { bundle: withServer({ uuid: S_MAIN, ip: "203.0.113.10" }), dry_run: true } });
+add({ name: "server import: dry run, another port of the address", token: "root", method: "POST", path: SRV_IMPORT, body: { bundle: withServer({ ip: "203.0.113.10", port: 2222 }), dry_run: true } });
+add({ name: "server import: dry run, the archive of a transferred server", token: "root", method: "POST", path: SRV_IMPORT, setup: [`update servers set server_metadata = '{"transfer":{"status":"transferred"}}' where id = 1`], body: { bundle: withServer({ uuid: S_MAIN, ip: "203.0.113.10" }), dry_run: true } });
+add({ name: "server import: adopting without preserving uuids", token: "root", method: "POST", path: SRV_IMPORT, body: { bundle: BUNDLE, dry_run: true, preserve_uuids: false } });
+add({ name: "server import: import", token: "root", method: "POST", path: SRV_IMPORT, body: { bundle: BUNDLE }, after: SRV_IMPORT_AFTER });
+add({ name: "server import: import, the uuid in use", token: "root", method: "POST", path: SRV_IMPORT, body: { bundle: withServer({ uuid: S_MAIN }) }, after: SRV_IMPORT_AFTER });
+add({ name: "server import: import, the address in use", token: "root", method: "POST", path: SRV_IMPORT, body: { bundle: withServer({ ip: "203.0.113.10" }), dry_run: false }, after: SRV_IMPORT_AFTER });
+add({ name: "server import: import, a server being deleted", token: "root", method: "POST", path: SRV_IMPORT, setup: ["update servers set deleted_at = '2025-12-31 00:00:00' where id = 1"], body: { bundle: withServer({ uuid: S_MAIN }) }, after: SRV_IMPORT_AFTER });
+add({ name: "server import: import over the archive of a transferred server", token: "root", method: "POST", path: SRV_IMPORT, setup: [`update servers set server_metadata = '{"transfer":{"status":"transferred"}}' where id = 1`], body: { bundle: withServer({ uuid: S_MAIN, ip: "203.0.113.10" }) }, after: { archive: "select uuid, name, ip from servers where id = 1" } });
+add({ name: "server import: an empty bundle", token: "root", method: "POST", path: SRV_IMPORT, body: { bundle: {}, dry_run: true } });
+add({ name: "server import: invalid", token: "root", method: "POST", path: SRV_IMPORT, body: { bundle: "bundle", dry_run: "maybe", preserve_uuids: 2, adopt_mode: [], extra: 1 } });
+add({ name: "server import: nothing", token: "root", method: "POST", path: SRV_IMPORT, body: { dry_run: true } });
+add({ name: "server import: not JSON", token: "root", method: "POST", path: SRV_IMPORT, raw: "bundle=x", contentType: "application/x-www-form-urlencoded" });
+add({ name: "server import: with a write token", token: "write", method: "POST", path: SRV_IMPORT, body: { bundle: BUNDLE, dry_run: true } });
+add({ name: "server import: a bundle without its parts", token: "root", method: "POST", path: SRV_IMPORT, body: { bundle: { name: "x" }, dry_run: true } });
+add({ name: "server import: a bundle with the wrong versions", token: "root", method: "POST", path: SRV_IMPORT, body: { bundle: withBundle({ schema_version: "2", coolify_version: "4.7.10", export_id: 7 }), dry_run: true } });
+add({ name: "server import: a bundle of a newer beta", token: "root", method: "POST", path: SRV_IMPORT, body: { bundle: withBundle({ schema_version: "1abc", coolify_version: "4.8.0-beta.1" }), dry_run: true } });
+add({ name: "server import: a bundle of an older version", token: "root", method: "POST", path: SRV_IMPORT, body: { bundle: withBundle({ schema_version: 1.9, coolify_version: "4.7.6-rc.1" }), dry_run: true } });
+add({ name: "server import: a bundle without a version string", token: "root", method: "POST", path: SRV_IMPORT, body: { bundle: withBundle({ schema_version: "abc", coolify_version: 4.8 }), dry_run: true } });
+add({ name: "server import: a bundle with an array as its schema version", token: "root", method: "POST", path: SRV_IMPORT, body: { bundle: withBundle({ schema_version: [1] }), dry_run: true } });
+add({ name: "server import: a bundle with an empty array as its schema version", token: "root", method: "POST", path: SRV_IMPORT, body: { bundle: withBundle({ schema_version: [] }), dry_run: true } });
+add({ name: "server import: dry run, a warning that is an array", token: "root", method: "POST", path: SRV_IMPORT, body: { bundle: withBundle({ warnings: ["The source had a warning.", ["nested"]] }), dry_run: true } });
+add({ name: "server import: a bundle with missing server fields and key material", token: "root", method: "POST", path: SRV_IMPORT, body: { bundle: withBundle({ server: { uuid: SRV_IMPORTED, ip: null }, private_key: { uuid: "k9importedprivatekey0009", private_key: "   " }, destinations: "none", projects: {} }), dry_run: true } });
+add({
+  name: "server import: a bundle with invalid ids",
+  token: "root",
+  method: "POST",
+  path: SRV_IMPORT,
+  body: {
+    bundle: withBundle({
+      server: { ...BUNDLE.server, uuid: "../etc/passwd" },
+      private_key: { ...BUNDLE.private_key, uuid: "k".repeat(65) },
+      destinations: [{ uuid: 42, server_uuid: "-starts-with-a-hyphen", network: "bad net!" }],
+      projects: [{ uuid: "ok_id-1", environments: [{ uuid: "e;x", applications: [{ uuid: true, tag_uuids: ["good", "b@d", null, 5], storage_uuids: "single bad!" }] }] }],
+    }),
+    dry_run: true,
+  },
+});
+const MANY = (n) => Array(n).fill(0);
+add({ name: "server import: a bundle with too many items", token: "root", method: "POST", path: SRV_IMPORT, body: { bundle: withBundle({ warnings: MANY(1001), private_keys: { a: MANY(600), b: MANY(401), c: "x" }, destinations: [{ uuid: "bad id", network: "bad net!" }, ...MANY(999)], projects: [{ tags: MANY(10) }, { tags: { x: MANY(5) } }] }), dry_run: true } });
+add({
+  name: "server import: a bundle with invalid values",
+  token: "root",
+  method: "POST",
+  path: SRV_IMPORT,
+  body: {
+    bundle: withBundle({
+      destinations: [{ network: "bad net!" }, { network: "x".repeat(256) }, { network: ["a"] }, "skipped", { network: null }],
+      github_apps: [{ html_url: "ftp://github.example.com", api_url: "not a url" }, { html_url: 5 }],
+      gitlab_apps: [{ api_url: "https://gitlab.example.com/api/v4" }, { html_url: "javascript:alert(1)" }],
+      gitea_apps: { first: { api_url: "gitea.example.com" } },
+      ssl_certificates: [{ configuration_dir: "/etc/certs;reboot", mount_path: 5 }, { configuration_dir: "/ok", mount_path: "/certs|x" }],
+      volume_backups: [{ frequency: "every day" }, { frequency: "@daily" }, { frequency: 5 }, { frequency: null }, {}],
+      projects: [
+        {
+          environments: [
+            {
+              applications: [
+                {
+                  attributes: { fqdn: "javascript:alert(1),https://ok.example.com,ftp://files.example.com", docker_compose_domains: '{"web":{"domain":"ftp://web.example.com"},"api":{"domain":"https://api.example.com"},"worker":"none"}' },
+                  persistent_storages: [{ mount_path: "/data|x", host_path: "$(whoami)" }, { mount_path: 5 }],
+                  file_storages: [{ fs_path: "/files`id`", mount_path: "/mnt>x" }],
+                  scheduled_tasks: [{ command: null, container: "bad name", frequency: "every minute", disabled_reason: "x".repeat(1001) }, { command: ["ls"], container: "-web" }, { command: "ls", frequency: "hourly" }],
+                  previews: [{ fqdn: 5, docker_compose_domains: { web: { domain: "javascript:x" } }, persistent_storages: [{ mount_path: "/a&b" }] }],
+                },
+                { attributes: { fqdn: "", docker_compose_domains: "not json" } },
+              ],
+              databases: [
+                { attributes: { public_port: 70000, ports_mappings: "5432:5432, 80 ,abc,9000" }, scheduled_backups: [{ frequency: "nope", databases_to_backup: "a&b" }], persistent_storages: [{ host_path: "/x\ty" }] },
+                { attributes: { public_port: "x", ports_mappings: 5432 } },
+                { attributes: { public_port: null, ports_mappings: null } },
+                { attributes: "plain" },
+              ],
+              services: [
+                {
+                  scheduled_tasks: [{ command: "ls" }],
+                  applications: [{ attributes: { fqdn: "https://svc;x.example.com" } }, { fqdn: "javascript:svc" }, { attributes: { fqdn: null }, fqdn: "javascript:ignored" }],
+                  databases: [{ persistent_storages: [{ mount_path: "/db;x" }], scheduled_backups: [{ frequency: "weekly", databases_to_backup: "a|b" }] }],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }),
+    dry_run: true,
+  },
+});
+add({ name: "server import: a server payload Coolify refuses", token: "root", method: "POST", path: SRV_IMPORT, body: { bundle: withServer({ name: "x".repeat(256), ip: "bad ip!", port: 70000, user: "bad user" }), dry_run: true } });
+add({ name: "server import: a server payload without a port", token: "root", method: "POST", path: SRV_IMPORT, body: { bundle: withServer({ ip: 5, port: null, user: ["root"], name: 5 }), dry_run: true } });
+add({ name: "server import: a server payload with an array as its address", token: "root", method: "POST", path: SRV_IMPORT, body: { bundle: withServer({ ip: ["203.0.113.90"] }), dry_run: true } });
+add({ name: "server import: dry run, environments PHP cannot loop over", token: "root", method: "POST", path: SRV_IMPORT, body: { bundle: withBundle({ projects: [{ environments: "none" }] }), dry_run: true } });
+add({ name: "server import: dry run, GitHub Apps PHP cannot count", token: "root", method: "POST", path: SRV_IMPORT, body: { bundle: withBundle({ github_apps: "none" }), dry_run: true } });
+add({ name: "server import: dry run, applications PHP cannot count", token: "root", method: "POST", path: SRV_IMPORT, body: { bundle: withBundle({ projects: [{ environments: [{ applications: 5 }] }] }), dry_run: true } });
+
+// ── DP-111: POST /servers/{uuid}/transfer/complete (ServerTransferClaimer::markTransferred()) ──
+// A GitHub runner config of the server with runners in each state, and managed DNS records of the server, its
+// applications (a preview's too) and its service's application, one shared with another server's application.
+const COMPLETE = (uuid = S_MAIN) => `/api/v1/servers/${uuid}/transfer/complete`;
+const RUNNER_CONFIG = (tenancy) => `insert into github_runner_configs (uuid, server_id, github_app_id, labels, is_enabled, ${tenancy ? `${tenancy[0]}, ` : ""}created_at, updated_at) values ('gparityrunnerconfig00001', 1, 1, '["self-hosted"]', true, ${tenancy ? `${tenancy[1]}, ` : ""}'2025-12-30 00:00:00', '2025-12-30 00:00:00')`;
+const RUNNER = (tenancy, uuid, status, job, completedAt = null) =>
+  `insert into github_runner_executions (uuid, github_app_id, github_runner_config_id, server_id, status, trigger_workflow_job_id, error_message, completed_at, ${tenancy ? `${tenancy[0]}, ` : ""}created_at, updated_at) select '${uuid}', 1, id, 1, '${status}', ${job}, 'earlier', ${completedAt === null ? "null" : `'${completedAt}'`}, ${tenancy ? `${tenancy[1]}, ` : ""}'2025-12-30 00:00:00', '2025-12-30 00:00:00' from github_runner_configs where uuid = 'gparityrunnerconfig00001'`;
+const RUNNERS = (tenancy) => [
+  RUNNER_CONFIG(tenancy),
+  RUNNER(tenancy, "h1parityrunnerqueued0001", "queued", 9001),
+  RUNNER(tenancy, "h2parityrunnerprovision2", "provisioning", 9002),
+  RUNNER(tenancy, "h3parityrunneridle000003", "idle", 9003, "2025-12-29 00:00:00"),
+  RUNNER(tenancy, "h4parityrunnerrunning004", "running", 9004),
+  RUNNER(tenancy, "h5parityrunnercompleted5", "completed", 9005, "2025-12-28 00:00:00"),
+  RUNNER(tenancy, "h6parityrunnerfailed0006", "failed", 9006),
+];
+const TRANSFER_RECORDS = [
+  { uuid: "m5paritytransfersrv00005", rec: "rec-srv", name: "tunnel.example.com", refs: [["App\\Models\\Server", 1]] },
+  { uuid: "m6paritytransferapp00006", rec: "rec-app", name: "image.example.com", refs: [[MORPH.app, 1]] },
+  { uuid: "m7paritytransferpr000007", rec: "rec-pr", name: "pr-12.example.com", refs: [[MORPH.preview, 3]] },
+  { uuid: "m8paritytransfersvc00008", rec: "rec-svc", name: "web.example.com", refs: [[MORPH.serviceApp, 1]] },
+  { uuid: "m9paritytransfershared09", rec: "rec-shared", name: "shared.example.com", refs: [[MORPH.app, 1], [MORPH.app, 3]] },
+  { uuid: "mAparitytransferunowned0", rec: "rec-unowned", name: "unowned.example.com", owned: false, refs: [[MORPH.app, 2]] },
+  { uuid: "mBparitytransferelse0000", rec: "rec-else", name: "else.example.com", refs: [[MORPH.app, 3]] },
+];
+const COMPLETE_AFTER = {
+  server: "select (server_metadata::jsonb #- '{transfer,transferred_at}' #- '{transfer,parked_dns_record_ids}')::text as metadata, coalesce(jsonb_exists(server_metadata::jsonb -> 'transfer', 'transferred_at'), false) as has_transferred_at, (server_metadata::jsonb -> 'transfer' ->> 'transferred_at') ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}[+]00:00$' as transferred_at_iso, (select coalesce(json_agg(r.uuid order by r.uuid), '[]'::json)::text from managed_dns_records r where r.id in (select jsonb_array_elements_text(server_metadata::jsonb -> 'transfer' -> 'parked_dns_record_ids')::bigint)) as parked, jsonb_typeof(server_metadata::jsonb -> 'transfer' -> 'parked_dns_record_ids') as parked_type from servers where id = 1",
+  settings: "select force_disabled, is_sentinel_enabled from server_settings where server_id = 1",
+  runners: "select uuid, is_enabled from github_runner_configs order by uuid",
+  executions: "select uuid, status, error_message, completed_at is not null as has_completed_at, completed_at < '2026-01-01 00:00:00' as kept_completed_at from github_runner_executions order by uuid",
+  records: "select uuid, owned from managed_dns_records order by uuid",
+  references: "select r.uuid, f.resource_type, f.resource_id from managed_dns_record_references f join managed_dns_records r on r.id = f.managed_dns_record_id order by r.uuid, f.resource_type, f.resource_id",
+};
+const WITH_TRANSFER = withDns(TRANSFER_RECORDS, { setupCoolify: [GH_ROWS[0].coolify, ...RUNNERS(null)], setupFreeploy: [GH_ROWS[0].freeploy, ...RUNNERS(FREEPLOY_TENANCY)] });
+add({ name: "transfer complete: marked", token: "write", method: "POST", path: COMPLETE(), body: { export_id: "exp-9" }, after: COMPLETE_AFTER });
+add({ name: "transfer complete: with runners and DNS records", token: "write", method: "POST", path: COMPLETE(), ...WITH_TRANSFER, body: { export_id: "exp-9" }, after: COMPLETE_AFTER });
+add({
+  name: "transfer complete: with a target URL, the earlier transfer kept",
+  token: "write",
+  method: "POST",
+  path: COMPLETE(),
+  setup: [`update servers set server_metadata = '{"migration":{"status":"done"},"transfer":{"status":"claimed","export_id":"exp-1","claim":{"claim_id":"c-1"},"finish":{"items":[]},"taken_back_at":"2025-12-01T00:00:00+00:00","owner_marker_conflict":{"claim_id":"c-2"},"parked_dns_record_ids":[99]}}' where id = 1`, "update server_settings set is_sentinel_enabled = true where server_id = 1"],
+  body: { target_instance_url: "  https://target.example.com/  " },
+  after: COMPLETE_AFTER,
+});
+add({ name: "transfer complete: without a body", token: "write", method: "POST", path: COMPLETE(), setup: [`update servers set server_metadata = '{"transfer":{"status":"imported","export_id":"exp-3"}}' where id = 1`], after: COMPLETE_AFTER });
+add({ name: "transfer complete: a form body", token: "write", method: "POST", path: COMPLETE(), raw: "export_id=exp-form&target_instance_url=", contentType: "application/x-www-form-urlencoded", after: COMPLETE_AFTER });
+add({ name: "transfer complete: to an http URL", token: "write", method: "POST", path: COMPLETE(), body: { target_instance_url: "http://target.example.com" }, after: COMPLETE_AFTER });
+add({ name: "transfer complete: to a private URL", token: "write", method: "POST", path: COMPLETE(), body: { target_instance_url: "https://private.example/" }, after: COMPLETE_AFTER });
+add({ name: "transfer complete: to an internal address", token: "write", method: "POST", path: COMPLETE(), body: { target_instance_url: "https://10.0.0.8" } });
+add({ name: "transfer complete: to an invalid URL", token: "write", method: "POST", path: COMPLETE(), body: { target_instance_url: "nope" } });
+add({ name: "transfer complete: invalid", token: "write", method: "POST", path: COMPLETE(), body: { export_id: 5, target_instance_url: ["https://target.example.com"], other: 1 } });
+add({ name: "transfer complete: unknown", token: "write", method: "POST", path: COMPLETE("nonexistentuuid"), body: {} });
+add({ name: "transfer complete: another team's server", token: "write", method: "POST", path: COMPLETE(S_OTHER), body: {} });
+add({ name: "transfer complete: with a read token", token: "read", method: "POST", path: COMPLETE(), body: {} });
+denial("transfer complete: marked", "memberWrite", WRITE_DELETE, WRITER);
+
 /** The tables whose column order emit.php writes into the goldens (`columns`): what a nested relation serializes in. */
 const columnsOf = ["servers", "server_settings", "standalone_dockers", "application_settings", "applications", "environment_variables", "application_deployment_queues", "scheduled_database_backups", "scheduled_database_backup_executions", "services", "service_applications", "service_databases", "projects", "environments", "standalone_postgresqls", "standalone_redis", "standalone_mongodbs", "standalone_mysqls", "standalone_mariadbs", "standalone_keydbs", "standalone_dragonflies", "standalone_clickhouses", "local_persistent_volumes", "local_file_volumes", "github_apps"];
 
