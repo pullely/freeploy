@@ -1,0 +1,22 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-100
+  title: "DP3: the dashboard at / (projects, servers, active and recent deployments, the onboarding empty states, the canvas link) and an environment's Clone page (applications and databases cloned in one transaction; a service, volume data and file mounts answer 501 with nothing stored)"
+spec:
+  goal: deploy-web gains Coolify's dashboard at / (route dashboard, App\Livewire\Dashboard and dashboard.blade.php) — the team's projects and servers as a table or a grid of their first eight, sorted as setProjectSort() / setServerSort() sort them, "View all" past eight, the New project dialog, New server and the projects' Add resource and settings links, the empty states (No projects yet; A private key is required, then No servers yet), the Canvas link to /dashboard/canvas, serverStatus()'s labels, and <livewire:dashboard.active-deployments> polled every 3 s — and /dashboard resolves as Coolify's catch-all does (a signed-in user is sent to /), with DP-98's dashboard canvas "List view" now leading to /?view=list as route('dashboard') does. It also gains /project/{uuid}/environment/{env_uuid}/clone (route project.clone-me, App\Livewire\Project\CloneMe) — the new name (str(clone_resource_name(...))->slug()), Clone volume data, the destinations by server, the resources, and Clone to environment / Clone to project with CloneMe::messages() and Laravel's own messages, "Environment not found.", "Destination not found.", "Project with the same name already exists.", "Environment with the same name already exists." and handleError()'s duplicate toast — cloning the applications (DP-55's clone_application()) and the standalone databases (DP-64's database branch with the name kept) in one transaction; an environment with a service answers 501 "Cloning a service is not available yet." (clone_service() is not ported, DP-97) and copying volume data or writing a managed file mount answers 501 "… needs the SSH executor, which is not available yet.", the first in Coolify's order, with the transaction rolled back. New endpoints GET /v1/organizations/{org}/deploy/dashboard[/deployments] and GET/POST …/deploy/projects/{uuid}/environments/{env_uuid}/clone run inside withOrg with deploy.resource.read / write and answer a denial with 404. packages/db gains deploy/dashboard.ts (the dashboard's servers, private key check and deployments, and the clone's project name check). No migration, binding or dependency.
+  affects:
+    - apps/deploy-web/**
+    - apps/deploy-core-worker/**
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - apps/deploy-web/test/routes.test.ts maps / to the dashboard, /dashboard to the catch-all's way home and …/environment/{env_uuid}/clone to the Clone page; apps/deploy-web/test/dashboard.test.ts holds sortItems() (natural, case-folded, stable, with the name as tie-breaker), the eight-item limit, isValidSort(), navigateTo(), $deploymentStatusMeta and selectServer()
+    - tests/deploy-core-worker/src/dashboard.test.ts holds serverStatus()'s rules, the page's projects, servers and private key check, the deployments' order and rows, authorization (a denial is a 404), org isolation and the routing
+    - tests/deploy-core-worker/src/environment-clone.test.ts holds mount()'s page, clone()'s rules and messages in Coolify's order, the clone into a new environment and into a new project with their rows, the service, volume data and file mount 501s storing nothing, authorization, org isolation and the routing
+    - tests/db/src/deploy-dashboard.test.ts runs the new queries on the schema at head, row-level security included
+    - on stage, / lists the parity user's project and localhost server with its status, its Canvas link opens /dashboard/canvas, whose List view leads back to /; an environment without services clones into a new environment and opens it
+  gates: []

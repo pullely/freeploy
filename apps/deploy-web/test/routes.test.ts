@@ -90,7 +90,8 @@ test("the project and environment routes map to their pages; the environment can
   assert.equal(pageFor(`${environment}/new`), "project.resource.create");
   assert.equal(pageFor(`${environment}/new/`), "project.resource.create");
   assert.equal(pageFor(`${environment}/new/more`), "not-ported");
-  assert.equal(pageFor(`${environment}/clone`), "not-ported");
+  // DP-100: the Clone page is ported (its assertions are below).
+  assert.equal(pageFor(`${environment}/clone`), "project.clone-me");
   assert.equal(pageFor(`${environment}/canvas`), "project.environment.canvas");
   assert.equal(pageFor(`${environment}/canvas/`), "project.environment.canvas");
   assert.equal(pageFor(`${environment}/canvas/more`), "not-ported");
@@ -450,4 +451,16 @@ test("DP-98: the canvases that reuse the environment canvas's view map to their 
   for (const path of ["/dashboard/canvas/x", "/shared-variables/canvas", "/shared-variables/environment/abc/canvas", "/tags/canvas/x", "/canvas/tags/x"]) assert.equal(pageFor(path), "not-ported", path);
   // A tag named "canvas" is still its page, as in Coolify (routes/web.php has no /tags/canvas).
   assert.equal(pageFor("/tags/canvas"), "tags.show");
+});
+
+test("DP-100: / is the dashboard, /dashboard is Coolify's catch-all (sent home), and …/clone is an environment's Clone page", () => {
+  assert.equal(pageFor("/"), "dashboard");
+  assert.equal(pageFor("/dashboard"), "dashboard.fallback");
+  assert.equal(pageFor("/dashboard/"), "dashboard.fallback");
+  assert.equal(pageFor("/dashboard/canvas"), "dashboard.canvas");
+  assert.equal(pageFor("/dashboard/other"), "not-ported");
+  const environment = "/project/abc123def456ghi789jkl012/environment/mno345pqr678stu901vwx234";
+  assert.equal(pageFor(`${environment}/clone`), "project.clone-me");
+  assert.equal(pageFor(`${environment}/clone/`), "project.clone-me");
+  for (const path of [`${environment}/clone/more`, "/project/abc/clone"]) assert.equal(pageFor(path), "not-ported", path);
 });

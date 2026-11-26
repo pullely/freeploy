@@ -4,7 +4,7 @@
 //
 // /project/{uuid}/environment/{env_uuid}/edit: the environment's name and
 // description, and deleting the environment once it is empty. "Clone
-// environment" leads to a page that is not ported yet. Coolify's route answers
+// environment" leads to the Clone page (DP-100). Coolify's route answers
 // 403 to a member who cannot update the environment; here that member is sent
 // back to the environment.
 import { useCallback, useEffect, useState, type FormEvent } from "react";

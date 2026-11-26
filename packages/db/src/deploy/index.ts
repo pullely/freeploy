@@ -661,3 +661,5 @@ export * from "./canvas-views.js";
 export * from "./volume-backup-pages.js";
 // DP-99: the console's Preview Deployments page.
 export * from "./preview-pages.js";
+// DP-100: the dashboard at / and the environment clone's project name check.
+export * from "./dashboard.js";
