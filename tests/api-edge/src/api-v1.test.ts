@@ -174,7 +174,7 @@ describe("what the edge sends a worker", () => {
 });
 
 describe("the routes", () => {
-  it("are the 57 ported operations of openapi.json (health, the deprecated team aliases and the GET answers of start, restart and stop aside)", () => {
+  it("are the 73 ported operations of openapi.json (health, the deprecated team aliases and the GET answers of start, restart and stop aside)", () => {
     const openapi = JSON.parse(readFileSync(resolve(FIXTURES, "../../../../specs/epics/freeploy-coolify-parity/parity/openapi.operations.json"), "utf8")) as { rows: Array<{ method: string; path: string }> };
     const ops = new Set(openapi.rows.map((r) => `${r.method} ${r.path}`));
     const routes = API_V1_ROUTES.map((r) => `${r.method} /api/v1${r.path}`);
@@ -190,8 +190,13 @@ describe("the routes", () => {
       "GET /api/v1/databases/{uuid}/start",
       "GET /api/v1/databases/{uuid}/restart",
       "GET /api/v1/databases/{uuid}/stop",
+      // DP-74
+      "GET /api/v1/deploy",
+      "GET /api/v1/services/{uuid}/start",
+      "GET /api/v1/services/{uuid}/restart",
+      "GET /api/v1/services/{uuid}/stop",
     ]);
-    expect(inOpenapi.length + 1 /* GET /api/v1/health */).toBe(57);
+    expect(inOpenapi.length + 1 /* GET /api/v1/health */).toBe(73);
   });
 
   it("take the first match in routes/api.php's order and ignore a trailing slash", () => {
@@ -204,7 +209,12 @@ describe("the routes", () => {
     expect(matchApiRoute("GET", "/databases/postgresql")?.path).toBe("/databases/{uuid}");
     expect(matchApiRoute("POST", "/databases/sqlite")).toBeNull();
     expect(matchApiRoute("GET", "/databases/b1/backups/c1/executions")?.path).toBe("/databases/{uuid}/backups/{scheduled_backup_uuid}/executions");
-    expect(matchApiRoute("GET", "/services")).toBeNull();
+    expect(matchApiRoute("GET", "/services")?.path).toBe("/services");
+    expect(matchApiRoute("PATCH", "/services/s1/envs/bulk")?.path).toBe("/services/{uuid}/envs/bulk");
+    expect(matchApiRoute("GET", "/services/s1/start")?.abilities).toEqual(["deploy"]);
+    expect(matchApiRoute("GET", "/services/s1/storages")).toBeNull();
+    expect(matchApiRoute("GET", "/deployments/applications/a1")?.path).toBe("/deployments/applications/{uuid}");
+    expect(matchApiRoute("GET", "/deployments/q1")).toBeNull();
   });
 });
 

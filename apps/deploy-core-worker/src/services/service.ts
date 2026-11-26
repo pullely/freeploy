@@ -274,31 +274,52 @@ export async function createOneClickService(ctx: ServiceContext, input: CreateSe
   if (!created) throw new ServiceError(SERVICE_MESSAGES.templateNotFound, 422);
   const memory = MemoryServiceStore.forService(created.service);
   try {
-    createServiceFromTemplate(memory, created.environment, {
-      server: {
-        ip: settings.ip,
-        wildcardDomain: settings.wildcard_domain,
-        proxyType: proxyType(settings.proxy),
-        generateExactLabels: settings.generate_exact_labels === true,
-        traefikCertificateResolver: settings.traefik_certificate_resolver,
-        isTrafficAnalyticsEnabled: settings.is_traffic_analytics_enabled === true,
-        // Freeploy saves no proxy configuration yet, so the Caddy version is unknown: no `log_append` (labels-service.ts).
-        caddySupportsLogAppend: false,
-        // No application of a new service has log draining on.
-        logDrainConfiguration: null,
-      },
-      destinationNetwork: destination.network,
-      projectName: project.name,
-      environmentName: environment.name,
-      newUuid,
-      ...deps.parser,
-    });
+    createServiceFromTemplate(memory, created.environment, newServiceParserContext({ project, environment, destination, settings }, newUuid, deps));
   } catch (error) {
     // What Coolify shows as the exception's message.
     if (error instanceof ComposeError) throw new ServiceError(error.message, 422);
     throw error;
   }
+  await insertParsedRows(ctx, memory, { environment, server, destination }, newUuid);
+  return { uuid: memory.service.uuid, name: memory.service.name, projectUuid: project.uuid, environmentUuid: environment.uuid };
+}
 
+/** Where a new service goes: its project and environment, its server (with what the parser reads of it) and destination. */
+export interface ServicePlacement {
+  project: Pick<DeployProjectRow, "name">;
+  environment: Pick<DeployEnvironmentRow, "id" | "name">;
+  server: Pick<DeployServerRow, "id">;
+  destination: Pick<DeployDestinationRow, "id" | "type" | "network">;
+  settings: DeployServiceServerRow;
+}
+
+/** The parser's context for a service that is being created on `placement`. */
+export function newServiceParserContext(placement: Omit<ServicePlacement, "server">, newUuid: () => string, deps: ServiceCreateDependencies = {}): ServiceParserContext {
+  const { settings } = placement;
+  return {
+    server: {
+      ip: settings.ip,
+      wildcardDomain: settings.wildcard_domain,
+      proxyType: proxyType(settings.proxy),
+      generateExactLabels: settings.generate_exact_labels === true,
+      traefikCertificateResolver: settings.traefik_certificate_resolver,
+      isTrafficAnalyticsEnabled: settings.is_traffic_analytics_enabled === true,
+      // Freeploy saves no proxy configuration yet, so the Caddy version is unknown: no `log_append` (labels-service.ts).
+      caddySupportsLogAppend: false,
+      // No application of a new service has log draining on.
+      logDrainConfiguration: null,
+    },
+    destinationNetwork: placement.destination.network,
+    projectName: placement.project.name,
+    environmentName: placement.environment.name,
+    newUuid,
+    ...deps.parser,
+  };
+}
+
+/** The rows the parser made in memory for a new service, stored (encrypted where the columns are) in one go. Answers the service's id. */
+export async function insertParsedRows(ctx: ServiceContext, memory: MemoryServiceStore, placement: Pick<ServicePlacement, "environment" | "server" | "destination">, newUuid: () => string = () => newPublicId()): Promise<string | number> {
+  const { environment, server, destination } = placement;
   const rows = memory.rows();
   const part = (row: (typeof rows.databases)[number]) => ({
     localId: row.id,
@@ -343,7 +364,7 @@ export async function createOneClickService(ctx: ServiceContext, input: CreateSe
       owner: { kind: row.resource_type, localId: row.resource_id },
     });
   }
-  await ctx.store.insert({
+  return ctx.store.insert({
     uuid: rows.service.uuid,
     name: rows.service.name,
     environmentId: environment.id,
@@ -372,7 +393,6 @@ export async function createOneClickService(ctx: ServiceContext, input: CreateSe
     persistentVolumes: rows.persistentVolumes.map((row) => ({ uuid: newUuid(), name: row.name, mountPath: row.mount_path ?? "", owner: { kind: row.resource_type, localId: row.resource_id } })),
     fileVolumes,
   });
-  return { uuid: rows.service.uuid, name: rows.service.name, projectUuid: project.uuid, environmentUuid: environment.uuid };
 }
 
 // ---------------------------------------------------------------------------

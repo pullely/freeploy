@@ -60,6 +60,8 @@ function runners(db: TransactionalSqlExecutor, allow = true): Partial<ApiV1Runne
 
 async function replay(c: Case, after?: (db: TransactionalSqlExecutor) => Promise<unknown>): Promise<{ status: number; body: string; after: unknown }> {
   return fixture.inCase(async (db) => {
+    // A case's `setup` (DP-74): the SQL emit.php runs before the request, on Freeploy's tables of the same names.
+    for (const sql of c.setup ?? []) await withOrg(db, ORG_UUID[T1]!, async (tx) => (await tx.execute("SET LOCAL search_path TO deploy"), await tx.execute(sql)));
     const req = forwarded(c);
     const path = new URL(req.url).pathname.replace(`/v1/internal/api-v1/${ORG_PUBLIC}`, "");
     const res = await handleApiV1(req, env, "req_test", { subjectId: userPublic(tokenOf(c.token!).user), subjectType: "user" }, ORG_UUID[T1]!, ORG_PUBLIC, path, runners(db));

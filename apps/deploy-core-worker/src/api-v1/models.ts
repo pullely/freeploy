@@ -101,6 +101,13 @@ export const APPLICATION_SETTING: ModelShape = { hidden: ["id", "application_id"
 export const DESTINATION: ModelShape = { hidden: [], dates: ["created_at", "updated_at"] };
 export const ENVIRONMENT_VARIABLE: ModelShape = { hidden: ["value", "real_value", "uses_legacy_escaping"], dates: ["created_at", "updated_at"] };
 
+// ── DP-74: app/Models/{Service,ServiceApplication,ServiceDatabase}.php ──
+
+/** Service: Service::COMPOSE_ATTRIBUTES hidden (visible to a token that may read secrets); SoftDeletes. */
+export const SERVICE: ModelShape = { hidden: ["docker_compose_raw", "docker_compose"], dates: ["created_at", "updated_at", "deleted_at"] };
+export const SERVICE_APPLICATION: ModelShape = { hidden: ["domain_dns_statuses", "domain_port_overrides"], dates: ["created_at", "updated_at", "deleted_at"] };
+export const SERVICE_DATABASE: ModelShape = { hidden: [], dates: ["created_at", "updated_at", "deleted_at"] };
+
 export function rowValue(row: ApiRow, column: string): unknown {
   return row.find(([k]) => k === column)?.[1];
 }

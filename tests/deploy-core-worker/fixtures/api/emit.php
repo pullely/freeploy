@@ -18,6 +18,7 @@
 // uuid of what a case creates is Coolify's random one; the test masks it (README.md, "Masking").
 
 use App\Models\Application;
+use App\Models\ApplicationDeploymentQueue;
 use App\Models\Environment;
 use App\Models\EnvironmentVariable;
 use App\Models\InstanceSettings;
@@ -28,6 +29,9 @@ use App\Models\ScheduledDatabaseBackup;
 use App\Models\ScheduledDatabaseBackupExecution;
 use App\Models\Project;
 use App\Models\Server;
+use App\Models\Service;
+use App\Models\ServiceApplication;
+use App\Models\ServiceDatabase;
 use App\Models\StandaloneDocker;
 use App\Models\Team;
 use App\Models\User;
@@ -60,7 +64,7 @@ Artisan::call('migrate:fresh', ['--force' => true]);
 ob_end_clean();
 /** The fixture's ids are given; what is created after them (a user's personal team, a case's rows) continues after them. */
 $advanceSequences = function (): void {
-    foreach (['teams', 'users', 'team_user', 'projects', 'environments', 'private_keys', 'servers', 'server_settings', 'standalone_dockers', 'personal_access_tokens', 'applications', 'application_settings', 'environment_variables', 'application_deployment_queues', 's3_storages', 'standalone_postgresqls', 'standalone_redis', 'standalone_mongodbs', 'standalone_mysqls', 'standalone_mariadbs', 'standalone_keydbs', 'standalone_dragonflies', 'standalone_clickhouses', 'local_persistent_volumes', 'scheduled_database_backups', 'scheduled_database_backup_executions', 'scheduled_database_backup_s3_storage'] as $table) {
+    foreach (['teams', 'users', 'team_user', 'projects', 'environments', 'private_keys', 'servers', 'server_settings', 'standalone_dockers', 'personal_access_tokens', 'applications', 'application_settings', 'environment_variables', 'application_deployment_queues', 's3_storages', 'standalone_postgresqls', 'standalone_redis', 'standalone_mongodbs', 'standalone_mysqls', 'standalone_mariadbs', 'standalone_keydbs', 'standalone_dragonflies', 'standalone_clickhouses', 'local_persistent_volumes', 'scheduled_database_backups', 'scheduled_database_backup_executions', 'scheduled_database_backup_s3_storage', 'services', 'service_applications', 'service_databases'] as $table) {
         DB::statement("SELECT setval(pg_get_serial_sequence('{$table}', 'id'), GREATEST((SELECT COALESCE(MAX(id), 0) FROM {$table}), 1))");
     }
 };
@@ -140,6 +144,26 @@ foreach ($fixture['backups'] ?? [] as $b) {
 $advanceSequences();
 foreach ($fixture['executions'] ?? [] as $x) {
     ScheduledDatabaseBackupExecution::unguarded(fn () => ScheduledDatabaseBackupExecution::query()->forceCreate(['id' => $x['id'], 'uuid' => $x['uuid'], 'scheduled_database_backup_id' => $x['backup'], 'status' => $x['status'], 'message' => $x['message'], 'size' => $x['size'], 'filename' => $x['filename'], 'database_name' => $x['database_name'], 'created_at' => $x['created_at'], 'updated_at' => $x['created_at'], 'finished_at' => $x['finished_at']]));
+}
+// DP-74: services with fixed columns (forceCreate(): the creating hook gives the parser version), their applications and
+// databases (the saving hooks normalize the domains), and their variables through the model.
+$advanceSequences();
+foreach ($fixture['services'] ?? [] as $s) {
+    Service::unguarded(fn () => Service::query()->forceCreate(['id' => $s['id'], 'uuid' => $s['uuid'], 'name' => $s['name'], 'description' => $s['description'], 'docker_compose_raw' => $s['docker_compose_raw'], 'docker_compose' => $s['docker_compose'], 'service_type' => $s['service_type'], 'environment_id' => $s['environment_id'], 'server_id' => $s['server_id'], 'destination_id' => $s['destination_id'], 'destination_type' => StandaloneDocker::class]));
+}
+foreach ($fixture['serviceApplications'] ?? [] as $a) {
+    ServiceApplication::unguarded(fn () => ServiceApplication::query()->forceCreate(['id' => $a['id'], 'uuid' => $a['uuid'], 'service_id' => $a['service'], 'name' => $a['name'], 'image' => $a['image'], 'fqdn' => $a['fqdn']]));
+}
+foreach ($fixture['serviceDatabases'] ?? [] as $d) {
+    ServiceDatabase::unguarded(fn () => ServiceDatabase::query()->forceCreate(['id' => $d['id'], 'uuid' => $d['uuid'], 'service_id' => $d['service'], 'name' => $d['name'], 'image' => $d['image']]));
+}
+$advanceSequences();
+foreach ($fixture['serviceVariables'] ?? [] as $v) {
+    EnvironmentVariable::unguarded(fn () => EnvironmentVariable::query()->create(['uuid' => $v['uuid'], 'key' => $v['key'], 'value' => $v['value'], 'comment' => $v['comment'], 'is_shown_once' => $v['is_shown_once'], 'is_preview' => false, 'resourceable_type' => Service::class, 'resourceable_id' => $v['service']]));
+}
+// DP-74: deployments in the queue, with fixed columns (forceCreate(); application_id is a string column).
+foreach ($fixture['deployments'] ?? [] as $q) {
+    ApplicationDeploymentQueue::unguarded(fn () => ApplicationDeploymentQueue::query()->forceCreate(['id' => $q['id'], 'deployment_uuid' => $q['uuid'], 'application_id' => (string) $q['application'], 'status' => $q['status'], 'commit' => $q['commit'], 'server_id' => $q['server_id'], 'destination_id' => (string) $q['destination_id'], 'application_name' => $q['application_name'], 'server_name' => $q['server_name'], 'logs' => $q['logs'], 'created_at' => $q['created_at'], 'updated_at' => $q['created_at'], 'finished_at' => $q['finished_at']]));
 }
 // Tokens: the fixture's plain text, hashed as Sanctum stores it; the client sends "<id>|<plain text>".
 $advanceSequences();

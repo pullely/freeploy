@@ -111,6 +111,27 @@ export const COOLIFY_COLUMNS = {
     "id", "uuid", "status", "message", "size", "filename", "scheduled_database_backup_id", "created_at", "updated_at",
     "database_name", "finished_at", "local_storage_deleted", "s3_storage_deleted", "s3_uploaded", "worker_host",
   ],
+  // DP-74: a service's applications and databases (loaded relations), and the service's own columns.
+  services: [
+    "id", "uuid", "name", "environment_id", "created_at", "updated_at", "server_id", "description", "docker_compose_raw",
+    "docker_compose", "destination_type", "destination_id", "deleted_at", "connect_to_docker_network", "config_hash",
+    "service_type", "is_container_label_escape_enabled", "compose_parsing_version", "redact_all_env_values_in_logs",
+    "is_maintenance_enabled", "maintenance_page", "include_coolify_default_variables",
+  ],
+  service_applications: [
+    "id", "uuid", "name", "human_name", "description", "fqdn", "ports", "exposes", "status", "service_id", "created_at",
+    "updated_at", "exclude_from_status", "required_fqdn", "image", "is_log_drain_enabled", "is_include_timestamps",
+    "deleted_at", "is_gzip_enabled", "is_stripprefix_enabled", "last_online_at", "is_migrated", "noindex_domains",
+    "domain_dns_statuses", "redirect", "is_force_https_enabled", "restart_count", "max_restart_count",
+    "restart_limit_reached", "last_restart_at", "last_restart_type", "domain_port_overrides",
+    "traefik_certificate_resolver", "is_permanent_redirect_enabled", "is_removed_from_compose",
+  ],
+  service_databases: [
+    "id", "uuid", "name", "human_name", "description", "ports", "exposes", "status", "service_id", "created_at",
+    "updated_at", "exclude_from_status", "image", "public_port", "is_public", "is_log_drain_enabled",
+    "is_include_timestamps", "deleted_at", "is_gzip_enabled", "is_stripprefix_enabled", "last_online_at", "is_migrated",
+    "custom_type", "public_port_timeout", "is_removed_from_compose",
+  ],
 } as const satisfies Record<string, readonly string[]>;
 
 export type CoolifyTable = keyof typeof COOLIFY_COLUMNS;

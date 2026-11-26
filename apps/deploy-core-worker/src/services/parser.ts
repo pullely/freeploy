@@ -276,12 +276,7 @@ class Parser {
 
   /** ServiceApplication's saving hook for a changed fqdn. */
   setFqdn(application: ServiceApplicationRow, fqdn: string | null): void {
-    if (application.fqdn === fqdn) return;
-    const normalized = normalizeDomainPortOverrides(fqdn, application.domain_port_overrides);
-    application.fqdn = normalized.fqdn;
-    application.domain_port_overrides = normalized.overrides;
-    const noindex = syncNoindexDomains(application.noindex_domains, application.fqdn);
-    if (noindex !== undefined) application.noindex_domains = noindex;
+    setServiceApplicationFqdn(application, fqdn);
   }
 
   /** findServiceApplicationForEnvName(): the application a SERVICE_URL_<NAME> variable means. */
@@ -1104,6 +1099,97 @@ function isCopiedServiceUrlDeclaration(parser: Parser, services: PhpArray, curre
   const twinKey = key.startsWith("SERVICE_URL_") ? `SERVICE_FQDN_${key.slice("SERVICE_URL_".length)}` : `SERVICE_URL_${key.slice("SERVICE_FQDN_".length)}`;
   const value = phpString(currentDeclarations.get(key));
   return [key, twinKey].some((ownerKey) => ownerDeclarations.has(ownerKey) && phpString(ownerDeclarations.get(ownerKey)) === value);
+}
+
+/** `$application->fqdn = …; $application->save()`: ServiceApplication's saving hook for a changed fqdn (the ports into domain_port_overrides, the noindex flags). */
+export function setServiceApplicationFqdn(application: ServiceApplicationRow, fqdn: string | null): void {
+  if (application.fqdn === fqdn) return;
+  const normalized = normalizeDomainPortOverrides(fqdn, application.domain_port_overrides);
+  application.fqdn = normalized.fqdn;
+  application.domain_port_overrides = normalized.overrides;
+  const noindex = syncNoindexDomains(application.noindex_domains, application.fqdn);
+  if (noindex !== undefined) application.noindex_domains = noindex;
+}
+
+/**
+ * updateCompose($resource) (bootstrap/helpers/services.php, DP-74): after a part's domains or image changed, the image
+ * written back into the Compose file, and the SERVICE_URL_* / SERVICE_FQDN_* pairs the part declares itself (not those
+ * copied from another part) deleted and made again from its first domain — the base pair and one per port. Coolify
+ * swallows any error (handleError()); so does this.
+ */
+export function updateServiceCompose(store: ServiceStore, context: ServiceParserContext, part: ServicePart): void {
+  const parser = new Parser(store, context);
+  const service = store.service;
+  try {
+    const name = part.row.name;
+    let raw = service.docker_compose_raw;
+    if (!phpTruthy(raw) || raw === null) throw new ComposeError("No compose file found or not a valid YAML file.");
+    const compose = parseDockerComposeYaml(raw);
+    // Switch Image
+    const updatedImage = part.row.image ?? "";
+    const currentImage = phpString(dataGet(compose, ["services", name, "image"]) ?? "");
+    if (updatedImage !== "" && currentImage !== updatedImage) {
+      const services = dataGet(compose, "services");
+      const config = services instanceof PhpArray ? services.get(name) : undefined;
+      if (config instanceof PhpArray) config.set("image", updatedImage);
+      raw = dumpYaml(compose, 10, 2);
+      service.docker_compose_raw = raw;
+    }
+    const services = dataGet(compose, "services");
+    const environment = dataGet(compose, ["services", name, "environment"]);
+    const names: string[] = [];
+    for (const [key, value] of environment instanceof PhpArray ? environment : new PhpArray()) {
+      let variable: string | null = null;
+      if (typeof key === "number" && typeof value === "string") variable = before(value, "=").trim();
+      else if (typeof key === "string") variable = key;
+      if (variable !== null && (variable.startsWith("SERVICE_FQDN_") || variable.startsWith("SERVICE_URL_")) && !names.includes(variable)) names.push(variable);
+    }
+    const declared = names.filter((key) => !isCopiedServiceUrlDeclaration(parser, services instanceof PhpArray ? services : new PhpArray(), part, key));
+    const toProcess = new Map<string, { base: string; ports: string[] }>();
+    for (const key of declared) {
+      const parsed = parseServiceEnvironmentVariable(key);
+      const prefix = key.startsWith("SERVICE_URL_") ? "SERVICE_URL_" : "SERVICE_FQDN_";
+      const rest = key.slice(prefix.length);
+      const serviceName = parsed.has_port ? beforeLast(rest, "_") : rest;
+      const entry = toProcess.get(serviceName.toLowerCase()) ?? { base: serviceName, ports: [] };
+      toProcess.set(serviceName.toLowerCase(), entry);
+      if (parsed.has_port && parsed.port) entry.ports.push(parsed.port);
+    }
+    const remove = (key: string) => {
+      for (const row of store.environmentVariables().filter((variable) => variable.key === key)) store.deleteEnvironmentVariable(row);
+    };
+    for (const { base, ports } of toProcess.values()) {
+      remove(`SERVICE_URL_${base}`);
+      remove(`SERVICE_FQDN_${base}`);
+      for (const port of ports) {
+        remove(`SERVICE_URL_${base}_${port}`);
+        remove(`SERVICE_FQDN_${base}_${port}`);
+      }
+    }
+    if (part.kind !== "application" || !phpTruthy(part.row.fqdn)) return;
+    const firstFqdn = firstDomainFromList(part.row.fqdn);
+    const port = parseUrlPort(firstFqdn);
+    const urlValue = getFqdnWithoutPort(firstFqdn);
+    const fqdnValue = getHostWithoutPort(firstFqdn);
+    for (const { base, ports } of toProcess.values()) {
+      parser.updateOrCreate(`SERVICE_URL_${base}`, { value: urlValue });
+      parser.updateOrCreate(`SERVICE_FQDN_${base}`, { value: fqdnValue });
+      const allPorts = [...new Set(ports)];
+      if (port !== null && !allPorts.includes(port)) allPorts.push(port);
+      for (const portNumber of allPorts) {
+        parser.updateOrCreate(`SERVICE_URL_${base}_${portNumber}`, { value: `${urlValue}:${portNumber}` });
+        parser.updateOrCreate(`SERVICE_FQDN_${base}_${portNumber}`, { value: `${fqdnValue}:${portNumber}` });
+      }
+    }
+  } catch {
+    // handleError($e): reported, not thrown.
+  }
+}
+
+/** Url::fromString($url)->getPort(): the explicit port of an http(s) URL, as text, or null. */
+function parseUrlPort(url: string): string | null {
+  const match = /^[a-z][a-z0-9+.-]*:\/\/(?:[^@/?#]*@)?(\[[^\]]*\]|[^:/?#]*)(?::(\d+))?/i.exec(url);
+  return match?.[2] ? String(Number(match[2])) : null;
 }
 
 /** generateServiceSpecificFqdns(): MinIO, Logto and Garage take their domains from their own URL variables. */

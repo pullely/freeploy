@@ -243,7 +243,8 @@ export async function listServicePartFiles(tx: SqlExecutor, serviceId: Id): Prom
 const WRITABLE: Record<string, { table: string; columns: readonly string[]; json?: readonly string[] }> = {
   service: {
     table: "deploy.services",
-    columns: ["name", "description", "docker_compose_raw", "docker_compose", "connect_to_docker_network", "is_container_label_escape_enabled", "service_type"],
+    // redact_all_env_values_in_logs and include_coolify_default_variables: written by /api/v1 (DP-74).
+    columns: ["name", "description", "docker_compose_raw", "docker_compose", "connect_to_docker_network", "is_container_label_escape_enabled", "service_type", "redact_all_env_values_in_logs", "include_coolify_default_variables"],
   },
   application: {
     table: "deploy.service_applications",

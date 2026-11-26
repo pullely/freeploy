@@ -125,7 +125,7 @@ async function loadRelations(rows: Rows, row: ApiRow): Promise<Loaded> {
   return { destination, server, serverSettings, additional };
 }
 
-const functional = (server: ApiRow | null, settings: ApiRow | undefined): boolean =>
+export const functional = (server: ApiRow | null, settings: ApiRow | undefined): boolean =>
   server !== null && settings !== undefined && isFunctional({ is_reachable: rowValue(settings, "is_reachable") as boolean, is_usable: rowValue(settings, "is_usable") as boolean, force_disabled: rowValue(settings, "force_disabled") as boolean, ip: rowValue(server, "ip") as string });
 
 /**
@@ -295,15 +295,19 @@ type EnvResource = DeployEnvironmentVariableResourceRow;
  */
 const CREATED_VARIABLE_COLUMNS = ["key", "value", "is_preview", "is_literal", "is_multiline", "is_shown_once", "is_runtime", "is_buildtime", "comment", "version", "uuid", "created_at", "updated_at"];
 
-/** removeSensitiveData($env): the columns and appends, value and real_value only for a token that may read secrets and never for a locked variable. */
-async function variableModel(tx: SqlExecutor, c: ApiV1Context, resource: EnvResource, row: ApiRow, hideListColumns: boolean, justCreated = false): Promise<PhpObject> {
-  const ctx = environmentVariableContext(tx, c.orgId, c.env.DEPLOY_ENCRYPTION_KEY, "application");
+/**
+ * removeSensitiveData($env): the columns and appends, value and real_value only for a token that may read secrets and never for a locked variable.
+ * `created`: the attributes of a variable just made (the model is not read again), DP-71's for an application's; a
+ * service's (DP-74) are what its controller gave.
+ */
+export async function variableModel(tx: SqlExecutor, c: ApiV1Context, resource: EnvResource, row: ApiRow, hideListColumns: boolean, justCreated = false, kind: "application" | "service" = "application", created: readonly string[] = CREATED_VARIABLE_COLUMNS): Promise<PhpObject> {
+  const ctx = environmentVariableContext(tx, c.orgId, c.env.DEPLOY_ENCRYPTION_KEY, kind);
   const value = await storedValue(ctx, { value: rowValue(row, "value") as string | null });
   const key = String(rowValue(row, "key"));
   const locked = rowValue(row, "is_shown_once") === true;
   const showValues = c.canReadSensitive && !locked;
   const hidden = ["id", "resourceable_id", "resourceable_type", ...(hideListColumns ? ENV_LIST_HIDDEN : [])];
-  const base = row.filter(([k]) => !hidden.includes(k) && (!justCreated || CREATED_VARIABLE_COLUMNS.includes(k)));
+  const base = row.filter(([k]) => !hidden.includes(k) && (!justCreated || created.includes(k)));
   const isRequired = !justCreated && rowValue(row, "is_required") === true;
   const revealed = isRequired ? await realValue(ctx, resource, value, true) : null;
   const extra: Array<[string, PhpValue]> = [
@@ -331,7 +335,7 @@ async function variableRows(tx: SqlExecutor, applicationId: unknown, isPreview: 
   return rowsOf(tx)("environment_variables", `t.resourceable_type = $1 AND t.resourceable_id = $2${preview}`, [APPLICATION_MORPH_CLASS, applicationId]);
 }
 
-async function variableResource(tx: SqlExecutor, c: ApiV1Context, uuid: string): Promise<EnvResource | null> {
+export async function variableResource(tx: SqlExecutor, c: ApiV1Context, uuid: string): Promise<EnvResource | null> {
   return environmentVariableContext(tx, c.orgId, c.env.DEPLOY_ENCRYPTION_KEY, "application").store.findResource(uuid);
 }
 
@@ -354,7 +358,7 @@ async function listVariables(c: ApiV1Context, uuid: string): Promise<CoolifyAnsw
 }
 
 /** customApiValidator() with the rules of create_env, update_env_by_uuid and each item of create_bulk_envs. */
-function validateVariable(all: Record<string, unknown>): Errors {
+export function validateVariable(all: Record<string, unknown>, flags: readonly string[] = ["is_preview", ...ENV_FLAGS]): Errors {
   const errors: Errors = [];
   const present = (k: string) => k in all;
   const key = all.key;
@@ -365,7 +369,7 @@ function validateVariable(all: Record<string, unknown>): Errors {
     if (typeof key !== "string" || !ENVIRONMENT_VARIABLE_KEY_PATTERN.test(key)) addError(errors, "key", LARAVEL.regex("key"));
   }
   if (present("value") && all.value !== null && typeof all.value !== "string") addError(errors, "value", LARAVEL.string("value"));
-  for (const flag of ["is_preview", ...ENV_FLAGS]) {
+  for (const flag of flags) {
     if (present(flag) && ![true, false, 0, 1, "0", "1"].includes(all[flag] as never)) addError(errors, flag, `The ${flag.replace(/_/g, " ")} field must be true or false.`);
   }
   const comment = all.comment;
@@ -377,7 +381,7 @@ function validateVariable(all: Record<string, unknown>): Errors {
 }
 
 /** `$request->has('key')`: the key as ValidationPatterns::normalizeEnvironmentVariableKey((string) $key) makes it. */
-function normalizedKey(all: Record<string, unknown>): Record<string, unknown> {
+export function normalizedKey(all: Record<string, unknown>): Record<string, unknown> {
   if (!("key" in all)) return all;
   const key = all.key;
   const text = key === null || key === undefined || key === false ? "" : key === true ? "1" : String(key);
@@ -385,7 +389,7 @@ function normalizedKey(all: Record<string, unknown>): Record<string, unknown> {
 }
 
 /** str($key)->trim()->replace(' ', '_') */
-const lookupKey = (key: unknown): string => String(key ?? "").trim().replace(/ /g, "_");
+export const lookupKey = (key: unknown): string => String(key ?? "").trim().replace(/ /g, "_");
 
 /** $env->fill($request->only([...flags, 'comment'])) and $env->value = … when the request has it. */
 function changesOf(all: Record<string, unknown>): VariableChanges {

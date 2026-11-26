@@ -21,7 +21,13 @@ export type Rule =
   | `max:${number}`
   | `between:${number},${number}`
   | { regex: RegExp }
-  | { exists: (value: unknown) => Promise<boolean> | boolean };
+  | { exists: (value: unknown) => Promise<boolean> | boolean }
+  /** required_without:other (implicit), DP-74 */
+  | { requiredWithout: string }
+  /** array:key1,key2 — an array whose keys are only these; `message` is the controller's own message for it (DP-74) */
+  | { arrayKeys: readonly string[]; message: string }
+  /** A closure rule: the messages it fails with (DP-74) */
+  | { closure: (value: unknown) => string[] };
 
 export type Rules = Array<[string, readonly Rule[]]>;
 
@@ -73,31 +79,46 @@ const BETWEEN: Record<SizeType, (a: string, x: number, y: number) => string> = {
   string: (a, x, y) => `The ${a} field must be between ${x} and ${y} characters.`,
 };
 
-/** Expands `field.*` into the items of the array the request holds (none when it is not an array). */
+/** The keys of an array or object of the request (none for anything else). */
+const keysOf = (v: unknown): string[] => (Array.isArray(v) ? v.map((_, i) => String(i)) : v !== null && typeof v === "object" ? Object.keys(v) : []);
+
+/** Expands `field.*` and `field.*.child` into the items of the array the request holds (none when it is not an array). */
 function expand(all: Record<string, unknown>, rules: Rules): Rules {
   const out: Rules = [];
   for (const [attribute, list] of rules) {
-    if (!attribute.endsWith(".*")) {
+    const star = attribute.indexOf(".*");
+    if (star === -1) {
       out.push([attribute, list]);
       continue;
     }
-    const parent = all[attribute.slice(0, -2)];
-    if (Array.isArray(parent)) parent.forEach((_, i) => out.push([`${attribute.slice(0, -2)}.${i}`, list]));
-    else if (parent !== null && typeof parent === "object") for (const k of Object.keys(parent)) out.push([`${attribute.slice(0, -2)}.${k}`, list]);
+    const parent = attribute.slice(0, star);
+    const child = attribute.slice(star + 2);
+    for (const k of keysOf(all[parent])) out.push([`${parent}.${k}${child}`, list]);
   }
   return out;
 }
 
+/** The attribute's value by its dotted path; absent when a step is missing (Laravel's Arr::has()). */
 function valueOf(all: Record<string, unknown>, attribute: string): { present: boolean; value: unknown } {
-  const dot = attribute.indexOf(".");
-  if (dot === -1) return { present: attribute in all, value: all[attribute] };
-  const parent = all[attribute.slice(0, dot)] as Record<string, unknown> | unknown[];
-  const key = attribute.slice(dot + 1);
-  return { present: true, value: (parent as Record<string, unknown>)[key] };
+  let at: unknown = all;
+  for (const key of attribute.split(".")) {
+    if (at === null || typeof at !== "object" || !Object.hasOwn(at, key)) return { present: false, value: undefined };
+    at = (at as Record<string, unknown>)[key];
+  }
+  return { present: true, value: at };
+}
+
+/** validateRequired(): null, a blank string, an empty array. */
+const missingValue = (value: unknown): boolean =>
+  value === null || value === undefined || (typeof value === "string" && value.trim() === "") || (Array.isArray(value) && value.length === 0) || (typeof value === "object" && !Array.isArray(value) && Object.keys(value).length === 0);
+
+export interface RuleOptions {
+  /** Laravel's own `required` message ("The x field is required."): Validator::make() without customApiValidator()'s (DP-74). */
+  laravelMessages?: boolean;
 }
 
 /** Validator::make($all, $rules, ['required' => 'This field is required.'])->errors(), appended to `errors`. */
-export async function validateRules(errors: Errors, all: Record<string, unknown>, rules: Rules): Promise<void> {
+export async function validateRules(errors: Errors, all: Record<string, unknown>, rules: Rules, options: RuleOptions = {}): Promise<void> {
   for (const [attribute, list] of expand(all, rules)) {
     const { present, value } = valueOf(all, attribute);
     const nullable = list.includes("nullable");
@@ -107,9 +128,15 @@ export async function validateRules(errors: Errors, all: Record<string, unknown>
     const hasError = () => errors.some(([k]) => k === attribute);
     for (const rule of list) {
       if (rule === "required") {
-        const missing = value === null || value === undefined || (typeof value === "string" && value.trim() === "") || (Array.isArray(value) && value.length === 0);
-        if (missing) {
-          failed("This field is required.");
+        if (missingValue(value)) {
+          failed(options.laravelMessages ? `The ${name} field is required.` : "This field is required.");
+          break;
+        }
+        continue;
+      }
+      if (typeof rule === "object" && "requiredWithout" in rule) {
+        if (missingValue(valueOf(all, rule.requiredWithout).value) && missingValue(value)) {
+          failed(`The ${name} field is required when ${display(rule.requiredWithout)} is not present.`);
           break;
         }
         continue;
@@ -143,6 +170,11 @@ export async function validateRules(errors: Errors, all: Record<string, unknown>
         if (size < x || size > y) failed(BETWEEN[sizeType(value, numeric)](name, x, y));
       } else if (typeof rule === "object" && "regex" in rule) {
         if ((typeof value !== "string" && typeof value !== "number") || !rule.regex.test(String(value))) failed(`The ${name} field format is invalid.`);
+      } else if (typeof rule === "object" && "arrayKeys" in rule) {
+        const isArray = Array.isArray(value) || (value !== null && typeof value === "object");
+        if (!isArray || keysOf(value).some((k) => !rule.arrayKeys.includes(k))) failed(rule.message);
+      } else if (typeof rule === "object" && "closure" in rule) {
+        for (const text of rule.closure(value)) failed(text);
       } else if (typeof rule === "object" && "exists" in rule) {
         // hasNotFailedPreviousRuleIfPresenceRule(): exists runs only while the attribute has no error.
         if (!hasError() && !(await rule.exists(value))) failed(`The selected ${name} is invalid.`);

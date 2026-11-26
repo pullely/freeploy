@@ -24,6 +24,8 @@ export interface Case extends Step {
   instance?: { is_api_enabled?: boolean; allowed_ips?: string };
   config?: { rate_limit?: number; failed_request_rate_limit?: number };
   sequence?: Step[];
+  /** SQL emit.php runs before the request (DP-74: a part made to run). */
+  setup?: string[];
   /** SQL whose rows emit.php reports after a write (`after` of the golden). */
   after?: Record<string, string>;
 }
@@ -64,6 +66,13 @@ export interface Fixture {
   databases: Array<{ engine: string; id: number; uuid: string; team: number; environment_id: number; destination_id: number; name: string; columns: Record<string, string | number | boolean> }>;
   backups: Array<{ id: number; uuid: string; team: number; engine: string; database_id: number; frequency: string; save_s3: boolean; s3: number[]; databases_to_backup: string | null; created_at: string }>;
   executions: Array<{ id: number; uuid: string; backup: number; status: string; message: string; size: number | null; filename: string | null; database_name: string; created_at: string; finished_at: string }>;
+  /** DP-74: a service per team, their applications and database, the services' variables. */
+  services: Array<{ id: number; uuid: string; team: number; environment_id: number; server_id: number; destination_id: number; name: string; description: string | null; docker_compose_raw: string; docker_compose: string | null; service_type: string | null }>;
+  serviceApplications: Array<{ id: number; uuid: string; service: number; name: string; image: string; fqdn: string | null }>;
+  serviceDatabases: Array<{ id: number; uuid: string; service: number; name: string; image: string }>;
+  serviceVariables: Array<{ uuid: string; service: number; key: string; value: string; is_shown_once: boolean; comment: string | null }>;
+  /** DP-74: deployments in the queue. */
+  deployments: Array<{ id: number; uuid: string; application: number; status: string; commit: string; server_id: number; destination_id: number; application_name: string; server_name: string; logs: string | null; created_at: string; finished_at: string | null }>;
 }
 
 export const CASES = JSON.parse(readFileSync(resolve(API_FIXTURES, "cases.json"), "utf8")) as { fixture: Fixture; cases: Case[] };
@@ -88,6 +97,11 @@ const FIXTURE_UUIDS = new Set<string>([
   ...CASES.fixture.databases.map((d) => d.uuid),
   ...CASES.fixture.backups.map((b) => b.uuid),
   ...CASES.fixture.executions.map((x) => x.uuid),
+  ...CASES.fixture.services.map((s) => s.uuid),
+  ...CASES.fixture.serviceApplications.map((a) => a.uuid),
+  ...CASES.fixture.serviceDatabases.map((d) => d.uuid),
+  ...CASES.fixture.serviceVariables.map((v) => v.uuid),
+  ...CASES.fixture.deployments.map((d) => d.uuid),
 ]);
 
 const LARAVEL_DATE = /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{6}Z$/;
@@ -125,7 +139,11 @@ export function mask(value: PhpValue, context: { teamIdKey?: boolean } = {}, par
     if (SQL_DATE.test(value)) return "<sql-date>";
     if (PUBLIC_ID.test(value) && !FIXTURE_UUIDS.has(value)) return "<new-uuid>";
     // A connection URL names its database by uuid (the host of internal_db_url): a database the request made (DP-73).
-    if (value.includes("://")) return value.replace(/@([a-z0-9]{24}):/g, (all, uuid: string) => (FIXTURE_UUIDS.has(uuid) ? all : "@<new-uuid>:"));
+    // …and where a generated domain names it after its container (`http://<name>-<uuid>.<host>` of a created service, DP-74).
+    if (value.includes("://"))
+      return value
+        .replace(/@([a-z0-9]{24}):/g, (all, uuid: string) => (FIXTURE_UUIDS.has(uuid) ? all : "@<new-uuid>:"))
+        .replace(/-([a-z0-9]{24})\./g, (all, uuid: string) => (FIXTURE_UUIDS.has(uuid) ? all : "-<new-uuid>."));
   }
   return value;
 }
