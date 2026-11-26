@@ -1,13 +1,19 @@
 // The URL structure is routes/web.php's, one to one (design §3.1). A route
 // whose page is not ported yet renders NotPorted, which the parity harness
 // reports as a failing (not missing) route once deploy-web is the target.
-export type PageKey = "login" | "register" | "forgot-password" | "reset-password" | "profile.appearance" | "profile" | "profile.passkeys.confirm" | "password.confirm" | "verify.email" | "two-factor.required" | "verify.verify" | "two-factor.login" | "security.private-key.index" | "security.private-key.show" | "security.cloud-tokens" | "security.cloud-tokens.show" | "security.cloud-init-scripts" | "security.cloud-init-scripts.show" | "server.index" | "server.create" | "server.create.manual" | "server.show" | "server.advanced" | "server.private-key" | "server.cloud-provider-token" | "server.ca-certificate" | "server.sentinel" | "server.swarm" | "server.docker-cleanup" | "server.log-drains" | "server.destinations" | "server.delete" | "server.registries" | "registries.index" | "project.index" | "project.show" | "project.edit" | "project.resource.index" | "project.environment.edit" | "project.environment.canvas" | "deploy-canvas" | "project.resource.create" | "project.application.configuration" | "project.application.environment-variables" | "project.application.domains" | "project.application.advanced" | "project.application.healthcheck" | "project.application.resource-limits" | "project.application.persistent-storage" | "project.application.tags" | "project.application.resource-operations" | "project.application.danger" | "project.database.configuration" | "project.application.source" | "project.application.servers" | "project.application.webhooks" | "project.application.scheduled-tasks" | "project.application.rollback" | "project.service.configuration" | "project.application.deployment.index" | "project.application.deployment.show" | "destination.index" | "destination.show" | "destination.danger" | "destination.resources" | "not-ported" | SharedVariablesPageKey | DatabaseSharedPageKey | StoragePageKey | NotificationsPageKey | ServicePageKey | TeamPageKey | ApiTokensPageKey | SourcesPageKey | BoardingPageKey | PlatformPageKey | SubscriptionPageKey | ServerMorePageKey | ResourcePagesKey | CanvasViewsPageKey | BackupPagesKey | DashboardClonePageKey | InstanceSettingsMorePageKey;
+export type PageKey = "login" | "register" | "forgot-password" | "reset-password" | "profile.appearance" | "profile" | "profile.passkeys.confirm" | "password.confirm" | "verify.email" | "two-factor.required" | "verify.verify" | "two-factor.login" | "security.private-key.index" | "security.private-key.show" | "security.cloud-tokens" | "security.cloud-tokens.show" | "security.cloud-init-scripts" | "security.cloud-init-scripts.show" | "server.index" | "server.create" | "server.create.manual" | "server.show" | "server.advanced" | "server.private-key" | "server.cloud-provider-token" | "server.ca-certificate" | "server.sentinel" | "server.swarm" | "server.docker-cleanup" | "server.log-drains" | "server.destinations" | "server.delete" | "server.registries" | "registries.index" | "project.index" | "project.show" | "project.edit" | "project.resource.index" | "project.environment.edit" | "project.environment.canvas" | "deploy-canvas" | "project.resource.create" | "project.application.configuration" | "project.application.environment-variables" | "project.application.domains" | "project.application.advanced" | "project.application.healthcheck" | "project.application.resource-limits" | "project.application.persistent-storage" | "project.application.tags" | "project.application.resource-operations" | "project.application.danger" | "project.database.configuration" | "project.application.source" | "project.application.servers" | "project.application.webhooks" | "project.application.scheduled-tasks" | "project.application.rollback" | "project.service.configuration" | "project.application.deployment.index" | "project.application.deployment.show" | "destination.index" | "destination.show" | "destination.danger" | "destination.resources" | "not-ported" | SharedVariablesPageKey | DatabaseSharedPageKey | StoragePageKey | NotificationsPageKey | ServicePageKey | TeamPageKey | ApiTokensPageKey | SourcesPageKey | BoardingPageKey | PlatformPageKey | SubscriptionPageKey | ServerMorePageKey | ResourcePagesKey | CanvasViewsPageKey | BackupPagesKey | DashboardClonePageKey | InstanceSettingsMorePageKey | ConfigSubpagesPageKey;
 
 /**
  * The platform operator's Updates, Backup, Email and Authentication settings (DP-101): routes/web.php's settings.updates,
  * settings.backup, settings.email, settings.oauth and settings.oauth.provider ({provider}: [A-Za-z0-9_-]+).
  */
 export type InstanceSettingsMorePageKey = "settings.updates" | "settings.backup" | "settings.email" | "settings.oauth" | "settings.oauth.provider";
+
+/**
+ * DP-102: an application's Maintenance Mode and Swarm pages and a service's Domains and Maintenance Mode pages (their
+ * Configuration components' sub-pages), and /select-team (SelectTeam) on Freeploy's org switching.
+ */
+export type ConfigSubpagesPageKey = "project.application.maintenance" | "project.application.swarm" | "project.service.domains" | "project.service.maintenance" | "team.select";
 
 /**
  * DP-100: the dashboard at / (routes/web.php's `dashboard`), /dashboard (no route of Coolify's: its catch-all
@@ -217,6 +223,9 @@ const ROUTES: Array<[RegExp, PageKey]> = [
   [/^\/project\/[^/]+\/environment\/[^/]+\/application\/[^/]+\/backups\/[^/]+(?:\/(?:executions|danger))?\/?$/, "project.application.backup.show"],
   [/^\/project\/[^/]+\/environment\/[^/]+\/application\/[^/]+\/backups\/[^/]+\/(?:s3|retention)\/?$/, "project.application.backup.redirect"],
   [/^\/project\/[^/]+\/environment\/[^/]+\/application\/[^/]+\/preview-deployments\/?$/, "project.application.preview-deployments"],
+  // DP-102: Maintenance Mode and Swarm (Configuration with those sub-pages).
+  [/^\/project\/[^/]+\/environment\/[^/]+\/application\/[^/]+\/maintenance\/?$/, "project.application.maintenance"],
+  [/^\/project\/[^/]+\/environment\/[^/]+\/application\/[^/]+\/swarm\/?$/, "project.application.swarm"],
   // DP-97: …/tasks/{task_uuid} (Coolify's project.application.scheduled-tasks) redirects to the list with ?task_uuid=.
   [/^\/project\/[^/]+\/environment\/[^/]+\/application\/[^/]+\/tasks\/[^/]+\/?$/, "project.application.scheduled-tasks.task"],
   // A standalone database's configuration: General. Its other pages (…/backups, …/servers, …) are not ported, except the ones below.
@@ -239,12 +248,15 @@ const ROUTES: Array<[RegExp, PageKey]> = [
   [/^\/project\/[^/]+\/environment\/[^/]+\/application\/[^/]+\/deployment\/?$/, "project.application.deployment.index"],
   [/^\/project\/[^/]+\/environment\/[^/]+\/application\/[^/]+\/deployment\/[^/]+\/?$/, "project.application.deployment.show"],
   // A service (DP-59): where creating a one-click service ends — its General page — and the pages that are its
-  // shared components (DP-66). Its other pages (…/domains, …/logs, …) are not ported.
+  // shared components (DP-66). Its other pages (…/logs, …) are not ported, except the ones below.
   [/^\/project\/[^/]+\/environment\/[^/]+\/service\/[^/]+\/?$/, "project.service.configuration"],
   [/^\/project\/[^/]+\/environment\/[^/]+\/service\/[^/]+\/environment-variables\/?$/, "project.service.environment-variables"],
   [/^\/project\/[^/]+\/environment\/[^/]+\/service\/[^/]+\/storages\/?$/, "project.service.storages"],
   [/^\/project\/[^/]+\/environment\/[^/]+\/service\/[^/]+\/tags\/?$/, "project.service.tags"],
   [/^\/project\/[^/]+\/environment\/[^/]+\/service\/[^/]+\/danger\/?$/, "project.service.danger"],
+  // DP-102: a service's Domains and Maintenance Mode (ServiceConfiguration with those sub-pages).
+  [/^\/project\/[^/]+\/environment\/[^/]+\/service\/[^/]+\/domains\/?$/, "project.service.domains"],
+  [/^\/project\/[^/]+\/environment\/[^/]+\/service\/[^/]+\/maintenance\/?$/, "project.service.maintenance"],
   // DP-97: a service's Scheduled Tasks (…/tasks/{task_uuid} redirects to the list with ?task_uuid=), Webhooks and
   // Resource Operations, and a part's …/advanced (Coolify's ServiceIndex with the part, as project.service.index).
   [/^\/project\/[^/]+\/environment\/[^/]+\/service\/[^/]+\/scheduled-tasks\/?$/, "project.service.scheduled-tasks.show"],
@@ -355,6 +367,8 @@ const ROUTES: Array<[RegExp, PageKey]> = [
   [/^\/settings\/oauth\/[A-Za-z0-9_-]+\/?$/, "settings.oauth.provider"],
   [/^\/admin\/?$/, "admin.index"],
   [/^\/team\/admin\/?$/, "team.admin-view"],
+  // DP-102: routes/web.php's team.select.
+  [/^\/select-team\/?$/, "team.select"],
   // The team's tags (DP-97): /tags/{tagName?}. The tags canvas (/canvas/tags) is not ported.
   [/^\/tags(?:\/[^/]+)?\/?$/, "tags.show"],
 ];

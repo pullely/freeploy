@@ -665,3 +665,5 @@ export * from "./volume-backup-pages.js";
 export * from "./preview-pages.js";
 // DP-100: the dashboard at / and the environment clone's project name check.
 export * from "./dashboard.js";
+// DP-102: an application's Swarm and Maintenance Mode pages, a service's Maintenance Mode and Domains pages.
+export * from "./config-subpages.js";

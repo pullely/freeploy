@@ -118,8 +118,8 @@ test("an application's configuration routes map to General, Domains, Advanced, H
   }
   // Every other entry of the configuration menu.
   for (const page of [
-    "swarm", "logs", "terminal", "files", "metrics", "analytics",
-    "vulnerabilities", "maintenance", // (Preview Deployments and Backups are ported by DP-99.)
+    "logs", "terminal", "files", "metrics", "analytics",
+    "vulnerabilities", // (Preview Deployments and Backups are ported by DP-99, Maintenance Mode and Swarm by DP-102.)
   ]) {
     assert.equal(pageFor(`${application}/${page}`), "not-ported", page);
   }
@@ -299,7 +299,8 @@ test("a service's configuration route maps to General, its shared pages to their
   assert.equal(pageFor(`${service}/sub000000000000000000001`), "project.service.index");
   assert.equal(pageFor(`${service}/sub000000000000000000001/`), "project.service.index");
   // (Scheduled Tasks, Webhooks and Resource Operations are ported by DP-97: see below.)
-  for (const notPorted of ["domains", "maintenance", "logs", "analytics", "vulnerabilities", "terminal", "files"]) {
+  // (Domains and Maintenance Mode are ported by DP-102: see below.)
+  for (const notPorted of ["logs", "analytics", "vulnerabilities", "terminal", "files"]) {
     assert.equal(pageFor(`${service}/${notPorted}`), "not-ported", notPorted);
   }
   // (Storage backups, the import links and a database's …/backups are ported by DP-99.)
@@ -482,4 +483,30 @@ test("the platform's Updates, Backup, Email and Authentication (DP-101): setting
   for (const other of ["/settings/oauth/git.hub", "/settings/oauth/github/x", "/settings/updates/check", "/settings/email/test", "/settings/backup/now"]) {
     assert.equal(pageFor(other), "not-ported", other);
   }
+});
+
+test("DP-102: an application's Maintenance Mode and Swarm, a service's Domains and Maintenance Mode, and /select-team", () => {
+  const environment = "/project/abc123def456ghi789jkl012/environment/mno345pqr678stu901vwx234";
+  const application = `${environment}/application/yza567bcd890efg123hij456`;
+  const service = `${environment}/service/svc1`;
+  const pages: Array<[string, string]> = [
+    [`${application}/maintenance`, "project.application.maintenance"],
+    [`${application}/maintenance/`, "project.application.maintenance"],
+    [`${application}/swarm`, "project.application.swarm"],
+    [`${application}/swarm/`, "project.application.swarm"],
+    [`${service}/domains`, "project.service.domains"],
+    [`${service}/domains/`, "project.service.domains"],
+    [`${service}/maintenance`, "project.service.maintenance"],
+    [`${service}/maintenance/`, "project.service.maintenance"],
+    ["/select-team", "team.select"],
+    ["/select-team/", "team.select"],
+  ];
+  for (const [path, key] of pages) assert.equal(pageFor(path), key, path);
+  for (const path of [`${application}/maintenance/more`, `${application}/swarm/x`, `${service}/domains/x`, `${service}/maintenance/x`, "/select-team/x", `${environment}/database/db1/maintenance`, `${environment}/database/db1/swarm`]) {
+    assert.equal(pageFor(path), "not-ported", path);
+  }
+  // A route of the service is no part of it (project.service.index).
+  assert.notEqual(pageFor(`${service}/domains`), "project.service.index");
+  // A part's own settings are still a part's.
+  assert.equal(pageFor(`${service}/sub000000000000000000001`), "project.service.index");
 });
