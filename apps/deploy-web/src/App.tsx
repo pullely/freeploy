@@ -52,6 +52,9 @@ const ApplicationScheduledTasksPage = lazy(() => import("./pages/ApplicationSche
 const ApplicationRollbackPage = lazy(() => import("./pages/ApplicationRollback").then((m) => ({ default: m.ApplicationRollbackPage })));
 const EnvironmentEditPage = lazy(() => import("./pages/EnvironmentEdit").then((m) => ({ default: m.EnvironmentEditPage })));
 const PrivateKeysPage = lazy(() => import("./pages/PrivateKeys").then((m) => ({ default: m.PrivateKeysPage })));
+const SourcesPage = lazy(() => import("./pages/Sources").then((m) => ({ default: m.SourcesPage })));
+const GithubSourcePage = lazy(() => import("./pages/SourceGithub").then((m) => ({ default: m.GithubSourcePage })));
+const GithubSetupCallbackPage = lazy(() => import("./pages/SourceGithub").then((m) => ({ default: m.GithubSetupCallbackPage })));
 const CloudTokensPage = lazy(() => import("./pages/CloudTokens").then((m) => ({ default: m.CloudTokensPage })));
 const CloudTokenShowPage = lazy(() => import("./pages/CloudTokenEditor").then((m) => ({ default: m.CloudTokenShowPage })));
 const ApiTokensPage = lazy(() => import("./pages/ApiTokens").then((m) => ({ default: m.ApiTokensPage })));
@@ -348,6 +351,48 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <ServiceDangerPage />
+        </Suspense>
+      );
+    case "source.all":
+      return (
+        <Suspense fallback={null}>
+          <SourcesPage />
+        </Suspense>
+      );
+    case "source.github.show":
+      return (
+        <Suspense fallback={null}>
+          <GithubSourcePage tab="general" />
+        </Suspense>
+      );
+    case "source.github.permissions":
+      return (
+        <Suspense fallback={null}>
+          <GithubSourcePage tab="permissions" />
+        </Suspense>
+      );
+    case "source.github.resources":
+      return (
+        <Suspense fallback={null}>
+          <GithubSourcePage tab="resources" />
+        </Suspense>
+      );
+    case "source.github.danger":
+      return (
+        <Suspense fallback={null}>
+          <GithubSourcePage tab="danger" />
+        </Suspense>
+      );
+    case "source.github.redirect":
+      return (
+        <Suspense fallback={null}>
+          <GithubSetupCallbackPage kind="redirect" />
+        </Suspense>
+      );
+    case "source.github.install":
+      return (
+        <Suspense fallback={null}>
+          <GithubSetupCallbackPage kind="install" />
         </Suspense>
       );
     case "security.private-key.index":

@@ -11,8 +11,11 @@ import { compactLogs, contextOf, depsOf, newWorld, replayExecutor, type World } 
 import { DEPLOYMENT_STEPS, initialState, runDeployment, runStep, thrownText, type DeploymentEffect, type EngineState } from "@deploy-core-worker/deployments/engine";
 import { buildSecretsHashKey, hmacSha256Hex } from "@deploy-core-worker/deployments/build";
 
-/** "Coolify" reads "Freeploy" in what Freeploy says; the commands and the names on the server stay Coolify's. */
-const brand = (text: string): string => text.replace(/Coolify/g, "Freeploy");
+/**
+ * "Coolify" reads "Freeploy" in what Freeploy says; the commands and the names on the server stay Coolify's. A
+ * GitHub API message (DP-72) has line breaks where Coolify's has <br>.
+ */
+const brand = (text: string): string => text.replace(/Coolify/g, "Freeploy").replace(/<br>/g, "\n");
 
 /**
  * The log Coolify wrote, as Freeploy must write it: its own name in the messages, and without the two hidden
@@ -28,7 +31,7 @@ const notifications = (effects: DeploymentEffect[]): string[] => effects.filter(
 async function replay(run: RunCase, golden: GoldenRun): Promise<{ world: World; state: EngineState }> {
   const world = newWorld(run);
   const ctx = contextOf(run);
-  const deps = depsOf(world, replayExecutor(world, golden.processes, run.cancelOn));
+  const deps = depsOf(world, replayExecutor(world, golden.processes, run.cancelOn), run);
   const state = await runDeployment(deps, ctx);
   return { world, state };
 }
@@ -98,18 +101,40 @@ describe("the deployments, replayed against Coolify's ApplicationDeploymentJob",
     expect(jobs(world.effects)).toEqual(golden.jobs);
     expect(thrownText(state)).toBe(golden.thrown === null ? null : brand(golden.thrown));
     expect(state.next).toBe("done");
+    // DP-72, a private Git source: what was asked of GitHub (Freeploy asks for one installation token where the
+    // job asks twice) and the repository id stored.
+    if (golden.github !== undefined) {
+      const asked = (list: Array<{ method: string; url: string }>) => list.filter((r) => !r.url.endsWith("/access_tokens")).map((r) => `${r.method} ${r.url}`);
+      expect(asked(world.github)).toEqual(asked(golden.github));
+      expect(world.github.some((r) => r.url.endsWith("/access_tokens"))).toBe(golden.github.some((r) => r.url.endsWith("/access_tokens")));
+      expect(world.repositoryProjectId).toBe(golden.repository_project_id ?? null);
+    }
+  });
+
+  it.each(["ghapp", "deploykey"])("has at least 15 golden runs of a private repository through %s, with builds that end well and builds that fail", (prefix) => {
+    const runs = started.filter((run) => packOf(run) === prefix);
+    expect(runs.length).toBeGreaterThanOrEqual(15);
+    const statuses = runs.map((run) => goldenRun(run.id).deployment!.status);
+    expect(statuses.filter((status) => status === "finished").length).toBeGreaterThanOrEqual(10);
+    expect(statuses.filter((status) => status === "failed").length).toBeGreaterThanOrEqual(2);
+    // Each clones with its own credentials: the token in the URL, or the deploy key's identity file.
+    const clone = (run: RunCase) => goldenRun(run.id).processes.find((p) => p.script.includes(" clone "))?.script ?? "";
+    for (const run of runs.filter((r) => goldenRun(r.id).deployment!.status === "finished")) {
+      expect(clone(run)).toContain(prefix === "ghapp" ? "x-access-token:" : "-i /root/.ssh/id_rsa_coolify_");
+    }
   });
 });
 
 describe("a build, one step at a time", () => {
-  const builds = started.filter((run) => (BUILD_PACKS as readonly string[]).includes(packOf(run)));
+  // DP-72: the private repositories (ghapp, deploykey) too.
+  const builds = started.filter((run) => [...BUILD_PACKS, "ghapp", "deploykey"].includes(packOf(run)));
 
   // What a Workflow keeps between two steps is the state as JSON, and it reads the rows again for every step.
   // Each golden build must come out the same that way: the same processes, log, sleeps and end.
   it.each(builds.map((run) => [run.id, run] as const))("%s", async (_id, run) => {
     const golden = goldenRun(run.id);
     const world = newWorld(run);
-    const deps = depsOf(world, replayExecutor(world, golden.processes, run.cancelOn));
+    const deps = depsOf(world, replayExecutor(world, golden.processes, run.cancelOn), run);
     let state = initialState(contextOf(run), deps.now());
     const visited: string[] = [];
     while (state.next !== "done") {
@@ -211,8 +236,10 @@ describe("the engine, where no golden run reaches", () => {
   it.each([
     ["a build server", (ctx: ReturnType<typeof contextOf>) => void (ctx.build.is_build_server_enabled = true), "App\\Exceptions\\DeploymentException: Building on a build server is not available yet: turn off \"Use a Build Server\" to build on the application's server."],
     ["a preserved repository", (ctx: ReturnType<typeof contextOf>) => void (ctx.build.is_preserve_repository_enabled = true), "App\\Exceptions\\DeploymentException: Deploying with \"Preserve Repository During Deployment\" is not available yet."],
-    ["a deploy key", (ctx: ReturnType<typeof contextOf>) => void (ctx.build.private_key_id = 3), "App\\Exceptions\\DeploymentException: Deploying from a private repository with a deploy key is not available yet: only public repositories can be deployed."],
-    ["a Git App source", (ctx: ReturnType<typeof contextOf>) => void (ctx.build.source_id = 12), "App\\Exceptions\\DeploymentException: Deploying from a Git App source is not available yet: only public repositories can be deployed."],
+    // DP-72: a deploy key and a GitHub App are deployed now (the ghapp.* and deploykey.* golden runs); a GitLab or
+    // Gitea App is still refused.
+    ["a GitLab App source", (ctx: ReturnType<typeof contextOf>) => void Object.assign(ctx.build, { source_id: 12, source_type: "App\\Models\\GitlabApp" }), "App\\Exceptions\\DeploymentException: Deploying from a GitLab or Gitea source is not available yet: only public repositories, GitHub Apps and deploy keys can be deployed."],
+    ["a Gitea App source", (ctx: ReturnType<typeof contextOf>) => void Object.assign(ctx.build, { source_id: 3, source_type: "App\\Models\\GiteaApp" }), "App\\Exceptions\\DeploymentException: Deploying from a GitLab or Gitea source is not available yet: only public repositories, GitHub Apps and deploy keys can be deployed."],
     ["HTTPS credentials", (ctx: ReturnType<typeof contextOf>) => void (ctx.build.has_git_https_credentials = true), "App\\Exceptions\\DeploymentException: Deploying from a repository with HTTPS credentials is not available yet: only public repositories can be deployed."],
     ["a base directory that is no safe path", (ctx: ReturnType<typeof contextOf>) => void (ctx.build.base_directory = "/app; rm -rf /"), "RuntimeException: Invalid base_directory: contains forbidden characters."],
     ["a base directory that leaves the repository", (ctx: ReturnType<typeof contextOf>) => void (ctx.build.base_directory = "/app/../.."), "RuntimeException: Invalid base_directory: path traversal detected."],

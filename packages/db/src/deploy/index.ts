@@ -615,3 +615,5 @@ export {
   type ServiceRowChanges,
 } from "./service-configuration.js";
 export { apiRows, apiValue, databasePublicPortTaken, type ApiRow, type ApiTable } from "./api-v1.js";
+// DP-72: Git sources — GitHub Apps, the Sources page, what the Git webhooks read and write, previews.
+export * from "./git-sources.js";

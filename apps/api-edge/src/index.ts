@@ -22,6 +22,7 @@ import {
 } from "./integrations-facade";
 import { isSoloMode, isSoloSuppressed } from "./solo-mode";
 import { isApiV1Route, handleApiV1 } from "./api-v1/index";
+import { isGitWebhookRoute, handleGitWebhookRoute } from "./git-webhooks-facade";
 
 // Durable Object class backing the PERF5 Stage B rate-limit counters. Must be
 // exported from the Worker entry so the runtime can instantiate it for the
@@ -61,6 +62,10 @@ export default {
       response = await handleIntegrationsIngressRoute(request, env, requestId, url.pathname);
     } else if (isIntegrationsRoute(url.pathname)) {
       response = await handleIntegrationsRoute(request, env, requestId, url.pathname);
+    } else if (isGitWebhookRoute(url.pathname)) {
+      // Public inbound Git webhooks (no session, DP-72): Coolify's /webhooks/source/* paths; deploy-core-worker
+      // checks the signature.
+      response = await handleGitWebhookRoute(request, env, requestId, url.pathname);
     } else if (isBillingWebhookRoute(url.pathname)) {
       // Public inbound provider webhook (no session) — matched before the
       // authenticated webhooks/billing facades.

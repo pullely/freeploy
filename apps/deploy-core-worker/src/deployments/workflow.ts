@@ -22,6 +22,9 @@ import { DEFAULT_ENGINE_CONFIG, initialState, runStep, type DeploymentEffect, ty
 import { buildLogEntry } from "./logs.js";
 import { sessionExecutor } from "./session-executor.js";
 import { loadDeploymentContext, loadServerConnection, sqlDeploymentStore } from "./sql.js";
+import { InstallationTokens, type SourceHttp } from "../sources/github.js";
+
+const GITHUB_FETCH: SourceHttp = { fetch: (url, init) => fetch(url, init) };
 
 export interface DeploymentWorkflowParams {
   /** The org's uuid. */
@@ -105,6 +108,8 @@ export class ApplicationDeploymentWorkflow extends WorkflowEntrypoint<WorkflowEn
         sleep: async () => {},
         effect: (effect) => this.effect(orgId, effect),
         config: { ...DEFAULT_ENGINE_CONFIG, secretsHashKey: await buildSecretsHashKey(env.DEPLOY_ENCRYPTION_KEY, orgId) },
+        // DP-72: a GitHub App application asks GitHub for an installation token (and its repository id) at deploy time.
+        github: { http: GITHUB_FETCH, tokens: new InstallationTokens(GITHUB_FETCH) },
       };
       return await runStep(deps, loaded.ctx, state ?? initialState(loaded.ctx, deps.now()));
     } finally {

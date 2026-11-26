@@ -16,6 +16,8 @@ import { handleNotifications } from "./handlers/notifications.js";
 import { errorResponse, notFound } from "./http.js";
 import { generateRequestId, parseOrgPublicId } from "./ids.js";
 import { API_V1_INTERNAL_RE, handleApiV1 } from "./api-v1/handler.js";
+import { handleSources } from "./handlers/sources.js";
+import { GIT_WEBHOOK_INTERNAL_RE, handleGitWebhook } from "./handlers/git-webhooks.js";
 
 const REQUEST_ID_RE = /^[\w-]{1,128}$/;
 
@@ -62,6 +64,9 @@ export const ORG_DEPLOY_SHARED_VARIABLES_RE = /^\/v1\/organizations\/([^/]+)\/de
 /** Notifications (DP-67): the summary, a channel's page, and its test send. */
 export const ORG_DEPLOY_NOTIFICATIONS_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/notifications((?:\/[^/]+){0,2})\/?$/;
 
+/** Integrations → Git sources (DP-72): the list, a GitHub App and its actions, GitHub's two redirects, repositories and branches. */
+export const ORG_DEPLOY_SOURCES_RE = /^\/v1\/organizations\/([^/]+)\/deploy\/sources((?:\/[^/]+){0,6})\/?$/;
+
 export async function route(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url);
   const requestId = resolveRequestId(request);
@@ -75,6 +80,19 @@ export async function route(request: Request, env: Env): Promise<Response> {
       const actor = resolveActor(request);
       if (!orgId || !actor) return new Response('{"message":"Unauthenticated."}', { status: 401, headers: { "content-type": "application/json" } });
       return handleApiV1(request, env, requestId, actor, orgId, apiV1[1]!, apiV1[2]!);
+    }
+
+    // The Git webhooks (DP-72), from api-edge's public /webhooks/source/*: no actor, the signature is the authentication.
+    const gitWebhook = url.pathname.match(GIT_WEBHOOK_INTERNAL_RE);
+    if (gitWebhook) return await handleGitWebhook(request, env, requestId, gitWebhook[1]!, gitWebhook[2] === "/manual");
+
+    const sources = url.pathname.match(ORG_DEPLOY_SOURCES_RE);
+    if (sources) {
+      const orgId = parseOrgPublicId(sources[1]!);
+      if (!orgId) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
+      return await handleSources(env, requestId, actor, orgId, sources[1]!, (sources[2] ?? "").split("/").filter(Boolean), request);
     }
 
     const projects = url.pathname.match(ORG_DEPLOY_PROJECTS_RE);

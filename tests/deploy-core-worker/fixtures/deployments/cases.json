@@ -14129,6 +14129,1616 @@
           "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
         }
       ]
+    },
+    {
+      "id": "ghapp.first",
+      "about": "a private repository through a GitHub App: built for the first time",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "acme/private-app"
+      },
+      "responses": [
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "githubApp": {
+        "name": "freeploy-test",
+        "organization": "acme",
+        "api_url": "https://api.github.com",
+        "html_url": "https://github.com",
+        "custom_user": "git",
+        "custom_port": 22,
+        "app_id": 4242,
+        "installation_id": 777,
+        "is_public": false,
+        "privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEA27bzbeBtRNtHsyI1cnnu69igRHkYsu9R0YcvkBdiVt6IY3AT\nStirGL9kSTi2w76JcGlcjKuXSgiERx8dI3BR+gPp9aESnQbscnUyooVN2xQ9PfzQ\nK7+Cn1FyWi2NR5FHx5dj9ipMP00JphasQwNOvYiZAPzinyNtq65yjaD/Jv3z8GiH\n7MIvx+4WFFLMhbKIGATx15tZnrBiKY44Lu5ysX3M0t+6s1ozXLOX2LKQ4iF9XZ2g\nhravID+3uv9hJWeGw8jdGHcTSI+n2t1izCRkuTdU7QvvmqZOOeaNTV76dWWAqq8Y\nX9fnzmtwARkuKKIH7b4yVzNIYbdwtaXmVOLdbQIDAQABAoIBAFWeWQUXwCzlcG7P\nZVl7R43zaBzWvbe4x77pObEiU6l7ZVWujm4LubzWlFtuNNZZkRBTloOguD9ay0U1\nzDKLqf5N+SVFQ84aLRi7L+SiIsE9BVJ7CpoJsnqoD/IxLw1VAU43YfZC7Fx8hkaJ\nLk6c4tm7+benVB5kfW+59pzXQKat9V0I+ZbGja9s6+IcORXHNtAYAdE2OaKV1Bn7\npKd6IqEdPPseTEjqZ99ko7swPXIIqGmFQ/favIeTv4V7J/RBQlNTj1HsP/bctlLO\nhQFrgX+1LzO5kmsl9IPOzuLhykql1KGwziC8VX1LMgFUH0+zjhm1SFIKobu7PVX2\nHfwgW8cCgYEA/T8mWuF+LiVflpUn1ovCtDM8ZNOfPNZBXue3WDyFtIlEVJCyOUul\n1//AACgMHwh8UaKLNIu4yxgukW0arHlU/gdNWf/yfeRQWtPJd8YH3Vi23GRrTboo\nKz3PPfEQJjmwfofLwcFWYNxaxM6/FKJIgOCWsuROUFIGcQfV/ppGB+8CgYEA3hp5\nDnpi3GQGfPr6rEJbmcfvlyw7J8lJOucamyukzQ94qmaAki2iEzjHjjV/5ppY26gW\n7siRjoC+fr1LUqroT9f+pUnAH2rEI14MXeaD8rUp1B6gBPkIbqitbHat9LEbnfcm\nClhz+3qvvOYjOLJKp18Tx7qtZdJDnDuoiomi9GMCgYBvYJGm0JtlAizbFjhSJF96\nTzpVgbj70aMocTJyjROkxeYWZxjrF/kVWTaBGxvRnjLG2HzunDCmqbj5XomnpykZ\nG+8KEQX+Fia8+34UvjSBRd4Oad/DbIb0FZgKvvWCSkb0LxcO3M/3g5IsEl15XrIS\ndDPy83P54UlR9sdH1WPNYwKBgBztpcbU+ftqq82rgurc2cF14Sb3g9zywq8BWt3L\nGXP8B+Np5mUjvHB0fMlw/m+yutAhXJtNVGgTLLylOyJRUGDV6TzuFjABX/qbTVEN\nrTH3lrMiKgV7yjVfkvcFnjK4vrgccL/4NWMT37/i2cOQtViHcbQaBGu2r0eyHYmt\n06OxAoGBAMBrUl57xG9x1FY28OqIneLf4jYs+fjxy/EpF9aMB8Hj2UX5oTjumifr\nUPxUNv0L7YbsUc8WGAIGUhJFFyWxBjgbOvutOjfGX5BUg+T4qjLwD6+gcFG0/Nas\nntA5sjOttA5YgLKVcn0rs9YYbW9VVjE6qFZZy6nHIQMp5DUNG9Hx\n-----END RSA PRIVATE KEY-----\n"
+      },
+      "github": [
+        {
+          "match": "^POST https://api\\.github\\.com/app/installations/777/access_tokens$",
+          "status": 201,
+          "body": {
+            "token": "ghs_TestInstallationToken0123456789"
+          }
+        },
+        {
+          "match": "^GET https://api\\.github\\.com/repos/acme/private-app$",
+          "body": {
+            "id": 987654,
+            "full_name": "acme/private-app"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ghapp.rolling",
+      "about": "a private repository through a GitHub App: a rolling update over a running container",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "acme/private-app"
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"app0000000000000000000001:old\"}\n"
+        },
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "githubApp": {
+        "name": "freeploy-test",
+        "organization": "acme",
+        "api_url": "https://api.github.com",
+        "html_url": "https://github.com",
+        "custom_user": "git",
+        "custom_port": 22,
+        "app_id": 4242,
+        "installation_id": 777,
+        "is_public": false,
+        "privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEA27bzbeBtRNtHsyI1cnnu69igRHkYsu9R0YcvkBdiVt6IY3AT\nStirGL9kSTi2w76JcGlcjKuXSgiERx8dI3BR+gPp9aESnQbscnUyooVN2xQ9PfzQ\nK7+Cn1FyWi2NR5FHx5dj9ipMP00JphasQwNOvYiZAPzinyNtq65yjaD/Jv3z8GiH\n7MIvx+4WFFLMhbKIGATx15tZnrBiKY44Lu5ysX3M0t+6s1ozXLOX2LKQ4iF9XZ2g\nhravID+3uv9hJWeGw8jdGHcTSI+n2t1izCRkuTdU7QvvmqZOOeaNTV76dWWAqq8Y\nX9fnzmtwARkuKKIH7b4yVzNIYbdwtaXmVOLdbQIDAQABAoIBAFWeWQUXwCzlcG7P\nZVl7R43zaBzWvbe4x77pObEiU6l7ZVWujm4LubzWlFtuNNZZkRBTloOguD9ay0U1\nzDKLqf5N+SVFQ84aLRi7L+SiIsE9BVJ7CpoJsnqoD/IxLw1VAU43YfZC7Fx8hkaJ\nLk6c4tm7+benVB5kfW+59pzXQKat9V0I+ZbGja9s6+IcORXHNtAYAdE2OaKV1Bn7\npKd6IqEdPPseTEjqZ99ko7swPXIIqGmFQ/favIeTv4V7J/RBQlNTj1HsP/bctlLO\nhQFrgX+1LzO5kmsl9IPOzuLhykql1KGwziC8VX1LMgFUH0+zjhm1SFIKobu7PVX2\nHfwgW8cCgYEA/T8mWuF+LiVflpUn1ovCtDM8ZNOfPNZBXue3WDyFtIlEVJCyOUul\n1//AACgMHwh8UaKLNIu4yxgukW0arHlU/gdNWf/yfeRQWtPJd8YH3Vi23GRrTboo\nKz3PPfEQJjmwfofLwcFWYNxaxM6/FKJIgOCWsuROUFIGcQfV/ppGB+8CgYEA3hp5\nDnpi3GQGfPr6rEJbmcfvlyw7J8lJOucamyukzQ94qmaAki2iEzjHjjV/5ppY26gW\n7siRjoC+fr1LUqroT9f+pUnAH2rEI14MXeaD8rUp1B6gBPkIbqitbHat9LEbnfcm\nClhz+3qvvOYjOLJKp18Tx7qtZdJDnDuoiomi9GMCgYBvYJGm0JtlAizbFjhSJF96\nTzpVgbj70aMocTJyjROkxeYWZxjrF/kVWTaBGxvRnjLG2HzunDCmqbj5XomnpykZ\nG+8KEQX+Fia8+34UvjSBRd4Oad/DbIb0FZgKvvWCSkb0LxcO3M/3g5IsEl15XrIS\ndDPy83P54UlR9sdH1WPNYwKBgBztpcbU+ftqq82rgurc2cF14Sb3g9zywq8BWt3L\nGXP8B+Np5mUjvHB0fMlw/m+yutAhXJtNVGgTLLylOyJRUGDV6TzuFjABX/qbTVEN\nrTH3lrMiKgV7yjVfkvcFnjK4vrgccL/4NWMT37/i2cOQtViHcbQaBGu2r0eyHYmt\n06OxAoGBAMBrUl57xG9x1FY28OqIneLf4jYs+fjxy/EpF9aMB8Hj2UX5oTjumifr\nUPxUNv0L7YbsUc8WGAIGUhJFFyWxBjgbOvutOjfGX5BUg+T4qjLwD6+gcFG0/Nas\nntA5sjOttA5YgLKVcn0rs9YYbW9VVjE6qFZZy6nHIQMp5DUNG9Hx\n-----END RSA PRIVATE KEY-----\n"
+      },
+      "github": [
+        {
+          "match": "^POST https://api\\.github\\.com/app/installations/777/access_tokens$",
+          "status": 201,
+          "body": {
+            "token": "ghs_TestInstallationToken0123456789"
+          }
+        },
+        {
+          "match": "^GET https://api\\.github\\.com/repos/acme/private-app$",
+          "body": {
+            "id": 987654,
+            "full_name": "acme/private-app"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ghapp.pinned",
+      "about": "a private repository through a GitHub App: a pinned commit: the head of the branch is not asked for it",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "acme/private-app",
+        "git_commit_sha": "0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c"
+      },
+      "responses": [
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "githubApp": {
+        "name": "freeploy-test",
+        "organization": "acme",
+        "api_url": "https://api.github.com",
+        "html_url": "https://github.com",
+        "custom_user": "git",
+        "custom_port": 22,
+        "app_id": 4242,
+        "installation_id": 777,
+        "is_public": false,
+        "privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEA27bzbeBtRNtHsyI1cnnu69igRHkYsu9R0YcvkBdiVt6IY3AT\nStirGL9kSTi2w76JcGlcjKuXSgiERx8dI3BR+gPp9aESnQbscnUyooVN2xQ9PfzQ\nK7+Cn1FyWi2NR5FHx5dj9ipMP00JphasQwNOvYiZAPzinyNtq65yjaD/Jv3z8GiH\n7MIvx+4WFFLMhbKIGATx15tZnrBiKY44Lu5ysX3M0t+6s1ozXLOX2LKQ4iF9XZ2g\nhravID+3uv9hJWeGw8jdGHcTSI+n2t1izCRkuTdU7QvvmqZOOeaNTV76dWWAqq8Y\nX9fnzmtwARkuKKIH7b4yVzNIYbdwtaXmVOLdbQIDAQABAoIBAFWeWQUXwCzlcG7P\nZVl7R43zaBzWvbe4x77pObEiU6l7ZVWujm4LubzWlFtuNNZZkRBTloOguD9ay0U1\nzDKLqf5N+SVFQ84aLRi7L+SiIsE9BVJ7CpoJsnqoD/IxLw1VAU43YfZC7Fx8hkaJ\nLk6c4tm7+benVB5kfW+59pzXQKat9V0I+ZbGja9s6+IcORXHNtAYAdE2OaKV1Bn7\npKd6IqEdPPseTEjqZ99ko7swPXIIqGmFQ/favIeTv4V7J/RBQlNTj1HsP/bctlLO\nhQFrgX+1LzO5kmsl9IPOzuLhykql1KGwziC8VX1LMgFUH0+zjhm1SFIKobu7PVX2\nHfwgW8cCgYEA/T8mWuF+LiVflpUn1ovCtDM8ZNOfPNZBXue3WDyFtIlEVJCyOUul\n1//AACgMHwh8UaKLNIu4yxgukW0arHlU/gdNWf/yfeRQWtPJd8YH3Vi23GRrTboo\nKz3PPfEQJjmwfofLwcFWYNxaxM6/FKJIgOCWsuROUFIGcQfV/ppGB+8CgYEA3hp5\nDnpi3GQGfPr6rEJbmcfvlyw7J8lJOucamyukzQ94qmaAki2iEzjHjjV/5ppY26gW\n7siRjoC+fr1LUqroT9f+pUnAH2rEI14MXeaD8rUp1B6gBPkIbqitbHat9LEbnfcm\nClhz+3qvvOYjOLJKp18Tx7qtZdJDnDuoiomi9GMCgYBvYJGm0JtlAizbFjhSJF96\nTzpVgbj70aMocTJyjROkxeYWZxjrF/kVWTaBGxvRnjLG2HzunDCmqbj5XomnpykZ\nG+8KEQX+Fia8+34UvjSBRd4Oad/DbIb0FZgKvvWCSkb0LxcO3M/3g5IsEl15XrIS\ndDPy83P54UlR9sdH1WPNYwKBgBztpcbU+ftqq82rgurc2cF14Sb3g9zywq8BWt3L\nGXP8B+Np5mUjvHB0fMlw/m+yutAhXJtNVGgTLLylOyJRUGDV6TzuFjABX/qbTVEN\nrTH3lrMiKgV7yjVfkvcFnjK4vrgccL/4NWMT37/i2cOQtViHcbQaBGu2r0eyHYmt\n06OxAoGBAMBrUl57xG9x1FY28OqIneLf4jYs+fjxy/EpF9aMB8Hj2UX5oTjumifr\nUPxUNv0L7YbsUc8WGAIGUhJFFyWxBjgbOvutOjfGX5BUg+T4qjLwD6+gcFG0/Nas\nntA5sjOttA5YgLKVcn0rs9YYbW9VVjE6qFZZy6nHIQMp5DUNG9Hx\n-----END RSA PRIVATE KEY-----\n"
+      },
+      "github": [
+        {
+          "match": "^POST https://api\\.github\\.com/app/installations/777/access_tokens$",
+          "status": 201,
+          "body": {
+            "token": "ghs_TestInstallationToken0123456789"
+          }
+        },
+        {
+          "match": "^GET https://api\\.github\\.com/repos/acme/private-app$",
+          "body": {
+            "id": 987654,
+            "full_name": "acme/private-app"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ghapp.pinned.short",
+      "about": "a private repository through a GitHub App: a pinned short commit: the tips of the branches are fetched",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "acme/private-app",
+        "git_commit_sha": "abc1234"
+      },
+      "responses": [
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "githubApp": {
+        "name": "freeploy-test",
+        "organization": "acme",
+        "api_url": "https://api.github.com",
+        "html_url": "https://github.com",
+        "custom_user": "git",
+        "custom_port": 22,
+        "app_id": 4242,
+        "installation_id": 777,
+        "is_public": false,
+        "privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEA27bzbeBtRNtHsyI1cnnu69igRHkYsu9R0YcvkBdiVt6IY3AT\nStirGL9kSTi2w76JcGlcjKuXSgiERx8dI3BR+gPp9aESnQbscnUyooVN2xQ9PfzQ\nK7+Cn1FyWi2NR5FHx5dj9ipMP00JphasQwNOvYiZAPzinyNtq65yjaD/Jv3z8GiH\n7MIvx+4WFFLMhbKIGATx15tZnrBiKY44Lu5ysX3M0t+6s1ozXLOX2LKQ4iF9XZ2g\nhravID+3uv9hJWeGw8jdGHcTSI+n2t1izCRkuTdU7QvvmqZOOeaNTV76dWWAqq8Y\nX9fnzmtwARkuKKIH7b4yVzNIYbdwtaXmVOLdbQIDAQABAoIBAFWeWQUXwCzlcG7P\nZVl7R43zaBzWvbe4x77pObEiU6l7ZVWujm4LubzWlFtuNNZZkRBTloOguD9ay0U1\nzDKLqf5N+SVFQ84aLRi7L+SiIsE9BVJ7CpoJsnqoD/IxLw1VAU43YfZC7Fx8hkaJ\nLk6c4tm7+benVB5kfW+59pzXQKat9V0I+ZbGja9s6+IcORXHNtAYAdE2OaKV1Bn7\npKd6IqEdPPseTEjqZ99ko7swPXIIqGmFQ/favIeTv4V7J/RBQlNTj1HsP/bctlLO\nhQFrgX+1LzO5kmsl9IPOzuLhykql1KGwziC8VX1LMgFUH0+zjhm1SFIKobu7PVX2\nHfwgW8cCgYEA/T8mWuF+LiVflpUn1ovCtDM8ZNOfPNZBXue3WDyFtIlEVJCyOUul\n1//AACgMHwh8UaKLNIu4yxgukW0arHlU/gdNWf/yfeRQWtPJd8YH3Vi23GRrTboo\nKz3PPfEQJjmwfofLwcFWYNxaxM6/FKJIgOCWsuROUFIGcQfV/ppGB+8CgYEA3hp5\nDnpi3GQGfPr6rEJbmcfvlyw7J8lJOucamyukzQ94qmaAki2iEzjHjjV/5ppY26gW\n7siRjoC+fr1LUqroT9f+pUnAH2rEI14MXeaD8rUp1B6gBPkIbqitbHat9LEbnfcm\nClhz+3qvvOYjOLJKp18Tx7qtZdJDnDuoiomi9GMCgYBvYJGm0JtlAizbFjhSJF96\nTzpVgbj70aMocTJyjROkxeYWZxjrF/kVWTaBGxvRnjLG2HzunDCmqbj5XomnpykZ\nG+8KEQX+Fia8+34UvjSBRd4Oad/DbIb0FZgKvvWCSkb0LxcO3M/3g5IsEl15XrIS\ndDPy83P54UlR9sdH1WPNYwKBgBztpcbU+ftqq82rgurc2cF14Sb3g9zywq8BWt3L\nGXP8B+Np5mUjvHB0fMlw/m+yutAhXJtNVGgTLLylOyJRUGDV6TzuFjABX/qbTVEN\nrTH3lrMiKgV7yjVfkvcFnjK4vrgccL/4NWMT37/i2cOQtViHcbQaBGu2r0eyHYmt\n06OxAoGBAMBrUl57xG9x1FY28OqIneLf4jYs+fjxy/EpF9aMB8Hj2UX5oTjumifr\nUPxUNv0L7YbsUc8WGAIGUhJFFyWxBjgbOvutOjfGX5BUg+T4qjLwD6+gcFG0/Nas\nntA5sjOttA5YgLKVcn0rs9YYbW9VVjE6qFZZy6nHIQMp5DUNG9Hx\n-----END RSA PRIVATE KEY-----\n"
+      },
+      "github": [
+        {
+          "match": "^POST https://api\\.github\\.com/app/installations/777/access_tokens$",
+          "status": 201,
+          "body": {
+            "token": "ghs_TestInstallationToken0123456789"
+          }
+        },
+        {
+          "match": "^GET https://api\\.github\\.com/repos/acme/private-app$",
+          "body": {
+            "id": 987654,
+            "full_name": "acme/private-app"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ghapp.pinned.full-history",
+      "about": "a private repository through a GitHub App: a pinned commit without a shallow clone",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "acme/private-app",
+        "git_commit_sha": "0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c"
+      },
+      "settings": {
+        "is_git_shallow_clone_enabled": false
+      },
+      "responses": [
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "githubApp": {
+        "name": "freeploy-test",
+        "organization": "acme",
+        "api_url": "https://api.github.com",
+        "html_url": "https://github.com",
+        "custom_user": "git",
+        "custom_port": 22,
+        "app_id": 4242,
+        "installation_id": 777,
+        "is_public": false,
+        "privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEA27bzbeBtRNtHsyI1cnnu69igRHkYsu9R0YcvkBdiVt6IY3AT\nStirGL9kSTi2w76JcGlcjKuXSgiERx8dI3BR+gPp9aESnQbscnUyooVN2xQ9PfzQ\nK7+Cn1FyWi2NR5FHx5dj9ipMP00JphasQwNOvYiZAPzinyNtq65yjaD/Jv3z8GiH\n7MIvx+4WFFLMhbKIGATx15tZnrBiKY44Lu5ysX3M0t+6s1ozXLOX2LKQ4iF9XZ2g\nhravID+3uv9hJWeGw8jdGHcTSI+n2t1izCRkuTdU7QvvmqZOOeaNTV76dWWAqq8Y\nX9fnzmtwARkuKKIH7b4yVzNIYbdwtaXmVOLdbQIDAQABAoIBAFWeWQUXwCzlcG7P\nZVl7R43zaBzWvbe4x77pObEiU6l7ZVWujm4LubzWlFtuNNZZkRBTloOguD9ay0U1\nzDKLqf5N+SVFQ84aLRi7L+SiIsE9BVJ7CpoJsnqoD/IxLw1VAU43YfZC7Fx8hkaJ\nLk6c4tm7+benVB5kfW+59pzXQKat9V0I+ZbGja9s6+IcORXHNtAYAdE2OaKV1Bn7\npKd6IqEdPPseTEjqZ99ko7swPXIIqGmFQ/favIeTv4V7J/RBQlNTj1HsP/bctlLO\nhQFrgX+1LzO5kmsl9IPOzuLhykql1KGwziC8VX1LMgFUH0+zjhm1SFIKobu7PVX2\nHfwgW8cCgYEA/T8mWuF+LiVflpUn1ovCtDM8ZNOfPNZBXue3WDyFtIlEVJCyOUul\n1//AACgMHwh8UaKLNIu4yxgukW0arHlU/gdNWf/yfeRQWtPJd8YH3Vi23GRrTboo\nKz3PPfEQJjmwfofLwcFWYNxaxM6/FKJIgOCWsuROUFIGcQfV/ppGB+8CgYEA3hp5\nDnpi3GQGfPr6rEJbmcfvlyw7J8lJOucamyukzQ94qmaAki2iEzjHjjV/5ppY26gW\n7siRjoC+fr1LUqroT9f+pUnAH2rEI14MXeaD8rUp1B6gBPkIbqitbHat9LEbnfcm\nClhz+3qvvOYjOLJKp18Tx7qtZdJDnDuoiomi9GMCgYBvYJGm0JtlAizbFjhSJF96\nTzpVgbj70aMocTJyjROkxeYWZxjrF/kVWTaBGxvRnjLG2HzunDCmqbj5XomnpykZ\nG+8KEQX+Fia8+34UvjSBRd4Oad/DbIb0FZgKvvWCSkb0LxcO3M/3g5IsEl15XrIS\ndDPy83P54UlR9sdH1WPNYwKBgBztpcbU+ftqq82rgurc2cF14Sb3g9zywq8BWt3L\nGXP8B+Np5mUjvHB0fMlw/m+yutAhXJtNVGgTLLylOyJRUGDV6TzuFjABX/qbTVEN\nrTH3lrMiKgV7yjVfkvcFnjK4vrgccL/4NWMT37/i2cOQtViHcbQaBGu2r0eyHYmt\n06OxAoGBAMBrUl57xG9x1FY28OqIneLf4jYs+fjxy/EpF9aMB8Hj2UX5oTjumifr\nUPxUNv0L7YbsUc8WGAIGUhJFFyWxBjgbOvutOjfGX5BUg+T4qjLwD6+gcFG0/Nas\nntA5sjOttA5YgLKVcn0rs9YYbW9VVjE6qFZZy6nHIQMp5DUNG9Hx\n-----END RSA PRIVATE KEY-----\n"
+      },
+      "github": [
+        {
+          "match": "^POST https://api\\.github\\.com/app/installations/777/access_tokens$",
+          "status": 201,
+          "body": {
+            "token": "ghs_TestInstallationToken0123456789"
+          }
+        },
+        {
+          "match": "^GET https://api\\.github\\.com/repos/acme/private-app$",
+          "body": {
+            "id": 987654,
+            "full_name": "acme/private-app"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ghapp.message",
+      "about": "a private repository through a GitHub App: the message of the commit is stored",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "acme/private-app"
+      },
+      "responses": [
+        {
+          "match": "git log -1",
+          "output": "feat: private things\n"
+        },
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "githubApp": {
+        "name": "freeploy-test",
+        "organization": "acme",
+        "api_url": "https://api.github.com",
+        "html_url": "https://github.com",
+        "custom_user": "git",
+        "custom_port": 22,
+        "app_id": 4242,
+        "installation_id": 777,
+        "is_public": false,
+        "privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEA27bzbeBtRNtHsyI1cnnu69igRHkYsu9R0YcvkBdiVt6IY3AT\nStirGL9kSTi2w76JcGlcjKuXSgiERx8dI3BR+gPp9aESnQbscnUyooVN2xQ9PfzQ\nK7+Cn1FyWi2NR5FHx5dj9ipMP00JphasQwNOvYiZAPzinyNtq65yjaD/Jv3z8GiH\n7MIvx+4WFFLMhbKIGATx15tZnrBiKY44Lu5ysX3M0t+6s1ozXLOX2LKQ4iF9XZ2g\nhravID+3uv9hJWeGw8jdGHcTSI+n2t1izCRkuTdU7QvvmqZOOeaNTV76dWWAqq8Y\nX9fnzmtwARkuKKIH7b4yVzNIYbdwtaXmVOLdbQIDAQABAoIBAFWeWQUXwCzlcG7P\nZVl7R43zaBzWvbe4x77pObEiU6l7ZVWujm4LubzWlFtuNNZZkRBTloOguD9ay0U1\nzDKLqf5N+SVFQ84aLRi7L+SiIsE9BVJ7CpoJsnqoD/IxLw1VAU43YfZC7Fx8hkaJ\nLk6c4tm7+benVB5kfW+59pzXQKat9V0I+ZbGja9s6+IcORXHNtAYAdE2OaKV1Bn7\npKd6IqEdPPseTEjqZ99ko7swPXIIqGmFQ/favIeTv4V7J/RBQlNTj1HsP/bctlLO\nhQFrgX+1LzO5kmsl9IPOzuLhykql1KGwziC8VX1LMgFUH0+zjhm1SFIKobu7PVX2\nHfwgW8cCgYEA/T8mWuF+LiVflpUn1ovCtDM8ZNOfPNZBXue3WDyFtIlEVJCyOUul\n1//AACgMHwh8UaKLNIu4yxgukW0arHlU/gdNWf/yfeRQWtPJd8YH3Vi23GRrTboo\nKz3PPfEQJjmwfofLwcFWYNxaxM6/FKJIgOCWsuROUFIGcQfV/ppGB+8CgYEA3hp5\nDnpi3GQGfPr6rEJbmcfvlyw7J8lJOucamyukzQ94qmaAki2iEzjHjjV/5ppY26gW\n7siRjoC+fr1LUqroT9f+pUnAH2rEI14MXeaD8rUp1B6gBPkIbqitbHat9LEbnfcm\nClhz+3qvvOYjOLJKp18Tx7qtZdJDnDuoiomi9GMCgYBvYJGm0JtlAizbFjhSJF96\nTzpVgbj70aMocTJyjROkxeYWZxjrF/kVWTaBGxvRnjLG2HzunDCmqbj5XomnpykZ\nG+8KEQX+Fia8+34UvjSBRd4Oad/DbIb0FZgKvvWCSkb0LxcO3M/3g5IsEl15XrIS\ndDPy83P54UlR9sdH1WPNYwKBgBztpcbU+ftqq82rgurc2cF14Sb3g9zywq8BWt3L\nGXP8B+Np5mUjvHB0fMlw/m+yutAhXJtNVGgTLLylOyJRUGDV6TzuFjABX/qbTVEN\nrTH3lrMiKgV7yjVfkvcFnjK4vrgccL/4NWMT37/i2cOQtViHcbQaBGu2r0eyHYmt\n06OxAoGBAMBrUl57xG9x1FY28OqIneLf4jYs+fjxy/EpF9aMB8Hj2UX5oTjumifr\nUPxUNv0L7YbsUc8WGAIGUhJFFyWxBjgbOvutOjfGX5BUg+T4qjLwD6+gcFG0/Nas\nntA5sjOttA5YgLKVcn0rs9YYbW9VVjE6qFZZy6nHIQMp5DUNG9Hx\n-----END RSA PRIVATE KEY-----\n"
+      },
+      "github": [
+        {
+          "match": "^POST https://api\\.github\\.com/app/installations/777/access_tokens$",
+          "status": 201,
+          "body": {
+            "token": "ghs_TestInstallationToken0123456789"
+          }
+        },
+        {
+          "match": "^GET https://api\\.github\\.com/repos/acme/private-app$",
+          "body": {
+            "id": 987654,
+            "full_name": "acme/private-app"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ghapp.clone-fails",
+      "about": "a private repository through a GitHub App: the repository cannot be cloned",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "acme/private-app"
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"app0000000000000000000001:old\"}\n"
+        },
+        {
+          "match": " clone ",
+          "errorOutput": "fatal: Authentication failed\n",
+          "exitCode": 128
+        },
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "githubApp": {
+        "name": "freeploy-test",
+        "organization": "acme",
+        "api_url": "https://api.github.com",
+        "html_url": "https://github.com",
+        "custom_user": "git",
+        "custom_port": 22,
+        "app_id": 4242,
+        "installation_id": 777,
+        "is_public": false,
+        "privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEA27bzbeBtRNtHsyI1cnnu69igRHkYsu9R0YcvkBdiVt6IY3AT\nStirGL9kSTi2w76JcGlcjKuXSgiERx8dI3BR+gPp9aESnQbscnUyooVN2xQ9PfzQ\nK7+Cn1FyWi2NR5FHx5dj9ipMP00JphasQwNOvYiZAPzinyNtq65yjaD/Jv3z8GiH\n7MIvx+4WFFLMhbKIGATx15tZnrBiKY44Lu5ysX3M0t+6s1ozXLOX2LKQ4iF9XZ2g\nhravID+3uv9hJWeGw8jdGHcTSI+n2t1izCRkuTdU7QvvmqZOOeaNTV76dWWAqq8Y\nX9fnzmtwARkuKKIH7b4yVzNIYbdwtaXmVOLdbQIDAQABAoIBAFWeWQUXwCzlcG7P\nZVl7R43zaBzWvbe4x77pObEiU6l7ZVWujm4LubzWlFtuNNZZkRBTloOguD9ay0U1\nzDKLqf5N+SVFQ84aLRi7L+SiIsE9BVJ7CpoJsnqoD/IxLw1VAU43YfZC7Fx8hkaJ\nLk6c4tm7+benVB5kfW+59pzXQKat9V0I+ZbGja9s6+IcORXHNtAYAdE2OaKV1Bn7\npKd6IqEdPPseTEjqZ99ko7swPXIIqGmFQ/favIeTv4V7J/RBQlNTj1HsP/bctlLO\nhQFrgX+1LzO5kmsl9IPOzuLhykql1KGwziC8VX1LMgFUH0+zjhm1SFIKobu7PVX2\nHfwgW8cCgYEA/T8mWuF+LiVflpUn1ovCtDM8ZNOfPNZBXue3WDyFtIlEVJCyOUul\n1//AACgMHwh8UaKLNIu4yxgukW0arHlU/gdNWf/yfeRQWtPJd8YH3Vi23GRrTboo\nKz3PPfEQJjmwfofLwcFWYNxaxM6/FKJIgOCWsuROUFIGcQfV/ppGB+8CgYEA3hp5\nDnpi3GQGfPr6rEJbmcfvlyw7J8lJOucamyukzQ94qmaAki2iEzjHjjV/5ppY26gW\n7siRjoC+fr1LUqroT9f+pUnAH2rEI14MXeaD8rUp1B6gBPkIbqitbHat9LEbnfcm\nClhz+3qvvOYjOLJKp18Tx7qtZdJDnDuoiomi9GMCgYBvYJGm0JtlAizbFjhSJF96\nTzpVgbj70aMocTJyjROkxeYWZxjrF/kVWTaBGxvRnjLG2HzunDCmqbj5XomnpykZ\nG+8KEQX+Fia8+34UvjSBRd4Oad/DbIb0FZgKvvWCSkb0LxcO3M/3g5IsEl15XrIS\ndDPy83P54UlR9sdH1WPNYwKBgBztpcbU+ftqq82rgurc2cF14Sb3g9zywq8BWt3L\nGXP8B+Np5mUjvHB0fMlw/m+yutAhXJtNVGgTLLylOyJRUGDV6TzuFjABX/qbTVEN\nrTH3lrMiKgV7yjVfkvcFnjK4vrgccL/4NWMT37/i2cOQtViHcbQaBGu2r0eyHYmt\n06OxAoGBAMBrUl57xG9x1FY28OqIneLf4jYs+fjxy/EpF9aMB8Hj2UX5oTjumifr\nUPxUNv0L7YbsUc8WGAIGUhJFFyWxBjgbOvutOjfGX5BUg+T4qjLwD6+gcFG0/Nas\nntA5sjOttA5YgLKVcn0rs9YYbW9VVjE6qFZZy6nHIQMp5DUNG9Hx\n-----END RSA PRIVATE KEY-----\n"
+      },
+      "github": [
+        {
+          "match": "^POST https://api\\.github\\.com/app/installations/777/access_tokens$",
+          "status": 201,
+          "body": {
+            "token": "ghs_TestInstallationToken0123456789"
+          }
+        },
+        {
+          "match": "^GET https://api\\.github\\.com/repos/acme/private-app$",
+          "body": {
+            "id": 987654,
+            "full_name": "acme/private-app"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ghapp.clone-retry",
+      "about": "a private repository through a GitHub App: the SSH connection drops during the clone: it is tried again",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "acme/private-app"
+      },
+      "responses": [
+        {
+          "match": " clone ",
+          "sequence": [
+            {
+              "errorOutput": "Connection to 10.0.0.5 closed by remote host.\n",
+              "exitCode": 255
+            },
+            {
+              "output": ""
+            }
+          ]
+        },
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "githubApp": {
+        "name": "freeploy-test",
+        "organization": "acme",
+        "api_url": "https://api.github.com",
+        "html_url": "https://github.com",
+        "custom_user": "git",
+        "custom_port": 22,
+        "app_id": 4242,
+        "installation_id": 777,
+        "is_public": false,
+        "privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEA27bzbeBtRNtHsyI1cnnu69igRHkYsu9R0YcvkBdiVt6IY3AT\nStirGL9kSTi2w76JcGlcjKuXSgiERx8dI3BR+gPp9aESnQbscnUyooVN2xQ9PfzQ\nK7+Cn1FyWi2NR5FHx5dj9ipMP00JphasQwNOvYiZAPzinyNtq65yjaD/Jv3z8GiH\n7MIvx+4WFFLMhbKIGATx15tZnrBiKY44Lu5ysX3M0t+6s1ozXLOX2LKQ4iF9XZ2g\nhravID+3uv9hJWeGw8jdGHcTSI+n2t1izCRkuTdU7QvvmqZOOeaNTV76dWWAqq8Y\nX9fnzmtwARkuKKIH7b4yVzNIYbdwtaXmVOLdbQIDAQABAoIBAFWeWQUXwCzlcG7P\nZVl7R43zaBzWvbe4x77pObEiU6l7ZVWujm4LubzWlFtuNNZZkRBTloOguD9ay0U1\nzDKLqf5N+SVFQ84aLRi7L+SiIsE9BVJ7CpoJsnqoD/IxLw1VAU43YfZC7Fx8hkaJ\nLk6c4tm7+benVB5kfW+59pzXQKat9V0I+ZbGja9s6+IcORXHNtAYAdE2OaKV1Bn7\npKd6IqEdPPseTEjqZ99ko7swPXIIqGmFQ/favIeTv4V7J/RBQlNTj1HsP/bctlLO\nhQFrgX+1LzO5kmsl9IPOzuLhykql1KGwziC8VX1LMgFUH0+zjhm1SFIKobu7PVX2\nHfwgW8cCgYEA/T8mWuF+LiVflpUn1ovCtDM8ZNOfPNZBXue3WDyFtIlEVJCyOUul\n1//AACgMHwh8UaKLNIu4yxgukW0arHlU/gdNWf/yfeRQWtPJd8YH3Vi23GRrTboo\nKz3PPfEQJjmwfofLwcFWYNxaxM6/FKJIgOCWsuROUFIGcQfV/ppGB+8CgYEA3hp5\nDnpi3GQGfPr6rEJbmcfvlyw7J8lJOucamyukzQ94qmaAki2iEzjHjjV/5ppY26gW\n7siRjoC+fr1LUqroT9f+pUnAH2rEI14MXeaD8rUp1B6gBPkIbqitbHat9LEbnfcm\nClhz+3qvvOYjOLJKp18Tx7qtZdJDnDuoiomi9GMCgYBvYJGm0JtlAizbFjhSJF96\nTzpVgbj70aMocTJyjROkxeYWZxjrF/kVWTaBGxvRnjLG2HzunDCmqbj5XomnpykZ\nG+8KEQX+Fia8+34UvjSBRd4Oad/DbIb0FZgKvvWCSkb0LxcO3M/3g5IsEl15XrIS\ndDPy83P54UlR9sdH1WPNYwKBgBztpcbU+ftqq82rgurc2cF14Sb3g9zywq8BWt3L\nGXP8B+Np5mUjvHB0fMlw/m+yutAhXJtNVGgTLLylOyJRUGDV6TzuFjABX/qbTVEN\nrTH3lrMiKgV7yjVfkvcFnjK4vrgccL/4NWMT37/i2cOQtViHcbQaBGu2r0eyHYmt\n06OxAoGBAMBrUl57xG9x1FY28OqIneLf4jYs+fjxy/EpF9aMB8Hj2UX5oTjumifr\nUPxUNv0L7YbsUc8WGAIGUhJFFyWxBjgbOvutOjfGX5BUg+T4qjLwD6+gcFG0/Nas\nntA5sjOttA5YgLKVcn0rs9YYbW9VVjE6qFZZy6nHIQMp5DUNG9Hx\n-----END RSA PRIVATE KEY-----\n"
+      },
+      "github": [
+        {
+          "match": "^POST https://api\\.github\\.com/app/installations/777/access_tokens$",
+          "status": 201,
+          "body": {
+            "token": "ghs_TestInstallationToken0123456789"
+          }
+        },
+        {
+          "match": "^GET https://api\\.github\\.com/repos/acme/private-app$",
+          "body": {
+            "id": 987654,
+            "full_name": "acme/private-app"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ghapp.ls-remote-fails",
+      "about": "a private repository through a GitHub App: the head of the branch cannot be read",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "acme/private-app"
+      },
+      "responses": [
+        {
+          "match": "ls-remote",
+          "errorOutput": "fatal: could not read Username for 'https://github.com': terminal prompts disabled\n",
+          "exitCode": 128
+        },
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "githubApp": {
+        "name": "freeploy-test",
+        "organization": "acme",
+        "api_url": "https://api.github.com",
+        "html_url": "https://github.com",
+        "custom_user": "git",
+        "custom_port": 22,
+        "app_id": 4242,
+        "installation_id": 777,
+        "is_public": false,
+        "privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEA27bzbeBtRNtHsyI1cnnu69igRHkYsu9R0YcvkBdiVt6IY3AT\nStirGL9kSTi2w76JcGlcjKuXSgiERx8dI3BR+gPp9aESnQbscnUyooVN2xQ9PfzQ\nK7+Cn1FyWi2NR5FHx5dj9ipMP00JphasQwNOvYiZAPzinyNtq65yjaD/Jv3z8GiH\n7MIvx+4WFFLMhbKIGATx15tZnrBiKY44Lu5ysX3M0t+6s1ozXLOX2LKQ4iF9XZ2g\nhravID+3uv9hJWeGw8jdGHcTSI+n2t1izCRkuTdU7QvvmqZOOeaNTV76dWWAqq8Y\nX9fnzmtwARkuKKIH7b4yVzNIYbdwtaXmVOLdbQIDAQABAoIBAFWeWQUXwCzlcG7P\nZVl7R43zaBzWvbe4x77pObEiU6l7ZVWujm4LubzWlFtuNNZZkRBTloOguD9ay0U1\nzDKLqf5N+SVFQ84aLRi7L+SiIsE9BVJ7CpoJsnqoD/IxLw1VAU43YfZC7Fx8hkaJ\nLk6c4tm7+benVB5kfW+59pzXQKat9V0I+ZbGja9s6+IcORXHNtAYAdE2OaKV1Bn7\npKd6IqEdPPseTEjqZ99ko7swPXIIqGmFQ/favIeTv4V7J/RBQlNTj1HsP/bctlLO\nhQFrgX+1LzO5kmsl9IPOzuLhykql1KGwziC8VX1LMgFUH0+zjhm1SFIKobu7PVX2\nHfwgW8cCgYEA/T8mWuF+LiVflpUn1ovCtDM8ZNOfPNZBXue3WDyFtIlEVJCyOUul\n1//AACgMHwh8UaKLNIu4yxgukW0arHlU/gdNWf/yfeRQWtPJd8YH3Vi23GRrTboo\nKz3PPfEQJjmwfofLwcFWYNxaxM6/FKJIgOCWsuROUFIGcQfV/ppGB+8CgYEA3hp5\nDnpi3GQGfPr6rEJbmcfvlyw7J8lJOucamyukzQ94qmaAki2iEzjHjjV/5ppY26gW\n7siRjoC+fr1LUqroT9f+pUnAH2rEI14MXeaD8rUp1B6gBPkIbqitbHat9LEbnfcm\nClhz+3qvvOYjOLJKp18Tx7qtZdJDnDuoiomi9GMCgYBvYJGm0JtlAizbFjhSJF96\nTzpVgbj70aMocTJyjROkxeYWZxjrF/kVWTaBGxvRnjLG2HzunDCmqbj5XomnpykZ\nG+8KEQX+Fia8+34UvjSBRd4Oad/DbIb0FZgKvvWCSkb0LxcO3M/3g5IsEl15XrIS\ndDPy83P54UlR9sdH1WPNYwKBgBztpcbU+ftqq82rgurc2cF14Sb3g9zywq8BWt3L\nGXP8B+Np5mUjvHB0fMlw/m+yutAhXJtNVGgTLLylOyJRUGDV6TzuFjABX/qbTVEN\nrTH3lrMiKgV7yjVfkvcFnjK4vrgccL/4NWMT37/i2cOQtViHcbQaBGu2r0eyHYmt\n06OxAoGBAMBrUl57xG9x1FY28OqIneLf4jYs+fjxy/EpF9aMB8Hj2UX5oTjumifr\nUPxUNv0L7YbsUc8WGAIGUhJFFyWxBjgbOvutOjfGX5BUg+T4qjLwD6+gcFG0/Nas\nntA5sjOttA5YgLKVcn0rs9YYbW9VVjE6qFZZy6nHIQMp5DUNG9Hx\n-----END RSA PRIVATE KEY-----\n"
+      },
+      "github": [
+        {
+          "match": "^POST https://api\\.github\\.com/app/installations/777/access_tokens$",
+          "status": 201,
+          "body": {
+            "token": "ghs_TestInstallationToken0123456789"
+          }
+        },
+        {
+          "match": "^GET https://api\\.github\\.com/repos/acme/private-app$",
+          "body": {
+            "id": 987654,
+            "full_name": "acme/private-app"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ghapp.known-hosts",
+      "about": "a private repository through a GitHub App: git accepted the SSH key of a new host: it is saved",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "acme/private-app"
+      },
+      "responses": [
+        {
+          "match": "cat /root/.ssh/coolify_git",
+          "output": "git.example.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl\n"
+        },
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "githubApp": {
+        "name": "freeploy-test",
+        "organization": "acme",
+        "api_url": "https://api.github.com",
+        "html_url": "https://github.com",
+        "custom_user": "git",
+        "custom_port": 22,
+        "app_id": 4242,
+        "installation_id": 777,
+        "is_public": false,
+        "privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEA27bzbeBtRNtHsyI1cnnu69igRHkYsu9R0YcvkBdiVt6IY3AT\nStirGL9kSTi2w76JcGlcjKuXSgiERx8dI3BR+gPp9aESnQbscnUyooVN2xQ9PfzQ\nK7+Cn1FyWi2NR5FHx5dj9ipMP00JphasQwNOvYiZAPzinyNtq65yjaD/Jv3z8GiH\n7MIvx+4WFFLMhbKIGATx15tZnrBiKY44Lu5ysX3M0t+6s1ozXLOX2LKQ4iF9XZ2g\nhravID+3uv9hJWeGw8jdGHcTSI+n2t1izCRkuTdU7QvvmqZOOeaNTV76dWWAqq8Y\nX9fnzmtwARkuKKIH7b4yVzNIYbdwtaXmVOLdbQIDAQABAoIBAFWeWQUXwCzlcG7P\nZVl7R43zaBzWvbe4x77pObEiU6l7ZVWujm4LubzWlFtuNNZZkRBTloOguD9ay0U1\nzDKLqf5N+SVFQ84aLRi7L+SiIsE9BVJ7CpoJsnqoD/IxLw1VAU43YfZC7Fx8hkaJ\nLk6c4tm7+benVB5kfW+59pzXQKat9V0I+ZbGja9s6+IcORXHNtAYAdE2OaKV1Bn7\npKd6IqEdPPseTEjqZ99ko7swPXIIqGmFQ/favIeTv4V7J/RBQlNTj1HsP/bctlLO\nhQFrgX+1LzO5kmsl9IPOzuLhykql1KGwziC8VX1LMgFUH0+zjhm1SFIKobu7PVX2\nHfwgW8cCgYEA/T8mWuF+LiVflpUn1ovCtDM8ZNOfPNZBXue3WDyFtIlEVJCyOUul\n1//AACgMHwh8UaKLNIu4yxgukW0arHlU/gdNWf/yfeRQWtPJd8YH3Vi23GRrTboo\nKz3PPfEQJjmwfofLwcFWYNxaxM6/FKJIgOCWsuROUFIGcQfV/ppGB+8CgYEA3hp5\nDnpi3GQGfPr6rEJbmcfvlyw7J8lJOucamyukzQ94qmaAki2iEzjHjjV/5ppY26gW\n7siRjoC+fr1LUqroT9f+pUnAH2rEI14MXeaD8rUp1B6gBPkIbqitbHat9LEbnfcm\nClhz+3qvvOYjOLJKp18Tx7qtZdJDnDuoiomi9GMCgYBvYJGm0JtlAizbFjhSJF96\nTzpVgbj70aMocTJyjROkxeYWZxjrF/kVWTaBGxvRnjLG2HzunDCmqbj5XomnpykZ\nG+8KEQX+Fia8+34UvjSBRd4Oad/DbIb0FZgKvvWCSkb0LxcO3M/3g5IsEl15XrIS\ndDPy83P54UlR9sdH1WPNYwKBgBztpcbU+ftqq82rgurc2cF14Sb3g9zywq8BWt3L\nGXP8B+Np5mUjvHB0fMlw/m+yutAhXJtNVGgTLLylOyJRUGDV6TzuFjABX/qbTVEN\nrTH3lrMiKgV7yjVfkvcFnjK4vrgccL/4NWMT37/i2cOQtViHcbQaBGu2r0eyHYmt\n06OxAoGBAMBrUl57xG9x1FY28OqIneLf4jYs+fjxy/EpF9aMB8Hj2UX5oTjumifr\nUPxUNv0L7YbsUc8WGAIGUhJFFyWxBjgbOvutOjfGX5BUg+T4qjLwD6+gcFG0/Nas\nntA5sjOttA5YgLKVcn0rs9YYbW9VVjE6qFZZy6nHIQMp5DUNG9Hx\n-----END RSA PRIVATE KEY-----\n"
+      },
+      "github": [
+        {
+          "match": "^POST https://api\\.github\\.com/app/installations/777/access_tokens$",
+          "status": 201,
+          "body": {
+            "token": "ghs_TestInstallationToken0123456789"
+          }
+        },
+        {
+          "match": "^GET https://api\\.github\\.com/repos/acme/private-app$",
+          "body": {
+            "id": 987654,
+            "full_name": "acme/private-app"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ghapp.base-directory",
+      "about": "a private repository through a GitHub App: an application in a folder of its repository",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "acme/private-app",
+        "base_directory": "/apps/web"
+      },
+      "responses": [
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/apps/web/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        },
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "githubApp": {
+        "name": "freeploy-test",
+        "organization": "acme",
+        "api_url": "https://api.github.com",
+        "html_url": "https://github.com",
+        "custom_user": "git",
+        "custom_port": 22,
+        "app_id": 4242,
+        "installation_id": 777,
+        "is_public": false,
+        "privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEA27bzbeBtRNtHsyI1cnnu69igRHkYsu9R0YcvkBdiVt6IY3AT\nStirGL9kSTi2w76JcGlcjKuXSgiERx8dI3BR+gPp9aESnQbscnUyooVN2xQ9PfzQ\nK7+Cn1FyWi2NR5FHx5dj9ipMP00JphasQwNOvYiZAPzinyNtq65yjaD/Jv3z8GiH\n7MIvx+4WFFLMhbKIGATx15tZnrBiKY44Lu5ysX3M0t+6s1ozXLOX2LKQ4iF9XZ2g\nhravID+3uv9hJWeGw8jdGHcTSI+n2t1izCRkuTdU7QvvmqZOOeaNTV76dWWAqq8Y\nX9fnzmtwARkuKKIH7b4yVzNIYbdwtaXmVOLdbQIDAQABAoIBAFWeWQUXwCzlcG7P\nZVl7R43zaBzWvbe4x77pObEiU6l7ZVWujm4LubzWlFtuNNZZkRBTloOguD9ay0U1\nzDKLqf5N+SVFQ84aLRi7L+SiIsE9BVJ7CpoJsnqoD/IxLw1VAU43YfZC7Fx8hkaJ\nLk6c4tm7+benVB5kfW+59pzXQKat9V0I+ZbGja9s6+IcORXHNtAYAdE2OaKV1Bn7\npKd6IqEdPPseTEjqZ99ko7swPXIIqGmFQ/favIeTv4V7J/RBQlNTj1HsP/bctlLO\nhQFrgX+1LzO5kmsl9IPOzuLhykql1KGwziC8VX1LMgFUH0+zjhm1SFIKobu7PVX2\nHfwgW8cCgYEA/T8mWuF+LiVflpUn1ovCtDM8ZNOfPNZBXue3WDyFtIlEVJCyOUul\n1//AACgMHwh8UaKLNIu4yxgukW0arHlU/gdNWf/yfeRQWtPJd8YH3Vi23GRrTboo\nKz3PPfEQJjmwfofLwcFWYNxaxM6/FKJIgOCWsuROUFIGcQfV/ppGB+8CgYEA3hp5\nDnpi3GQGfPr6rEJbmcfvlyw7J8lJOucamyukzQ94qmaAki2iEzjHjjV/5ppY26gW\n7siRjoC+fr1LUqroT9f+pUnAH2rEI14MXeaD8rUp1B6gBPkIbqitbHat9LEbnfcm\nClhz+3qvvOYjOLJKp18Tx7qtZdJDnDuoiomi9GMCgYBvYJGm0JtlAizbFjhSJF96\nTzpVgbj70aMocTJyjROkxeYWZxjrF/kVWTaBGxvRnjLG2HzunDCmqbj5XomnpykZ\nG+8KEQX+Fia8+34UvjSBRd4Oad/DbIb0FZgKvvWCSkb0LxcO3M/3g5IsEl15XrIS\ndDPy83P54UlR9sdH1WPNYwKBgBztpcbU+ftqq82rgurc2cF14Sb3g9zywq8BWt3L\nGXP8B+Np5mUjvHB0fMlw/m+yutAhXJtNVGgTLLylOyJRUGDV6TzuFjABX/qbTVEN\nrTH3lrMiKgV7yjVfkvcFnjK4vrgccL/4NWMT37/i2cOQtViHcbQaBGu2r0eyHYmt\n06OxAoGBAMBrUl57xG9x1FY28OqIneLf4jYs+fjxy/EpF9aMB8Hj2UX5oTjumifr\nUPxUNv0L7YbsUc8WGAIGUhJFFyWxBjgbOvutOjfGX5BUg+T4qjLwD6+gcFG0/Nas\nntA5sjOttA5YgLKVcn0rs9YYbW9VVjE6qFZZy6nHIQMp5DUNG9Hx\n-----END RSA PRIVATE KEY-----\n"
+      },
+      "github": [
+        {
+          "match": "^POST https://api\\.github\\.com/app/installations/777/access_tokens$",
+          "status": 201,
+          "body": {
+            "token": "ghs_TestInstallationToken0123456789"
+          }
+        },
+        {
+          "match": "^GET https://api\\.github\\.com/repos/acme/private-app$",
+          "body": {
+            "id": 987654,
+            "full_name": "acme/private-app"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ghapp.git-options",
+      "about": "a private repository through a GitHub App: no shallow clone, no submodules, no LFS",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "acme/private-app"
+      },
+      "settings": {
+        "is_git_shallow_clone_enabled": false,
+        "is_git_submodules_enabled": false,
+        "is_git_lfs_enabled": false
+      },
+      "responses": [
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "githubApp": {
+        "name": "freeploy-test",
+        "organization": "acme",
+        "api_url": "https://api.github.com",
+        "html_url": "https://github.com",
+        "custom_user": "git",
+        "custom_port": 22,
+        "app_id": 4242,
+        "installation_id": 777,
+        "is_public": false,
+        "privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEA27bzbeBtRNtHsyI1cnnu69igRHkYsu9R0YcvkBdiVt6IY3AT\nStirGL9kSTi2w76JcGlcjKuXSgiERx8dI3BR+gPp9aESnQbscnUyooVN2xQ9PfzQ\nK7+Cn1FyWi2NR5FHx5dj9ipMP00JphasQwNOvYiZAPzinyNtq65yjaD/Jv3z8GiH\n7MIvx+4WFFLMhbKIGATx15tZnrBiKY44Lu5ysX3M0t+6s1ozXLOX2LKQ4iF9XZ2g\nhravID+3uv9hJWeGw8jdGHcTSI+n2t1izCRkuTdU7QvvmqZOOeaNTV76dWWAqq8Y\nX9fnzmtwARkuKKIH7b4yVzNIYbdwtaXmVOLdbQIDAQABAoIBAFWeWQUXwCzlcG7P\nZVl7R43zaBzWvbe4x77pObEiU6l7ZVWujm4LubzWlFtuNNZZkRBTloOguD9ay0U1\nzDKLqf5N+SVFQ84aLRi7L+SiIsE9BVJ7CpoJsnqoD/IxLw1VAU43YfZC7Fx8hkaJ\nLk6c4tm7+benVB5kfW+59pzXQKat9V0I+ZbGja9s6+IcORXHNtAYAdE2OaKV1Bn7\npKd6IqEdPPseTEjqZ99ko7swPXIIqGmFQ/favIeTv4V7J/RBQlNTj1HsP/bctlLO\nhQFrgX+1LzO5kmsl9IPOzuLhykql1KGwziC8VX1LMgFUH0+zjhm1SFIKobu7PVX2\nHfwgW8cCgYEA/T8mWuF+LiVflpUn1ovCtDM8ZNOfPNZBXue3WDyFtIlEVJCyOUul\n1//AACgMHwh8UaKLNIu4yxgukW0arHlU/gdNWf/yfeRQWtPJd8YH3Vi23GRrTboo\nKz3PPfEQJjmwfofLwcFWYNxaxM6/FKJIgOCWsuROUFIGcQfV/ppGB+8CgYEA3hp5\nDnpi3GQGfPr6rEJbmcfvlyw7J8lJOucamyukzQ94qmaAki2iEzjHjjV/5ppY26gW\n7siRjoC+fr1LUqroT9f+pUnAH2rEI14MXeaD8rUp1B6gBPkIbqitbHat9LEbnfcm\nClhz+3qvvOYjOLJKp18Tx7qtZdJDnDuoiomi9GMCgYBvYJGm0JtlAizbFjhSJF96\nTzpVgbj70aMocTJyjROkxeYWZxjrF/kVWTaBGxvRnjLG2HzunDCmqbj5XomnpykZ\nG+8KEQX+Fia8+34UvjSBRd4Oad/DbIb0FZgKvvWCSkb0LxcO3M/3g5IsEl15XrIS\ndDPy83P54UlR9sdH1WPNYwKBgBztpcbU+ftqq82rgurc2cF14Sb3g9zywq8BWt3L\nGXP8B+Np5mUjvHB0fMlw/m+yutAhXJtNVGgTLLylOyJRUGDV6TzuFjABX/qbTVEN\nrTH3lrMiKgV7yjVfkvcFnjK4vrgccL/4NWMT37/i2cOQtViHcbQaBGu2r0eyHYmt\n06OxAoGBAMBrUl57xG9x1FY28OqIneLf4jYs+fjxy/EpF9aMB8Hj2UX5oTjumifr\nUPxUNv0L7YbsUc8WGAIGUhJFFyWxBjgbOvutOjfGX5BUg+T4qjLwD6+gcFG0/Nas\nntA5sjOttA5YgLKVcn0rs9YYbW9VVjE6qFZZy6nHIQMp5DUNG9Hx\n-----END RSA PRIVATE KEY-----\n"
+      },
+      "github": [
+        {
+          "match": "^POST https://api\\.github\\.com/app/installations/777/access_tokens$",
+          "status": 201,
+          "body": {
+            "token": "ghs_TestInstallationToken0123456789"
+          }
+        },
+        {
+          "match": "^GET https://api\\.github\\.com/repos/acme/private-app$",
+          "body": {
+            "id": 987654,
+            "full_name": "acme/private-app"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ghapp.submodules-only",
+      "about": "a private repository through a GitHub App: submodules without LFS",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "acme/private-app"
+      },
+      "settings": {
+        "is_git_lfs_enabled": false
+      },
+      "responses": [
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "githubApp": {
+        "name": "freeploy-test",
+        "organization": "acme",
+        "api_url": "https://api.github.com",
+        "html_url": "https://github.com",
+        "custom_user": "git",
+        "custom_port": 22,
+        "app_id": 4242,
+        "installation_id": 777,
+        "is_public": false,
+        "privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEA27bzbeBtRNtHsyI1cnnu69igRHkYsu9R0YcvkBdiVt6IY3AT\nStirGL9kSTi2w76JcGlcjKuXSgiERx8dI3BR+gPp9aESnQbscnUyooVN2xQ9PfzQ\nK7+Cn1FyWi2NR5FHx5dj9ipMP00JphasQwNOvYiZAPzinyNtq65yjaD/Jv3z8GiH\n7MIvx+4WFFLMhbKIGATx15tZnrBiKY44Lu5ysX3M0t+6s1ozXLOX2LKQ4iF9XZ2g\nhravID+3uv9hJWeGw8jdGHcTSI+n2t1izCRkuTdU7QvvmqZOOeaNTV76dWWAqq8Y\nX9fnzmtwARkuKKIH7b4yVzNIYbdwtaXmVOLdbQIDAQABAoIBAFWeWQUXwCzlcG7P\nZVl7R43zaBzWvbe4x77pObEiU6l7ZVWujm4LubzWlFtuNNZZkRBTloOguD9ay0U1\nzDKLqf5N+SVFQ84aLRi7L+SiIsE9BVJ7CpoJsnqoD/IxLw1VAU43YfZC7Fx8hkaJ\nLk6c4tm7+benVB5kfW+59pzXQKat9V0I+ZbGja9s6+IcORXHNtAYAdE2OaKV1Bn7\npKd6IqEdPPseTEjqZ99ko7swPXIIqGmFQ/favIeTv4V7J/RBQlNTj1HsP/bctlLO\nhQFrgX+1LzO5kmsl9IPOzuLhykql1KGwziC8VX1LMgFUH0+zjhm1SFIKobu7PVX2\nHfwgW8cCgYEA/T8mWuF+LiVflpUn1ovCtDM8ZNOfPNZBXue3WDyFtIlEVJCyOUul\n1//AACgMHwh8UaKLNIu4yxgukW0arHlU/gdNWf/yfeRQWtPJd8YH3Vi23GRrTboo\nKz3PPfEQJjmwfofLwcFWYNxaxM6/FKJIgOCWsuROUFIGcQfV/ppGB+8CgYEA3hp5\nDnpi3GQGfPr6rEJbmcfvlyw7J8lJOucamyukzQ94qmaAki2iEzjHjjV/5ppY26gW\n7siRjoC+fr1LUqroT9f+pUnAH2rEI14MXeaD8rUp1B6gBPkIbqitbHat9LEbnfcm\nClhz+3qvvOYjOLJKp18Tx7qtZdJDnDuoiomi9GMCgYBvYJGm0JtlAizbFjhSJF96\nTzpVgbj70aMocTJyjROkxeYWZxjrF/kVWTaBGxvRnjLG2HzunDCmqbj5XomnpykZ\nG+8KEQX+Fia8+34UvjSBRd4Oad/DbIb0FZgKvvWCSkb0LxcO3M/3g5IsEl15XrIS\ndDPy83P54UlR9sdH1WPNYwKBgBztpcbU+ftqq82rgurc2cF14Sb3g9zywq8BWt3L\nGXP8B+Np5mUjvHB0fMlw/m+yutAhXJtNVGgTLLylOyJRUGDV6TzuFjABX/qbTVEN\nrTH3lrMiKgV7yjVfkvcFnjK4vrgccL/4NWMT37/i2cOQtViHcbQaBGu2r0eyHYmt\n06OxAoGBAMBrUl57xG9x1FY28OqIneLf4jYs+fjxy/EpF9aMB8Hj2UX5oTjumifr\nUPxUNv0L7YbsUc8WGAIGUhJFFyWxBjgbOvutOjfGX5BUg+T4qjLwD6+gcFG0/Nas\nntA5sjOttA5YgLKVcn0rs9YYbW9VVjE6qFZZy6nHIQMp5DUNG9Hx\n-----END RSA PRIVATE KEY-----\n"
+      },
+      "github": [
+        {
+          "match": "^POST https://api\\.github\\.com/app/installations/777/access_tokens$",
+          "status": 201,
+          "body": {
+            "token": "ghs_TestInstallationToken0123456789"
+          }
+        },
+        {
+          "match": "^GET https://api\\.github\\.com/repos/acme/private-app$",
+          "body": {
+            "id": 987654,
+            "full_name": "acme/private-app"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ghapp.force",
+      "about": "a private repository through a GitHub App: a forced rebuild",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "acme/private-app"
+      },
+      "responses": [
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "githubApp": {
+        "name": "freeploy-test",
+        "organization": "acme",
+        "api_url": "https://api.github.com",
+        "html_url": "https://github.com",
+        "custom_user": "git",
+        "custom_port": 22,
+        "app_id": 4242,
+        "installation_id": 777,
+        "is_public": false,
+        "privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEA27bzbeBtRNtHsyI1cnnu69igRHkYsu9R0YcvkBdiVt6IY3AT\nStirGL9kSTi2w76JcGlcjKuXSgiERx8dI3BR+gPp9aESnQbscnUyooVN2xQ9PfzQ\nK7+Cn1FyWi2NR5FHx5dj9ipMP00JphasQwNOvYiZAPzinyNtq65yjaD/Jv3z8GiH\n7MIvx+4WFFLMhbKIGATx15tZnrBiKY44Lu5ysX3M0t+6s1ozXLOX2LKQ4iF9XZ2g\nhravID+3uv9hJWeGw8jdGHcTSI+n2t1izCRkuTdU7QvvmqZOOeaNTV76dWWAqq8Y\nX9fnzmtwARkuKKIH7b4yVzNIYbdwtaXmVOLdbQIDAQABAoIBAFWeWQUXwCzlcG7P\nZVl7R43zaBzWvbe4x77pObEiU6l7ZVWujm4LubzWlFtuNNZZkRBTloOguD9ay0U1\nzDKLqf5N+SVFQ84aLRi7L+SiIsE9BVJ7CpoJsnqoD/IxLw1VAU43YfZC7Fx8hkaJ\nLk6c4tm7+benVB5kfW+59pzXQKat9V0I+ZbGja9s6+IcORXHNtAYAdE2OaKV1Bn7\npKd6IqEdPPseTEjqZ99ko7swPXIIqGmFQ/favIeTv4V7J/RBQlNTj1HsP/bctlLO\nhQFrgX+1LzO5kmsl9IPOzuLhykql1KGwziC8VX1LMgFUH0+zjhm1SFIKobu7PVX2\nHfwgW8cCgYEA/T8mWuF+LiVflpUn1ovCtDM8ZNOfPNZBXue3WDyFtIlEVJCyOUul\n1//AACgMHwh8UaKLNIu4yxgukW0arHlU/gdNWf/yfeRQWtPJd8YH3Vi23GRrTboo\nKz3PPfEQJjmwfofLwcFWYNxaxM6/FKJIgOCWsuROUFIGcQfV/ppGB+8CgYEA3hp5\nDnpi3GQGfPr6rEJbmcfvlyw7J8lJOucamyukzQ94qmaAki2iEzjHjjV/5ppY26gW\n7siRjoC+fr1LUqroT9f+pUnAH2rEI14MXeaD8rUp1B6gBPkIbqitbHat9LEbnfcm\nClhz+3qvvOYjOLJKp18Tx7qtZdJDnDuoiomi9GMCgYBvYJGm0JtlAizbFjhSJF96\nTzpVgbj70aMocTJyjROkxeYWZxjrF/kVWTaBGxvRnjLG2HzunDCmqbj5XomnpykZ\nG+8KEQX+Fia8+34UvjSBRd4Oad/DbIb0FZgKvvWCSkb0LxcO3M/3g5IsEl15XrIS\ndDPy83P54UlR9sdH1WPNYwKBgBztpcbU+ftqq82rgurc2cF14Sb3g9zywq8BWt3L\nGXP8B+Np5mUjvHB0fMlw/m+yutAhXJtNVGgTLLylOyJRUGDV6TzuFjABX/qbTVEN\nrTH3lrMiKgV7yjVfkvcFnjK4vrgccL/4NWMT37/i2cOQtViHcbQaBGu2r0eyHYmt\n06OxAoGBAMBrUl57xG9x1FY28OqIneLf4jYs+fjxy/EpF9aMB8Hj2UX5oTjumifr\nUPxUNv0L7YbsUc8WGAIGUhJFFyWxBjgbOvutOjfGX5BUg+T4qjLwD6+gcFG0/Nas\nntA5sjOttA5YgLKVcn0rs9YYbW9VVjE6qFZZy6nHIQMp5DUNG9Hx\n-----END RSA PRIVATE KEY-----\n"
+      },
+      "github": [
+        {
+          "match": "^POST https://api\\.github\\.com/app/installations/777/access_tokens$",
+          "status": 201,
+          "body": {
+            "token": "ghs_TestInstallationToken0123456789"
+          }
+        },
+        {
+          "match": "^GET https://api\\.github\\.com/repos/acme/private-app$",
+          "body": {
+            "id": 987654,
+            "full_name": "acme/private-app"
+          }
+        }
+      ],
+      "deployment": {
+        "force_rebuild": true
+      }
+    },
+    {
+      "id": "ghapp.nixpacks",
+      "about": "a private repository through a GitHub App, built with Nixpacks",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "nixpacks",
+        "git_repository": "acme/private-app"
+      },
+      "responses": [
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "nixpacks plan",
+          "output": "{\"providers\": [], \"buildImage\": \"ghcr.io/railwayapp/nixpacks:ubuntu-1745885067\", \"variables\": {\"CI\": \"true\", \"NIXPACKS_METADATA\": \"node\", \"NODE_ENV\": \"production\", \"NPM_CONFIG_PRODUCTION\": \"false\"}, \"phases\": {\"setup\": {\"nixPkgs\": [\"nodejs_22\"], \"nixOverlays\": [], \"nixpkgsArchive\": \"ffeebf0acf3ae8b29f8c7049cd911b9636efd7e7\"}}, \"start\": {\"cmd\": \"npm run start\"}}\n"
+        },
+        {
+          "match": "nixpacks detect",
+          "output": "node\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/.nixpacks/Dockerfile",
+          "output": "FROM ghcr.io/railwayapp/nixpacks:ubuntu-1745885067\nWORKDIR /app/\nCOPY . /app\nCMD [\"npm run start\"]\n"
+        }
+      ],
+      "githubApp": {
+        "name": "freeploy-test",
+        "organization": "acme",
+        "api_url": "https://api.github.com",
+        "html_url": "https://github.com",
+        "custom_user": "git",
+        "custom_port": 22,
+        "app_id": 4242,
+        "installation_id": 777,
+        "is_public": false,
+        "privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEA27bzbeBtRNtHsyI1cnnu69igRHkYsu9R0YcvkBdiVt6IY3AT\nStirGL9kSTi2w76JcGlcjKuXSgiERx8dI3BR+gPp9aESnQbscnUyooVN2xQ9PfzQ\nK7+Cn1FyWi2NR5FHx5dj9ipMP00JphasQwNOvYiZAPzinyNtq65yjaD/Jv3z8GiH\n7MIvx+4WFFLMhbKIGATx15tZnrBiKY44Lu5ysX3M0t+6s1ozXLOX2LKQ4iF9XZ2g\nhravID+3uv9hJWeGw8jdGHcTSI+n2t1izCRkuTdU7QvvmqZOOeaNTV76dWWAqq8Y\nX9fnzmtwARkuKKIH7b4yVzNIYbdwtaXmVOLdbQIDAQABAoIBAFWeWQUXwCzlcG7P\nZVl7R43zaBzWvbe4x77pObEiU6l7ZVWujm4LubzWlFtuNNZZkRBTloOguD9ay0U1\nzDKLqf5N+SVFQ84aLRi7L+SiIsE9BVJ7CpoJsnqoD/IxLw1VAU43YfZC7Fx8hkaJ\nLk6c4tm7+benVB5kfW+59pzXQKat9V0I+ZbGja9s6+IcORXHNtAYAdE2OaKV1Bn7\npKd6IqEdPPseTEjqZ99ko7swPXIIqGmFQ/favIeTv4V7J/RBQlNTj1HsP/bctlLO\nhQFrgX+1LzO5kmsl9IPOzuLhykql1KGwziC8VX1LMgFUH0+zjhm1SFIKobu7PVX2\nHfwgW8cCgYEA/T8mWuF+LiVflpUn1ovCtDM8ZNOfPNZBXue3WDyFtIlEVJCyOUul\n1//AACgMHwh8UaKLNIu4yxgukW0arHlU/gdNWf/yfeRQWtPJd8YH3Vi23GRrTboo\nKz3PPfEQJjmwfofLwcFWYNxaxM6/FKJIgOCWsuROUFIGcQfV/ppGB+8CgYEA3hp5\nDnpi3GQGfPr6rEJbmcfvlyw7J8lJOucamyukzQ94qmaAki2iEzjHjjV/5ppY26gW\n7siRjoC+fr1LUqroT9f+pUnAH2rEI14MXeaD8rUp1B6gBPkIbqitbHat9LEbnfcm\nClhz+3qvvOYjOLJKp18Tx7qtZdJDnDuoiomi9GMCgYBvYJGm0JtlAizbFjhSJF96\nTzpVgbj70aMocTJyjROkxeYWZxjrF/kVWTaBGxvRnjLG2HzunDCmqbj5XomnpykZ\nG+8KEQX+Fia8+34UvjSBRd4Oad/DbIb0FZgKvvWCSkb0LxcO3M/3g5IsEl15XrIS\ndDPy83P54UlR9sdH1WPNYwKBgBztpcbU+ftqq82rgurc2cF14Sb3g9zywq8BWt3L\nGXP8B+Np5mUjvHB0fMlw/m+yutAhXJtNVGgTLLylOyJRUGDV6TzuFjABX/qbTVEN\nrTH3lrMiKgV7yjVfkvcFnjK4vrgccL/4NWMT37/i2cOQtViHcbQaBGu2r0eyHYmt\n06OxAoGBAMBrUl57xG9x1FY28OqIneLf4jYs+fjxy/EpF9aMB8Hj2UX5oTjumifr\nUPxUNv0L7YbsUc8WGAIGUhJFFyWxBjgbOvutOjfGX5BUg+T4qjLwD6+gcFG0/Nas\nntA5sjOttA5YgLKVcn0rs9YYbW9VVjE6qFZZy6nHIQMp5DUNG9Hx\n-----END RSA PRIVATE KEY-----\n"
+      },
+      "github": [
+        {
+          "match": "^POST https://api\\.github\\.com/app/installations/777/access_tokens$",
+          "status": 201,
+          "body": {
+            "token": "ghs_TestInstallationToken0123456789"
+          }
+        },
+        {
+          "match": "^GET https://api\\.github\\.com/repos/acme/private-app$",
+          "body": {
+            "id": 987654,
+            "full_name": "acme/private-app"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ghapp.repository-id-known",
+      "about": "the repository id is already stored: it is not written again",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "acme/private-app",
+        "repository_project_id": 987654
+      },
+      "responses": [
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "githubApp": {
+        "name": "freeploy-test",
+        "organization": "acme",
+        "api_url": "https://api.github.com",
+        "html_url": "https://github.com",
+        "custom_user": "git",
+        "custom_port": 22,
+        "app_id": 4242,
+        "installation_id": 777,
+        "is_public": false,
+        "privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEA27bzbeBtRNtHsyI1cnnu69igRHkYsu9R0YcvkBdiVt6IY3AT\nStirGL9kSTi2w76JcGlcjKuXSgiERx8dI3BR+gPp9aESnQbscnUyooVN2xQ9PfzQ\nK7+Cn1FyWi2NR5FHx5dj9ipMP00JphasQwNOvYiZAPzinyNtq65yjaD/Jv3z8GiH\n7MIvx+4WFFLMhbKIGATx15tZnrBiKY44Lu5ysX3M0t+6s1ozXLOX2LKQ4iF9XZ2g\nhravID+3uv9hJWeGw8jdGHcTSI+n2t1izCRkuTdU7QvvmqZOOeaNTV76dWWAqq8Y\nX9fnzmtwARkuKKIH7b4yVzNIYbdwtaXmVOLdbQIDAQABAoIBAFWeWQUXwCzlcG7P\nZVl7R43zaBzWvbe4x77pObEiU6l7ZVWujm4LubzWlFtuNNZZkRBTloOguD9ay0U1\nzDKLqf5N+SVFQ84aLRi7L+SiIsE9BVJ7CpoJsnqoD/IxLw1VAU43YfZC7Fx8hkaJ\nLk6c4tm7+benVB5kfW+59pzXQKat9V0I+ZbGja9s6+IcORXHNtAYAdE2OaKV1Bn7\npKd6IqEdPPseTEjqZ99ko7swPXIIqGmFQ/favIeTv4V7J/RBQlNTj1HsP/bctlLO\nhQFrgX+1LzO5kmsl9IPOzuLhykql1KGwziC8VX1LMgFUH0+zjhm1SFIKobu7PVX2\nHfwgW8cCgYEA/T8mWuF+LiVflpUn1ovCtDM8ZNOfPNZBXue3WDyFtIlEVJCyOUul\n1//AACgMHwh8UaKLNIu4yxgukW0arHlU/gdNWf/yfeRQWtPJd8YH3Vi23GRrTboo\nKz3PPfEQJjmwfofLwcFWYNxaxM6/FKJIgOCWsuROUFIGcQfV/ppGB+8CgYEA3hp5\nDnpi3GQGfPr6rEJbmcfvlyw7J8lJOucamyukzQ94qmaAki2iEzjHjjV/5ppY26gW\n7siRjoC+fr1LUqroT9f+pUnAH2rEI14MXeaD8rUp1B6gBPkIbqitbHat9LEbnfcm\nClhz+3qvvOYjOLJKp18Tx7qtZdJDnDuoiomi9GMCgYBvYJGm0JtlAizbFjhSJF96\nTzpVgbj70aMocTJyjROkxeYWZxjrF/kVWTaBGxvRnjLG2HzunDCmqbj5XomnpykZ\nG+8KEQX+Fia8+34UvjSBRd4Oad/DbIb0FZgKvvWCSkb0LxcO3M/3g5IsEl15XrIS\ndDPy83P54UlR9sdH1WPNYwKBgBztpcbU+ftqq82rgurc2cF14Sb3g9zywq8BWt3L\nGXP8B+Np5mUjvHB0fMlw/m+yutAhXJtNVGgTLLylOyJRUGDV6TzuFjABX/qbTVEN\nrTH3lrMiKgV7yjVfkvcFnjK4vrgccL/4NWMT37/i2cOQtViHcbQaBGu2r0eyHYmt\n06OxAoGBAMBrUl57xG9x1FY28OqIneLf4jYs+fjxy/EpF9aMB8Hj2UX5oTjumifr\nUPxUNv0L7YbsUc8WGAIGUhJFFyWxBjgbOvutOjfGX5BUg+T4qjLwD6+gcFG0/Nas\nntA5sjOttA5YgLKVcn0rs9YYbW9VVjE6qFZZy6nHIQMp5DUNG9Hx\n-----END RSA PRIVATE KEY-----\n"
+      },
+      "github": [
+        {
+          "match": "^POST https://api\\.github\\.com/app/installations/777/access_tokens$",
+          "status": 201,
+          "body": {
+            "token": "ghs_TestInstallationToken0123456789"
+          }
+        },
+        {
+          "match": "^GET https://api\\.github\\.com/repos/acme/private-app$",
+          "body": {
+            "id": 987654,
+            "full_name": "acme/private-app"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ghapp.repository-id-moved",
+      "about": "GitHub answers another id for the repository: it is stored",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "acme/private-app",
+        "repository_project_id": 111
+      },
+      "responses": [
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "githubApp": {
+        "name": "freeploy-test",
+        "organization": "acme",
+        "api_url": "https://api.github.com",
+        "html_url": "https://github.com",
+        "custom_user": "git",
+        "custom_port": 22,
+        "app_id": 4242,
+        "installation_id": 777,
+        "is_public": false,
+        "privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEA27bzbeBtRNtHsyI1cnnu69igRHkYsu9R0YcvkBdiVt6IY3AT\nStirGL9kSTi2w76JcGlcjKuXSgiERx8dI3BR+gPp9aESnQbscnUyooVN2xQ9PfzQ\nK7+Cn1FyWi2NR5FHx5dj9ipMP00JphasQwNOvYiZAPzinyNtq65yjaD/Jv3z8GiH\n7MIvx+4WFFLMhbKIGATx15tZnrBiKY44Lu5ysX3M0t+6s1ozXLOX2LKQ4iF9XZ2g\nhravID+3uv9hJWeGw8jdGHcTSI+n2t1izCRkuTdU7QvvmqZOOeaNTV76dWWAqq8Y\nX9fnzmtwARkuKKIH7b4yVzNIYbdwtaXmVOLdbQIDAQABAoIBAFWeWQUXwCzlcG7P\nZVl7R43zaBzWvbe4x77pObEiU6l7ZVWujm4LubzWlFtuNNZZkRBTloOguD9ay0U1\nzDKLqf5N+SVFQ84aLRi7L+SiIsE9BVJ7CpoJsnqoD/IxLw1VAU43YfZC7Fx8hkaJ\nLk6c4tm7+benVB5kfW+59pzXQKat9V0I+ZbGja9s6+IcORXHNtAYAdE2OaKV1Bn7\npKd6IqEdPPseTEjqZ99ko7swPXIIqGmFQ/favIeTv4V7J/RBQlNTj1HsP/bctlLO\nhQFrgX+1LzO5kmsl9IPOzuLhykql1KGwziC8VX1LMgFUH0+zjhm1SFIKobu7PVX2\nHfwgW8cCgYEA/T8mWuF+LiVflpUn1ovCtDM8ZNOfPNZBXue3WDyFtIlEVJCyOUul\n1//AACgMHwh8UaKLNIu4yxgukW0arHlU/gdNWf/yfeRQWtPJd8YH3Vi23GRrTboo\nKz3PPfEQJjmwfofLwcFWYNxaxM6/FKJIgOCWsuROUFIGcQfV/ppGB+8CgYEA3hp5\nDnpi3GQGfPr6rEJbmcfvlyw7J8lJOucamyukzQ94qmaAki2iEzjHjjV/5ppY26gW\n7siRjoC+fr1LUqroT9f+pUnAH2rEI14MXeaD8rUp1B6gBPkIbqitbHat9LEbnfcm\nClhz+3qvvOYjOLJKp18Tx7qtZdJDnDuoiomi9GMCgYBvYJGm0JtlAizbFjhSJF96\nTzpVgbj70aMocTJyjROkxeYWZxjrF/kVWTaBGxvRnjLG2HzunDCmqbj5XomnpykZ\nG+8KEQX+Fia8+34UvjSBRd4Oad/DbIb0FZgKvvWCSkb0LxcO3M/3g5IsEl15XrIS\ndDPy83P54UlR9sdH1WPNYwKBgBztpcbU+ftqq82rgurc2cF14Sb3g9zywq8BWt3L\nGXP8B+Np5mUjvHB0fMlw/m+yutAhXJtNVGgTLLylOyJRUGDV6TzuFjABX/qbTVEN\nrTH3lrMiKgV7yjVfkvcFnjK4vrgccL/4NWMT37/i2cOQtViHcbQaBGu2r0eyHYmt\n06OxAoGBAMBrUl57xG9x1FY28OqIneLf4jYs+fjxy/EpF9aMB8Hj2UX5oTjumifr\nUPxUNv0L7YbsUc8WGAIGUhJFFyWxBjgbOvutOjfGX5BUg+T4qjLwD6+gcFG0/Nas\nntA5sjOttA5YgLKVcn0rs9YYbW9VVjE6qFZZy6nHIQMp5DUNG9Hx\n-----END RSA PRIVATE KEY-----\n"
+      },
+      "github": [
+        {
+          "match": "^POST https://api\\.github\\.com/app/installations/777/access_tokens$",
+          "status": 201,
+          "body": {
+            "token": "ghs_TestInstallationToken0123456789"
+          }
+        },
+        {
+          "match": "^GET https://api\\.github\\.com/repos/acme/private-app$",
+          "body": {
+            "id": 987654,
+            "full_name": "acme/private-app"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ghapp.token-fails",
+      "about": "GitHub refuses the installation token: the deployment fails",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "acme/private-app"
+      },
+      "responses": [
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "githubApp": {
+        "name": "freeploy-test",
+        "organization": "acme",
+        "api_url": "https://api.github.com",
+        "html_url": "https://github.com",
+        "custom_user": "git",
+        "custom_port": 22,
+        "app_id": 4242,
+        "installation_id": 777,
+        "is_public": false,
+        "privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEA27bzbeBtRNtHsyI1cnnu69igRHkYsu9R0YcvkBdiVt6IY3AT\nStirGL9kSTi2w76JcGlcjKuXSgiERx8dI3BR+gPp9aESnQbscnUyooVN2xQ9PfzQ\nK7+Cn1FyWi2NR5FHx5dj9ipMP00JphasQwNOvYiZAPzinyNtq65yjaD/Jv3z8GiH\n7MIvx+4WFFLMhbKIGATx15tZnrBiKY44Lu5ysX3M0t+6s1ozXLOX2LKQ4iF9XZ2g\nhravID+3uv9hJWeGw8jdGHcTSI+n2t1izCRkuTdU7QvvmqZOOeaNTV76dWWAqq8Y\nX9fnzmtwARkuKKIH7b4yVzNIYbdwtaXmVOLdbQIDAQABAoIBAFWeWQUXwCzlcG7P\nZVl7R43zaBzWvbe4x77pObEiU6l7ZVWujm4LubzWlFtuNNZZkRBTloOguD9ay0U1\nzDKLqf5N+SVFQ84aLRi7L+SiIsE9BVJ7CpoJsnqoD/IxLw1VAU43YfZC7Fx8hkaJ\nLk6c4tm7+benVB5kfW+59pzXQKat9V0I+ZbGja9s6+IcORXHNtAYAdE2OaKV1Bn7\npKd6IqEdPPseTEjqZ99ko7swPXIIqGmFQ/favIeTv4V7J/RBQlNTj1HsP/bctlLO\nhQFrgX+1LzO5kmsl9IPOzuLhykql1KGwziC8VX1LMgFUH0+zjhm1SFIKobu7PVX2\nHfwgW8cCgYEA/T8mWuF+LiVflpUn1ovCtDM8ZNOfPNZBXue3WDyFtIlEVJCyOUul\n1//AACgMHwh8UaKLNIu4yxgukW0arHlU/gdNWf/yfeRQWtPJd8YH3Vi23GRrTboo\nKz3PPfEQJjmwfofLwcFWYNxaxM6/FKJIgOCWsuROUFIGcQfV/ppGB+8CgYEA3hp5\nDnpi3GQGfPr6rEJbmcfvlyw7J8lJOucamyukzQ94qmaAki2iEzjHjjV/5ppY26gW\n7siRjoC+fr1LUqroT9f+pUnAH2rEI14MXeaD8rUp1B6gBPkIbqitbHat9LEbnfcm\nClhz+3qvvOYjOLJKp18Tx7qtZdJDnDuoiomi9GMCgYBvYJGm0JtlAizbFjhSJF96\nTzpVgbj70aMocTJyjROkxeYWZxjrF/kVWTaBGxvRnjLG2HzunDCmqbj5XomnpykZ\nG+8KEQX+Fia8+34UvjSBRd4Oad/DbIb0FZgKvvWCSkb0LxcO3M/3g5IsEl15XrIS\ndDPy83P54UlR9sdH1WPNYwKBgBztpcbU+ftqq82rgurc2cF14Sb3g9zywq8BWt3L\nGXP8B+Np5mUjvHB0fMlw/m+yutAhXJtNVGgTLLylOyJRUGDV6TzuFjABX/qbTVEN\nrTH3lrMiKgV7yjVfkvcFnjK4vrgccL/4NWMT37/i2cOQtViHcbQaBGu2r0eyHYmt\n06OxAoGBAMBrUl57xG9x1FY28OqIneLf4jYs+fjxy/EpF9aMB8Hj2UX5oTjumifr\nUPxUNv0L7YbsUc8WGAIGUhJFFyWxBjgbOvutOjfGX5BUg+T4qjLwD6+gcFG0/Nas\nntA5sjOttA5YgLKVcn0rs9YYbW9VVjE6qFZZy6nHIQMp5DUNG9Hx\n-----END RSA PRIVATE KEY-----\n"
+      },
+      "github": [
+        {
+          "match": "access_tokens",
+          "status": 404,
+          "body": {
+            "message": "Not Found"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ghapp.token-refused",
+      "about": "GitHub refuses the installation token with its own message",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "acme/private-app"
+      },
+      "responses": [
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "githubApp": {
+        "name": "freeploy-test",
+        "organization": "acme",
+        "api_url": "https://api.github.com",
+        "html_url": "https://github.com",
+        "custom_user": "git",
+        "custom_port": 22,
+        "app_id": 4242,
+        "installation_id": 777,
+        "is_public": false,
+        "privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEA27bzbeBtRNtHsyI1cnnu69igRHkYsu9R0YcvkBdiVt6IY3AT\nStirGL9kSTi2w76JcGlcjKuXSgiERx8dI3BR+gPp9aESnQbscnUyooVN2xQ9PfzQ\nK7+Cn1FyWi2NR5FHx5dj9ipMP00JphasQwNOvYiZAPzinyNtq65yjaD/Jv3z8GiH\n7MIvx+4WFFLMhbKIGATx15tZnrBiKY44Lu5ysX3M0t+6s1ozXLOX2LKQ4iF9XZ2g\nhravID+3uv9hJWeGw8jdGHcTSI+n2t1izCRkuTdU7QvvmqZOOeaNTV76dWWAqq8Y\nX9fnzmtwARkuKKIH7b4yVzNIYbdwtaXmVOLdbQIDAQABAoIBAFWeWQUXwCzlcG7P\nZVl7R43zaBzWvbe4x77pObEiU6l7ZVWujm4LubzWlFtuNNZZkRBTloOguD9ay0U1\nzDKLqf5N+SVFQ84aLRi7L+SiIsE9BVJ7CpoJsnqoD/IxLw1VAU43YfZC7Fx8hkaJ\nLk6c4tm7+benVB5kfW+59pzXQKat9V0I+ZbGja9s6+IcORXHNtAYAdE2OaKV1Bn7\npKd6IqEdPPseTEjqZ99ko7swPXIIqGmFQ/favIeTv4V7J/RBQlNTj1HsP/bctlLO\nhQFrgX+1LzO5kmsl9IPOzuLhykql1KGwziC8VX1LMgFUH0+zjhm1SFIKobu7PVX2\nHfwgW8cCgYEA/T8mWuF+LiVflpUn1ovCtDM8ZNOfPNZBXue3WDyFtIlEVJCyOUul\n1//AACgMHwh8UaKLNIu4yxgukW0arHlU/gdNWf/yfeRQWtPJd8YH3Vi23GRrTboo\nKz3PPfEQJjmwfofLwcFWYNxaxM6/FKJIgOCWsuROUFIGcQfV/ppGB+8CgYEA3hp5\nDnpi3GQGfPr6rEJbmcfvlyw7J8lJOucamyukzQ94qmaAki2iEzjHjjV/5ppY26gW\n7siRjoC+fr1LUqroT9f+pUnAH2rEI14MXeaD8rUp1B6gBPkIbqitbHat9LEbnfcm\nClhz+3qvvOYjOLJKp18Tx7qtZdJDnDuoiomi9GMCgYBvYJGm0JtlAizbFjhSJF96\nTzpVgbj70aMocTJyjROkxeYWZxjrF/kVWTaBGxvRnjLG2HzunDCmqbj5XomnpykZ\nG+8KEQX+Fia8+34UvjSBRd4Oad/DbIb0FZgKvvWCSkb0LxcO3M/3g5IsEl15XrIS\ndDPy83P54UlR9sdH1WPNYwKBgBztpcbU+ftqq82rgurc2cF14Sb3g9zywq8BWt3L\nGXP8B+Np5mUjvHB0fMlw/m+yutAhXJtNVGgTLLylOyJRUGDV6TzuFjABX/qbTVEN\nrTH3lrMiKgV7yjVfkvcFnjK4vrgccL/4NWMT37/i2cOQtViHcbQaBGu2r0eyHYmt\n06OxAoGBAMBrUl57xG9x1FY28OqIneLf4jYs+fjxy/EpF9aMB8Hj2UX5oTjumifr\nUPxUNv0L7YbsUc8WGAIGUhJFFyWxBjgbOvutOjfGX5BUg+T4qjLwD6+gcFG0/Nas\nntA5sjOttA5YgLKVcn0rs9YYbW9VVjE6qFZZy6nHIQMp5DUNG9Hx\n-----END RSA PRIVATE KEY-----\n"
+      },
+      "github": [
+        {
+          "match": "access_tokens",
+          "status": 403,
+          "body": {
+            "message": "Resource not accessible by integration"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ghapp.repository-fails",
+      "about": "GitHub cannot say what the repository is: the deployment fails",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "acme/private-app"
+      },
+      "responses": [
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "githubApp": {
+        "name": "freeploy-test",
+        "organization": "acme",
+        "api_url": "https://api.github.com",
+        "html_url": "https://github.com",
+        "custom_user": "git",
+        "custom_port": 22,
+        "app_id": 4242,
+        "installation_id": 777,
+        "is_public": false,
+        "privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEA27bzbeBtRNtHsyI1cnnu69igRHkYsu9R0YcvkBdiVt6IY3AT\nStirGL9kSTi2w76JcGlcjKuXSgiERx8dI3BR+gPp9aESnQbscnUyooVN2xQ9PfzQ\nK7+Cn1FyWi2NR5FHx5dj9ipMP00JphasQwNOvYiZAPzinyNtq65yjaD/Jv3z8GiH\n7MIvx+4WFFLMhbKIGATx15tZnrBiKY44Lu5ysX3M0t+6s1ozXLOX2LKQ4iF9XZ2g\nhravID+3uv9hJWeGw8jdGHcTSI+n2t1izCRkuTdU7QvvmqZOOeaNTV76dWWAqq8Y\nX9fnzmtwARkuKKIH7b4yVzNIYbdwtaXmVOLdbQIDAQABAoIBAFWeWQUXwCzlcG7P\nZVl7R43zaBzWvbe4x77pObEiU6l7ZVWujm4LubzWlFtuNNZZkRBTloOguD9ay0U1\nzDKLqf5N+SVFQ84aLRi7L+SiIsE9BVJ7CpoJsnqoD/IxLw1VAU43YfZC7Fx8hkaJ\nLk6c4tm7+benVB5kfW+59pzXQKat9V0I+ZbGja9s6+IcORXHNtAYAdE2OaKV1Bn7\npKd6IqEdPPseTEjqZ99ko7swPXIIqGmFQ/favIeTv4V7J/RBQlNTj1HsP/bctlLO\nhQFrgX+1LzO5kmsl9IPOzuLhykql1KGwziC8VX1LMgFUH0+zjhm1SFIKobu7PVX2\nHfwgW8cCgYEA/T8mWuF+LiVflpUn1ovCtDM8ZNOfPNZBXue3WDyFtIlEVJCyOUul\n1//AACgMHwh8UaKLNIu4yxgukW0arHlU/gdNWf/yfeRQWtPJd8YH3Vi23GRrTboo\nKz3PPfEQJjmwfofLwcFWYNxaxM6/FKJIgOCWsuROUFIGcQfV/ppGB+8CgYEA3hp5\nDnpi3GQGfPr6rEJbmcfvlyw7J8lJOucamyukzQ94qmaAki2iEzjHjjV/5ppY26gW\n7siRjoC+fr1LUqroT9f+pUnAH2rEI14MXeaD8rUp1B6gBPkIbqitbHat9LEbnfcm\nClhz+3qvvOYjOLJKp18Tx7qtZdJDnDuoiomi9GMCgYBvYJGm0JtlAizbFjhSJF96\nTzpVgbj70aMocTJyjROkxeYWZxjrF/kVWTaBGxvRnjLG2HzunDCmqbj5XomnpykZ\nG+8KEQX+Fia8+34UvjSBRd4Oad/DbIb0FZgKvvWCSkb0LxcO3M/3g5IsEl15XrIS\ndDPy83P54UlR9sdH1WPNYwKBgBztpcbU+ftqq82rgurc2cF14Sb3g9zywq8BWt3L\nGXP8B+Np5mUjvHB0fMlw/m+yutAhXJtNVGgTLLylOyJRUGDV6TzuFjABX/qbTVEN\nrTH3lrMiKgV7yjVfkvcFnjK4vrgccL/4NWMT37/i2cOQtViHcbQaBGu2r0eyHYmt\n06OxAoGBAMBrUl57xG9x1FY28OqIneLf4jYs+fjxy/EpF9aMB8Hj2UX5oTjumifr\nUPxUNv0L7YbsUc8WGAIGUhJFFyWxBjgbOvutOjfGX5BUg+T4qjLwD6+gcFG0/Nas\nntA5sjOttA5YgLKVcn0rs9YYbW9VVjE6qFZZy6nHIQMp5DUNG9Hx\n-----END RSA PRIVATE KEY-----\n"
+      },
+      "github": [
+        {
+          "match": "^POST https://api\\.github\\.com/app/installations/777/access_tokens$",
+          "status": 201,
+          "body": {
+            "token": "ghs_TestInstallationToken0123456789"
+          }
+        },
+        {
+          "match": "repos/acme/private-app",
+          "status": 404,
+          "body": {
+            "message": "Not Found"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ghapp.custom-user",
+      "about": "an App whose SSH user is not git: the submodule rewrite uses it",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "acme/private-app"
+      },
+      "responses": [
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "githubApp": {
+        "name": "freeploy-test",
+        "organization": "acme",
+        "api_url": "https://api.github.com",
+        "html_url": "https://github.com",
+        "custom_user": "deployer",
+        "custom_port": 22,
+        "app_id": 4242,
+        "installation_id": 777,
+        "is_public": false,
+        "privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEA27bzbeBtRNtHsyI1cnnu69igRHkYsu9R0YcvkBdiVt6IY3AT\nStirGL9kSTi2w76JcGlcjKuXSgiERx8dI3BR+gPp9aESnQbscnUyooVN2xQ9PfzQ\nK7+Cn1FyWi2NR5FHx5dj9ipMP00JphasQwNOvYiZAPzinyNtq65yjaD/Jv3z8GiH\n7MIvx+4WFFLMhbKIGATx15tZnrBiKY44Lu5ysX3M0t+6s1ozXLOX2LKQ4iF9XZ2g\nhravID+3uv9hJWeGw8jdGHcTSI+n2t1izCRkuTdU7QvvmqZOOeaNTV76dWWAqq8Y\nX9fnzmtwARkuKKIH7b4yVzNIYbdwtaXmVOLdbQIDAQABAoIBAFWeWQUXwCzlcG7P\nZVl7R43zaBzWvbe4x77pObEiU6l7ZVWujm4LubzWlFtuNNZZkRBTloOguD9ay0U1\nzDKLqf5N+SVFQ84aLRi7L+SiIsE9BVJ7CpoJsnqoD/IxLw1VAU43YfZC7Fx8hkaJ\nLk6c4tm7+benVB5kfW+59pzXQKat9V0I+ZbGja9s6+IcORXHNtAYAdE2OaKV1Bn7\npKd6IqEdPPseTEjqZ99ko7swPXIIqGmFQ/favIeTv4V7J/RBQlNTj1HsP/bctlLO\nhQFrgX+1LzO5kmsl9IPOzuLhykql1KGwziC8VX1LMgFUH0+zjhm1SFIKobu7PVX2\nHfwgW8cCgYEA/T8mWuF+LiVflpUn1ovCtDM8ZNOfPNZBXue3WDyFtIlEVJCyOUul\n1//AACgMHwh8UaKLNIu4yxgukW0arHlU/gdNWf/yfeRQWtPJd8YH3Vi23GRrTboo\nKz3PPfEQJjmwfofLwcFWYNxaxM6/FKJIgOCWsuROUFIGcQfV/ppGB+8CgYEA3hp5\nDnpi3GQGfPr6rEJbmcfvlyw7J8lJOucamyukzQ94qmaAki2iEzjHjjV/5ppY26gW\n7siRjoC+fr1LUqroT9f+pUnAH2rEI14MXeaD8rUp1B6gBPkIbqitbHat9LEbnfcm\nClhz+3qvvOYjOLJKp18Tx7qtZdJDnDuoiomi9GMCgYBvYJGm0JtlAizbFjhSJF96\nTzpVgbj70aMocTJyjROkxeYWZxjrF/kVWTaBGxvRnjLG2HzunDCmqbj5XomnpykZ\nG+8KEQX+Fia8+34UvjSBRd4Oad/DbIb0FZgKvvWCSkb0LxcO3M/3g5IsEl15XrIS\ndDPy83P54UlR9sdH1WPNYwKBgBztpcbU+ftqq82rgurc2cF14Sb3g9zywq8BWt3L\nGXP8B+Np5mUjvHB0fMlw/m+yutAhXJtNVGgTLLylOyJRUGDV6TzuFjABX/qbTVEN\nrTH3lrMiKgV7yjVfkvcFnjK4vrgccL/4NWMT37/i2cOQtViHcbQaBGu2r0eyHYmt\n06OxAoGBAMBrUl57xG9x1FY28OqIneLf4jYs+fjxy/EpF9aMB8Hj2UX5oTjumifr\nUPxUNv0L7YbsUc8WGAIGUhJFFyWxBjgbOvutOjfGX5BUg+T4qjLwD6+gcFG0/Nas\nntA5sjOttA5YgLKVcn0rs9YYbW9VVjE6qFZZy6nHIQMp5DUNG9Hx\n-----END RSA PRIVATE KEY-----\n"
+      },
+      "github": [
+        {
+          "match": "^POST https://api\\.github\\.com/app/installations/777/access_tokens$",
+          "status": 201,
+          "body": {
+            "token": "ghs_TestInstallationToken0123456789"
+          }
+        },
+        {
+          "match": "^GET https://api\\.github\\.com/repos/acme/private-app$",
+          "body": {
+            "id": 987654,
+            "full_name": "acme/private-app"
+          }
+        }
+      ]
+    },
+    {
+      "id": "deploykey.first",
+      "about": "a private repository through a deploy key: built for the first time",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "git@github.com:acme/private-app.git"
+      },
+      "responses": [
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "deployKey": "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtz\nc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6bFLmcOGrLMWcfqQlcmAAA\nAIiu9QcRrvUHEQAAAAtzc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6b\nFLmcOGrLMWcfqQlcmAAAAECTSD2qxDZ3IU4JVXJlawhcd/Ksr92kiYe8qKs4xqk/\npFEDuLlOHgNigxjLB9EOTXR+XpsUuZw4assxZx+pCVyYAAAAAAECAwQF\n-----END OPENSSH PRIVATE KEY-----"
+    },
+    {
+      "id": "deploykey.rolling",
+      "about": "a private repository through a deploy key: a rolling update over a running container",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "git@github.com:acme/private-app.git"
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"app0000000000000000000001:old\"}\n"
+        },
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "deployKey": "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtz\nc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6bFLmcOGrLMWcfqQlcmAAA\nAIiu9QcRrvUHEQAAAAtzc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6b\nFLmcOGrLMWcfqQlcmAAAAECTSD2qxDZ3IU4JVXJlawhcd/Ksr92kiYe8qKs4xqk/\npFEDuLlOHgNigxjLB9EOTXR+XpsUuZw4assxZx+pCVyYAAAAAAECAwQF\n-----END OPENSSH PRIVATE KEY-----"
+    },
+    {
+      "id": "deploykey.pinned",
+      "about": "a private repository through a deploy key: a pinned commit: the head of the branch is not asked for it",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "git@github.com:acme/private-app.git",
+        "git_commit_sha": "0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c"
+      },
+      "responses": [
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "deployKey": "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtz\nc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6bFLmcOGrLMWcfqQlcmAAA\nAIiu9QcRrvUHEQAAAAtzc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6b\nFLmcOGrLMWcfqQlcmAAAAECTSD2qxDZ3IU4JVXJlawhcd/Ksr92kiYe8qKs4xqk/\npFEDuLlOHgNigxjLB9EOTXR+XpsUuZw4assxZx+pCVyYAAAAAAECAwQF\n-----END OPENSSH PRIVATE KEY-----"
+    },
+    {
+      "id": "deploykey.pinned.short",
+      "about": "a private repository through a deploy key: a pinned short commit: the tips of the branches are fetched",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "git@github.com:acme/private-app.git",
+        "git_commit_sha": "abc1234"
+      },
+      "responses": [
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "deployKey": "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtz\nc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6bFLmcOGrLMWcfqQlcmAAA\nAIiu9QcRrvUHEQAAAAtzc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6b\nFLmcOGrLMWcfqQlcmAAAAECTSD2qxDZ3IU4JVXJlawhcd/Ksr92kiYe8qKs4xqk/\npFEDuLlOHgNigxjLB9EOTXR+XpsUuZw4assxZx+pCVyYAAAAAAECAwQF\n-----END OPENSSH PRIVATE KEY-----"
+    },
+    {
+      "id": "deploykey.pinned.full-history",
+      "about": "a private repository through a deploy key: a pinned commit without a shallow clone",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "git@github.com:acme/private-app.git",
+        "git_commit_sha": "0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c"
+      },
+      "settings": {
+        "is_git_shallow_clone_enabled": false
+      },
+      "responses": [
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "deployKey": "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtz\nc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6bFLmcOGrLMWcfqQlcmAAA\nAIiu9QcRrvUHEQAAAAtzc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6b\nFLmcOGrLMWcfqQlcmAAAAECTSD2qxDZ3IU4JVXJlawhcd/Ksr92kiYe8qKs4xqk/\npFEDuLlOHgNigxjLB9EOTXR+XpsUuZw4assxZx+pCVyYAAAAAAECAwQF\n-----END OPENSSH PRIVATE KEY-----"
+    },
+    {
+      "id": "deploykey.message",
+      "about": "a private repository through a deploy key: the message of the commit is stored",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "git@github.com:acme/private-app.git"
+      },
+      "responses": [
+        {
+          "match": "git log -1",
+          "output": "feat: private things\n"
+        },
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "deployKey": "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtz\nc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6bFLmcOGrLMWcfqQlcmAAA\nAIiu9QcRrvUHEQAAAAtzc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6b\nFLmcOGrLMWcfqQlcmAAAAECTSD2qxDZ3IU4JVXJlawhcd/Ksr92kiYe8qKs4xqk/\npFEDuLlOHgNigxjLB9EOTXR+XpsUuZw4assxZx+pCVyYAAAAAAECAwQF\n-----END OPENSSH PRIVATE KEY-----"
+    },
+    {
+      "id": "deploykey.clone-fails",
+      "about": "a private repository through a deploy key: the repository cannot be cloned",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "git@github.com:acme/private-app.git"
+      },
+      "responses": [
+        {
+          "match": "docker ps -a --filter",
+          "output": "{\"ID\":\"old1\",\"Names\":\"app0000000000000000000001-20261119T090000\",\"State\":\"running\",\"Labels\":\"coolify.managed=true,coolify.pullRequestId=0\",\"Image\":\"app0000000000000000000001:old\"}\n"
+        },
+        {
+          "match": " clone ",
+          "errorOutput": "fatal: Authentication failed\n",
+          "exitCode": 128
+        },
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "deployKey": "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtz\nc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6bFLmcOGrLMWcfqQlcmAAA\nAIiu9QcRrvUHEQAAAAtzc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6b\nFLmcOGrLMWcfqQlcmAAAAECTSD2qxDZ3IU4JVXJlawhcd/Ksr92kiYe8qKs4xqk/\npFEDuLlOHgNigxjLB9EOTXR+XpsUuZw4assxZx+pCVyYAAAAAAECAwQF\n-----END OPENSSH PRIVATE KEY-----"
+    },
+    {
+      "id": "deploykey.clone-retry",
+      "about": "a private repository through a deploy key: the SSH connection drops during the clone: it is tried again",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "git@github.com:acme/private-app.git"
+      },
+      "responses": [
+        {
+          "match": " clone ",
+          "sequence": [
+            {
+              "errorOutput": "Connection to 10.0.0.5 closed by remote host.\n",
+              "exitCode": 255
+            },
+            {
+              "output": ""
+            }
+          ]
+        },
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "deployKey": "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtz\nc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6bFLmcOGrLMWcfqQlcmAAA\nAIiu9QcRrvUHEQAAAAtzc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6b\nFLmcOGrLMWcfqQlcmAAAAECTSD2qxDZ3IU4JVXJlawhcd/Ksr92kiYe8qKs4xqk/\npFEDuLlOHgNigxjLB9EOTXR+XpsUuZw4assxZx+pCVyYAAAAAAECAwQF\n-----END OPENSSH PRIVATE KEY-----"
+    },
+    {
+      "id": "deploykey.ls-remote-fails",
+      "about": "a private repository through a deploy key: the head of the branch cannot be read",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "git@github.com:acme/private-app.git"
+      },
+      "responses": [
+        {
+          "match": "ls-remote",
+          "errorOutput": "fatal: could not read Username for 'https://github.com': terminal prompts disabled\n",
+          "exitCode": 128
+        },
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "deployKey": "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtz\nc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6bFLmcOGrLMWcfqQlcmAAA\nAIiu9QcRrvUHEQAAAAtzc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6b\nFLmcOGrLMWcfqQlcmAAAAECTSD2qxDZ3IU4JVXJlawhcd/Ksr92kiYe8qKs4xqk/\npFEDuLlOHgNigxjLB9EOTXR+XpsUuZw4assxZx+pCVyYAAAAAAECAwQF\n-----END OPENSSH PRIVATE KEY-----"
+    },
+    {
+      "id": "deploykey.known-hosts",
+      "about": "a private repository through a deploy key: git accepted the SSH key of a new host: it is saved",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "git@github.com:acme/private-app.git"
+      },
+      "responses": [
+        {
+          "match": "cat /root/.ssh/coolify_git",
+          "output": "git.example.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl\n"
+        },
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "deployKey": "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtz\nc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6bFLmcOGrLMWcfqQlcmAAA\nAIiu9QcRrvUHEQAAAAtzc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6b\nFLmcOGrLMWcfqQlcmAAAAECTSD2qxDZ3IU4JVXJlawhcd/Ksr92kiYe8qKs4xqk/\npFEDuLlOHgNigxjLB9EOTXR+XpsUuZw4assxZx+pCVyYAAAAAAECAwQF\n-----END OPENSSH PRIVATE KEY-----"
+    },
+    {
+      "id": "deploykey.base-directory",
+      "about": "a private repository through a deploy key: an application in a folder of its repository",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "git@github.com:acme/private-app.git",
+        "base_directory": "/apps/web"
+      },
+      "responses": [
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/apps/web/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        },
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "deployKey": "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtz\nc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6bFLmcOGrLMWcfqQlcmAAA\nAIiu9QcRrvUHEQAAAAtzc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6b\nFLmcOGrLMWcfqQlcmAAAAECTSD2qxDZ3IU4JVXJlawhcd/Ksr92kiYe8qKs4xqk/\npFEDuLlOHgNigxjLB9EOTXR+XpsUuZw4assxZx+pCVyYAAAAAAECAwQF\n-----END OPENSSH PRIVATE KEY-----"
+    },
+    {
+      "id": "deploykey.git-options",
+      "about": "a private repository through a deploy key: no shallow clone, no submodules, no LFS",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "git@github.com:acme/private-app.git"
+      },
+      "settings": {
+        "is_git_shallow_clone_enabled": false,
+        "is_git_submodules_enabled": false,
+        "is_git_lfs_enabled": false
+      },
+      "responses": [
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "deployKey": "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtz\nc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6bFLmcOGrLMWcfqQlcmAAA\nAIiu9QcRrvUHEQAAAAtzc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6b\nFLmcOGrLMWcfqQlcmAAAAECTSD2qxDZ3IU4JVXJlawhcd/Ksr92kiYe8qKs4xqk/\npFEDuLlOHgNigxjLB9EOTXR+XpsUuZw4assxZx+pCVyYAAAAAAECAwQF\n-----END OPENSSH PRIVATE KEY-----"
+    },
+    {
+      "id": "deploykey.submodules-only",
+      "about": "a private repository through a deploy key: submodules without LFS",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "git@github.com:acme/private-app.git"
+      },
+      "settings": {
+        "is_git_lfs_enabled": false
+      },
+      "responses": [
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "deployKey": "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtz\nc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6bFLmcOGrLMWcfqQlcmAAA\nAIiu9QcRrvUHEQAAAAtzc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6b\nFLmcOGrLMWcfqQlcmAAAAECTSD2qxDZ3IU4JVXJlawhcd/Ksr92kiYe8qKs4xqk/\npFEDuLlOHgNigxjLB9EOTXR+XpsUuZw4assxZx+pCVyYAAAAAAECAwQF\n-----END OPENSSH PRIVATE KEY-----"
+    },
+    {
+      "id": "deploykey.force",
+      "about": "a private repository through a deploy key: a forced rebuild",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "git@github.com:acme/private-app.git"
+      },
+      "responses": [
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "deployKey": "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtz\nc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6bFLmcOGrLMWcfqQlcmAAA\nAIiu9QcRrvUHEQAAAAtzc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6b\nFLmcOGrLMWcfqQlcmAAAAECTSD2qxDZ3IU4JVXJlawhcd/Ksr92kiYe8qKs4xqk/\npFEDuLlOHgNigxjLB9EOTXR+XpsUuZw4assxZx+pCVyYAAAAAAECAwQF\n-----END OPENSSH PRIVATE KEY-----",
+      "deployment": {
+        "force_rebuild": true
+      }
+    },
+    {
+      "id": "deploykey.github-https",
+      "about": "a github.com URL with the public source: rewritten to SSH for the deploy key",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "acme/private-app",
+        "source_id": 0,
+        "source_type": "App\\Models\\GithubApp"
+      },
+      "responses": [
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "deployKey": "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtz\nc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6bFLmcOGrLMWcfqQlcmAAA\nAIiu9QcRrvUHEQAAAAtzc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6b\nFLmcOGrLMWcfqQlcmAAAAECTSD2qxDZ3IU4JVXJlawhcd/Ksr92kiYe8qKs4xqk/\npFEDuLlOHgNigxjLB9EOTXR+XpsUuZw4assxZx+pCVyYAAAAAAECAwQF\n-----END OPENSSH PRIVATE KEY-----"
+    },
+    {
+      "id": "deploykey.ssh-port",
+      "about": "an ssh:// URL with its own port",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "ssh://git@git.example.com:2222/acme/private-app.git"
+      },
+      "responses": [
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "deployKey": "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtz\nc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6bFLmcOGrLMWcfqQlcmAAA\nAIiu9QcRrvUHEQAAAAtzc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6b\nFLmcOGrLMWcfqQlcmAAAAECTSD2qxDZ3IU4JVXJlawhcd/Ksr92kiYe8qKs4xqk/\npFEDuLlOHgNigxjLB9EOTXR+XpsUuZw4assxZx+pCVyYAAAAAAECAwQF\n-----END OPENSSH PRIVATE KEY-----"
+    },
+    {
+      "id": "deploykey.scp-port",
+      "about": "an scp-style URL with a port",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "git@git.example.com:2222/acme/private-app.git"
+      },
+      "responses": [
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/Dockerfile",
+          "output": "FROM node:22-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nCMD [\"node\", \"server.js\"]\n"
+        }
+      ],
+      "deployKey": "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtz\nc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6bFLmcOGrLMWcfqQlcmAAA\nAIiu9QcRrvUHEQAAAAtzc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6b\nFLmcOGrLMWcfqQlcmAAAAECTSD2qxDZ3IU4JVXJlawhcd/Ksr92kiYe8qKs4xqk/\npFEDuLlOHgNigxjLB9EOTXR+XpsUuZw4assxZx+pCVyYAAAAAAECAwQF\n-----END OPENSSH PRIVATE KEY-----"
+    },
+    {
+      "id": "deploykey.nixpacks",
+      "about": "a deploy key and Nixpacks",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "nixpacks",
+        "git_repository": "git@github.com:acme/private-app.git"
+      },
+      "responses": [
+        {
+          "match": "ls-remote",
+          "output": "4a3c2b1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b\trefs/heads/main\n"
+        },
+        {
+          "match": "nixpacks plan",
+          "output": "{\"providers\": [], \"buildImage\": \"ghcr.io/railwayapp/nixpacks:ubuntu-1745885067\", \"variables\": {\"CI\": \"true\", \"NIXPACKS_METADATA\": \"node\", \"NODE_ENV\": \"production\", \"NPM_CONFIG_PRODUCTION\": \"false\"}, \"phases\": {\"setup\": {\"nixPkgs\": [\"nodejs_22\"], \"nixOverlays\": [], \"nixpkgsArchive\": \"ffeebf0acf3ae8b29f8c7049cd911b9636efd7e7\"}}, \"start\": {\"cmd\": \"npm run start\"}}\n"
+        },
+        {
+          "match": "nixpacks detect",
+          "output": "node\n"
+        },
+        {
+          "match": "cat /artifacts/dep0000000000000000000001/.nixpacks/Dockerfile",
+          "output": "FROM ghcr.io/railwayapp/nixpacks:ubuntu-1745885067\nWORKDIR /app/\nCOPY . /app\nCMD [\"npm run start\"]\n"
+        }
+      ],
+      "deployKey": "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtz\nc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6bFLmcOGrLMWcfqQlcmAAA\nAIiu9QcRrvUHEQAAAAtzc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6b\nFLmcOGrLMWcfqQlcmAAAAECTSD2qxDZ3IU4JVXJlawhcd/Ksr92kiYe8qKs4xqk/\npFEDuLlOHgNigxjLB9EOTXR+XpsUuZw4assxZx+pCVyYAAAAAAECAwQF\n-----END OPENSSH PRIVATE KEY-----"
+    },
+    {
+      "id": "deploykey.host-key-changed",
+      "about": "the Git host sent another SSH host key",
+      "application": {
+        "docker_registry_image_name": null,
+        "docker_registry_image_tag": null,
+        "git_branch": "main",
+        "ports_exposes": "3000",
+        "build_pack": "dockerfile",
+        "git_repository": "git@git.example.com:acme/private-app.git"
+      },
+      "responses": [
+        {
+          "match": "ls-remote",
+          "errorOutput": "Host key verification failed.\nfatal: Could not read from remote repository.\n",
+          "exitCode": 128
+        }
+      ],
+      "deployKey": "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtz\nc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6bFLmcOGrLMWcfqQlcmAAA\nAIiu9QcRrvUHEQAAAAtzc2gtZWQyNTUxOQAAACBRA7i5Th4DYoMYywfRDk10fl6b\nFLmcOGrLMWcfqQlcmAAAAECTSD2qxDZ3IU4JVXJlawhcd/Ksr92kiYe8qKs4xqk/\npFEDuLlOHgNigxjLB9EOTXR+XpsUuZw4assxZx+pCVyYAAAAAAECAwQF\n-----END OPENSSH PRIVATE KEY-----"
     }
   ],
   "functions": [

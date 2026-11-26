@@ -34,7 +34,7 @@ export const GIT_BASED_APPLICATIONS: readonly ResourceType[] = [
     description: "Deploy a private repository over SSH with a repository-scoped deploy key. Set the URL and branch manually, no automatic deploys.",
     documentation: "https://coolify.io/docs/applications/ci-cd/github/deploy-key",
     logo: "resources/deploy-key",
-    creatable: false,
+    creatable: true,
   },
   {
     id: "private-gh-app",
@@ -43,7 +43,7 @@ export const GIT_BASED_APPLICATIONS: readonly ResourceType[] = [
     documentation: "https://coolify.io/docs/applications/ci-cd/github/setup-app",
     logo: "resources/github-app",
     logoDark: "resources/github-app-dark",
-    creatable: false,
+    creatable: true,
   },
   {
     id: "private-gitlab-app",

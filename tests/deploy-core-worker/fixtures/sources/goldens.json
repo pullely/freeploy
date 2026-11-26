@@ -1,0 +1,2467 @@
+{
+    "now": "2026-11-20T10:11:12.000000Z",
+    "functions": {
+        "jwt.pkcs1": {
+            "ok": true,
+            "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiIxMjM0NTYiLCJpYXQiOjE3OTUxNjk0MTIsImV4cCI6MTc5NTE2OTk1Mn0.oBdw0ETzGadZy2Gm9VuFKWglbaLL-fD5PgXzAj_gvlZxdvQBOOH6jXp4K08yh4Nxtp7H2Pg5UYLmRCPa4pdck6A_UnFa2rjGB5g5L-LuA1DYcdRIHgUehAqTGqUHU8Ow3niwRJVTGeZ9B23zzZeQkPkVftudhDBq-NIb6uGMaoUelPQGt5zge5E22fu8noi-zPyBGPeATLpvm5JfQKxUes7HBTp-opLYEpTe0tOZDzq-ICNDFCf7p9oOj4eoQ3Xl5JowGFSZyEK2ZEZ1M20GWSLtb4Ja-Y0Dk8bYmV09vhSybi1Wz2apI_O1tjF_qAi6WBwzyIEpzt_aK1DPuRi8pQ"
+        },
+        "jwt.pkcs8": {
+            "ok": true,
+            "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiIxMjM0NTYiLCJpYXQiOjE3OTUxNjk0MTIsImV4cCI6MTc5NTE2OTk1Mn0.oBdw0ETzGadZy2Gm9VuFKWglbaLL-fD5PgXzAj_gvlZxdvQBOOH6jXp4K08yh4Nxtp7H2Pg5UYLmRCPa4pdck6A_UnFa2rjGB5g5L-LuA1DYcdRIHgUehAqTGqUHU8Ow3niwRJVTGeZ9B23zzZeQkPkVftudhDBq-NIb6uGMaoUelPQGt5zge5E22fu8noi-zPyBGPeATLpvm5JfQKxUes7HBTp-opLYEpTe0tOZDzq-ICNDFCf7p9oOj4eoQ3Xl5JowGFSZyEK2ZEZ1M20GWSLtb4Ja-Y0Dk8bYmV09vhSybi1Wz2apI_O1tjF_qAi6WBwzyIEpzt_aK1DPuRi8pQ"
+        },
+        "jwt.other-key": {
+            "ok": true,
+            "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiI5ODciLCJpYXQiOjE3OTg3NjE1OTksImV4cCI6MTc5ODc2MjEzOX0.h-SEhOvH5YQoJn5xyZmfq0VXJ7DkW5opffsa1ae1Tj1ahoeQ2T14_eVkWNvRzaDbu4lwoqpEWdlpACcM8rOa5uhaRo7SDouKKl_mwPZVjCXdJM4L2oaQprlnyA8MoEECYI95SM-c7HE7ICHk9COF4NMdjUSo-4yVVK4nOXCrnrQF23-vRbfQGVW4oDFuqC43O9bCQbbp_TGG13amJ2G5uu8X4kwb3owfpqxYRHWYZ1mTiQ5YONC5DWWsr-lA_TwKRAPdNk_xCUhffRyV6LkTM7L0lI7ScVw9ciqYuv-G1sy3fJKfcu3a8U7PKuetZyBQH5cTlZPj-xO5CuFv9yiy6w"
+        },
+        "jwt.string-app-id": {
+            "ok": true,
+            "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiIwMDA0MiIsImlhdCI6MTc3MjMyMzExMCwiZXhwIjoxNzcyMzIzNjUwfQ.oGoBl_ImuRMYjrZShbDdKXl1EN55vmSuAW2MK6DJZehHx5Ntv9RC0ZpFYYn85MY7oZusyA0YahYfNd0EjPg9m_-4-hYN5KFyawbtFI5Ia97tLTp2IDbtqnEuc8pf3rNXftIzLhvc9ZsMFIIJHukGR8uNKTxk7qkr7f6reiwxrCB44mQMzBW8sdMy6IL3IROTRU7fhvIEMMpqLnNF_8T5pwnSS0W9gDc_7fW4vTxtxUw8quVk1AumyXT7aHXU9JgzkW09sNujJeTF3esG-3NZppiXds91c69LeHsWWr2-W4OHGRJ4dXGK27TOYnzQfhVkllLtyHe89sBnPzr5s4X3Ow"
+        },
+        "jwt.openssh-key": {
+            "ok": false,
+            "error": "Lcobucci\\JWT\\Signer\\InvalidKeyProvided: It was not possible to parse your key, reason:\n* error:1E08010C:DECODER routines::unsupported"
+        },
+        "apiUrl.0": {
+            "ok": true,
+            "value": "https://api.github.com"
+        },
+        "apiUrl.1": {
+            "ok": true,
+            "value": "https://api.github.com"
+        },
+        "apiUrl.2": {
+            "ok": true,
+            "value": "https://api.acme.ghe.com"
+        },
+        "apiUrl.3": {
+            "ok": true,
+            "value": "https://api.acme.ghe.com/api/v3"
+        },
+        "apiUrl.4": {
+            "ok": true,
+            "value": "https://git.example.com/api/v3"
+        },
+        "apiUrl.5": {
+            "ok": true,
+            "value": "https://git.example.com:8443/api/v3"
+        },
+        "apiUrl.6": {
+            "ok": true,
+            "value": "http://10.0.0.5/api/v3"
+        },
+        "apiUrl.7": {
+            "ok": false,
+            "error": "InvalidArgumentException: GitHub URL must include a valid scheme and host."
+        },
+        "organization.0": {
+            "ok": true,
+            "value": "acme"
+        },
+        "organization.1": {
+            "ok": true,
+            "value": "acme"
+        },
+        "organization.2": {
+            "ok": true,
+            "value": null
+        },
+        "organization.3": {
+            "ok": true,
+            "value": null
+        },
+        "organization.4": {
+            "ok": true,
+            "value": "Acme Inc"
+        },
+        "appUrls.0": {
+            "ok": true,
+            "value": {
+                "settingsUrl": "https://github.com/settings/apps/my-app",
+                "permissionsUrl": "https://github.com/settings/apps/my-app/permissions",
+                "installationUrl": "https://github.com/apps/my-app/installations/new?state=<state>"
+            }
+        },
+        "appUrls.1": {
+            "ok": true,
+            "value": {
+                "settingsUrl": "https://github.com/organizations/Acme%20Inc/settings/apps/My%20App",
+                "permissionsUrl": "https://github.com/organizations/Acme%20Inc/settings/apps/my-app/permissions",
+                "installationUrl": "https://github.com/apps/my-app/installations/new?state=<state>"
+            }
+        },
+        "appUrls.2": {
+            "ok": true,
+            "value": {
+                "settingsUrl": "https://acme.ghe.com/organizations/acme/settings/apps/coolify_app",
+                "permissionsUrl": "https://acme.ghe.com/organizations/acme/settings/apps/coolify_app/permissions",
+                "installationUrl": "https://acme.ghe.com/apps/acme/coolify_app/installations/new?state=<state>"
+            }
+        },
+        "appUrls.3": {
+            "ok": true,
+            "value": {
+                "settingsUrl": "https://git.example.com/settings/apps/Freeploy%20Builder",
+                "permissionsUrl": "https://git.example.com/settings/apps/freeploy-builder/permissions",
+                "installationUrl": "https://git.example.com/github-apps/freeploy-builder/installations/new?state=<state>"
+            }
+        },
+        "appUrls.4": {
+            "ok": true,
+            "value": {
+                "settingsUrl": "https://github.com/organizations/o%2Frg/settings/apps/%C3%A9%20app",
+                "permissionsUrl": "https://github.com/organizations/o%2Frg/settings/apps/%C3%A9-app/permissions",
+                "installationUrl": "https://github.com/apps/%C3%A9-app/installations/new?state=<state>"
+            }
+        },
+        "pushBranch.0": {
+            "ok": true,
+            "value": "main"
+        },
+        "pushBranch.1": {
+            "ok": true,
+            "value": "feature/x"
+        },
+        "pushBranch.2": {
+            "ok": true,
+            "value": "refs/tags/v1.0"
+        },
+        "pushBranch.3": {
+            "ok": true,
+            "value": "main"
+        },
+        "pushBranch.4": {
+            "ok": true,
+            "value": null
+        },
+        "pushBranch.5": {
+            "ok": true,
+            "value": null
+        },
+        "pushBranch.6": {
+            "ok": true,
+            "value": null
+        },
+        "pushBranch.7": {
+            "ok": true,
+            "value": null
+        },
+        "payloadString.0": {
+            "ok": true,
+            "value": "x"
+        },
+        "payloadString.1": {
+            "ok": true,
+            "value": null
+        },
+        "payloadString.2": {
+            "ok": false,
+            "error": "App\\Exceptions\\InvalidWebhookPayloadException: Nothing to do. Invalid 'a' in the request."
+        },
+        "payloadString.3": {
+            "ok": false,
+            "error": "App\\Exceptions\\InvalidWebhookPayloadException: Nothing to do. Invalid 'a' in the request."
+        },
+        "payloadString.4": {
+            "ok": false,
+            "error": "App\\Exceptions\\InvalidWebhookPayloadException: Nothing to do. Invalid 'a' in the request."
+        },
+        "payloadString.5": {
+            "ok": true,
+            "value": "deep"
+        },
+        "databaseId.0": {
+            "ok": true,
+            "value": 42
+        },
+        "databaseId.1": {
+            "ok": true,
+            "value": 42
+        },
+        "databaseId.2": {
+            "ok": false,
+            "error": "App\\Exceptions\\InvalidWebhookPayloadException: Nothing to do. Invalid 'id' in the request."
+        },
+        "databaseId.3": {
+            "ok": false,
+            "error": "App\\Exceptions\\InvalidWebhookPayloadException: Nothing to do. Invalid 'id' in the request."
+        },
+        "databaseId.4": {
+            "ok": false,
+            "error": "App\\Exceptions\\InvalidWebhookPayloadException: Nothing to do. Invalid 'id' in the request."
+        },
+        "databaseId.5": {
+            "ok": false,
+            "error": "App\\Exceptions\\InvalidWebhookPayloadException: Nothing to do. Invalid 'id' in the request."
+        },
+        "databaseId.6": {
+            "ok": true,
+            "value": 2147483647
+        },
+        "databaseId.7": {
+            "ok": false,
+            "error": "App\\Exceptions\\InvalidWebhookPayloadException: Nothing to do. Invalid 'id' in the request."
+        },
+        "databaseId.8": {
+            "ok": false,
+            "error": "App\\Exceptions\\InvalidWebhookPayloadException: Nothing to do. Invalid 'id' in the request."
+        },
+        "databaseId.9": {
+            "ok": true,
+            "value": null
+        },
+        "databaseId.10": {
+            "ok": false,
+            "error": "App\\Exceptions\\InvalidWebhookPayloadException: Nothing to do. Invalid 'id' in the request."
+        },
+        "commitSha.0": {
+            "ok": true,
+            "value": "abcdef1"
+        },
+        "commitSha.1": {
+            "ok": true,
+            "value": "ABCDEF0123456789abcdef0123456789abcdef01"
+        },
+        "commitSha.2": {
+            "ok": false,
+            "error": "App\\Exceptions\\InvalidWebhookPayloadException: Nothing to do. Invalid 'after' in the request."
+        },
+        "commitSha.3": {
+            "ok": false,
+            "error": "App\\Exceptions\\InvalidWebhookPayloadException: Nothing to do. Invalid 'after' in the request."
+        },
+        "commitSha.4": {
+            "ok": true,
+            "value": null
+        },
+        "commitSha.5": {
+            "ok": false,
+            "error": "App\\Exceptions\\InvalidWebhookPayloadException: Nothing to do. Invalid 'after' in the request."
+        },
+        "commitSha.6": {
+            "ok": true,
+            "value": null
+        },
+        "commitSha.7": {
+            "ok": false,
+            "error": "App\\Exceptions\\InvalidWebhookPayloadException: Nothing to do. Invalid 'after' in the request."
+        },
+        "payloadUrl.0": {
+            "ok": true,
+            "value": "https://github.com/a/b/pull/1"
+        },
+        "payloadUrl.1": {
+            "ok": false,
+            "error": "App\\Exceptions\\InvalidWebhookPayloadException: Nothing to do. Invalid 'u' in the request."
+        },
+        "payloadUrl.2": {
+            "ok": false,
+            "error": "App\\Exceptions\\InvalidWebhookPayloadException: Nothing to do. Invalid 'u' in the request."
+        },
+        "payloadUrl.3": {
+            "ok": false,
+            "error": "App\\Exceptions\\InvalidWebhookPayloadException: Nothing to do. Invalid 'u' in the request."
+        },
+        "payloadUrl.4": {
+            "ok": false,
+            "error": "App\\Exceptions\\InvalidWebhookPayloadException: Nothing to do. Invalid 'u' in the request."
+        },
+        "payloadUrl.5": {
+            "ok": false,
+            "error": "App\\Exceptions\\InvalidWebhookPayloadException: Nothing to do. Invalid 'u' in the request."
+        },
+        "payloadUrl.6": {
+            "ok": true,
+            "value": null
+        },
+        "payloadUrl.7": {
+            "ok": true,
+            "value": "HTTP://Example.COM/x"
+        },
+        "changedFiles.0": {
+            "ok": true,
+            "value": [
+                "a.txt",
+                "b/c.js",
+                "old.md",
+                "src/x.ts",
+                "src/y.ts"
+            ]
+        },
+        "changedFiles.1": {
+            "ok": true,
+            "value": null
+        },
+        "changedFiles.2": {
+            "ok": true,
+            "value": null
+        },
+        "changedFiles.3": {
+            "ok": true,
+            "value": [
+                "gone"
+            ]
+        },
+        "commitMessages.0": {
+            "ok": true,
+            "value": [
+                "one",
+                "two [skip ci]"
+            ]
+        },
+        "commitMessages.1": {
+            "ok": true,
+            "value": []
+        },
+        "branchDeletion.0": {
+            "ok": true,
+            "value": true
+        },
+        "branchDeletion.1": {
+            "ok": true,
+            "value": true
+        },
+        "branchDeletion.2": {
+            "ok": true,
+            "value": false
+        },
+        "branchDeletion.3": {
+            "ok": true,
+            "value": false
+        },
+        "branchDeletion.4": {
+            "ok": true,
+            "value": false
+        },
+        "skip.0": {
+            "ok": true,
+            "value": false
+        },
+        "skipAny.0": {
+            "ok": true,
+            "value": false
+        },
+        "skip.1": {
+            "ok": true,
+            "value": false
+        },
+        "skipAny.1": {
+            "ok": true,
+            "value": false
+        },
+        "skip.2": {
+            "ok": true,
+            "value": true
+        },
+        "skipAny.2": {
+            "ok": true,
+            "value": true
+        },
+        "skip.3": {
+            "ok": true,
+            "value": true
+        },
+        "skipAny.3": {
+            "ok": true,
+            "value": true
+        },
+        "skip.4": {
+            "ok": true,
+            "value": false
+        },
+        "skipAny.4": {
+            "ok": true,
+            "value": true
+        },
+        "skip.5": {
+            "ok": true,
+            "value": true
+        },
+        "skipAny.5": {
+            "ok": true,
+            "value": true
+        },
+        "skip.6": {
+            "ok": true,
+            "value": true
+        },
+        "skipAny.6": {
+            "ok": true,
+            "value": true
+        },
+        "fullName.0": {
+            "ok": true,
+            "value": "acme/app"
+        },
+        "fullName.1": {
+            "ok": true,
+            "value": "acme/app"
+        },
+        "fullName.2": {
+            "ok": true,
+            "value": "acme/app"
+        },
+        "fullName.3": {
+            "ok": true,
+            "value": "Acme/App"
+        },
+        "fullName.4": {
+            "ok": true,
+            "value": null
+        },
+        "fullName.5": {
+            "ok": true,
+            "value": null
+        },
+        "fullName.6": {
+            "ok": true,
+            "value": null
+        },
+        "fullName.7": {
+            "ok": true,
+            "value": "group/sub/app"
+        },
+        "fullName.8": {
+            "ok": true,
+            "value": null
+        },
+        "fullName.9": {
+            "ok": true,
+            "value": null
+        },
+        "fullName.10": {
+            "ok": true,
+            "value": null
+        },
+        "fullName.11": {
+            "ok": true,
+            "value": null
+        },
+        "fullName.12": {
+            "ok": true,
+            "value": null
+        },
+        "repositoryMatches.0": {
+            "ok": true,
+            "value": true
+        },
+        "repositoryMatches.1": {
+            "ok": true,
+            "value": true
+        },
+        "repositoryMatches.2": {
+            "ok": true,
+            "value": true
+        },
+        "repositoryMatches.3": {
+            "ok": true,
+            "value": true
+        },
+        "repositoryMatches.4": {
+            "ok": true,
+            "value": true
+        },
+        "repositoryMatches.5": {
+            "ok": true,
+            "value": false
+        },
+        "repositoryMatches.6": {
+            "ok": true,
+            "value": false
+        },
+        "repositoryMatches.7": {
+            "ok": true,
+            "value": false
+        },
+        "repositoryMatches.8": {
+            "ok": true,
+            "value": false
+        },
+        "repositoryMatches.9": {
+            "ok": true,
+            "value": true
+        },
+        "repositoryMatches.10": {
+            "ok": true,
+            "value": true
+        },
+        "readPullRequest.0": {
+            "ok": true,
+            "value": {
+                "action": "opened",
+                "pull_request_id": 7,
+                "pull_request_html_url": "https://github.com/acme/app/pull/7",
+                "pull_request_title": "Add things",
+                "branch": "feature",
+                "base_branch": "main",
+                "before_sha": null,
+                "after_sha": "1111111111111111111111111111111111111111",
+                "commit_sha": "1111111111111111111111111111111111111111",
+                "is_fork_pull_request": false
+            }
+        },
+        "isFork.0": {
+            "ok": true,
+            "value": false
+        },
+        "readPullRequest.1": {
+            "ok": true,
+            "value": {
+                "action": "synchronize",
+                "pull_request_id": 7,
+                "pull_request_html_url": "https://github.com/acme/app/pull/7",
+                "pull_request_title": "Add things",
+                "branch": "feature",
+                "base_branch": "main",
+                "before_sha": "2222222222222222222222222222222222222222",
+                "after_sha": "3333333333333333333333333333333333333333",
+                "commit_sha": "1111111111111111111111111111111111111111",
+                "is_fork_pull_request": false
+            }
+        },
+        "isFork.1": {
+            "ok": true,
+            "value": false
+        },
+        "readPullRequest.2": {
+            "ok": true,
+            "value": {
+                "action": "opened",
+                "pull_request_id": 12,
+                "pull_request_html_url": "https://github.com/acme/app/pull/7",
+                "pull_request_title": "Add things",
+                "branch": "feature",
+                "base_branch": "main",
+                "before_sha": null,
+                "after_sha": "1111111111111111111111111111111111111111",
+                "commit_sha": "1111111111111111111111111111111111111111",
+                "is_fork_pull_request": false
+            }
+        },
+        "isFork.2": {
+            "ok": true,
+            "value": false
+        },
+        "readPullRequest.3": {
+            "ok": false,
+            "error": "App\\Exceptions\\InvalidWebhookPayloadException: Nothing to do. Invalid 'number' in the request."
+        },
+        "isFork.3": {
+            "ok": true,
+            "value": false
+        },
+        "readPullRequest.4": {
+            "ok": false,
+            "error": "App\\Exceptions\\InvalidWebhookPayloadException: Nothing to do. Invalid 'action' in the request."
+        },
+        "isFork.4": {
+            "ok": true,
+            "value": false
+        },
+        "readPullRequest.5": {
+            "ok": false,
+            "error": "App\\Exceptions\\InvalidWebhookPayloadException: Nothing to do. Invalid 'action' in the request."
+        },
+        "isFork.5": {
+            "ok": true,
+            "value": false
+        },
+        "readPullRequest.6": {
+            "ok": true,
+            "value": {
+                "action": "opened",
+                "pull_request_id": 7,
+                "pull_request_html_url": "https://github.com/acme/app/pull/7",
+                "pull_request_title": "Add things",
+                "branch": "feature",
+                "base_branch": "main",
+                "before_sha": null,
+                "after_sha": "1111111111111111111111111111111111111111",
+                "commit_sha": "1111111111111111111111111111111111111111",
+                "is_fork_pull_request": true
+            }
+        },
+        "isFork.6": {
+            "ok": true,
+            "value": true
+        },
+        "readPullRequest.7": {
+            "ok": true,
+            "value": {
+                "action": "opened",
+                "pull_request_id": 7,
+                "pull_request_html_url": "https://github.com/acme/app/pull/7",
+                "pull_request_title": "Add things",
+                "branch": "feature",
+                "base_branch": "main",
+                "before_sha": null,
+                "after_sha": "1111111111111111111111111111111111111111",
+                "commit_sha": "1111111111111111111111111111111111111111",
+                "is_fork_pull_request": false
+            }
+        },
+        "isFork.7": {
+            "ok": true,
+            "value": false
+        },
+        "readPullRequest.8": {
+            "ok": true,
+            "value": {
+                "action": "opened",
+                "pull_request_id": 7,
+                "pull_request_html_url": "https://github.com/acme/app/pull/7",
+                "pull_request_title": "Add things",
+                "branch": "x",
+                "base_branch": "main",
+                "before_sha": null,
+                "after_sha": null,
+                "commit_sha": "HEAD",
+                "is_fork_pull_request": true
+            }
+        },
+        "isFork.8": {
+            "ok": true,
+            "value": true
+        },
+        "readPullRequest.9": {
+            "ok": false,
+            "error": "App\\Exceptions\\InvalidWebhookPayloadException: Nothing to do. Invalid 'pull_request.html_url' in the request."
+        },
+        "isFork.9": {
+            "ok": true,
+            "value": false
+        },
+        "readPullRequest.10": {
+            "ok": false,
+            "error": "App\\Exceptions\\InvalidWebhookPayloadException: Nothing to do. Invalid 'pull_request.head.sha' in the request."
+        },
+        "isFork.10": {
+            "ok": true,
+            "value": false
+        },
+        "readPullRequest.11": {
+            "ok": false,
+            "error": "App\\Exceptions\\InvalidWebhookPayloadException: Nothing to do. Invalid 'pull_request.head.repo.id' in the request."
+        },
+        "isFork.11": {
+            "ok": false,
+            "error": "App\\Exceptions\\InvalidWebhookPayloadException: Nothing to do. Invalid 'pull_request.head.repo.id' in the request."
+        },
+        "matchPaths.0": {
+            "ok": true,
+            "value": [
+                "src/a.ts"
+            ]
+        },
+        "matchPaths.1": {
+            "ok": true,
+            "value": []
+        },
+        "matchPaths.2": {
+            "ok": true,
+            "value": []
+        },
+        "matchPaths.3": {
+            "ok": true,
+            "value": [
+                "a/b/c.js"
+            ]
+        },
+        "matchPaths.4": {
+            "ok": true,
+            "value": [
+                "a/b/c.js"
+            ]
+        },
+        "matchPaths.5": {
+            "ok": true,
+            "value": [
+                "y.ts"
+            ]
+        },
+        "matchPaths.6": {
+            "ok": true,
+            "value": []
+        },
+        "matchPaths.7": {
+            "ok": true,
+            "value": [
+                "src/a.ts"
+            ]
+        },
+        "matchPaths.8": {
+            "ok": true,
+            "value": [
+                "file?.txt",
+                "file1.txt"
+            ]
+        },
+        "matchPaths.9": {
+            "ok": true,
+            "value": [
+                "a.c",
+                "b.c"
+            ]
+        },
+        "matchPaths.10": {
+            "ok": true,
+            "value": [
+                "c.c"
+            ]
+        },
+        "matchPaths.11": {
+            "ok": true,
+            "value": [
+                "dir/x(1).txt"
+            ]
+        },
+        "matchPaths.12": {
+            "ok": true,
+            "value": [
+                "a.txt"
+            ]
+        },
+        "matchPaths.13": {
+            "ok": true,
+            "value": []
+        },
+        "matchPaths.14": {
+            "ok": true,
+            "value": [
+                "a+b.txt"
+            ]
+        },
+        "matchPaths.15": {
+            "ok": false,
+            "error": "ErrorException: preg_match(): Compilation failed: missing terminating ] for character class at offset 6"
+        },
+        "hmac.0": {
+            "ok": true,
+            "value": "77325902caca812dc259733aacd046b73817372c777b8d95b402647474516e13"
+        },
+        "hmac.1": {
+            "ok": true,
+            "value": "8fe09bf56b04313db884917849fb56534f38011ac64065be84ca7595b66cdc24"
+        },
+        "hmac.2": {
+            "ok": true,
+            "value": "aa71810d926724dca21fe986078daba8971835bdc59c9d689d54cf6811110183"
+        },
+        "hashEquals.0": {
+            "ok": true,
+            "value": true
+        },
+        "hashEquals.1": {
+            "ok": true,
+            "value": false
+        },
+        "hashEquals.2": {
+            "ok": true,
+            "value": false
+        },
+        "hashEquals.3": {
+            "ok": true,
+            "value": true
+        },
+        "branches.0": {
+            "ok": true,
+            "value": [
+                "main",
+                "master",
+                "1.x",
+                "Main",
+                "alpha",
+                "dev",
+                "zeta"
+            ]
+        },
+        "slug.0": {
+            "ok": true,
+            "value": "acme/app"
+        },
+        "slug.1": {
+            "ok": true,
+            "value": "acme/app"
+        },
+        "slug.2": {
+            "ok": true,
+            "value": "acme/app"
+        },
+        "slug.3": {
+            "ok": true,
+            "value": "acme/app"
+        },
+        "slug.4": {
+            "ok": true,
+            "value": "acme/app"
+        },
+        "slug.5": {
+            "ok": true,
+            "value": "acme/app"
+        },
+        "slug.6": {
+            "ok": true,
+            "value": ""
+        },
+        "slug.7": {
+            "ok": true,
+            "value": ""
+        }
+    },
+    "webhooks": {
+        "manual.ping": {
+            "status": 200,
+            "contentType": "text/html; charset=utf-8",
+            "body": "pong",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "manual.push.server-not-functional": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"application\":\"web\",\"status\":\"failed\",\"message\":\"Server is not functional.\"}]",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "manual.push.deploy": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"application\":\"web\",\"status\":\"success\",\"message\":\"Deployment queued.\",\"application_uuid\":\"app0000000000000000000001\",\"application_name\":\"web\",\"deployment_uuid\":\"<uuid:1>\"}]",
+            "previews": [],
+            "deployments": [
+                {
+                    "application": 0,
+                    "status": "in_progress",
+                    "pull_request_id": 0,
+                    "commit": "4444444444444444444444444444444444444444",
+                    "commit_message": null,
+                    "git_type": null,
+                    "is_webhook": true,
+                    "deployment_url": "/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/<uuid:1>",
+                    "logs": null
+                }
+            ],
+            "jobs": [
+                [
+                    "App\\Jobs\\ApplicationDeploymentJob",
+                    1
+                ]
+            ],
+            "requests": []
+        },
+        "manual.push.bad-signature": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"status\":\"failed\",\"message\":\"No matching application or invalid signature.\"}]",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "manual.push.no-signature": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"status\":\"failed\",\"message\":\"No matching application or invalid signature.\"}]",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "manual.push.no-application": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"status\":\"failed\",\"message\":\"No matching application or invalid signature.\"}]",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "manual.push.other-branch": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"status\":\"failed\",\"message\":\"No matching application or invalid signature.\"}]",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "manual.push.branch-deleted": {
+            "status": 200,
+            "contentType": "text/html; charset=utf-8",
+            "body": "Nothing to do. Branch deleted.",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "manual.push.watch-paths-miss": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"status\":\"failed\",\"message\":\"Changed files do not match watch paths. Ignoring deployment.\",\"application_uuid\":\"app0000000000000000000001\",\"application_name\":\"web\",\"details\":{\"changed_files\":[\"src\\/a.ts\"],\"watch_paths\":[\"docs\\/**\"]}}]",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "manual.push.watch-paths-hit": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"application\":\"web\",\"status\":\"success\",\"message\":\"Deployment queued.\",\"application_uuid\":\"app0000000000000000000001\",\"application_name\":\"web\",\"deployment_uuid\":\"<uuid:1>\"}]",
+            "previews": [],
+            "deployments": [
+                {
+                    "application": 0,
+                    "status": "in_progress",
+                    "pull_request_id": 0,
+                    "commit": "4444444444444444444444444444444444444444",
+                    "commit_message": null,
+                    "git_type": null,
+                    "is_webhook": true,
+                    "deployment_url": "/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/<uuid:1>",
+                    "logs": null
+                }
+            ],
+            "jobs": [
+                [
+                    "App\\Jobs\\ApplicationDeploymentJob",
+                    1
+                ]
+            ],
+            "requests": []
+        },
+        "manual.push.skip-ci": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"application\":\"web\",\"status\":\"skipped\",\"message\":\"All commits contain [skip cd] or [skip ci]. Skipping deployment.\",\"application_uuid\":\"app0000000000000000000001\",\"application_name\":\"web\"}]",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "manual.push.auto-deploy-off": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"status\":\"failed\",\"message\":\"Deployments disabled.\",\"application_uuid\":\"app0000000000000000000001\",\"application_name\":\"web\"}]",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "manual.push.unsupported-event": {
+            "status": 200,
+            "contentType": "text/html; charset=utf-8",
+            "body": "Nothing to do. Event 'issues' is not supported.",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "manual.push.invalid-after": {
+            "status": 200,
+            "contentType": "text/html; charset=utf-8",
+            "body": "Nothing to do. Invalid 'after' in the request.",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "manual.push.invalid-repository": {
+            "status": 200,
+            "contentType": "text/html; charset=utf-8",
+            "body": "Nothing to do. Invalid repository.",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "manual.push.no-branch": {
+            "status": 200,
+            "contentType": "text/html; charset=utf-8",
+            "body": "Nothing to do. No branch found in the request.",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "manual.push.invalid-json": {
+            "status": 200,
+            "contentType": "text/html; charset=utf-8",
+            "body": "Nothing to do. No branch found in the request.",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "manual.push.form-encoded": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"application\":\"web\",\"status\":\"success\",\"message\":\"Deployment queued.\",\"application_uuid\":\"app0000000000000000000001\",\"application_name\":\"web\",\"deployment_uuid\":\"<uuid:1>\"}]",
+            "previews": [],
+            "deployments": [
+                {
+                    "application": 0,
+                    "status": "in_progress",
+                    "pull_request_id": 0,
+                    "commit": "4444444444444444444444444444444444444444",
+                    "commit_message": null,
+                    "git_type": null,
+                    "is_webhook": true,
+                    "deployment_url": "/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/<uuid:1>",
+                    "logs": null
+                }
+            ],
+            "jobs": [
+                [
+                    "App\\Jobs\\ApplicationDeploymentJob",
+                    1
+                ]
+            ],
+            "requests": []
+        },
+        "manual.push.empty-secret": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"status\":\"failed\",\"message\":\"No matching application or invalid signature.\"}]",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "manual.push.two-servers": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"application\":\"one\",\"status\":\"success\",\"message\":\"Deployment queued.\",\"application_uuid\":\"app0000000000000000000001\",\"application_name\":\"one\",\"deployment_uuid\":\"<uuid:1>\"},{\"application\":\"two\",\"status\":\"failed\",\"message\":\"Server is not functional.\"}]",
+            "previews": [],
+            "deployments": [
+                {
+                    "application": 0,
+                    "status": "in_progress",
+                    "pull_request_id": 0,
+                    "commit": "4444444444444444444444444444444444444444",
+                    "commit_message": null,
+                    "git_type": null,
+                    "is_webhook": true,
+                    "deployment_url": "/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/<uuid:1>",
+                    "logs": null
+                }
+            ],
+            "jobs": [
+                [
+                    "App\\Jobs\\ApplicationDeploymentJob",
+                    1
+                ]
+            ],
+            "requests": []
+        },
+        "manual.push.url-repository": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"application\":\"web\",\"status\":\"success\",\"message\":\"Deployment queued.\",\"application_uuid\":\"app0000000000000000000001\",\"application_name\":\"web\",\"deployment_uuid\":\"<uuid:1>\"},{\"application\":\"ssh\",\"status\":\"success\",\"message\":\"Deployment queued.\",\"application_uuid\":\"app0000000000000000000002\",\"application_name\":\"ssh\",\"deployment_uuid\":\"<uuid:2>\"}]",
+            "previews": [],
+            "deployments": [
+                {
+                    "application": 0,
+                    "status": "in_progress",
+                    "pull_request_id": 0,
+                    "commit": "4444444444444444444444444444444444444444",
+                    "commit_message": null,
+                    "git_type": null,
+                    "is_webhook": true,
+                    "deployment_url": "/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/<uuid:1>",
+                    "logs": null
+                },
+                {
+                    "application": 1,
+                    "status": "in_progress",
+                    "pull_request_id": 0,
+                    "commit": "4444444444444444444444444444444444444444",
+                    "commit_message": null,
+                    "git_type": null,
+                    "is_webhook": true,
+                    "deployment_url": "/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000002/deployment/<uuid:2>",
+                    "logs": null
+                }
+            ],
+            "jobs": [
+                [
+                    "App\\Jobs\\ApplicationDeploymentJob",
+                    2
+                ]
+            ],
+            "requests": []
+        },
+        "manual.pr.opened": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"application\":\"web\",\"status\":\"queued\",\"message\":\"PR webhook received, processing queued.\"}]",
+            "previews": [
+                {
+                    "application": 0,
+                    "pull_request_id": 7,
+                    "pull_request_html_url": "https://github.com/acme/app/pull/7",
+                    "fqdn": "https://7.web.example.com",
+                    "domain_port_overrides": null,
+                    "git_type": "github",
+                    "is_same_repository": true,
+                    "docker_compose_domains": null,
+                    "deleted": false
+                }
+            ],
+            "deployments": [
+                {
+                    "application": 0,
+                    "status": "in_progress",
+                    "pull_request_id": 7,
+                    "commit": "1111111111111111111111111111111111111111",
+                    "commit_message": null,
+                    "git_type": "github",
+                    "is_webhook": true,
+                    "deployment_url": "/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/<uuid:1>",
+                    "logs": null
+                }
+            ],
+            "jobs": [
+                [
+                    "App\\Jobs\\ApplicationDeploymentJob",
+                    1
+                ]
+            ],
+            "requests": []
+        },
+        "manual.pr.opened-template": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"application\":\"web\",\"status\":\"queued\",\"message\":\"PR webhook received, processing queued.\"}]",
+            "previews": [
+                {
+                    "application": 0,
+                    "pull_request_id": 31,
+                    "pull_request_html_url": "https://github.com/acme/app/pull/7",
+                    "fqdn": "http://pr-31-<uuid:1>.web.example.com/path",
+                    "domain_port_overrides": {
+                        "http://pr-31-<uuid:1>.web.example.com/path": 8080
+                    },
+                    "git_type": "github",
+                    "is_same_repository": true,
+                    "docker_compose_domains": null,
+                    "deleted": false
+                }
+            ],
+            "deployments": [
+                {
+                    "application": 0,
+                    "status": "in_progress",
+                    "pull_request_id": 31,
+                    "commit": "1111111111111111111111111111111111111111",
+                    "commit_message": null,
+                    "git_type": "github",
+                    "is_webhook": true,
+                    "deployment_url": "/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/<uuid:2>",
+                    "logs": null
+                }
+            ],
+            "jobs": [
+                [
+                    "App\\Jobs\\ApplicationDeploymentJob",
+                    1
+                ]
+            ],
+            "requests": []
+        },
+        "manual.pr.previews-off": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"application\":\"web\",\"status\":\"failed\",\"message\":\"Preview deployments disabled.\"}]",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "manual.pr.fork": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"application\":\"web\",\"status\":\"queued\",\"message\":\"PR webhook received, processing queued.\"}]",
+            "previews": [],
+            "deployments": [
+                {
+                    "application": 0,
+                    "status": "skipped",
+                    "pull_request_id": 7,
+                    "commit": "1111111111111111111111111111111111111111",
+                    "commit_message": "Skipped the preview deployment: the pull request comes from a fork and public PR deployments are disabled.",
+                    "git_type": "github",
+                    "is_webhook": true,
+                    "deployment_url": "/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/<uuid:1>",
+                    "logs": [
+                        "Skipped the preview deployment: the pull request comes from a fork and public PR deployments are disabled."
+                    ]
+                }
+            ],
+            "jobs": [],
+            "requests": []
+        },
+        "manual.pr.fork-public": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"application\":\"web\",\"status\":\"queued\",\"message\":\"PR webhook received, processing queued.\"}]",
+            "previews": [
+                {
+                    "application": 0,
+                    "pull_request_id": 7,
+                    "pull_request_html_url": "https://github.com/acme/app/pull/7",
+                    "fqdn": "https://7.web.example.com",
+                    "domain_port_overrides": null,
+                    "git_type": "github",
+                    "is_same_repository": false,
+                    "docker_compose_domains": null,
+                    "deleted": false
+                }
+            ],
+            "deployments": [
+                {
+                    "application": 0,
+                    "status": "in_progress",
+                    "pull_request_id": 7,
+                    "commit": "1111111111111111111111111111111111111111",
+                    "commit_message": null,
+                    "git_type": "github",
+                    "is_webhook": true,
+                    "deployment_url": "/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/<uuid:1>",
+                    "logs": null
+                }
+            ],
+            "jobs": [
+                [
+                    "App\\Jobs\\ApplicationDeploymentJob",
+                    1
+                ]
+            ],
+            "requests": []
+        },
+        "manual.pr.skip-title": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"application\":\"web\",\"status\":\"queued\",\"message\":\"PR webhook received, processing queued.\"}]",
+            "previews": [],
+            "deployments": [
+                {
+                    "application": 0,
+                    "status": "skipped",
+                    "pull_request_id": 7,
+                    "commit": "1111111111111111111111111111111111111111",
+                    "commit_message": "Skipped the preview deployment: the pull request title or the head commit message contains a skip marker ([skip ci] or [skip cd]).",
+                    "git_type": "github",
+                    "is_webhook": true,
+                    "deployment_url": "/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/<uuid:1>",
+                    "logs": [
+                        "Skipped the preview deployment: the pull request title or the head commit message contains a skip marker ([skip ci] or [skip cd])."
+                    ]
+                }
+            ],
+            "jobs": [],
+            "requests": []
+        },
+        "manual.pr.synchronize-existing": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"application\":\"web\",\"status\":\"queued\",\"message\":\"PR webhook received, processing queued.\"}]",
+            "previews": [
+                {
+                    "application": 0,
+                    "pull_request_id": 7,
+                    "pull_request_html_url": "https://github.com/acme/app/pull/7",
+                    "fqdn": "https://7.web.example.com",
+                    "domain_port_overrides": null,
+                    "git_type": null,
+                    "is_same_repository": true,
+                    "docker_compose_domains": null,
+                    "deleted": false
+                }
+            ],
+            "deployments": [
+                {
+                    "application": 0,
+                    "status": "in_progress",
+                    "pull_request_id": 7,
+                    "commit": "1111111111111111111111111111111111111111",
+                    "commit_message": null,
+                    "git_type": "github",
+                    "is_webhook": true,
+                    "deployment_url": "/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/<uuid:1>",
+                    "logs": null
+                }
+            ],
+            "jobs": [
+                [
+                    "App\\Jobs\\ApplicationDeploymentJob",
+                    1
+                ]
+            ],
+            "requests": []
+        },
+        "manual.pr.closed": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"application\":\"web\",\"status\":\"queued\",\"message\":\"PR webhook received, processing queued.\"}]",
+            "previews": [
+                {
+                    "application": 0,
+                    "pull_request_id": 7,
+                    "pull_request_html_url": "https://github.com/acme/app/pull/7",
+                    "fqdn": "https://7.web.example.com",
+                    "domain_port_overrides": null,
+                    "git_type": null,
+                    "is_same_repository": false,
+                    "docker_compose_domains": null,
+                    "deleted": false
+                }
+            ],
+            "deployments": [],
+            "jobs": [
+                [
+                    "App\\Jobs\\ApplicationPullRequestUpdateJob",
+                    1
+                ],
+                [
+                    "App\\Jobs\\DeleteResourceJob",
+                    1
+                ]
+            ],
+            "requests": []
+        },
+        "manual.pr.closed-not-functional": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"application\":\"web\",\"status\":\"failed\",\"message\":\"Server is not functional.\"}]",
+            "previews": [
+                {
+                    "application": 0,
+                    "pull_request_id": 7,
+                    "pull_request_html_url": "https://github.com/acme/app/pull/7",
+                    "fqdn": null,
+                    "domain_port_overrides": null,
+                    "git_type": null,
+                    "is_same_repository": false,
+                    "docker_compose_domains": null,
+                    "deleted": false
+                }
+            ],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "manual.pr.no-base": {
+            "status": 200,
+            "contentType": "text/html; charset=utf-8",
+            "body": "Nothing to do. No branch found in the request.",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "manual.pr.invalid-number": {
+            "status": 200,
+            "contentType": "text/html; charset=utf-8",
+            "body": "Nothing to do. Invalid 'number' in the request.",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "manual.pr.server-not-functional": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"application\":\"web\",\"status\":\"failed\",\"message\":\"Server is not functional.\"}]",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "app.ping": {
+            "status": 200,
+            "contentType": "text/html; charset=utf-8",
+            "body": "pong",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "app.no-app": {
+            "status": 200,
+            "contentType": "text/html; charset=utf-8",
+            "body": "Nothing to do. No GitHub App found.",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "app.no-target": {
+            "status": 200,
+            "contentType": "text/html; charset=utf-8",
+            "body": "Invalid signature.",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "app.bad-signature": {
+            "status": 200,
+            "contentType": "text/html; charset=utf-8",
+            "body": "Invalid signature.",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "app.installation": {
+            "status": 200,
+            "contentType": "text/html; charset=utf-8",
+            "body": "cool",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "app.push.server-not-functional": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"status\":\"failed\",\"message\":\"Server is not functional.\",\"application_uuid\":\"app0000000000000000000001\",\"application_name\":\"web\"}]",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "app.push.deploy": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"status\":\"queued\",\"message\":\"Deployment queued.\",\"application_uuid\":\"app0000000000000000000001\",\"application_name\":\"web\",\"deployment_uuid\":\"<uuid:1>\"}]",
+            "previews": [],
+            "deployments": [
+                {
+                    "application": 0,
+                    "status": "in_progress",
+                    "pull_request_id": 0,
+                    "commit": "4444444444444444444444444444444444444444",
+                    "commit_message": null,
+                    "git_type": null,
+                    "is_webhook": true,
+                    "deployment_url": "/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/<uuid:1>",
+                    "logs": null
+                }
+            ],
+            "jobs": [
+                [
+                    "App\\Jobs\\SyncGithubDeploymentJob",
+                    1
+                ],
+                [
+                    "App\\Jobs\\ApplicationDeploymentJob",
+                    1
+                ]
+            ],
+            "requests": []
+        },
+        "app.push.no-branch-app": {
+            "status": 200,
+            "contentType": "text/html; charset=utf-8",
+            "body": "Nothing to do. No applications found with branch 'dev'.",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "app.push.other-repository-id": {
+            "status": 200,
+            "contentType": "text/html; charset=utf-8",
+            "body": "Nothing to do. No applications found with branch 'main'.",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "app.push.no-id": {
+            "status": 200,
+            "contentType": "text/html; charset=utf-8",
+            "body": "Nothing to do. No id or branch found.",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "app.push.watch-compare": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"status\":\"queued\",\"message\":\"Deployment queued.\",\"application_uuid\":\"app0000000000000000000001\",\"application_name\":\"web\",\"deployment_uuid\":\"<uuid:1>\"}]",
+            "previews": [],
+            "deployments": [
+                {
+                    "application": 0,
+                    "status": "in_progress",
+                    "pull_request_id": 0,
+                    "commit": "4444444444444444444444444444444444444444",
+                    "commit_message": null,
+                    "git_type": null,
+                    "is_webhook": true,
+                    "deployment_url": "/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/<uuid:1>",
+                    "logs": null
+                }
+            ],
+            "jobs": [
+                [
+                    "App\\Jobs\\SyncGithubDeploymentJob",
+                    1
+                ],
+                [
+                    "App\\Jobs\\ApplicationDeploymentJob",
+                    1
+                ]
+            ],
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/app/installations/777/access_tokens",
+                    "authorization": "Bearer <jwt>",
+                    "accept": "application/vnd.github.machine-man-preview+json",
+                    "body": []
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.github.com/repos/acme/app/compare/5555555555555555555555555555555555555555...4444444444444444444444444444444444444444",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json"
+                }
+            ]
+        },
+        "app.push.watch-compare-fails": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"status\":\"failed\",\"message\":\"Changed files do not match watch paths. Ignoring deployment.\",\"application_uuid\":\"app0000000000000000000001\",\"application_name\":\"web\",\"details\":{\"changed_files\":[\"src\\/a.ts\"],\"watch_paths\":[\"docs\\/**\"]}}]",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/app/installations/777/access_tokens",
+                    "authorization": "Bearer <jwt>",
+                    "accept": "application/vnd.github.machine-man-preview+json",
+                    "body": []
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.github.com/repos/acme/app/compare/5555555555555555555555555555555555555555...4444444444444444444444444444444444444444",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json"
+                }
+            ]
+        },
+        "app.workflow-job.queued": {
+            "status": 200,
+            "contentType": "text/html; charset=utf-8",
+            "body": "Nothing to do. No runner configuration matches the job labels.",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "app.workflow-job.other-installation": {
+            "status": 200,
+            "contentType": "text/html; charset=utf-8",
+            "body": "Nothing to do. The job belongs to another installation of the GitHub App.",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "app.unsupported": {
+            "status": 200,
+            "contentType": "text/html; charset=utf-8",
+            "body": "Nothing to do. Event 'release' is not supported.",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "app.pr.opened": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"application\":\"web\",\"status\":\"queued\",\"message\":\"PR webhook received, processing queued.\"}]",
+            "previews": [
+                {
+                    "application": 0,
+                    "pull_request_id": 7,
+                    "pull_request_html_url": "https://github.com/acme/app/pull/7",
+                    "fqdn": "https://7.web.example.com",
+                    "domain_port_overrides": null,
+                    "git_type": "github",
+                    "is_same_repository": true,
+                    "docker_compose_domains": null,
+                    "deleted": false
+                }
+            ],
+            "deployments": [
+                {
+                    "application": 0,
+                    "status": "in_progress",
+                    "pull_request_id": 7,
+                    "commit": "1111111111111111111111111111111111111111",
+                    "commit_message": null,
+                    "git_type": "github",
+                    "is_webhook": true,
+                    "deployment_url": "/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/<uuid:1>",
+                    "logs": null
+                }
+            ],
+            "jobs": [
+                [
+                    "App\\Jobs\\SyncGithubDeploymentJob",
+                    1
+                ],
+                [
+                    "App\\Jobs\\ApplicationPullRequestUpdateJob",
+                    1
+                ],
+                [
+                    "App\\Jobs\\ApplicationDeploymentJob",
+                    1
+                ]
+            ],
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/app/installations/777/access_tokens",
+                    "authorization": "Bearer <jwt>",
+                    "accept": "application/vnd.github.machine-man-preview+json",
+                    "body": []
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.github.com/repos/acme/app/commits/1111111111111111111111111111111111111111",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.github.com/repos/acme/app/pulls/7/files?per_page=100&page=1",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json"
+                }
+            ]
+        },
+        "app.pr.commit-skip": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"application\":\"web\",\"status\":\"queued\",\"message\":\"PR webhook received, processing queued.\"}]",
+            "previews": [],
+            "deployments": [
+                {
+                    "application": 0,
+                    "status": "skipped",
+                    "pull_request_id": 7,
+                    "commit": "1111111111111111111111111111111111111111",
+                    "commit_message": "Skipped the preview deployment: the pull request title or the head commit message contains a skip marker ([skip ci] or [skip cd]).",
+                    "git_type": "github",
+                    "is_webhook": true,
+                    "deployment_url": "/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/<uuid:1>",
+                    "logs": [
+                        "Skipped the preview deployment: the pull request title or the head commit message contains a skip marker ([skip ci] or [skip cd])."
+                    ]
+                }
+            ],
+            "jobs": [],
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/app/installations/777/access_tokens",
+                    "authorization": "Bearer <jwt>",
+                    "accept": "application/vnd.github.machine-man-preview+json",
+                    "body": []
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.github.com/repos/acme/app/commits/1111111111111111111111111111111111111111",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json"
+                }
+            ]
+        },
+        "app.pr.watch-miss": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"application\":\"web\",\"status\":\"queued\",\"message\":\"PR webhook received, processing queued.\"}]",
+            "previews": [],
+            "deployments": [
+                {
+                    "application": 0,
+                    "status": "skipped",
+                    "pull_request_id": 7,
+                    "commit": "1111111111111111111111111111111111111111",
+                    "commit_message": "Skipped the preview deployment: no changed file matches the watch paths.",
+                    "git_type": "github",
+                    "is_webhook": true,
+                    "deployment_url": "/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/<uuid:1>",
+                    "logs": [
+                        "Skipped the preview deployment: no changed file matches the watch paths.",
+                        "Watch paths: docs/**, !docs/drafts/**",
+                        "Changed files (2): src/a.ts, docs/drafts/x.md"
+                    ]
+                }
+            ],
+            "jobs": [],
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/app/installations/777/access_tokens",
+                    "authorization": "Bearer <jwt>",
+                    "accept": "application/vnd.github.machine-man-preview+json",
+                    "body": []
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.github.com/repos/acme/app/commits/1111111111111111111111111111111111111111",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.github.com/repos/acme/app/pulls/7/files?per_page=100&page=1",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json"
+                }
+            ]
+        },
+        "app.pr.synchronize-watch-hit": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"application\":\"web\",\"status\":\"queued\",\"message\":\"PR webhook received, processing queued.\"}]",
+            "previews": [
+                {
+                    "application": 0,
+                    "pull_request_id": 7,
+                    "pull_request_html_url": "https://github.com/acme/app/pull/7",
+                    "fqdn": "https://7.web.example.com",
+                    "domain_port_overrides": null,
+                    "git_type": "github",
+                    "is_same_repository": true,
+                    "docker_compose_domains": null,
+                    "deleted": false
+                }
+            ],
+            "deployments": [
+                {
+                    "application": 0,
+                    "status": "in_progress",
+                    "pull_request_id": 7,
+                    "commit": "1111111111111111111111111111111111111111",
+                    "commit_message": null,
+                    "git_type": "github",
+                    "is_webhook": true,
+                    "deployment_url": "/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/<uuid:1>",
+                    "logs": null
+                }
+            ],
+            "jobs": [
+                [
+                    "App\\Jobs\\SyncGithubDeploymentJob",
+                    1
+                ],
+                [
+                    "App\\Jobs\\ApplicationPullRequestUpdateJob",
+                    1
+                ],
+                [
+                    "App\\Jobs\\ApplicationDeploymentJob",
+                    1
+                ]
+            ],
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/app/installations/777/access_tokens",
+                    "authorization": "Bearer <jwt>",
+                    "accept": "application/vnd.github.machine-man-preview+json",
+                    "body": []
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.github.com/repos/acme/app/commits/1111111111111111111111111111111111111111",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json"
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.github.com/repos/acme/app/compare/2222222222222222222222222222222222222222...3333333333333333333333333333333333333333",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json"
+                }
+            ]
+        },
+        "app.pr.closed": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"application\":\"web\",\"status\":\"queued\",\"message\":\"PR webhook received, processing queued.\"}]",
+            "previews": [
+                {
+                    "application": 0,
+                    "pull_request_id": 7,
+                    "pull_request_html_url": "https://github.com/acme/app/pull/7",
+                    "fqdn": "https://7.web.example.com",
+                    "domain_port_overrides": null,
+                    "git_type": null,
+                    "is_same_repository": false,
+                    "docker_compose_domains": null,
+                    "deleted": false
+                }
+            ],
+            "deployments": [],
+            "jobs": [
+                [
+                    "App\\Jobs\\ApplicationPullRequestUpdateJob",
+                    1
+                ],
+                [
+                    "App\\Jobs\\DeleteResourceJob",
+                    1
+                ]
+            ],
+            "requests": []
+        },
+        "app.pr.closed-deployed": {
+            "status": 200,
+            "contentType": "application/json",
+            "body": "[{\"application\":\"web\",\"status\":\"queued\",\"message\":\"PR webhook received, processing queued.\"}]",
+            "previews": [
+                {
+                    "application": 0,
+                    "pull_request_id": 7,
+                    "pull_request_html_url": "https://github.com/acme/app/pull/7",
+                    "fqdn": "https://7.web.example.com",
+                    "domain_port_overrides": null,
+                    "git_type": null,
+                    "is_same_repository": false,
+                    "docker_compose_domains": null,
+                    "deleted": false
+                }
+            ],
+            "deployments": [
+                {
+                    "application": 0,
+                    "status": "finished",
+                    "pull_request_id": 7,
+                    "commit": "1111111111111111111111111111111111111111",
+                    "commit_message": null,
+                    "git_type": null,
+                    "is_webhook": false,
+                    "deployment_url": null,
+                    "logs": null
+                }
+            ],
+            "jobs": [
+                [
+                    "App\\Jobs\\ApplicationPullRequestUpdateJob",
+                    1
+                ],
+                [
+                    "App\\Jobs\\SyncGithubDeploymentJob",
+                    1
+                ],
+                [
+                    "App\\Jobs\\DeleteResourceJob",
+                    1
+                ]
+            ],
+            "requests": []
+        },
+        "app.pr.invalid-full-name": {
+            "status": 200,
+            "contentType": "text/html; charset=utf-8",
+            "body": "Nothing to do. Invalid repository.",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        },
+        "app.pr.no-app-for-base": {
+            "status": 200,
+            "contentType": "text/html; charset=utf-8",
+            "body": "Nothing to do. No applications found with branch 'dev'.",
+            "previews": [],
+            "deployments": [],
+            "jobs": [],
+            "requests": []
+        }
+    },
+    "prUpdates": {
+        "comment.queued": {
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/app/installations/777/access_tokens",
+                    "authorization": "Bearer <jwt>",
+                    "accept": "application/vnd.github.machine-man-preview+json",
+                    "body": []
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/repos/acme/app/issues/7/comments",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json",
+                    "body": {
+                        "body": "The preview deployment for **web** is queued. ⏳\n\n[Open Build Logs](https://app.example.test/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/dep0000000000000000000001) | [Open Application Logs](https://app.example.test/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/logs)\n\n\nLast updated at: 2026-11-20 10:11:12 CET"
+                    }
+                }
+            ],
+            "thrown": null,
+            "commentId": "9001"
+        },
+        "comment.in-progress-existing": {
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/app/installations/777/access_tokens",
+                    "authorization": "Bearer <jwt>",
+                    "accept": "application/vnd.github.machine-man-preview+json",
+                    "body": []
+                },
+                {
+                    "method": "PATCH",
+                    "url": "https://api.github.com/repos/acme/app/issues/comments/9001",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json",
+                    "body": {
+                        "body": "The preview deployment for **web** is in progress. 🟡\n\n[Open Build Logs](https://app.example.test/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/dep0000000000000000000001) | [Open Application Logs](https://app.example.test/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/logs)\n\n\nLast updated at: 2026-11-20 10:11:12 CET"
+                    }
+                }
+            ],
+            "thrown": null,
+            "commentId": "9001"
+        },
+        "comment.finished": {
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/app/installations/777/access_tokens",
+                    "authorization": "Bearer <jwt>",
+                    "accept": "application/vnd.github.machine-man-preview+json",
+                    "body": []
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/repos/acme/app/issues/7/comments",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json",
+                    "body": {
+                        "body": "The preview deployment for **web** is ready. 🟢\n\n[Open Preview](https://7.web.example.com) | [Open Build Logs](https://app.example.test/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/dep0000000000000000000001) | [Open Application Logs](https://app.example.test/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/logs)\n\n\nLast updated at: 2026-11-20 10:11:12 CET"
+                    }
+                }
+            ],
+            "thrown": null,
+            "commentId": "9001"
+        },
+        "comment.finished-no-fqdn": {
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/app/installations/777/access_tokens",
+                    "authorization": "Bearer <jwt>",
+                    "accept": "application/vnd.github.machine-man-preview+json",
+                    "body": []
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/repos/acme/app/issues/7/comments",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json",
+                    "body": {
+                        "body": "The preview deployment for **web** is ready. 🟢\n\n[Open Build Logs](https://app.example.test/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/dep0000000000000000000001) | [Open Application Logs](https://app.example.test/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/logs)\n\n\nLast updated at: 2026-11-20 10:11:12 CET"
+                    }
+                }
+            ],
+            "thrown": null,
+            "commentId": "9001"
+        },
+        "comment.error": {
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/app/installations/777/access_tokens",
+                    "authorization": "Bearer <jwt>",
+                    "accept": "application/vnd.github.machine-man-preview+json",
+                    "body": []
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/repos/acme/app/issues/7/comments",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json",
+                    "body": {
+                        "body": "The preview deployment for **web** failed. 🔴\n\n[Open Build Logs](https://app.example.test/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/dep0000000000000000000001) | [Open Application Logs](https://app.example.test/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/logs)\n\n\nLast updated at: 2026-11-20 10:11:12 CET"
+                    }
+                }
+            ],
+            "thrown": null,
+            "commentId": "9001"
+        },
+        "comment.killed": {
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/app/installations/777/access_tokens",
+                    "authorization": "Bearer <jwt>",
+                    "accept": "application/vnd.github.machine-man-preview+json",
+                    "body": []
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/repos/acme/app/issues/7/comments",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json",
+                    "body": {
+                        "body": "The preview deployment for **web** was killed. ⚫\n\n[Open Build Logs](https://app.example.test/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/dep0000000000000000000001) | [Open Application Logs](https://app.example.test/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/logs)\n\n\nLast updated at: 2026-11-20 10:11:12 CET"
+                    }
+                }
+            ],
+            "thrown": null,
+            "commentId": "9001"
+        },
+        "comment.cancelled": {
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/app/installations/777/access_tokens",
+                    "authorization": "Bearer <jwt>",
+                    "accept": "application/vnd.github.machine-man-preview+json",
+                    "body": []
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/repos/acme/app/issues/7/comments",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json",
+                    "body": {
+                        "body": "The preview deployment for **web** was cancelled. 🚫\n\n[Open Build Logs](https://app.example.test/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/dep0000000000000000000001) | [Open Application Logs](https://app.example.test/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/logs)\n\n\nLast updated at: 2026-11-20 10:11:12 CET"
+                    }
+                }
+            ],
+            "thrown": null,
+            "commentId": "9001"
+        },
+        "comment.closed": {
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/app/installations/777/access_tokens",
+                    "authorization": "Bearer <jwt>",
+                    "accept": "application/vnd.github.machine-man-preview+json",
+                    "body": []
+                },
+                {
+                    "method": "DELETE",
+                    "url": "https://api.github.com/repos/acme/app/issues/comments/9001",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json"
+                }
+            ],
+            "thrown": null,
+            "commentId": "9001"
+        },
+        "comment.public-repository": {
+            "requests": [],
+            "thrown": null,
+            "commentId": null
+        },
+        "comment.compose": {
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/app/installations/777/access_tokens",
+                    "authorization": "Bearer <jwt>",
+                    "accept": "application/vnd.github.machine-man-preview+json",
+                    "body": []
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/repos/acme/app/issues/7/comments",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json",
+                    "body": {
+                        "body": "The preview deployment for **web** is ready. 🟢\n\n[Open web](https://a.example.com) | [Open worker](https://w.example.com) | [Open Build Logs](https://app.example.test/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/dep0000000000000000000001) | [Open Application Logs](https://app.example.test/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/logs)\n\n\nLast updated at: 2026-11-20 10:11:12 CET"
+                    }
+                }
+            ],
+            "thrown": null,
+            "commentId": "9001"
+        },
+        "comment.update-gone": {
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/app/installations/777/access_tokens",
+                    "authorization": "Bearer <jwt>",
+                    "accept": "application/vnd.github.machine-man-preview+json",
+                    "body": []
+                },
+                {
+                    "method": "PATCH",
+                    "url": "https://api.github.com/repos/acme/app/issues/comments/9002",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json",
+                    "body": {
+                        "body": "The preview deployment for **web** is in progress. 🟡\n\n[Open Build Logs](https://app.example.test/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/dep0000000000000000000001) | [Open Application Logs](https://app.example.test/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/logs)\n\n\nLast updated at: 2026-11-20 10:11:12 CET"
+                    }
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/repos/acme/app/issues/7/comments",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json",
+                    "body": {
+                        "body": "The preview deployment for **web** is in progress. 🟡\n\n[Open Build Logs](https://app.example.test/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/dep0000000000000000000001) | [Open Application Logs](https://app.example.test/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/logs)\n\n\nLast updated at: 2026-11-20 10:11:12 CET"
+                    }
+                }
+            ],
+            "thrown": null,
+            "commentId": "9100"
+        }
+    },
+    "deploymentSyncs": {
+        "deploy.in-progress-new": {
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/app/installations/777/access_tokens",
+                    "authorization": "Bearer <jwt>",
+                    "accept": "application/vnd.github.machine-man-preview+json",
+                    "body": []
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/repos/acme/app/deployments",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json",
+                    "body": {
+                        "ref": "abcdef1234567890abcdef1234567890abcdef12",
+                        "environment": "web",
+                        "description": "Coolify deployment",
+                        "auto_merge": false,
+                        "required_contexts": [],
+                        "transient_environment": false,
+                        "production_environment": true
+                    }
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/repos/acme/app/deployments/555/statuses",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json",
+                    "body": {
+                        "state": "in_progress",
+                        "description": "Deploying with Coolify.",
+                        "log_url": "https://app.example.test/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/dep0000000000000000000001"
+                    }
+                }
+            ],
+            "thrown": null,
+            "github_deployment_id": 555,
+            "github_deployment_state": "in_progress"
+        },
+        "deploy.finished-existing": {
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/app/installations/777/access_tokens",
+                    "authorization": "Bearer <jwt>",
+                    "accept": "application/vnd.github.machine-man-preview+json",
+                    "body": []
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/repos/acme/app/deployments/555/statuses",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json",
+                    "body": {
+                        "state": "success",
+                        "description": "Deployed with Coolify.",
+                        "log_url": "https://app.example.test/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/dep0000000000000000000001",
+                        "environment_url": "https://web.example.com"
+                    }
+                }
+            ],
+            "thrown": null,
+            "github_deployment_id": 555,
+            "github_deployment_state": "success"
+        },
+        "deploy.failed-never-started": {
+            "requests": [],
+            "thrown": null,
+            "github_deployment_id": null,
+            "github_deployment_state": null
+        },
+        "deploy.failed-started": {
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/app/installations/777/access_tokens",
+                    "authorization": "Bearer <jwt>",
+                    "accept": "application/vnd.github.machine-man-preview+json",
+                    "body": []
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/repos/acme/app/deployments",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json",
+                    "body": {
+                        "ref": "main",
+                        "environment": "web",
+                        "description": "Coolify deployment",
+                        "auto_merge": false,
+                        "required_contexts": [],
+                        "transient_environment": false,
+                        "production_environment": true
+                    }
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/repos/acme/app/deployments/555/statuses",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json",
+                    "body": {
+                        "state": "failure",
+                        "description": "The Coolify deployment failed.",
+                        "log_url": "https://app.example.test/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/dep0000000000000000000001"
+                    }
+                }
+            ],
+            "thrown": null,
+            "github_deployment_id": 555,
+            "github_deployment_state": "failure"
+        },
+        "deploy.cancelled": {
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/app/installations/777/access_tokens",
+                    "authorization": "Bearer <jwt>",
+                    "accept": "application/vnd.github.machine-man-preview+json",
+                    "body": []
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/repos/acme/app/deployments/555/statuses",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json",
+                    "body": {
+                        "state": "error",
+                        "description": "The Coolify deployment was cancelled.",
+                        "log_url": "https://app.example.test/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/dep0000000000000000000001"
+                    }
+                }
+            ],
+            "thrown": null,
+            "github_deployment_id": 555,
+            "github_deployment_state": "error"
+        },
+        "deploy.queued": {
+            "requests": [],
+            "thrown": null,
+            "github_deployment_id": null,
+            "github_deployment_state": null
+        },
+        "deploy.same-state": {
+            "requests": [],
+            "thrown": null,
+            "github_deployment_id": 555,
+            "github_deployment_state": "in_progress"
+        },
+        "deploy.preview-in-progress": {
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/app/installations/777/access_tokens",
+                    "authorization": "Bearer <jwt>",
+                    "accept": "application/vnd.github.machine-man-preview+json",
+                    "body": []
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.github.com/repos/acme/app/pulls/7",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/repos/acme/app/deployments",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json",
+                    "body": {
+                        "ref": "feature",
+                        "environment": "web (preview)",
+                        "description": "Coolify preview for PR #7",
+                        "auto_merge": false,
+                        "required_contexts": [],
+                        "transient_environment": true,
+                        "production_environment": false
+                    }
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/repos/acme/app/deployments/555/statuses",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json",
+                    "body": {
+                        "state": "in_progress",
+                        "description": "Deploying with Coolify.",
+                        "log_url": "https://app.example.test/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/dep0000000000000000000001"
+                    }
+                }
+            ],
+            "thrown": null,
+            "github_deployment_id": 555,
+            "github_deployment_state": "in_progress"
+        },
+        "deploy.preview-finished": {
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/app/installations/777/access_tokens",
+                    "authorization": "Bearer <jwt>",
+                    "accept": "application/vnd.github.machine-man-preview+json",
+                    "body": []
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/repos/acme/app/deployments/555/statuses",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json",
+                    "body": {
+                        "state": "success",
+                        "description": "Deployed with Coolify.",
+                        "log_url": "https://app.example.test/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/dep0000000000000000000001",
+                        "environment_url": "https://7.web.example.com"
+                    }
+                }
+            ],
+            "thrown": null,
+            "github_deployment_id": 555,
+            "github_deployment_state": "success"
+        },
+        "deploy.preview-moved-head": {
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/app/installations/777/access_tokens",
+                    "authorization": "Bearer <jwt>",
+                    "accept": "application/vnd.github.machine-man-preview+json",
+                    "body": []
+                },
+                {
+                    "method": "GET",
+                    "url": "https://api.github.com/repos/acme/app/pulls/7",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json"
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/repos/acme/app/deployments",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json",
+                    "body": {
+                        "ref": "9999999999999999999999999999999999999999",
+                        "environment": "web (preview)",
+                        "description": "Coolify preview for PR #7",
+                        "auto_merge": false,
+                        "required_contexts": [],
+                        "transient_environment": true,
+                        "production_environment": false
+                    }
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/repos/acme/app/deployments/555/statuses",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json",
+                    "body": {
+                        "state": "in_progress",
+                        "description": "Deploying with Coolify.",
+                        "log_url": "https://app.example.test/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/dep0000000000000000000001"
+                    }
+                }
+            ],
+            "thrown": null,
+            "github_deployment_id": 555,
+            "github_deployment_state": "in_progress"
+        },
+        "deploy.deactivate-no-id": {
+            "requests": [],
+            "thrown": null,
+            "github_deployment_id": null,
+            "github_deployment_state": "inactive"
+        },
+        "deploy.deactivate": {
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/app/installations/777/access_tokens",
+                    "authorization": "Bearer <jwt>",
+                    "accept": "application/vnd.github.machine-man-preview+json",
+                    "body": []
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/repos/acme/app/deployments/555/statuses",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json",
+                    "body": {
+                        "state": "inactive",
+                        "description": "The pull request was closed.",
+                        "log_url": "https://app.example.test/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/dep0000000000000000000001"
+                    }
+                }
+            ],
+            "thrown": null,
+            "github_deployment_id": 555,
+            "github_deployment_state": "inactive"
+        },
+        "deploy.inactive-end": {
+            "requests": [],
+            "thrown": null,
+            "github_deployment_id": 555,
+            "github_deployment_state": "inactive"
+        },
+        "deploy.no-permission": {
+            "requests": [],
+            "thrown": null,
+            "github_deployment_id": null,
+            "github_deployment_state": null
+        },
+        "deploy.finished-no-scheme": {
+            "requests": [
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/app/installations/777/access_tokens",
+                    "authorization": "Bearer <jwt>",
+                    "accept": "application/vnd.github.machine-man-preview+json",
+                    "body": []
+                },
+                {
+                    "method": "POST",
+                    "url": "https://api.github.com/repos/acme/app/deployments/555/statuses",
+                    "authorization": "Bearer ghs_testtoken123",
+                    "accept": "application/vnd.github.v3+json",
+                    "body": {
+                        "state": "success",
+                        "description": "Deployed with Coolify.",
+                        "log_url": "https://app.example.test/project/prj0000000000000000000001/environment/env0000000000000000000001/application/app0000000000000000000001/deployment/dep0000000000000000000001"
+                    }
+                }
+            ],
+            "thrown": null,
+            "github_deployment_id": 555,
+            "github_deployment_state": "success"
+        }
+    }
+}

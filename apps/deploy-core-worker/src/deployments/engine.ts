@@ -73,6 +73,8 @@ import {
   generateEnvVariables,
   gitImportCommand,
   gitLsRemoteCommand,
+  gitSshCommand,
+  gitTokenUrlRewriteOptions,
   HELPER_DOCKER_CONFIG,
   LARAVEL_NIXPACKS_VARIABLES,
   NIXPACKS_PLAN_PATH,
@@ -92,7 +94,10 @@ import {
 } from "./build.js";
 import { GIT_PINNED_HOST_KEYS, gitKnownHostsFile, gitKnownHostsLines, gitSshSetupCommand } from "./git-ssh.js";
 import { buildLogEntry, redactLogText, REDACTED } from "./logs.js";
-import { base64DecodeStrict, base64Encode, escapeshellarg, phpRtrim, phpTrim, utf8FromBinary } from "./php.js";
+import { githubApi, GithubSourceError, type GithubAppCredentials, type InstallationTokens, type SourceHttp } from "../sources/github.js";
+import { gitRepositorySlug } from "../sources/pr-updates.js";
+import { parseUrl } from "../s3-storages/safe-url.js";
+import { base64DecodeStrict, base64Encode, escapeshellarg, phpRtrim, phpTrim, rawurlencode, utf8FromBinary } from "./php.js";
 import { generateRuntimeEnvironmentVariables, logRedactionSecretsFor, RuntimeEnvError, validateDeploymentEnvironmentVariableKeys, type EnvLogEntry, type LogRedactionSecrets, type RuntimeVariable } from "./runtime-env.js";
 
 // ── What the engine is given ────────────────────────────────────────────────────────────────────────────
@@ -138,6 +143,15 @@ export interface DeploymentContext {
    * without one: `legacyFallback`, which rebuilds.
    */
   configurationDiff: { legacyFallback: boolean; requiresBuild: boolean };
+  /**
+   * DP-72: the application's private GitHub App — its source and its credentials (the App's private key
+   * decrypted) — when that is its source. The installation token is asked of GitHub at deploy time.
+   */
+  githubApp?: { source: ResolvedSource; credentials: GithubAppCredentials } | null;
+  /** DP-72: the decrypted private key of the application's deploy key (private_key_id). */
+  deployKey?: string | null;
+  /** DP-72: the application's repository_project_id, which update_repository_project_id() compares. */
+  repositoryProjectId?: number | null;
 }
 
 /** ConfigurationDiff::legacy() */
@@ -180,6 +194,8 @@ export interface DeploymentStore {
   deploymentUuidsAmong(names: string[]): Promise<string[]>;
   /** A variable Nixpacks needs for a Laravel application, created with the model's defaults. */
   createVariable(applicationId: string | number, key: string, value: string): Promise<void>;
+  /** update_repository_project_id() (DP-72): the id GitHub gives the repository of a GitHub App application. */
+  setRepositoryProjectId?(applicationId: string | number, repositoryProjectId: number): Promise<void>;
 }
 
 /** What Coolify hands to other jobs, notifications and broadcasts: Freeploy's side of each comes later. */
@@ -217,6 +233,8 @@ export interface EngineDeps {
   sleep: (seconds: number) => Promise<void>;
   effect: (effect: DeploymentEffect) => Promise<void> | void;
   config?: EngineConfig;
+  /** DP-72: GitHub, for a GitHub App application: its installation tokens and the repository's id. */
+  github?: { http: SourceHttp; tokens: InstallationTokens };
 }
 
 // ── Errors, as PHP classes ──────────────────────────────────────────────────────────────────────────────
@@ -510,8 +528,11 @@ export function buildUnavailableReason(
   if (build.is_preserve_repository_enabled) return "Deploying with \"Preserve Repository During Deployment\" is not available yet.";
   // A pasted Dockerfile needs no repository, unless a restart reads its commit.
   if (application.has_dockerfile && !(restartOnly && !RESTART_REBUILDS.includes(application.build_pack))) return null;
-  if (build.private_key_id !== null) return "Deploying from a private repository with a deploy key is not available yet: only public repositories can be deployed.";
-  if (filled(build.source_type) && build.source_id !== null && publicGitSource(build) === null) return "Deploying from a Git App source is not available yet: only public repositories can be deployed.";
+  // DP-72: a deploy key and a GitHub App are deployed; a GitLab or Gitea App is not ported. A deploy key wins
+  // over the source (deploymentType()), so its repository is cloned over SSH whatever the source.
+  if (build.private_key_id === null && filled(build.source_type) && build.source_id !== null && publicGitSource(build) === null && build.source_type !== GIT_SOURCE_MORPH_CLASS.github) {
+    return "Deploying from a GitLab or Gitea source is not available yet: only public repositories, GitHub Apps and deploy keys can be deployed.";
+  }
   if (build.has_git_https_credentials) return "Deploying from a repository with HTTPS credentials is not available yet: only public repositories can be deployed.";
   return null;
 }
@@ -591,15 +612,86 @@ class Job {
     const location = this.build.dockerfile_location;
     return !this.simple && this.pack === "dockerfile" && truthy(location) ? location : "/Dockerfile";
   }
-  /** $application->source: the public GitHub source, or none (a repository of any host, by its URL). */
+  /** $application->source: the public GitHub source, the application's GitHub App (DP-72), or none (a repository by its URL). */
   private get gitSource(): ResolvedSource | null {
-    return publicGitSource(this.build);
+    return publicGitSource(this.build) ?? this.ctx.githubApp?.source ?? null;
+  }
+  /** deploymentType(): a deploy key, a source, or neither. */
+  private get gitDeploymentType(): "deploy_key" | "source" | "other" {
+    return deploymentType(this.build.private_key_id, this.gitSource);
+  }
+  /** The private GitHub App the repository is cloned through, or null (a public source, a deploy key, none). */
+  private get privateGithubApp(): { source: ResolvedSource; credentials: GithubAppCredentials } | null {
+    return this.gitDeploymentType === "source" && this.ctx.githubApp && publicGitSource(this.build) === null ? this.ctx.githubApp : null;
+  }
+  private get deployKeyLocation(): string {
+    return `/root/.ssh/id_rsa_coolify_${this.uuid}`;
+  }
+
+  /** An installation token of the application's GitHub App (generateGithubInstallationToken). */
+  private async githubToken(credentials: GithubAppCredentials): Promise<string> {
+    if (!this.deps.github) throw runtimeException("Failed to get installation token: GitHub is not reachable from this deployment.");
+    try {
+      return await this.deps.github.tokens.token(credentials);
+    } catch (e) {
+      throw runtimeException(e instanceof Error ? e.message : String(e));
+    }
+  }
+
+  /**
+   * generateGitImportCommands() for the URL git clones: a GitHub App's has the installation token (rawurlencoded) in
+   * it, with the `-c url.….insteadOf` options that send the token to submodules on the same host as well.
+   */
+  private async githubAppImport(app: { source: ResolvedSource; credentials: GithubAppCredentials }, repository: string): Promise<{ fullRepoUrl: string; gitConfigOptions: string }> {
+    const token = rawurlencode(await this.githubToken(app.credentials));
+    const url = parseUrl(app.source.htmlUrl) ?? {};
+    const scheme = url.scheme ?? "";
+    const host = url.host ?? "";
+    const gitConfigOptions = gitTokenUrlRewriteOptions(`${scheme}://x-access-token:${token}@${host}/`, `${scheme}://${host}/`, host, app.source.customUser);
+    return { fullRepoUrl: `${scheme}://x-access-token:${token}@${host}/${repository}.git`, gitConfigOptions };
+  }
+
+  /** gitSshKeySetupCommands() in the helper: the deploy key written (never logged) and made private. */
+  private deployKeyCommands(hidden: boolean): Command[] {
+    const key = base64Encode(this.ctx.deployKey ?? "");
+    return [
+      { command: executeInDocker(this.uuid, "mkdir -p /root/.ssh"), ...(hidden ? { hidden: true } : {}) },
+      { command: executeInDocker(this.uuid, `echo '${key}' | base64 -d | tee ${this.deployKeyLocation} > /dev/null`), hidden: true, skipCommandLog: true },
+      { command: executeInDocker(this.uuid, `chmod 600 ${this.deployKeyLocation}`), ...(hidden ? { hidden: true } : {}) },
+    ];
+  }
+
+  /** The deploy key, or Coolify's RuntimeException when its row is gone. */
+  private requireDeployKey(): void {
+    if (this.ctx.deployKey === null || this.ctx.deployKey === undefined) throw runtimeException("Private key not found. Please add a private key to the application and try again.");
+  }
+
+  /**
+   * update_repository_project_id(): a GitHub App's repository is asked of GitHub for its id, which the App's
+   * webhooks find the application by; a new id is stored.
+   */
+  private async updateRepositoryProjectId(app: { source: ResolvedSource; credentials: GithubAppCredentials }): Promise<void> {
+    if (!this.deps.github) throw runtimeException("Failed to get installation token: GitHub is not reachable from this deployment.");
+    const slug = gitRepositorySlug(this.repository.name);
+    let data: unknown;
+    try {
+      data = (await githubApi(this.deps.github.http, this.deps.github.tokens, app.credentials, `repos/${slug}`)).data;
+    } catch (e) {
+      // The token's refusal is generateGithubToken()'s RuntimeException, the API's githubApi()'s Exception.
+      if (e instanceof GithubSourceError && e.message.startsWith("GitHub API call failed:")) throw new PhpException({ phpClass: "Exception", message: e.message, code: 0 });
+      throw runtimeException(e instanceof Error ? e.message : String(e));
+    }
+    const id = data !== null && typeof data === "object" ? (data as { id?: unknown }).id : undefined;
+    if (typeof id === "number" && id !== this.ctx.repositoryProjectId) await this.deps.store.setRepositoryProjectId?.(this.app.id, id);
   }
   /** customRepository(), and the URL git clones: under the public source's address, or the repository's own. */
   private get repository(): { name: string; port: string | number; url: string } {
     const source = this.gitSource;
-    const { repository, port } = convertGitUrl(this.build.git_repository, deploymentType(this.build.private_key_id, source), source);
-    return { name: repository, port, url: source ? `${source.htmlUrl}/${repository}` : repository };
+    const type = deploymentType(this.build.private_key_id, source);
+    const { repository, port } = convertGitUrl(this.build.git_repository, type, source);
+    // The public source clones from its own address; a deploy key and a repository without a source from the
+    // repository itself. A GitHub App's URL carries its token: githubAppImport().
+    return { name: repository, port, url: type === "source" && source?.isPublic ? `${source.htmlUrl}/${repository}` : repository };
   }
   private get buildInput(): BuildInput {
     return { application: this.app, includeSourceCommit: Boolean(this.build.include_source_commit_in_build), commit: this.state.commit, variables: this.variables };
@@ -1275,11 +1367,21 @@ class Job {
   /** check_git_if_build_needed(): the commit the branch's head is at, and Coolify's variables of the build. */
   private async checkGit(): Promise<void> {
     const s = this.state;
-    const { port, url } = this.repository;
+    const { port, url, name } = this.repository;
+    const app = this.privateGithubApp;
+    if (app) await this.updateRepositoryProjectId(app);
+    // generate_git_import_commands() before the ls-remote: a GitHub App's URL with its token; a deploy key's row.
+    const fullRepoUrl = app ? (await this.githubAppImport(app, name)).fullRepoUrl : url;
+    const deployKey = this.gitDeploymentType === "deploy_key";
+    if (deployKey) this.requireDeployKey();
     // An exact refspec, so a similarly named branch (changeset-release/main) does not match.
-    const lsRemote = gitLsRemoteCommand(this.uuid, port, url, `refs/heads/${this.app.git_branch}`);
+    const ref = `refs/heads/${this.app.git_branch}`;
     try {
-      await this.exec({ command: executeInDocker(this.uuid, lsRemote), hidden: true, save: "git_commit_sha" });
+      if (deployKey) {
+        await this.exec(...this.deployKeyCommands(false), { command: executeInDocker(this.uuid, gitLsRemoteCommand(this.uuid, port, fullRepoUrl, ref, this.deployKeyLocation)), hidden: true, save: "git_commit_sha" });
+      } else {
+        await this.exec({ command: executeInDocker(this.uuid, gitLsRemoteCommand(this.uuid, port, fullRepoUrl, ref)), hidden: true, save: "git_commit_sha" });
+      }
     } catch (e) {
       await this.logGitHint(failureOf(e).message);
       throw e;
@@ -1358,7 +1460,7 @@ class Job {
         throw e;
       }
     }
-    const command = gitImportCommand({
+    const git = {
       deploymentUuid: this.uuid,
       fullRepoUrl: repository.url,
       branch: this.app.git_branch,
@@ -1366,9 +1468,22 @@ class Job {
       isShallowCloneEnabled: Boolean(this.build.is_git_shallow_clone_enabled),
       isSubmodulesEnabled: Boolean(this.build.is_git_submodules_enabled),
       isLfsEnabled: Boolean(this.build.is_git_lfs_enabled),
-    });
+    };
+    const app = this.privateGithubApp;
+    let commands: Command[];
+    if (app) {
+      // A GitHub App: the token in the URL and in the -c options; submodule URLs are not rewritten (public: false).
+      const auth = await this.githubAppImport(app, repository.name);
+      commands = [{ command: gitImportCommand({ ...git, fullRepoUrl: auth.fullRepoUrl, isPublic: false, gitConfigOptions: auth.gitConfigOptions }), hidden: true }];
+    } else if (this.gitDeploymentType === "deploy_key") {
+      // A deploy key: written into the helper, then given to ssh by GIT_SSH_COMMAND.
+      this.requireDeployKey();
+      commands = [...this.deployKeyCommands(true), { command: gitImportCommand({ ...git, isPublic: false, sshCommand: gitSshCommand(this.uuid, repository.port, this.deployKeyLocation) }), hidden: true }];
+    } else {
+      commands = [{ command: gitImportCommand(git), hidden: true }];
+    }
     try {
-      await this.exec({ command, hidden: true });
+      await this.exec(...commands);
     } catch (e) {
       const failure = failureOf(e);
       if (failure.phpClass === DEPLOYMENT_EXCEPTION && failure.code === 255 && s.cloneAttempt < CLONE_MAX_ATTEMPTS) {

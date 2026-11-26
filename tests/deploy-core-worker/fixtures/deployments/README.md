@@ -1,8 +1,9 @@
-# Deployment goldens (DP-56, DP-61)
+# Deployment goldens (DP-56, DP-61, DP-72)
 
 What Coolify's own PHP does when it deploys an application — a Docker image (DP-56), and the builds
 on the server: a Dockerfile in a public Git repository, a pasted Dockerfile, Nixpacks and a static
-site (DP-61) — so that the TypeScript ports in `apps/deploy-core-worker/src/deployments/` can be
+site (DP-61), and a private repository cloned through a GitHub App or with a deploy key
+(DP-72) — so that the TypeScript ports in `apps/deploy-core-worker/src/deployments/` can be
 held to it: the compose file and the `.env` file byte for byte, and the whole deployment command
 by command.
 
@@ -46,9 +47,10 @@ The deployment row has its `commit_message`.
 Out of the runs come 131 different compose files (`generate_compose_file()`) and as many `.env`
 files (`generate_runtime_environment_variables()`), each compared byte for byte in
 `src/deployments-compose.test.ts` for the Docker image runs. `src/deployments-engine.test.ts`
-replays 429 runs through the engine — 143 of a Docker image, and 286 builds: 79 of a Dockerfile in a
-repository (`dockerfile.*`), 55 of a pasted Dockerfile (`simple.*`), 85 of Nixpacks (`nixpacks.*`)
-and 67 of a static site (`static.*`) — with a fake executor that answers what the PHP run was
+replays 475 runs through the engine — 149 of a Docker image, and 326 builds: 79 of a Dockerfile in a
+repository (`dockerfile.*`), 55 of a pasted Dockerfile (`simple.*`), 85 of Nixpacks (`nixpacks.*`),
+67 of a static site (`static.*`), 21 of a private repository through a GitHub App (`ghapp.*`) and 19
+with a deploy key (`deploykey.*`) — with a fake executor that answers what the PHP run was
 answered, and compares the processes (script and standard input, so every Dockerfile, build script,
 build-time and runtime `.env` file, Nixpacks plan and compose file a build writes), the log, the
 statuses, the sleeps, the notifications, the queued jobs, the exception, and for a build the commit,
@@ -83,7 +85,13 @@ the emitter give the same file.
 The build runs (DP-61: `dockerfile.*`, `simple.*`, `nixpacks.*`, `static.*`) are the exception:
 `build-cases.py` writes them from `build-cases-body.py`, replacing the earlier build runs and
 leaving every other run as it is (`python3 build-cases.py cases.json build-cases-body.py`), so they
-are changed there and written again, then emitted.
+are changed there and written again, then emitted. The private repository runs (DP-72: `ghapp.*`,
+`deploykey.*`) are written the same way by `private-cases.py`
+(`python3 private-cases.py cases.json ../sources/cases.json`). A GitHub App run gives the App (its
+key is the RSA test key of `../sources`) and what GitHub answers (`github`, through `Http::fake()`:
+the installation token, the repository); a deploy key run gives the key, a throwaway ed25519 test
+key that protects nothing. The run records the requests sent to GitHub and the
+`repository_project_id` the job stored.
 
 ## What the port does differently, on purpose
 
@@ -106,10 +114,11 @@ are changed there and written again, then emitted.
 
 Only what `ApplicationDeploymentJob` does for a `dockerimage`, `dockerfile`, `nixpacks` or `static`
 application on one standalone Docker server reached as root is emitted and ported, and of a Git
-source only a public repository (the public GitHub source, or any host's repository by its URL). No
+source only a public repository (the public GitHub source, or any host's repository by its URL), a
+private one through a GitHub App, and one with a deploy key. No
 golden exists, and the engine refuses or does not reach, Docker Compose and Railpack, a build
 server, additional servers, a preview deployment, Docker Swarm, a non-root server user (`sudo`), a
-private Git source (a deploy key, a Git App, HTTPS credentials), a file storage with content,
+Git source on GitLab or Gitea, HTTPS credentials, a file storage with content,
 `preserveRepository`, the image scan gate, the SSH retry of a dropped connection (but for the
 clone, which Coolify retries itself), and the Git host key cache. Coolify's configuration snapshot
 is not ported either: the goldens say what `should_skip_build()` does for each answer of

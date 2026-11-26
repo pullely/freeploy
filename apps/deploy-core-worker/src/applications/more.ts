@@ -91,6 +91,11 @@ export interface ApplicationMoreContext {
   store: ApplicationMoreStore;
   /** The cipher of one `encrypted` column: the value is bound to "applications.<column>". */
   secret(column: MoreSecretColumn): KeyCipher;
+  /**
+   * DP-72: githubApi($source, "repos/{slug}")['data']['id'] — the repository's id at GitHub, asked through the
+   * org's GitHub App of that id (a refusal throws githubApi()'s message).
+   */
+  githubRepositoryId?(sourceId: string | number, slug: string): Promise<number | null>;
 }
 
 export interface LoadedApplication {

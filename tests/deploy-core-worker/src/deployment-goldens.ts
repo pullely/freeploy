@@ -38,6 +38,10 @@ export interface RunCase {
   cancelOn?: string;
   /** What the user changed since the last deployment: applied after the earlier deployments were stored. */
   changedSince?: { application?: Json; settings?: Json };
+  /** DP-72: the application's private GitHub App (its row and its private key), what GitHub answers, a deploy key. */
+  githubApp?: Json & { privateKey: string };
+  github?: Array<{ match: string; status?: number; body?: unknown }>;
+  deployKey?: string;
 }
 
 export interface FunctionCase {
@@ -63,6 +67,9 @@ export interface GoldenLog {
 }
 
 export interface GoldenRun {
+  /** DP-72, a private Git source's runs: what the job asked of GitHub, and the repository id it stored. */
+  github?: Array<{ method: string; url: string }>;
+  repository_project_id?: number | null;
   result: { status: string; message: string; deployment_uuid?: string } | null;
   thrown: string | null;
   processes: GoldenProcess[];

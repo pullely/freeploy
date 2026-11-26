@@ -10,6 +10,8 @@ import { withoutEdgeLineBreaks } from "@deploy-core-worker/environment-variables
 import { generateLabelsApplication } from "@deploy-core-worker/labels/labels";
 import { DEFAULT_ENGINE_CONFIG, type DeploymentContext, type DeploymentEffect, type DeploymentExecutor, type DeploymentStore, type EngineDeps, type RemoteProcess } from "@deploy-core-worker/deployments/engine";
 import type { RuntimeVariable } from "@deploy-core-worker/deployments/runtime-env";
+import { InstallationTokens, type SourceHttp } from "@deploy-core-worker/sources/github";
+import { formatPrivateKey } from "@deploy-core-worker/keys/ssh-keys";
 import { GOLDEN_NOW, goldenRun, type GoldenLog, type GoldenProcess, type GoldenRun, type Json, type RunCase } from "./deployment-goldens";
 
 /** The APP_KEY the goldens were made with — the one of Coolify's own .env.testing, which the `testing` environment reads: the key of the build secrets hash. */
@@ -280,6 +282,34 @@ export function contextOf(run: RunCase): DeploymentContext {
     build: buildRow(run),
     // What Coolify's pendingDeploymentConfigurationDiff() answered for the rows of the case.
     configurationDiff: before(run)?.configurationDiff ?? { legacyFallback: true, requiresBuild: true },
+    // DP-72: the GitHub App of the case, and its deploy key.
+    githubApp: run.githubApp
+      ? {
+          source: {
+            kind: "github",
+            id: String(buildRow(run).source_id),
+            name: String(run.githubApp.name),
+            htmlUrl: String(run.githubApp.html_url),
+            isPublic: false,
+            account: null,
+            customUser: String(run.githubApp.custom_user ?? "git"),
+            customPort: Number(run.githubApp.custom_port ?? 22),
+          },
+          credentials: {
+            name: String(run.githubApp.name),
+            organization: text(run.githubApp.organization),
+            api_url: String(run.githubApp.api_url),
+            html_url: String(run.githubApp.html_url),
+            app_id: Number(run.githubApp.app_id),
+            installation_id: Number(run.githubApp.installation_id),
+            is_public: false,
+            privateKey: run.githubApp.privateKey,
+          },
+        }
+      : null,
+    // The stored key, as the saving hook formats it (formatPrivateKey: one line break at its end).
+    deployKey: run.deployKey === undefined ? null : formatPrivateKey(run.deployKey),
+    repositoryProjectId: typeof run.application.repository_project_id === "number" ? run.application.repository_project_id : null,
   };
 }
 
@@ -313,6 +343,9 @@ export interface World {
   /** The commit messages earlier deployments stored, by commit (reuse_commit_message). */
   earlierMessages: Record<string, string>;
   nextQueuedCalls: Array<{ applicationId: string | number; serverId: string | number | null }>;
+  /** DP-72: what was asked of GitHub, and the repository id stored. */
+  github: Array<{ method: string; url: string }>;
+  repositoryProjectId: number | null;
 }
 
 export function newWorld(run: RunCase): World {
@@ -342,6 +375,8 @@ export function newWorld(run: RunCase): World {
     startNext: [],
     earlierMessages: Object.fromEntries((run.earlierDeployments ?? []).filter((d) => typeof d.commit_message === "string" && d.commit_message !== "" && d.status !== "skipped").map((d) => [String(d.commit ?? "HEAD"), String(d.commit_message)])),
     nextQueuedCalls: [],
+    github: [],
+    repositoryProjectId: typeof run.application.repository_project_id === "number" ? run.application.repository_project_id : null,
   };
 }
 
@@ -397,7 +432,26 @@ export function storeOf(world: World): DeploymentStore {
     createVariable: async (_id, key, value) => {
       world.build.createdVariables.push({ key, value, is_preview: false });
     },
+    setRepositoryProjectId: async (_id, id) => {
+      world.repositoryProjectId = id;
+    },
   };
+}
+
+/** GitHub as a case answers it (Http::fake() in the emitter), every request recorded. */
+export function githubOf(world: World, run: RunCase): { http: SourceHttp; tokens: InstallationTokens } {
+  const http: SourceHttp = {
+    now: () => new Date(GOLDEN_NOW),
+    sleep: async () => undefined,
+    fetch: async (url, init) => {
+      world.github.push({ method: init.method, url });
+      for (const answer of run.github ?? []) {
+        if (new RegExp(answer.match).test(`${init.method} ${url}`)) return new Response(JSON.stringify(answer.body ?? []), { status: answer.status ?? 200 });
+      }
+      return new Response(JSON.stringify({ message: "Not Found" }), { status: 404 });
+    },
+  };
+  return { http, tokens: new InstallationTokens(http) };
 }
 
 /**
@@ -430,7 +484,7 @@ export function replayExecutor(world: World, golden: GoldenProcess[], cancelOn?:
   };
 }
 
-export function depsOf(world: World, executor: DeploymentExecutor): EngineDeps {
+export function depsOf(world: World, executor: DeploymentExecutor, run?: RunCase): EngineDeps {
   return {
     executor,
     store: storeOf(world),
@@ -442,5 +496,6 @@ export function depsOf(world: World, executor: DeploymentExecutor): EngineDeps {
       world.effects.push(effect);
     },
     config: { ...DEFAULT_ENGINE_CONFIG, secretsHashKey: GOLDEN_APP_KEY },
+    ...(run?.githubApp ? { github: githubOf(world, run) } : {}),
   };
 }

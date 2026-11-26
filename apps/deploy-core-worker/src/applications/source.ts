@@ -30,6 +30,7 @@ import type { ApplicationShow } from "./service.js";
 import { SettingsError, SettingsFieldErrors } from "./settings.js";
 import { needsExecutor, text } from "./resources.js";
 import { loadApplication, type ApplicationMoreContext, type LoadedApplication } from "./more.js";
+import { gitRepositorySlug } from "../sources/pr-updates.js";
 
 type Body = Record<string, unknown>;
 
@@ -455,5 +456,18 @@ export async function changeSource(ctx: ApplicationMoreContext, uuid: string, bo
   const source = found && kind && typeof id === "string" && /^\d{1,18}$/.test(id) ? await ctx.store.findGitSource(kind, id) : null;
   if (!found || !kind || !source) return null;
   await ctx.store.updateSource(found.row.id, { source_id: source.id, source_type: GIT_SOURCE_MORPH_CLASS[kind] });
+  // DP-72: a GitHub App is asked for the repository's id (which its webhooks find the application by); a GitLab
+  // or Gitea App is not ported. A refusal is handleError()'s toast, after the source was saved, as in Coolify.
+  if (kind === "github" && ctx.githubRepositoryId) {
+    const slug = gitRepositorySlug(convertGitUrl(found.row.git_repository ?? "", deploymentType(found.row.private_key_id ?? null, { kind: "github", id: String(source.id), name: source.name, htmlUrl: source.html_url, isPublic: source.is_public, account: source.account, customUser: source.custom_user, customPort: Number(source.custom_port) }), { kind: "github", id: String(source.id), name: source.name, htmlUrl: source.html_url, isPublic: source.is_public, account: source.account, customUser: source.custom_user, customPort: Number(source.custom_port) }).repository);
+    let id: number | null;
+    try {
+      id = await ctx.githubRepositoryId(source.id, slug);
+    } catch (e) {
+      throw new SettingsError(e instanceof Error ? e.message : String(e));
+    }
+    if (id !== null && id !== found.row.repository_project_id) await ctx.store.updateSource(found.row.id, { repository_project_id: id });
+    return saved(ctx, uuid, SOURCE_MESSAGES.sourceUpdated);
+  }
   return saved(ctx, uuid, SOURCE_MESSAGES.sourceUpdated, SOURCE_MESSAGES.repositoryIdUnavailable);
 }

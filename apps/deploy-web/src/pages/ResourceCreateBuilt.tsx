@@ -94,7 +94,7 @@ export function DockerfileForm(props: Target) {
 }
 
 /** <x-checkpoint-item>: an icon in a bordered square, a title and a description. */
-function CheckpointItem({ title, description, icon }: { title: string; description?: string; icon?: string }) {
+export function CheckpointItem({ title, description, icon }: { title: string; description?: string; icon?: string }) {
   return (
     <div className="flex min-h-14 items-center gap-3 px-4 py-3">
       <span className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-neutral-200 bg-neutral-50 text-neutral-500 dark:border-white/[0.08] dark:bg-white/[0.035] dark:text-fg-dim">
@@ -193,7 +193,7 @@ interface RepositoryCheck {
   rateLimitReset: string | 0;
 }
 
-const BUILD_PACKS = [
+export const BUILD_PACKS = [
   { value: "railpack", label: "Railpack" },
   { value: "nixpacks", label: "Nixpacks (deprecated)" },
   { value: "static", label: "Static" },
