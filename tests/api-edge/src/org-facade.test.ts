@@ -1327,3 +1327,40 @@ describe("api-edge org facade", () => {
     });
   });
 });
+
+// The deploy console's team pages (DP-69): routed to membership-worker's handlers/team.ts.
+describe("api-edge org facade: the team routes", () => {
+  it.each([
+    ["/v1/organizations/org_abc/team", ["GET", "PATCH"]],
+    ["/v1/organizations/org_abc/team/members", ["GET"]],
+    ["/v1/organizations/org_abc/team/members/mem_abc", ["PATCH", "DELETE"]],
+    ["/v1/organizations/org_abc/team/invitations", ["GET", "POST"]],
+    ["/v1/organizations/org_abc/team/invitations/inv_abc", ["DELETE"]],
+    ["/v1/team-invitations/inv_abc", ["GET", "POST"]],
+  ])("%s takes %j and forwards to membership-worker with the actor", async (path, methods) => {
+    expect(isOrgRoute(path)).toBe(true);
+    for (const method of ["GET", "POST", "PATCH", "DELETE"]) {
+      const { fetcher: identity } = createSessionFetcher("usr_abc123");
+      const { fetcher: membership, calls } = createFakeFetcher();
+      const init: RequestInit = { method, headers: { authorization: "Bearer sps_ses_abc.secret", "content-type": "application/json" } };
+      if (method === "POST" || method === "PATCH") init.body = "{}";
+      const res = await handleOrgRoute(new Request(`https://api.example.com${path}`, init), { IDENTITY_WORKER: identity, MEMBERSHIP_WORKER: membership, ENVIRONMENT: "test" }, "req_test", path);
+      if (!methods.includes(method)) {
+        expect([method, res.status]).toEqual([method, 405]);
+        expect(calls).toHaveLength(0);
+        continue;
+      }
+      expect(calls).toHaveLength(1);
+      expect(calls[0]!.url).toBe(`https://membership.internal${path}`);
+      const headers = new Headers(calls[0]!.init.headers as HeadersInit);
+      expect(headers.get("x-actor-subject-id")).toBe("usr_abc123");
+      expect(headers.get("x-actor-email")).toBe("user@test.com");
+    }
+  });
+
+  it("does not match deeper team paths", () => {
+    expect(isOrgRoute("/v1/organizations/org_abc/team/members/mem_abc/extra")).toBe(false);
+    expect(isOrgRoute("/v1/organizations/org_abc/team/other")).toBe(false);
+    expect(isOrgRoute("/v1/team-invitations")).toBe(false);
+  });
+});

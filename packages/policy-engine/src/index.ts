@@ -14,10 +14,15 @@ import type {
 export { POLICY_VERSION } from "@saas/contracts/policy";
 import { POLICY_VERSION } from "@saas/contracts/policy";
 
+// The deploy console's roles follow Coolify's (coollabsio/coolify@91b7e3e:app/Policies/**, App\Enums\Role):
+// Coolify's owner and admin are Freeploy's owner and admin, and Coolify's member is Freeploy's builder.
+// A Coolify member has the default grants (team-wide Read): it reads and changes nothing (DP-69). The
+// ability-by-ability comparison with Coolify's own policies is tests/policy-engine/src/role-matrix.test.ts.
 const ORG_ROLE_PERMISSIONS: Record<OrganizationRole, readonly string[]> = {
   owner: [
     "deploy.resource.read",
     "deploy.resource.write",
+    "deploy.team.read",
     "organization.read",
     "organization.settings.update",
     "organization.invitation.create",
@@ -63,6 +68,7 @@ const ORG_ROLE_PERMISSIONS: Record<OrganizationRole, readonly string[]> = {
   admin: [
     "deploy.resource.read",
     "deploy.resource.write",
+    "deploy.team.read",
     "organization.read",
     "organization.settings.update",
     "organization.invitation.create",
@@ -104,8 +110,9 @@ const ORG_ROLE_PERMISSIONS: Record<OrganizationRole, readonly string[]> = {
     "project.repo_link.write",
   ],
   builder: [
+    // Coolify's member: it reads the deploy console and changes nothing (no deploy.resource.write, DP-69).
     "deploy.resource.read",
-    "deploy.resource.write",
+    "deploy.team.read",
     "organization.read",
     "project.create",
     "project.list",
@@ -123,6 +130,7 @@ const ORG_ROLE_PERMISSIONS: Record<OrganizationRole, readonly string[]> = {
   ],
   viewer: [
     "deploy.resource.read",
+    "deploy.team.read",
     "organization.read",
     "project.list",
     "project.read",
@@ -259,6 +267,10 @@ const ALL_KNOWN_ACTIONS: ReadonlySet<string> = new Set([
   // role is consulted (DP-40).
   "deploy.resource.read",
   "deploy.resource.write",
+  // The team pages (DP-69): the team, its members and its pending invitations as every member of the
+  // team sees them (Coolify's TeamPolicy::view). Changing them asks organization.settings.update,
+  // organization.member.update_role / remove and organization.invitation.*, Coolify's team admins.
+  "deploy.team.read",
 ]);
 
 function isOrgRole(role: string): role is OrganizationRole {

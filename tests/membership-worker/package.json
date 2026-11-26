@@ -32,6 +32,7 @@
       "^(\\.{1,2}/.*)\\.js$": "$1",
       "^@saas/contracts$": "<rootDir>/../../packages/contracts/src/index.ts",
       "^@saas/contracts/(.*)$": "<rootDir>/../../packages/contracts/src/$1.ts",
+      "^@saas/policy-engine$": "<rootDir>/../../packages/policy-engine/src/index.ts",
       "^@membership-worker/(.*)$": "<rootDir>/../../apps/membership-worker/src/$1.ts",
       "^@saas/db$": "<rootDir>/../../packages/db/src/index.ts",
       "^@saas/db/manifest$": "<rootDir>/../../packages/db/src/manifest.ts",

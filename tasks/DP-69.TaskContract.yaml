@@ -1,0 +1,28 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-69
+  title: "DP10: the team pages — general, members, invitations and invite links"
+spec:
+  goal: An org's members use Coolify's team pages on Freeploy's organizations and memberships, with no second membership store — /team (the team's name and description, Team\Index's rules and messages word for word; the description is a new nullable organizations column, migration 710), /team/members (the members with their roles and two-factor state, Coolify's role changes and removal with Member.php's rules and message, plus Freeploy's own last-owner protection), "Invite a member" (InviteLink::viaLink with its rules and refusals word for word; links only, because Freeploy delivers no email yet (WAITING W5) — "Send email" stays hidden as Coolify hides it, and the API refuses via email with "Email delivery is not configured", never claiming a send) with "Pending invitations" (copy link, revoke), and /invitations/{id} (showInvitation / acceptInvitation with Coolify's 3-day expiry and abort(400) messages). All of it is membership-worker's (handlers/team.ts, reached through api-edge's org facade). The deploy console's roles become Coolify's — Coolify's member is Freeploy's builder and loses deploy.resource.write; deploy.team.read is a new known action — and a table-driven test holds policy-worker's decision for owner, admin and builder to what Coolify's own policies answer (goldens emitted by Coolify's PHP) for 62 abilities of ten policies, with the 16 abilities whose route Freeploy does not have yet listed as skipped. Not ported — the team avatar, the MCP server / build server fallback / two-factor requirement settings, a member's access scopes, sending invitations by email, the audit log, image scanning, admin view and danger zone pages.
+  affects:
+    - apps/membership-worker/**
+    - apps/api-edge/**
+    - apps/policy-worker/**
+    - apps/deploy-web/**
+    - packages/policy-engine/**
+    - packages/db/**
+    - tests/membership-worker/**
+    - tests/policy-worker/**
+    - tests/policy-engine/**
+    - tests/api-edge/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - tests/policy-worker/src/role-matrix.test.ts compares 62 abilities × owner, admin and member to tests/policy-worker/fixtures/role-matrix/goldens.json (Coolify 91b7e3e's Gate) with no mismatch, and lists the 16 skipped abilities with their reason
+    - on stage, policy-worker answers deploy.team.read without unknown_action, and a builder is denied deploy.resource.write
+    - on stage, an org owner renames the team on /team ("Team updated.", the team switcher shows the new name), and an empty name answers "The Name field is required."
+    - on stage, an owner generates an invitation link on /team/members ("Invitation link generated."), the invited user (signed in with that address) opens it, accepts, and lands on /team as a member of the team; inviting the same address again before then answers "Pending invitation already exists for <email>."
+    - on stage, an admin who clicks an owner's Remove member is refused ("You are not authorized to perform this action.") and a member sees the members list without actions, the 2FA column or the invitation sections
+  gates: []
