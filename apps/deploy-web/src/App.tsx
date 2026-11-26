@@ -113,6 +113,10 @@ const SubscriptionNewPage = lazy(() => import("./pages/Subscription").then((m) =
 // The platform operator's pages (DP-79).
 const SettingsGeneralPage = lazy(() => import("./pages/PlatformSettings").then((m) => ({ default: m.SettingsGeneralPage })));
 const SettingsAdvancedPage = lazy(() => import("./pages/PlatformSettings").then((m) => ({ default: m.SettingsAdvancedPage })));
+const SettingsUpdatesPage = lazy(() => import("./pages/PlatformSettingsMore").then((m) => ({ default: m.SettingsUpdatesPage })));
+const SettingsBackupPage = lazy(() => import("./pages/PlatformSettingsMore").then((m) => ({ default: m.SettingsBackupPage })));
+const SettingsEmailPage = lazy(() => import("./pages/PlatformSettingsMore").then((m) => ({ default: m.SettingsEmailPage })));
+const SettingsOauthPage = lazy(() => import("./pages/PlatformSettingsMore").then((m) => ({ default: m.SettingsOauthPage })));
 const AdminPage = lazy(() => import("./pages/PlatformAdmin").then((m) => ({ default: m.AdminPage })));
 const TeamAdminViewPage = lazy(() => import("./pages/PlatformAdmin").then((m) => ({ default: m.TeamAdminViewPage })));
 // DP-97: the remaining resource pages.
@@ -799,6 +803,32 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <SettingsAdvancedPage />
+        </Suspense>
+      );
+    // DP-101: the platform's Updates, Backup, Email and Authentication.
+    case "settings.updates":
+      return (
+        <Suspense fallback={null}>
+          <SettingsUpdatesPage />
+        </Suspense>
+      );
+    case "settings.backup":
+      return (
+        <Suspense fallback={null}>
+          <SettingsBackupPage />
+        </Suspense>
+      );
+    case "settings.email":
+      return (
+        <Suspense fallback={null}>
+          <SettingsEmailPage />
+        </Suspense>
+      );
+    case "settings.oauth":
+    case "settings.oauth.provider":
+      return (
+        <Suspense fallback={null}>
+          <SettingsOauthPage provider={window.location.pathname.replace(/\/+$/, "").split("/")[3] ?? null} />
         </Suspense>
       );
     case "admin.index":

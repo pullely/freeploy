@@ -10,6 +10,8 @@
 //   PATCH /v1/platform/settings     their submit() / instantSave(): { section: general|advanced, action, values }
 //   GET   /v1/platform/admin        Admin\Index: the subscriber counts and, with ?search=, the user lookup
 //   GET   /v1/platform/admin/users  Team\AdminView: the instance's users (?search, teamFilter, orgId, sort, perPage, page)
+//   GET|PATCH /v1/platform/settings/{updates,backup,email,oauth[/{provider}]}  DP-101's pages
+//                                   (handlers/platform-settings-more.ts), behind the same gate
 //
 // Every route first asks policy-worker for its platform action (platform.settings.read|update,
 // platform.admin.read), which only the deployment's PLATFORM_OPERATORS pass — never an org role, of any
@@ -28,6 +30,7 @@ import { asPlatformAdmin, readPlatformSettings, updatePlatformSettings, type Pla
 import { authorizeViaPolicy } from "../policy-client.js";
 import { deniedResponse, errorResponse, methodNotAllowed, notFound, successResponse, validationError } from "../http.js";
 import { readJson } from "./cloud-tokens.js";
+import { handlePlatformMore, isPlatformMorePage, runPlatformMoreAsAdmin, type PlatformMoreRunner } from "./platform-settings-more.js";
 
 /** The paths api-edge forwards: /v1/platform and below. */
 export const PLATFORM_RE = /^\/v1\/platform(\/[^?]*)?$/;
@@ -140,13 +143,24 @@ async function membership<T>(env: Env, requestId: string, path: string, body?: u
   }
 }
 
-export async function handlePlatform(env: Env, requestId: string, actor: ActorContext | null, path: string, request: Request, runner: PlatformRunner = runAsPlatformAdmin): Promise<Response> {
+export async function handlePlatform(
+  env: Env,
+  requestId: string,
+  actor: ActorContext | null,
+  path: string,
+  request: Request,
+  runner: PlatformRunner = runAsPlatformAdmin,
+  moreRunner: PlatformMoreRunner = runPlatformMoreAsAdmin,
+): Promise<Response> {
   // No actor (api-edge always sends one): the same 404 as a denial.
   if (!actor) return deniedResponse(env.ENVIRONMENT, requestId, "no_actor");
   const segments = path.split("/").filter(Boolean);
   const url = new URL(request.url);
   const method = request.method;
   const page = segments.join("/");
+
+  // DP-101: Updates, Backup, Email and Authentication.
+  if (isPlatformMorePage(page)) return handlePlatformMore(env, requestId, page, request, (a) => allowed(env, requestId, actor, a), moreRunner);
 
   // A path that is no platform page answers the 404 a denial answers, whoever asks.
   if (!["operator", "settings", "admin", "admin/users"].includes(page)) {
@@ -158,7 +172,7 @@ export async function handlePlatform(env: Env, requestId: string, actor: ActorCo
     if (method !== "GET") return methodNotAllowed(requestId);
     const denied = await allowed(env, requestId, actor, "platform.settings.read");
     if (denied) return denied;
-    return successResponse({ operator: true, settingsPages: ["/settings", "/settings/advanced"], adminPages: ["/admin", "/team/admin"] }, requestId);
+    return successResponse({ operator: true, settingsPages: ["/settings", "/settings/advanced", "/settings/updates", "/settings/oauth", "/settings/email", "/settings/backup"], adminPages: ["/admin", "/team/admin"] }, requestId);
   }
 
   if (page === "settings") {

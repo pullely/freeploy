@@ -1,0 +1,21 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-101
+  title: "DP12: the platform operator's Updates, Backup, Email and Authentication settings (an upgrade, a check for updates, the instance backup and the test email answer 501 with nothing stored)"
+spec:
+  goal: deploy-web gains Coolify's remaining instance settings pages for the platform operator (DP-79's PLATFORM_OPERATORS) — /settings/updates (Settings\Updates — Channel with its callouts, Image tag of a custom image, Check frequency, Automatic updates, Update frequency; instantSave() "Settings updated!", submit() with validate_cron_expression() and "Invalid Cron / Human expression for Auto Update Frequency." / "… Update Check Frequency.", switchUpdateChannel()'s previous channel; "Check now" answers 501 "Checking for updates is not available yet: …" and "Upgrade now" (a custom image) 501 "Upgrading the instance needs the SSH executor, which is not available yet."), /settings/backup (SettingsBackup — "Backup is not configured"; Configure backup answers 501 "Configuring the instance backup needs the SSH executor, which is not available yet."), /settings/email (SettingsEmail — None, SMTP or Resend with DP-67's SMTP and Resend rules and messages, the notification sender, "Transactional email settings updated.", selectEmailProvider() without an error when incomplete; "Send test" runs sendTestEmail()'s checks and messages and answers 501 with the repo's hosted-email wording) and /settings/oauth[/{provider}] (SettingsOauth — the registration policy, OauthSettingSeeder's eleven providers with OpenID Connect first, each provider's fields and checkboxes, toggleProvider(), submit() of one or every provider, saveRegistrationPolicy(), every rule, Laravel message and toast of the component, the redirect URI checked against Freeploy's callback /v1/auth/oauth/{provider}/callback). New endpoints GET/PATCH /v1/platform/settings/{updates,backup,email,oauth[/{provider}]} in deploy-core-worker behind DP-79's gate (platform.settings.read for a read, platform.settings.update before any action; a denial is DP-79's 404 with no store opened), stored in row 0 of deploy.instance_settings and in deploy.oauth_settings rows owned by the nil UUID, in asPlatformAdmin(); the SMTP password, Resend API key, senders and OAuth client secrets are fp1 ciphertexts under the platform row's data key, shown only to who can update them. packages/db gains deploy/platform-settings-more.ts. The sidebar's Settings submenu lists Updates, Authentication, Email and Backup. No migration, binding, dependency or api-edge change; the billing, membership, notifications and events loop is unchanged.
+  affects:
+    - apps/deploy-web/**
+    - apps/deploy-core-worker/**
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - apps/deploy-web/test/routes.test.ts maps /settings/updates, /settings/backup, /settings/email, /settings/oauth and /settings/oauth/{provider} to their pages; apps/deploy-web/test/instance-settings.test.ts holds the settings pages, the channel callouts, the empty frequency's fallback, the "Not active yet" notice, the provider hosts that need a login, each provider's fields, checkboxes and required fields; apps/deploy-web/test/platform-sidebar.test.ts the operator's Settings submenu
+    - tests/deploy-core-worker/src/platform-settings-more.test.ts holds every page's rules, Laravel messages and toasts, what is stored (encrypted where Coolify encrypts), the 501s storing nothing, a customer of every org role, an API key and no actor answered 404 with no store opened, and no org seeing the platform's rows
+    - tests/db/src/platform-settings-more.test.ts runs the new queries on the schema at head, row-level security included
+    - on stage, the operator saves the update settings, an email provider and an OAuth provider, and a customer gets 404 on every one of the pages
+  gates: []

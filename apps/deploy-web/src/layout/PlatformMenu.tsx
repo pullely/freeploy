@@ -5,16 +5,20 @@
 // Admin link (`auth()->id() === 0`, after the menu) and Team → Admin View (`'visible' => isInstanceAdmin()`).
 // The reference's capture signs in as a tenant, so these are not in the generated LayoutMarkup; it renders
 // them through its `platform` slots, and only for an operator (Layout asks GET /v1/platform/operator).
-// Only the ported settings pages are listed (General, Advanced).
-import type { ReactNode } from "react";
+// Only the ported settings pages are listed (General, Advanced; since DP-101 Updates, Authentication, Email, Backup).
+import { Fragment, type ReactNode } from "react";
 import { Reicon } from "../components/Reicon";
 import type { SidebarMenu } from "./sidebar";
 
 type Nav = (href: string) => { className: string; "aria-current"?: "page" };
 
-const SETTINGS_CHILDREN: Array<{ label: string; href: string; icon: string }> = [
+const SETTINGS_CHILDREN: Array<{ label: string; href: string; icon: string; sectionStart?: boolean }> = [
   { label: "General", href: "/settings", icon: "settings" },
   { label: "Advanced", href: "/settings/advanced", icon: "grid" },
+  { label: "Updates", href: "/settings/updates", icon: "refresh3" },
+  { label: "Authentication", href: "/settings/oauth", icon: "keys", sectionStart: true },
+  { label: "Email", href: "/settings/email", icon: "mail" },
+  { label: "Backup", href: "/settings/backup", icon: "database" },
 ];
 
 function Link({ label, href, icon, nav, extraClass = "" }: { label: string; href: string; icon: string; nav: Nav; extraClass?: string }) {
@@ -47,9 +51,12 @@ export function platformSlots(nav: Nav): {
             </button>
           </li>
           {SETTINGS_CHILDREN.map((c) => (
-            <li key={c.href}>
-              <Link label={c.label} href={c.href} icon={c.icon} nav={nav} />
-            </li>
+            <Fragment key={c.href}>
+              {c.sectionStart ? <li className="my-2 border-t border-neutral-200 dark:border-white/[0.06]" aria-hidden="true"></li> : null}
+              <li>
+                <Link label={c.label} href={c.href} icon={c.icon} nav={nav} />
+              </li>
+            </Fragment>
           ))}
         </ul>
       </li>

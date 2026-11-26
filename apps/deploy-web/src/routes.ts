@@ -1,7 +1,13 @@
 // The URL structure is routes/web.php's, one to one (design §3.1). A route
 // whose page is not ported yet renders NotPorted, which the parity harness
 // reports as a failing (not missing) route once deploy-web is the target.
-export type PageKey = "login" | "register" | "forgot-password" | "reset-password" | "profile.appearance" | "profile" | "profile.passkeys.confirm" | "password.confirm" | "verify.email" | "two-factor.required" | "verify.verify" | "two-factor.login" | "security.private-key.index" | "security.private-key.show" | "security.cloud-tokens" | "security.cloud-tokens.show" | "security.cloud-init-scripts" | "security.cloud-init-scripts.show" | "server.index" | "server.create" | "server.create.manual" | "server.show" | "server.advanced" | "server.private-key" | "server.cloud-provider-token" | "server.ca-certificate" | "server.sentinel" | "server.swarm" | "server.docker-cleanup" | "server.log-drains" | "server.destinations" | "server.delete" | "server.registries" | "registries.index" | "project.index" | "project.show" | "project.edit" | "project.resource.index" | "project.environment.edit" | "project.environment.canvas" | "deploy-canvas" | "project.resource.create" | "project.application.configuration" | "project.application.environment-variables" | "project.application.domains" | "project.application.advanced" | "project.application.healthcheck" | "project.application.resource-limits" | "project.application.persistent-storage" | "project.application.tags" | "project.application.resource-operations" | "project.application.danger" | "project.database.configuration" | "project.application.source" | "project.application.servers" | "project.application.webhooks" | "project.application.scheduled-tasks" | "project.application.rollback" | "project.service.configuration" | "project.application.deployment.index" | "project.application.deployment.show" | "destination.index" | "destination.show" | "destination.danger" | "destination.resources" | "not-ported" | SharedVariablesPageKey | DatabaseSharedPageKey | StoragePageKey | NotificationsPageKey | ServicePageKey | TeamPageKey | ApiTokensPageKey | SourcesPageKey | BoardingPageKey | PlatformPageKey | SubscriptionPageKey | ServerMorePageKey | ResourcePagesKey | CanvasViewsPageKey | BackupPagesKey | DashboardClonePageKey;
+export type PageKey = "login" | "register" | "forgot-password" | "reset-password" | "profile.appearance" | "profile" | "profile.passkeys.confirm" | "password.confirm" | "verify.email" | "two-factor.required" | "verify.verify" | "two-factor.login" | "security.private-key.index" | "security.private-key.show" | "security.cloud-tokens" | "security.cloud-tokens.show" | "security.cloud-init-scripts" | "security.cloud-init-scripts.show" | "server.index" | "server.create" | "server.create.manual" | "server.show" | "server.advanced" | "server.private-key" | "server.cloud-provider-token" | "server.ca-certificate" | "server.sentinel" | "server.swarm" | "server.docker-cleanup" | "server.log-drains" | "server.destinations" | "server.delete" | "server.registries" | "registries.index" | "project.index" | "project.show" | "project.edit" | "project.resource.index" | "project.environment.edit" | "project.environment.canvas" | "deploy-canvas" | "project.resource.create" | "project.application.configuration" | "project.application.environment-variables" | "project.application.domains" | "project.application.advanced" | "project.application.healthcheck" | "project.application.resource-limits" | "project.application.persistent-storage" | "project.application.tags" | "project.application.resource-operations" | "project.application.danger" | "project.database.configuration" | "project.application.source" | "project.application.servers" | "project.application.webhooks" | "project.application.scheduled-tasks" | "project.application.rollback" | "project.service.configuration" | "project.application.deployment.index" | "project.application.deployment.show" | "destination.index" | "destination.show" | "destination.danger" | "destination.resources" | "not-ported" | SharedVariablesPageKey | DatabaseSharedPageKey | StoragePageKey | NotificationsPageKey | ServicePageKey | TeamPageKey | ApiTokensPageKey | SourcesPageKey | BoardingPageKey | PlatformPageKey | SubscriptionPageKey | ServerMorePageKey | ResourcePagesKey | CanvasViewsPageKey | BackupPagesKey | DashboardClonePageKey | InstanceSettingsMorePageKey;
+
+/**
+ * The platform operator's Updates, Backup, Email and Authentication settings (DP-101): routes/web.php's settings.updates,
+ * settings.backup, settings.email, settings.oauth and settings.oauth.provider ({provider}: [A-Za-z0-9_-]+).
+ */
+export type InstanceSettingsMorePageKey = "settings.updates" | "settings.backup" | "settings.email" | "settings.oauth" | "settings.oauth.provider";
 
 /**
  * DP-100: the dashboard at / (routes/web.php's `dashboard`), /dashboard (no route of Coolify's: its catch-all
@@ -78,8 +84,8 @@ export function scheduledTaskRedirect(pathname: string): string {
 
 /**
  * The platform operator's pages (DP-79): settings.index and settings.advanced (Settings\Index, Settings\Advanced),
- * admin.index (Admin\Index) and team.admin-view (Team\AdminView). settings.updates, settings.image-scanning,
- * settings.backup, settings.email and settings.oauth(.provider) are not ported (IMPLEMENTATION-STATUS.md, Notes on DP12).
+ * admin.index (Admin\Index) and team.admin-view (Team\AdminView). settings.image-scanning is not ported (IMPLEMENTATION-STATUS.md,
+ * Notes on DP12); the other settings pages are DP-101's (InstanceSettingsMorePageKey).
  */
 export type PlatformPageKey = "settings.index" | "settings.advanced" | "admin.index" | "team.admin-view";
 
@@ -341,6 +347,12 @@ const ROUTES: Array<[RegExp, PageKey]> = [
   // The platform operator's pages (DP-79): a customer gets the API's 404 on each.
   [/^\/settings\/?$/, "settings.index"],
   [/^\/settings\/advanced\/?$/, "settings.advanced"],
+  // DP-101: Updates, Backup, Email and Authentication.
+  [/^\/settings\/updates\/?$/, "settings.updates"],
+  [/^\/settings\/backup\/?$/, "settings.backup"],
+  [/^\/settings\/email\/?$/, "settings.email"],
+  [/^\/settings\/oauth\/?$/, "settings.oauth"],
+  [/^\/settings\/oauth\/[A-Za-z0-9_-]+\/?$/, "settings.oauth.provider"],
   [/^\/admin\/?$/, "admin.index"],
   [/^\/team\/admin\/?$/, "team.admin-view"],
   // The team's tags (DP-97): /tags/{tagName?}. The tags canvas (/canvas/tags) is not ported.

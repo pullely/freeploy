@@ -356,14 +356,14 @@ test("the Sources pages, a GitHub App's tabs and the pages GitHub sends the brow
   }
 });
 
-test("the platform operator's pages (DP-79): General and Advanced settings, Admin, Team → Admin View; the other settings pages are not ported", () => {
+test("the platform operator's pages (DP-79): General and Advanced settings, Admin, Team → Admin View; Image Scanning is not ported", () => {
   assert.equal(pageFor("/settings"), "settings.index");
   assert.equal(pageFor("/settings/"), "settings.index");
   assert.equal(pageFor("/settings/advanced"), "settings.advanced");
   assert.equal(pageFor("/settings/advanced/"), "settings.advanced");
   assert.equal(pageFor("/admin"), "admin.index");
   assert.equal(pageFor("/team/admin"), "team.admin-view");
-  for (const other of ["/settings/updates", "/settings/image-scanning", "/settings/backup", "/settings/email", "/settings/oauth", "/settings/oauth/github", "/settings/x/y", "/admin/x"]) {
+  for (const other of ["/settings/image-scanning", "/settings/x/y", "/admin/x"]) {
     assert.equal(pageFor(other), "not-ported", other);
   }
 });
@@ -463,4 +463,23 @@ test("DP-100: / is the dashboard, /dashboard is Coolify's catch-all (sent home),
   assert.equal(pageFor(`${environment}/clone`), "project.clone-me");
   assert.equal(pageFor(`${environment}/clone/`), "project.clone-me");
   for (const path of [`${environment}/clone/more`, "/project/abc/clone"]) assert.equal(pageFor(path), "not-ported", path);
+});
+
+test("the platform's Updates, Backup, Email and Authentication (DP-101): settings.updates, .backup, .email, .oauth and .oauth.provider", () => {
+  const pages: Array<[string, string]> = [
+    ["/settings/updates", "settings.updates"],
+    ["/settings/updates/", "settings.updates"],
+    ["/settings/backup", "settings.backup"],
+    ["/settings/email", "settings.email"],
+    ["/settings/email/", "settings.email"],
+    ["/settings/oauth", "settings.oauth"],
+    ["/settings/oauth/", "settings.oauth"],
+    ["/settings/oauth/github", "settings.oauth.provider"],
+    ["/settings/oauth/azure_ad-2/", "settings.oauth.provider"],
+  ];
+  for (const [path, key] of pages) assert.equal(pageFor(path), key, path);
+  // {provider} is [A-Za-z0-9_-]+, one segment.
+  for (const other of ["/settings/oauth/git.hub", "/settings/oauth/github/x", "/settings/updates/check", "/settings/email/test", "/settings/backup/now"]) {
+    assert.equal(pageFor(other), "not-ported", other);
+  }
 });

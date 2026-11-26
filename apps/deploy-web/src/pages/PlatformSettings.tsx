@@ -16,6 +16,7 @@ import { getJson, postJson, summarize } from "../lib/api";
 import { notify } from "../lib/toast";
 import { FormInput, Listbox, SettingsSection, SettingsSubsection, UnsavedBar } from "../components/Coolify";
 import { PlatformNotFound } from "./PlatformAdmin";
+import { SETTINGS_PAGES } from "../lib/instance-settings";
 
 export interface PlatformSettings {
   instance_name: string | null;
@@ -31,10 +32,8 @@ export const PLATFORM_SETTINGS_API = "/v1/platform/settings";
 /** <x-settings.layout>: the mobile title and the settings pages fed to the page search. */
 export function SettingsLayout({ children }: { children: ReactNode }) {
   const origin = window.location.origin;
-  const pages: Array<[string, string]> = [
-    ["General", "/settings"],
-    ["Advanced", "/settings/advanced"],
-  ];
+  // DP-101: the settings pages Freeploy has (Image Scanning is not ported).
+  const pages: Array<[string, string]> = SETTINGS_PAGES.map((p) => [p.label, p.href]);
   const items = JSON.stringify(pages.map(([label, path]) => ({ label, breadcrumb: "Settings", search_text: `${label} Settings`, href: origin + path, navigate: true })));
   return (
     <section className="application-settings-workspace w-full max-w-none">
