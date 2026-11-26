@@ -14,6 +14,8 @@
 // Coolify then does on a server answers "not available yet".
 import type {
   DatabaseEngine,
+  DatabaseHealthChanges,
+  DeployDatabaseHealthRow,
   DatabaseLimitChanges,
   DatabaseReplica,
   DeployDatabaseLimitsRow,
@@ -67,6 +69,14 @@ export interface DatabaseResourcesContext {
   /** The cipher of local_file_volumes.content. */
   content: KeyCipher;
   store: DatabaseResourcesStore;
+  /** The Healthcheck page's columns (DP-97, health.ts). */
+  health?: DatabaseHealthStore;
+}
+
+/** A database's healthcheck columns. */
+export interface DatabaseHealthStore {
+  find(engine: DatabaseEngine, id: Id): Promise<DeployDatabaseHealthRow | null>;
+  update(engine: DatabaseEngine, id: Id, changes: DatabaseHealthChanges): Promise<boolean>;
 }
 
 export const DATABASE_RESOURCE_MESSAGES = {
@@ -77,12 +87,12 @@ export const DATABASE_RESOURCE_MESSAGES = {
 /** The engines whose Danger Zone has "Flush all data" (danger.blade.php). */
 export const FLUSHABLE_ENGINES: readonly DatabaseEngine[] = ["redis", "keydb", "dragonfly"];
 
-interface LoadedDatabase {
+export interface LoadedDatabase {
   row: DeployDatabaseRow;
   database: DatabaseShow;
 }
 
-async function loadDatabase(ctx: DatabaseResourcesContext, uuid: string, canUpdate: boolean): Promise<LoadedDatabase | null> {
+export async function loadDatabase(ctx: DatabaseResourcesContext, uuid: string, canUpdate: boolean): Promise<LoadedDatabase | null> {
   const row = await ctx.database.store.findByUuid(uuid);
   const database = row ? await showDatabase(ctx.database, uuid, canUpdate) : null;
   return row && database ? { row, database } : null;

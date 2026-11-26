@@ -1,0 +1,23 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-97
+  title: "DP8: a service's Scheduled Tasks, Webhooks and Resource Operations, a database's Healthcheck and Servers, the team's Tags page"
+spec:
+  goal: deploy-web gains the resource console pages Coolify has and it lacked where the data and services already exist, ported as the DP-5x/DP-6x pages were (Blade markup and copy, Coolify's Livewire rules and messages, 501 "… needs the SSH executor, which is not available yet." where Coolify runs a command on a server). A service's Scheduled Tasks (ScheduledTask\All, Add and Show with `:resource="$service"` — the parts' names as containers, Add's undeclared $subServiceName for an empty one, Execute now 501), Webhooks (the deploy webhook) and Resource Operations (where it can go, Move; Clone answers cloneTo()'s environment and destination checks, then 501 because clone_service() is not ported), a part's …/advanced (the part's page), the …/tasks/{task_uuid} links of a service and an application (redirected to the list with ?task_uuid=, as routes/web.php does); a standalone database's Healthcheck (Database\Health with its #[Validate] rules and toasts) and Servers (the shared destination component's primary server card); and /tags/{tagName?} (Tags\Show and CreatesTags — the list with its counts, search, sorts and pages, a tag's webhook, resources and active deployments, Delete, Redeploy all, which needs the SSH executor once the tag has resources). New console endpoints are inside withOrg with deploy.resource.read/write and 404 on denial; no binding, dependency or migration is added.
+  affects:
+    - apps/deploy-web/**
+    - apps/deploy-core-worker/**
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - apps/deploy-web/test/routes.test.ts maps …/service/{uuid}/{scheduled-tasks,webhooks,resource-operations}, …/service/{uuid}/{stack_service_uuid}/advanced, …/database/{uuid}/{healthcheck,servers} and /tags/{tagName?} to their pages, and redirects …/tasks/{task_uuid} of a service and an application to …/scheduled-tasks?task_uuid=
+    - tests/deploy-core-worker holds the service pages, the database Healthcheck and the Tags page to Coolify's rules, messages and toasts, with their authorization (a denial is a 404) and org isolation
+    - tests/db runs the new healthcheck and Tags queries on the schema at head, row-level security included
+    - on stage, a service's Scheduled Tasks page adds a task for one of its containers and its Execute now says the SSH executor is not available yet; its Webhooks page shows /api/v1/deploy?uuid=…&force=false; Move takes it to another environment
+    - on stage, a database's Healthcheck saves an interval of 30 with "Healthcheck updated. Restart the database to apply the changes." and refuses 0 with "The health check interval field must be at least 1."
+    - on stage, /tags lists the team's tags and /tags/{name} shows its deploy webhook and resources; Delete removes the tag
+  gates: []

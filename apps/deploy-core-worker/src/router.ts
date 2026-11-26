@@ -20,6 +20,7 @@ import { handleSources } from "./handlers/sources.js";
 import { GIT_WEBHOOK_INTERNAL_RE, handleGitWebhook } from "./handlers/git-webhooks.js";
 import { PLATFORM_RE, handlePlatform } from "./handlers/platform.js";
 import { ORG_DEPLOY_CANVAS_RE, handleDeployCanvas } from "./handlers/deploy-canvas.js";
+import { ORG_DEPLOY_TAGS_RE, handleTagPages } from "./handlers/tag-pages.js";
 
 const REQUEST_ID_RE = /^[\w-]{1,128}$/;
 
@@ -237,6 +238,22 @@ export async function route(request: Request, env: Env): Promise<Response> {
       if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
       const segments = (notifications[2] ?? "").split("/").filter(Boolean);
       return handleNotifications(env, requestId, actor, orgId, segments, request);
+    }
+
+    // The team's Tags page (DP-97): a tag is named in the path, so each segment is decoded.
+    const tags = url.pathname.match(ORG_DEPLOY_TAGS_RE);
+    if (tags) {
+      const orgId = parseOrgPublicId(tags[1]!);
+      if (!orgId) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
+      let segments: string[];
+      try {
+        segments = (tags[2] ?? "").split("/").filter(Boolean).map(decodeURIComponent);
+      } catch {
+        return errorResponse("not_found", "Not found", 404, requestId);
+      }
+      return handleTagPages(env, requestId, actor, orgId, segments, request);
     }
     return notFound(requestId, url.pathname);
   } catch {

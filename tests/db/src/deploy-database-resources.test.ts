@@ -36,6 +36,9 @@ import {
   findDatabaseLimits,
   updateDatabaseLimits,
   DATABASE_LIMIT_COLUMNS,
+  findDatabaseHealth,
+  updateDatabaseHealth,
+  DATABASE_HEALTH_COLUMNS,
   type DatabaseEngine,
   type DeployDestinationRow,
   type NewEnvironmentVariable,
@@ -222,6 +225,24 @@ describe("a database's Resource Limits", () => {
     expect(await withOrg(ex, A, (tx) => findDatabaseLimits(tx, engine, id))).toMatchObject({ limits_memory: "1g", limits_cpuset: "0-1", limits_cpu_shares: 512, limits_cpus: "0" });
     expect(DATABASE_LIMIT_COLUMNS).toHaveLength(7);
     expect(await withOrg(ex, A, (tx) => findDatabaseLimits(tx, engine, 999999))).toBeNull();
+  });
+});
+
+describe("a database's Healthcheck (DP-97)", () => {
+  it.each(DATABASE_ENGINES)("%s: reads the schema's defaults and writes the five columns; another org sees and changes nothing", async (engine) => {
+    const id = await newDatabase(A, engine, `hc${engine}aaaaaaaaaaaaaaa`);
+    expect(await withOrg(ex, A, (tx) => findDatabaseHealth(tx, engine, id))).toEqual({
+      health_check_enabled: true, health_check_interval: 15, health_check_timeout: 5, health_check_retries: 5, health_check_start_period: 5,
+    });
+    expect(await withOrg(ex, A, (tx) => updateDatabaseHealth(tx, engine, id, { health_check_enabled: false, health_check_interval: 30, health_check_start_period: 0 }))).toBe(true);
+    expect(await withOrg(ex, A, (tx) => findDatabaseHealth(tx, engine, id))).toEqual({
+      health_check_enabled: false, health_check_interval: 30, health_check_timeout: 5, health_check_retries: 5, health_check_start_period: 0,
+    });
+    expect(DATABASE_HEALTH_COLUMNS).toHaveLength(5);
+    expect(await withOrg(ex, A, (tx) => findDatabaseHealth(tx, engine, 999999))).toBeNull();
+    expect(await withOrg(ex, B, (tx) => findDatabaseHealth(tx, engine, id))).toBeNull();
+    expect(await withOrg(ex, B, (tx) => updateDatabaseHealth(tx, engine, id, { health_check_interval: 99 }))).toBe(false);
+    expect((await withOrg(ex, A, (tx) => findDatabaseHealth(tx, engine, id)))?.health_check_interval).toBe(30);
   });
 });
 

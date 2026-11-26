@@ -22,6 +22,18 @@
 //   GET    /tags, POST /tags, POST|DELETE /tags/{id}           Tags
 //   GET    /danger                        Danger
 //   DELETE /danger                        Danger::delete (a service that never ran; else 501)
+//   GET    /webhooks                      Webhooks: the deploy webhook (DP-97)
+//   GET    /scheduled-tasks               ScheduledTask\All with the service as its resource (DP-97)
+//   POST   /scheduled-tasks               Add::submit { name, command, frequency, container, timeout, useShell }
+//   GET    /scheduled-tasks/{task_uuid}   Show + Executions
+//   PATCH  /scheduled-tasks/{task_uuid}   Show::submit
+//   DELETE /scheduled-tasks/{task_uuid}   Show::delete
+//   POST   /scheduled-tasks/{task_uuid}/toggle    toggleEnabled
+//   POST   /scheduled-tasks/{task_uuid}/execute   executeNow (needs SSH: 501)
+//   GET    /resource-operations           ResourceOperations (DP-97)
+//   POST   /resource-operations/move      moveTo { environment_uuid }
+//   POST   /resource-operations/clone     cloneTo { destination_uuid, environment_uuid, cloneVolumeData }: Coolify's
+//                                         checks, then 501 (clone_service() is not ported, services/clone.ts)
 //
 // Coolify's policy: view to read; update, manageEnvironment and delete to write. Here: deploy.resource.read
 // and deploy.resource.write; a denial answers 404 (never leaks).
@@ -46,7 +58,23 @@ import {
   deleteService,
   deleteServicePart,
   listDomainOwners,
+  listScheduledTasks,
+  findScheduledTask,
+  insertScheduledTask,
+  updateScheduledTask,
+  deleteScheduledTask,
+  listScheduledTaskExecutions,
+  serverTimezone,
+  findOperationEnvironment,
+  moveService,
+  findDestinationByUuid,
+  findServerByUuid,
+  type ScheduledTaskOwner,
 } from "@saas/db/deploy";
+import { addHostTask, deleteHostTask, executeHostTask, showHostTask, showHostTasks, toggleHostTask, updateHostTask, type TaskHost } from "../applications/scheduled-tasks.js";
+import { showResourceOperations } from "../applications/resource-operations.js";
+import { moveServiceTo, serviceTaskHost, showServiceWebhooks, type ServicePagesStore } from "../services/resource-pages.js";
+import { cloneServiceTo } from "../services/clone.js";
 import { errorResponse, methodNotAllowed, successResponse } from "../http.js";
 import type { KeyCipher } from "../private-keys/service.js";
 import { authorizeDeploy, columnCipher, readJson } from "./cloud-tokens.js";
@@ -77,7 +105,7 @@ import type { ServiceCreateDependencies } from "../services/service.js";
 const UUID_RE = /^[A-Za-z0-9-]{1,255}$/;
 
 /** The pages below a service that this handler serves (the first segment after its uuid). */
-export const SERVICE_CONFIGURATION_PAGES = ["configuration", "actions", "parts", "environment-variables", "storages", "tags", "danger"] as const;
+export const SERVICE_CONFIGURATION_PAGES = ["configuration", "actions", "parts", "environment-variables", "storages", "tags", "danger", "webhooks", "scheduled-tasks", "resource-operations"] as const;
 
 /** Whether handleServiceConfiguration serves the route. segments: what follows /services. */
 export const isServiceConfigurationRoute = (segments: string[]): boolean => segments.length >= 2 && (SERVICE_CONFIGURATION_PAGES as readonly string[]).includes(segments[1]!);
@@ -116,6 +144,24 @@ export function serviceResourcesContext(tx: SqlExecutor, orgId: string, secret: 
     rows: (morphClass) => resourceRowsSqlStore(tx, orgId, morphClass),
     content: cipher("local_file_volumes.content"),
     deleteService: (serviceId) => deleteService(tx, serviceId),
+    pages: servicePagesSqlStore(tx, orgId),
+    clone: { findDestination: (uuid) => findDestinationByUuid(tx, uuid), findServer: (uuid) => findServerByUuid(tx, uuid) },
+  };
+}
+
+/** The service's task rows, its server's timezone and Move (DP-97). */
+function servicePagesSqlStore(tx: SqlExecutor, orgId: string): ServicePagesStore {
+  const owner = (id: string | number): ScheduledTaskOwner => ({ kind: "service", id });
+  return {
+    tasks: (serviceId) => listScheduledTasks(tx, owner(serviceId)),
+    findTask: (serviceId, uuid) => findScheduledTask(tx, owner(serviceId), uuid),
+    insertTask: (t) => insertScheduledTask(tx, { orgId, owner: owner(t.serviceId), uuid: t.uuid, name: t.name, command: t.command, frequency: t.frequency, container: t.container, timeout: t.timeout, useShell: t.useShell }),
+    updateTask: (serviceId, id, changes) => updateScheduledTask(tx, owner(serviceId), id, changes),
+    deleteTask: (serviceId, id) => deleteScheduledTask(tx, owner(serviceId), id),
+    executions: (taskId) => listScheduledTaskExecutions(tx, taskId),
+    serverTimezone: (serverId) => serverTimezone(tx, serverId),
+    findEnvironment: (uuid) => findOperationEnvironment(tx, uuid),
+    move: (serviceId, environmentId) => moveService(tx, serviceId, environmentId),
   };
 }
 
@@ -203,6 +249,26 @@ export async function handleServiceConfiguration(
     op = write("POST", (c) => addTag(serviceResources(c), uuid, rowId(third)!)) ?? write("DELETE", (c) => removeTag(serviceResources(c), uuid, rowId(third)!));
   } else if (section === "danger" && depth === 2) {
     op = read((c, w) => showDanger(serviceResources(c), uuid, w)) ?? write("DELETE", (c) => deleteServiceNow(c, uuid));
+  } else if (section === "webhooks" && depth === 2) {
+    op = read((c) => showServiceWebhooks(c, uuid));
+  } else if (section === "scheduled-tasks" && depth >= 2 && depth <= 4) {
+    // ScheduledTask\All, Add and Show with the service as their resource.
+    const onHost = <T>(c: ServiceResourcesContext, fn: (host: TaskHost) => Promise<T | null>): Promise<T | null> => serviceTaskHost(c, uuid).then((host) => (host ? fn(host) : null));
+    const task = third !== undefined && UUID_RE.test(third) ? third : null;
+    if (depth === 2) op = read((c) => onHost(c, showHostTasks)) ?? write("POST", (c, body) => onHost(c, (h) => addHostTask(h, body)), 201);
+    else if (depth === 3 && task) {
+      op =
+        read((c, w) => onHost(c, (h) => showHostTask(h, task, w))) ??
+        write("PATCH", (c, body) => onHost(c, (h) => updateHostTask(h, task, body))) ??
+        write("DELETE", (c) => onHost(c, (h) => deleteHostTask(h, task)));
+    } else if (depth === 4 && task && fourth === "toggle") op = write("POST", (c) => onHost(c, (h) => toggleHostTask(h, task)));
+    else if (depth === 4 && task && fourth === "execute") op = write("POST", (c) => onHost(c, (h) => executeHostTask(h, task)));
+  } else if (section === "resource-operations" && depth === 2) {
+    op = read((c, w) => showResourceOperations(serviceResources(c), uuid, w));
+  } else if (section === "resource-operations" && depth === 3 && third === "move") {
+    op = write("POST", (c, body) => moveServiceTo(c, uuid, body));
+  } else if (section === "resource-operations" && depth === 3 && third === "clone") {
+    op = write("POST", (c, body) => cloneServiceTo(c, uuid, body, deps), 201);
   }
   if (op === undefined) return notFound();
   if (op === null) return methodNotAllowed(requestId);

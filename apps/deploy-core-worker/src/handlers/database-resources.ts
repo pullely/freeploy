@@ -29,6 +29,10 @@
 //   GET    /webhooks                       Webhooks: the deploy webhook
 //   GET    /danger                         Danger (the delete is DELETE /databases/{uuid}, databases.ts)
 //   POST   /danger/flush                   Danger::flush (Redis, KeyDB, Dragonfly): needs SSH, 501
+//   GET    /healthcheck                    Database\Health (DP-97)
+//   PATCH  /healthcheck                    Health::submit { healthCheckEnabled, healthCheckInterval, healthCheckTimeout,
+//                                          healthCheckRetries, healthCheckStartPeriod }
+//   POST   /healthcheck/toggle             Health::toggleHealthcheck (the form's values, the switch flipped)
 //
 // Coolify's policy: view to read, update (and manage, manageEnvironment) to
 // write. Here: deploy.resource.read and deploy.resource.write; a denial
@@ -78,8 +82,11 @@ import {
   replicateDatabaseEnvironmentVariable,
   findDatabaseLimits,
   updateDatabaseLimits,
+  findDatabaseHealth,
+  updateDatabaseHealth,
   type StorageOwner,
 } from "@saas/db/deploy";
+import { saveDatabaseHealth, showDatabaseHealth } from "../databases/health.js";
 import { errorResponse, methodNotAllowed, successResponse, validationError } from "../http.js";
 import type { KeyCipher } from "../private-keys/service.js";
 import { authorizeDeploy, columnCipher, readJson } from "./cloud-tokens.js";
@@ -104,7 +111,7 @@ import {
 const UUID_RE = /^[A-Za-z0-9-]{1,255}$/;
 
 /** The pages below a database that this handler serves (the first segment after its uuid). */
-export const DATABASE_RESOURCE_PAGES = ["environment-variables", "storages", "tags", "resource-operations", "resource-limits", "webhooks", "danger"] as const;
+export const DATABASE_RESOURCE_PAGES = ["environment-variables", "storages", "tags", "resource-operations", "resource-limits", "webhooks", "danger", "healthcheck"] as const;
 
 /** Whether handleDatabaseResources serves the route. segments: what follows /databases, split on "/". */
 export const isDatabaseResourceRoute = (segments: string[]): boolean => segments.length >= 2 && (DATABASE_RESOURCE_PAGES as readonly string[]).includes(segments[1]!);
@@ -186,6 +193,7 @@ export async function databaseResourcesContext(tx: SqlExecutor, orgId: string, s
     rows: resourceRowsSqlStore(tx, orgId, engine ? DATABASE_TABLES[engine].morphClass : ""),
     content: cipher("local_file_volumes.content"),
     store: sqlStore(tx),
+    health: { find: (engine, id) => findDatabaseHealth(tx, engine, id), update: (engine, id, changes) => updateDatabaseHealth(tx, engine, id, changes) },
   };
 }
 
@@ -240,6 +248,9 @@ export async function handleDatabaseResources(
   else if (section === "resource-operations" && depth === 3 && third === "move") op = write("POST", (c, body) => moveDatabaseTo(c, uuid, body));
   else if (section === "resource-limits" && depth === 2) op = read((c, w) => showDatabaseLimits(c, uuid, w)) ?? write("PATCH", (c, body) => saveDatabaseLimits(c, uuid, body));
   else if (section === "webhooks" && depth === 2) op = read((c, w) => showDatabaseWebhooks(c, uuid, w));
+  // Database\Health (DP-97): submit / instantSave, and toggleHealthcheck.
+  else if (section === "healthcheck" && depth === 2) op = read((c, w) => showDatabaseHealth(c, uuid, w)) ?? write("PATCH", (c, body) => saveDatabaseHealth(c, uuid, body));
+  else if (section === "healthcheck" && depth === 3 && third === "toggle") op = write("POST", (c, body) => saveDatabaseHealth(c, uuid, body, true));
   // @can('manage', $resource)
   else if (section === "danger" && depth === 3 && third === "flush") op = write("POST", (c) => flushDatabase(c, uuid));
   else op = sharedResourcePageOp(segments, method, query, (fn) => run((c) => fn(databaseResources(c))));

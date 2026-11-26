@@ -9,8 +9,10 @@
 // the clone's page says so. "Migrate to another server" shows in Coolify's
 // development mode only and is not ported. The same component is a
 // database's Resource Operations page (kind "database"): after a clone or a
-// move it opens the database's page.
+// move it opens the database's page. And a service's (kind "service", DP-97): Move as Coolify's; Clone answers
+// Coolify's checks, then that it is not available yet (clone_service() is not ported).
 import { useEffect, useState } from "react";
+import { servicePath } from "../lib/service-templates";
 import { Layout } from "../layout/Layout";
 import { flashNotice, takeNotice } from "../lib/flash";
 import { toast } from "../lib/toast";
@@ -47,6 +49,7 @@ interface Result {
   environmentUuid: string;
   applicationUuid?: string;
   databaseUuid?: string;
+  serviceUuid?: string;
   unavailable?: string;
 }
 
@@ -109,7 +112,12 @@ export function ResourceOperationsContent({ kind }: { kind: ResourceKind }) {
       return showError(r.error);
     }
     if (r.data.unavailable) flashNotice(r.data.unavailable);
-    const page = kind === "application" ? applicationPath(r.data.projectUuid, r.data.environmentUuid, r.data.applicationUuid ?? "") : databasePath(r.data.projectUuid, r.data.environmentUuid, r.data.databaseUuid ?? "");
+    const page =
+      kind === "application"
+        ? applicationPath(r.data.projectUuid, r.data.environmentUuid, r.data.applicationUuid ?? "")
+        : kind === "service"
+          ? servicePath(r.data.projectUuid, r.data.environmentUuid, r.data.serviceUuid ?? "")
+          : databasePath(r.data.projectUuid, r.data.environmentUuid, r.data.databaseUuid ?? "");
     window.location.assign(`${page}/resource-operations`);
   }
   const clone = () => run("clone", { destination_uuid: cloneDestination, environment_uuid: cloneEnvironment, cloneVolumeData });

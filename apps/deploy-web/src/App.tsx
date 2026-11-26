@@ -1,4 +1,4 @@
-import { pageFor, backupScheduleRedirect } from "./routes";
+import { pageFor, backupScheduleRedirect, scheduledTaskRedirect } from "./routes";
 import { LoginPage } from "./pages/Login";
 import { RegisterPage } from "./pages/Register";
 import { ForgotPasswordPage } from "./pages/ForgotPassword";
@@ -107,6 +107,13 @@ const SettingsGeneralPage = lazy(() => import("./pages/PlatformSettings").then((
 const SettingsAdvancedPage = lazy(() => import("./pages/PlatformSettings").then((m) => ({ default: m.SettingsAdvancedPage })));
 const AdminPage = lazy(() => import("./pages/PlatformAdmin").then((m) => ({ default: m.AdminPage })));
 const TeamAdminViewPage = lazy(() => import("./pages/PlatformAdmin").then((m) => ({ default: m.TeamAdminViewPage })));
+// DP-97: the remaining resource pages.
+const ServiceScheduledTasksPage = lazy(() => import("./pages/ServiceSharedPages").then((m) => ({ default: m.ServiceScheduledTasksPage })));
+const ServiceWebhooksPage = lazy(() => import("./pages/ServiceSharedPages").then((m) => ({ default: m.ServiceWebhooksPage })));
+const ServiceResourceOperationsPage = lazy(() => import("./pages/ServiceSharedPages").then((m) => ({ default: m.ServiceResourceOperationsPage })));
+const DatabaseHealthcheckPage = lazy(() => import("./pages/DatabaseSharedPages").then((m) => ({ default: m.DatabaseHealthcheckPage })));
+const TagsPage = lazy(() => import("./pages/Tags").then((m) => ({ default: m.TagsPage })));
+const DatabaseServersPage = lazy(() => import("./pages/DatabaseSharedPages").then((m) => ({ default: m.DatabaseServersPage })));
 
 /** routes/web.php: security.private-key.show is redirect()->route('security.private-key.index'). */
 function RedirectTo({ path }: { path: string }) {
@@ -741,6 +748,52 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <TeamAdminViewPage />
+        </Suspense>
+      );
+    // DP-97: the remaining resource pages.
+    case "project.service.scheduled-tasks.show":
+      return (
+        <Suspense fallback={null}>
+          <ServiceScheduledTasksPage />
+        </Suspense>
+      );
+    case "project.service.scheduled-tasks":
+    case "project.application.scheduled-tasks.task":
+      return <RedirectTo path={scheduledTaskRedirect(window.location.pathname)} />;
+    case "project.service.webhooks":
+      return (
+        <Suspense fallback={null}>
+          <ServiceWebhooksPage />
+        </Suspense>
+      );
+    case "project.service.resource-operations":
+      return (
+        <Suspense fallback={null}>
+          <ServiceResourceOperationsPage />
+        </Suspense>
+      );
+    case "project.service.index.advanced":
+      return (
+        <Suspense fallback={null}>
+          <ServicePartPage />
+        </Suspense>
+      );
+    case "project.database.healthcheck":
+      return (
+        <Suspense fallback={null}>
+          <DatabaseHealthcheckPage />
+        </Suspense>
+      );
+    case "project.database.servers":
+      return (
+        <Suspense fallback={null}>
+          <DatabaseServersPage />
+        </Suspense>
+      );
+    case "tags.show":
+      return (
+        <Suspense fallback={null}>
+          <TagsPage />
         </Suspense>
       );
     default:

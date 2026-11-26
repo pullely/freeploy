@@ -402,3 +402,32 @@ export async function updateDatabaseLimits(tx: SqlExecutor, engine: DatabaseEngi
   ]);
   return r.rows.length > 0;
 }
+
+/** A standalone database's healthcheck (Database\Health, DP-97). */
+export interface DeployDatabaseHealthRow extends SqlRow {
+  health_check_enabled: boolean;
+  health_check_interval: number;
+  health_check_timeout: number;
+  health_check_retries: number;
+  health_check_start_period: number;
+}
+
+export const DATABASE_HEALTH_COLUMNS = ["health_check_enabled", "health_check_interval", "health_check_timeout", "health_check_retries", "health_check_start_period"] as const;
+export type DatabaseHealthChanges = Partial<Record<(typeof DATABASE_HEALTH_COLUMNS)[number], number | boolean>>;
+
+/** Health::syncData(): the database's healthcheck columns. Null when it is gone. */
+export async function findDatabaseHealth(tx: SqlExecutor, engine: DatabaseEngine, id: string | number): Promise<DeployDatabaseHealthRow | null> {
+  const r = await tx.execute<DeployDatabaseHealthRow>(`SELECT ${DATABASE_HEALTH_COLUMNS.join(", ")} FROM deploy.${DATABASE_TABLES[engine].table} WHERE id = $1 AND deleted_at IS NULL`, [id]);
+  return r.rows[0] ?? null;
+}
+
+/** Health::syncData(true): $this->database->save() with the given columns, and updated_at. False when it is gone. */
+export async function updateDatabaseHealth(tx: SqlExecutor, engine: DatabaseEngine, id: string | number, changes: DatabaseHealthChanges): Promise<boolean> {
+  const columns = DATABASE_HEALTH_COLUMNS.filter((c) => changes[c] !== undefined);
+  const sets = columns.map((c, i) => `"${c}" = $${i + 2}`);
+  const r = await tx.execute(`UPDATE deploy.${DATABASE_TABLES[engine].table} SET ${[...sets, `updated_at = ${NOW}`].join(", ")} WHERE id = $1 AND deleted_at IS NULL RETURNING id`, [
+    id,
+    ...columns.map((c) => changes[c] ?? null),
+  ]);
+  return r.rows.length > 0;
+}

@@ -17,6 +17,9 @@ import { summarize } from "@deploy-core-worker/services/stack-form";
 import { validateDockerComposeForInjection } from "@deploy-core-worker/services/compose-validation";
 import type { ResourceRowsStore } from "@deploy-core-worker/applications/resources";
 import type { KeyCipher } from "@deploy-core-worker/private-keys/service";
+import type { ServicePagesStore } from "@deploy-core-worker/services/resource-pages";
+import type { ServiceCloneStore } from "@deploy-core-worker/services/clone";
+import type { DeployDestinationRow, DeployScheduledTaskRow, DeployServerRow } from "@saas/db/deploy";
 import { SERVICE_PART_MORPH_CLASS, type DeployFileVolumeRow, type DeployPersistentVolumeRow, type DeployServiceConfigurationRow, type DeployServicePartFullRow, type DeployServiceVariableRow, type DeployTagRow, type ServicePartKind } from "@saas/db/deploy";
 
 const ORG = "org_" + "0".repeat(31) + "a";
@@ -47,6 +50,9 @@ class MemoryDb implements ServiceConfigurationStore {
   taggables: { tagId: Id; type: string; id: Id }[] = [];
   owners = [{ uuid: "other-app", name: "shop", fqdn: "https://shop.example.com" }];
   deleted = false;
+  /** DP-97 */
+  tasks: Array<DeployScheduledTaskRow & { service_id: Id }> = [];
+  moves: Array<[Id, Id]> = [];
   private next = 1000;
 
   constructor(template = "umami") {
@@ -201,6 +207,49 @@ class MemoryDb implements ServiceConfigurationStore {
   }
 }
 
+/** DP-97: the service's scheduled tasks and moves, in memory (the SQL is tested in tests/db). */
+function servicePages(db: MemoryDb): ServicePagesStore {
+  return {
+    tasks: async (serviceId) => db.tasks.filter((t) => same(t.service_id, serviceId)),
+    findTask: async (serviceId, uuid) => {
+      const row = db.tasks.find((t) => same(t.service_id, serviceId) && t.uuid === uuid);
+      return row ? { ...row } : null;
+    },
+    insertTask: async (t) => {
+      const row = { id: db.tasks.length + 1, uuid: t.uuid, enabled: true, name: t.name, command: t.command, frequency: t.frequency, container: t.container, timeout: t.timeout, use_shell: t.useShell, disabled_reason: null, created_at: null, updated_at: null, latest_status: null, service_id: t.serviceId };
+      db.tasks.push(row);
+      return row;
+    },
+    updateTask: async (serviceId, id, changes) => {
+      const row = db.tasks.find((t) => same(t.service_id, serviceId) && same(t.id, id));
+      if (row) Object.assign(row, changes);
+      return Boolean(row);
+    },
+    deleteTask: async (serviceId, id) => {
+      const before = db.tasks.length;
+      db.tasks = db.tasks.filter((t) => !(same(t.service_id, serviceId) && same(t.id, id)));
+      return before !== db.tasks.length;
+    },
+    executions: async () => [],
+    serverTimezone: async (serverId) => (same(serverId ?? "", 100) ? "Europe/Berlin" : null),
+    findEnvironment: async (uuid) => [{ id: 10, uuid: "env1", name: "production", project_uuid: "prj1" }, { id: 11, uuid: "env2", name: "staging", project_uuid: "prj2" }].find((e) => e.uuid === uuid) ?? null,
+    move: async (serviceId, environmentId) => {
+      db.moves.push([serviceId, environmentId]);
+      return true;
+    },
+  };
+}
+
+function serviceCloneStore(): ServiceCloneStore {
+  const server = (uuid: string, role: string | null) => ({ id: uuid === "srv1" ? 100 : 101, uuid, name: uuid, ip: "203.0.113.10", server_role: role, is_build_server: role === "build" }) as unknown as DeployServerRow;
+  return {
+    findDestination: async (uuid) => (uuid === "dst1" ? ({ id: 200, uuid: "dst1", name: "default", network: "coolify", type: "standalone", server_uuid: "srv1" } as unknown as DeployDestinationRow) : uuid === "dst-build" ? ({ id: 201, uuid: "dst-build", name: "build", network: "coolify", type: "standalone", server_uuid: "srv-build" } as unknown as DeployDestinationRow) : null),
+    findServer: async (uuid) => (uuid === "srv1" ? server("srv1", null) : uuid === "srv-build" ? server("srv-build", "build") : null),
+  };
+}
+
+const same = (a: Id, b: Id) => String(a) === String(b);
+
 function setup(opts: { write?: boolean; read?: boolean; template?: string } = {}) {
   const db = new MemoryDb(opts.template);
   const store = db;
@@ -215,7 +264,14 @@ function setup(opts: { write?: boolean; read?: boolean; template?: string } = {}
     }),
   };
   const runner: ServiceConfigurationRunner = async (_env, _orgId, fn) =>
-    fn({ configuration: { store: store as unknown as ServiceConfigurationStore, ciphers: { variables: cipher, content: cipher } }, rows: (morph) => db.rows(morph), content: cipher, deleteService: async () => (db.deleted = true) });
+    fn({
+      configuration: { store: store as unknown as ServiceConfigurationStore, ciphers: { variables: cipher, content: cipher } },
+      rows: (morph) => db.rows(morph),
+      content: cipher,
+      deleteService: async () => (db.deleted = true),
+      pages: servicePages(db),
+      clone: serviceCloneStore(),
+    });
   const variableTypes: string[] = [];
   const variablesRunner: EnvironmentVariableRunner = async (_env, _orgId, type) => {
     variableTypes.push(type);
@@ -527,5 +583,110 @@ describe("the pieces", () => {
       ["alpha", "service", "Service", "unknown:unknown:excluded", false, "Unknown", 0],
       ["zeta", "service", "Service", "running:healthy", true, "main", 1],
     ]);
+  });
+});
+
+// ---------------------------------------------------------------- DP-97: Scheduled Tasks, Webhooks, Resource Operations
+
+describe("a service's Scheduled Tasks (ScheduledTask\\All with the service as its resource)", () => {
+  it("lists none, with the parts' names as containers, the server's timezone and isRunning", async () => {
+    const { call } = setup();
+    const r = await call("GET", "svc1/scheduled-tasks");
+    expect(r.status).toBe(200);
+    expect(data<Body>(r)).toMatchObject({ service: { uuid: "svc1" }, tasks: [], containerNames: ["umami", "postgresql"], serverTimezone: "Europe/Berlin", isRunning: false, canUpdate: true });
+  });
+
+  it("adds a task with Add's rules and messages; an empty container reads Add's undeclared $subServiceName", async () => {
+    const { call, db } = setup();
+    const refused = await call("POST", "svc1/scheduled-tasks", { name: "", command: "", frequency: "", timeout: 30 });
+    expect(refused.status).toBe(422);
+    expect(error(refused).details?.fields).toEqual({
+      name: ["The name field is required."],
+      command: ["The command field is required."],
+      frequency: ["The frequency field is required."],
+      timeout: ["The timeout field must be at least 60."],
+    });
+    expect((await call("POST", "svc1/scheduled-tasks", { name: "a", command: "b", frequency: "every second", container: "umami" })).body.error).toMatchObject({ message: "Invalid Cron / Human expression." });
+    expect(error(await call("POST", "svc1/scheduled-tasks", { name: "a", command: "b", frequency: "daily", container: "" })).message).toBe("Property [$subServiceName] not found on component: [project.shared.scheduled-task.add]");
+    expect(db.tasks).toEqual([]);
+
+    const added = await call("POST", "svc1/scheduled-tasks", { name: "Vacuum", command: "vacuumdb -a", frequency: "daily", container: "postgresql", timeout: 300, useShell: true });
+    expect(added.status).toBe(201);
+    expect(data<Body>(added)).toMatchObject({ message: "Scheduled task added.", tasks: [{ name: "Vacuum", container: "postgresql", frequency: "daily", enabled: true, status: null }], task: { command: "vacuumdb -a" } });
+    expect(db.tasks.map((t) => [t.service_id, t.name])).toEqual([[7, "Vacuum"]]);
+  });
+
+  it("shows, edits, toggles and deletes a task; Execute now needs the SSH executor", async () => {
+    const { call, db } = setup();
+    await call("POST", "svc1/scheduled-tasks", { name: "Vacuum", command: "vacuumdb -a", frequency: "daily", container: "postgresql" });
+    const task = db.tasks[0]!.uuid;
+    const shown = await call("GET", `svc1/scheduled-tasks/${task}`);
+    expect(data<Body>(shown)).toMatchObject({ task: { uuid: task, name: "Vacuum", command: "vacuumdb -a", isEnabled: true }, executions: [] });
+    expect(data<Body>(await call("PATCH", `svc1/scheduled-tasks/${task}`, { name: " Nightly ", command: "vacuumdb -a", frequency: "0 3 * * *", container: "postgresql", timeout: 600 }))).toMatchObject({ message: "Scheduled task updated.", task: { name: "Nightly", timeout: 600 } });
+    expect(data<Body>(await call("POST", `svc1/scheduled-tasks/${task}/toggle`))).toMatchObject({ message: "Scheduled task disabled.", task: { isEnabled: false } });
+    const execute = await call("POST", `svc1/scheduled-tasks/${task}/execute`);
+    expect([execute.status, error(execute).message]).toEqual([501, "Running the scheduled task now needs the SSH executor, which is not available yet."]);
+    expect(data<Body>(await call("DELETE", `svc1/scheduled-tasks/${task}`))).toMatchObject({ message: "Scheduled task deleted.", tasks: [] });
+    expect((await call("GET", `svc1/scheduled-tasks/${task}`)).status).toBe(404);
+  });
+
+  it("hides a task's command from who may only read, refuses their writes with a 404, and a denial reads nothing", async () => {
+    const owner = setup();
+    await owner.call("POST", "svc1/scheduled-tasks", { name: "Vacuum", command: "vacuumdb -a", frequency: "daily", container: "postgresql" });
+    const task = owner.db.tasks[0]!;
+    const reader = setup({ write: false });
+    reader.db.tasks.push(task);
+    expect(data<Body>(await reader.call("GET", `svc1/scheduled-tasks/${task.uuid}`))).toMatchObject({ task: { command: "Hidden (only admins can view)" }, canUpdate: false });
+    expect((await reader.call("POST", "svc1/scheduled-tasks", { name: "x", command: "y", frequency: "daily", container: "umami" })).status).toBe(404);
+    expect((await reader.call("DELETE", `svc1/scheduled-tasks/${task.uuid}`)).status).toBe(404);
+    expect(reader.db.tasks).toHaveLength(1);
+    expect((await setup({ read: false, write: false }).call("GET", "svc1/scheduled-tasks")).status).toBe(404);
+    expect((await owner.call("GET", "other/scheduled-tasks")).status).toBe(404);
+    expect((await owner.call("PUT", "svc1/scheduled-tasks", {})).status).toBe(405);
+  });
+});
+
+describe("a service's Webhooks and Resource Operations", () => {
+  it("the deploy webhook is the service's", async () => {
+    const { call } = setup();
+    const r = await call("GET", "svc1/webhooks");
+    expect([r.status, data<Body>(r).deployWebhookPath, (data<Body>(r).service as Body).uuid]).toEqual([200, "/api/v1/deploy?uuid=svc1&force=false", "svc1"]);
+    expect((await call("POST", "svc1/webhooks", {})).status).toBe(405);
+  });
+
+  it("Resource Operations lists where it can go for who may update, and only the frame for who may read", async () => {
+    const { call } = setup();
+    expect(data<Body>(await call("GET", "svc1/resource-operations"))).toMatchObject({ service: { uuid: "svc1" }, projects: [], servers: [], buildServers: [], canUpdate: true });
+    const reader = setup({ write: false });
+    expect(data<Body>(await reader.call("GET", "svc1/resource-operations"))).toMatchObject({ projects: [], canUpdate: false });
+  });
+
+  it("Move changes the service's environment, with moveTo()'s field error for an unknown one", async () => {
+    const { call, db } = setup();
+    const refused = await call("POST", "svc1/resource-operations/move", { environment_uuid: "nope" });
+    expect([refused.status, error(refused).details?.fields]).toEqual([422, { environment_id: ["Environment not found."] }]);
+    const moved = await call("POST", "svc1/resource-operations/move", { environment_uuid: "env2" });
+    expect([moved.status, data<Body>(moved)]).toEqual([200, { projectUuid: "prj2", environmentUuid: "env2", serviceUuid: "svc1" }]);
+    expect(db.moves).toEqual([[7, 11]]);
+    expect((await setup({ write: false }).call("POST", "svc1/resource-operations/move", { environment_uuid: "env2" })).status).toBe(404);
+  });
+
+  it("Clone answers cloneTo()'s checks, then that cloning a service is not available yet; nothing is stored", async () => {
+    const { call, db } = setup();
+    const noEnvironment = await call("POST", "svc1/resource-operations/clone", { environment_uuid: "nope", destination_uuid: "dst1" });
+    expect(error(noEnvironment).details?.fields).toEqual({ environment_id: ["Environment not found."] });
+    for (const destination of [undefined, "", "nope", "dst-build"]) {
+      const r = await call("POST", "svc1/resource-operations/clone", { destination_uuid: destination });
+      expect([destination, r.status, error(r).details?.fields]).toEqual([destination, 422, { destination_id: ["Destination not found."] }]);
+    }
+    const r = await call("POST", "svc1/resource-operations/clone", { destination_uuid: "dst1", environment_uuid: "env2", cloneVolumeData: false });
+    expect([r.status, error(r).message]).toEqual([501, "Cloning a service is not available yet."]);
+    expect(db.moves).toEqual([]);
+    expect((await call("POST", "other/resource-operations/clone", { destination_uuid: "dst1" })).status).toBe(404);
+  });
+
+  it("these pages are routes of the handler", () => {
+    for (const page of ["webhooks", "scheduled-tasks", "resource-operations"]) expect(isServiceConfigurationRoute(["svc1", page])).toBe(true);
+    expect(isServiceConfigurationRoute(["svc1", "domains"])).toBe(false);
   });
 });
