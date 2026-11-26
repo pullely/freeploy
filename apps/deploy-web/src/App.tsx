@@ -89,6 +89,9 @@ const InvitationPage = lazy(() => import("./pages/Team").then((m) => ({ default:
 const TeamAuditLogPage = lazy(() => import("./pages/TeamAuditLog").then((m) => ({ default: m.TeamAuditLogPage })));
 const TeamDangerPage = lazy(() => import("./pages/TeamDanger").then((m) => ({ default: m.TeamDangerPage })));
 const BoardingPage = lazy(() => import("./pages/Boarding").then((m) => ({ default: m.BoardingPage })));
+// The subscription pages (DP-82).
+const SubscriptionPage = lazy(() => import("./pages/Subscription").then((m) => ({ default: m.SubscriptionPage })));
+const SubscriptionNewPage = lazy(() => import("./pages/Subscription").then((m) => ({ default: m.SubscriptionNewPage })));
 // The platform operator's pages (DP-79).
 const SettingsGeneralPage = lazy(() => import("./pages/PlatformSettings").then((m) => ({ default: m.SettingsGeneralPage })));
 const SettingsAdvancedPage = lazy(() => import("./pages/PlatformSettings").then((m) => ({ default: m.SettingsAdvancedPage })));
@@ -631,6 +634,18 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <BoardingPage />
+        </Suspense>
+      );
+    case "subscription.show":
+      return (
+        <Suspense fallback={null}>
+          <SubscriptionPage />
+        </Suspense>
+      );
+    case "subscription.index":
+      return (
+        <Suspense fallback={null}>
+          <SubscriptionNewPage />
         </Suspense>
       );
     case "settings.index":

@@ -1,0 +1,23 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-82
+  title: "DP10: the subscription pages on Freeploy's billing (Polar)"
+spec:
+  goal: A team's billing admin opens Coolify Cloud's subscription pages over Freeploy's billing — /subscription/new (Subscription\Index with PricingPlans) and /subscription (Subscription\Show with Actions), hand-ported with their markup, copy and states — backed by billing-worker through api-edge's existing billing facade (GET …/billing/summary and …/billing/plans; POST …/billing/checkout, …/billing/portal and …/billing/subscription/cancel). Who may see them is billing-worker's billing.read / billing.manage (owner and billing_admin), Coolify's isAdminOfTeam (owner and admin); anyone else gets Index's Insufficient Permissions section or Show's redirect to the dashboard. Polar stands for Stripe and the plan catalog's Pro and Business (monthly) for Coolify's pay-as-you-go; a team without a paid subscription is sent to the pricing, a subscriber to its plan, next billing date, the billing portal and Cancel at Period End. The billing summary now says whether the environment's provider is configured and which plans it sells (selfServe, read from env only), so that without a provider the pages say "not available yet" instead of offering a checkout that fails. No server limit, refunds, immediate cancellation, resume, yearly prices or sidebar entry; no binding, no migration.
+  affects:
+    - apps/billing-worker/**
+    - apps/deploy-web/**
+    - packages/contracts/**
+    - tests/billing-worker/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - tests/billing-worker/src/billing-worker.test.ts holds the summary's selfServe to the environment — not available without the Polar secrets (stage's product map alone), with BILLING_PROVIDER stripe, or by default; with them, the product map's pro and business and never free, enterprise or an unknown code, and no secret or product id in the body
+    - apps/deploy-web/test/subscription.test.ts holds Index's and Show's branches over the summary (404 → Insufficient Permissions / dashboard, Free → pricing / /subscription/new, a paid subscription → /subscription, past_due → Payment failed), the plans sold, and each plan's features to billing-worker's PLAN_CATALOG
+    - apps/deploy-web/test/routes.test.ts maps /subscription to subscription.show and /subscription/new to subscription.index
+    - on stage, an owner of a team on Free opens /subscription and lands on /subscription/new, which shows "No active subscription" and either the Pro and Business plans with "Subscribe monthly" or, when billing-worker has no Polar secrets on stage, "Not available yet" and no subscribe button
+    - on stage, GET /v1/organizations/{org}/billing/summary for that owner answers selfServe, and an admin and a member of the same team get 404 there; the admin's /subscription/new shows "Insufficient Permissions" and the member's /subscription opens the dashboard
+    - on stage with Polar configured (sandbox), "Subscribe monthly" on Pro opens Polar's checkout, and after the webhook /subscription shows "Pro", "Monthly billing", "Active" and the next billing date; "Open billing portal" opens Polar's portal; "Cancel at Period End" after typing the team name answers "Subscription will be cancelled at the end of the billing period."
+    - the billing, membership, notifications and events binding loop is unchanged (tests/config-worker/src/deployment-config.test.ts)
+  gates: []
