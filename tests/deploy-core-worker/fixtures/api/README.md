@@ -1,4 +1,4 @@
-# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85, DP-86, DP-87, DP-88, DP-90, DP-93, DP-103, DP-104)
+# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85, DP-86, DP-87, DP-88, DP-90, DP-93, DP-103, DP-104, DP-106)
 
 What Coolify's real API answers, so that Freeploy's `/api/v1` (api-edge's middleware and limiters,
 identity-worker's teams and tokens, deploy-core-worker's projects, environments, private keys and servers —
@@ -19,7 +19,8 @@ Apps — DP-88 — and the cloud provider tokens, the Hetzner, DigitalOcean, Vul
 configuration — DP-90 — and a policy's denial on a route of each group, a GitHub App's repositories and branches, an
 application from a private repository through a GitHub App and a Hostinger server — DP-93 — and the integration tokens
 and a Cloudflare token's zones — DP-104 — and the GitLab Apps, the Gitea Apps, an application from a private repository
-through a Gitea App and an application's source changed to one — DP-103) can be replayed against it byte for byte.
+through a Gitea App and an application's source changed to one — DP-103 — and a resource's secret manager source and the
+instance's email settings — DP-106) can be replayed against it byte for byte.
 
 | File | What it is |
 |---|---|
@@ -158,6 +159,21 @@ The Gitea instance is faked through `http` (DP-90's); the token refresh is a for
 (`json_decode()` of it is null) and the replay's fetch the same. The cases run as Coolify Cloud (`config.self_hosted` false),
 and three `denied:` cases are added (39 in all). The `after` queries read a source's secrets as whether they are set (`has_…`)
 and a created source's id as null. No masking is added.
+
+DP-106's replay (`src/api-v1-secret-manager-email.test.ts`: `/{applications,services,databases}/{uuid}/secret-manager[/keys|
+/references|/import]` and `/settings/email`) adds no fixture rows. A secret manager link is a row of `setupCoolify` and
+`setupFreeploy` (DP-104's), and a case may carry `tokenSecrets` (`[{id, token}]`): emit.php replaces that integration token's
+secret through the model after `setupCoolify` (the `encrypted` cast), the test encrypts it with the org's key — a Doppler
+service account (`dp.sa.`), which the fixture has none of. Doppler, Infisical and Vault are faked through `http` (DP-90's).
+The email settings need Coolify's root team, which the fixture leaves out: `setupCoolify` makes team 0, user 1's owner
+membership and five root-team tokens (ids 51–55, `sha256()` of their plain text), and the case names its token in
+`rootTeamToken` (`{key, id, user, abilities, secret}`, sent as `authorization`); Freeploy has no root team, so
+tests/api-edge resolves that token as user 1's token of the org and the deploy-core-worker replay answers the platform
+operator's gate for it (every other token's user is not the operator). The `after` queries read a link's settings as
+`::jsonb::text`, whether it is the fixture's (`uuid like 'u_parity%'`) and untouched (its fixed `updated_at`), a created
+variable's value as whether it is set, and row 0's encrypted email columns as whether they are set (`has_…`); Freeploy's
+row 0 is read as the platform operator. The new cases' goldens were emitted alone and inserted after DP-103's, the committed
+ones kept byte for byte. No masking is added.
 
 ## How the goldens are made
 

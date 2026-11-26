@@ -166,14 +166,14 @@ const unauthorized = () => COOLIFY_API.unauthorized();
 // ── validation ──────────────────────────────────────────────────────────────
 
 /** Laravel's `email` (as far as a setting needs it): a string, local@domain without spaces. */
-const email = (attribute: string): Rule => ({ closure: (v) => (typeof v === "string" && isEmail(v) ? [] : [`The ${attribute.replace(/_/g, " ")} field must be a valid email address.`]) });
+export const email = (attribute: string): Rule => ({ closure: (v) => (typeof v === "string" && isEmail(v) ? [] : [`The ${attribute.replace(/_/g, " ")} field must be a valid email address.`]) });
 /** `in:a,b,c`: the value as a string is one of them (an array never is). */
 const inList = (attribute: string, list: readonly string[]): Rule => ({
   closure: (v) => (v !== null && typeof v !== "object" && list.includes(v === true ? "1" : v === false ? "" : String(v)) ? [] : [`The selected ${attribute.replace(/_/g, " ")} is invalid.`]),
 });
 
 /** ValidHostname: empty values pass; a string's failure message (:attribute as Laravel shows it). */
-const validHostname = (attribute: string): Rule => ({
+export const validHostname = (attribute: string): Rule => ({
   closure: (v) => {
     if (v === null || v === undefined || v === false || v === "" || v === "0" || v === 0) return [];
     if (typeof v !== "string" && typeof v !== "number") return [];

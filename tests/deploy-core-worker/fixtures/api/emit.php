@@ -334,6 +334,12 @@ foreach ($cases['cases'] as $case) {
     foreach ($case['setupCoolify'] ?? [] as $sql) {
         DB::statement($sql);
     }
+    // DP-106: an integration token's secret replaced through the model (the `encrypted` cast; each side encrypts its own).
+    foreach ($case['tokenSecrets'] ?? [] as $t) {
+        $token = \App\Models\IntegrationToken::query()->findOrFail($t['id']);
+        $token->token = $t['token'];
+        $token->saveQuietly();
+    }
     // DP-90: an outside HTTP API (a cloud provider's, GitHub's) is Http::fake(): the case's `http` answers, the first whose
     // `match` (a regex on "METHOD URL") fits; anything else is a 404. Every request Coolify sends is recorded (`requests`).
     $requests = [];

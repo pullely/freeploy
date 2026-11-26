@@ -19,7 +19,9 @@ import edge from "@api-edge/index";
 
 const FIXTURES = resolve(dirname(fileURLToPath(import.meta.url)), "../../deploy-core-worker/fixtures/api");
 interface Step { token?: string; authorization?: string; method: string; path: string; body?: unknown; raw?: string; contentType?: string; ip?: string; advance?: number }
-interface Case extends Step { name: string; instance?: { is_api_enabled?: boolean; allowed_ips?: string }; config?: { rate_limit?: number; failed_request_rate_limit?: number }; sequence?: Step[]; setupCoolify?: string[] }
+/** DP-106: a root-team token (Coolify's instance admin, made by setupCoolify), which Freeploy resolves as its user's token of the org. */
+interface RootTeamToken { id: number; user: number; abilities: string[]; secret: string }
+interface Case extends Step { name: string; instance?: { is_api_enabled?: boolean; allowed_ips?: string }; config?: { rate_limit?: number; failed_request_rate_limit?: number }; sequence?: Step[]; setupCoolify?: string[]; rootTeamToken?: RootTeamToken }
 interface Answer { status: number; headers: Record<string, string>; body: { json?: string; text?: string } }
 interface Golden extends Answer { name: string; steps?: Answer[] }
 interface Token { key: string; id: number; user: number; team: number; abilities: string[]; secret: string; expires_at?: string }
@@ -29,13 +31,18 @@ const golden = (name: string) => GOLDENS.cases.find((c) => c.name === name)!;
 const ORG = "org_" + "0".repeat(31) + "1";
 const START = 1767225600; // 2026-01-01T00:00:00Z, the goldens' clock
 
-/** identity-worker's /v1/internal/api-tokens/resolve for the fixture's tokens. */
-function resolveFixtureToken(authorization: string | null) {
+/**
+ * identity-worker's /v1/internal/api-tokens/resolve for the fixture's tokens — and, for a case with a root-team token
+ * (DP-106), that token as the owner's token of the org: Freeploy has no root team, its instance admin is the platform
+ * operator, whom deploy-core-worker asks policy-worker for.
+ */
+function resolveFixtureToken(authorization: string | null, rootTeam?: RootTeamToken) {
   const at = authorization?.lastIndexOf("Bearer ") ?? -1;
   if (!authorization || at === -1) return { status: "unauthenticated" };
   const token = authorization.slice(at + 7);
   const [id, secret] = token.includes("|") ? token.split("|", 2) : [null, token];
-  const t = CASES.fixture.tokens.find((x) => x.secret === secret && (id === null || String(x.id) === id));
+  const root: Token | undefined = rootTeam && rootTeam.secret === secret && String(rootTeam.id) === id ? { key: "root-team", team: 1, ...rootTeam } : undefined;
+  const t = root ?? CASES.fixture.tokens.find((x) => x.secret === secret && (id === null || String(x.id) === id));
   if (!t || (t.expires_at && Date.parse(`${t.expires_at}Z`) <= START * 1000)) return { status: "unauthenticated" };
   const role = CASES.fixture.users.find((u) => u.id === t.user)!.teams.find((m) => m.team === t.team)?.role;
   const userId = `usr_${String(t.user).padStart(32, "0")}`;
@@ -61,7 +68,7 @@ function harness(c: Case) {
   };
   const env = {
     ENVIRONMENT: "test",
-    IDENTITY_WORKER: fetcher((req) => (new URL(req.url).pathname === "/v1/internal/api-tokens/resolve" ? Response.json({ data: resolveFixtureToken(req.headers.get("authorization")) }) : workerAnswer(req))),
+    IDENTITY_WORKER: fetcher((req) => (new URL(req.url).pathname === "/v1/internal/api-tokens/resolve" ? Response.json({ data: resolveFixtureToken(req.headers.get("authorization"), c.rootTeamToken) }) : workerAnswer(req))),
     DEPLOY_CORE_WORKER: fetcher(workerAnswer),
     ...(c.config?.rate_limit !== undefined && { API_RATE_LIMIT: String(c.config.rate_limit) }),
     ...(c.config?.failed_request_rate_limit !== undefined && { API_FAILED_REQUEST_RATE_LIMIT: String(c.config.failed_request_rate_limit) }),
@@ -182,7 +189,7 @@ describe("what the edge sends a worker", () => {
 });
 
 describe("the routes", () => {
-  it("are the 290 ported operations of openapi.json (health, the deprecated team aliases and the GET answers of start, restart and stop aside)", () => {
+  it("are the 299 ported operations of openapi.json (health, the deprecated team aliases and the GET answers of start, restart and stop aside)", () => {
     const openapi = JSON.parse(readFileSync(resolve(FIXTURES, "../../../../specs/epics/freeploy-coolify-parity/parity/openapi.operations.json"), "utf8")) as { rows: Array<{ method: string; path: string }> };
     const ops = new Set(openapi.rows.map((r) => `${r.method} ${r.path}`));
     const routes = API_V1_ROUTES.map((r) => `${r.method} /api/v1${r.path}`);
@@ -208,7 +215,7 @@ describe("the routes", () => {
       "GET /api/v1/services/{uuid}/restart",
       "GET /api/v1/services/{uuid}/stop",
     ]);
-    expect(inOpenapi.length + 1 /* GET /api/v1/health */).toBe(290);
+    expect(inOpenapi.length + 1 /* GET /api/v1/health */).toBe(299);
   });
 
   it("take the first match in routes/api.php's order and ignore a trailing slash", () => {
@@ -260,6 +267,14 @@ describe("the routes", () => {
     expect(matchApiRoute("GET", "/servers/s1/resources")?.path).toBe("/servers/{uuid}/resources");
     expect(matchApiRoute("DELETE", "/servers/s1")?.abilities).toEqual(["delete"]);
     expect(matchApiRoute("PATCH", "/servers/s1")).toBeNull();
+    // DP-106: the secret-manager group's resource types (->whereIn()), and the instance's email settings.
+    expect(matchApiRoute("GET", "/services/f1/secret-manager")?.path).toBe("/{resource_type}/{uuid}/secret-manager");
+    expect(matchApiRoute("PATCH", "/applications/a1/secret-manager")?.path).toBe("/applications/{uuid}/secret-manager");
+    expect(matchApiRoute("GET", "/databases/b1/secret-manager/keys")?.abilities).toEqual(["write"]);
+    expect(matchApiRoute("DELETE", "/databases/b1/secret-manager")?.abilities).toEqual(["delete"]);
+    expect(matchApiRoute("GET", "/servers/s1/secret-manager")).toBeNull();
+    expect(matchApiRoute("POST", "/applications/a1/secret-manager/keys")).toBeNull();
+    expect(matchApiRoute("PATCH", "/settings/email")?.abilities).toEqual(["write:sensitive"]);
   });
 });
 
