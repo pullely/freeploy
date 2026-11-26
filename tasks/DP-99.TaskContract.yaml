@@ -1,0 +1,22 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-99
+  title: "DP8: the storage backups of an application and a service, a database's backup links, and an application's Preview Deployments"
+spec:
+  goal: deploy-web gains the console pages DP-97 cut whose data now exists, ported as DP-97's were (Blade markup and copy, Coolify's Livewire rules and messages, 501 "… needs the SSH executor, which is not available yet." where Coolify runs something on the server). An application's storage backups (`…/application/{uuid}/backups[/{backup_uuid}[/executions|/danger]]`, Backup\Index, Create and Show with the shared VolumeBackups component — the schedule, S3 storages, retention, executions and Danger Zone; …/s3 and …/retention redirect to the schedule), a service's (`…/service/{uuid}/storage-backups`, VolumeBackup\Index and Create, a schedule in Index's modal; …/storage-backups/{backup_uuid}[/…] redirect to the list as Show::mount() does; the old import links redirect as routes/web.php's do), a service database's `…/{stack_service_uuid}/backups[…]` (DatabaseBackups::mount()'s redirects), and an application's `…/preview-deployments` (Previews, Preview\Form and PreviewDomains' Generate and Remove — GitHub's open pull requests asked through DP-72's GitHub client, Configure, the manual Docker image preview, a preview's Docker tag; deploying, redeploying and stopping a preview, and a functional server's cleanup, answer 501). Back up now, a recovery, downloading an archive and deleting a local archive answer 501 before anything is stored. New console endpoints are inside withOrg with deploy.resource.read/write and 404 on denial; DP-88's /api/v1 volume backup deletion shares the new queries; no binding, dependency or migration is added.
+  affects:
+    - apps/deploy-web/**
+    - apps/deploy-core-worker/**
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - apps/deploy-web/test maps …/application/{uuid}/backups[/{backup_uuid}[/executions|/danger]], …/service/{uuid}/storage-backups[/…], …/service/{uuid}/{stack_service_uuid}/backups[/…] and …/application/{uuid}/preview-deployments to their pages, and redirects the s3, retention and import links as routes/web.php does
+    - tests/deploy-core-worker holds the backup pages and Preview Deployments to Coolify's rules, messages and toasts, with their authorization (a denial is a 404), org isolation, and each 501 storing nothing
+    - tests/db runs the new backup and preview queries on the schema at head, row-level security included
+    - on stage, an application's Backups page creates a schedule for a volume, saves its retention and S3 storage, and its Back up now says the SSH executor is not available yet; Delete schedule removes it
+    - on stage, a Git application's Preview Deployments page loads GitHub's open pull requests and Configure adds a preview with its generated domain; Deploy says the SSH executor is not available yet
+  gates: []

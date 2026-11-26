@@ -1,4 +1,4 @@
-import { pageFor, backupScheduleRedirect, scheduledTaskRedirect } from "./routes";
+import { pageFor, backupScheduleRedirect, scheduledTaskRedirect, backupLinkRedirect } from "./routes";
 import { LoginPage } from "./pages/Login";
 import { RegisterPage } from "./pages/Register";
 import { ForgotPasswordPage } from "./pages/ForgotPassword";
@@ -122,6 +122,13 @@ const ServiceResourceOperationsPage = lazy(() => import("./pages/ServiceSharedPa
 const DatabaseHealthcheckPage = lazy(() => import("./pages/DatabaseSharedPages").then((m) => ({ default: m.DatabaseHealthcheckPage })));
 const TagsPage = lazy(() => import("./pages/Tags").then((m) => ({ default: m.TagsPage })));
 const DatabaseServersPage = lazy(() => import("./pages/DatabaseSharedPages").then((m) => ({ default: m.DatabaseServersPage })));
+// DP-99: the storage backups of an application and a service, and an application's preview deployments.
+const ApplicationBackupsPage = lazy(() => import("./pages/VolumeBackups").then((m) => ({ default: m.ApplicationBackupsPage })));
+const ApplicationBackupShowPage = lazy(() => import("./pages/VolumeBackups").then((m) => ({ default: m.ApplicationBackupShowPage })));
+const ServiceStorageBackupsPage = lazy(() => import("./pages/VolumeBackups").then((m) => ({ default: m.ServiceStorageBackupsPage })));
+const ServiceStorageBackupRedirectPage = lazy(() => import("./pages/VolumeBackups").then((m) => ({ default: m.ServiceStorageBackupRedirectPage })));
+const ServiceDatabaseBackupsRedirectPage = lazy(() => import("./pages/VolumeBackups").then((m) => ({ default: m.ServiceDatabaseBackupsRedirectPage })));
+const ApplicationPreviewsPage = lazy(() => import("./pages/ApplicationPreviews").then((m) => ({ default: m.ApplicationPreviewsPage })));
 
 /** routes/web.php: security.private-key.show is redirect()->route('security.private-key.index'). */
 function RedirectTo({ path }: { path: string }) {
@@ -847,6 +854,46 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <TagsPage />
+        </Suspense>
+      );
+    // DP-99: the storage backups and the preview deployments.
+    case "project.application.backup.index":
+      return (
+        <Suspense fallback={null}>
+          <ApplicationBackupsPage />
+        </Suspense>
+      );
+    case "project.application.backup.show":
+      return (
+        <Suspense fallback={null}>
+          <ApplicationBackupShowPage />
+        </Suspense>
+      );
+    case "project.application.backup.redirect":
+    case "project.service.import-backup.redirect":
+      return <RedirectTo path={backupLinkRedirect(window.location.pathname)} />;
+    case "project.service.volume-backups.index":
+      return (
+        <Suspense fallback={null}>
+          <ServiceStorageBackupsPage />
+        </Suspense>
+      );
+    case "project.service.volume-backups.show":
+      return (
+        <Suspense fallback={null}>
+          <ServiceStorageBackupRedirectPage />
+        </Suspense>
+      );
+    case "project.service.database.backups":
+      return (
+        <Suspense fallback={null}>
+          <ServiceDatabaseBackupsRedirectPage />
+        </Suspense>
+      );
+    case "project.application.preview-deployments":
+      return (
+        <Suspense fallback={null}>
+          <ApplicationPreviewsPage />
         </Suspense>
       );
     default:

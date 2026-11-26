@@ -93,6 +93,8 @@ import { BUILD_MESSAGES, builtAnswer, prepareBuild, saveBuild, showBuild } from 
 import type { GithubDeps } from "../applications/github.js";
 import { handleApplicationResources, isApplicationResourceRoute } from "./application-resources.js";
 import { handleApplicationMore, isApplicationMoreRoute } from "./application-more.js";
+import { handleVolumeBackupPages, isVolumeBackupRoute } from "./volume-backup-pages.js";
+import { handleApplicationPreviews, isApplicationPreviewRoute } from "./application-previews.js";
 import { serviceListResources } from "../services/resources.js";
 import { destroyCanvasLink, environmentCanvas, storeCanvasLink, updateCanvasLink, updateCanvasPositions, type CanvasAnswer } from "../applications/canvas.js";
 import { readApiBody } from "../api-v1/request.js";
@@ -221,6 +223,10 @@ export async function handleApplications(
   if (isApplicationResourceRoute(segments, method)) return handleApplicationResources(env, requestId, actor, orgId, segments, request);
   // The Source, Servers, Webhooks, Scheduled Tasks and Rollback pages (application-more.ts).
   if (isApplicationMoreRoute(segments)) return handleApplicationMore(env, requestId, actor, orgId, segments, request);
+  // The storage backups (…/backups[/…], DP-99: volume-backup-pages.ts).
+  if (isVolumeBackupRoute("application", segments)) return handleVolumeBackupPages(env, requestId, actor, orgId, "application", segments, request);
+  // The Preview Deployments page (…/previews[/…], DP-99: application-previews.ts).
+  if (isApplicationPreviewRoute(segments)) return handleApplicationPreviews(env, requestId, actor, orgId, segments, request);
   // The deployment queue: the history, a deployment's log, cancel — and Deploy and Restart once the SSH executor is bound (deployments.ts).
   if (isDeploymentRoute(env, segments)) return handleDeployments(env, requestId, actor, orgId, segments, request);
   let op: Op | null = null;

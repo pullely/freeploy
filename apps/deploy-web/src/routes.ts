@@ -1,7 +1,7 @@
 // The URL structure is routes/web.php's, one to one (design §3.1). A route
 // whose page is not ported yet renders NotPorted, which the parity harness
 // reports as a failing (not missing) route once deploy-web is the target.
-export type PageKey = "login" | "register" | "forgot-password" | "reset-password" | "profile.appearance" | "profile" | "profile.passkeys.confirm" | "password.confirm" | "verify.email" | "two-factor.required" | "verify.verify" | "two-factor.login" | "security.private-key.index" | "security.private-key.show" | "security.cloud-tokens" | "security.cloud-tokens.show" | "security.cloud-init-scripts" | "security.cloud-init-scripts.show" | "server.index" | "server.create" | "server.create.manual" | "server.show" | "server.advanced" | "server.private-key" | "server.cloud-provider-token" | "server.ca-certificate" | "server.sentinel" | "server.swarm" | "server.docker-cleanup" | "server.log-drains" | "server.destinations" | "server.delete" | "server.registries" | "registries.index" | "project.index" | "project.show" | "project.edit" | "project.resource.index" | "project.environment.edit" | "project.environment.canvas" | "deploy-canvas" | "project.resource.create" | "project.application.configuration" | "project.application.environment-variables" | "project.application.domains" | "project.application.advanced" | "project.application.healthcheck" | "project.application.resource-limits" | "project.application.persistent-storage" | "project.application.tags" | "project.application.resource-operations" | "project.application.danger" | "project.database.configuration" | "project.application.source" | "project.application.servers" | "project.application.webhooks" | "project.application.scheduled-tasks" | "project.application.rollback" | "project.service.configuration" | "project.application.deployment.index" | "project.application.deployment.show" | "destination.index" | "destination.show" | "destination.danger" | "destination.resources" | "not-ported" | SharedVariablesPageKey | DatabaseSharedPageKey | StoragePageKey | NotificationsPageKey | ServicePageKey | TeamPageKey | ApiTokensPageKey | SourcesPageKey | BoardingPageKey | PlatformPageKey | SubscriptionPageKey | ServerMorePageKey | ResourcePagesKey | CanvasViewsPageKey;
+export type PageKey = "login" | "register" | "forgot-password" | "reset-password" | "profile.appearance" | "profile" | "profile.passkeys.confirm" | "password.confirm" | "verify.email" | "two-factor.required" | "verify.verify" | "two-factor.login" | "security.private-key.index" | "security.private-key.show" | "security.cloud-tokens" | "security.cloud-tokens.show" | "security.cloud-init-scripts" | "security.cloud-init-scripts.show" | "server.index" | "server.create" | "server.create.manual" | "server.show" | "server.advanced" | "server.private-key" | "server.cloud-provider-token" | "server.ca-certificate" | "server.sentinel" | "server.swarm" | "server.docker-cleanup" | "server.log-drains" | "server.destinations" | "server.delete" | "server.registries" | "registries.index" | "project.index" | "project.show" | "project.edit" | "project.resource.index" | "project.environment.edit" | "project.environment.canvas" | "deploy-canvas" | "project.resource.create" | "project.application.configuration" | "project.application.environment-variables" | "project.application.domains" | "project.application.advanced" | "project.application.healthcheck" | "project.application.resource-limits" | "project.application.persistent-storage" | "project.application.tags" | "project.application.resource-operations" | "project.application.danger" | "project.database.configuration" | "project.application.source" | "project.application.servers" | "project.application.webhooks" | "project.application.scheduled-tasks" | "project.application.rollback" | "project.service.configuration" | "project.application.deployment.index" | "project.application.deployment.show" | "destination.index" | "destination.show" | "destination.danger" | "destination.resources" | "not-ported" | SharedVariablesPageKey | DatabaseSharedPageKey | StoragePageKey | NotificationsPageKey | ServicePageKey | TeamPageKey | ApiTokensPageKey | SourcesPageKey | BoardingPageKey | PlatformPageKey | SubscriptionPageKey | ServerMorePageKey | ResourcePagesKey | CanvasViewsPageKey | BackupPagesKey;
 
 /**
  * The canvases that reuse the environment canvas's view (DP-98): the projects, project, servers, server and dashboard
@@ -18,6 +18,35 @@ export type CanvasViewsPageKey =
   | "shared-variables.environment.canvas"
   | "shared-variables.server.canvas"
   | "tags.canvas";
+
+/**
+ * The storage backups of an application and a service, and an application's preview deployments (DP-99). The keys
+ * that end in .redirect are routes/web.php's redirects of old links.
+ */
+export type BackupPagesKey =
+  | "project.application.backup.index"
+  | "project.application.backup.show"
+  | "project.application.backup.redirect"
+  | "project.service.volume-backups.index"
+  | "project.service.volume-backups.show"
+  | "project.service.import-backup.redirect"
+  | "project.service.database.backups"
+  | "project.application.preview-deployments";
+
+/**
+ * routes/web.php's Route::redirect()s of the backup links: an application's …/backups/{backup_uuid}/{s3|retention} to the
+ * schedule, a service's …/import-backup to …/storage-backups, …/import-backup/{stack_service_uuid} and
+ * …/{stack_service_uuid}/import to …/{stack_service_uuid}/backups.
+ */
+export function backupLinkRedirect(pathname: string): string {
+  const parts = pathname.replace(/\/+$/, "").split("/");
+  const last = parts[parts.length - 1];
+  if (last === "s3" || last === "retention") return parts.slice(0, -1).join("/");
+  if (last === "import") return `${parts.slice(0, -1).join("/")}/backups`;
+  const at = parts.lastIndexOf("import-backup");
+  if (at === parts.length - 1) return `${parts.slice(0, at).join("/")}/storage-backups`;
+  return `${parts.slice(0, at).join("/")}/${parts[at + 1]}/backups`;
+}
 
 /**
  * The resource pages of DP-97: a service's Scheduled Tasks (and its task links), Webhooks, Resource Operations
@@ -166,6 +195,11 @@ const ROUTES: Array<[RegExp, PageKey]> = [
   [/^\/project\/[^/]+\/environment\/[^/]+\/application\/[^/]+\/webhooks\/?$/, "project.application.webhooks"],
   [/^\/project\/[^/]+\/environment\/[^/]+\/application\/[^/]+\/scheduled-tasks\/?$/, "project.application.scheduled-tasks"],
   [/^\/project\/[^/]+\/environment\/[^/]+\/application\/[^/]+\/rollback\/?$/, "project.application.rollback"],
+  // DP-99: the storage backups (…/backups/{backup_uuid}/{s3|retention} redirect to the schedule) and Preview Deployments.
+  [/^\/project\/[^/]+\/environment\/[^/]+\/application\/[^/]+\/backups\/?$/, "project.application.backup.index"],
+  [/^\/project\/[^/]+\/environment\/[^/]+\/application\/[^/]+\/backups\/[^/]+(?:\/(?:executions|danger))?\/?$/, "project.application.backup.show"],
+  [/^\/project\/[^/]+\/environment\/[^/]+\/application\/[^/]+\/backups\/[^/]+\/(?:s3|retention)\/?$/, "project.application.backup.redirect"],
+  [/^\/project\/[^/]+\/environment\/[^/]+\/application\/[^/]+\/preview-deployments\/?$/, "project.application.preview-deployments"],
   // DP-97: …/tasks/{task_uuid} (Coolify's project.application.scheduled-tasks) redirects to the list with ?task_uuid=.
   [/^\/project\/[^/]+\/environment\/[^/]+\/application\/[^/]+\/tasks\/[^/]+\/?$/, "project.application.scheduled-tasks.task"],
   // A standalone database's configuration: General. Its other pages (…/backups, …/servers, …) are not ported, except the ones below.
@@ -200,6 +234,13 @@ const ROUTES: Array<[RegExp, PageKey]> = [
   [/^\/project\/[^/]+\/environment\/[^/]+\/service\/[^/]+\/tasks\/[^/]+\/?$/, "project.service.scheduled-tasks"],
   [/^\/project\/[^/]+\/environment\/[^/]+\/service\/[^/]+\/webhooks\/?$/, "project.service.webhooks"],
   [/^\/project\/[^/]+\/environment\/[^/]+\/service\/[^/]+\/resource-operations\/?$/, "project.service.resource-operations"],
+  // DP-99: the storage backups (a schedule's links redirect to the list), the old import links, and a database's
+  // …/{stack_service_uuid}/backups[/{backup_uuid}[/…]], which DatabaseBackups::mount() redirects.
+  [/^\/project\/[^/]+\/environment\/[^/]+\/service\/[^/]+\/storage-backups\/?$/, "project.service.volume-backups.index"],
+  [/^\/project\/[^/]+\/environment\/[^/]+\/service\/[^/]+\/storage-backups\/[^/]+(?:\/(?:executions|danger|s3|retention))?\/?$/, "project.service.volume-backups.show"],
+  [/^\/project\/[^/]+\/environment\/[^/]+\/service\/[^/]+\/import-backup(?:\/[^/]+)?\/?$/, "project.service.import-backup.redirect"],
+  [new RegExp(`^/project/[^/]+/environment/[^/]+/service/[^/]+/(?!(?:${SERVICE_SUBROUTES})/)[^/]+/import/?$`), "project.service.import-backup.redirect"],
+  [new RegExp(`^/project/[^/]+/environment/[^/]+/service/[^/]+/(?!(?:${SERVICE_SUBROUTES})/)[^/]+/backups(?:/[^/]+(?:/(?:executions|danger|s3|retention))?)?/?$`), "project.service.database.backups"],
   [new RegExp(`^/project/[^/]+/environment/[^/]+/service/[^/]+/(?!(?:${SERVICE_SUBROUTES})/)[^/]+/advanced/?$`), "project.service.index.advanced"],
   // project.service.index: one application's or database's settings.
   [new RegExp(`^/project/[^/]+/environment/[^/]+/service/[^/]+/(?!(?:${SERVICE_SUBROUTES})/?$)[^/]+/?$`), "project.service.index"],

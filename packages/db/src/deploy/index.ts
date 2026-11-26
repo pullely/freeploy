@@ -657,3 +657,7 @@ export * from "./api-applications.js";
 export * from "./canvas.js";
 // DP-98: the projects, servers, dashboard, shared variable and tag canvases.
 export * from "./canvas-views.js";
+// DP-99: the console's volume backup pages of an application and a service.
+export * from "./volume-backup-pages.js";
+// DP-99: the console's Preview Deployments page.
+export * from "./preview-pages.js";

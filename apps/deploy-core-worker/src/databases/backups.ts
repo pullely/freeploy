@@ -123,6 +123,8 @@ export function validateDatabasesBackupInput(input: string): string {
 // ------------------------------------------------------------ BackupEdit's #[Validate] rules
 
 type Rule = "required" | "nullable" | "boolean" | "string" | "integer" | "numeric" | "array" | ["min" | "max", number];
+/** A Livewire component's rules by property (also the volume backup pages', DP-99). */
+export type BackupFieldRules = Record<string, Rule[]>;
 
 /** The rules of BackupEdit's properties, as Coolify declares them ('int' is Laravel's integer). */
 const RULES: Record<string, Rule[]> = {
@@ -152,9 +154,9 @@ const isInteger = (v: unknown): boolean => (typeof v === "number" && Number.isIn
 const isBlank = (v: unknown): boolean => v === null || v === undefined || (typeof v === "string" && v.trim() === "") || (Array.isArray(v) && v.length === 0);
 
 /** Laravel's validator with these rules and its default messages; all failures of a field, in rule order. */
-export function validateBackupFields(data: Record<string, unknown>): Record<string, string[]> {
+export function validateBackupFields(data: Record<string, unknown>, ruleSet: BackupFieldRules = RULES): Record<string, string[]> {
   const errors: Record<string, string[]> = {};
-  for (const [field, rules] of Object.entries(RULES)) {
+  for (const [field, rules] of Object.entries(ruleSet)) {
     const v = data[field];
     const a = attributeName(field);
     const add = (m: string) => (errors[field] ??= []).push(m);
