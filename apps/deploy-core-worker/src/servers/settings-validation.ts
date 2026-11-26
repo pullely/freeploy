@@ -1,7 +1,7 @@
 // Derived from coollabsio/coolify@91b7e3e:app/Livewire/Server/{Advanced,DockerCleanup,LogDrains,Swarm,Sentinel}.php
 // (#[Validate] rules, customValidation, the cron checks), app/Rules/{ValidHostname,ValidFluentBitConfig}.php,
 // app/Models/ServerSetting.php (isValidSentinelToken) and bootstrap/helpers/{shared,constants}.php
-// (validate_cron_expression, translate_cron_expression, VALID_CRON_STRINGS) (Apache-2.0), modified.
+// (validate_cron_expression) (Apache-2.0), modified.
 //
 // Laravel's validator for the server settings forms, rule by rule. The
 // components have no messages() of their own, so every message is Laravel's
@@ -10,6 +10,7 @@
 import { add, blank, length, type FieldErrors } from "../private-keys/validation.js";
 import { hostnameError } from "./ip.js";
 import { integerValue, isUrl, size } from "./validation.js";
+import { validateCronExpressionStrict } from "../helpers/cron.js";
 
 /** Laravel's displayable attribute for a Livewire property. */
 export const attribute = (property: string): string => property.replace(/([a-z0-9])([A-Z])/g, "$1 $2").toLowerCase();
@@ -42,79 +43,14 @@ export const SETTINGS_MESSAGES = {
 
 // ---------------------------------------------------------------- cron
 
-/** VALID_CRON_STRINGS */
-export const VALID_CRON_STRINGS: Readonly<Record<string, string>> = {
-  every_minute: "* * * * *",
-  hourly: "0 * * * *",
-  daily: "0 0 * * *",
-  weekly: "0 0 * * 0",
-  monthly: "0 0 1 * *",
-  yearly: "0 0 1 1 *",
-  "@hourly": "0 * * * *",
-  "@daily": "0 0 * * *",
-  "@weekly": "0 0 * * 0",
-  "@monthly": "0 0 1 * *",
-  "@yearly": "0 0 1 1 *",
-};
+// Coolify's validate_cron_expression() is one function for every caller — the server settings,
+// scheduled tasks and backup schedules — so all of them use helpers/cron.ts, which holds its
+// verdicts to Coolify's (tests/deploy-core-worker/fixtures/s3, the cron goldens).
+export { VALID_CRON_STRINGS, translateCronExpression } from "../helpers/cron-presets.js";
 
-/** dragonmantank/cron-expression's CronExpression::MAPPINGS. */
-const CRON_MAPPINGS: Readonly<Record<string, string>> = {
-  "@yearly": "0 0 1 1 *",
-  "@annually": "0 0 1 1 *",
-  "@monthly": "0 0 1 * *",
-  "@weekly": "0 0 * * 0",
-  "@daily": "0 0 * * *",
-  "@midnight": "0 0 * * *",
-  "@hourly": "0 * * * *",
-};
-
-const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-const DAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
-
-/** One cron field: lists of *, n, a-b, each optionally /step; names for months and weekdays. */
-function validCronField(part: string, min: number, max: number, names: string[] = [], special?: RegExp): boolean {
-  const value = (v: string) => {
-    if (/^\d+$/.test(v)) return Number(v) >= min && Number(v) <= max;
-    return names.includes(v.toUpperCase());
-  };
-  return part.split(",").every((item) => {
-    if (item === "") return false;
-    if (special?.test(item)) return true;
-    const pieces = item.split("/");
-    if (pieces.length > 2) return false;
-    const [range, step] = pieces as [string, string | undefined];
-    if (step !== undefined && !/^[1-9]\d*$/.test(step)) return false;
-    if (range === "*") return true;
-    const bounds = range.split("-");
-    if (bounds.length === 1) return value(bounds[0]!);
-    return bounds.length === 2 && value(bounds[0]!) && value(bounds[1]!);
-  });
-}
-
-/** CronExpression's field validation for a five-field expression (or one of its macros). */
-export function isValidCronExpression(expression: string): boolean {
-  const mapped = CRON_MAPPINGS[expression.toLowerCase()] ?? expression;
-  const parts = mapped.split(/\s+/).filter(Boolean);
-  if (parts.length !== 5) return false;
-  const [minute, hour, dom, month, dow] = parts as [string, string, string, string, string];
-  return (
-    validCronField(minute, 0, 59) &&
-    validCronField(hour, 0, 23) &&
-    validCronField(dom, 1, 31, [], /^(\?|L|LW|\d{1,2}W)$/) &&
-    validCronField(month, 1, 12, MONTHS) &&
-    validCronField(dow, 0, 7, DAYS, /^(\?|[0-7]L|[0-7]#[1-5])$/)
-  );
-}
-
-/** validate_cron_expression(): a preset of VALID_CRON_STRINGS or a valid expression. */
+/** validate_cron_expression(): a preset of VALID_CRON_STRINGS or an expression Coolify accepts. */
 export function validateCronExpression(expression: unknown): boolean {
-  if (typeof expression !== "string" || expression === "" || expression === "0") return false;
-  return expression in VALID_CRON_STRINGS || isValidCronExpression(expression);
-}
-
-/** translate_cron_expression(): a preset becomes its expression. */
-export function translateCronExpression(expression: string): string {
-  return VALID_CRON_STRINGS[expression] ?? expression;
+  return validateCronExpressionStrict(expression);
 }
 
 // ---------------------------------------------------------------- rules

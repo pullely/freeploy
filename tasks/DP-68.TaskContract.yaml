@@ -1,0 +1,19 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-68
+  title: "DP4 fix: one cron validator, Coolify's, for server settings, scheduled tasks and backup schedules"
+spec:
+  goal: Coolify's validate_cron_expression() is one function for every caller, but Freeploy had two ports of it. The one used by the server settings pages (Advanced, Docker Cleanup) and scheduled tasks re-implemented a different library's rules and accepted expressions Coolify refuses (weekday names in a range such as MON-FRI, L, W, #, ?, @midnight). Those callers now use helpers/cron.ts, whose verdicts are held to Coolify's real PHP output, and the schedule words live in one module both validators import.
+  affects:
+    - apps/deploy-core-worker/src/servers/settings-validation.ts
+    - apps/deploy-core-worker/src/helpers/**
+    - tests/deploy-core-worker/src/server-settings.test.ts
+    - tests/deploy-core-worker/src/application-more.test.ts
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - validateCronExpression in servers/settings-validation.ts gives Coolify's verdict for every cron golden in tests/deploy-core-worker/fixtures/s3/goldens.json
+    - saving a server's Docker Cleanup or Advanced settings, or a scheduled task, with "0 0 * * MON-FRI" or "@midnight" answers Coolify's "Invalid Cron / Human expression" message, as Coolify does
+    - tests/deploy-core-worker typecheck, lint and test pass
+  gates: []
