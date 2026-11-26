@@ -1,0 +1,21 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-102
+  title: "DP8/DP11: an application's Maintenance Mode and Swarm pages, a service's Domains and Maintenance Mode pages, and /select-team on Freeploy's org switching (what writes the proxy's maintenance files on a server answers 501 with nothing stored)"
+spec:
+  goal: deploy-web gains the Configuration sub-pages routes/web.php serves with App\Livewire\Project\Application\Configuration and App\Livewire\Project\Service\Configuration, and /select-team. …/application/{uuid}/maintenance (project.application.maintenance) and …/service/{uuid}/maintenance (project.service.maintenance) are <livewire:project.shared.maintenance :resource> — the On/Off badge, the Enable/Disable maintenance confirmation with its copy, the custom maintenance page with Maintenance's rule ('nullable', 'string', proxyPageSizeRule('maintenance page'), 1024 KB), "Maintenance mode enabled.", "Maintenance mode disabled.", "Maintenance page saved.", "Default maintenance page restored.", and getIsSupportedProperty()'s Traefik/Caddy-not-Swarm check with its notice; syncMaintenancePage() writes the proxy's files on each functional server, so a toggle, or a save or reset while maintenance is on, answers 501 "Applying the maintenance page on the server needs the SSH executor, which is not available yet." after the rules with nothing stored (with no functional server Coolify's sync does nothing and the row is stored). …/application/{uuid}/swarm (project.application.swarm) is <livewire:project.application.swarm>, rendered only when the application's server is a Swarm one — Replicas, Node placement (instantSave), Custom placement constraints stored base64-encoded, Swarm's #[Validate] rules with Laravel's messages and "Swarm settings updated.". …/service/{uuid}/domains (project.service.domains) is App\Livewire\Project\Service\Domains — the domains grouped by application with Redirect HTTP to HTTPS and Redirect type, Add domain (the Service application listbox, Generate domain), the Domain settings dialog (address, search indexing, www redirect, Regenerate hostname), Remove domain, Check DNS / Check all DNS, the domain conflict and port requirement dialogs — each save changing the service's rows as the component does (ServiceApplication's saving hook, updateCompose(), Service::parse()) and written back in the org's transaction. /select-team (team.select, App\Livewire\SelectTeam) lists the user's orgs and makes the picked one current through Freeploy's org switching (PATCH /v1/auth/profile { lastOrgSlug }, as accepting an invitation does); with a current org or at most one org it goes to /. New endpoints GET/PATCH /v1/organizations/{org}/deploy/applications/{uuid}/{maintenance|swarm} and /services/{uuid}/{maintenance|domains} run inside withOrg with deploy.resource.read / write and answer a denial with 404. packages/db gains deploy/config-subpages.ts. No migration, binding or dependency.
+  affects:
+    - apps/deploy-web/**
+    - apps/deploy-core-worker/**
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - apps/deploy-web/test/routes.test.ts maps …/application/{uuid}/maintenance, …/application/{uuid}/swarm, …/service/{uuid}/domains, …/service/{uuid}/maintenance and /select-team to their pages; apps/deploy-web/test/config-subpages.test.ts holds SelectTeam's mount() and selectTeam(), the maintenance confirmation, the Swarm form and the Domains groups and search
+    - tests/deploy-core-worker/src/config-subpages.test.ts holds Maintenance's and Swarm's rules, messages and toasts, the service Domains actions with their rules, toasts, dialogs and reparse, authorization (a denial is a 404 that runs nothing), org isolation, and the maintenance 501s storing nothing
+    - tests/db/src/deploy-config-subpages.test.ts runs the new queries on the schema at head, row-level security included
+    - on stage, an application's Maintenance Mode on a server with Traefik that is not validated turns on and off and saves its page; on a validated server its toggle says the SSH executor is not available yet; a service's Domains page adds, edits and removes a domain of its application
+  gates: []

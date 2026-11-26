@@ -1101,6 +1101,11 @@ function isCopiedServiceUrlDeclaration(parser: Parser, services: PhpArray, curre
   return [key, twinKey].some((ownerKey) => ownerDeclarations.has(ownerKey) && phpString(ownerDeclarations.get(ownerKey)) === value);
 }
 
+/** ServiceApplication::getRequiredPort() of one of the store's applications (the service Domains page, DP-102). */
+export function serviceApplicationRequiredPort(store: ServiceStore, context: ServiceParserContext, application: ServiceApplicationRow): number | null {
+  return new Parser(store, context).applicationRequiredPort(application);
+}
+
 /** `$application->fqdn = …; $application->save()`: ServiceApplication's saving hook for a changed fqdn (the ports into domain_port_overrides, the noindex flags). */
 export function setServiceApplicationFqdn(application: ServiceApplicationRow, fqdn: string | null): void {
   if (application.fqdn === fqdn) return;

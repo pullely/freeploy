@@ -136,6 +136,12 @@ const ApplicationPreviewsPage = lazy(() => import("./pages/ApplicationPreviews")
 // DP-100: the dashboard and an environment's Clone page.
 const DashboardPage = lazy(() => import("./pages/Dashboard").then((m) => ({ default: m.DashboardPage })));
 const EnvironmentClonePage = lazy(() => import("./pages/EnvironmentClone").then((m) => ({ default: m.EnvironmentClonePage })));
+// DP-102: an application's Maintenance Mode and Swarm, a service's Domains and Maintenance Mode, and /select-team.
+const ApplicationMaintenancePage = lazy(() => import("./pages/ConfigSubpages").then((m) => ({ default: m.ApplicationMaintenancePage })));
+const ApplicationSwarmPage = lazy(() => import("./pages/ConfigSubpages").then((m) => ({ default: m.ApplicationSwarmPage })));
+const ServiceMaintenancePage = lazy(() => import("./pages/ConfigSubpages").then((m) => ({ default: m.ServiceMaintenancePage })));
+const ServiceDomainsPage = lazy(() => import("./pages/ServiceDomains").then((m) => ({ default: m.ServiceDomainsPage })));
+const SelectTeamPage = lazy(() => import("./pages/ConfigSubpages").then((m) => ({ default: m.SelectTeamPage })));
 
 /** routes/web.php: security.private-key.show is redirect()->route('security.private-key.index'). */
 function RedirectTo({ path }: { path: string }) {
@@ -942,6 +948,37 @@ export function App() {
       return (
         <Suspense fallback={null}>
           <EnvironmentClonePage />
+        </Suspense>
+      );
+    // DP-102: the configuration sub-pages and /select-team.
+    case "project.application.maintenance":
+      return (
+        <Suspense fallback={null}>
+          <ApplicationMaintenancePage />
+        </Suspense>
+      );
+    case "project.application.swarm":
+      return (
+        <Suspense fallback={null}>
+          <ApplicationSwarmPage />
+        </Suspense>
+      );
+    case "project.service.domains":
+      return (
+        <Suspense fallback={null}>
+          <ServiceDomainsPage />
+        </Suspense>
+      );
+    case "project.service.maintenance":
+      return (
+        <Suspense fallback={null}>
+          <ServiceMaintenancePage />
+        </Suspense>
+      );
+    case "team.select":
+      return (
+        <Suspense fallback={null}>
+          <SelectTeamPage />
         </Suspense>
       );
     default:

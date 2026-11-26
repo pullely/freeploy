@@ -21,7 +21,7 @@ import { TableDropdown } from "../components/CoolifyList";
 import { applicationPath, ApplicationWorkspace, type ApplicationInfo } from "./ApplicationChrome";
 import { useApplicationSection, yesNo, type ApplicationSectionData } from "./ApplicationSection";
 
-interface DomainParts {
+export interface DomainParts {
   scheme: string;
   host: string;
   port: string;
@@ -69,14 +69,14 @@ interface Saved {
   unavailable: string | null;
 }
 
-interface Conflict {
+export interface Conflict {
   domain: string;
   resource_name: string;
   resource_type: string;
 }
 
 /** DomainUrlParts::empty() */
-const EMPTY_PARTS: DomainParts = { scheme: "https", host: "", port: "", path: "" };
+export const EMPTY_PARTS: DomainParts = { scheme: "https", host: "", port: "", path: "" };
 
 const PROTOCOL_OPTIONS = [
   { value: "https", label: "https" },
@@ -84,7 +84,7 @@ const PROTOCOL_OPTIONS = [
 ];
 
 /** <x-forms.domain-input>: protocol, host, port and path of one domain. */
-function DomainInput(props: { id: string; parts: DomainParts; onChange: (parts: DomainParts) => void; error?: string | undefined; inheritedPort?: number | null }) {
+export function DomainInput(props: { id: string; parts: DomainParts; onChange: (parts: DomainParts) => void; error?: string | undefined; inheritedPort?: number | null }) {
   const { id, parts, onChange } = props;
   const withInherited = props.inheritedPort !== undefined;
   return (
@@ -143,8 +143,8 @@ function DomainInput(props: { id: string; parts: DomainParts; onChange: (parts: 
   );
 }
 
-/** The dialog shell of <x-domain-conflict-modal> and of the port warning. */
-function Dialog({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
+/** The dialog shell of <x-domain-conflict-modal> and of the port warning (also a service's Domains page, DP-102). */
+export function Dialog({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
@@ -170,8 +170,8 @@ function Dialog({ title, onClose, children }: { title: string; onClose: () => vo
   );
 }
 
-const DNS_TYPE: Record<string, "success" | "error" | "warning"> = { ok: "success", failed: "error", skipped: "warning" };
-const DNS_LABEL: Record<string, string> = { ok: "DNS matches", failed: "DNS mismatch", skipped: "DNS skipped", checking: "Checking DNS...", pending: "Not checked" };
+export const DNS_TYPE: Record<string, "success" | "error" | "warning"> = { ok: "success", failed: "error", skipped: "warning" };
+export const DNS_LABEL: Record<string, string> = { ok: "DNS matches", failed: "DNS mismatch", skipped: "DNS skipped", checking: "Checking DNS...", pending: "Not checked" };
 const DIRECTION: Record<Redirect, string> = { www: "non-www → www", "non-www": "www → non-www", both: "Disabled" };
 
 interface Editing {

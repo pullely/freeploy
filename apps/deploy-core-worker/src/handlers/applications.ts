@@ -95,6 +95,7 @@ import { handleApplicationResources, isApplicationResourceRoute } from "./applic
 import { handleApplicationMore, isApplicationMoreRoute } from "./application-more.js";
 import { handleVolumeBackupPages, isVolumeBackupRoute } from "./volume-backup-pages.js";
 import { handleApplicationPreviews, isApplicationPreviewRoute } from "./application-previews.js";
+import { handleConfigSubpages, isConfigSubpageRoute } from "./config-subpages.js";
 import { serviceListResources } from "../services/resources.js";
 import { destroyCanvasLink, environmentCanvas, storeCanvasLink, updateCanvasLink, updateCanvasPositions, type CanvasAnswer } from "../applications/canvas.js";
 import { readApiBody } from "../api-v1/request.js";
@@ -225,6 +226,8 @@ export async function handleApplications(
   if (isApplicationMoreRoute(segments)) return handleApplicationMore(env, requestId, actor, orgId, segments, request);
   // The storage backups (…/backups[/…], DP-99: volume-backup-pages.ts).
   if (isVolumeBackupRoute("application", segments)) return handleVolumeBackupPages(env, requestId, actor, orgId, "application", segments, request);
+  // The Maintenance Mode and Swarm pages (DP-102: config-subpages.ts).
+  if (isConfigSubpageRoute("application", segments)) return handleConfigSubpages(env, requestId, actor, orgId, "application", segments, request);
   // The Preview Deployments page (…/previews[/…], DP-99: application-previews.ts).
   if (isApplicationPreviewRoute(segments)) return handleApplicationPreviews(env, requestId, actor, orgId, segments, request);
   // The deployment queue: the history, a deployment's log, cancel — and Deploy and Restart once the SSH executor is bound (deployments.ts).
