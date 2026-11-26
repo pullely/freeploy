@@ -508,3 +508,35 @@ export async function listEnvironmentServiceResources(tx: SqlExecutor, environme
   );
   return r.rows;
 }
+
+/** One service of an environment as the environment canvas draws it (EnvironmentCanvas::serviceNode). */
+export interface DeployEnvironmentServiceCanvasRow extends SqlRow {
+  uuid: string;
+  name: string;
+  server_uuid: string | null;
+  server_name: string | null;
+  server_ip: string | null;
+  server_is_reachable: boolean | null;
+  server_is_usable: boolean | null;
+  /** [{name, kind, status, fqdn, exclude_from_status, is_removed_from_compose}] of every application, then every database. */
+  parts: unknown;
+}
+
+/** $environment->services()->with(['applications', 'databases', 'destination.server']): the canvas's service cards. */
+export async function listEnvironmentServiceCanvasRows(tx: SqlExecutor, environmentId: Id): Promise<DeployEnvironmentServiceCanvasRow[]> {
+  const r = await tx.execute<DeployEnvironmentServiceCanvasRow>(
+    `SELECT s.uuid, s.name, sv.uuid AS server_uuid, sv.name AS server_name, sv.ip AS server_ip,
+            ss.is_reachable AS server_is_reachable, ss.is_usable AS server_is_usable,
+            COALESCE((SELECT json_agg(json_build_object('name', p.name, 'kind', p.kind, 'status', p.status, 'fqdn', p.fqdn, 'exclude_from_status', p.exclude_from_status, 'is_removed_from_compose', p.is_removed_from_compose) ORDER BY p.kind, p.id)
+                        FROM (SELECT 'application' AS kind, id, name, status, fqdn, exclude_from_status, is_removed_from_compose FROM deploy.service_applications WHERE service_id = s.id AND deleted_at IS NULL
+                              UNION ALL SELECT 'database', id, name, status, NULL, exclude_from_status, is_removed_from_compose FROM deploy.service_databases WHERE service_id = s.id AND deleted_at IS NULL) p), '[]'::json) AS parts
+       FROM deploy.services s
+       LEFT JOIN deploy.standalone_dockers sd ON sd.id = s.destination_id AND s.destination_type = E'${STANDALONE}'
+       LEFT JOIN deploy.swarm_dockers wd ON wd.id = s.destination_id AND s.destination_type = E'${SWARM}'
+       LEFT JOIN deploy.servers sv ON sv.id = COALESCE(sd.server_id, wd.server_id) AND sv.deleted_at IS NULL
+       LEFT JOIN deploy.server_settings ss ON ss.server_id = sv.id
+      WHERE s.environment_id = $1 AND s.deleted_at IS NULL ORDER BY s.id`,
+    [environmentId],
+  );
+  return r.rows;
+}

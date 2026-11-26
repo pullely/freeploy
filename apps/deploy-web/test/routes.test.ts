@@ -72,7 +72,7 @@ test("routes/web.php paths map to ported pages; the rest are not ported", () => 
   assert.equal(pageFor("/destination/abc123def456ghi789jkl012/resources/more"), "not-ported");
 });
 
-test("the project and environment routes map to their pages; canvas and clone are not ported", () => {
+test("the project and environment routes map to their pages; the environment canvas is ported, the other canvases and clone are not", () => {
   const project = "/project/abc123def456ghi789jkl012";
   const environment = `${project}/environment/mno345pqr678stu901vwx234`;
   assert.equal(pageFor("/projects"), "project.index");
@@ -91,7 +91,9 @@ test("the project and environment routes map to their pages; canvas and clone ar
   assert.equal(pageFor(`${environment}/new/`), "project.resource.create");
   assert.equal(pageFor(`${environment}/new/more`), "not-ported");
   assert.equal(pageFor(`${environment}/clone`), "not-ported");
-  assert.equal(pageFor(`${environment}/canvas`), "not-ported");
+  assert.equal(pageFor(`${environment}/canvas`), "project.environment.canvas");
+  assert.equal(pageFor(`${environment}/canvas/`), "project.environment.canvas");
+  assert.equal(pageFor(`${environment}/canvas/more`), "not-ported");
 });
 
 test("an application's configuration routes map to General, Domains, Advanced, Healthcheck, Resource Limits, Persistent Storage, Tags, Resource Operations, the Danger Zone, Git Source, Servers, Webhooks, Scheduled Tasks and Rollback; its other pages are not ported", () => {

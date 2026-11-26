@@ -1,0 +1,22 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-91
+  title: "DP11: the environment canvas, read only, over a new canvas read endpoint"
+spec:
+  goal: Coolify's environment canvas (Beta) — /project/{uuid}/environment/{env_uuid}/canvas, project.environment.canvas, the Svelte EnvironmentCanvas with its Card, Zone, Toolbar, Panel, Icon, NodeIcon and StatusDot, the shared BetaBadge and CanvasControls, and the pure helpers of environment-canvas.js and canvas-core.js — ported to React in apps/deploy-web with Coolify's markup, classes and copy, on a full-bleed layout (layouts.app $fullBleed). It draws one zone per server with the environment's applications, services and standalone databases as cards (status dot, subtitle, first URL, a service's containers), the unreachable and not-usable server badges, pan and zoom (wheel, pinch, drag, middle button, Cmd/Ctrl +/-/0), fit, the saved view, the side panel, the empty and error states, Refresh, the toast and the small-screen notice. The graph comes from a new read endpoint, GET /v1/organizations/{org}/deploy/projects/{uuid}/environments/{env_uuid}/canvas in deploy-core-worker (EnvironmentCanvas::payload()'s shape, deploy.resource.read, inside withOrg), because no existing read gives each resource's server identity and reachability or a service's parts by name; packages/db gains listEnvironmentServiceCanvasRows, no migration, no binding. Freeploy saves no card positions or links yet, so the canvas is view only (can_edit false, positions and links empty). Not ported, rows left planned or in progress — the deploy canvas (canvas/deploy/*, the /canvas flow builder, with its deploy run), the connect view's AddSection and Select, the dashboard's Deployments and the empty-environment EmptyCard; moving cards and zones and drawing links; the live status over Echo; the server, project, dashboard, shared variable and tag canvases.
+  affects:
+    - apps/deploy-web/**
+    - apps/deploy-core-worker/**
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - tools/parity/port/patches/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - apps/deploy-web/test/environment-canvas.test.ts holds the canvas model (zones, card places, zone frames, link curves, status tones and words, fit, saved view) built from the canvas endpoint's graph, and routes.test.ts maps …/environment/{env_uuid}/canvas to project.environment.canvas
+    - tests/deploy-core-worker/src/environment-canvas.test.ts holds the canvas graph (zones per server, cards in loadResources() order, subtitles, URLs, children, statuses, logos, links) and the endpoint's routing and authorization; tests/db holds listEnvironmentServiceCanvasRows' rows and its org isolation
+    - specs/epics/freeploy-coolify-parity/parity/svelte.json marks the six fully ported components ported and EnvironmentCanvas, Card, Panel and Toolbar in_progress, with taskKey DP-91
+    - on stage, an environment with resources on a server opens /project/{uuid}/environment/{env_uuid}/canvas from the list's "Canvas" link and shows the server zone with its cards and their statuses; "View only" is shown, a click opens a card's panel and a double-click its page, and "List view" leads back to the list
+  gates: []

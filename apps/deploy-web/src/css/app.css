@@ -7207,3 +7207,18 @@ html.dark .project-card-stats-dot {
 .nav-context-menu [data-page-only] {
     display: none !important;
 }
+
+/* FREEPLOY: the environment canvas's own styles, from resources/js/canvas/environment/EnvironmentCanvas.svelte's
+   <style> (Svelte scopes them there; the React port has no scoped styles). */
+@keyframes ec-dash {
+    to {
+        stroke-dashoffset: -12;
+    }
+}
+[data-ec-root] .ec-temp {
+    stroke-dasharray: 6 6;
+    animation: ec-dash 0.6s linear infinite;
+}
+[data-ec-root] .ec-missing {
+    stroke-dasharray: 5 5;
+}

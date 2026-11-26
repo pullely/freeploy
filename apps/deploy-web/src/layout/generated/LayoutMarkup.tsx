@@ -12,6 +12,7 @@ export interface LayoutMarkupProps {
   searchTitle: string;
   nav: (href: string) => { className: string; "aria-current"?: "page" };
   mainClass: string;
+  shellClass: string;
   teamName: string;
   teamInitial: string;
   userName: string;
@@ -189,7 +190,7 @@ export function LayoutMarkup(props: LayoutMarkupProps) {
         {" "}
         <div className="relative w-auto h-auto" />
       </div>
-      <div className="app-shell dark:text-inherit text-black" style={{ "--sidebar-w": "14rem" } as Record<string, string>}>
+      <div className={props.shellClass} style={{ "--sidebar-w": "14rem" } as Record<string, string>}>
         <header className="app-topbar hidden lg:flex fixed top-0 inset-x-0 z-50 h-12 items-center bg-white/95 dark:bg-panel/95 backdrop-blur" style={{ "--resource-actions-w": "0px" } as Record<string, string>}>
           <div className="app-topbar-brand flex items-center gap-2 h-full shrink-0 border-r border-black/[0.06] bg-neutral-50 dark:border-white/[0.04] dark:bg-app transition-[width] duration-200 w-56 px-4">
             <div className="flex items-baseline gap-1.5 min-w-0">
