@@ -31,7 +31,7 @@ const S3_STORAGE: ModelShape = { hidden: ["id", "private_key_id", "key", "secret
 /** connectionFields(S3) */
 const S3_FIELDS = ["endpoint", "bucket", "region", "key", "secret", "use_path_style_endpoint", "skip_tls_verification"];
 
-const denied = async (c: ApiV1Context, write: boolean): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized());
+const denied = async (c: ApiV1Context, write: boolean, policyMessage?: string): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized(policyMessage));
 const notFound = () => message("S3 storage not found.", 404);
 const inOrg = <T>(c: ApiV1Context, fn: (tx: SqlExecutor) => Promise<T>): Promise<T> => c.sql(c.env, c.orgId, fn);
 const encrypt = (tx: SqlExecutor, c: ApiV1Context, column: "key" | "secret", value: string): Promise<string> => columnCipher(tx, c.orgId, c.env.DEPLOY_ENCRYPTION_KEY, `s3_storages.${column}`).encrypt(value);

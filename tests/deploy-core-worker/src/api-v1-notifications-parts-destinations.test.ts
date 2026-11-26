@@ -178,7 +178,7 @@ describe("what a write leaves behind (DP-85)", () => {
 });
 
 describe("authorization and the other team (DP-85)", () => {
-  it("answers Laravel's 403 when policy-worker denies the token's user, after the 404 of an unknown resource, and writes nothing", async () => {
+  it("answers the exception handler's 403 (DP-93) when policy-worker denies the token's user, after the 404 of an unknown resource, and writes nothing", async () => {
     const out = await fixture.inCase(async (db) => {
       const shown = await send(caseNamed("notifications email: show"), db, false);
       const c = caseNamed("notifications discord: update");
@@ -189,7 +189,7 @@ describe("authorization and the other team (DP-85)", () => {
       const envs = await send(caseNamed("server envs: create"), db, false);
       return [shown.status, await shown.text(), updated.status, parts.status, unknown.status, cleanup.status, envs.status, await afterRows(db, c)];
     });
-    expect(out.slice(0, 7)).toEqual([403, '{"message":"This action is unauthorized."}', 403, 403, 404, 403, 403]);
+    expect(out.slice(0, 7)).toEqual([403, '{"message":"You are not authorized to perform this action.","error":"Unauthorized"}', 403, 403, 404, 403, 403]);
     expect(out[7]).toEqual(await fixture.inCase((db) => afterRows(db, caseNamed("notifications discord: update"))));
   });
 

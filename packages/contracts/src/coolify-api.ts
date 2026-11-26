@@ -193,14 +193,45 @@ export const COOLIFY_API = {
   missingAbilities: (abilities: readonly string[]) => coolifyJson(obj({ message: `Missing required permissions: ${abilities.join(", ")}` }), 403),
   /** routes/api.php's Route::any('/{any}') — also every /api/v1 operation Freeploy has not ported. */
   notFound: () => coolifyJson(obj({ message: "Not found.", docs: "https://coolify.io/docs" }), 404),
-  /** Gate::authorize() failing (AuthorizationException). */
-  unauthorized: () => coolifyJson(obj({ message: "This action is unauthorized." }), 403),
+  /**
+   * $this->authorize() failing under api/*: app/Exceptions/Handler.php answers the AuthorizationException with the
+   * policy's own message (Response::deny(); POLICY_DENIALS) or, for a policy that answers false, "You are not authorized
+   * to perform this action.", and "error": "Unauthorized" (DP-93; not Laravel's "This action is unauthorized.").
+   */
+  unauthorized: (message?: string) => coolifyJson(obj({ message: message ?? "You are not authorized to perform this action.", error: "Unauthorized" }), 403),
+  /** A controller's own refusal, response()->json(['message' => 'This action is unauthorized.'], 403) (CloudProviderTokensController::index). */
+  controllerUnauthorized: () => coolifyJson(obj({ message: "This action is unauthorized." }), 403),
   /** validateIncomingRequest() */
   notJson: () => coolifyJson(obj({ message: "Invalid request.", error: "Content-Type must be application/json." }), 400),
   invalidJson: () => coolifyJson(obj({ message: "Invalid request.", error: "Invalid JSON." }), 400),
   emptyJson: () => coolifyJson(obj({ message: "Invalid request.", error: "Empty JSON." }), 400),
   /** The version this API is: Coolify's at the commit Freeploy ports (config('constants.coolify.version')). */
   version: "4.7.6",
+} as const;
+
+/**
+ * The policies' own messages (Response::deny() in app/Policies/*), which the exception handler answers in place of the
+ * default (DP-93): what COOLIFY_API.unauthorized() is given where Freeploy's check stands for one of these abilities.
+ */
+export const POLICY_DENIALS = {
+  /** ApplicationPolicy::update (also a preview's application, a scheduled task's, an application's storage). */
+  applicationUpdate: "You need at least admin or owner permissions to update this application.",
+  /** ApplicationPolicy::uploadBackup */
+  applicationUploadBackup: "You need at least admin or owner permissions to upload backups for this application.",
+  /** DatabasePolicy::update */
+  databaseUpdate: "You need at least admin or owner permissions to update this database.",
+  /** DatabasePolicy::uploadBackup */
+  databaseUploadBackup: "You need at least admin or owner permissions to upload backups for this database.",
+  /** ApplicationPreviewPolicy::update */
+  previewUpdate: "You need at least admin or owner permissions to update this preview.",
+  /** ScheduledTaskPolicy::update */
+  scheduledTaskUpdate: "You need at least admin or owner permissions to update this scheduled task.",
+  /** ServerPolicy::placeResource, the server that runs Coolify */
+  placeResourceLocalhost: "Only an admin can place resources on the server that runs Coolify.",
+  /** ServerPolicy::placeResource */
+  placeResource: "You need write access on the whole team, or on a resource that already runs on this server, to place resources on it.",
+  /** ResourceCreatePolicy::useTeamCredentials */
+  useTeamCredentials: "You need write access on the whole team to use team credentials, such as private keys, git sources, and S3 storages.",
 } as const;
 
 /** The headers api-edge sends with an /api/v1 request it forwards (the token resolved). */

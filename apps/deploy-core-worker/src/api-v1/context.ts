@@ -4,7 +4,7 @@
 import type { Env } from "../env.js";
 import type { SqlExecutor } from "@saas/db/hyperdrive";
 import { apiRows, type ApiRow, type ApiTable } from "@saas/db/deploy";
-import { coolifyJson, obj, type CoolifyAnswer, type CoolifyTeamFacts, type PhpValue } from "@saas/contracts/coolify-api";
+import { POLICY_DENIALS, coolifyJson, obj, type CoolifyAnswer, type CoolifyTeamFacts, type PhpValue } from "@saas/contracts/coolify-api";
 import { columnCipher } from "../handlers/cloud-tokens.js";
 import type { S3StorageNetwork } from "../s3-storages/service.js";
 import type { ProviderNetwork } from "./cloud-providers.js";
@@ -63,3 +63,6 @@ export function queryBoolean(url: URL, name: string, fallback: boolean): boolean
 
 /** $request->user()->tokenCan('deploy') || tokenCan('root') (RequiresDeployAbility::hasDeployAbility). */
 export const hasDeployAbility = (c: ApiV1Context): boolean => c.abilities.includes("deploy") || c.abilities.includes("root");
+
+/** authorize('update', $resource): ApplicationPolicy's and DatabasePolicy's own messages (ServicePolicy answers false), DP-93. */
+export const UPDATE_DENIED: Record<"application" | "database" | "service", string | undefined> = { application: POLICY_DENIALS.applicationUpdate, database: POLICY_DENIALS.databaseUpdate, service: undefined };

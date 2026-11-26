@@ -4,8 +4,6 @@
 // types and defaults of Freeploy's database (fixtures/api/freeploy-rows.json, held to the real schema by
 // tests/db/src/deploy-api-v1.test.ts); each request goes to deploy-core-worker's handler with the headers
 // api-edge sends, and status and body are compared byte for byte after the masking both sides share.
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import { handleApiV1, type ApiV1Runners } from "@deploy-core-worker/api-v1/handler";
 import type { Env } from "@deploy-core-worker/env";
 import type { ProjectStore } from "@deploy-core-worker/projects/service";
@@ -14,7 +12,7 @@ import { fingerprintSha256, formatPrivateKey } from "@deploy-core-worker/keys/ss
 import { route } from "@deploy-core-worker/router";
 import type { ApiRow } from "@saas/db/deploy";
 import { API_V1_HEADERS, fromJs, phpJsonEncode } from "@saas/contracts/coolify-api";
-import { API_FIXTURES, CASES, FREEPLOY_ROWS, GOLDENS, golden, maskedJson, type Case, type FixtureToken } from "./api-v1-goldens.js";
+import { CASES, FREEPLOY_ROWS, GOLDENS, fixtureKeyText, golden, maskedJson, type Case, type FixtureToken } from "./api-v1-goldens.js";
 
 const ORG = "org_" + "0".repeat(31) + "a";
 const ORG_UUID = "00000000-0000-0000-0000-00000000000a";
@@ -57,7 +55,7 @@ class MemoryOrg {
       for (const e of p.environments) m.environments.push(make("environments", { id: e.id, uuid: e.uuid, name: e.name, description: e.description, project_id: p.id }));
     }
     for (const k of f.privateKeys.filter((x) => x.team === T1)) {
-      const text = formatPrivateKey(readFileSync(resolve(API_FIXTURES, k.file), "utf8"));
+      const text = formatPrivateKey(fixtureKeyText(k));
       m.keys.push(make("private_keys", { id: k.id, uuid: k.uuid, name: k.name, description: k.description, private_key: `enc:${text}`, fingerprint: await fingerprintSha256(text) }));
     }
     for (const s of f.servers.filter((x) => x.team === T1)) {
@@ -68,7 +66,7 @@ class MemoryOrg {
     // Coolify's sequences continue after every team's rows.
     m.nextId.projects = 4;
     m.nextId.environments = 5;
-    m.nextId.private_keys = 4;
+    m.nextId.private_keys = 5;
     return m;
   }
 
@@ -294,18 +292,18 @@ describe("what a write leaves behind", () => {
 
   it("deletes an unused key and keeps one a server uses", async () => {
     const del = await replay(CASES.cases.find((c) => c.name === "keys: delete")!);
-    expect(del.org.keys.map((k) => val(k, "uuid"))).toEqual(["k1parityprivatekey000001"]);
+    expect(del.org.keys.map((k) => val(k, "uuid"))).toEqual(["k1parityprivatekey000001", "k4paritygithubappkey0004"]);
   });
 });
 
 describe("authorization", () => {
-  it("answers Laravel's 403 when policy-worker denies the token's user", async () => {
+  it("answers the exception handler's 403 (DP-93) when policy-worker denies the token's user", async () => {
     const m = await MemoryOrg.fromFixture();
     const c = CASES.cases.find((x) => x.name === "projects: show")!;
     const req = forwarded(c);
     const res = await handleApiV1(req, env, "r", { subjectId: "usr_1", subjectType: "user" }, ORG_UUID, ORG, "/projects/p1alphaprojectuuid000001", m.runners(false));
     expect(res.status).toBe(403);
-    expect(await res.text()).toBe('{"message":"This action is unauthorized."}');
+    expect(await res.text()).toBe('{"message":"You are not authorized to perform this action.","error":"Unauthorized"}');
   });
 
   it("is mounted on deploy-core-worker's router only for an org id and an actor", async () => {

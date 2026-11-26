@@ -185,7 +185,7 @@ describe("what Freeploy cannot do yet, and authorization (DP-73)", () => {
     ]);
   });
 
-  it("answers Laravel's 403 when policy-worker denies the token's user, after the 404 of an unknown database", async () => {
+  it("answers the exception handler's 403 (DP-93) when policy-worker denies the token's user, after the 404 of an unknown database", async () => {
     const out = await fixture.inCase(async (db) => {
       const shown = await send(caseNamed("databases: show postgresql"), db, false);
       const created = await send(caseNamed("databases: create postgresql"), db, false);
@@ -193,7 +193,7 @@ describe("what Freeploy cannot do yet, and authorization (DP-73)", () => {
       const backups = await send(caseNamed("backups: create"), db, false);
       return [shown.status, await shown.text(), created.status, unknown.status, backups.status];
     });
-    expect(out).toEqual([403, '{"message":"This action is unauthorized."}', 403, 404, 403]);
+    expect(out).toEqual([403, '{"message":"You are not authorized to perform this action.","error":"Unauthorized"}', 403, 404, 403]);
   });
 
   it("never returns a password to a token that may not read secrets", async () => {

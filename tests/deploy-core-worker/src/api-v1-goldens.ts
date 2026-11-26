@@ -61,7 +61,8 @@ export interface Fixture {
   teams: Array<{ id: number; name: string; description: string | null; personal_team: boolean }>;
   users: Array<{ id: number; name: string; email: string; teams: Array<{ team: number; role: string }> }>;
   projects: Array<{ id: number; uuid: string; name: string; description: string | null; team: number; environments: Array<{ id: number; uuid: string; name: string; description: string | null }> }>;
-  privateKeys: Array<{ id: number; uuid: string; name: string; description: string | null; file: string; team: number }>;
+  /** A key's text is a committed test key: `file` itself, or the string at `json` (a path of keys) inside that JSON file (DP-93). */
+  privateKeys: Array<{ id: number; uuid: string; name: string; description: string | null; file: string; json?: Array<string | number>; team: number }>;
   servers: Array<{ id: number; uuid: string; name: string; description: string | null; ip: string; user: string; port: number; team: number; private_key_id: number }>;
   tokens: FixtureToken[];
   /** DP-71: each server's default destination, the applications and their variables. */
@@ -122,6 +123,16 @@ export type StorageResource = "application" | "postgresql" | "serviceApplication
 
 export const CASES = JSON.parse(readFileSync(resolve(API_FIXTURES, "cases.json"), "utf8")) as { fixture: Fixture; cases: Case[] };
 export const GOLDENS = JSON.parse(readFileSync(resolve(API_FIXTURES, "goldens.json"), "utf8")) as { version: string; columns: Record<string, string[]>; cases: Golden[] };
+/** The text of a fixture's private key, read from the committed test key it names (as emit.php reads it). */
+export function fixtureKeyText(k: { file: string; json?: Array<string | number> }): string {
+  const text = readFileSync(resolve(API_FIXTURES, k.file), "utf8");
+  if (!k.json) return text;
+  let value: unknown = JSON.parse(text);
+  for (const step of k.json) value = (value as Record<string | number, unknown>)[step];
+  if (typeof value !== "string") throw new Error(`no key at ${k.file}#${k.json.join("/")}`);
+  return value;
+}
+
 export const FREEPLOY_ROWS = JSON.parse(readFileSync(resolve(API_FIXTURES, "freeploy-rows.json"), "utf8")) as Record<string, Array<Array<[string, unknown]>>>;
 
 export function golden(name: string): Golden {

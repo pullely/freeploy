@@ -10,7 +10,7 @@
 // not point to a private network (SafeExternalUrl::forGitSource()). A created App is answered as Eloquent writes a
 // new model (the attributes in the order create() set them, then the uuid, the timestamps and the id), an updated one
 // as the loaded model (Coolify's column order) with the values the request set, not cast.
-// The repositories and branches routes ask GitHub and are not ported.
+// The repositories and branches routes ask GitHub: github-repositories.ts (DP-93).
 import type { SqlExecutor } from "@saas/db/hyperdrive";
 import type { ApiRow } from "@saas/db/deploy";
 import { COOLIFY_API, coolifyJson, laravelDate, obj, serializeApiResponse, type CoolifyAnswer, type PhpObject, type PhpValue } from "@saas/contracts/coolify-api";
@@ -23,12 +23,13 @@ import { rowValue, toModel, type ModelShape } from "./models.js";
 import { errorsObject, extraFields, readApiBody, validationFailed, type Errors } from "./request.js";
 import { validateRules, type Rule } from "./rules.js";
 import { safeExternalUrlMessage } from "./server-settings.js";
+import { githubRepositoriesApi } from "./github-repositories.js";
 
 const GITHUB_APP: ModelShape = { hidden: ["client_secret", "webhook_secret"], dates: ["created_at", "updated_at"] };
 const ENCRYPTED = ["client_secret", "webhook_secret"];
 const NOW = "date_trunc('second', timezone('UTC', now()))";
 
-const denied = async (c: ApiV1Context, write: boolean): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized());
+const denied = async (c: ApiV1Context, write: boolean, policyMessage?: string): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized(policyMessage));
 const filled = (v: unknown): boolean => !(v === undefined || v === null || (typeof v === "string" && v.trim() === "") || (Array.isArray(v) && v.length === 0));
 const cipher = (tx: SqlExecutor, c: ApiV1Context, column: string) => columnCipher(tx, c.orgId, c.env.DEPLOY_ENCRYPTION_KEY, `github_apps.${column}`);
 const gitSourceUrl = (c: ApiV1Context, attribute: string): Rule => ({
@@ -38,9 +39,10 @@ const gitSourceUrl = (c: ApiV1Context, attribute: string): Rule => ({
   },
 });
 
-/** routes/api.php's /github-apps routes (the repositories routes are not ported). */
+/** routes/api.php's /github-apps routes. */
 export async function githubAppsApi(c: ApiV1Context, segments: string[]): Promise<CoolifyAnswer | null> {
   const [id, extra] = segments;
+  if (id !== undefined && extra === "repositories") return githubRepositoriesApi(c, id, segments.slice(2));
   if (extra !== undefined) return null;
   const m = c.method;
   if (id === undefined) return m === "GET" ? list(c) : m === "POST" ? create(c) : null;

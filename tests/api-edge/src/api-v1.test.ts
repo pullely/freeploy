@@ -19,7 +19,7 @@ import edge from "@api-edge/index";
 
 const FIXTURES = resolve(dirname(fileURLToPath(import.meta.url)), "../../deploy-core-worker/fixtures/api");
 interface Step { token?: string; authorization?: string; method: string; path: string; body?: unknown; raw?: string; contentType?: string; ip?: string; advance?: number }
-interface Case extends Step { name: string; instance?: { is_api_enabled?: boolean; allowed_ips?: string }; config?: { rate_limit?: number; failed_request_rate_limit?: number }; sequence?: Step[] }
+interface Case extends Step { name: string; instance?: { is_api_enabled?: boolean; allowed_ips?: string }; config?: { rate_limit?: number; failed_request_rate_limit?: number }; sequence?: Step[]; setupCoolify?: string[] }
 interface Answer { status: number; headers: Record<string, string>; body: { json?: string; text?: string } }
 interface Golden extends Answer { name: string; steps?: Answer[] }
 interface Token { key: string; id: number; user: number; team: number; abilities: string[]; secret: string; expires_at?: string }
@@ -105,8 +105,13 @@ const expected = (g: Answer) => ({ status: g.status, headers: g.headers, body: g
 
 /** The cases about the middleware, the limiters, health and version: the edge's own answers. */
 const EDGE_CASES = CASES.cases.filter((c) => /^(auth|ability|allowed|route|health|version|rate limit|failed requests)\b/.test(c.name));
+/**
+ * DP-93's denials by a member whose levels Coolify stores on its membership (setupCoolify): Freeploy has no member grants —
+ * its member holds team-wide read — so the edge refuses that member's deploy, delete and write tokens itself.
+ */
+const GRANTED_MEMBER_CASES = CASES.cases.filter((c) => (c.setupCoolify ?? []).some((sql) => sql.startsWith("update team_user set access")));
 /** Every other case the edge forwards; its answer here is the golden's, so status and headers are the edge's to get right. */
-const FORWARDED_CASES = CASES.cases.filter((c) => !EDGE_CASES.includes(c) && !c.sequence);
+const FORWARDED_CASES = CASES.cases.filter((c) => !EDGE_CASES.includes(c) && !c.sequence && !GRANTED_MEMBER_CASES.includes(c));
 
 describe("Coolify's /api/v1 at the edge, replayed against Coolify's answers", () => {
   it("has the goldens of every middleware scenario, the two limiters included", () => {
@@ -136,6 +141,14 @@ describe("Coolify's /api/v1 at the edge, replayed against Coolify's answers", ()
     // A server's resources and domains and ?resources, DP-70's not-ported operations, are ported by DP-78.
     const res = await h.send(c, g);
     expect(await observed(res)).toEqual(expected(g));
+  });
+
+  it.each(GRANTED_MEMBER_CASES.map((c) => [c.name, c] as const))("refuses %s itself: the member holds no more than read in Freeploy", async (name, c) => {
+    const h = harness(c);
+    const res = await h.send(c, golden(name));
+    expect(res.status).toBe(403);
+    expect(await res.text()).toBe('{"message":"This API token has more access than you have in this team. Revoke it and create a new token."}');
+    expect(h.forwarded).toEqual([]);
   });
 });
 
@@ -169,7 +182,7 @@ describe("what the edge sends a worker", () => {
 });
 
 describe("the routes", () => {
-  it("are the 274 ported operations of openapi.json (health, the deprecated team aliases and the GET answers of start, restart and stop aside)", () => {
+  it("are the 278 ported operations of openapi.json (health, the deprecated team aliases and the GET answers of start, restart and stop aside)", () => {
     const openapi = JSON.parse(readFileSync(resolve(FIXTURES, "../../../../specs/epics/freeploy-coolify-parity/parity/openapi.operations.json"), "utf8")) as { rows: Array<{ method: string; path: string }> };
     const ops = new Set(openapi.rows.map((r) => `${r.method} ${r.path}`));
     const routes = API_V1_ROUTES.map((r) => `${r.method} /api/v1${r.path}`);
@@ -195,7 +208,7 @@ describe("the routes", () => {
       "GET /api/v1/services/{uuid}/restart",
       "GET /api/v1/services/{uuid}/stop",
     ]);
-    expect(inOpenapi.length + 1 /* GET /api/v1/health */).toBe(274);
+    expect(inOpenapi.length + 1 /* GET /api/v1/health */).toBe(278);
   });
 
   it("take the first match in routes/api.php's order and ignore a trailing slash", () => {

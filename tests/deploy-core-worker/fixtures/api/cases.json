@@ -137,6 +137,21 @@
     "description": null,
     "file": "../ssh-keys/rsa2048.openssh",
     "team": 2
+   },
+   {
+    "id": 4,
+    "uuid": "k4paritygithubappkey0004",
+    "name": "GitHub App Key",
+    "description": "The RSA key of a GitHub App",
+    "file": "../sources/cases.json",
+    "json": [
+     "webhooks",
+     33,
+     "setup",
+     "githubApp",
+     "privateKey"
+    ],
+    "team": 1
    }
   ],
   "servers": [
@@ -1294,6 +1309,30 @@
      "deploy"
     ],
     "secret": "deplodeplodeplodeplodeplodeplodeplodeplo0b1c2d3e"
+   },
+   {
+    "key": "memberDeploy",
+    "id": 13,
+    "user": 2,
+    "team": 1,
+    "name": "Member deploy",
+    "abilities": [
+     "read",
+     "deploy"
+    ],
+    "secret": "mdepmdepmdepmdepmdepmdepmdepmdepmdepmdep1b1c2d3e"
+   },
+   {
+    "key": "memberDelete",
+    "id": 14,
+    "user": 2,
+    "team": 1,
+    "name": "Member delete",
+    "abilities": [
+     "read",
+     "delete"
+    ],
+    "secret": "mdelmdelmdelmdelmdelmdelmdelmdelmdelmdel2b1c2d3e"
    }
   ]
  },
@@ -24291,6 +24330,2929 @@
    "token": "root",
    "method": "GET",
    "path": "/api/v1/servers/s1parityserveruuid000001/proxy/configuration"
+  },
+  {
+   "name": "denied: service envs: list, a member",
+   "token": "memberRead",
+   "method": "GET",
+   "path": "/api/v1/services/f1parityservice000000001/envs"
+  },
+  {
+   "name": "denied: server image scanning: show, a member",
+   "token": "memberRead",
+   "method": "GET",
+   "path": "/api/v1/servers/s1parityserveruuid000001/image-scanning"
+  },
+  {
+   "name": "denied: application envs: delete, a member with read:sensitive, deploy and delete",
+   "token": "memberDelete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a1parityimageapp00000001/envs/v1parityfoovariable00001",
+   "after": {
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, comment, \"order\", version from environment_variables where resourceable_type = 'App\\Models\\Application' and resourceable_id = 1 order by id"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"read:sensitive\",\"deploy\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: service envs: delete, a member with read:sensitive, deploy and delete",
+   "token": "memberDelete",
+   "method": "DELETE",
+   "path": "/api/v1/services/f1parityservice000000001/envs/w1parityservicefoo000001",
+   "after": {
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, \"order\", version from environment_variables where resourceable_type = 'App\\Models\\Service' and resourceable_id = 1 order by id"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"read:sensitive\",\"deploy\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: database envs: delete, a member with read:sensitive, deploy and delete",
+   "token": "memberDelete",
+   "method": "DELETE",
+   "path": "/api/v1/databases/b2parityredis00000000002/envs/b2parityredis0000000user",
+   "setup": [
+    "update environment_variables set uuid = 'b2parityredis0000000user' where key = 'REDIS_USERNAME' and resourceable_type = 'App\\Models\\StandaloneRedis'"
+   ],
+   "after": {
+    "variables": "select key, resourceable_type, resourceable_id, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime, is_required, is_shared, comment, \"order\", version from environment_variables where resourceable_type like 'App\\Models\\Standalone%' order by id"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"read:sensitive\",\"deploy\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: tags: delete, a member with read:sensitive, deploy and delete",
+   "token": "memberDelete",
+   "method": "DELETE",
+   "path": "/api/v1/tags/t1paritybackendtag000001",
+   "after": {
+    "tags": "select name, created_at is not null as dated from tags where uuid <> 't4otherteamtag0000000004' order by name",
+    "taggables": "select t.name, tg.taggable_type, tg.taggable_id from taggables tg join tags t on t.id = tg.tag_id where t.uuid <> 't4otherteamtag0000000004' order by tg.taggable_type, tg.taggable_id, t.name"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"read:sensitive\",\"deploy\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: project envs: delete, a member with read:sensitive, deploy and delete",
+   "token": "memberDelete",
+   "method": "DELETE",
+   "path": "/api/v1/projects/p1alphaprojectuuid000001/envs/5",
+   "after": {
+    "variables": "select case when id <= 9 then id end as fixture_id, key, type, project_id, environment_id, server_id, is_shown_once, is_multiline, is_literal, comment, version from shared_environment_variables where type in ('project', 'environment') and key <> 'OTHER_PROJECT' order by id"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"read:sensitive\",\"deploy\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: server envs: delete, a member with read:sensitive, deploy and delete",
+   "token": "memberDelete",
+   "method": "DELETE",
+   "path": "/api/v1/servers/s1parityserveruuid000001/envs/2",
+   "after": {
+    "variables": "select case when id <= 12 then id end as fixture_id, key, type, project_id, environment_id, server_id, is_shown_once, is_multiline, is_literal, comment, version from shared_environment_variables where type = 'server' and server_id = 1 order by id"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"read:sensitive\",\"deploy\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: app destinations: remove, a member with read:sensitive, deploy and delete",
+   "token": "memberDelete",
+   "method": "DELETE",
+   "path": "/api/v1/applications/a2paritygitapp0000000002/destinations/d3seconddestination00003",
+   "setupCoolify": [
+    "insert into servers (id, uuid, name, ip, team_id, private_key_id, proxy, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, 1, '{\"redirect_enabled\":true}', now(), now())",
+    "insert into server_settings (server_id, created_at, updated_at) values (3, now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, now(), now())",
+    "insert into additional_destinations (application_id, server_id, standalone_docker_id, status) values (2, 3, 3, 'running:healthy')",
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"read:sensitive\",\"deploy\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ],
+   "setupFreeploy": [
+    "insert into servers (id, uuid, name, ip, private_key_id, proxy, org_id, created_at, updated_at) values (3, 's5paritysecondserver0005', 'second-server', '203.0.113.30', 1, '{\"redirect_enabled\":true}', deploy.current_org(), now(), now())",
+    "insert into server_settings (server_id, server_role, org_id, created_at, updated_at) values (3, 'both', deploy.current_org(), now(), now())",
+    "insert into standalone_dockers (id, uuid, name, network, server_id, org_id, created_at, updated_at) values (3, 'd3seconddestination00003', 'second-destination', 'coolify', 3, deploy.current_org(), now(), now())",
+    "insert into additional_destinations (application_id, server_id, standalone_docker_id, status, org_id) values (2, 3, 3, 'running:healthy', deploy.current_org())"
+   ],
+   "after": {
+    "additional": "select application_id, server_id, standalone_docker_id, status from additional_destinations where application_id in (1, 2) order by application_id, standalone_docker_id"
+   }
+  },
+  {
+   "name": "denied: databases: start, a member with read:sensitive, deploy and delete",
+   "token": "memberDeploy",
+   "method": "POST",
+   "path": "/api/v1/databases/b1paritypostgres00000001/start",
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"read:sensitive\",\"deploy\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: execute application task, a member with read:sensitive, deploy and delete",
+   "token": "memberDeploy",
+   "method": "POST",
+   "path": "/api/v1/applications/a1parityimageapp00000001/scheduled-tasks/n1paritybackuptask000001/execute",
+   "after": {
+    "tasks": "select case when id <= 4 then id end as fixture_id, enabled, name, command, frequency, container, application_id, service_id, timeout, consecutive_failures, failing_since, disabled_reason, use_shell from scheduled_tasks where uuid <> 'n4otherteamtask000000004' order by id",
+    "executions": "select uuid, scheduled_task_id, status from scheduled_task_executions where uuid <> 'o3otherteamtaskrun000003' order by id"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"read:sensitive\",\"deploy\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: server proxy: restart, a member with read:sensitive, deploy and delete",
+   "token": "memberDeploy",
+   "method": "POST",
+   "path": "/api/v1/servers/s1parityserveruuid000001/proxy/restart",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"read:sensitive\",\"deploy\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: server registries: list, a member with read:sensitive, deploy and delete",
+   "token": "memberSensitive",
+   "method": "GET",
+   "path": "/api/v1/servers/s1parityserveruuid000001/registries",
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"read:sensitive\",\"deploy\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: keys: create, a member with write and delete",
+   "token": "memberWrite",
+   "method": "POST",
+   "path": "/api/v1/security/keys",
+   "body": {
+    "name": "API key",
+    "description": "From the API",
+    "private_key": "-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEAniur7wFaNxF3kBDzQtd+MFVaxZfNMrin8XSMeCaLrFbjOwPW\nqr71ZyZ+Te1WGUHmxHEjy6bGf2ABtOJ3H56SYF7vDSDzR2sv8sYpqp6scJISM8il\niydpKDg197+3KooMuQHZppKe5UpoDgC2wQGODFGyZrAau8OrXMK3F0BLUNjZ9pYm\n9RZN9OG/D7KKPi/RpDr9EdYk7rsWOhpmafxJNYwFeseKJ2q3CtmyMlu1GvDohrIM\nV43J5WvDUGjvrPl47xOg3QlInkQVDg8zEGCGHO+HJR5ZwItmljOp7GQ2PNaBCMnY\nV0QNCjHw0bNTO1bpFbWWkjKKL3nzI9hQP7fcMQIDAQABAoIBAFQz+ZcGSEmysczv\nSSGXaOVAO0+frazH4xhGrJU2J/s6UkPTmk9R04DzXCAOLlzJ2ZlQhfbftSKQMLhk\nK3iYyWImh+qcVQb7SA5dckcTq8dN7ATHV2HKPFAeBJT86fzqezVuh7kGqzJztwtl\nU+VR95YVU/0Y2VKGK075ldD5+F50DMfYNJHCl1SSNrLkzjOR3z8LmjCBme7Kx2TS\nz/1rdkWVlwm69lrQqnpyfK2jyh+FYZfDZklN5PpKEOCm46+wZog1xa66VwsYHppP\nWekLiqWk1kLtDM4J5t12AjPHmKJ7B9iCQ/MJoY6TKGSzdZP1PR35OODToJSqvtZn\nCifebkECgYEA0MW9lwunR74CjqLkWDgR6PEsEg3YaFGj/SOySrRXeWTNxlJmTVJs\n2tMi+KFRzFn7yQJEc4CMLg7tHEAzbWLvIWDw/BOCbQGffrdy5arlXUSGZRbnFZuv\nnRCLYKOx5Rg2WuFa7PCVtDQVepzigSGkU5dy6S5SHqs+YRkyveIdyhkCgYEAwfOE\nzQiwxKMtcTUf1vZKB/NhYhLwdby/Hoyxo6aXVb9aqgbiRnfEkQHA7jSLne4uuNtC\nxHEZ2ZbimKHl3VgTlfElZWT3JWrMNlhi9w1vN11xwV7LbZfa2UQNntHFWtmfoCxz\ni9HixP2NeZrJbCJ3oivDBuSvCQW5Nw/ooCVvldkCgYEAiyyXQ98v5+KiP8YVZT4T\nqm9ECtESCBEMuk8Wpzhr6/AoQWJi8n7VNFd2Q7r/FbSS5iBN05XJXVbz+FZQMka2\n1VCTteenldV0JvxSawqvFqr80N0gtcXwn0sNLyJREEFA0vrSK4wCsHvcKb32PVFZ\nA6S9pPcNJYbQ8dfjfLQFWdkCgYAQiwrqyjD5tMltfJCIr11FLFdEHEVyZXUP0ARe\n5xjFcZr0Ib4vMIwNqk6ggs7d27EUh288fkEsNBiD2FtY8+hHw9fivCfwgxmEESnv\n1K+F02yeh81mPaunGIzo3Q+uXh2ldeUtKevjzZTBqJhBpvb5WC48akkbxec0cSDw\neAD6kQKBgQCpsssPgkBfHJ1becoRgrf7ypSfJB/+d+vkhYyjzUUb7A0X0nWSm9xk\nbuWFO16TtVdwxRKfAzVI8PlEavJxpQjBvuG3LFOqv2JnmFSwcCNfCxbraOLhLx4n\nGqm762dBBQHHe4fO3EfYQzyTjl6QD0bpT+7NnscE3HK9wrC+DQrwbg==\n-----END RSA PRIVATE KEY-----\n"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: keys: update, a member with write and delete",
+   "token": "memberWrite",
+   "method": "PATCH",
+   "path": "/api/v1/security/keys/k2unusedprivatekey000002",
+   "body": {
+    "name": "Renamed Key",
+    "description": "Now described"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: keys: delete, a member with write and delete",
+   "token": "memberDelete",
+   "method": "DELETE",
+   "path": "/api/v1/security/keys/k2unusedprivatekey000002",
+   "after": {
+    "keys": "select uuid from private_keys where team_id = 1 order by id"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: servers: validate, a member with write and delete",
+   "token": "memberWrite",
+   "method": "POST",
+   "path": "/api/v1/servers/s1parityserveruuid000001/validate",
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: servers: create, a member with write and delete",
+   "token": "memberWrite",
+   "method": "POST",
+   "path": "/api/v1/servers",
+   "body": {
+    "ip": "203.0.113.30",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where ip = '203.0.113.30'",
+    "settings": "select ss.server_role, ss.is_build_server, ss.ssh_host_key, ss.ssh_host_key_source, ss.ssh_host_key_trusted_at is not null as trusted from server_settings ss join servers s on s.id = ss.server_id where s.ip = '203.0.113.30'",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.ip = '203.0.113.30'",
+    "servers": "select count(*)::int as count from servers where ip <> '203.0.113.20'"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: servers: delete, a member with write and delete",
+   "token": "memberDelete",
+   "method": "DELETE",
+   "path": "/api/v1/servers/s1parityserveruuid000001",
+   "setup": [
+    "update applications set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update services set deleted_at = '2025-12-31 00:00:00' where server_id = 1",
+    "update standalone_postgresqls set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_redis set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_mongodbs set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_mysqls set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_mariadbs set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_keydbs set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_dragonflies set deleted_at = '2025-12-31 00:00:00' where destination_id = 1",
+    "update standalone_clickhouses set deleted_at = '2025-12-31 00:00:00' where destination_id = 1"
+   ],
+   "after": {
+    "servers": "select uuid from servers where deleted_at is null and ip <> '203.0.113.20' order by id"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: s3 storages: create, a member with write and delete",
+   "token": "memberWrite",
+   "method": "POST",
+   "path": "/api/v1/s3-storages",
+   "body": {
+    "name": "API S3",
+    "description": "From the API",
+    "endpoint": " https://api-s3.example.com ",
+    "bucket": " api-bucket ",
+    "region": " eu-west-1 ",
+    "key": " AKIAAPI ",
+    "secret": " api-secret ",
+    "is_usable": true
+   },
+   "after": {
+    "storages": "select uuid = 's3paritystorage000000001' as fixture, name, description, region, bucket, endpoint, is_usable, unusable_email_sent, use_path_style_endpoint, type, private_key_id, sftp_host_key, skip_tls_verification from s3_storages where uuid <> 's4otherstorage0000000002' order by name",
+    "backups": "select uuid, save_s3, s3_storage_id from scheduled_database_backups where uuid <> 'c4otherpgbackup000000004' order by id",
+    "destinations": "select scheduled_database_backup_id, s3_storage_id from scheduled_database_backup_s3_storage order by scheduled_database_backup_id, s3_storage_id"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: s3 storages: delete, a member with write and delete",
+   "token": "memberDelete",
+   "method": "DELETE",
+   "path": "/api/v1/s3-storages/s3paritystorage000000001",
+   "after": {
+    "storages": "select uuid = 's3paritystorage000000001' as fixture, name, description, region, bucket, endpoint, is_usable, unusable_email_sent, use_path_style_endpoint, type, private_key_id, sftp_host_key, skip_tls_verification from s3_storages where uuid <> 's4otherstorage0000000002' order by name",
+    "backups": "select uuid, save_s3, s3_storage_id from scheduled_database_backups where uuid <> 'c4otherpgbackup000000004' order by id",
+    "destinations": "select scheduled_database_backup_id, s3_storage_id from scheduled_database_backup_s3_storage order by scheduled_database_backup_id, s3_storage_id"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: team envs: create, a member with write and delete",
+   "token": "memberWrite",
+   "method": "POST",
+   "path": "/api/v1/team/envs",
+   "body": {
+    "key": " NEW_TEAM_KEY ",
+    "value": "  kept  ",
+    "is_literal": "1",
+    "is_shown_once": false,
+    "comment": " A comment "
+   },
+   "after": {
+    "variables": "select case when id <= 12 then id end as fixture_id, key, type, project_id, environment_id, server_id, is_shown_once, is_multiline, is_literal, comment, version from shared_environment_variables where type = 'team' and key <> 'OTHER_TEAM' order by id"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: notifications email: update, a member with write and delete",
+   "token": "memberWrite",
+   "config": {
+    "self_hosted": false
+   },
+   "method": "PATCH",
+   "path": "/api/v1/notifications/email",
+   "body": {
+    "smtp_enabled": true,
+    "smtp_from_address": "alerts@example.com",
+    "smtp_from_name": " Parity Alerts ",
+    "smtp_recipients": "ops@example.com,dev@example.com",
+    "smtp_host": "SMTP.Example.com",
+    "smtp_port": "587",
+    "smtp_encryption": "starttls",
+    "smtp_username": "mailer",
+    "smtp_password": " secret pass ",
+    "smtp_timeout": 30,
+    "smtp_ehlo_domain": "mail.example.com"
+   },
+   "after": {
+    "settings": "select id, smtp_enabled, smtp_port, smtp_encryption, smtp_timeout, smtp_ehlo_domain, smtp_server_name, resend_enabled, use_instance_email_settings, deployment_commit_details_email_notifications, deployment_success_email_notifications, deployment_failure_email_notifications, status_change_email_notifications, restart_limit_reached_email_notifications, backup_success_email_notifications, backup_failure_email_notifications, scheduled_task_success_email_notifications, scheduled_task_failure_email_notifications, docker_cleanup_success_email_notifications, docker_cleanup_failure_email_notifications, server_disk_usage_email_notifications, server_reachable_email_notifications, server_unreachable_email_notifications, server_patch_email_notifications, traefik_outdated_email_notifications, image_vulnerabilities_email_notifications, smtp_from_address is not null as has_smtp_from_address, smtp_from_name is not null as has_smtp_from_name, smtp_recipients is not null as has_smtp_recipients, smtp_host is not null as has_smtp_host, smtp_username is not null as has_smtp_username, smtp_password is not null as has_smtp_password, resend_api_key is not null as has_resend_api_key, resend_from_address is not null as has_resend_from_address, resend_from_name is not null as has_resend_from_name, smtp_servers is not null as has_smtp_servers, failure_count from email_notification_settings where id = 1"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: destinations: create, a member with write and delete",
+   "token": "memberWrite",
+   "method": "POST",
+   "path": "/api/v1/servers/s1parityserveruuid000001/destinations",
+   "setup": [
+    "update server_settings set is_reachable = true, is_usable = true where server_id = 1"
+   ],
+   "body": {
+    "network": "parity-net",
+    "name": "Parity network"
+   },
+   "after": {
+    "standalone": "select case when uuid = 'd1paritydestination00001' then uuid end as fixture_uuid, case when uuid = 'd1paritydestination00001' and name in ('coolify', 'freeploy') then '<default-destination-name>' else name end as name, network, server_id from standalone_dockers where server_id = 1 order by id",
+    "swarm": "select name, network, server_id from swarm_dockers where server_id = 1 order by id"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: docker cleanup: update, a member with write and delete",
+   "token": "memberWrite",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001/docker-cleanup",
+   "body": {
+    "docker_cleanup_frequency": "0 4 * * 0",
+    "docker_cleanup_threshold": "70",
+    "force_docker_cleanup": false,
+    "delete_unused_networks": "1",
+    "disable_application_image_retention": 1
+   },
+   "after": {
+    "settings": "select force_docker_cleanup, docker_cleanup_frequency, docker_cleanup_threshold, delete_unused_volumes, delete_unused_networks, disable_application_image_retention from server_settings where server_id = 1"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: server image scanning: turned on, a member with write and delete",
+   "token": "memberWrite",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001/image-scanning",
+   "body": {
+    "is_image_scan_enabled": true
+   },
+   "after": {
+    "settings": "select is_image_scan_enabled, image_scan_memory_mb, image_scan_syft_timeout, image_scan_grype_timeout, image_scan_cpus::float8::text as cpus from server_settings where server_id = 1"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: server cloudflare tunnel: update on, a member with write and delete",
+   "token": "memberWrite",
+   "method": "PATCH",
+   "path": "/api/v1/servers/s1parityserveruuid000001/cloudflare-tunnel",
+   "setup": [
+    "update server_settings set ssh_host_key = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl', ssh_host_key_source = 'manual', ssh_host_key_trusted_at = '2025-12-01 00:00:00' where server_id = 1"
+   ],
+   "body": {
+    "is_cloudflare_tunnel": true
+   },
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1",
+    "settings": "select generate_exact_labels, traefik_certificate_resolver, is_cloudflare_tunnel, ssh_host_key, ssh_host_key_source, ssh_host_key_pending from server_settings where server_id = 1"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: server host key: reset, a member with write and delete",
+   "token": "memberWrite",
+   "method": "POST",
+   "path": "/api/v1/servers/s1parityserveruuid000001/host-key/reset",
+   "setup": [
+    "update server_settings set ssh_host_key = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl', ssh_host_key_source = 'manual', ssh_host_key_trusted_at = '2025-12-01 00:00:00' where server_id = 1"
+   ],
+   "raw": "",
+   "contentType": "application/json",
+   "after": {
+    "server": "select (case when proxy is null or (proxy::jsonb -> 'redirect_enabled') is null then coalesce(proxy::jsonb, '{}'::jsonb) || '{\"redirect_enabled\": true}'::jsonb else proxy::jsonb end)::text as proxy, proxy_error_page, detected_traefik_version, ip, ip_previous from servers where id = 1",
+    "settings": "select generate_exact_labels, traefik_certificate_resolver, is_cloudflare_tunnel, ssh_host_key, ssh_host_key_source, ssh_host_key_pending from server_settings where server_id = 1"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: github apps: create, a member with write and delete",
+   "token": "memberWrite",
+   "method": "POST",
+   "path": "/api/v1/github-apps",
+   "config": {
+    "self_hosted": false
+   },
+   "body": {
+    "name": "New App",
+    "organization": " /acme/ ",
+    "html_url": "https://github.com",
+    "app_id": 123,
+    "installation_id": 456,
+    "client_id": "Iv1.abc",
+    "client_secret": "cs-1",
+    "webhook_secret": "ws-1",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "after": {
+    "apps": "select case when uuid like 'j%parity%' then id end as fixture_id, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, client_secret is not null as has_client_secret, webhook_secret is not null as has_webhook_secret, private_key_id, is_system_wide, is_public from github_apps where id > 0 order by id"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "denied: cloud tokens: create a hetzner token, a member with write and delete",
+   "token": "memberWrite",
+   "method": "POST",
+   "path": "/api/v1/cloud-tokens",
+   "body": {
+    "provider": "hetzner",
+    "token": "hetzner-new-token",
+    "name": "New hetzner"
+   },
+   "http": [
+    {
+     "match": "^GET https://api\\.hetzner\\.cloud/v1/servers$",
+     "body": {
+      "ok": true
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "tokens": "select case when id <= 5 then id end as fixture_id, provider, name, description, token is not null as has_token from cloud_provider_tokens where uuid <> 'c5paritycloudother000005' order by id"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
+  },
+  {
+   "name": "github repositories: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/github-apps/3/repositories",
+   "config": {
+    "self_hosted": false
+   },
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    },
+    {
+     "match": "^GET https://api\\.github\\.com/installation/repositories\\?per_page=100&page=1$",
+     "body": {
+      "total_count": 3,
+      "repositories": [
+       {
+        "id": 11,
+        "node_id": "R_11",
+        "name": "zeta",
+        "full_name": "acme/zeta",
+        "private": true,
+        "owner": {
+         "login": "acme",
+         "id": 77
+        },
+        "html_url": "https://github.com/acme/zeta",
+        "default_branch": "main"
+       },
+       {
+        "id": 12,
+        "node_id": "R_12",
+        "name": "Alpha",
+        "full_name": "acme/Alpha",
+        "private": true,
+        "owner": {
+         "login": "acme",
+         "id": 77
+        },
+        "html_url": "https://github.com/acme/Alpha",
+        "default_branch": "main",
+        "description": "Ünïcode / slashes",
+        "stargazers_count": 0,
+        "score": 1.5,
+        "topics": [],
+        "license": null,
+        "permissions": {}
+       },
+       {
+        "id": 13,
+        "node_id": "R_13",
+        "name": "alpha",
+        "full_name": "acme/alpha",
+        "private": true,
+        "owner": {
+         "login": "acme",
+         "id": 77
+        },
+        "html_url": "https://github.com/acme/alpha",
+        "default_branch": "main"
+       }
+      ]
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.github\\.com/installation/repositories\\?per_page=100&page=2$",
+     "body": {
+      "total_count": 3,
+      "repositories": []
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "github repositories: list, two pages",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/github-apps/3/repositories",
+   "config": {
+    "self_hosted": false
+   },
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    },
+    {
+     "match": "^GET https://api\\.github\\.com/installation/repositories\\?per_page=100&page=1$",
+     "body": {
+      "repositories": [
+       {
+        "id": 21,
+        "node_id": "R_21",
+        "name": "web",
+        "full_name": "acme/web",
+        "private": true,
+        "owner": {
+         "login": "acme",
+         "id": 77
+        },
+        "html_url": "https://github.com/acme/web",
+        "default_branch": "main"
+       }
+      ]
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.github\\.com/installation/repositories\\?per_page=100&page=2$",
+     "body": {
+      "repositories": [
+       {
+        "id": 22,
+        "node_id": "R_22",
+        "name": "api",
+        "full_name": "acme/api",
+        "private": true,
+        "owner": {
+         "login": "acme",
+         "id": 77
+        },
+        "html_url": "https://github.com/acme/api",
+        "default_branch": "main"
+       }
+      ]
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://api\\.github\\.com/installation/repositories\\?per_page=100&page=3$",
+     "body": {
+      "repositories": []
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "github repositories: list, none",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/github-apps/3/repositories",
+   "config": {
+    "self_hosted": false
+   },
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    },
+    {
+     "match": "^GET https://api\\.github\\.com/installation/repositories\\?per_page=100&page=1$",
+     "body": {
+      "total_count": 0,
+      "repositories": []
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "github repositories: list by a member",
+   "token": "memberRead",
+   "method": "GET",
+   "path": "/api/v1/github-apps/3/repositories",
+   "config": {
+    "self_hosted": false
+   },
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    },
+    {
+     "match": "^GET https://api\\.github\\.com/installation/repositories\\?per_page=100&page=1$",
+     "body": {
+      "repositories": []
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "github repositories: GitHub refuses the token",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/github-apps/3/repositories",
+   "config": {
+    "self_hosted": false
+   },
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    },
+    {
+     "match": "^GET https://api\\.github\\.com/installation/repositories\\?per_page=100&page=1$",
+     "body": {
+      "message": "Bad credentials",
+      "documentation_url": "https://docs.github.com/rest"
+     },
+     "status": 401
+    }
+   ]
+  },
+  {
+   "name": "github repositories: GitHub fails three times",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/github-apps/3/repositories",
+   "config": {
+    "self_hosted": false
+   },
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    },
+    {
+     "match": "^GET https://api\\.github\\.com/installation/repositories\\?per_page=100&page=1$",
+     "body": {
+      "message": "Server Error"
+     },
+     "status": 502
+    }
+   ]
+  },
+  {
+   "name": "github repositories: a failure without a message",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/github-apps/3/repositories",
+   "config": {
+    "self_hosted": false
+   },
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    },
+    {
+     "match": "^GET https://api\\.github\\.com/installation/repositories\\?per_page=100&page=1$",
+     "body": {
+      "error": "nope"
+     },
+     "status": 404
+    }
+   ]
+  },
+  {
+   "name": "github repositories: no installation token",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/github-apps/3/repositories",
+   "config": {
+    "self_hosted": false
+   },
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "message": "Not Found"
+     },
+     "status": 404
+    }
+   ]
+  },
+  {
+   "name": "github repositories: the App has no key",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/github-apps/3/repositories",
+   "config": {
+    "self_hosted": false
+   },
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, null, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, null, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    }
+   ]
+  },
+  {
+   "name": "github repositories: unknown App",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/github-apps/99/repositories",
+   "config": {
+    "self_hosted": false
+   },
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    }
+   ]
+  },
+  {
+   "name": "github repositories: with a write-only token",
+   "token": "writeOnly",
+   "method": "GET",
+   "path": "/api/v1/github-apps/3/repositories",
+   "config": {
+    "self_hosted": false
+   },
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    }
+   ]
+  },
+  {
+   "name": "github branches: list",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/github-apps/3/repositories/acme/web/branches",
+   "config": {
+    "self_hosted": false
+   },
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    },
+    {
+     "match": "^GET https://api\\.github\\.com/repos/acme/web/branches$",
+     "body": [
+      {
+       "name": "main",
+       "commit": {
+        "sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "url": "https://api.github.com/repos/acme/web/commits/main"
+       },
+       "protected": true
+      },
+      {
+       "name": "feature/x",
+       "commit": {
+        "sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "url": "https://api.github.com/repos/acme/web/commits/feature"
+       },
+       "protected": false
+      }
+     ],
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "github branches: list, none",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/github-apps/3/repositories/acme/web/branches",
+   "config": {
+    "self_hosted": false
+   },
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    },
+    {
+     "match": "^GET https://api\\.github\\.com/repos/acme/web/branches$",
+     "body": [],
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "github branches: a dotted owner and repository",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/github-apps/3/repositories/acme.inc/web_app-1.x/branches",
+   "config": {
+    "self_hosted": false
+   },
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    },
+    {
+     "match": "^GET https://api\\.github\\.com/repos/acme\\.inc/web_app-1\\.x/branches$",
+     "body": [
+      {
+       "name": "main",
+       "commit": {
+        "sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "url": "https://api.github.com/repos/acme/web/commits/main"
+       },
+       "protected": true
+      }
+     ],
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "github branches: an invalid owner and repository",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/github-apps/3/repositories/acme%20inc/web%24app/branches",
+   "config": {
+    "self_hosted": false
+   },
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    }
+   ]
+  },
+  {
+   "name": "github branches: an invalid repository",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/github-apps/3/repositories/acme/.../branches",
+   "config": {
+    "self_hosted": false
+   },
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    },
+    {
+     "match": "^GET https://api\\.github\\.com/repos/acme/\\.\\.\\./branches$",
+     "body": [],
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "github branches: GitHub does not know the repository",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/github-apps/3/repositories/acme/gone/branches",
+   "config": {
+    "self_hosted": false
+   },
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    },
+    {
+     "match": "^GET https://api\\.github\\.com/repos/acme/gone/branches$",
+     "body": {
+      "message": "Not Found",
+      "documentation_url": "https://docs.github.com/rest"
+     },
+     "status": 404
+    }
+   ]
+  },
+  {
+   "name": "github branches: unknown App",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/github-apps/99/repositories/acme/web/branches",
+   "config": {
+    "self_hosted": false
+   },
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    }
+   ]
+  },
+  {
+   "name": "github branches: no installation token",
+   "token": "read",
+   "method": "GET",
+   "path": "/api/v1/github-apps/3/repositories/acme/web/branches",
+   "config": {
+    "self_hosted": false
+   },
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "message": "Bad credentials"
+     },
+     "status": 401
+    }
+   ]
+  },
+  {
+   "name": "github app create: a GitHub App",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-github-app",
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "github_app_uuid": "j3parityrsaapp0000000003",
+    "git_repository": "acme/private",
+    "git_branch": "main",
+    "build_pack": "nixpacks",
+    "ports_exposes": "3000"
+   },
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    },
+    {
+     "match": "^GET https://api\\.github\\.com/repos/acme/private$",
+     "body": {
+      "id": 4242,
+      "node_id": "R_4242",
+      "name": "private",
+      "full_name": "acme/private",
+      "private": true,
+      "owner": {
+       "login": "acme",
+       "id": 77
+      },
+      "html_url": "https://github.com/acme/private",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "application": "select regexp_replace(replace(name, uuid, '<uuid>'), '[a-z0-9]{24}$', '<random>') as name, description, replace(fqdn, uuid, '<uuid>') as fqdn, domain_port_overrides::jsonb::text as domain_port_overrides, noindex_domains::jsonb::text as noindex_domains, git_repository, git_branch, git_commit_sha, build_pack, static_image, install_command, build_command, start_command, ports_exposes, ports_mappings, base_directory, publish_directory, docker_registry_image_name, docker_registry_image_tag, dockerfile, dockerfile_location, dockerfile_target_build, docker_compose_location, docker_compose_raw, docker_compose_domains::jsonb::text as docker_compose_domains, health_check_enabled, health_check_path, health_check_port, health_check_type, health_check_interval, health_check_retries, limits_memory, limits_cpus, status, environment_id, destination_id, destination_type, source_id, source_type, repository_project_id, private_key_id, redirect, replace(custom_labels, uuid, '<uuid>') as custom_labels, custom_docker_run_options, custom_nginx_configuration, custom_network_aliases, watch_paths, preview_url_template, max_restart_count, compose_parsing_version, is_http_basic_auth_enabled, http_basic_auth_username, http_basic_auth_password is not null as has_basic_auth_password, http_basic_auth_hash_algorithm, http_basic_auth_bcrypt_cost, git_https_username, git_https_password is not null as has_git_https_password, manual_webhook_secret_github is not null and manual_webhook_secret_gitea is not null as has_webhook_secrets, custom_healthcheck_found, post_deployment_command, pre_deployment_command_container from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')",
+    "settings": "select is_static, is_spa, is_git_submodules_enabled, is_git_lfs_enabled, is_git_shallow_clone_enabled, is_auto_deploy_enabled, is_force_https_enabled, is_preview_deployments_enabled, is_pr_deployments_public_enabled, is_build_server_enabled, use_build_secrets, connect_to_docker_network, is_container_label_escape_enabled, is_container_label_readonly_enabled, is_preserve_repository_enabled, is_consistent_container_name_enabled, custom_internal_name, custom_container_name_prefix, is_gzip_enabled, is_stripprefix_enabled, is_permanent_redirect_enabled, traefik_certificate_resolver, is_raw_compose_deployment_enabled, is_log_drain_enabled, is_gpu_enabled, gpu_driver, gpu_count, gpu_device_ids, gpu_options, is_env_sorting_enabled, redact_all_env_values_in_logs, include_coolify_default_variables, disable_build_cache, inject_build_args_to_dockerfile, include_source_commit_in_build, include_network_hosts_in_build, stop_grace_period, rolling_update_drain_seconds, docker_images_to_keep, is_image_scan_enabled, is_auto_cancel_queued_deployments_enabled, is_auto_cancel_building_deployments_enabled from application_settings where application_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003'))",
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime from environment_variables where resourceable_type = 'App\\Models\\Application' and resourceable_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by key, is_preview",
+    "tags": "select t.name, t.id <= 4 as fixture_tag from taggables tg join tags t on t.id = tg.tag_id where tg.taggable_type = 'App\\Models\\Application' and tg.taggable_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by t.name"
+   }
+  },
+  {
+   "name": "github app create: a GitHub App, a repository URL",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-github-app",
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "github_app_uuid": "j3parityrsaapp0000000003",
+    "git_repository": "https://github.com/acme/private.git",
+    "git_branch": "main",
+    "build_pack": "dockerfile",
+    "ports_exposes": "3000",
+    "name": "from-github",
+    "domains": "https://gh.acme.test"
+   },
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    },
+    {
+     "match": "^GET https://api\\.github\\.com/repos/acme/private$",
+     "body": {
+      "id": 4242,
+      "node_id": "R_4242",
+      "name": "private",
+      "full_name": "acme/private",
+      "private": true,
+      "owner": {
+       "login": "acme",
+       "id": 77
+      },
+      "html_url": "https://github.com/acme/private",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "application": "select regexp_replace(replace(name, uuid, '<uuid>'), '[a-z0-9]{24}$', '<random>') as name, description, replace(fqdn, uuid, '<uuid>') as fqdn, domain_port_overrides::jsonb::text as domain_port_overrides, noindex_domains::jsonb::text as noindex_domains, git_repository, git_branch, git_commit_sha, build_pack, static_image, install_command, build_command, start_command, ports_exposes, ports_mappings, base_directory, publish_directory, docker_registry_image_name, docker_registry_image_tag, dockerfile, dockerfile_location, dockerfile_target_build, docker_compose_location, docker_compose_raw, docker_compose_domains::jsonb::text as docker_compose_domains, health_check_enabled, health_check_path, health_check_port, health_check_type, health_check_interval, health_check_retries, limits_memory, limits_cpus, status, environment_id, destination_id, destination_type, source_id, source_type, repository_project_id, private_key_id, redirect, replace(custom_labels, uuid, '<uuid>') as custom_labels, custom_docker_run_options, custom_nginx_configuration, custom_network_aliases, watch_paths, preview_url_template, max_restart_count, compose_parsing_version, is_http_basic_auth_enabled, http_basic_auth_username, http_basic_auth_password is not null as has_basic_auth_password, http_basic_auth_hash_algorithm, http_basic_auth_bcrypt_cost, git_https_username, git_https_password is not null as has_git_https_password, manual_webhook_secret_github is not null and manual_webhook_secret_gitea is not null as has_webhook_secrets, custom_healthcheck_found, post_deployment_command, pre_deployment_command_container from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')",
+    "settings": "select is_static, is_spa, is_git_submodules_enabled, is_git_lfs_enabled, is_git_shallow_clone_enabled, is_auto_deploy_enabled, is_force_https_enabled, is_preview_deployments_enabled, is_pr_deployments_public_enabled, is_build_server_enabled, use_build_secrets, connect_to_docker_network, is_container_label_escape_enabled, is_container_label_readonly_enabled, is_preserve_repository_enabled, is_consistent_container_name_enabled, custom_internal_name, custom_container_name_prefix, is_gzip_enabled, is_stripprefix_enabled, is_permanent_redirect_enabled, traefik_certificate_resolver, is_raw_compose_deployment_enabled, is_log_drain_enabled, is_gpu_enabled, gpu_driver, gpu_count, gpu_device_ids, gpu_options, is_env_sorting_enabled, redact_all_env_values_in_logs, include_coolify_default_variables, disable_build_cache, inject_build_args_to_dockerfile, include_source_commit_in_build, include_network_hosts_in_build, stop_grace_period, rolling_update_drain_seconds, docker_images_to_keep, is_image_scan_enabled, is_auto_cancel_queued_deployments_enabled, is_auto_cancel_building_deployments_enabled from application_settings where application_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003'))",
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime from environment_variables where resourceable_type = 'App\\Models\\Application' and resourceable_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by key, is_preview",
+    "tags": "select t.name, t.id <= 4 as fixture_tag from taggables tg join tags t on t.id = tg.tag_id where tg.taggable_type = 'App\\Models\\Application' and tg.taggable_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by t.name"
+   }
+  },
+  {
+   "name": "github app create: a GitHub App, an SSH URL",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-github-app",
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "github_app_uuid": "j3parityrsaapp0000000003",
+    "git_repository": "git@github.com:acme/private.git",
+    "git_branch": "main",
+    "build_pack": "static",
+    "ports_exposes": "3000",
+    "is_static": true
+   },
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    },
+    {
+     "match": "^GET https://api\\.github\\.com/repos/acme/private$",
+     "body": {
+      "id": 4242,
+      "node_id": "R_4242",
+      "name": "private",
+      "full_name": "acme/private",
+      "private": true,
+      "owner": {
+       "login": "acme",
+       "id": 77
+      },
+      "html_url": "https://github.com/acme/private",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "application": "select regexp_replace(replace(name, uuid, '<uuid>'), '[a-z0-9]{24}$', '<random>') as name, description, replace(fqdn, uuid, '<uuid>') as fqdn, domain_port_overrides::jsonb::text as domain_port_overrides, noindex_domains::jsonb::text as noindex_domains, git_repository, git_branch, git_commit_sha, build_pack, static_image, install_command, build_command, start_command, ports_exposes, ports_mappings, base_directory, publish_directory, docker_registry_image_name, docker_registry_image_tag, dockerfile, dockerfile_location, dockerfile_target_build, docker_compose_location, docker_compose_raw, docker_compose_domains::jsonb::text as docker_compose_domains, health_check_enabled, health_check_path, health_check_port, health_check_type, health_check_interval, health_check_retries, limits_memory, limits_cpus, status, environment_id, destination_id, destination_type, source_id, source_type, repository_project_id, private_key_id, redirect, replace(custom_labels, uuid, '<uuid>') as custom_labels, custom_docker_run_options, custom_nginx_configuration, custom_network_aliases, watch_paths, preview_url_template, max_restart_count, compose_parsing_version, is_http_basic_auth_enabled, http_basic_auth_username, http_basic_auth_password is not null as has_basic_auth_password, http_basic_auth_hash_algorithm, http_basic_auth_bcrypt_cost, git_https_username, git_https_password is not null as has_git_https_password, manual_webhook_secret_github is not null and manual_webhook_secret_gitea is not null as has_webhook_secrets, custom_healthcheck_found, post_deployment_command, pre_deployment_command_container from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')",
+    "settings": "select is_static, is_spa, is_git_submodules_enabled, is_git_lfs_enabled, is_git_shallow_clone_enabled, is_auto_deploy_enabled, is_force_https_enabled, is_preview_deployments_enabled, is_pr_deployments_public_enabled, is_build_server_enabled, use_build_secrets, connect_to_docker_network, is_container_label_escape_enabled, is_container_label_readonly_enabled, is_preserve_repository_enabled, is_consistent_container_name_enabled, custom_internal_name, custom_container_name_prefix, is_gzip_enabled, is_stripprefix_enabled, is_permanent_redirect_enabled, traefik_certificate_resolver, is_raw_compose_deployment_enabled, is_log_drain_enabled, is_gpu_enabled, gpu_driver, gpu_count, gpu_device_ids, gpu_options, is_env_sorting_enabled, redact_all_env_values_in_logs, include_coolify_default_variables, disable_build_cache, inject_build_args_to_dockerfile, include_source_commit_in_build, include_network_hosts_in_build, stop_grace_period, rolling_update_drain_seconds, docker_images_to_keep, is_image_scan_enabled, is_auto_cancel_queued_deployments_enabled, is_auto_cancel_building_deployments_enabled from application_settings where application_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003'))",
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime from environment_variables where resourceable_type = 'App\\Models\\Application' and resourceable_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by key, is_preview",
+    "tags": "select t.name, t.id <= 4 as fixture_tag from taggables tg join tags t on t.id = tg.tag_id where tg.taggable_type = 'App\\Models\\Application' and tg.taggable_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by t.name"
+   }
+  },
+  {
+   "name": "github app create: a GitHub App, Docker Compose",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-github-app",
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "github_app_uuid": "j3parityrsaapp0000000003",
+    "git_repository": "acme/private",
+    "git_branch": "main",
+    "build_pack": "dockercompose",
+    "ports_exposes": "3000",
+    "docker_compose_location": "/compose.yaml",
+    "docker_compose_domains": [
+     {
+      "name": "web",
+      "domain": "https://web.acme.test"
+     }
+    ]
+   },
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    },
+    {
+     "match": "^GET https://api\\.github\\.com/repos/acme/private$",
+     "body": {
+      "id": 4242,
+      "node_id": "R_4242",
+      "name": "private",
+      "full_name": "acme/private",
+      "private": true,
+      "owner": {
+       "login": "acme",
+       "id": 77
+      },
+      "html_url": "https://github.com/acme/private",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "application": "select regexp_replace(replace(name, uuid, '<uuid>'), '[a-z0-9]{24}$', '<random>') as name, description, replace(fqdn, uuid, '<uuid>') as fqdn, domain_port_overrides::jsonb::text as domain_port_overrides, noindex_domains::jsonb::text as noindex_domains, git_repository, git_branch, git_commit_sha, build_pack, static_image, install_command, build_command, start_command, ports_exposes, ports_mappings, base_directory, publish_directory, docker_registry_image_name, docker_registry_image_tag, dockerfile, dockerfile_location, dockerfile_target_build, docker_compose_location, docker_compose_raw, docker_compose_domains::jsonb::text as docker_compose_domains, health_check_enabled, health_check_path, health_check_port, health_check_type, health_check_interval, health_check_retries, limits_memory, limits_cpus, status, environment_id, destination_id, destination_type, source_id, source_type, repository_project_id, private_key_id, redirect, replace(custom_labels, uuid, '<uuid>') as custom_labels, custom_docker_run_options, custom_nginx_configuration, custom_network_aliases, watch_paths, preview_url_template, max_restart_count, compose_parsing_version, is_http_basic_auth_enabled, http_basic_auth_username, http_basic_auth_password is not null as has_basic_auth_password, http_basic_auth_hash_algorithm, http_basic_auth_bcrypt_cost, git_https_username, git_https_password is not null as has_git_https_password, manual_webhook_secret_github is not null and manual_webhook_secret_gitea is not null as has_webhook_secrets, custom_healthcheck_found, post_deployment_command, pre_deployment_command_container from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')",
+    "settings": "select is_static, is_spa, is_git_submodules_enabled, is_git_lfs_enabled, is_git_shallow_clone_enabled, is_auto_deploy_enabled, is_force_https_enabled, is_preview_deployments_enabled, is_pr_deployments_public_enabled, is_build_server_enabled, use_build_secrets, connect_to_docker_network, is_container_label_escape_enabled, is_container_label_readonly_enabled, is_preserve_repository_enabled, is_consistent_container_name_enabled, custom_internal_name, custom_container_name_prefix, is_gzip_enabled, is_stripprefix_enabled, is_permanent_redirect_enabled, traefik_certificate_resolver, is_raw_compose_deployment_enabled, is_log_drain_enabled, is_gpu_enabled, gpu_driver, gpu_count, gpu_device_ids, gpu_options, is_env_sorting_enabled, redact_all_env_values_in_logs, include_coolify_default_variables, disable_build_cache, inject_build_args_to_dockerfile, include_source_commit_in_build, include_network_hosts_in_build, stop_grace_period, rolling_update_drain_seconds, docker_images_to_keep, is_image_scan_enabled, is_auto_cancel_queued_deployments_enabled, is_auto_cancel_building_deployments_enabled from application_settings where application_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003'))",
+    "variables": "select key, is_preview, is_literal, is_multiline, is_shown_once, is_runtime, is_buildtime from environment_variables where resourceable_type = 'App\\Models\\Application' and resourceable_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by key, is_preview",
+    "tags": "select t.name, t.id <= 4 as fixture_tag from taggables tg join tags t on t.id = tg.tag_id where tg.taggable_type = 'App\\Models\\Application' and tg.taggable_id = (select id from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')) order by t.name"
+   }
+  },
+  {
+   "name": "github app create: a GitHub App, the repository not accessible",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-github-app",
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "github_app_uuid": "j3parityrsaapp0000000003",
+    "git_repository": "acme/private",
+    "git_branch": "main",
+    "build_pack": "nixpacks",
+    "ports_exposes": "3000"
+   },
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    },
+    {
+     "match": "^GET https://api\\.github\\.com/repos/acme/private$",
+     "body": {
+      "message": "Not Found"
+     },
+     "status": 404
+    }
+   ],
+   "after": {
+    "applications": "select count(*) as created from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')"
+   }
+  },
+  {
+   "name": "github app create: a GitHub App, GitHub fails",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-github-app",
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "github_app_uuid": "j3parityrsaapp0000000003",
+    "git_repository": "acme/private",
+    "git_branch": "main",
+    "build_pack": "nixpacks",
+    "ports_exposes": "3000"
+   },
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    },
+    {
+     "match": "^GET https://api\\.github\\.com/repos/acme/private$",
+     "body": {
+      "message": "Unavailable"
+     },
+     "status": 503
+    }
+   ],
+   "after": {
+    "applications": "select count(*) as created from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')"
+   }
+  },
+  {
+   "name": "github app create: a GitHub App, GitHub refuses",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-github-app",
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "github_app_uuid": "j3parityrsaapp0000000003",
+    "git_repository": "acme/private",
+    "git_branch": "main",
+    "build_pack": "nixpacks",
+    "ports_exposes": "3000"
+   },
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    },
+    {
+     "match": "^GET https://api\\.github\\.com/repos/acme/private$",
+     "body": {
+      "message": "Moved"
+     },
+     "status": 400
+    }
+   ],
+   "after": {
+    "applications": "select count(*) as created from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')"
+   }
+  },
+  {
+   "name": "github app create: a GitHub App, rate limited",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-github-app",
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "github_app_uuid": "j3parityrsaapp0000000003",
+    "git_repository": "acme/private",
+    "git_branch": "main",
+    "build_pack": "nixpacks",
+    "ports_exposes": "3000"
+   },
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    },
+    {
+     "match": "^GET https://api\\.github\\.com/repos/acme/private$",
+     "body": {
+      "message": "API rate limit exceeded"
+     },
+     "status": 403,
+     "headers": {
+      "X-RateLimit-Remaining": "0",
+      "X-RateLimit-Reset": "1767229200"
+     }
+    }
+   ],
+   "after": {
+    "applications": "select count(*) as created from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')"
+   }
+  },
+  {
+   "name": "github app create: a GitHub App, no installation token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-github-app",
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "github_app_uuid": "j3parityrsaapp0000000003",
+    "git_repository": "acme/private",
+    "git_branch": "main",
+    "build_pack": "nixpacks",
+    "ports_exposes": "3000"
+   },
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "message": "Not Found"
+     },
+     "status": 404
+    }
+   ],
+   "after": {
+    "applications": "select count(*) as created from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')"
+   }
+  },
+  {
+   "name": "github app create: a GitHub App, unknown App",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-github-app",
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "github_app_uuid": "nonexistentuuid",
+    "git_repository": "acme/private",
+    "git_branch": "main",
+    "build_pack": "nixpacks",
+    "ports_exposes": "3000"
+   },
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    }
+   ]
+  },
+  {
+   "name": "github app create: a GitHub App, invalid",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-github-app",
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "git_repository": 5,
+    "git_branch": "a..b",
+    "build_pack": "heroku",
+    "ports_exposes": "80,x",
+    "watch_paths": [],
+    "docker_compose_domains": "x"
+   },
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    }
+   ]
+  },
+  {
+   "name": "github app create: a GitHub App, domains for Docker Compose",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-github-app",
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "github_app_uuid": "j3parityrsaapp0000000003",
+    "git_repository": "acme/private",
+    "git_branch": "main",
+    "build_pack": "dockercompose",
+    "ports_exposes": "3000",
+    "domains": "https://x.acme.test"
+   },
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    }
+   ]
+  },
+  {
+   "name": "github app create: a GitHub App, a domain in use",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/applications/private-github-app",
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "github_app_uuid": "j3parityrsaapp0000000003",
+    "git_repository": "acme/private",
+    "git_branch": "main",
+    "build_pack": "nixpacks",
+    "ports_exposes": "3000",
+    "domains": "https://image.example.com"
+   },
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    },
+    {
+     "match": "^GET https://api\\.github\\.com/repos/acme/private$",
+     "body": {
+      "id": 4242,
+      "node_id": "R_4242",
+      "name": "private",
+      "full_name": "acme/private",
+      "private": true,
+      "owner": {
+       "login": "acme",
+       "id": 77
+      },
+      "html_url": "https://github.com/acme/private",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "github app create: a GitHub App, a member",
+   "token": "memberWrite",
+   "method": "POST",
+   "path": "/api/v1/applications/private-github-app",
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "github_app_uuid": "j3parityrsaapp0000000003",
+    "git_repository": "acme/private",
+    "git_branch": "main",
+    "build_pack": "nixpacks",
+    "ports_exposes": "3000"
+   },
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    },
+    {
+     "match": "^GET https://api\\.github\\.com/repos/acme/private$",
+     "body": {
+      "id": 4242,
+      "node_id": "R_4242",
+      "name": "private",
+      "full_name": "acme/private",
+      "private": true,
+      "owner": {
+       "login": "acme",
+       "id": 77
+      },
+      "html_url": "https://github.com/acme/private",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "github app create: a GitHub App, with a read token",
+   "token": "read",
+   "method": "POST",
+   "path": "/api/v1/applications/private-github-app",
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "github_app_uuid": "j3parityrsaapp0000000003",
+    "git_repository": "acme/private",
+    "git_branch": "main",
+    "build_pack": "nixpacks",
+    "ports_exposes": "3000"
+   },
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    },
+    {
+     "match": "^GET https://api\\.github\\.com/repos/acme/private$",
+     "body": {
+      "id": 4242,
+      "node_id": "R_4242",
+      "name": "private",
+      "full_name": "acme/private",
+      "private": true,
+      "owner": {
+       "login": "acme",
+       "id": 77
+      },
+      "html_url": "https://github.com/acme/private",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ]
+  },
+  {
+   "name": "github app create: a GitHub App, instant deploy",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/applications/private-github-app",
+   "setupCoolify": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, team_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, 1, '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "setupFreeploy": [
+    "insert into github_apps (id, uuid, name, organization, api_url, html_url, custom_user, custom_port, app_id, installation_id, client_id, is_system_wide, is_public, private_key_id, org_id, created_at, updated_at) values (3, 'j3parityrsaapp0000000003', 'RSA App', 'parity-org', 'https://api.github.com', 'https://github.com', 'git', 22, 1003, 2003, 'Iv1.parity3', false, false, 4, deploy.current_org(), '2025-12-03 00:00:00', '2025-12-03 00:00:00')"
+   ],
+   "body": {
+    "project_uuid": "p1alphaprojectuuid000001",
+    "environment_name": "production",
+    "server_uuid": "s1parityserveruuid000001",
+    "github_app_uuid": "j3parityrsaapp0000000003",
+    "git_repository": "acme/private",
+    "git_branch": "main",
+    "build_pack": "nixpacks",
+    "ports_exposes": "3000",
+    "instant_deploy": true
+   },
+   "http": [
+    {
+     "match": "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$",
+     "body": {
+      "token": "ghs_paritytoken",
+      "expires_at": "2026-01-01T01:00:00Z"
+     },
+     "status": 201
+    },
+    {
+     "match": "^GET https://api\\.github\\.com/repos/acme/private$",
+     "body": {
+      "id": 4242,
+      "node_id": "R_4242",
+      "name": "private",
+      "full_name": "acme/private",
+      "private": true,
+      "owner": {
+       "login": "acme",
+       "id": 77
+      },
+      "html_url": "https://github.com/acme/private",
+      "default_branch": "main"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "applications": "select count(*) as created from applications where uuid not in ('a1parityimageapp00000001', 'a2paritygitapp0000000002', 'a3otherteamapp0000000003')"
+   }
+  },
+  {
+   "name": "server via Hostinger: create",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hostinger",
+   "body": {
+    "cloud_provider_token_uuid": "c4paritycloudhostinger04",
+    "item_id": "hostingercom-vps-kvm2-usd-1m",
+    "data_center_id": 9,
+    "template_id": 1121,
+    "name": "VPS1.Example.com",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$",
+     "body": [],
+     "status": 200
+    },
+    {
+     "match": "^POST https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$",
+     "body": {
+      "order": {
+       "id": 777,
+       "status": "completed"
+      },
+      "virtual_machine": {
+       "id": 5001,
+       "firewall_group_id": null,
+       "subscription_id": "sub-5001",
+       "plan": "KVM 2",
+       "hostname": "srv.example.com",
+       "state": "installing",
+       "actions_lock": "unlocked",
+       "cpus": 2,
+       "memory": 8192,
+       "disk": 102400,
+       "bandwidth": 8192000,
+       "ns1": "1.1.1.1",
+       "ns2": "8.8.8.8",
+       "ipv4": [
+        {
+         "id": 11,
+         "address": "198.51.100.7",
+         "ptr": null
+        }
+       ],
+       "ipv6": [],
+       "template": {
+        "id": 1121,
+        "name": "Ubuntu 24.04"
+       },
+       "created_at": "2026-01-01T00:00:00Z"
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hostinger_virtual_machine_id, hostinger_virtual_machine_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Hostinger: create, the deprecated token id",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hostinger",
+   "body": {
+    "item_id": "hostingercom-vps-kvm2-usd-1m",
+    "data_center_id": 9,
+    "template_id": 1121,
+    "name": "VPS1.Example.com",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "cloud_provider_token_id": "c4paritycloudhostinger04",
+    "enable_backups": true
+   },
+   "http": [
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$",
+     "body": [
+      {
+       "id": 4001,
+       "firewall_group_id": null,
+       "subscription_id": "sub-4001",
+       "plan": "KVM 2",
+       "hostname": "srv.example.com",
+       "state": "running",
+       "actions_lock": "unlocked",
+       "cpus": 2,
+       "memory": 8192,
+       "disk": 102400,
+       "bandwidth": 8192000,
+       "ns1": "1.1.1.1",
+       "ns2": "8.8.8.8",
+       "ipv4": [
+        {
+         "id": 11,
+         "address": "198.51.100.1",
+         "ptr": null
+        }
+       ],
+       "ipv6": [],
+       "template": {
+        "id": 1121,
+        "name": "Ubuntu 24.04"
+       },
+       "created_at": "2026-01-01T00:00:00Z"
+      }
+     ],
+     "status": 200
+    },
+    {
+     "match": "^POST https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$",
+     "body": {
+      "order": {
+       "id": 777,
+       "status": "completed"
+      },
+      "virtual_machine": {
+       "id": 5001,
+       "firewall_group_id": null,
+       "subscription_id": "sub-5001",
+       "plan": "KVM 2",
+       "hostname": "srv.example.com",
+       "state": "installing",
+       "actions_lock": "unlocked",
+       "cpus": 2,
+       "memory": 8192,
+       "disk": 102400,
+       "bandwidth": 8192000,
+       "ns1": "1.1.1.1",
+       "ns2": "8.8.8.8",
+       "ipv4": [
+        {
+         "id": 11,
+         "address": "198.51.100.7",
+         "ptr": null
+        }
+       ],
+       "ipv6": [],
+       "template": {
+        "id": 1121,
+        "name": "Ubuntu 24.04"
+       },
+       "created_at": "2026-01-01T00:00:00Z"
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hostinger_virtual_machine_id, hostinger_virtual_machine_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Hostinger: create, a name without a dot",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hostinger",
+   "body": {
+    "cloud_provider_token_uuid": "c4paritycloudhostinger04",
+    "item_id": "hostingercom-vps-kvm2-usd-1m",
+    "data_center_id": 9,
+    "template_id": 1121,
+    "name": " vps1 ",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$",
+     "body": [],
+     "status": 200
+    },
+    {
+     "match": "^POST https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$",
+     "body": {
+      "order": {
+       "id": 777,
+       "status": "completed"
+      },
+      "virtual_machine": {
+       "id": 5001,
+       "firewall_group_id": null,
+       "subscription_id": "sub-5001",
+       "plan": "KVM 2",
+       "hostname": "srv.example.com",
+       "state": "installing",
+       "actions_lock": "unlocked",
+       "cpus": 2,
+       "memory": 8192,
+       "disk": 102400,
+       "bandwidth": 8192000,
+       "ns1": "1.1.1.1",
+       "ns2": "8.8.8.8",
+       "ipv4": [
+        {
+         "id": 11,
+         "address": "198.51.100.7",
+         "ptr": null
+        }
+       ],
+       "ipv6": [],
+       "template": {
+        "id": 1121,
+        "name": "Ubuntu 24.04"
+       },
+       "created_at": "2026-01-01T00:00:00Z"
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hostinger_virtual_machine_id, hostinger_virtual_machine_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Hostinger: create, a generated name",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hostinger",
+   "body": {
+    "cloud_provider_token_uuid": "c4paritycloudhostinger04",
+    "item_id": "hostingercom-vps-kvm2-usd-1m",
+    "data_center_id": 9,
+    "template_id": 1121,
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$",
+     "body": [],
+     "status": 200
+    },
+    {
+     "match": "^POST https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$",
+     "body": {
+      "order": {
+       "id": 777,
+       "status": "completed"
+      },
+      "virtual_machine": {
+       "id": 5001,
+       "firewall_group_id": null,
+       "subscription_id": "sub-5001",
+       "plan": "KVM 2",
+       "hostname": "srv.example.com",
+       "state": "installing",
+       "actions_lock": "unlocked",
+       "cpus": 2,
+       "memory": 8192,
+       "disk": 102400,
+       "bandwidth": 8192000,
+       "ns1": "1.1.1.1",
+       "ns2": "8.8.8.8",
+       "ipv4": [
+        {
+         "id": 11,
+         "address": "198.51.100.7",
+         "ptr": null
+        }
+       ],
+       "ipv6": [],
+       "template": {
+        "id": 1121,
+        "name": "Ubuntu 24.04"
+       },
+       "created_at": "2026-01-01T00:00:00Z"
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hostinger_virtual_machine_id, hostinger_virtual_machine_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Hostinger: create, the IP after a wait",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hostinger",
+   "body": {
+    "cloud_provider_token_uuid": "c4paritycloudhostinger04",
+    "item_id": "hostingercom-vps-kvm2-usd-1m",
+    "data_center_id": 9,
+    "template_id": 1121,
+    "name": "VPS1.Example.com",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$",
+     "body": [],
+     "status": 200
+    },
+    {
+     "match": "^POST https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$",
+     "body": {
+      "order": {
+       "id": 777,
+       "status": "completed"
+      },
+      "virtual_machine": {
+       "id": 5001,
+       "firewall_group_id": null,
+       "subscription_id": "sub-5001",
+       "plan": "KVM 2",
+       "hostname": "srv.example.com",
+       "state": "initial",
+       "actions_lock": "unlocked",
+       "cpus": 2,
+       "memory": 8192,
+       "disk": 102400,
+       "bandwidth": 8192000,
+       "ns1": "1.1.1.1",
+       "ns2": "8.8.8.8",
+       "ipv4": [],
+       "ipv6": [],
+       "template": {
+        "id": 1121,
+        "name": "Ubuntu 24.04"
+       },
+       "created_at": "2026-01-01T00:00:00Z"
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines/5001$",
+     "body": {
+      "id": 5001,
+      "firewall_group_id": null,
+      "subscription_id": "sub-5001",
+      "plan": "KVM 2",
+      "hostname": "srv.example.com",
+      "state": "running",
+      "actions_lock": "unlocked",
+      "cpus": 2,
+      "memory": 8192,
+      "disk": 102400,
+      "bandwidth": 8192000,
+      "ns1": "1.1.1.1",
+      "ns2": "8.8.8.8",
+      "ipv4": [
+       {
+        "id": 11,
+        "address": "198.51.100.8",
+        "ptr": null
+       }
+      ],
+      "ipv6": [],
+      "template": {
+       "id": 1121,
+       "name": "Ubuntu 24.04"
+      },
+      "created_at": "2026-01-01T00:00:00Z"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hostinger_virtual_machine_id, hostinger_virtual_machine_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Hostinger: create, no IP yet",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hostinger",
+   "body": {
+    "cloud_provider_token_uuid": "c4paritycloudhostinger04",
+    "item_id": "hostingercom-vps-kvm2-usd-1m",
+    "data_center_id": 9,
+    "template_id": 1121,
+    "name": "VPS1.Example.com",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$",
+     "body": [],
+     "status": 200
+    },
+    {
+     "match": "^POST https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$",
+     "body": {
+      "order": {
+       "id": 777,
+       "status": "completed"
+      },
+      "virtual_machine": {
+       "id": 5001,
+       "firewall_group_id": null,
+       "subscription_id": "sub-5001",
+       "plan": "KVM 2",
+       "hostname": "srv.example.com",
+       "state": "installing",
+       "actions_lock": "unlocked",
+       "cpus": 2,
+       "memory": 8192,
+       "disk": 102400,
+       "bandwidth": 8192000,
+       "ns1": "1.1.1.1",
+       "ns2": "8.8.8.8",
+       "ipv4": [],
+       "ipv6": [],
+       "template": {
+        "id": 1121,
+        "name": "Ubuntu 24.04"
+       },
+       "created_at": "2026-01-01T00:00:00Z"
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines/5001$",
+     "body": {
+      "id": 5001,
+      "firewall_group_id": null,
+      "subscription_id": "sub-5001",
+      "plan": "KVM 2",
+      "hostname": "srv.example.com",
+      "state": "installing",
+      "actions_lock": "unlocked",
+      "cpus": 2,
+      "memory": 8192,
+      "disk": 102400,
+      "bandwidth": 8192000,
+      "ns1": "1.1.1.1",
+      "ns2": "8.8.8.8",
+      "ipv4": [],
+      "ipv6": [],
+      "template": {
+       "id": 1121,
+       "name": "Ubuntu 24.04"
+      },
+      "created_at": "2026-01-01T00:00:00Z"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hostinger_virtual_machine_id, hostinger_virtual_machine_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Hostinger: create with public keys and a script, without validating",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/hostinger",
+   "body": {
+    "cloud_provider_token_uuid": "c4paritycloudhostinger04",
+    "item_id": "hostingercom-vps-kvm2-usd-1m",
+    "data_center_id": 9,
+    "template_id": 1121,
+    "name": "VPS1.Example.com",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "public_key_ids": [
+     31,
+     "32"
+    ],
+    "post_install_script_id": 41,
+    "instant_validate": false
+   },
+   "http": [
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$",
+     "body": [],
+     "status": 200
+    },
+    {
+     "match": "^POST https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$",
+     "body": {
+      "order": {
+       "id": 777,
+       "status": "completed"
+      },
+      "virtual_machine": {
+       "id": 5001,
+       "firewall_group_id": null,
+       "subscription_id": "sub-5001",
+       "plan": "KVM 2",
+       "hostname": "srv.example.com",
+       "state": "installing",
+       "actions_lock": "unlocked",
+       "cpus": 2,
+       "memory": 8192,
+       "disk": 102400,
+       "bandwidth": 8192000,
+       "ns1": "1.1.1.1",
+       "ns2": "8.8.8.8",
+       "ipv4": [
+        {
+         "id": 11,
+         "address": "198.51.100.7",
+         "ptr": null
+        }
+       ],
+       "ipv6": [],
+       "template": {
+        "id": 1121,
+        "name": "Ubuntu 24.04"
+       },
+       "created_at": "2026-01-01T00:00:00Z"
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://developers\\.hostinger\\.com/api/vps/v1/public-keys/attach/5001$",
+     "body": {
+      "data": []
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hostinger_virtual_machine_id, hostinger_virtual_machine_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Hostinger: create, the keys not attached",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/hostinger",
+   "body": {
+    "cloud_provider_token_uuid": "c4paritycloudhostinger04",
+    "item_id": "hostingercom-vps-kvm2-usd-1m",
+    "data_center_id": 9,
+    "template_id": 1121,
+    "name": "VPS1.Example.com",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "public_key_ids": [
+     31
+    ],
+    "instant_validate": false
+   },
+   "http": [
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$",
+     "body": [],
+     "status": 200
+    },
+    {
+     "match": "^POST https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$",
+     "body": {
+      "order": {
+       "id": 777,
+       "status": "completed"
+      },
+      "virtual_machine": {
+       "id": 5001,
+       "firewall_group_id": null,
+       "subscription_id": "sub-5001",
+       "plan": "KVM 2",
+       "hostname": "srv.example.com",
+       "state": "installing",
+       "actions_lock": "unlocked",
+       "cpus": 2,
+       "memory": 8192,
+       "disk": 102400,
+       "bandwidth": 8192000,
+       "ns1": "1.1.1.1",
+       "ns2": "8.8.8.8",
+       "ipv4": [
+        {
+         "id": 11,
+         "address": "198.51.100.7",
+         "ptr": null
+        }
+       ],
+       "ipv6": [],
+       "template": {
+        "id": 1121,
+        "name": "Ubuntu 24.04"
+       },
+       "created_at": "2026-01-01T00:00:00Z"
+      }
+     },
+     "status": 200
+    },
+    {
+     "match": "^POST https://developers\\.hostinger\\.com/api/vps/v1/public-keys/attach/5001$",
+     "body": {
+      "message": "Key not found"
+     },
+     "status": 422
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hostinger_virtual_machine_id, hostinger_virtual_machine_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Hostinger: create and validate",
+   "token": "root",
+   "method": "POST",
+   "path": "/api/v1/servers/hostinger",
+   "body": {
+    "cloud_provider_token_uuid": "c4paritycloudhostinger04",
+    "item_id": "hostingercom-vps-kvm2-usd-1m",
+    "data_center_id": 9,
+    "template_id": 1121,
+    "name": "VPS1.Example.com",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$",
+     "body": [],
+     "status": 200
+    },
+    {
+     "match": "^POST https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$",
+     "body": {
+      "order": {
+       "id": 777,
+       "status": "completed"
+      },
+      "virtual_machine": {
+       "id": 5001,
+       "firewall_group_id": null,
+       "subscription_id": "sub-5001",
+       "plan": "KVM 2",
+       "hostname": "srv.example.com",
+       "state": "installing",
+       "actions_lock": "unlocked",
+       "cpus": 2,
+       "memory": 8192,
+       "disk": 102400,
+       "bandwidth": 8192000,
+       "ns1": "1.1.1.1",
+       "ns2": "8.8.8.8",
+       "ipv4": [
+        {
+         "id": 11,
+         "address": "198.51.100.7",
+         "ptr": null
+        }
+       ],
+       "ipv6": [],
+       "template": {
+        "id": 1121,
+        "name": "Ubuntu 24.04"
+       },
+       "created_at": "2026-01-01T00:00:00Z"
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hostinger_virtual_machine_id, hostinger_virtual_machine_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Hostinger: create, waiting for payment",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hostinger",
+   "body": {
+    "cloud_provider_token_uuid": "c4paritycloudhostinger04",
+    "item_id": "hostingercom-vps-kvm2-usd-1m",
+    "data_center_id": 9,
+    "template_id": 1121,
+    "name": "VPS1.Example.com",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$",
+     "body": [],
+     "status": 200
+    },
+    {
+     "match": "^POST https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$",
+     "body": {
+      "id": 778,
+      "subscription_id": null,
+      "status": "pending",
+      "message": "Awaiting payment"
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hostinger_virtual_machine_id, hostinger_virtual_machine_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Hostinger: create, the purchase refused",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hostinger",
+   "body": {
+    "cloud_provider_token_uuid": "c4paritycloudhostinger04",
+    "item_id": "hostingercom-vps-kvm2-usd-1m",
+    "data_center_id": 9,
+    "template_id": 1121,
+    "name": "VPS1.Example.com",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$",
+     "body": [],
+     "status": 200
+    },
+    {
+     "match": "^POST https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$",
+     "body": {
+      "message": "The selected item is invalid."
+     },
+     "status": 422
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hostinger_virtual_machine_id, hostinger_virtual_machine_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Hostinger: create, rate limited",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hostinger",
+   "body": {
+    "cloud_provider_token_uuid": "c4paritycloudhostinger04",
+    "item_id": "hostingercom-vps-kvm2-usd-1m",
+    "data_center_id": 9,
+    "template_id": 1121,
+    "name": "VPS1.Example.com",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$",
+     "body": {
+      "message": "Too many requests"
+     },
+     "status": 429,
+     "headers": {
+      "Retry-After": "30"
+     }
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hostinger_virtual_machine_id, hostinger_virtual_machine_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Hostinger: create, Hostinger fails",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hostinger",
+   "body": {
+    "cloud_provider_token_uuid": "c4paritycloudhostinger04",
+    "item_id": "hostingercom-vps-kvm2-usd-1m",
+    "data_center_id": 9,
+    "template_id": 1121,
+    "name": "VPS1.Example.com",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$",
+     "body": {
+      "error": "Upstream"
+     },
+     "status": 503
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hostinger_virtual_machine_id, hostinger_virtual_machine_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   }
+  },
+  {
+   "name": "server via Hostinger: create, invalid",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hostinger",
+   "body": {
+    "cloud_provider_token_uuid": 5,
+    "data_center_id": "x",
+    "template_id": 1.5,
+    "name": "bad name!",
+    "enable_backups": "maybe",
+    "public_key_ids": "31",
+    "post_install_script_id": "x",
+    "instant_validate": "no",
+    "extra": 1
+   }
+  },
+  {
+   "name": "server via Hostinger: create, invalid public keys",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hostinger",
+   "body": {
+    "cloud_provider_token_uuid": "c4paritycloudhostinger04",
+    "item_id": "hostingercom-vps-kvm2-usd-1m",
+    "data_center_id": 9,
+    "template_id": 1121,
+    "name": "-vps.example.com",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "public_key_ids": [
+     1,
+     "x",
+     null
+    ]
+   }
+  },
+  {
+   "name": "server via Hostinger: create, no token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hostinger",
+   "body": {
+    "item_id": "hostingercom-vps-kvm2-usd-1m",
+    "data_center_id": 9,
+    "template_id": 1121,
+    "name": "VPS1.Example.com",
+    "private_key_uuid": "k1parityprivatekey000001"
+   }
+  },
+  {
+   "name": "server via Hostinger: create, unknown token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hostinger",
+   "body": {
+    "cloud_provider_token_uuid": "nonexistentuuid",
+    "item_id": "hostingercom-vps-kvm2-usd-1m",
+    "data_center_id": 9,
+    "template_id": 1121,
+    "name": "VPS1.Example.com",
+    "private_key_uuid": "k1parityprivatekey000001"
+   }
+  },
+  {
+   "name": "server via Hostinger: create, another provider's token",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hostinger",
+   "body": {
+    "cloud_provider_token_uuid": "c1paritycloudhetzner0001",
+    "item_id": "hostingercom-vps-kvm2-usd-1m",
+    "data_center_id": 9,
+    "template_id": 1121,
+    "name": "VPS1.Example.com",
+    "private_key_uuid": "k1parityprivatekey000001"
+   }
+  },
+  {
+   "name": "server via Hostinger: create, unknown private key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hostinger",
+   "body": {
+    "cloud_provider_token_uuid": "c4paritycloudhostinger04",
+    "item_id": "hostingercom-vps-kvm2-usd-1m",
+    "data_center_id": 9,
+    "template_id": 1121,
+    "name": "VPS1.Example.com",
+    "private_key_uuid": "nonexistentuuid"
+   }
+  },
+  {
+   "name": "server via Hostinger: create, another team's private key",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hostinger",
+   "body": {
+    "cloud_provider_token_uuid": "c4paritycloudhostinger04",
+    "item_id": "hostingercom-vps-kvm2-usd-1m",
+    "data_center_id": 9,
+    "template_id": 1121,
+    "name": "VPS1.Example.com",
+    "private_key_uuid": "k3otherteamkey0000000003"
+   }
+  },
+  {
+   "name": "server via Hostinger: create, a script without deploy",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hostinger",
+   "body": {
+    "cloud_provider_token_uuid": "c4paritycloudhostinger04",
+    "item_id": "hostingercom-vps-kvm2-usd-1m",
+    "data_center_id": 9,
+    "template_id": 1121,
+    "name": "VPS1.Example.com",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "post_install_script_id": 41
+   }
+  },
+  {
+   "name": "server via Hostinger: create, validating without deploy",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hostinger",
+   "body": {
+    "cloud_provider_token_uuid": "c4paritycloudhostinger04",
+    "item_id": "hostingercom-vps-kvm2-usd-1m",
+    "data_center_id": 9,
+    "template_id": 1121,
+    "name": "VPS1.Example.com",
+    "private_key_uuid": "k1parityprivatekey000001",
+    "instant_validate": true
+   }
+  },
+  {
+   "name": "server via Hostinger: create, not JSON",
+   "token": "write",
+   "method": "POST",
+   "path": "/api/v1/servers/hostinger",
+   "raw": "item_id=x",
+   "contentType": "application/x-www-form-urlencoded"
+  },
+  {
+   "name": "server via Hostinger: create with a read token",
+   "token": "read",
+   "method": "POST",
+   "path": "/api/v1/servers/hostinger",
+   "body": {
+    "cloud_provider_token_uuid": "c4paritycloudhostinger04",
+    "item_id": "hostingercom-vps-kvm2-usd-1m",
+    "data_center_id": 9,
+    "template_id": 1121,
+    "name": "VPS1.Example.com",
+    "private_key_uuid": "k1parityprivatekey000001"
+   }
+  },
+  {
+   "name": "server via Hostinger: create, a member",
+   "token": "memberRead",
+   "method": "POST",
+   "path": "/api/v1/servers/hostinger",
+   "body": {
+    "cloud_provider_token_uuid": "c4paritycloudhostinger04",
+    "item_id": "hostingercom-vps-kvm2-usd-1m",
+    "data_center_id": 9,
+    "template_id": 1121,
+    "name": "VPS1.Example.com",
+    "private_key_uuid": "k1parityprivatekey000001"
+   }
+  },
+  {
+   "name": "denied: server via Hostinger: create, a member with write and delete",
+   "token": "memberWrite",
+   "method": "POST",
+   "path": "/api/v1/servers/hostinger",
+   "body": {
+    "cloud_provider_token_uuid": "c4paritycloudhostinger04",
+    "item_id": "hostingercom-vps-kvm2-usd-1m",
+    "data_center_id": 9,
+    "template_id": 1121,
+    "name": "VPS1.Example.com",
+    "private_key_uuid": "k1parityprivatekey000001"
+   },
+   "http": [
+    {
+     "match": "^GET https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$",
+     "body": [],
+     "status": 200
+    },
+    {
+     "match": "^POST https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$",
+     "body": {
+      "order": {
+       "id": 777,
+       "status": "completed"
+      },
+      "virtual_machine": {
+       "id": 5001,
+       "firewall_group_id": null,
+       "subscription_id": "sub-5001",
+       "plan": "KVM 2",
+       "hostname": "srv.example.com",
+       "state": "installing",
+       "actions_lock": "unlocked",
+       "cpus": 2,
+       "memory": 8192,
+       "disk": 102400,
+       "bandwidth": 8192000,
+       "ns1": "1.1.1.1",
+       "ns2": "8.8.8.8",
+       "ipv4": [
+        {
+         "id": 11,
+         "address": "198.51.100.7",
+         "ptr": null
+        }
+       ],
+       "ipv6": [],
+       "template": {
+        "id": 1121,
+        "name": "Ubuntu 24.04"
+       },
+       "created_at": "2026-01-01T00:00:00Z"
+      }
+     },
+     "status": 200
+    }
+   ],
+   "after": {
+    "server": "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hostinger_virtual_machine_id, hostinger_virtual_machine_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+    "settings": "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+    "destination": "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2"
+   },
+   "setupCoolify": [
+    "update team_user set access = '[{\"scope\":\"team\",\"levels\":[\"read\",\"write\",\"delete\"]}]' where user_id = 2 and team_id = 1"
+   ]
   }
  ]
 }

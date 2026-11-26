@@ -17,6 +17,10 @@ const E_OTHER = "e4otherproduction0000004";
 const K_MAIN = "k1parityprivatekey000001";
 const K_FREE = "k2unusedprivatekey000002";
 const K_OTHER = "k3otherteamkey0000000003";
+// DP-93: an RSA key of team 1 for a GitHub App: DP-72's test key, read from fixtures/sources/cases.json (never inlined).
+const K_GITHUB = "k4paritygithubappkey0004";
+const SOURCE_CASES = JSON.parse(readFileSync(new URL("../sources/cases.json", import.meta.url), "utf8"));
+const GITHUB_APP_KEY = ["webhooks", SOURCE_CASES.webhooks.findIndex((w) => w.setup?.githubApp?.privateKey), "setup", "githubApp", "privateKey"];
 const S_MAIN = "s1parityserveruuid000001";
 const S_OTHER = "s2otherteamserver0000002";
 const D_MAIN = "d1paritydestination00001";
@@ -129,6 +133,7 @@ const fixture = {
     { id: 1, uuid: K_MAIN, name: "Parity Key", description: "The fixture's key", file: "../ssh-keys/ed25519.openssh", team: T1 },
     { id: 2, uuid: K_FREE, name: "Unused Key", description: null, file: "../ssh-keys/ecdsa256.openssh", team: T1 },
     { id: 3, uuid: K_OTHER, name: "Other Key", description: null, file: "../ssh-keys/rsa2048.openssh", team: T2 },
+    { id: 4, uuid: K_GITHUB, name: "GitHub App Key", description: "The RSA key of a GitHub App", file: "../sources/cases.json", json: GITHUB_APP_KEY, team: T1 },
   ],
   servers: [
     { id: 1, uuid: S_MAIN, name: "parity-server", description: "The fixture server", ip: "203.0.113.10", user: "root", port: 22, team: T1, private_key_id: 1 },
@@ -306,6 +311,9 @@ const fixture = {
     { key: "memberSensitive", id: 11, user: 2, team: T1, name: "Member sensitive", abilities: ["read", "read:sensitive"], secret: "msenmsenmsenmsenmsenmsenmsenmsenmsenmsen9a1b2c3d" },
     // DP-86: a token that may deploy but not write (a preview's redeploy).
     { key: "deploy", id: 12, user: 1, team: T1, name: "Deploy token", abilities: ["read", "deploy"], secret: "deplodeplodeplodeplodeplodeplodeplodeplo0b1c2d3e" },
+    // DP-93: a member's tokens that may deploy or delete (most policy denials need a member whose stored levels allow them).
+    { key: "memberDeploy", id: 13, user: 2, team: T1, name: "Member deploy", abilities: ["read", "deploy"], secret: "mdepmdepmdepmdepmdepmdepmdepmdepmdepmdep1b1c2d3e" },
+    { key: "memberDelete", id: 14, user: 2, team: T1, name: "Member delete", abilities: ["read", "delete"], secret: "mdelmdelmdelmdelmdelmdelmdelmdelmdelmdel2b1c2d3e" },
   ],
 };
 
@@ -2625,6 +2633,166 @@ add({ name: "proxy configuration: with a read token", token: "read", method: "PU
 add({ name: "proxy configuration: unknown server", token: "root", method: "PUT", path: SRV("proxy/configuration", "nonexistentuuid"), body: { configuration: TRAEFIK_COMPOSE } });
 add({ name: "proxy configuration: another team's server", token: "root", method: "PUT", path: SRV("proxy/configuration", S_OTHER), body: { configuration: TRAEFIK_COMPOSE } });
 add({ name: "proxy configuration: GET", token: "root", method: "GET", path: CFG });
+
+// ── DP-93: policy denials ──
+// A request that Coolify's policy refuses ($this->authorize(): an AuthorizationException, which app/Exceptions/Handler.php
+// answers under api/* as {"message": the policy's message or "You are not authorized to perform this action.", "error":
+// "Unauthorized"} with 403). A member's token may hold only the levels the member holds (EnsureTokenBelongsToCurrentTeamMember):
+// a default member (team-wide read) reaches only the read routes whose policy asks for more (a service's variables, image
+// scanning); the other denials are made by the member with team-wide levels stored on its membership (team_user.access,
+// Coolify's member grants, given by setupCoolify only: Freeploy has no member grants, and its member — builder or viewer —
+// holds deploy.resource.read alone), with a token of those levels: read, read:sensitive, deploy and delete, so that what
+// needs Write is refused (a variable's change, an update), or read, write and delete, so that what needs a team admin is
+// refused (a server, a private key, an S3 storage, a notification channel, a GitHub App, a destination, a team variable).
+// Each case is the earlier case of the same request with a member's token: `denied: <the earlier case>, <who>`.
+const MEMBER_ACCESS = (levels) => `update team_user set access = '${JSON.stringify([{ scope: "team", levels }])}' where user_id = 2 and team_id = ${T1}`;
+const DEPLOY_DELETE = ["read", "read:sensitive", "deploy", "delete"];
+const WRITE_DELETE = ["read", "write", "delete"];
+const denial = (base, token, levels, who) => {
+  const c = cases.find((x) => x.name === base);
+  if (!c) throw new Error(`no case ${base}`);
+  const copy = JSON.parse(JSON.stringify(c));
+  delete copy.name;
+  delete copy.token;
+  add({ name: `denied: ${base}, ${who}`, token, ...copy, ...(levels && { setupCoolify: [...(copy.setupCoolify ?? []), MEMBER_ACCESS(levels)] }) });
+};
+const MEMBER = "a member";
+const DEPLOYER = "a member with read:sensitive, deploy and delete";
+const WRITER = "a member with write and delete";
+// A default member's read token.
+denial("service envs: list", "memberRead", null, MEMBER);
+denial("server image scanning: show", "memberRead", null, MEMBER);
+// What needs Write, for a member without it.
+denial("application envs: delete", "memberDelete", DEPLOY_DELETE, DEPLOYER);
+denial("service envs: delete", "memberDelete", DEPLOY_DELETE, DEPLOYER);
+denial("database envs: delete", "memberDelete", DEPLOY_DELETE, DEPLOYER);
+denial("tags: delete", "memberDelete", DEPLOY_DELETE, DEPLOYER);
+denial("project envs: delete", "memberDelete", DEPLOY_DELETE, DEPLOYER);
+denial("server envs: delete", "memberDelete", DEPLOY_DELETE, DEPLOYER);
+denial("app destinations: remove", "memberDelete", DEPLOY_DELETE, DEPLOYER);
+denial("databases: start", "memberDeploy", DEPLOY_DELETE, DEPLOYER);
+denial("execute application task", "memberDeploy", DEPLOY_DELETE, DEPLOYER);
+denial("server proxy: restart", "memberDeploy", DEPLOY_DELETE, DEPLOYER);
+denial("server registries: list", "memberSensitive", DEPLOY_DELETE, DEPLOYER);
+// What needs a team admin, for a member with write.
+denial("keys: create", "memberWrite", WRITE_DELETE, WRITER);
+denial("keys: update", "memberWrite", WRITE_DELETE, WRITER);
+denial("keys: delete", "memberDelete", WRITE_DELETE, WRITER);
+denial("servers: validate", "memberWrite", WRITE_DELETE, WRITER);
+denial("servers: create", "memberWrite", WRITE_DELETE, WRITER);
+denial("servers: delete", "memberDelete", WRITE_DELETE, WRITER);
+denial("s3 storages: create", "memberWrite", WRITE_DELETE, WRITER);
+denial("s3 storages: delete", "memberDelete", WRITE_DELETE, WRITER);
+denial("team envs: create", "memberWrite", WRITE_DELETE, WRITER);
+denial("notifications email: update", "memberWrite", WRITE_DELETE, WRITER);
+denial("destinations: create", "memberWrite", WRITE_DELETE, WRITER);
+denial("docker cleanup: update", "memberWrite", WRITE_DELETE, WRITER);
+denial("server image scanning: turned on", "memberWrite", WRITE_DELETE, WRITER);
+denial("server cloudflare tunnel: update on", "memberWrite", WRITE_DELETE, WRITER);
+denial("server host key: reset", "memberWrite", WRITE_DELETE, WRITER);
+denial("github apps: create", "memberWrite", WRITE_DELETE, WRITER);
+denial("cloud tokens: create a hetzner token", "memberWrite", WRITE_DELETE, WRITER);
+
+// ── DP-93: through a GitHub App: its repositories and branches, and an application from a private repository ──
+// The App (id 3) signs its JWT with the fixture's RSA key (K_GITHUB, private key 4); GitHub is faked per case (`http`):
+// the installation token, then the repositories, the branches or the repository. The clock is emit.php's, so the JWT,
+// and the Authorization of the token request, are the same on both sides.
+const GH_RSA = githubApp(3, "j3parityrsaapp0000000003", 1, "RSA App", 4);
+const GH_RSA_SETUP = { setupCoolify: [GH_RSA.coolify], setupFreeploy: [GH_RSA.freeploy] };
+const GH_TOKEN_URL = "^POST https://api\\.github\\.com/app/installations/2003/access_tokens$";
+const GH_TOKEN = answer(GH_TOKEN_URL, { token: "ghs_paritytoken", expires_at: "2026-01-01T01:00:00Z" }, 201);
+const ghRepo = (id, name, extra = {}) => ({ id, node_id: `R_${id}`, name, full_name: `acme/${name}`, private: true, owner: { login: "acme", id: 77 }, html_url: `https://github.com/acme/${name}`, default_branch: "main", ...extra });
+const REPOS_PAGE = (page) => `^GET https://api\\.github\\.com/installation/repositories\\?per_page=100&page=${page}$`;
+const GH_REPOS = `${GH}/3/repositories`;
+const GH_BRANCHES = (owner, repo) => `${GH}/3/repositories/${owner}/${repo}/branches`;
+const BRANCHES_URL = (owner, repo) => `^GET https://api\\.github\\.com/repos/${owner}/${repo}/branches$`;
+const BRANCHES = [{ name: "main", commit: { sha: "a".repeat(40), url: "https://api.github.com/repos/acme/web/commits/main" }, protected: true }, { name: "feature/x", commit: { sha: "b".repeat(40), url: "https://api.github.com/repos/acme/web/commits/feature" }, protected: false }];
+add({ name: "github repositories: list", token: "read", method: "GET", path: GH_REPOS, config: CLOUD, ...GH_RSA_SETUP, http: [GH_TOKEN, answer(REPOS_PAGE(1), { total_count: 3, repositories: [ghRepo(11, "zeta"), ghRepo(12, "Alpha", { description: "Ünïcode / slashes", stargazers_count: 0, score: 1.5, topics: [], license: null, permissions: {} }), ghRepo(13, "alpha")] }), answer(REPOS_PAGE(2), { total_count: 3, repositories: [] })] });
+add({ name: "github repositories: list, two pages", token: "read", method: "GET", path: GH_REPOS, config: CLOUD, ...GH_RSA_SETUP, http: [GH_TOKEN, answer(REPOS_PAGE(1), { repositories: [ghRepo(21, "web")] }), answer(REPOS_PAGE(2), { repositories: [ghRepo(22, "api")] }), answer(REPOS_PAGE(3), { repositories: [] })] });
+add({ name: "github repositories: list, none", token: "read", method: "GET", path: GH_REPOS, config: CLOUD, ...GH_RSA_SETUP, http: [GH_TOKEN, answer(REPOS_PAGE(1), { total_count: 0, repositories: [] })] });
+add({ name: "github repositories: list by a member", token: "memberRead", method: "GET", path: GH_REPOS, config: CLOUD, ...GH_RSA_SETUP, http: [GH_TOKEN, answer(REPOS_PAGE(1), { repositories: [] })] });
+add({ name: "github repositories: GitHub refuses the token", token: "read", method: "GET", path: GH_REPOS, config: CLOUD, ...GH_RSA_SETUP, http: [GH_TOKEN, answer(REPOS_PAGE(1), { message: "Bad credentials", documentation_url: "https://docs.github.com/rest" }, 401)] });
+add({ name: "github repositories: GitHub fails three times", token: "read", method: "GET", path: GH_REPOS, config: CLOUD, ...GH_RSA_SETUP, http: [GH_TOKEN, answer(REPOS_PAGE(1), { message: "Server Error" }, 502)] });
+add({ name: "github repositories: a failure without a message", token: "read", method: "GET", path: GH_REPOS, config: CLOUD, ...GH_RSA_SETUP, http: [GH_TOKEN, answer(REPOS_PAGE(1), { error: "nope" }, 404)] });
+add({ name: "github repositories: no installation token", token: "read", method: "GET", path: GH_REPOS, config: CLOUD, ...GH_RSA_SETUP, http: [answer(GH_TOKEN_URL, { message: "Not Found" }, 404)] });
+const GH_NO_KEY = githubApp(3, "j3parityrsaapp0000000003", 1, "RSA App", "null");
+add({ name: "github repositories: the App has no key", token: "read", method: "GET", path: GH_REPOS, config: CLOUD, setupCoolify: [GH_NO_KEY.coolify], setupFreeploy: [GH_NO_KEY.freeploy], http: [GH_TOKEN] });
+add({ name: "github repositories: unknown App", token: "read", method: "GET", path: `${GH}/99/repositories`, config: CLOUD, ...GH_RSA_SETUP, http: [GH_TOKEN] });
+add({ name: "github repositories: with a write-only token", token: "writeOnly", method: "GET", path: GH_REPOS, config: CLOUD, ...GH_RSA_SETUP, http: [GH_TOKEN] });
+add({ name: "github branches: list", token: "read", method: "GET", path: GH_BRANCHES("acme", "web"), config: CLOUD, ...GH_RSA_SETUP, http: [GH_TOKEN, answer(BRANCHES_URL("acme", "web"), BRANCHES)] });
+add({ name: "github branches: list, none", token: "read", method: "GET", path: GH_BRANCHES("acme", "web"), config: CLOUD, ...GH_RSA_SETUP, http: [GH_TOKEN, answer(BRANCHES_URL("acme", "web"), [])] });
+add({ name: "github branches: a dotted owner and repository", token: "read", method: "GET", path: GH_BRANCHES("acme.inc", "web_app-1.x"), config: CLOUD, ...GH_RSA_SETUP, http: [GH_TOKEN, answer(BRANCHES_URL("acme\\.inc", "web_app-1\\.x"), BRANCHES.slice(0, 1))] });
+add({ name: "github branches: an invalid owner and repository", token: "read", method: "GET", path: GH_BRANCHES("acme%20inc", "web%24app"), config: CLOUD, ...GH_RSA_SETUP, http: [GH_TOKEN] });
+add({ name: "github branches: an invalid repository", token: "read", method: "GET", path: GH_BRANCHES("acme", "..."), config: CLOUD, ...GH_RSA_SETUP, http: [GH_TOKEN, answer(BRANCHES_URL("acme", "\\.\\.\\."), [])] });
+add({ name: "github branches: GitHub does not know the repository", token: "read", method: "GET", path: GH_BRANCHES("acme", "gone"), config: CLOUD, ...GH_RSA_SETUP, http: [GH_TOKEN, answer(BRANCHES_URL("acme", "gone"), { message: "Not Found", documentation_url: "https://docs.github.com/rest" }, 404)] });
+add({ name: "github branches: unknown App", token: "read", method: "GET", path: `${GH}/99/repositories/acme/web/branches`, config: CLOUD, ...GH_RSA_SETUP, http: [GH_TOKEN] });
+add({ name: "github branches: no installation token", token: "read", method: "GET", path: GH_BRANCHES("acme", "web"), config: CLOUD, ...GH_RSA_SETUP, http: [answer(GH_TOKEN_URL, { message: "Bad credentials" }, 401)] });
+
+// POST /applications/private-github-app: create_application($request, 'private-gh-app').
+const GHA = CREATE("private-github-app");
+const GHA_REPO = { ...IMAGE_ON, github_app_uuid: "j3parityrsaapp0000000003", git_repository: "acme/private", git_branch: "main", build_pack: "nixpacks", ports_exposes: "3000" };
+const REPO_URL = (slug) => `^GET https://api\\.github\\.com/repos/${slug}$`;
+const GH_REPO_OK = (slug = "acme/private") => answer(REPO_URL(slug.replace(/\./g, "\\.")), ghRepo(4242, slug.split("/")[1]));
+add({ name: "github app create: a GitHub App", token: "write", method: "POST", path: GHA, ...GH_RSA_SETUP, body: GHA_REPO, http: [GH_TOKEN, GH_REPO_OK()], after: CREATED_AFTER });
+add({ name: "github app create: a GitHub App, a repository URL", token: "write", method: "POST", path: GHA, ...GH_RSA_SETUP, body: { ...GHA_REPO, git_repository: "https://github.com/acme/private.git", build_pack: "dockerfile", name: "from-github", domains: "https://gh.acme.test" }, http: [GH_TOKEN, GH_REPO_OK()], after: CREATED_AFTER });
+add({ name: "github app create: a GitHub App, an SSH URL", token: "write", method: "POST", path: GHA, ...GH_RSA_SETUP, body: { ...GHA_REPO, git_repository: "git@github.com:acme/private.git", build_pack: "static", is_static: true }, http: [GH_TOKEN, GH_REPO_OK()], after: CREATED_AFTER });
+add({ name: "github app create: a GitHub App, Docker Compose", token: "write", method: "POST", path: GHA, ...GH_RSA_SETUP, body: { ...GHA_REPO, build_pack: "dockercompose", docker_compose_location: "/compose.yaml", docker_compose_domains: [{ name: "web", domain: "https://web.acme.test" }] }, http: [GH_TOKEN, GH_REPO_OK()], after: CREATED_AFTER });
+add({ name: "github app create: a GitHub App, the repository not accessible", token: "write", method: "POST", path: GHA, ...GH_RSA_SETUP, body: GHA_REPO, http: [GH_TOKEN, answer(REPO_URL("acme/private"), { message: "Not Found" }, 404)], after: NOTHING_CREATED });
+add({ name: "github app create: a GitHub App, GitHub fails", token: "write", method: "POST", path: GHA, ...GH_RSA_SETUP, body: GHA_REPO, http: [GH_TOKEN, answer(REPO_URL("acme/private"), { message: "Unavailable" }, 503)], after: NOTHING_CREATED });
+add({ name: "github app create: a GitHub App, GitHub refuses", token: "write", method: "POST", path: GHA, ...GH_RSA_SETUP, body: GHA_REPO, http: [GH_TOKEN, answer(REPO_URL("acme/private"), { message: "Moved" }, 400)], after: NOTHING_CREATED });
+add({ name: "github app create: a GitHub App, rate limited", token: "write", method: "POST", path: GHA, ...GH_RSA_SETUP, body: GHA_REPO, http: [GH_TOKEN, answer(REPO_URL("acme/private"), { message: "API rate limit exceeded" }, 403, { "X-RateLimit-Remaining": "0", "X-RateLimit-Reset": "1767229200" })], after: NOTHING_CREATED });
+add({ name: "github app create: a GitHub App, no installation token", token: "write", method: "POST", path: GHA, ...GH_RSA_SETUP, body: GHA_REPO, http: [answer(GH_TOKEN_URL, { message: "Not Found" }, 404)], after: NOTHING_CREATED });
+add({ name: "github app create: a GitHub App, unknown App", token: "write", method: "POST", path: GHA, ...GH_RSA_SETUP, body: { ...GHA_REPO, github_app_uuid: "nonexistentuuid" }, http: [GH_TOKEN] });
+add({ name: "github app create: a GitHub App, invalid", token: "write", method: "POST", path: GHA, ...GH_RSA_SETUP, body: { ...IMAGE_ON, git_repository: 5, git_branch: "a..b", build_pack: "heroku", ports_exposes: "80,x", watch_paths: [], docker_compose_domains: "x" }, http: [GH_TOKEN] });
+add({ name: "github app create: a GitHub App, domains for Docker Compose", token: "write", method: "POST", path: GHA, ...GH_RSA_SETUP, body: { ...GHA_REPO, build_pack: "dockercompose", domains: "https://x.acme.test" }, http: [GH_TOKEN] });
+add({ name: "github app create: a GitHub App, a domain in use", token: "write", method: "POST", path: GHA, ...GH_RSA_SETUP, body: { ...GHA_REPO, domains: "https://image.example.com" }, http: [GH_TOKEN, GH_REPO_OK()] });
+add({ name: "github app create: a GitHub App, a member", token: "memberWrite", method: "POST", path: GHA, ...GH_RSA_SETUP, body: GHA_REPO, http: [GH_TOKEN, GH_REPO_OK()] });
+add({ name: "github app create: a GitHub App, with a read token", token: "read", method: "POST", path: GHA, ...GH_RSA_SETUP, body: GHA_REPO, http: [GH_TOKEN, GH_REPO_OK()] });
+add({ name: "github app create: a GitHub App, instant deploy", token: "root", method: "POST", path: GHA, ...GH_RSA_SETUP, body: { ...GHA_REPO, instant_deploy: true }, http: [GH_TOKEN, GH_REPO_OK()], after: NOTHING_CREATED });
+
+// ── DP-93: POST /servers/hostinger (HostingerController::createServer) ──
+// Hostinger is faked per case (`http`): the account's virtual machines, the purchase, the public keys' attachment and a
+// machine's state. The new server is the one whose name is not the fixture's; its public key is the fixture key's real one
+// (K_MAIN, ed25519), sent in the purchase's setup. ValidateNewCloudServerJob is queued (faked) after the server is stored.
+const HOS = "/api/v1/servers/hostinger";
+const HOS_VMS = "^GET https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$";
+const HOS_BUY = "^POST https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines$";
+const HOS_VM = (id) => `^GET https://developers\\.hostinger\\.com/api/vps/v1/virtual-machines/${id}$`;
+const HOS_ATTACH = (id) => `^POST https://developers\\.hostinger\\.com/api/vps/v1/public-keys/attach/${id}$`;
+const vm = (id, state, ip) => ({ id, firewall_group_id: null, subscription_id: `sub-${id}`, plan: "KVM 2", hostname: "srv.example.com", state, actions_lock: "unlocked", cpus: 2, memory: 8192, disk: 102400, bandwidth: 8192000, ns1: "1.1.1.1", ns2: "8.8.8.8", ipv4: ip ? [{ id: 11, address: ip, ptr: null }] : [], ipv6: [], template: { id: 1121, name: "Ubuntu 24.04" }, created_at: "2026-01-01T00:00:00Z" });
+const HOS_BODY = { cloud_provider_token_uuid: CT_HOSTINGER, item_id: "hostingercom-vps-kvm2-usd-1m", data_center_id: 9, template_id: 1121, name: "VPS1.Example.com", private_key_uuid: K_MAIN };
+const HOS_BOUGHT = (state = "installing", ip = "198.51.100.7") => answer(HOS_BUY, { order: { id: 777, status: "completed" }, virtual_machine: vm(5001, state, ip) });
+const HOS_AFTER = {
+  server: "select case when name ~ '^[a-z]+(-[a-z]+)+-[a-z0-9]{24}$' then '<random-name>' else name end as name, description, ip, port, \"user\", private_key_id, cloud_provider_token_id, hostinger_virtual_machine_id, hostinger_virtual_machine_status, proxy::jsonb->>'type' as proxy_type, proxy::jsonb->>'status' as proxy_status, (proxy::jsonb->>'redirect_enabled')::boolean as redirect_enabled from servers where id > 2 order by id",
+  settings: "select ss.server_role, ss.is_build_server from server_settings ss join servers s on s.id = ss.server_id where s.id > 2",
+  destination: "select d.network from standalone_dockers d join servers s on s.id = d.server_id where s.id > 2",
+};
+add({ name: "server via Hostinger: create", token: "write", method: "POST", path: HOS, body: HOS_BODY, http: [answer(HOS_VMS, []), HOS_BOUGHT()], after: HOS_AFTER });
+add({ name: "server via Hostinger: create, the deprecated token id", token: "write", method: "POST", path: HOS, body: { ...HOS_BODY, cloud_provider_token_uuid: undefined, cloud_provider_token_id: CT_HOSTINGER, enable_backups: true }, http: [answer(HOS_VMS, [vm(4001, "running", "198.51.100.1")]), HOS_BOUGHT()], after: HOS_AFTER });
+add({ name: "server via Hostinger: create, a name without a dot", token: "write", method: "POST", path: HOS, body: { ...HOS_BODY, name: " vps1 " }, http: [answer(HOS_VMS, []), HOS_BOUGHT()], after: HOS_AFTER });
+add({ name: "server via Hostinger: create, a generated name", token: "write", method: "POST", path: HOS, body: { ...HOS_BODY, name: undefined }, http: [answer(HOS_VMS, []), HOS_BOUGHT()], after: HOS_AFTER });
+add({ name: "server via Hostinger: create, the IP after a wait", token: "write", method: "POST", path: HOS, body: HOS_BODY, http: [answer(HOS_VMS, []), HOS_BOUGHT("initial", null), answer(HOS_VM(5001), vm(5001, "running", "198.51.100.8"))], after: HOS_AFTER });
+add({ name: "server via Hostinger: create, no IP yet", token: "write", method: "POST", path: HOS, body: HOS_BODY, http: [answer(HOS_VMS, []), HOS_BOUGHT("installing", null), answer(HOS_VM(5001), vm(5001, "installing", null))], after: HOS_AFTER });
+add({ name: "server via Hostinger: create with public keys and a script, without validating", token: "root", method: "POST", path: HOS, body: { ...HOS_BODY, public_key_ids: [31, "32"], post_install_script_id: 41, instant_validate: false }, http: [answer(HOS_VMS, []), HOS_BOUGHT(), answer(HOS_ATTACH(5001), { data: [] })], after: HOS_AFTER });
+add({ name: "server via Hostinger: create, the keys not attached", token: "root", method: "POST", path: HOS, body: { ...HOS_BODY, public_key_ids: [31], instant_validate: false }, http: [answer(HOS_VMS, []), HOS_BOUGHT(), answer(HOS_ATTACH(5001), { message: "Key not found" }, 422)], after: HOS_AFTER });
+add({ name: "server via Hostinger: create and validate", token: "root", method: "POST", path: HOS, body: HOS_BODY, http: [answer(HOS_VMS, []), HOS_BOUGHT()], after: HOS_AFTER });
+add({ name: "server via Hostinger: create, waiting for payment", token: "write", method: "POST", path: HOS, body: HOS_BODY, http: [answer(HOS_VMS, []), answer(HOS_BUY, { id: 778, subscription_id: null, status: "pending", message: "Awaiting payment" })], after: HOS_AFTER });
+add({ name: "server via Hostinger: create, the purchase refused", token: "write", method: "POST", path: HOS, body: HOS_BODY, http: [answer(HOS_VMS, []), answer(HOS_BUY, { message: "The selected item is invalid." }, 422)], after: HOS_AFTER });
+add({ name: "server via Hostinger: create, rate limited", token: "write", method: "POST", path: HOS, body: HOS_BODY, http: [answer(HOS_VMS, { message: "Too many requests" }, 429, { "Retry-After": "30" })], after: HOS_AFTER });
+add({ name: "server via Hostinger: create, Hostinger fails", token: "write", method: "POST", path: HOS, body: HOS_BODY, http: [answer(HOS_VMS, { error: "Upstream" }, 503)], after: HOS_AFTER });
+add({ name: "server via Hostinger: create, invalid", token: "write", method: "POST", path: HOS, body: { cloud_provider_token_uuid: 5, data_center_id: "x", template_id: 1.5, name: "bad name!", enable_backups: "maybe", public_key_ids: "31", post_install_script_id: "x", instant_validate: "no", extra: 1 } });
+add({ name: "server via Hostinger: create, invalid public keys", token: "write", method: "POST", path: HOS, body: { ...HOS_BODY, public_key_ids: [1, "x", null], name: "-vps.example.com" } });
+add({ name: "server via Hostinger: create, no token", token: "write", method: "POST", path: HOS, body: { ...HOS_BODY, cloud_provider_token_uuid: undefined } });
+add({ name: "server via Hostinger: create, unknown token", token: "write", method: "POST", path: HOS, body: { ...HOS_BODY, cloud_provider_token_uuid: "nonexistentuuid" } });
+add({ name: "server via Hostinger: create, another provider's token", token: "write", method: "POST", path: HOS, body: { ...HOS_BODY, cloud_provider_token_uuid: CT_HETZNER } });
+add({ name: "server via Hostinger: create, unknown private key", token: "write", method: "POST", path: HOS, body: { ...HOS_BODY, private_key_uuid: "nonexistentuuid" } });
+add({ name: "server via Hostinger: create, another team's private key", token: "write", method: "POST", path: HOS, body: { ...HOS_BODY, private_key_uuid: K_OTHER } });
+add({ name: "server via Hostinger: create, a script without deploy", token: "write", method: "POST", path: HOS, body: { ...HOS_BODY, post_install_script_id: 41 } });
+add({ name: "server via Hostinger: create, validating without deploy", token: "write", method: "POST", path: HOS, body: { ...HOS_BODY, instant_validate: true } });
+add({ name: "server via Hostinger: create, not JSON", token: "write", method: "POST", path: HOS, raw: "item_id=x", contentType: "application/x-www-form-urlencoded" });
+add({ name: "server via Hostinger: create with a read token", token: "read", method: "POST", path: HOS, body: HOS_BODY });
+add({ name: "server via Hostinger: create, a member", token: "memberRead", method: "POST", path: HOS, body: HOS_BODY });
+denial("server via Hostinger: create", "memberWrite", WRITE_DELETE, WRITER);
 
 /** The tables whose column order emit.php writes into the goldens (`columns`): what a nested relation serializes in. */
 const columnsOf = ["servers", "server_settings", "standalone_dockers", "application_settings", "applications", "environment_variables", "application_deployment_queues", "scheduled_database_backups", "scheduled_database_backup_executions", "services", "service_applications", "service_databases", "projects", "environments", "standalone_postgresqls", "standalone_redis", "standalone_mongodbs", "standalone_mysqls", "standalone_mariadbs", "standalone_keydbs", "standalone_dragonflies", "standalone_clickhouses", "local_persistent_volumes", "local_file_volumes", "github_apps"];

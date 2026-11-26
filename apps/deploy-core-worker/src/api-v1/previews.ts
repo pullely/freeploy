@@ -15,7 +15,7 @@
 // (generate_preview_fqdn_compose() parses the file as a deployment would), which Freeploy does not have yet.
 import type { SqlExecutor } from "@saas/db/hyperdrive";
 import { insertApplicationPreview, softDeleteApplicationPreview, updateApplicationPreview, PUBLIC_GITHUB_SOURCE, type ApiRow, type ApplicationPreviewChanges } from "@saas/db/deploy";
-import { COOLIFY_API, coolifyJson, fromJs, laravelDate, obj, phpJsonEncode, sqlDate, type CoolifyAnswer, type PhpObject, type PhpValue } from "@saas/contracts/coolify-api";
+import { COOLIFY_API, POLICY_DENIALS, coolifyJson, fromJs, laravelDate, obj, phpJsonEncode, sqlDate, type CoolifyAnswer, type PhpObject, type PhpValue } from "@saas/contracts/coolify-api";
 import { applicationDomainList, domainWithoutPort, normalizeApplicationDomains, normalizeDomainPortOverrides, validateApplicationDomains } from "../applications/domains.js";
 import { needsExecutor } from "../applications/resources.js";
 import { parseDockerComposeYaml } from "../compose/yaml.js";
@@ -128,7 +128,7 @@ function formatPreview(row: ApiRow): PhpObject {
   });
 }
 
-const denied = async (c: ApiV1Context, write: boolean): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized());
+const denied = async (c: ApiV1Context, write: boolean, policyMessage?: string): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized(policyMessage));
 
 /** $request->all(): the JSON body (as the middleware cleaned it), then the query string's keys the body does not have. */
 async function requestAll(c: ApiV1Context): Promise<Record<string, unknown>> {
@@ -155,11 +155,11 @@ async function listPreviews(c: ApiV1Context, appUuid: string): Promise<CoolifyAn
 }
 
 /** The application (its 404), the policy, the pull request id (its 422) and the preview (its 404). */
-async function lookup(tx: SqlExecutor, c: ApiV1Context, appUuid: string, raw: string, write: boolean): Promise<{ app: ApiRow; preview: ApiRow } | CoolifyAnswer> {
+async function lookup(tx: SqlExecutor, c: ApiV1Context, appUuid: string, raw: string, write: boolean, policyMessage?: string): Promise<{ app: ApiRow; preview: ApiRow } | CoolifyAnswer> {
   const rows = rowsOf(tx);
   const app = await applicationRow(rows, appUuid);
   if (!app) return message(PREVIEWS_API_MESSAGES.applicationNotFound, 404);
-  const no = await denied(c, write);
+  const no = await denied(c, write, policyMessage);
   if (no) return no;
   const pullRequestId = pullRequestIdOf(raw);
   if (pullRequestId === null) return message(PREVIEWS_API_MESSAGES.invalidPullRequestId, 422);
@@ -278,7 +278,7 @@ async function storePreview(c: ApiV1Context, appUuid: string): Promise<CoolifyAn
       filled(all.commit);
     if (changesPreview) {
       if (!c.abilities.includes("write") && !c.abilities.includes("root")) return message(PREVIEWS_API_MESSAGES.writeNeeded, 403);
-      const again = await denied(c, true);
+      const again = await denied(c, true, POLICY_DENIALS.applicationUpdate);
       if (again) return again;
     }
     // Freeploy's: refused before anything is stored.
@@ -340,7 +340,7 @@ const unique = (errors: Errors): Errors => errors.map(([k, list]) => [k, [...new
 async function updatePreview(c: ApiV1Context, appUuid: string, raw: string): Promise<CoolifyAnswer> {
   const all = await requestAll(c);
   return c.sql(c.env, c.orgId, async (tx) => {
-    const found = await lookup(tx, c, appUuid, raw, true);
+    const found = await lookup(tx, c, appUuid, raw, true, POLICY_DENIALS.applicationUpdate);
     if (isAnswer(found)) return found;
     const { app, preview } = found;
     const isCompose = rowValue(app, "build_pack") === "dockercompose";

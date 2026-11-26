@@ -19,7 +19,7 @@
 // after membership-worker's facts; a denial answers 404 (never leaks).
 import type { Env } from "../env.js";
 import type { ActorContext } from "../router.js";
-import { createSqlExecutor } from "@saas/db/hyperdrive";
+import { createSqlExecutor, type SqlExecutor, type TransactionalSqlExecutor } from "@saas/db/hyperdrive";
 import {
   withOrg,
   loadKek,
@@ -37,7 +37,6 @@ import {
   type DeployPrivateKeyListRow,
   type OrgDek,
 } from "@saas/db/deploy";
-import type { SqlExecutor } from "@saas/db/hyperdrive";
 import { fetchAuthorizationContext } from "../membership-client.js";
 import { authorizeViaPolicy, type AuthorizeResult } from "../policy-client.js";
 import { deniedResponse, errorResponse, methodNotAllowed, successResponse, validationError } from "../http.js";
@@ -86,6 +85,12 @@ export function sqlCipher(tx: SqlExecutor, orgId: string, secret: string | undef
     decrypt: async (stored) => decryptField(await key(), COLUMN, stored),
   };
 }
+
+/** runInOrg() on a given database (DP-93: the /api/v1 replays run on PGlite): withOrg(), the same stores. */
+export const runInOrgOn =
+  (db: TransactionalSqlExecutor): OrgRunner =>
+  (env, orgId, fn) =>
+    withOrg(db, orgId, (tx) => fn({ store: sqlStore(tx, orgId), cipher: sqlCipher(tx, orgId, env.DEPLOY_ENCRYPTION_KEY) }));
 
 export const runInOrg: OrgRunner = async (env, orgId, fn) => {
   const db = createSqlExecutor(env.PLATFORM_DB!);

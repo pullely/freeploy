@@ -23,11 +23,8 @@ const CLOUD_PROVIDER_TOKEN: ModelShape = { hidden: ["id", "token"], dates: ["cre
 const COLUMN = "cloud_provider_tokens.token";
 const NOW = "date_trunc('second', timezone('UTC', now()))";
 
-/**
- * $this->authorize() denied: Coolify's exception handler answers an AuthorizationException under api/* with its own
- * message and `error` (app/Exceptions/Handler.php), not Laravel's "This action is unauthorized.".
- */
-export const policyDenied = (): CoolifyAnswer => coolifyJson(obj({ message: "You are not authorized to perform this action.", error: "Unauthorized" }), 403);
+/** $this->authorize() denied: the exception handler's answer (COOLIFY_API.unauthorized(), DP-93). */
+export const policyDenied = (): CoolifyAnswer => COOLIFY_API.unauthorized();
 const denied = async (c: ApiV1Context): Promise<CoolifyAnswer | null> => ((await c.allows(true)) ? null : policyDenied());
 const notFound = () => message("Cloud provider token not found.", 404);
 export const tokenCipher = (tx: SqlExecutor, c: ApiV1Context) => columnCipher(tx, c.orgId, c.env.DEPLOY_ENCRYPTION_KEY, COLUMN);
@@ -71,7 +68,7 @@ async function serialize(tx: SqlExecutor, c: ApiV1Context, row: ApiRow): Promise
 
 async function list(c: ApiV1Context): Promise<CoolifyAnswer> {
   // $request->user()?->isAdminOfTeam($teamId), before anything is read: the controller's own 403.
-  if (!(await c.allows(true))) return COOLIFY_API.unauthorized();
+  if (!(await c.allows(true))) return COOLIFY_API.controllerUnauthorized();
   return c.sql(c.env, c.orgId, async (tx) => {
     const out: PhpObject[] = [];
     for (const row of await rowsOf(tx)("cloud_provider_tokens")) out.push(await serialize(tx, c, row));

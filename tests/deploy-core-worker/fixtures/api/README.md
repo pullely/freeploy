@@ -1,4 +1,4 @@
-# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85, DP-86, DP-87, DP-88, DP-90)
+# Coolify's /api/v1 goldens (DP-70, DP-71, DP-73, DP-74, DP-78, DP-81, DP-84, DP-85, DP-86, DP-87, DP-88, DP-90, DP-93)
 
 What Coolify's real API answers, so that Freeploy's `/api/v1` (api-edge's middleware and limiters,
 identity-worker's teams and tokens, deploy-core-worker's projects, environments, private keys and servers —
@@ -16,12 +16,14 @@ repository and a repository with a deploy key, and updating one — DP-87 — an
 application's rollback images and rollback, executing a scheduled task, a storage's backup schedule, a server's proxy,
 Sentinel, log drains, image scanning, Cloudflare Tunnel, host key, registries and transfer, database imports and GitHub
 Apps — DP-88 — and the cloud provider tokens, the Hetzner, DigitalOcean, Vultr and Hostinger catalogs and a server's proxy
-configuration — DP-90) can be replayed against it byte for byte.
+configuration — DP-90 — and a policy's denial on a route of each group, a GitHub App's repositories and branches, an
+application from a private repository through a GitHub App and a Hostinger server — DP-93) can be replayed against it byte
+for byte.
 
 | File | What it is |
 |---|---|
 | `cases.mjs` | writes `cases.json` (`node cases.mjs > cases.json`): the fixture and every request |
-| `cases.json` | the fixture (teams, users with their roles, projects and environments, private keys from `../ssh-keys`, a server per team with its default destination, applications and their variables, an S3 storage per team, the eight standalone database engines — made by Coolify's `create_standalone_<engine>()` helpers, so the created hook's volumes and Redis's variables are made too — and another team's PostgreSQL, four backup schedules and two executions, a service per team with its parts and variables and five deployments (DP-74), API tokens with fixed plain text) and the requests: a method, a path, a token of the fixture (sent as `Bearer <id>\|<plain text>`) or a raw `Authorization` header, a JSON body or raw content, the client IP, the instance settings (`is_api_enabled`, `allowed_ips`) and the limits (`API_RATE_LIMIT`, `API_FAILED_REQUEST_RATE_LIMIT`); a `sequence` is several requests sharing one cache, with `advance` moving the clock |
+| `cases.json` | the fixture (teams, users with their roles, projects and environments, private keys — the committed test keys of `../ssh-keys`, and DP-72's RSA GitHub App key read from `../sources/cases.json` (`json`, a path of keys into that file) — a server per team with its default destination, applications and their variables, an S3 storage per team, the eight standalone database engines — made by Coolify's `create_standalone_<engine>()` helpers, so the created hook's volumes and Redis's variables are made too — and another team's PostgreSQL, four backup schedules and two executions, a service per team with its parts and variables and five deployments (DP-74), API tokens with fixed plain text) and the requests: a method, a path, a token of the fixture (sent as `Bearer <id>\|<plain text>`) or a raw `Authorization` header, a JSON body or raw content, the client IP, the instance settings (`is_api_enabled`, `allowed_ips`) and the limits (`API_RATE_LIMIT`, `API_FAILED_REQUEST_RATE_LIMIT`); a `sequence` is several requests sharing one cache, with `advance` moving the clock |
 | `emit.php` | sends each request through Coolify's HTTP kernel and prints the answers. Nothing in it is a port |
 | `goldens.json` | its output: per request the status, the rate-limit headers (and Retry-After) and content type, and the body exactly as Coolify wrote it; for a write, the rows it left (`after`); for a case with `http`, the requests Coolify sent to the faked API (`requests`); and the column order of the tables whose rows the API writes unsorted (`columns`: a loaded relation such as an application's destination, its server and their settings). Never edited by hand |
 | `freeploy-rows.json` | not Coolify's: the rows Freeploy's own database gives for the fixture (every column, type and default), written and checked by `tests/db/src/deploy-api-v1.test.ts`; DP-70's replay (`src/api-v1.test.ts`) makes its memory stores from them |
@@ -118,6 +120,19 @@ The test's fetch serves the same answers and records the same fields, so what Fr
 the retries, the decrypted token) is compared too; the Retry-After header of a rate-limited answer is compared with the
 golden's `headers`. The `after` queries read a token's ciphertext as whether it is set (`has_token`) and a created
 token's id as null; the proxy configuration's read the server's proxy as DP-88's do. No masking is added.
+DP-93's replays (`src/api-v1-denials.test.ts`, `src/api-v1-github-apps-hostinger.test.ts`) add one private key at the end
+of team 1's (id 4, `k4parityg…`: DP-72's RSA GitHub App key, read from `../sources/cases.json` on both sides, never inlined)
+and two member tokens (ids 13 and 14: read with deploy, read with delete). Freeploy's PGlite fixture now stores every
+fixture key as its text, encrypted with the org's key, with its real fingerprint (until DP-93 it stored the key file's
+path and `fp-<uuid>`; emit.php always stored the text), so a key's public key — a Hostinger purchase's setup, a GitHub
+App's JWT — is the same on both sides. A `denied: <earlier case>, <who>` case is an earlier case sent with a member's
+token; what lets Coolify's member hold a deploy, delete or write token is a level stored on its membership
+(`team_user.access`, given by `setupCoolify`): Freeploy has no such grants, so the deploy-core-worker replay tells the
+handler policy-worker's member answer (deploy.resource.read only) and tests/api-edge checks that the edge refuses that
+member's token itself. A GitHub App case's `setupCoolify`/`setupFreeploy` make App 3 (installation 2003) with key 4; its
+`requests` hold the JWT Coolify signed at the fixed clock, which Freeploy's request must equal. A Hostinger case's
+`after` reads the servers made after the fixture's (`id > 2`), with a generated name as `<random-name>`. No masking is
+added.
 
 ## How the goldens are made
 

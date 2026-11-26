@@ -12,7 +12,7 @@
 // service is not ported (clone_service() has no console port yet): it answers the fallback 404.
 import type { SqlExecutor } from "@saas/db/hyperdrive";
 import { APPLICATION_MORPH_CLASS, DATABASE_TABLES, findDatabaseByUuid, moveApplication, moveDatabase, moveService, type ApiRow, type ApiTable, type DatabaseEngine } from "@saas/db/deploy";
-import { COOLIFY_API, coolifyJson, obj, type CoolifyAnswer, type PhpValue } from "@saas/contracts/coolify-api";
+import { COOLIFY_API, POLICY_DENIALS, coolifyJson, obj, type CoolifyAnswer, type PhpValue } from "@saas/contracts/coolify-api";
 import { applicationResourcesContext } from "../handlers/application-resources.js";
 import { databaseResourcesContext } from "../handlers/database-resources.js";
 import { cloneApplicationTo, RESOURCE_OPERATION_MESSAGES } from "../applications/resource-operations.js";
@@ -27,6 +27,8 @@ import { addError, cleanInput, nameRules, readApiBody, requestBoolean, validatio
 import { validateRules } from "./rules.js";
 
 export type OperationKind = "application" | "database" | "service";
+/** authorize('update', $resource): ApplicationPolicy's and DatabasePolicy's own messages (ServicePolicy answers false). */
+const UPDATE_DENIED: Record<OperationKind, string | undefined> = { application: POLICY_DENIALS.applicationUpdate, database: POLICY_DENIALS.databaseUpdate, service: undefined };
 
 const RESOURCE_TYPE: Record<OperationKind, string> = { application: "Application", database: "Database", service: "Service" };
 const NOT_FOUND: Record<OperationKind, string> = { application: "Application not found.", database: "Database not found.", service: "Service not found." };
@@ -72,7 +74,7 @@ async function resourceOf(tx: SqlExecutor, rows: Rows, kind: OperationKind, uuid
   return row ? { row, engine: db.engine } : null;
 }
 
-const denied = async (c: ApiV1Context): Promise<CoolifyAnswer | null> => ((await c.allows(true)) ? null : COOLIFY_API.unauthorized());
+const denied = async (c: ApiV1Context, policyMessage?: string): Promise<CoolifyAnswer | null> => ((await c.allows(true)) ? null : COOLIFY_API.unauthorized(policyMessage));
 
 /** $request->all(): the JSON body, then the query string's keys the body does not have. */
 async function requestAll(c: ApiV1Context): Promise<Record<string, unknown>> {
@@ -91,7 +93,7 @@ async function move(c: ApiV1Context, kind: OperationKind, uuid: string): Promise
     const rows = rowsOf(tx);
     const resource = await resourceOf(tx, rows, kind, uuid);
     if (!resource) return message(NOT_FOUND[kind], 404);
-    const no = await denied(c);
+    const no = await denied(c, UPDATE_DENIED[kind]);
     if (no) return no;
     const errors: Errors = [];
     await validateRules(errors, all, [["environment_uuid", ["required", "string"]]], { laravelMessages: true });
@@ -126,7 +128,7 @@ async function migrate(c: ApiV1Context, kind: OperationKind, uuid: string): Prom
   return c.sql(c.env, c.orgId, async (tx) => {
     const resource = await resourceOf(tx, rowsOf(tx), kind, uuid);
     if (!resource) return message(NOT_FOUND[kind], 404);
-    return (await denied(c)) ?? ABORT_404;
+    return (await denied(c, UPDATE_DENIED[kind])) ?? ABORT_404;
   });
 }
 
@@ -149,7 +151,7 @@ async function clone(c: ApiV1Context, kind: "application" | "database", uuid: st
     const resource = await resourceOf(tx, rows, kind, uuid);
     if (!resource) return message(NOT_FOUND[kind], 404);
     // authorize('update', $resource), then authorize('create', [..., $resource->environment]).
-    const no = (await denied(c)) ?? (await denied(c));
+    const no = (await denied(c, UPDATE_DENIED[kind])) ?? (await denied(c));
     if (no) return no;
     const cloneVolumes = requestBoolean(all, "clone_volumes");
     if (cloneVolumes && !hasDeployAbility(c)) return message(OPERATIONS_API_MESSAGES.deployForVolumes, 403);
@@ -160,7 +162,7 @@ async function clone(c: ApiV1Context, kind: "application" | "database", uuid: st
       return message(OPERATIONS_API_MESSAGES.destinationNotFound, 404);
     }
     // authorize('placeResource', $destination->server)
-    const again = await denied(c);
+    const again = await denied(c, POLICY_DENIALS.placeResource);
     if (again) return again;
 
     const cloneUuid = newPublicId();

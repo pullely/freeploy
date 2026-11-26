@@ -155,13 +155,13 @@ describe("what a write leaves behind (DP-78)", () => {
 });
 
 describe("authorization and secrets (DP-78)", () => {
-  it("answers Laravel's 403 when policy-worker denies the token's user, after the 404 of an unknown project", async () => {
+  it("answers the exception handler's 403 (DP-93) when policy-worker denies the token's user, after the 404 of an unknown project", async () => {
     const out = await fixture.inCase(async (db) => {
       const shown = await send(caseNamed("environment details: by name"), db, false);
       const unknown = await send(caseNamed("environment details: unknown project"), db, false);
       return [shown.status, await shown.text(), unknown.status];
     });
-    expect(out).toEqual([403, '{"message":"This action is unauthorized."}', 404]);
+    expect(out).toEqual([403, '{"message":"You are not authorized to perform this action.","error":"Unauthorized"}', 404]);
   });
 
   it("never returns a secret to a token that may not read secrets", async () => {

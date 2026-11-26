@@ -35,7 +35,7 @@ import { applicationRelation } from "./applications.js";
 import { databaseResource } from "./databases.js";
 import { serviceResource } from "./services.js";
 import { inCoolifyOrder } from "./columns.js";
-import { hasDeployAbility, message, rowsOf, unavailable, type ApiV1Context, type Rows } from "./context.js";
+import { hasDeployAbility, message, rowsOf, unavailable, UPDATE_DENIED, type ApiV1Context, type Rows } from "./context.js";
 import { SERVICE_APPLICATION, SERVICE_DATABASE, rowValue, toModel, type ModelShape } from "./models.js";
 import { extraFields, readApiBody, requestBoolean, validationFailed, type Errors } from "./request.js";
 import { validateRules, type Rule, type Rules } from "./rules.js";
@@ -58,7 +58,7 @@ const NOT_FOUND = {
   service: { list: "Service not found.", create: "Service not found.", update: "Service not found.", delete: "Service not found." },
 } as const;
 
-const denied = async (c: ApiV1Context, write: boolean): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized());
+const denied = async (c: ApiV1Context, write: boolean, policyMessage?: string): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized(policyMessage));
 const deployForbidden = (c: ApiV1Context, reason: string): CoolifyAnswer | null => (hasDeployAbility(c) ? null : message(`Missing required permissions: deploy. ${reason}`, 403));
 const OUTSIDE_REASON = "A mount outside the resource directory needs a token with the deploy permission.";
 const CONTENT_REASON = "Coolify writes the file content on the server immediately, so it needs a token with the deploy permission.";
@@ -266,7 +266,7 @@ async function createStorage(c: ApiV1Context, kind: StorageKind, uuid: string): 
     const rows = rowsOf(tx);
     const t = await findTarget(tx, rows, kind, param(c, all, uuid));
     if (!t) return message(NOT_FOUND[kind].create, 404);
-    const no = await denied(c, true);
+    const no = await denied(c, true, UPDATE_DENIED[kind]);
     if (no) return no;
     const errors: Errors = [];
     await validateRules(errors, all, createRules(kind));
@@ -370,7 +370,7 @@ async function updateStorage(c: ApiV1Context, kind: StorageKind, uuid: string): 
     // $request->route('uuid'): the body's uuid is the storage's.
     const t = await findTarget(tx, rows, kind, uuid);
     if (!t) return message(NOT_FOUND[kind].update, 404);
-    const no = await denied(c, true);
+    const no = await denied(c, true, UPDATE_DENIED[kind]);
     if (no) return no;
     const errors: Errors = [];
     await validateRules(errors, all, UPDATE_RULES);

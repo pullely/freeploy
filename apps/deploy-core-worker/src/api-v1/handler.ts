@@ -45,9 +45,11 @@
 //   /v1/internal/api-v1/{org}/cloud-tokens[/{uuid}[/validate]]                                                 cloud-provider-tokens.ts (DP-90)
 //   /v1/internal/api-v1/{org}/{hetzner,digitalocean,vultr,hostinger}/{catalog}                                 cloud-catalogs.ts (DP-90)
 //   PUT /v1/internal/api-v1/{org}/servers/{uuid}/proxy/configuration                                           proxy-configuration.ts (DP-90)
+//   GET /v1/internal/api-v1/{org}/github-apps/{id}/repositories[/{owner}/{repo}/branches]                        github-repositories.ts (DP-93)
+//   POST /v1/internal/api-v1/{org}/servers/hostinger                                                            hostinger-servers.ts (DP-93)
 //
 // $this->authorize(…) is policy-worker's deploy.resource.read (view) or deploy.resource.write (create,
-// update, delete) for the token's user; a denial is Laravel's 403 "This action is unauthorized.".
+// update, delete) for the token's user; a denial is the exception handler's 403 (COOLIFY_API.unauthorized(), DP-93).
 import type { Env } from "../env.js";
 import type { ActorContext } from "../router.js";
 import { createSqlExecutor } from "@saas/db/hyperdrive";
@@ -112,6 +114,7 @@ import { serverSettingsApi } from "./server-settings.js";
 import { importCheck, serverRegistriesApi, serverTransferApi } from "./server-registries-transfer.js";
 import { databaseImportsApi } from "./database-imports.js";
 import { githubAppsApi } from "./github-apps.js";
+import { createHostingerServer } from "./hostinger-servers.js";
 import { cloudProviderTokensApi } from "./cloud-provider-tokens.js";
 import { cloudCatalogsApi } from "./cloud-catalogs.js";
 import type { ProviderNetwork } from "./cloud-providers.js";
@@ -226,6 +229,8 @@ export async function handleApiV1(request: Request, env: Env, requestId: string,
     }
     if (first === "servers" && second !== undefined && third === "registries") return send((await serverRegistriesApi(context, second, segments.slice(3))) ?? COOLIFY_API.notFound());
     if (first === "servers" && second !== undefined && (third === "transfer" || third === "migrate")) return send((await serverTransferApi(context, second, third, segments.slice(3))) ?? COOLIFY_API.notFound());
+    // DP-93: a Hostinger VPS bought and stored as a server (routes/api.php puts it before /servers/{uuid}).
+    if (first === "servers" && second === "hostinger" && third === undefined && method === "POST") return send(await createHostingerServer(context));
     if (first === "servers" && fourth === undefined) {
       const answer = await serversApi(context, second, third);
       if (answer) return send(answer);

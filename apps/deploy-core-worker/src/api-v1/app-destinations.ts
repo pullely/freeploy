@@ -8,7 +8,7 @@
 // server already attached, an application that can use more servers and a server of the same proxy).
 import type { SqlExecutor } from "@saas/db/hyperdrive";
 import { APPLICATION_MORPH_CLASS, attachAdditionalDestination, detachAdditionalDestination, type ApiRow } from "@saas/db/deploy";
-import { COOLIFY_API, coolifyJson, obj, type CoolifyAnswer, type PhpValue } from "@saas/contracts/coolify-api";
+import { COOLIFY_API, POLICY_DENIALS, coolifyJson, obj, type CoolifyAnswer, type PhpValue } from "@saas/contracts/coolify-api";
 import { effectiveServerRole } from "../servers/service.js";
 import { message, rowsOf, type ApiV1Context, type Rows } from "./context.js";
 import { rowValue } from "./models.js";
@@ -39,7 +39,7 @@ export async function appDestinationsApi(c: ApiV1Context, appUuid: string, segme
   return c.method === "DELETE" ? removeDestination(c, appUuid, destinationUuid) : null;
 }
 
-const denied = async (c: ApiV1Context, write: boolean): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized());
+const denied = async (c: ApiV1Context, write: boolean, policyMessage?: string): Promise<CoolifyAnswer | null> => ((await c.allows(write)) ? null : COOLIFY_API.unauthorized(policyMessage));
 
 async function applicationRow(rows: Rows, uuid: string): Promise<ApiRow | null> {
   return (await rows("applications", "t.deleted_at IS NULL AND t.uuid = $1", [uuid]))[0] ?? null;
@@ -113,7 +113,7 @@ async function addDestination(c: ApiV1Context, appUuid: string): Promise<Coolify
     const rows = rowsOf(tx);
     const app = await applicationRow(rows, appUuid);
     if (!app) return message(APP_DESTINATIONS_API_MESSAGES.applicationNotFound, 404);
-    const no = await denied(c, true);
+    const no = await denied(c, true, POLICY_DENIALS.applicationUpdate);
     if (no) return no;
     const destination = await destinationRow(rows, value);
     const server = destination ? await serverOf(rows, rowValue(destination, "server_id")) : null;
@@ -121,7 +121,7 @@ async function addDestination(c: ApiV1Context, appUuid: string): Promise<Coolify
     const canHost = settings !== undefined && effectiveServerRole({ server_role: rowValue(settings, "server_role") as never, is_build_server: rowValue(settings, "is_build_server") as boolean }) !== "build";
     if (!destination || !server || !canHost) return message(APP_DESTINATIONS_API_MESSAGES.destinationNotFound, 404);
     // authorize('placeResource', $destination->server)
-    const again = await denied(c, true);
+    const again = await denied(c, true, POLICY_DENIALS.placeResource);
     if (again) return again;
     const destinationId = Number(rowValue(destination, "id"));
     if (Number(rowValue(app, "destination_id")) === destinationId && rowValue(app, "destination_type") === DESTINATION_MORPH) return message(APP_DESTINATIONS_API_MESSAGES.alreadyPrimary, 422);
@@ -156,7 +156,7 @@ async function removeDestination(c: ApiV1Context, appUuid: string, destinationUu
     const rows = rowsOf(tx);
     const app = await applicationRow(rows, appUuid);
     if (!app) return message(APP_DESTINATIONS_API_MESSAGES.applicationNotFound, 404);
-    const no = await denied(c, true);
+    const no = await denied(c, true, POLICY_DENIALS.applicationUpdate);
     if (no) return no;
     const destination = await destinationRow(rows, destinationUuid);
     if (!destination) return message(APP_DESTINATIONS_API_MESSAGES.destinationNotFound, 404);
