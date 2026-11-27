@@ -172,6 +172,8 @@ export interface ScanData {
   latestFinishedCommit: ReadonlyMap<number, string | null>;
   ignores: readonly IgnoreRow[];
   policies: readonly PolicyRow[];
+  /** DP-116: ImageScanPolicyResolver::instanceRow(), the platform's row with no scope (migration 740); none until stored. */
+  instancePolicy?: PolicyRow | null;
   servers: ReadonlyMap<number, ScanServer>;
   /** The scan owner of each row, set where ResourceScans sets the `resource` relation. */
   owners: Map<number, ScanOwner>;

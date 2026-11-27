@@ -14,11 +14,12 @@ export const INSTANCE_SETTINGS_API = {
   oauth: (provider: string | null) => (provider === null ? "/v1/platform/settings/oauth" : `/v1/platform/settings/oauth/${encodeURIComponent(provider)}`),
 };
 
-/** <x-settings.layout>'s $settingsMenuSections, as far as Freeploy has the pages (Image Scanning: not ported). */
+/** <x-settings.layout>'s $settingsMenuSections (Image Scanning since DP-116). */
 export const SETTINGS_PAGES: Array<{ section: string; label: string; href: string; icon: string }> = [
   { section: "Configuration", label: "General", href: "/settings", icon: "settings" },
   { section: "Configuration", label: "Advanced", href: "/settings/advanced", icon: "grid" },
   { section: "Configuration", label: "Updates", href: "/settings/updates", icon: "refresh3" },
+  { section: "Configuration", label: "Image Scanning", href: "/settings/image-scanning", icon: "shield-alert" },
   { section: "Instance", label: "Authentication", href: "/settings/oauth", icon: "keys" },
   { section: "Instance", label: "Email", href: "/settings/email", icon: "mail" },
   { section: "Instance", label: "Backup", href: "/settings/backup", icon: "database" },

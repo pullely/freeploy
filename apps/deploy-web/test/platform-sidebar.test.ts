@@ -13,20 +13,20 @@ function visible(path: string, operator: boolean): string[] {
 
 test("a non-operator's sidebar has no Settings submenu and no Admin View", () => {
   assert.deepEqual(submenusFor(false), SUBMENUS);
-  for (const path of ["/settings", "/settings/advanced", "/settings/updates", "/settings/oauth/github", "/settings/email", "/settings/backup", "/team/admin", "/admin"]) {
+  for (const path of ["/settings", "/settings/advanced", "/settings/updates", "/settings/image-scanning", "/settings/oauth/github", "/settings/email", "/settings/backup", "/team/admin", "/admin"]) {
     assert.equal(activeSubmenu(path), "", path);
     assert.deepEqual(visible(path, false), [""], path);
   }
   assert.equal(childActive("/team/admin", "/team/admin"), false);
 });
 
-test("an operator's: Settings (General, Advanced, and since DP-101 Updates, Authentication, Email, Backup) last, and Admin View after Image Scanning in Team", () => {
+test("an operator's: Settings (General, Advanced, and since DP-101 Updates, Authentication, Email, Backup, since DP-116 Image Scanning) last, and Admin View after Image Scanning in Team", () => {
   const menus = submenusFor(true);
   assert.deepEqual(
     menus.map((s) => s.label),
     [...SUBMENUS.map((s) => s.label), "Settings"],
   );
-  assert.deepEqual(OPERATOR_SUBMENUS[0]!.children.map((c) => c.href), ["/settings", "/settings/advanced", "/settings/updates", "/settings/oauth", "/settings/email", "/settings/backup"]);
+  assert.deepEqual(OPERATOR_SUBMENUS[0]!.children.map((c) => c.href), ["/settings", "/settings/advanced", "/settings/updates", "/settings/image-scanning", "/settings/oauth", "/settings/email", "/settings/backup"]);
   assert.deepEqual(
     menus.find((s) => s.label === "Team")!.children.map((c) => c.href),
     ["/team", "/team/members", "/team/audit-log", "/team/image-scanning", "/team/admin", "/team/danger"],

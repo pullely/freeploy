@@ -16,13 +16,14 @@ import {
   UPDATE_CHANNEL_OPTIONS,
 } from "../src/lib/instance-settings.ts";
 
-test("<x-settings.layout>'s pages, without Image Scanning, in Coolify's order and sections", () => {
+test("<x-settings.layout>'s pages, with Image Scanning (DP-116), in Coolify's order and sections", () => {
   assert.deepEqual(
     SETTINGS_PAGES.map((p) => [p.section, p.label, p.href]),
     [
       ["Configuration", "General", "/settings"],
       ["Configuration", "Advanced", "/settings/advanced"],
       ["Configuration", "Updates", "/settings/updates"],
+      ["Configuration", "Image Scanning", "/settings/image-scanning"],
       ["Instance", "Authentication", "/settings/oauth"],
       ["Instance", "Email", "/settings/email"],
       ["Instance", "Backup", "/settings/backup"],

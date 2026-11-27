@@ -72,7 +72,12 @@ export interface ExportRow {
   state: string;
   ignore: IgnoreRow | null;
   image: string;
+  /** DP-116: the ID the page shows, when it is not the finding's id (the host page shows the display ID). */
+  id?: string;
 }
+
+/** FindingsExport::id(): `$row['id'] ?? $row['finding']->id`. */
+const rowId = (row: ExportRow): string => row.id ?? row.finding.id;
 
 const severityLabel = (f: Finding): string => {
   const s = f.severity.toLowerCase();
@@ -89,7 +94,8 @@ export function findingsMarkdown(title: string, rows: readonly ExportRow[], with
     header,
     rows.map((row) => {
       const f = row.finding;
-      const cells = [markdownLink(f.id, advisoryUrl(f.id)), severityLabel(f) + (f.kev ? ", known exploited" : ""), markdownCell(f.package), markdownCell(f.version), markdownCell(f.fixedIn ?? "")];
+      const id = rowId(row);
+      const cells = [markdownLink(id, advisoryUrl(id)), severityLabel(f) + (f.kev ? ", known exploited" : ""), markdownCell(f.package), markdownCell(f.version), markdownCell(f.fixedIn ?? "")];
       if (withImage) cells.push(markdownCell(row.image));
       if (ignored) cells.push(markdownCell(row.ignore?.reason ?? ""));
       return cells;
@@ -99,14 +105,14 @@ export function findingsMarkdown(title: string, rows: readonly ExportRow[], with
 
 /** The finding IDs, once each, one per line. */
 export function findingsIds(rows: readonly ExportRow[]): string {
-  const ids = [...new Set(rows.map((r) => r.finding.id))];
+  const ids = [...new Set(rows.map(rowId))];
   return ids.length === 0 ? "" : `${ids.join("\n")}\n`;
 }
 
 function findingEntries(rows: readonly ExportRow[], stateLabels: Record<string, string>) {
   return rows.map((row) => {
     const f = row.finding;
-    const id = f.id;
+    const id = rowId(row);
     return {
       id,
       aliases: [...new Set([f.id, ...f.aliases])].filter((alias) => alias !== id),

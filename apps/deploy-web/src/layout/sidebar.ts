@@ -114,6 +114,7 @@ export const OPERATOR_SUBMENUS: ReadonlyArray<{ label: string; children: Submenu
       { href: "/settings", is: ["settings"] },
       { href: "/settings/advanced", is: ["settings/advanced"] },
       { href: "/settings/updates", is: ["settings/updates"] },
+      { href: "/settings/image-scanning", is: ["settings/image-scanning"] },
       { href: "/settings/oauth", is: ["settings/oauth*"] },
       { href: "/settings/email", is: ["settings/email"] },
       { href: "/settings/backup", is: ["settings/backup"] },

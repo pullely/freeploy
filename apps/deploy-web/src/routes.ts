@@ -1,7 +1,7 @@
 // The URL structure is routes/web.php's, one to one (design §3.1). A route
 // whose page is not ported yet renders NotPorted, which the parity harness
 // reports as a failing (not missing) route once deploy-web is the target.
-export type PageKey = "login" | "register" | "forgot-password" | "reset-password" | "profile.appearance" | "profile" | "profile.passkeys.confirm" | "password.confirm" | "verify.email" | "two-factor.required" | "verify.verify" | "two-factor.login" | "security.private-key.index" | "security.private-key.show" | "security.cloud-tokens" | "security.cloud-tokens.show" | "security.cloud-init-scripts" | "security.cloud-init-scripts.show" | "server.index" | "server.create" | "server.create.manual" | "server.show" | "server.advanced" | "server.private-key" | "server.cloud-provider-token" | "server.ca-certificate" | "server.sentinel" | "server.swarm" | "server.docker-cleanup" | "server.log-drains" | "server.destinations" | "server.delete" | "server.registries" | "registries.index" | "project.index" | "project.show" | "project.edit" | "project.resource.index" | "project.environment.edit" | "project.environment.canvas" | "deploy-canvas" | "project.resource.create" | "project.application.configuration" | "project.application.environment-variables" | "project.application.domains" | "project.application.advanced" | "project.application.healthcheck" | "project.application.resource-limits" | "project.application.persistent-storage" | "project.application.tags" | "project.application.resource-operations" | "project.application.danger" | "project.database.configuration" | "project.application.source" | "project.application.servers" | "project.application.webhooks" | "project.application.scheduled-tasks" | "project.application.rollback" | "project.service.configuration" | "project.application.deployment.index" | "project.application.deployment.show" | "destination.index" | "destination.show" | "destination.danger" | "destination.resources" | "not-ported" | SharedVariablesPageKey | DatabaseSharedPageKey | StoragePageKey | NotificationsPageKey | ServicePageKey | TeamPageKey | ApiTokensPageKey | SourcesPageKey | BoardingPageKey | PlatformPageKey | SubscriptionPageKey | ServerMorePageKey | ResourcePagesKey | CanvasViewsPageKey | BackupPagesKey | DashboardClonePageKey | InstanceSettingsMorePageKey | ConfigSubpagesPageKey | IntegrationTokensPageKey | GitSourcesPageKey | ImageScanPageKey;
+export type PageKey = "login" | "register" | "forgot-password" | "reset-password" | "profile.appearance" | "profile" | "profile.passkeys.confirm" | "password.confirm" | "verify.email" | "two-factor.required" | "verify.verify" | "two-factor.login" | "security.private-key.index" | "security.private-key.show" | "security.cloud-tokens" | "security.cloud-tokens.show" | "security.cloud-init-scripts" | "security.cloud-init-scripts.show" | "server.index" | "server.create" | "server.create.manual" | "server.show" | "server.advanced" | "server.private-key" | "server.cloud-provider-token" | "server.ca-certificate" | "server.sentinel" | "server.swarm" | "server.docker-cleanup" | "server.log-drains" | "server.destinations" | "server.delete" | "server.registries" | "registries.index" | "project.index" | "project.show" | "project.edit" | "project.resource.index" | "project.environment.edit" | "project.environment.canvas" | "deploy-canvas" | "project.resource.create" | "project.application.configuration" | "project.application.environment-variables" | "project.application.domains" | "project.application.advanced" | "project.application.healthcheck" | "project.application.resource-limits" | "project.application.persistent-storage" | "project.application.tags" | "project.application.resource-operations" | "project.application.danger" | "project.database.configuration" | "project.application.source" | "project.application.servers" | "project.application.webhooks" | "project.application.scheduled-tasks" | "project.application.rollback" | "project.service.configuration" | "project.application.deployment.index" | "project.application.deployment.show" | "destination.index" | "destination.show" | "destination.danger" | "destination.resources" | "not-ported" | SharedVariablesPageKey | DatabaseSharedPageKey | StoragePageKey | NotificationsPageKey | ServicePageKey | TeamPageKey | ApiTokensPageKey | SourcesPageKey | BoardingPageKey | PlatformPageKey | SubscriptionPageKey | ServerMorePageKey | ResourcePagesKey | CanvasViewsPageKey | BackupPagesKey | DashboardClonePageKey | InstanceSettingsMorePageKey | ConfigSubpagesPageKey | IntegrationTokensPageKey | GitSourcesPageKey | ImageScanPageKey | ImageScanSettingsPageKey;
 
 /**
  * DP-114: a resource's Security page (routes/web.php's project.{application,service,database}.vulnerabilities: the
@@ -16,6 +16,13 @@ export type ImageScanPageKey =
   | "project.database.vulnerabilities"
   | "project.database.vulnerabilities.sbom"
   | "vulnerabilities";
+
+/**
+ * DP-116: the image scanning settings — of the platform operator (settings.image-scanning, InstanceImageScanning), of
+ * the team (team.image-scanning, TeamImageScanning) and of a server (server.security.vulnerabilities,
+ * ServerImageScanning with HostVulnerabilities; server.security.image-scanning redirects to it).
+ */
+export type ImageScanSettingsPageKey = "settings.image-scanning" | "team.image-scanning" | "server.security.vulnerabilities" | "server.security.image-scanning";
 
 /** DP-104: Keys & Tokens → Integration Tokens (routes/web.php's security.integration-tokens; the editor is its dialog). */
 export type IntegrationTokensPageKey = "security.integration-tokens";
@@ -113,15 +120,15 @@ export function scheduledTaskRedirect(pathname: string): string {
 
 /**
  * The platform operator's pages (DP-79): settings.index and settings.advanced (Settings\Index, Settings\Advanced),
- * admin.index (Admin\Index) and team.admin-view (Team\AdminView). settings.image-scanning is not ported (IMPLEMENTATION-STATUS.md,
- * Notes on DP12); the other settings pages are DP-101's (InstanceSettingsMorePageKey).
+ * admin.index (Admin\Index) and team.admin-view (Team\AdminView). settings.image-scanning is DP-116's
+ * (ImageScanSettingsPageKey); the other settings pages are DP-101's (InstanceSettingsMorePageKey).
  */
 export type PlatformPageKey = "settings.index" | "settings.advanced" | "admin.index" | "team.admin-view";
 
 /**
  * A server's proxy, security, Cloudflare Tunnel, Sentinel logs, transfer, resources and images pages (DP-96).
- * server.security.vulnerabilities, server.github-runners and their old redirects are not ported (IMPLEMENTATION-STATUS.md,
- * Notes on DP4).
+ * server.security.vulnerabilities and server.security.image-scanning are DP-116's (ImageScanSettingsPageKey);
+ * server.github-runners and its old redirects are not ported (IMPLEMENTATION-STATUS.md, Notes on DP4).
  */
 export type ServerMorePageKey =
   | "server.proxy"
@@ -338,6 +345,9 @@ const ROUTES: Array<[RegExp, PageKey]> = [
   [/^\/server\/[^/]+\/proxy\/logs\/?$/, "server.proxy.logs"],
   [/^\/server\/[^/]+\/security\/?$/, "server.security"],
   [/^\/server\/[^/]+\/security\/patches\/?$/, "server.security.patches"],
+  // DP-116: the server's Vulnerabilities page, and /security/image-scanning, which redirects to it.
+  [/^\/server\/[^/]+\/security\/vulnerabilities\/?$/, "server.security.vulnerabilities"],
+  [/^\/server\/[^/]+\/security\/image-scanning\/?$/, "server.security.image-scanning"],
   [/^\/server\/[^/]+\/cloudflare-tunnel\/?$/, "server.cloudflare-tunnel"],
   [/^\/server\/[^/]+\/sentinel\/logs\/?$/, "server.sentinel.logs"],
   [/^\/server\/[^/]+\/transfer\/?$/, "server.transfer"],
@@ -383,10 +393,11 @@ const ROUTES: Array<[RegExp, PageKey]> = [
   [/^\/notifications\/slack\/?$/, "notifications.slack"],
   [/^\/notifications\/pushover\/?$/, "notifications.pushover"],
   [/^\/notifications\/webhook\/?$/, "notifications.webhook"],
-  // The team pages (DP-69); the audit log and the Danger Zone (DP-75). Image Scanning is not ported; Admin View is below (DP-79).
+  // The team pages (DP-69); the audit log and the Danger Zone (DP-75); Image Scanning (DP-116). Admin View is below (DP-79).
   [/^\/team\/?$/, "team.index"],
   [/^\/team\/members\/?$/, "team.member.index"],
   [/^\/team\/audit-log\/?$/, "team.audit-log"],
+  [/^\/team\/image-scanning\/?$/, "team.image-scanning"],
   [/^\/team\/danger\/?$/, "team.danger-zone"],
   [/^\/invitations\/[^/]+\/?$/, "team.invitation.show"],
   // Boarding (DP-75).
@@ -403,6 +414,8 @@ const ROUTES: Array<[RegExp, PageKey]> = [
   [/^\/settings\/email\/?$/, "settings.email"],
   [/^\/settings\/oauth\/?$/, "settings.oauth"],
   [/^\/settings\/oauth\/[A-Za-z0-9_-]+\/?$/, "settings.oauth.provider"],
+  // DP-116: Image Scanning.
+  [/^\/settings\/image-scanning\/?$/, "settings.image-scanning"],
   [/^\/admin\/?$/, "admin.index"],
   [/^\/team\/admin\/?$/, "team.admin-view"],
   // DP-102: routes/web.php's team.select.

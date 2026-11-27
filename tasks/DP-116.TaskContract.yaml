@@ -1,0 +1,23 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-116
+  title: "DP11: the image scanning settings of the instance, the team and a server, and a server's vulnerabilities"
+spec:
+  goal: The pages DP-114 cut are ported to deploy-web with their handlers in deploy-core-worker and their queries in packages/db — /settings/image-scanning (InstanceImageScanning, ScanSettings' instance scope, behind DP-79's operator gate), /team/image-scanning (TeamImageScanning, ScanSettings' team scope with Scan images on new servers, the org's scan_images_on_new_servers written through membership-worker's existing PATCH …/team/settings over the existing binding, and the team-wide ignores) and /server/{uuid}/security/vulnerabilities (ServerImageScanning's rules and limits with HostVulnerabilities over the stored host scan; /security/image-scanning redirects to it). Migration 740 stores Coolify's instance-wide policy as the platform's row (the nil UUID's, as DP-101 stores deploy.oauth_settings) and lets every org read that one row; DP-113's ImageScanPolicyResolver reads it, with Coolify's seeded values as the default, so DP-113's /api/v1 goldens stay byte-equal. Getting the scanner, deleting its data, turning scanning on, a host scan, a package update and a reboot answer 501 after Coolify's checks and store nothing. No binding added.
+  affects:
+    - apps/deploy-core-worker/**
+    - apps/deploy-web/**
+    - packages/db/**
+    - tests/deploy-core-worker/**
+    - tests/db/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - packages/db/src/migrations/740_deploy_image_scan_instance_policy is in the manifest; tests/db/src/deploy-image-scan-settings.test.ts passes (740's FOR SELECT policy beside the tenant policy and FORCE row-level security, the instance row created with Coolify's seeded values, read by every org and written by none, the team and server rows, the team-wide ignores and a host scan under row-level security)
+    - apps/deploy-web/src/routes.ts maps settings.image-scanning, team.image-scanning, server.security.vulnerabilities and server.security.image-scanning to DP-116's pages (ImageScanSettingsPageKey), the operator's Settings menu lists Image Scanning, and apps/deploy-web/test passes
+    - tests/deploy-core-worker/src/image-scan-settings.test.ts passes over DP-113's seeded scans — ScanSettings' rules, messages and toasts of the three levels, ServerImageScanning's limits, HostVulnerabilities over a stored host scan, the 501s storing nothing, the resolver reading the stored instance, team and server rows (counted mediums of the instance written into every org's stored statuses), the authorization 404 that runs nothing and org isolation — and the full suite passes with DP-113's goldens unchanged
+    - tests/config-worker's pinned billing, membership, notifications and events loop is unchanged
+    - IMPLEMENTATION-STATUS.md's DP11 notes say what DP-116 ports, its departures and what stays cut, and DP-114's cut list names what DP-116 ported
+    - on stage, /settings/image-scanning answers a customer DP-79's 404, /team/image-scanning shows the team's rules, and a server's /security/vulnerabilities shows its scanner limits (not checked)
+  gates: []

@@ -327,5 +327,14 @@ export const manifest: MigrationManifest = {
       description:
         "A team's build server fallback and image scanning of new servers (freeploy-coolify-parity DP10, DP-107) — organizations.is_build_server_fallback_enabled and scan_images_on_new_servers with Coolify's defaults, for PATCH /api/v1/team",
     },
+    {
+      id: "740_deploy_image_scan_instance_policy",
+      context: "deploy",
+      path: "740_deploy_image_scan_instance_policy/up.sql",
+      checksum:
+        "bafc45b48b497220db2e08b625eee450a9b044fd8f254082a296f39e9bd61d18",
+      description:
+        "The instance-wide image scan policy (freeploy-coolify-parity DP11, DP-116) — a FOR SELECT policy on image_scan_policies that shows every org the platform's row with no scope (owned by the nil UUID, written only by the platform operator), Coolify's instance level of the scan rules",
+    },
   ],
 };

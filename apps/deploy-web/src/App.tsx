@@ -154,6 +154,9 @@ const ServiceSbomPage = lazy(() => import("./pages/ImageScan").then((m) => ({ de
 const DatabaseVulnerabilitiesPage = lazy(() => import("./pages/ImageScan").then((m) => ({ default: m.DatabaseVulnerabilitiesPage })));
 const DatabaseSbomPage = lazy(() => import("./pages/ImageScan").then((m) => ({ default: m.DatabaseSbomPage })));
 const FleetVulnerabilitiesPage = lazy(() => import("./pages/ImageScan").then((m) => ({ default: m.FleetVulnerabilitiesPage })));
+const InstanceImageScanningPage = lazy(() => import("./pages/ImageScan").then((m) => ({ default: m.InstanceImageScanningPage })));
+const TeamImageScanningPage = lazy(() => import("./pages/ImageScan").then((m) => ({ default: m.TeamImageScanningPage })));
+const ServerImageScanningPage = lazy(() => import("./pages/ImageScan").then((m) => ({ default: m.ServerImageScanningPage })));
 
 /** routes/web.php: security.private-key.show is redirect()->route('security.private-key.index'). */
 function RedirectTo({ path }: { path: string }) {
@@ -1067,6 +1070,28 @@ export function App() {
           <FleetVulnerabilitiesPage />
         </Suspense>
       );
+    // DP-116: the image scanning settings.
+    case "settings.image-scanning":
+      return (
+        <Suspense fallback={null}>
+          <InstanceImageScanningPage />
+        </Suspense>
+      );
+    case "team.image-scanning":
+      return (
+        <Suspense fallback={null}>
+          <TeamImageScanningPage />
+        </Suspense>
+      );
+    case "server.security.vulnerabilities":
+      return (
+        <Suspense fallback={null}>
+          <ServerImageScanningPage />
+        </Suspense>
+      );
+    case "server.security.image-scanning":
+      // routes/web.php: redirect(route('server.security.vulnerabilities', …)).
+      return <RedirectTo path={window.location.pathname.replace(/\/security\/image-scanning\/?$/, "/security/vulnerabilities")} />;
     default:
       return <NotPortedPage />;
   }
