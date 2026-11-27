@@ -85,7 +85,7 @@ async function validate(all: Record<string, unknown>): Promise<Errors> {
 }
 
 /** HostingerService::getPublicIpAddress(): the first filled address, IPv4 first. */
-function publicIpOf(vm: PhpValue): string | null {
+export function publicIpOf(vm: PhpValue): string | null {
   for (const version of ["ipv4", "ipv6"]) {
     for (const ip of phpValues(at(vm, version))) {
       const address = at(ip, "address");
@@ -98,7 +98,7 @@ function publicIpOf(vm: PhpValue): string | null {
 const vmId = (vm: PhpValue): PhpValue | undefined => at(vm, "id");
 
 /** HostingerService::purchaseVirtualMachine() */
-async function purchase(client: ProviderClient, itemId: unknown, setup: Array<[string, unknown]>): Promise<PhpValue> {
+export async function purchase(client: ProviderClient, itemId: unknown, setup: Array<[string, unknown]>): Promise<PhpValue> {
   // Hostinger accepts only a fully qualified hostname and uses its own default otherwise.
   const hostname = setup.find(([k]) => k === "hostname")?.[1];
   const finalSetup = typeof hostname === "string" && hostname.includes(".") ? setup : setup.filter(([k]) => k !== "hostname");
@@ -132,7 +132,7 @@ async function purchase(client: ProviderClient, itemId: unknown, setup: Array<[s
 }
 
 /** HostingerService::waitForPublicIp(): ten more looks, a second apart, while the VPS has no public IP. */
-async function waitForPublicIp(c: ApiV1Context, client: ProviderClient, vm: PhpValue): Promise<PhpValue> {
+export async function waitForPublicIp(c: Pick<ApiV1Context, "providers">, client: ProviderClient, vm: PhpValue): Promise<PhpValue> {
   if (publicIpOf(vm) !== null || blank(vmId(vm))) return vm;
   let current = vm;
   for (let attempt = 0; attempt < 10; attempt++) {
@@ -148,7 +148,11 @@ async function waitForPublicIp(c: ApiV1Context, client: ProviderClient, vm: PhpV
  * DigitalOcean's too): Server::create() — the created hook's settings, default destination and predefined variables — with
  * the provider's columns.
  */
-export async function storeCloudServer(tx: SqlExecutor, c: ApiV1Context, input: { name: string; ip: string; privateKeyId: string | number; columns: Array<[string, unknown]> }) {
+export async function storeCloudServer(
+  tx: SqlExecutor,
+  c: { orgId: string; env: Pick<ApiV1Context["env"], "DEPLOY_ENCRYPTION_KEY"> },
+  input: { name: string; ip: string; privateKeyId: string | number; columns: Array<[string, unknown]>; imageScanEnabled?: boolean },
+) {
   const ctx = serverContext(tx, c.orgId, c.env);
   const server = await ctx.store.insert({
     uuid: newPublicId(),
@@ -160,7 +164,8 @@ export async function storeCloudServer(tx: SqlExecutor, c: ApiV1Context, input: 
     privateKeyId: input.privateKeyId,
     proxy: { redirect_enabled: true, status: "exited", type: "TRAEFIK" },
     serverRole: "both",
-    imageScanEnabled: false,
+    // DP-118: the console's SetsImageScanning::applyImageScanning(); /api/v1 stores it off.
+    imageScanEnabled: input.imageScanEnabled === true,
     defaultDestinationUuid: newPublicId(),
   });
   if (input.columns.length) await tx.execute(`UPDATE deploy.servers SET ${input.columns.map(([k], i) => `${k} = $${i + 2}`).join(", ")} WHERE id = $1`, [server.id, ...input.columns.map(([, v]) => v)]);

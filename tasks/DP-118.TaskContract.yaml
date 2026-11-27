@@ -1,0 +1,20 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-118
+  title: "DP4: cloud servers in the console (Hetzner, Vultr, DigitalOcean, Hostinger), and a server's old security sub pages"
+spec:
+  goal: routes/web.php's server.create.type with a cloud {type} and server.create.token are ported to deploy-web (pages/ServerCreateCloud.tsx, lib/cloud-server.ts; /servers/new gains Provision a server) with their handler in deploy-core-worker (handlers/cloud-server-create.ts, servers/cloud-new.ts) — CreatePage with ByHetzner, ByVultr, ByDigitalOcean and ByHostinger on DP-90's provider clients and DP-110's storeCloudServer() - mount() (the provider's tokens, the SSH keys, the saved scripts, the team's image scanning default), load{Provider}Data() through the injectable fetch and submit() with the components' rules, messages, own checks and toasts, the server made at the provider and stored as Coolify stores it, then 501 "Validating the new server needs the SSH executor, which is not available yet." after the row is stored (DP-110's instant_validate departure). The old /server/{uuid}/security/{terminal-access,host-key} redirect to the Security page's sections; /server/{uuid}/github-runners stays cut with its reason. No migration, no binding, no new query.
+  affects:
+    - apps/deploy-core-worker/**
+    - apps/deploy-web/**
+    - tests/deploy-core-worker/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - apps/deploy-web/src/routes.ts maps server.create.type (hetzner, vultr, digital-ocean, hostinger), server.create.token, server.security.terminal-access and server.security.host-key to DP-118's pages (CloudServerPageKey), server.github-runners stays not ported, and apps/deploy-web/test passes (routes.test.ts, cloud-server.test.ts)
+    - tests/deploy-core-worker/src/cloud-server-create.test.ts passes over the API goldens' fixture — mount() by the route's token, each provider's catalogue requests through the fake fetch with the component's sorting and filtering and its provider_data_error, submit()'s rules, messages, own checks and toasts, the requests that make the server, the stored row, the saved cloud-init script and SetsImageScanning's choice, the 501 after the row, the authorization 404 that runs nothing and org isolation — and the full suite passes with DP-90's and DP-110's goldens unchanged
+    - tests/config-worker's pinned billing, membership, notifications and events loop is unchanged
+    - IMPLEMENTATION-STATUS.md's DP4 notes say what DP-118 ports, its departures, what stays cut (GitHub runners, with the reason) and DP-96's cut list names what DP-118 ported
+    - on stage, /servers/new offers Provision a server and /servers/new/hetzner shows the org's Hetzner tokens (not checked)
+  gates: []

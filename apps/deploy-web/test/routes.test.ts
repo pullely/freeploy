@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { pageFor, backupScheduleRedirect, scheduledTaskRedirect } from "../src/routes.ts";
+import { pageFor, backupScheduleRedirect, scheduledTaskRedirect, securitySectionRedirect } from "../src/routes.ts";
 import { showMonthlyReminder } from "../src/lib/reminder.ts";
 import { summarize } from "../src/lib/api.ts";
 import { splitPastedImageName } from "../src/lib/docker-image.ts";
@@ -42,7 +42,7 @@ test("routes/web.php paths map to ported pages; the rest are not ported", () => 
   assert.equal(pageFor("/servers/"), "server.index");
   assert.equal(pageFor("/servers/new"), "server.create");
   assert.equal(pageFor("/servers/new/manual"), "server.create.manual");
-  assert.equal(pageFor("/servers/new/hetzner"), "not-ported");
+  assert.equal(pageFor("/servers/new/hetzner"), "server.create.type");
   assert.equal(pageFor("/servers/canvas"), "server.canvas.index");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012"), "server.show");
   assert.equal(pageFor("/server/abc123def456ghi789jkl012/private-key"), "server.private-key");
@@ -403,9 +403,9 @@ test("a server's proxy, security, Cloudflare Tunnel, Sentinel logs, transfer, re
     assert.equal(pageFor(server + path), key);
     assert.equal(pageFor(`${server + path}/`), key);
   }
-  // Not ported: the other old security sub pages, GitHub runners. The canvas is DP-98's; the image scan page and its old
-  // redirect are DP-116's.
-  for (const path of ["/security/vulnerabilities/x", "/security/terminal-access", "/security/host-key", "/github-runners", "/proxy/dynamic/new", "/sentinel/logs/x"]) {
+  // Not ported: GitHub runners. The canvas is DP-98's; the image scan page and its old redirect are DP-116's; the other old
+  // security sub pages are DP-118's.
+  for (const path of ["/security/vulnerabilities/x", "/security/terminal-access/x", "/security/host-key/x", "/github-runners", "/proxy/dynamic/new", "/sentinel/logs/x"]) {
     assert.equal(pageFor(server + path), "not-ported", path);
   }
   assert.equal(pageFor(`${server}/canvas`), "server.canvas");
@@ -561,4 +561,22 @@ test("DP-116: the image scanning settings of the instance, the team and a server
   for (const other of ["/settings/image-scanning/x", "/team/image-scanning/x", "/server/s1/security/vulnerabilities/x", "/server/s1/security/image-scanning/x", "/server/s1/image-scanning"]) {
     assert.equal(pageFor(other), "not-ported", other);
   }
+});
+
+test("DP-118: the cloud server flow and a server's old security sub pages", () => {
+  for (const type of ["hetzner", "vultr", "digital-ocean", "hostinger"]) {
+    assert.equal(pageFor(`/servers/new/${type}`), "server.create.type", type);
+    assert.equal(pageFor(`/servers/new/${type}/`), "server.create.type", type);
+    assert.equal(pageFor(`/servers/new/${type}/t1paritytoken00000000001`), "server.create.token", type);
+    assert.equal(pageFor(`/servers/new/${type}/t1paritytoken00000000001/`), "server.create.token", type);
+  }
+  // routes/web.php's whereIn: manual has no token route, and other types are not routes.
+  assert.equal(pageFor("/servers/new/manual"), "server.create.manual");
+  for (const other of ["/servers/new/manual/t1", "/servers/new/aws", "/servers/new/aws/t1", "/servers/new/hetzner/t1/x", "/servers/new/digitalocean"]) assert.equal(pageFor(other), "not-ported", other);
+  const server = "/server/abc123def456ghi789jkl012";
+  assert.equal(pageFor(`${server}/security/terminal-access`), "server.security.terminal-access");
+  assert.equal(pageFor(`${server}/security/host-key/`), "server.security.host-key");
+  assert.equal(securitySectionRedirect(`${server}/security/terminal-access`), `${server}/security#server-terminal-access-section`);
+  assert.equal(securitySectionRedirect(`${server}/security/host-key/`), `${server}/security#server-host-key-section`);
+  assert.equal(pageFor(`${server}/github-runners`), "not-ported");
 });

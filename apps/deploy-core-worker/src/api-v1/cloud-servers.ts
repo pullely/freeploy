@@ -41,17 +41,17 @@ export const CLOUD_SERVER_MESSAGES = {
 } as const;
 
 /** A PHP array read that PHP warns about (an undefined key, an offset of a non-array): Laravel's ErrorException, the catch-all's 500. */
-class PhpWarning extends Error {}
+export class PhpWarning extends Error {}
 
 /** `$array['key']`, as PHP reads it under Laravel's error handler. */
-function need(v: PhpValue | undefined, key: string): PhpValue {
+export function need(v: PhpValue | undefined, key: string): PhpValue {
   const x = isPhpArray(v) ? at(v, key) : undefined;
   if (x === undefined) throw new PhpWarning(`Undefined array key "${key}"`);
   return x;
 }
 
 /** (int) of a PHP value. */
-function phpInt(v: PhpValue | undefined): number {
+export function phpInt(v: PhpValue | undefined): number {
   if (typeof v === "number") return Math.trunc(v);
   if (typeof v === "boolean") return v ? 1 : 0;
   if (typeof v === "string") {
@@ -63,10 +63,10 @@ function phpInt(v: PhpValue | undefined): number {
 }
 
 /** (string) of a PHP scalar. */
-const phpString = (v: PhpValue | undefined): string => (v === null || v === undefined || v === false ? "" : v === true ? "1" : String(v));
+export const phpString = (v: PhpValue | undefined): string => (v === null || v === undefined || v === false ? "" : v === true ? "1" : String(v));
 
 /** array_values(array_unique($ids)): the first of each value as a string compares. */
-function unique<T>(values: T[]): T[] {
+export function unique<T>(values: T[]): T[] {
   const seen = new Set<string>();
   return values.filter((v) => {
     const k = phpString(v as PhpValue);
@@ -109,7 +109,11 @@ async function prepare(tx: SqlExecutor, c: ApiV1Context, provider: CloudProvider
   const row = typeof all.private_key_uuid === "string" ? (await rowsOf(tx)("private_keys", "t.uuid = $1", [all.private_key_uuid]))[0] : undefined;
   if (!row) return { answer: message("Private key not found.", 404) };
   const pem = await decryptColumn(tx, c, "private_keys", "private_key", rowValue(row, "private_key"));
-  // getPublicKey(): extractPublicKeyFromPrivate() ?? 'Error loading private key'
+  return { token, key: { id: rowValue(row, "id") as string | number, name: String(rowValue(row, "name")), ...(await publicKeyFacts(pem)) } };
+}
+
+/** PrivateKey::getPublicKey() (extractPublicKeyFromPrivate() ?? 'Error loading private key') and generateMd5Fingerprint(). */
+export async function publicKeyFacts(pem: string | null): Promise<{ publicKey: string; md5: string | null }> {
   let publicKey = "Error loading private key";
   try {
     if (pem !== null) publicKey = `${await publicKeyOpenSSH(pem)} `;
@@ -122,7 +126,7 @@ async function prepare(tx: SqlExecutor, c: ApiV1Context, provider: CloudProvider
   } catch {
     md5 = null;
   }
-  return { token, key: { id: rowValue(row, "id") as string | number, name: String(rowValue(row, "name")), publicKey, md5 } };
+  return { publicKey, md5 };
 }
 
 /** The deploy permission the controllers ask for a script or extra keys, and for a validation; the instant_validate default. */
@@ -334,7 +338,7 @@ const VULTR_ALLOWED = ["cloud_provider_token_uuid", "cloud_provider_token_id", "
 const usableIp = (ip: PhpValue | undefined): boolean => !blank(ip) && ip !== "0.0.0.0" && ip !== "::";
 
 /** VultrService::getPublicIp() */
-function vultrPublicIp(instance: PhpValue | undefined, disablePublicIpv4: boolean, enableIpv6: boolean): string | null {
+export function vultrPublicIp(instance: PhpValue | undefined, disablePublicIpv4: boolean, enableIpv6: boolean): string | null {
   const ipv4 = at(instance, "main_ip") ?? null;
   if (!disablePublicIpv4 && usableIp(ipv4)) return phpString(ipv4);
   const ipv6 = at(instance, "v6_main_ip") ?? null;
@@ -343,7 +347,7 @@ function vultrPublicIp(instance: PhpValue | undefined, disablePublicIpv4: boolea
 }
 
 /** normalizePublicKey(): the key's type and data, without its comment. */
-const normalizePublicKey = (key: string): string => key.trim().split(/\s+/).slice(0, 2).join(" ");
+export const normalizePublicKey = (key: string): string => key.trim().split(/\s+/).slice(0, 2).join(" ");
 
 /** VultrController::createServer() */
 export async function createVultrServer(c: ApiV1Context): Promise<CoolifyAnswer> {
@@ -457,17 +461,17 @@ export async function createVultrServer(c: ApiV1Context): Promise<CoolifyAnswer>
 }
 
 /** rawurlencode() */
-const encodeRaw = (s: string): string => encodeURIComponent(s).replace(/[!'()*]/g, (ch) => `%${ch.charCodeAt(0).toString(16).toUpperCase()}`);
-const nullableString = (v: PhpValue | undefined): string | null => (v === undefined || v === null ? null : phpString(v));
+export const encodeRaw = (s: string): string => encodeURIComponent(s).replace(/[!'()*]/g, (ch) => `%${ch.charCodeAt(0).toString(16).toUpperCase()}`);
+export const nullableString = (v: PhpValue | undefined): string | null => (v === undefined || v === null ? null : phpString(v));
 /** base64_encode() of the UTF-8 text. */
-const base64 = (s: string): string => btoa(String.fromCharCode(...new TextEncoder().encode(s)));
+export const base64 = (s: string): string => btoa(String.fromCharCode(...new TextEncoder().encode(s)));
 
 // ── DigitalOcean ──────────────────────────────────────────────────────────
 
 const DIGITALOCEAN_ALLOWED = ["cloud_provider_token_uuid", "cloud_provider_token_id", "region", "size", "image", "name", "private_key_uuid", "enable_ipv6", "monitoring", "digitalocean_ssh_key_ids", "cloud_init_script", "instant_validate"];
 
 /** DigitalOceanService::getPublicIpAddress(): the first public address with an ip_address, IPv4 first. */
-function dropletPublicIp(droplet: PhpValue | undefined, enableIpv4: boolean, enableIpv6: boolean): string | null {
+export function dropletPublicIp(droplet: PhpValue | undefined, enableIpv4: boolean, enableIpv6: boolean): string | null {
   for (const [version, enabled] of [["v4", enableIpv4], ["v6", enableIpv6]] as const) {
     if (!enabled) continue;
     for (const network of phpValues(dataGet(droplet, `networks.${version}`) ?? [])) {

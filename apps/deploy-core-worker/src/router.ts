@@ -10,6 +10,7 @@ import { handleProjects } from "./handlers/projects.js";
 import { handlePrivateKeys } from "./handlers/private-keys.js";
 import { handleRegistries } from "./handlers/registries.js";
 import { handleServers } from "./handlers/servers.js";
+import { handleCloudServerCreate } from "./handlers/cloud-server-create.js";
 import { handleSharedVariables } from "./handlers/shared-variables.js";
 import { handleServices } from "./handlers/services.js";
 import { handleS3Storages, ORG_DEPLOY_STORAGES_RE } from "./handlers/s3-storages.js";
@@ -205,6 +206,8 @@ export async function route(request: Request, env: Env): Promise<Response> {
       const actor = resolveActor(request);
       if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
       const segments = (servers[2] ?? "").split("/").filter(Boolean);
+      // DP-118: /servers/new/{type}[/{token_uuid}[/catalog]], the console's create-a-cloud-server flow.
+      if (segments[0] === "new" && segments.length >= 2) return handleCloudServerCreate(env, requestId, actor, orgId, servers[1]!, segments.slice(1), request);
       return handleServers(env, requestId, actor, orgId, segments, request);
     }
 

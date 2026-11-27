@@ -6,6 +6,9 @@
 //
 //   GET    /servers                          Index: the org's servers and their status
 //   GET    /servers/new                      ByIp::mount: a random name and the org's private keys
+//   …      /servers/new/{type}[/{token_uuid}[/catalog]]
+//                                            the cloud server flow (DP-118): handleCloudServerCreate in
+//                                            cloud-server-create.ts, routed there by router.ts
 //   POST   /servers                          ByIp::submit { name, description, ip, user, port, private_key_uuid, server_role, scan_images }
 //   GET    /servers/{uuid}                   Show (General)
 //   PATCH  /servers/{uuid}                   Show::submit { name, description, ip, user, port, connectionTimeout,
