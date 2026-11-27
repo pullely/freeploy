@@ -1,4 +1,4 @@
-import { pageFor, backupScheduleRedirect, scheduledTaskRedirect, backupLinkRedirect } from "./routes";
+import { pageFor, backupScheduleRedirect, scheduledTaskRedirect, backupLinkRedirect, securitySectionRedirect } from "./routes";
 import { LoginPage } from "./pages/Login";
 import { RegisterPage } from "./pages/Register";
 import { ForgotPasswordPage } from "./pages/ForgotPassword";
@@ -157,6 +157,7 @@ const FleetVulnerabilitiesPage = lazy(() => import("./pages/ImageScan").then((m)
 const InstanceImageScanningPage = lazy(() => import("./pages/ImageScan").then((m) => ({ default: m.InstanceImageScanningPage })));
 const TeamImageScanningPage = lazy(() => import("./pages/ImageScan").then((m) => ({ default: m.TeamImageScanningPage })));
 const ServerImageScanningPage = lazy(() => import("./pages/ImageScan").then((m) => ({ default: m.ServerImageScanningPage })));
+const ServerCreateCloudPage = lazy(() => import("./pages/ServerCreateCloud").then((m) => ({ default: m.ServerCreateCloudPage })));
 
 /** routes/web.php: security.private-key.show is redirect()->route('security.private-key.index'). */
 function RedirectTo({ path }: { path: string }) {
@@ -1092,6 +1093,18 @@ export function App() {
     case "server.security.image-scanning":
       // routes/web.php: redirect(route('server.security.vulnerabilities', …)).
       return <RedirectTo path={window.location.pathname.replace(/\/security\/image-scanning\/?$/, "/security/vulnerabilities")} />;
+    // DP-118
+    case "server.create.type":
+    case "server.create.token":
+      return (
+        <Suspense fallback={null}>
+          <ServerCreateCloudPage />
+        </Suspense>
+      );
+    case "server.security.terminal-access":
+    case "server.security.host-key":
+      // routes/web.php: redirect(route('server.security', …).'#'.$section).
+      return <RedirectTo path={securitySectionRedirect(window.location.pathname)} />;
     default:
       return <NotPortedPage />;
   }

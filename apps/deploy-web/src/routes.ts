@@ -1,7 +1,7 @@
 // The URL structure is routes/web.php's, one to one (design §3.1). A route
 // whose page is not ported yet renders NotPorted, which the parity harness
 // reports as a failing (not missing) route once deploy-web is the target.
-export type PageKey = "login" | "register" | "forgot-password" | "reset-password" | "profile.appearance" | "profile" | "profile.passkeys.confirm" | "password.confirm" | "verify.email" | "two-factor.required" | "verify.verify" | "two-factor.login" | "security.private-key.index" | "security.private-key.show" | "security.cloud-tokens" | "security.cloud-tokens.show" | "security.cloud-init-scripts" | "security.cloud-init-scripts.show" | "server.index" | "server.create" | "server.create.manual" | "server.show" | "server.advanced" | "server.private-key" | "server.cloud-provider-token" | "server.ca-certificate" | "server.sentinel" | "server.swarm" | "server.docker-cleanup" | "server.log-drains" | "server.destinations" | "server.delete" | "server.registries" | "registries.index" | "project.index" | "project.show" | "project.edit" | "project.resource.index" | "project.environment.edit" | "project.environment.canvas" | "deploy-canvas" | "project.resource.create" | "project.application.configuration" | "project.application.environment-variables" | "project.application.domains" | "project.application.advanced" | "project.application.healthcheck" | "project.application.resource-limits" | "project.application.persistent-storage" | "project.application.tags" | "project.application.resource-operations" | "project.application.danger" | "project.database.configuration" | "project.application.source" | "project.application.servers" | "project.application.webhooks" | "project.application.scheduled-tasks" | "project.application.rollback" | "project.service.configuration" | "project.application.deployment.index" | "project.application.deployment.show" | "destination.index" | "destination.show" | "destination.danger" | "destination.resources" | "not-ported" | SharedVariablesPageKey | DatabaseSharedPageKey | StoragePageKey | NotificationsPageKey | ServicePageKey | TeamPageKey | ApiTokensPageKey | SourcesPageKey | BoardingPageKey | PlatformPageKey | SubscriptionPageKey | ServerMorePageKey | ResourcePagesKey | CanvasViewsPageKey | BackupPagesKey | DashboardClonePageKey | InstanceSettingsMorePageKey | ConfigSubpagesPageKey | IntegrationTokensPageKey | GitSourcesPageKey | ImageScanPageKey | ImageScanSettingsPageKey;
+export type PageKey = "login" | "register" | "forgot-password" | "reset-password" | "profile.appearance" | "profile" | "profile.passkeys.confirm" | "password.confirm" | "verify.email" | "two-factor.required" | "verify.verify" | "two-factor.login" | "security.private-key.index" | "security.private-key.show" | "security.cloud-tokens" | "security.cloud-tokens.show" | "security.cloud-init-scripts" | "security.cloud-init-scripts.show" | "server.index" | "server.create" | "server.create.manual" | "server.show" | "server.advanced" | "server.private-key" | "server.cloud-provider-token" | "server.ca-certificate" | "server.sentinel" | "server.swarm" | "server.docker-cleanup" | "server.log-drains" | "server.destinations" | "server.delete" | "server.registries" | "registries.index" | "project.index" | "project.show" | "project.edit" | "project.resource.index" | "project.environment.edit" | "project.environment.canvas" | "deploy-canvas" | "project.resource.create" | "project.application.configuration" | "project.application.environment-variables" | "project.application.domains" | "project.application.advanced" | "project.application.healthcheck" | "project.application.resource-limits" | "project.application.persistent-storage" | "project.application.tags" | "project.application.resource-operations" | "project.application.danger" | "project.database.configuration" | "project.application.source" | "project.application.servers" | "project.application.webhooks" | "project.application.scheduled-tasks" | "project.application.rollback" | "project.service.configuration" | "project.application.deployment.index" | "project.application.deployment.show" | "destination.index" | "destination.show" | "destination.danger" | "destination.resources" | "not-ported" | SharedVariablesPageKey | DatabaseSharedPageKey | StoragePageKey | NotificationsPageKey | ServicePageKey | TeamPageKey | ApiTokensPageKey | SourcesPageKey | BoardingPageKey | PlatformPageKey | SubscriptionPageKey | ServerMorePageKey | ResourcePagesKey | CanvasViewsPageKey | BackupPagesKey | DashboardClonePageKey | InstanceSettingsMorePageKey | ConfigSubpagesPageKey | IntegrationTokensPageKey | GitSourcesPageKey | ImageScanPageKey | ImageScanSettingsPageKey | CloudServerPageKey;
 
 /**
  * DP-114: a resource's Security page (routes/web.php's project.{application,service,database}.vulnerabilities: the
@@ -23,6 +23,13 @@ export type ImageScanPageKey =
  * ServerImageScanning with HostVulnerabilities; server.security.image-scanning redirects to it).
  */
 export type ImageScanSettingsPageKey = "settings.image-scanning" | "team.image-scanning" | "server.security.vulnerabilities" | "server.security.image-scanning";
+
+/**
+ * DP-118: the create-a-cloud-server flow (routes/web.php's server.create.type with a cloud {type}, and server.create.token:
+ * Hetzner, Vultr, DigitalOcean, Hostinger), and a server's old security sub pages that redirect to its Security page's
+ * sections (server.security.terminal-access, server.security.host-key).
+ */
+export type CloudServerPageKey = "server.create.type" | "server.create.token" | "server.security.terminal-access" | "server.security.host-key";
 
 /** DP-104: Keys & Tokens → Integration Tokens (routes/web.php's security.integration-tokens; the editor is its dialog). */
 export type IntegrationTokensPageKey = "security.integration-tokens";
@@ -128,7 +135,8 @@ export type PlatformPageKey = "settings.index" | "settings.advanced" | "admin.in
 /**
  * A server's proxy, security, Cloudflare Tunnel, Sentinel logs, transfer, resources and images pages (DP-96).
  * server.security.vulnerabilities and server.security.image-scanning are DP-116's (ImageScanSettingsPageKey);
- * server.github-runners and its old redirects are not ported (IMPLEMENTATION-STATUS.md, Notes on DP4).
+ * server.security.terminal-access and server.security.host-key are DP-118's (CloudServerPageKey); server.github-runners is
+ * not ported (IMPLEMENTATION-STATUS.md, Notes on DP4).
  */
 export type ServerMorePageKey =
   | "server.proxy"
@@ -324,8 +332,11 @@ const ROUTES: Array<[RegExp, PageKey]> = [
   [/^\/security\/cloud-init-scripts\/[^/]+\/?$/, "security.cloud-init-scripts.show"],
   [/^\/servers\/?$/, "server.index"],
   [/^\/servers\/new\/?$/, "server.create"],
-  // server.create.type with {type} manual (ByIp); the cloud provider types are not ported.
+  // server.create.type with {type} manual (ByIp).
   [/^\/servers\/new\/manual\/?$/, "server.create.manual"],
+  // DP-118: server.create.type with a cloud {type}, and server.create.token ({type} without manual).
+  [/^\/servers\/new\/(?:hetzner|vultr|digital-ocean|hostinger)\/?$/, "server.create.type"],
+  [/^\/servers\/new\/(?:hetzner|vultr|digital-ocean|hostinger)\/[^/]+\/?$/, "server.create.token"],
   [/^\/server\/[^/]+\/?$/, "server.show"],
   [/^\/server\/[^/]+\/advanced\/?$/, "server.advanced"],
   [/^\/server\/[^/]+\/private-key\/?$/, "server.private-key"],
@@ -348,6 +359,9 @@ const ROUTES: Array<[RegExp, PageKey]> = [
   // DP-116: the server's Vulnerabilities page, and /security/image-scanning, which redirects to it.
   [/^\/server\/[^/]+\/security\/vulnerabilities\/?$/, "server.security.vulnerabilities"],
   [/^\/server\/[^/]+\/security\/image-scanning\/?$/, "server.security.image-scanning"],
+  // DP-118: the old sub pages of routes/web.php's foreach, redirected to the Security page's sections.
+  [/^\/server\/[^/]+\/security\/terminal-access\/?$/, "server.security.terminal-access"],
+  [/^\/server\/[^/]+\/security\/host-key\/?$/, "server.security.host-key"],
   [/^\/server\/[^/]+\/cloudflare-tunnel\/?$/, "server.cloudflare-tunnel"],
   [/^\/server\/[^/]+\/sentinel\/logs\/?$/, "server.sentinel.logs"],
   [/^\/server\/[^/]+\/transfer\/?$/, "server.transfer"],
@@ -431,6 +445,13 @@ export function backupScheduleRedirect(pathname: string): string {
   const parts = pathname.replace(/\/+$/, "").split("/");
   const at = parts.lastIndexOf("backups");
   return `${parts.slice(0, at + 1).join("/")}?schedule=${encodeURIComponent(decodeURIComponent(parts[at + 1] ?? ""))}`;
+}
+
+/** routes/web.php: /server/{uuid}/security/{terminal-access,host-key} redirect to the Security page's section (DP-118). */
+export function securitySectionRedirect(pathname: string): string {
+  const m = /^(\/server\/[^/]+\/security)\/(terminal-access|host-key)\/?$/.exec(pathname);
+  if (!m) return pathname;
+  return `${m[1]}#${m[2] === "terminal-access" ? "server-terminal-access-section" : "server-host-key-section"}`;
 }
 
 export function pageFor(pathname: string): PageKey {

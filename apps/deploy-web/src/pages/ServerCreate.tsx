@@ -1,14 +1,15 @@
 // Derived from coollabsio/coolify@91b7e3e:resources/views/livewire/server/{create-page,create}.blade.php,
 // resources/views/livewire/server/new/by-ip.blade.php,
-// resources/views/livewire/server/new/partials/image-scanning.blade.php and
+// resources/views/livewire/server/new/partials/image-scanning.blade.php,
+// resources/views/components/{digital-ocean-icon,hostinger-icon}.blade.php and
 // app/Livewire/Server/{CreatePage,Create}.php, app/Livewire/Server/New/ByIp.php (Apache-2.0), modified.
 //
 // /servers/new: how to add a server; /servers/new/manual: ByIp, a server you
 // already manage, by IP address or domain. The server is stored unvalidated,
 // then its page opens, as Coolify redirects to server.show.
-// Provisioning with a cloud provider (Hetzner, Vultr, DigitalOcean, Hostinger)
-// is not ported yet, so the method list offers the manual way only.
-import { useCallback, useEffect, useState, type FormEvent, type MouseEvent } from "react";
+// DP-118: the method list also offers provisioning with a cloud provider
+// (Hetzner, Vultr, DigitalOcean, Hostinger): ServerCreateCloud.tsx.
+import { useCallback, useEffect, useState, type FormEvent, type MouseEvent, type ReactNode } from "react";
 import { Layout, useSignedIn } from "../layout/Layout";
 import { getJson, postJson, summarize } from "../lib/api";
 import { notify } from "../lib/toast";
@@ -258,9 +259,65 @@ function CreateContent({ manual }: { manual: boolean }) {
               </div>
             </div>
           </section>
+          {/* @can('viewAny', CloudProviderToken::class): a team admin's, as the page itself (DP-118). */}
+          <section className="application-settings-section">
+            <div className="application-settings-section-header">
+              <h2 className="application-settings-section-title">Provision a server</h2>
+              <p className="application-settings-section-description">Create a server with a cloud provider.</p>
+            </div>
+            <div className="application-settings-section-body is-flush">
+              <div className="grid grid-cols-1 gap-3 p-3 sm:grid-cols-2 lg:grid-cols-4">
+                <ProviderCard href="/servers/new/hetzner" title="Hetzner" text="Provision from Hetzner Cloud." icon={<img src="/svgs/hetzner.svg" alt="Hetzner" className="size-8" />} />
+                <ProviderCard href="/servers/new/vultr" title="Vultr" text="Provision from Vultr Cloud." icon={<span aria-hidden="true" className="flex size-8 items-center justify-center rounded bg-[#007bfc] text-sm font-bold text-white">V</span>} />
+                <ProviderCard href="/servers/new/digital-ocean" title="DigitalOcean" text="Provision a new Droplet." icon={<DigitalOceanIcon className="size-8" />} />
+                <ProviderCard href="/servers/new/hostinger" title="Hostinger" text="Purchase and provision a new VPS." icon={<HostingerIcon className="size-8 text-[#673de6]" />} darker={false} />
+              </div>
+            </div>
+          </section>
         </div>
       )}
     </div>
+  );
+}
+
+/** A provider's card of "Provision a server" (Hostinger's is a little lighter in dark mode, as Coolify's). */
+function ProviderCard({ href, title, text, icon, darker = true }: { href: string; title: string; text: string; icon: ReactNode; darker?: boolean }) {
+  return (
+    <a
+      href={href}
+      className={`group flex min-h-32 flex-col rounded-xl border border-neutral-200 bg-white p-3 shadow-sm transition-all hover:-translate-y-px hover:border-neutral-300 hover:no-underline hover:shadow-md dark:border-white/[0.08] ${darker ? "dark:bg-white/[0.05]" : "dark:bg-white/[0.025]"} dark:hover:border-white/[0.14]`}
+    >
+      <div className="flex items-start">{icon}</div>
+      <div className="mt-auto pt-5">
+        <h3 className="text-[13px]! font-semibold! text-black dark:text-fg">{title}</h3>
+        <p className="mt-1 text-[11px] leading-4 text-neutral-500 dark:text-fg-faint">{text}</p>
+      </div>
+    </a>
+  );
+}
+
+/** <x-digital-ocean-icon> */
+function DigitalOceanIcon({ className }: { className: string }) {
+  return (
+    <svg className={`${className} shrink-0`} fill="#0080FF" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <title>DigitalOcean</title>
+      <path d="M12.04 0C5.408-.02.005 5.37.005 11.992h4.638c0-4.923 4.882-8.731 10.064-6.855a6.95 6.95 0 014.147 4.148c1.889 5.177-1.924 10.055-6.84 10.064v-4.61H7.391v4.623h4.61V24c7.86 0 13.967-7.588 11.397-15.83-1.115-3.59-3.985-6.446-7.575-7.575A12.8 12.8 0 0012.039 0zM7.39 19.362H3.828v3.564H7.39zm-3.563 0v-2.978H.85v2.978z" />
+    </svg>
+  );
+}
+
+/** <x-hostinger-icon> */
+function HostingerIcon({ className }: { className: string }) {
+  return (
+    <svg className={className} viewBox="0 0 26 30" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hostinger">
+      <title>Hostinger</title>
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M0.000249566 14.046V0.000497794L6.99464 3.78046V10.1086L16.2538 10.1132L23.3617 14.046H0.000249566ZM18.1472 8.95059V0L25.3302 3.68591V13.1797L18.1472 8.95059ZM18.1472 26.1177V19.8441L8.81663 19.8376C8.82534 19.8793 1.59081 15.8418 1.59081 15.8418L25.3302 15.9547V30L18.1472 26.1177ZM0 26.1177L0.000248849 16.9393L6.99464 21.0683V29.8033L0 26.1177Z"
+        fill="currentColor"
+      />
+    </svg>
   );
 }
 

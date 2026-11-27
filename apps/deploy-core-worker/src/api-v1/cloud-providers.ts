@@ -265,11 +265,18 @@ export class CloudProviderApiError extends Error {
     readonly status: number,
     errorCode: PhpValue | undefined = null,
     invalidFields: PhpValue[] = [],
+    /** DP-118: the provider's own message ($providerMessage), which the console's toasts show and /api/v1 never does. */
+    readonly providerMessage: string = "Unknown error",
   ) {
     super(`${provider} API error`);
     const code = typeof errorCode === "string" ? errorCode.toLowerCase() : null;
     this.errorCode = code !== null && /^[a-z_]{1,64}$/.test(code) ? code : null;
     this.invalidFields = invalidFields.filter((n): n is string => typeof n === "string" && /^[a-z0-9_.[\]]{1,64}$/i.test(n));
+  }
+
+  /** getMessage(): "{$provider} API error: {$providerMessage}" (DP-118, the console's handleError() toast). */
+  fullMessage(): string {
+    return `${this.provider} API error: ${this.providerMessage}`;
   }
 
   /** safeMessage() */
@@ -286,6 +293,13 @@ export class CloudProviderApiError extends Error {
     if (this.status === 422) return `${p} rejected the request as invalid. Check the selected values and your account limits.${this.invalidFields.length ? ` Invalid fields: ${this.invalidFields.join(", ")}.` : ""}`;
     return `${p} returned HTTP ${this.status}${this.errorCode !== null ? ` (error code: ${this.errorCode})` : ""}.`;
   }
+}
+
+/** `$response->json($key, 'Unknown error')` as the exception's string $providerMessage (DP-118). */
+function providerMessageOf(json: PhpValue, key: string): string {
+  const v = dataGet(json, key);
+  if (v === undefined) return "Unknown error";
+  return phpCastString(v) ?? "Array";
 }
 
 /** The Hostinger service's `\Exception('Hostinger API error: …', $status)`. */
@@ -366,6 +380,7 @@ export function hetznerClient(net: ProviderNetwork, token: string): ProviderClie
           response.status,
           dataGet(response.json, "error.code"),
           phpValues(fields).map((f) => (isPhpArray(f) ? (at(f, "name") ?? null) : null)),
+          providerMessageOf(response.json, "error.message"),
         );
       }
       return response.json;
@@ -397,13 +412,16 @@ export const hetzner = {
   sshKeys: (c: ProviderClient) => hetznerPaginated(c, "/ssh_keys", "ssh_keys"),
   firewalls: (c: ProviderClient) => hetznerPaginated(c, "/firewalls", "firewalls"),
   networks: (c: ProviderClient) => hetznerPaginated(c, "/networks", "networks"),
-  /** getServerTypes($location): the types not deprecated, each with the locations where it is in stock and not deprecated. */
-  async serverTypes(c: ProviderClient, location: string | null): Promise<PhpValue[]> {
+  /**
+   * getServerTypes($location, $includeOutOfStock): the types not deprecated, each with the locations where it is not
+   * deprecated and (unless $includeOutOfStock, the console's, DP-118) in stock.
+   */
+  async serverTypes(c: ProviderClient, location: string | null, includeOutOfStock = false): Promise<PhpValue[]> {
     const out: PhpValue[] = [];
     for (const type of await hetznerPaginated(c, "/server_types", "server_types")) {
       const t = typedArray(type);
       if (at(t, "deprecated") === true) continue;
-      const locations = phpValues(at(t, "locations") ?? []).filter((l) => phpEmpty(at(typedArray(l), "deprecation")) && (at(l, "available") ?? true) === true);
+      const locations = phpValues(at(t, "locations") ?? []).filter((l) => phpEmpty(at(typedArray(l), "deprecation")) && (includeOutOfStock || (at(l, "available") ?? true) === true));
       const shaped = setKey(t, "locations", locations);
       const names = locations.map((l) => at(l, "name"));
       if (location === null ? locations.length > 0 : names.some((n) => n === location)) out.push(shaped);
@@ -438,7 +456,7 @@ export function digitalOceanClient(net: ProviderNetwork, token: string): Provide
       });
       if (!response.successful) {
         if (response.status === 429) throw new RateLimitError(retryAfterOf(response));
-        throw new CloudProviderApiError("DigitalOcean", response.status, dataGet(response.json, "id"));
+        throw new CloudProviderApiError("DigitalOcean", response.status, dataGet(response.json, "id"), [], providerMessageOf(response.json, "message"));
       }
       return response.json ?? [];
     },
@@ -484,7 +502,7 @@ export function vultrClient(net: ProviderNetwork, token: string): ProviderClient
       });
       if (!response.successful) {
         if (response.status === 429) throw new RateLimitError(retryAfterOf(response));
-        throw new CloudProviderApiError("Vultr", response.status);
+        throw new CloudProviderApiError("Vultr", response.status, null, [], providerMessageOf(response.json, "error"));
       }
       return response.json ?? [];
     },

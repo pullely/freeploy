@@ -11,6 +11,7 @@ import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react
 import { Layout, useSignedIn } from "../layout/Layout";
 import { getJson, postJson, summarize } from "../lib/api";
 import { notify, toast } from "../lib/toast";
+import { takeNotice } from "../lib/flash";
 import { Reicon } from "../components/Reicon";
 import { Button, DangerCallout, FormInput, Listbox, ModalConfirmation, SettingsSection, StatusBadge, UnsavedBar } from "../components/Coolify";
 import { limit, SERVER_ROLE_OPTIONS, serverUuidFromPath, ServerWorkspace, type ServerInfo } from "./ServerChrome";
@@ -79,6 +80,11 @@ function ServerShowContent() {
   useEffect(() => {
     void load();
   }, [load]);
+  // DP-118: what the cloud server form could not do yet after it stored the server (its validation over SSH).
+  useEffect(() => {
+    const notice = takeNotice();
+    if (notice) notify.error(notice);
+  }, []);
   useEffect(() => {
     if (server) document.title = `${limit(server.name, 24)} | Server | Freeploy`;
   }, [server]);

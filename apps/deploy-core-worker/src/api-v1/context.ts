@@ -44,7 +44,7 @@ export const rowsOf =
     apiRows(tx, table, where ?? null, params ?? [], order ?? "id");
 
 /** Decrypts a column with an `encrypted` cast ("<table>.<column>" binds the value). */
-export function decryptColumn(tx: SqlExecutor, c: ApiV1Context, table: string, column: string, stored: unknown): Promise<string | null> {
+export function decryptColumn(tx: SqlExecutor, c: Pick<ApiV1Context, "orgId" | "env">, table: string, column: string, stored: unknown): Promise<string | null> {
   if (stored === null || stored === undefined || stored === "") return Promise.resolve(null);
   return columnCipher(tx, c.orgId, c.env.DEPLOY_ENCRYPTION_KEY, `${table}.${column}`).decrypt(String(stored));
 }

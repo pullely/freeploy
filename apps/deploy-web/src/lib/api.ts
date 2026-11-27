@@ -57,6 +57,8 @@ export interface ApiError {
   fields?: Record<string, string[]>;
   /** A toast's second line, when the API gives one (dispatch('error', $message, $description)). */
   description?: string;
+  /** The error's other details (DP-118: the uuid of a server stored before a 501). */
+  details?: Record<string, unknown>;
 }
 
 /** Laravel's ValidationException message: the first error, then "(and N more error[s])". */
@@ -75,10 +77,11 @@ export async function postJson<T>(path: string, body: unknown, method: "GET" | "
   } catch {
     return { ok: false, error: { status: 0, messages: ["Network error. Please try again."] } };
   }
-  const json = (await res.json().catch(() => null)) as { data?: T; error?: { message?: string; details?: { fields?: Record<string, string[]>; description?: string } } } | null;
+  const json = (await res.json().catch(() => null)) as { data?: T; error?: { message?: string; details?: { fields?: Record<string, string[]>; description?: string } & Record<string, unknown> } } | null;
   if (res.ok && json?.data !== undefined) return { ok: true, data: json.data };
   const fields = json?.error?.details?.fields;
   const messages = fields ? Object.values(fields).flat() : [json?.error?.message ?? "Something went wrong."];
   const description = json?.error?.details?.description;
-  return { ok: false, error: { status: res.status, messages, ...(fields ? { fields } : {}), ...(typeof description === "string" ? { description } : {}) } };
+  const details = json?.error?.details;
+  return { ok: false, error: { status: res.status, messages, ...(fields ? { fields } : {}), ...(typeof description === "string" ? { description } : {}), ...(details ? { details } : {}) } };
 }
