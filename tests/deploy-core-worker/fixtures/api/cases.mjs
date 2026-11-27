@@ -2989,7 +2989,7 @@ denial("integration tokens: list", "memberWrite", WRITE_DELETE, WRITER);
 // the fixture's.
 const GL = "/api/v1/gitlab-apps";
 const GL_APP = (id) => `${GL}/${id}`;
-const GL_AFTER = { apps: `select case when uuid like 'y%' then id end as fixture_id, name, organization, api_url, html_url, custom_user, custom_port, group_name, client_id, client_secret is not null as has_client_secret, webhook_token is not null as has_webhook_token, access_token is not null as has_access_token, refresh_token is not null as has_refresh_token, expires_at, redirect_uri, private_key_id, is_system_wide, is_public from gitlab_apps where uuid <> '${GL_OTHER}' order by fixture_id nulls last, name` };
+const GL_AFTER = { apps: `select case when uuid like 'y_%gitlabapp%' then id end as fixture_id, name, organization, api_url, html_url, custom_user, custom_port, group_name, client_id, client_secret is not null as has_client_secret, webhook_token is not null as has_webhook_token, access_token is not null as has_access_token, refresh_token is not null as has_refresh_token, expires_at, redirect_uri, private_key_id, is_system_wide, is_public from gitlab_apps where uuid <> '${GL_OTHER}' order by fixture_id nulls last, name` };
 const GL_CREATE = { name: "New GitLab", html_url: "https://gitlab.acme.test/", group_name: "acme,acme/platform", client_id: "gl-new-client", client_secret: "gl-new-secret", redirect_uri: "https://app.example.test/webhooks/source/gitlab/redirect" };
 add({ name: "gitlab apps: list", token: "read", method: "GET", path: GL, config: CLOUD });
 add({ name: "gitlab apps: list, read:sensitive", token: "sensitive", method: "GET", path: GL, config: CLOUD });
