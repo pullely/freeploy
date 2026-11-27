@@ -124,8 +124,8 @@ const LISTS: Array<{ match: (s: string[]) => boolean; path: (s: string[]) => str
   },
 ];
 
-/** An /api/v1 failure in Freeploy's envelope: its message, and its field errors as details.fields. */
-function apiFailure(status: number, body: unknown, requestId: string): Response {
+/** An /api/v1 failure in Freeploy's envelope: its message, and its field errors as details.fields (also /canvas/api's, DP-119). */
+export function apiFailure(status: number, body: unknown, requestId: string): Response {
   const b = isObject(body) ? body : {};
   const code = status === 404 ? "not_found" : status === 422 ? "validation_failed" : status === 400 ? "bad_request" : status === 403 ? "forbidden" : status === 501 ? "unsupported" : "error";
   const details: Row = {};
