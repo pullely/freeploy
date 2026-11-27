@@ -1,0 +1,19 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-119
+  title: "DP11: Coolify's /canvas/api GET routes as the console's JSON endpoints"
+spec:
+  goal: routes/web.php's 21 /canvas/api GET routes are served at /v1/organizations/{org}/deploy/canvas/api/… (deploy-core-worker handlers/canvas-api.ts, reached through api-edge's existing deploy facade) — the ten Coolify answers with its /api/v1 controllers (projects, a project's environments, servers, a server's destinations, GitHub Apps, an App's repositories and a repository's branches through DP-93's routes and DP-72's JWT, private keys, an application, a deployment) answered in-process by deploy-core-worker's /api/v1 handler with the ability read and without read:sensitive, Coolify's body written into Freeploy's envelope as its data byte for byte; the environment canvas found by name or uuid as EnvironmentCanvasController::findEnvironment() does, answering DP-91's payload; the other ten DP-98's canvas endpoints unchanged (a server's containers and usage keep DP-98's answers — Coolify's empty answer without SSH, 501 where it would ask the server). Each asks deploy.resource.read first; a denial is a 404 that runs nothing; every read runs inside withOrg. No migration, no binding, no new query, no console change.
+  affects:
+    - apps/deploy-core-worker/**
+    - tests/deploy-core-worker/**
+    - specs/epics/freeploy-coolify-parity/**
+    - tasks/**
+  doneWhen:
+    - tests/deploy-core-worker/src/canvas-api.test.ts passes — 34 read-token goldens of the ten /api/v1 controllers replayed through the console endpoints over the API goldens' fixture (the data byte for byte after the shared masking, Coolify's message on a failure, the GitHub requests equal to Coolify's), no private key in the keys' answer, the environment canvas by name then uuid with Coolify's 404 messages, the authorization 404 that opens no store and asks GitHub nothing on all 21 routes, org isolation and the routing of all 21 paths — and the full suite passes with the committed goldens unchanged
+    - routes.web.json marks the 21 GET rows ported (DP-119) and inventory.ts --check exits 0
+    - tests/config-worker's pinned billing, membership, notifications and events loop is unchanged
+    - IMPLEMENTATION-STATUS.md's DP11 notes say what DP-119 serves, its departures and that the canvas views stay on their endpoints
+    - on stage, GET /v1/organizations/{org}/deploy/canvas/api/projects answers the org's projects (not checked)
+  gates: []

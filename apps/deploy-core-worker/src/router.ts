@@ -22,7 +22,7 @@ import { handleSources } from "./handlers/sources.js";
 import { GIT_WEBHOOK_INTERNAL_RE, handleGitWebhook } from "./handlers/git-webhooks.js";
 import { PLATFORM_RE, handlePlatform } from "./handlers/platform.js";
 import { ORG_DEPLOY_CANVAS_RE, handleDeployCanvas } from "./handlers/deploy-canvas.js";
-import { handleCanvasViews } from "./handlers/canvas-views.js";
+import { handleCanvasApi } from "./handlers/canvas-api.js";
 import { ORG_DEPLOY_TAGS_RE, handleTagPages } from "./handlers/tag-pages.js";
 import { ORG_DEPLOY_DASHBOARD_RE, handleDashboard } from "./handlers/dashboard.js";
 import { ORG_DEPLOY_VULNERABILITIES_RE, handleFleetVulnerabilities } from "./handlers/image-scan-pages.js";
@@ -119,8 +119,9 @@ export async function route(request: Request, env: Env): Promise<Response> {
       const actor = resolveActor(request);
       if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
       const below = (deployCanvas[2] ?? "").split("/").filter(Boolean);
-      // DP-98: /canvas/api/… — the projects, servers, dashboard, shared variable and tag canvases (Coolify's /canvas/api paths).
-      if (below[0] === "api") return await handleCanvasViews(env, requestId, actor, orgId, below.slice(1), request);
+      // /canvas/api/… (Coolify's paths): the projects, servers, dashboard, shared variable and tag canvases (DP-98), and the
+      // GETs Coolify answers with its /api/v1 controllers and the environment canvas's (DP-119).
+      if (below[0] === "api") return await handleCanvasApi(env, requestId, actor, orgId, deployCanvas[1]!, below.slice(1), request);
       return await handleDeployCanvas(env, requestId, actor, orgId, deployCanvas[1]!, below, request);
     }
 

@@ -377,6 +377,21 @@ export async function environmentCanvas(ctx: ApplicationContext, projectUuid: st
   };
 }
 
+/**
+ * GET /canvas/api/projects/{uuid}/environments/{environment_name_or_uuid}/canvas (DP-119): EnvironmentCanvasController's
+ * findEnvironment() — the org's project by uuid ("Project not found."), then its environment by name, else by uuid
+ * ("Environment not found.") — and show()'s payload, the same as the page's read endpoint (DP-91).
+ */
+export async function environmentCanvasByNameOrUuid(ctx: ApplicationContext, projectUuid: string, environmentNameOrUuid: string, canEdit = false): Promise<CanvasAnswer> {
+  const project = await ctx.store.findProject(projectUuid);
+  if (!project) return failed(404, "Project not found.");
+  const environments = await ctx.store.environments(project.id);
+  const environment = environments.find((e) => e.name === environmentNameOrUuid) ?? environments.find((e) => e.uuid === environmentNameOrUuid);
+  if (!environment) return failed(404, "Environment not found.");
+  const data = await environmentCanvas(ctx, projectUuid, environment.uuid, canEdit);
+  return data ? { ok: true, status: 200, data } : failed(404, "Environment not found.");
+}
+
 /** What a save action answers: its data, or Coolify's message (and the field errors of a 422, the `error` of a 400). */
 export type CanvasAnswer =
   | { ok: true; status: 200 | 201; data: unknown }
