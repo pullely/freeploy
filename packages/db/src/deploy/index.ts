@@ -724,3 +724,6 @@ export * from "./managed-dns.js";
 // DP-114: the console's Security pages — ignores, stored package lists, an application's image overrides and scan
 // settings, an application's policy row, the team page's environments and servers.
 export * from "./image-scan-pages.js";
+// DP-116: the image scanning settings — the instance-wide policy (the nil UUID's row, migration 740), a team's row and
+// its team-wide ignores, the orgs that hold scans, a server's host scan.
+export * from "./image-scan-settings.js";

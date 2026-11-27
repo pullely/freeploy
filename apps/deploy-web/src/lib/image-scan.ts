@@ -191,3 +191,94 @@ export function sbomFromPath(pathname: string): { resourcePath: string; scanUuid
 
 /** The environment uuid of a resource path (/project/{p}/environment/{e}/…). */
 export const environmentOfPath = (pathname: string): string | null => /^\/project\/[^/]+\/environment\/([^/]+)\//.exec(pathname)?.[1] ?? null;
+
+// ---------------------------------------------------------------- DP-116: the image scanning settings
+
+/** scan-settings.blade.php's $rulesHelper of a level. */
+export function rulesHelper(scope: string): string {
+  switch (scope) {
+    case "instance":
+      return "Defaults for every team. A team, server, or app can set its own value.";
+    case "team":
+      return "Defaults for the servers and apps of this team. A server or app can set its own value.";
+    case "server":
+      return "Defaults for the apps on this server. An app can set its own value.";
+    default:
+      return "Rules for this app.";
+  }
+}
+
+/** scan-settings.blade.php's $gateHelper. */
+export const gateHelper = (scope: string): string => (scope === "application" ? "Stop a deploy when the new image has security problems." : "Default for apps. Stop a deploy when the new image has security problems.");
+
+/** <x-forms.inherited-listbox>: the inherit option first, when the level inherits (not the instance). */
+export function inheritedOptions<T extends { value: string; label: string }>(inheritLabel: string | null | undefined, options: readonly T[]): Array<T | { value: string; label: string }> {
+  return inheritLabel === null || inheritLabel === undefined ? [...options] : [{ value: "", label: inheritLabel }, ...options];
+}
+
+/** HostVulnerabilities' public properties. */
+export interface HostState {
+  search: string;
+  sortBy: string;
+  showOtherKernels: boolean;
+  page: number;
+  perPage: number;
+}
+
+export const INITIAL_HOST: HostState = { search: "", sortBy: "", showOtherKernels: false, page: 1, perPage: 10 };
+
+/** The API query of a server's Vulnerabilities page: the host findings' state. */
+export function hostQuery(s: HostState): string {
+  const q = new URLSearchParams();
+  if (s.search !== "") q.set("search", s.search);
+  if (s.sortBy !== "") q.set("sortBy", s.sortBy);
+  if (s.showOtherKernels) q.set("showOtherKernels", "1");
+  if (s.page !== 1) q.set("page", String(s.page));
+  if (s.perPage !== 10) q.set("perPage", String(s.perPage));
+  const t = q.toString();
+  return t === "" ? "" : `?${t}`;
+}
+
+/** updatedSearch(), updatedShowOtherKernels(), updatedPerPage() and sortFindings(): back to the first page. */
+export const setHost = (s: HostState, change: Partial<HostState>): HostState => ({ ...s, ...change, page: change.page ?? 1 });
+
+/** server-image-scanning.blade.php's $costText. */
+export const scanCostText = (cpuLimit: string, memoryLimit: string): string => `Scans use up to ${cpuLimit} CPU and ${memoryLimit} of memory while they run, and about 1.2 GB of disk, plus temporary space for one image.`;
+
+/** server-image-scanning.blade.php's $sectionHelper (its lines, joined). */
+export function scanningSectionHelper(toolVersions: string, builtAgo: string | null, diskUsed: string | null, costText: string): string {
+  return [
+    "Scan the images on this server for known vulnerabilities before and after deployments. Freeploy also scans the operating system packages of the server every day.",
+    `Scanner tools: ${toolVersions}.`,
+    "Freeploy downloads the latest vulnerability database every day, between 02:00 and 05:00 server time." + (builtAgo ? ` Database built ${builtAgo}.` : ""),
+    diskUsed ? `Disk used by scanner data: ${diskUsed}.` : null,
+    costText,
+  ]
+    .filter((l): l is string => l !== null && l !== "")
+    .join(" ");
+}
+
+/** The two checkpoints of getting the scanner ($pullState, $databaseState) and their descriptions. */
+export function scannerCheckpoints(prepareState: string | null, failedStep: string | null, registries: string, builtAgo: string | null) {
+  const pull = prepareState === "pulling" ? "running" : prepareState === "updating_database" || prepareState === "ready" ? "success" : prepareState === "failed" ? (["pulling", "setup", "connection"].includes(failedStep ?? "") ? "error" : "success") : "idle";
+  const database = prepareState === "pulling" ? "pending" : prepareState === "updating_database" ? "running" : prepareState === "ready" ? "success" : prepareState === "failed" ? (failedStep === "updating_database" ? "error" : "pending") : "idle";
+  const pullError =
+    failedStep === "setup"
+      ? "Freeploy could not set up the scanner storage on the server. Check that the SSH user can run Docker commands."
+      : failedStep === "connection"
+        ? "Freeploy could not connect to the server. Check that the server is reachable, then try again."
+        : `Freeploy could not pull the scanner images. Check that the server can reach ${registries}.`;
+  const pullText = pull === "running" ? "Pulling the scanner images." : pull === "success" ? "The scanner images are on this server." : pull === "error" ? pullError : "Not done yet.";
+  const built = builtAgo ? `Database built ${builtAgo}.` : "The vulnerability database is up to date.";
+  const databaseText = database === "running" ? "Downloading the vulnerability database." : database === "success" ? built : database === "error" ? "Freeploy could not download the vulnerability database." : "Not done yet.";
+  return { pull: { status: pull, description: pullText }, database: { status: database, description: databaseText } };
+}
+
+/** Str::plural('vulnerability', $n) */
+export const vulnerabilitiesWord = (n: number): string => (n === 1 ? "vulnerability" : "vulnerabilities");
+
+/** The other kernels' line: "{n} vulnerabilities in installed kernels that do not run hidden. No risk now." */
+export const otherKernelsLine = (n: number, shown: boolean): string => `${n} ${vulnerabilitiesWord(n)} in installed kernels that do not run ${shown ? "shown" : "hidden"}. No risk now.`;
+
+/** RemoveUnusedPackages::supports(): the package managers whose unused packages and old kernels it removes. */
+export const removeUnusedSupported = (packageManager: string | null): boolean => packageManager === "apt" || packageManager === "dnf" || packageManager === "zypper";

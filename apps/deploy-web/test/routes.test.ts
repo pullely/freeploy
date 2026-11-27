@@ -317,7 +317,7 @@ test("the team pages and the invitation page (DP-69); the team's other pages are
   assert.equal(pageFor("/team/members"), "team.member.index");
   assert.equal(pageFor("/team/members/"), "team.member.index");
   assert.equal(pageFor("/invitations/inv_0123456789abcdef0123456789abcdef"), "team.invitation.show");
-  for (const other of ["/team/image-scanning", "/team/members/7/avatar", "/invitations", "/invitations/a/b"]) {
+  for (const other of ["/team/image-scanning/x", "/team/members/7/avatar", "/invitations", "/invitations/a/b"]) {
     assert.equal(pageFor(other), "not-ported", other);
   }
 });
@@ -379,7 +379,7 @@ test("the platform operator's pages (DP-79): General and Advanced settings, Admi
   assert.equal(pageFor("/settings/advanced/"), "settings.advanced");
   assert.equal(pageFor("/admin"), "admin.index");
   assert.equal(pageFor("/team/admin"), "team.admin-view");
-  for (const other of ["/settings/image-scanning", "/settings/x/y", "/admin/x"]) {
+  for (const other of ["/settings/image-scanning/x", "/settings/x/y", "/admin/x"]) {
     assert.equal(pageFor(other), "not-ported", other);
   }
 });
@@ -403,8 +403,9 @@ test("a server's proxy, security, Cloudflare Tunnel, Sentinel logs, transfer, re
     assert.equal(pageFor(server + path), key);
     assert.equal(pageFor(`${server + path}/`), key);
   }
-  // Not ported: the image scan page, its old redirect and the other old security sub pages, GitHub runners. The canvas is DP-98's.
-  for (const path of ["/security/vulnerabilities", "/security/image-scanning", "/security/terminal-access", "/security/host-key", "/github-runners", "/proxy/dynamic/new", "/sentinel/logs/x"]) {
+  // Not ported: the other old security sub pages, GitHub runners. The canvas is DP-98's; the image scan page and its old
+  // redirect are DP-116's.
+  for (const path of ["/security/vulnerabilities/x", "/security/terminal-access", "/security/host-key", "/github-runners", "/proxy/dynamic/new", "/sentinel/logs/x"]) {
     assert.equal(pageFor(server + path), "not-ported", path);
   }
   assert.equal(pageFor(`${server}/canvas`), "server.canvas");
@@ -540,8 +541,24 @@ test("DP-114: a resource's Security page and its SBOM downloads, and the team's 
   assert.notEqual(pageFor(`${environment}/service/svc1/vulnerabilities`), "project.service.index");
   assert.equal(pageFor("/vulnerabilities"), "vulnerabilities");
   assert.equal(pageFor("/vulnerabilities/"), "vulnerabilities");
-  // The image scanning settings and a server's vulnerabilities stay not ported.
-  for (const other of ["/vulnerabilities/x", "/settings/image-scanning", "/team/image-scanning", "/server/s1/security/vulnerabilities", "/server/s1/security/image-scanning"]) {
+  // The image scanning settings and a server's vulnerabilities are DP-116's.
+  for (const other of ["/vulnerabilities/x"]) {
+    assert.equal(pageFor(other), "not-ported", other);
+  }
+});
+
+test("DP-116: the image scanning settings of the instance, the team and a server", () => {
+  const pages: Array<[string, string]> = [
+    ["/settings/image-scanning", "settings.image-scanning"],
+    ["/team/image-scanning", "team.image-scanning"],
+    ["/server/abc123def456ghi789jkl012/security/vulnerabilities", "server.security.vulnerabilities"],
+    ["/server/abc123def456ghi789jkl012/security/image-scanning", "server.security.image-scanning"],
+  ];
+  for (const [path, key] of pages) {
+    assert.equal(pageFor(path), key, path);
+    assert.equal(pageFor(`${path}/`), key, path);
+  }
+  for (const other of ["/settings/image-scanning/x", "/team/image-scanning/x", "/server/s1/security/vulnerabilities/x", "/server/s1/security/image-scanning/x", "/server/s1/image-scanning"]) {
     assert.equal(pageFor(other), "not-ported", other);
   }
 });

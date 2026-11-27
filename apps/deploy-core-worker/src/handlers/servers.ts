@@ -28,6 +28,9 @@
 //                                            the Registries page (DP-47): handleServerRegistries in registries.ts
 //   …      /servers/{uuid}/{proxy,security,cloudflare-tunnel,sentinel/logs,transfer,resources,images}[/…]
 //                                            the pages of DP-96: handleServerPages in server-pages.ts
+//   …      /servers/{uuid}/security/vulnerabilities[/export]
+//                                            the Vulnerabilities page (DP-116): handleServerImageScanning in
+//                                            image-scan-settings.ts
 //
 // Coolify's policy: view = team member, create/update/delete = team admin.
 // Here: deploy.resource.read and deploy.resource.write, asked of policy-worker
@@ -66,6 +69,7 @@ import { columnCipher, handleServerCloudToken } from "./cloud-tokens.js";
 import { handleServerRegistries } from "./registries.js";
 import { handleServerCaCertificate } from "./ca-certificate.js";
 import { handleServerPages, isServerPageRoute } from "./server-pages.js";
+import { handleServerImageScanning, isServerImageScanRoute } from "./image-scan-settings.js";
 import { SERVER_MESSAGES, SERVER_ROLES, validateCreateServer, validateUpdateServer, type ServerRole } from "../servers/validation.js";
 import {
   changeServerRole,
@@ -185,6 +189,10 @@ export async function handleServers(
     return handleServerCaCertificate(env, requestId, actor, orgId, segments[0]!, segments.slice(2), request);
   }
   // The proxy, security, Cloudflare Tunnel, Sentinel logs, transfer, resources and images pages (DP-96).
+  // DP-116: the server's Vulnerabilities page (ServerImageScanning with HostVulnerabilities).
+  if (segments.length >= 3 && UUID_RE.test(segments[0]!) && isServerImageScanRoute(segments.slice(1))) {
+    return handleServerImageScanning(env, requestId, actor, orgId, segments[0]!, segments.slice(1), request);
+  }
   if (segments.length >= 2 && UUID_RE.test(segments[0]!) && isServerPageRoute(segments.slice(1))) {
     return handleServerPages(env, requestId, actor, orgId, segments[0]!, segments.slice(1), request);
   }

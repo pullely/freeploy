@@ -10,6 +10,8 @@ import {
   listImageScanDeployments,
   listImageScanIgnores,
   listImageScanPolicies,
+  findInstanceImageScanPolicy,
+  type ImageScanPolicyRow,
   listImageScanResources,
   listImageScans,
   listImageScanServers,
@@ -165,6 +167,16 @@ const scanOf = (r: ImageScanStoredRow): ImageScanRow => ({
   scannedAt: parseTime(r.scanned_at),
 });
 
+/** An image_scan_policies row as the engine reads it (ImageScanPolicy's enum and boolean casts). */
+export const policyRowOf = (p: ImageScanPolicyRow): PolicyRow => ({
+  id: Number(p.id),
+  scopeType: p.scope_type,
+  scopeId: p.scope_id === null ? null : Number(p.scope_id),
+  gateMode: p.gate_mode === "off" || p.gate_mode === "on" || p.gate_mode === "strict" ? p.gate_mode : null,
+  onScanError: p.on_scan_error === "deploy" || p.on_scan_error === "block" ? p.on_scan_error : null,
+  countMedium: p.count_medium,
+});
+
 /** What the engine reads about these resources' scans: the scans of their owners and what those scans name. */
 export async function loadScanData(tx: SqlExecutor, resources: readonly ScanResource[], now: Date, withFindings: boolean): Promise<ScanData> {
   const ownerList: ScanOwner[] = resources.flatMap((r) => ownersOf(r));
@@ -186,14 +198,10 @@ export async function loadScanData(tx: SqlExecutor, resources: readonly ScanReso
     expiresAt: parseTime(i.expires_at),
     createdAt: parseTime(i.created_at),
   }));
-  const policies: PolicyRow[] = (await listImageScanPolicies(tx)).map((p) => ({
-    id: Number(p.id),
-    scopeType: p.scope_type,
-    scopeId: p.scope_id === null ? null : Number(p.scope_id),
-    gateMode: p.gate_mode === "off" || p.gate_mode === "on" || p.gate_mode === "strict" ? p.gate_mode : null,
-    onScanError: p.on_scan_error === "deploy" || p.on_scan_error === "block" ? p.on_scan_error : null,
-    countMedium: p.count_medium,
-  }));
+  const policies: PolicyRow[] = (await listImageScanPolicies(tx)).map(policyRowOf);
+  // DP-116: the instance level, the platform's row (readable in the org's transaction, migration 740).
+  const instance = await findInstanceImageScanPolicy(tx);
+  const instancePolicy = instance === null ? null : policyRowOf(instance);
   const servers = new Map((await listImageScanServers(tx, [...new Set(scans.map((s) => s.serverId))])).map((s) => [Number(s.id), serverOf(s)!]));
   const byKey = new Map(ownerList.map((o) => [keyOf(o), o]));
   const owners = new Map<number, ScanOwner>();
@@ -201,7 +209,7 @@ export async function loadScanData(tx: SqlExecutor, resources: readonly ScanReso
     const owner = byKey.get(`${scan.resourceType}:${scan.resourceId}`);
     if (owner !== undefined) owners.set(scan.id, owner);
   }
-  return { now, scans, deployments, latestFinishedCommit, ignores, policies, servers, owners };
+  return { now, scans, deployments, latestFinishedCommit, ignores, policies, instancePolicy, servers, owners };
 }
 
 /** A PHP array as json_encode() writes it: an empty array is `[]`, never `{}`. */

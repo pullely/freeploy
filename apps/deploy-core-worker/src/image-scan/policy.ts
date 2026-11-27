@@ -3,13 +3,15 @@
 // (Apache-2.0), modified.
 //
 // Scan rules resolved through Instance, Team, Server and App; a null value inherits. Team and server come from the loaded
-// resource. Freeploy has no instance-wide row of its own: the instance level is Coolify's seeded row (gate off, deploy
-// anyway, mediums not counted), which is also the resolver's default, so only the org's team, server and app rows are read.
+// resource. The instance level is the platform's row with no scope (DP-116, migration 740: owned by the nil UUID, read in
+// the org's transaction, edited on /settings/image-scanning); until the operator stores it, there is no instance row and
+// the resolver's defaults apply, which are the values Coolify's migration seeds it with (gate off, deploy anyway, mediums
+// not counted).
 import { MORPH, keyOf, type AnyModel, type PolicyRow, type ScanData, type ScanResource, type ScanServer } from "./model.js";
 
 export type GateMode = "off" | "on" | "strict";
 export type OnScanError = "deploy" | "block";
-type Source = "instance" | "team" | "server" | "app";
+export type Source = "instance" | "team" | "server" | "app";
 
 export interface ResolvedImageScanPolicy {
   gateMode: GateMode;
@@ -20,13 +22,16 @@ export interface ResolvedImageScanPolicy {
   countMedium: boolean;
 }
 
-interface Resolved {
+export interface Resolved {
   gate_mode: { value: GateMode; source: Source };
   on_scan_error: { value: OnScanError; source: Source };
   count_medium: { value: boolean; source: Source };
 }
 
-type Level = [Source, PolicyRow | null];
+export type Level = [Source, PolicyRow | null];
+
+/** ImageScanPolicyResolver::instanceRow() */
+export const instanceRow = (data: Pick<ScanData, "instancePolicy">): PolicyRow | null => data.instancePolicy ?? null;
 
 /** The server whose scan settings apply: the destination server, or the server of a service. */
 export function mainServerOf(resource: AnyModel): ScanServer | null {
@@ -37,7 +42,7 @@ export function mainServerOf(resource: AnyModel): ScanServer | null {
   return server;
 }
 
-function resolveLevels(levels: readonly Level[]): Resolved {
+export function resolveLevels(levels: readonly Level[]): Resolved {
   const resolved: Resolved = {
     gate_mode: { value: "off", source: "instance" },
     on_scan_error: { value: "deploy", source: "instance" },
@@ -53,11 +58,11 @@ function resolveLevels(levels: readonly Level[]): Resolved {
 }
 
 /** The org's row of the team level, or of a server or an application. */
-const teamRow = (data: ScanData): PolicyRow | null => data.policies.find((p) => p.scopeType === MORPH.team) ?? null;
-const scopeRow = (data: ScanData, morphClass: string, id: number): PolicyRow | null => data.policies.find((p) => p.scopeType === morphClass && p.scopeId === id) ?? null;
+export const teamRow = (data: Pick<ScanData, "policies">): PolicyRow | null => data.policies.find((p) => p.scopeType === MORPH.team) ?? null;
+export const scopeRow = (data: Pick<ScanData, "policies">, morphClass: string, id: number): PolicyRow | null => data.policies.find((p) => p.scopeType === morphClass && p.scopeId === id) ?? null;
 
 function levelsFor(resource: AnyModel, mainServer: ScanServer | null, data: ScanData): Level[] {
-  const levels: Level[] = [["instance", null]];
+  const levels: Level[] = [["instance", instanceRow(data)]];
   // $resource->team(): an application or database of a service without its service has none.
   const hasTeam = !((resource.kind === "serviceApplication" || resource.kind === "serviceDatabase") && resource.service === null);
   if (hasTeam) levels.push(["team", teamRow(data)]);
@@ -92,7 +97,7 @@ export function countMediumForMany(resources: readonly ScanResource[], data: Sca
   const out: Record<string, boolean> = {};
   for (const resource of resources) {
     const server = mainServerOf(resource);
-    const levels: Level[] = [["instance", null], ["team", teamRow(data)]];
+    const levels: Level[] = [["instance", instanceRow(data)], ["team", teamRow(data)]];
     if (server !== null) levels.push(["server", scopeRow(data, MORPH.server, server.id)]);
     if (resource.kind === "application") levels.push(["app", scopeRow(data, MORPH.application, resource.id)]);
     out[keyOf(resource)] = resolveLevels(levels).count_medium.value;
@@ -115,3 +120,14 @@ export function offState(resource: AnyModel, scanServer: ScanServer | null = nul
 export const isAllowedFor = (resource: AnyModel): boolean => resource.kind !== "application" || resource.settings?.isImageScanEnabled === true;
 
 export const isScanOn = (resource: AnyModel): boolean => offState(resource) === null;
+
+/**
+ * ImageScanPolicyResolver::inheritedFor($scope) of a team or a server: the values the level inherits from the levels above
+ * it, each with the level it comes from (a team: the instance; a server: the instance and its team). An application's
+ * is scan-settings.ts' (DP-114), through its main server.
+ */
+export function inheritedFor(scope: "team" | "server", data: Pick<ScanData, "policies" | "instancePolicy">): Resolved {
+  const levels: Level[] = [["instance", instanceRow(data)]];
+  if (scope === "server") levels.push(["team", teamRow(data)]);
+  return resolveLevels(levels);
+}

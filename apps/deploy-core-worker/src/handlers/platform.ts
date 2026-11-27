@@ -12,6 +12,8 @@
 //   GET   /v1/platform/admin/users  Team\AdminView: the instance's users (?search, teamFilter, orgId, sort, perPage, page)
 //   GET|PATCH /v1/platform/settings/{updates,backup,email,oauth[/{provider}]}  DP-101's pages
 //                                   (handlers/platform-settings-more.ts), behind the same gate
+//   GET|PATCH /v1/platform/settings/image-scanning  DP-116's InstanceImageScanning (handlers/image-scan-settings.ts),
+//                                   behind the same gate
 //
 // Every route first asks policy-worker for its platform action (platform.settings.read|update,
 // platform.admin.read), which only the deployment's PLATFORM_OPERATORS pass — never an org role, of any
@@ -31,6 +33,7 @@ import { authorizeViaPolicy } from "../policy-client.js";
 import { deniedResponse, errorResponse, methodNotAllowed, notFound, successResponse, validationError } from "../http.js";
 import { readJson } from "./cloud-tokens.js";
 import { handlePlatformMore, isPlatformMorePage, runPlatformMoreAsAdmin, type PlatformMoreRunner } from "./platform-settings-more.js";
+import { handleInstanceImageScanning, type ImageScanSettingsDeps } from "./image-scan-settings.js";
 
 /** The paths api-edge forwards: /v1/platform and below. */
 export const PLATFORM_RE = /^\/v1\/platform(\/[^?]*)?$/;
@@ -151,6 +154,7 @@ export async function handlePlatform(
   request: Request,
   runner: PlatformRunner = runAsPlatformAdmin,
   moreRunner: PlatformMoreRunner = runPlatformMoreAsAdmin,
+  imageScanDeps: ImageScanSettingsDeps = {},
 ): Promise<Response> {
   // No actor (api-edge always sends one): the same 404 as a denial.
   if (!actor) return deniedResponse(env.ENVIRONMENT, requestId, "no_actor");
@@ -161,6 +165,8 @@ export async function handlePlatform(
 
   // DP-101: Updates, Backup, Email and Authentication.
   if (isPlatformMorePage(page)) return handlePlatformMore(env, requestId, page, request, (a) => allowed(env, requestId, actor, a), moreRunner);
+  // DP-116: Image Scanning (InstanceImageScanning), the instance-wide scan rules.
+  if (page === "settings/image-scanning") return handleInstanceImageScanning(env, requestId, request, (a) => allowed(env, requestId, actor, a), imageScanDeps);
 
   // A path that is no platform page answers the 404 a denial answers, whoever asks.
   if (!["operator", "settings", "admin", "admin/users"].includes(page)) {
@@ -172,7 +178,7 @@ export async function handlePlatform(
     if (method !== "GET") return methodNotAllowed(requestId);
     const denied = await allowed(env, requestId, actor, "platform.settings.read");
     if (denied) return denied;
-    return successResponse({ operator: true, settingsPages: ["/settings", "/settings/advanced", "/settings/updates", "/settings/oauth", "/settings/email", "/settings/backup"], adminPages: ["/admin", "/team/admin"] }, requestId);
+    return successResponse({ operator: true, settingsPages: ["/settings", "/settings/advanced", "/settings/updates", "/settings/image-scanning", "/settings/oauth", "/settings/email", "/settings/backup"], adminPages: ["/admin", "/team/admin"] }, requestId);
   }
 
   if (page === "settings") {

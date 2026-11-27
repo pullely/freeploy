@@ -5,7 +5,8 @@
 // Admin link (`auth()->id() === 0`, after the menu) and Team → Admin View (`'visible' => isInstanceAdmin()`).
 // The reference's capture signs in as a tenant, so these are not in the generated LayoutMarkup; it renders
 // them through its `platform` slots, and only for an operator (Layout asks GET /v1/platform/operator).
-// Only the ported settings pages are listed (General, Advanced; since DP-101 Updates, Authentication, Email, Backup).
+// Only the ported settings pages are listed (General, Advanced; since DP-101 Updates, Authentication, Email, Backup;
+// since DP-116 Image Scanning).
 import { Fragment, type ReactNode } from "react";
 import { Reicon } from "../components/Reicon";
 import type { SidebarMenu } from "./sidebar";
@@ -16,6 +17,7 @@ const SETTINGS_CHILDREN: Array<{ label: string; href: string; icon: string; sect
   { label: "General", href: "/settings", icon: "settings" },
   { label: "Advanced", href: "/settings/advanced", icon: "grid" },
   { label: "Updates", href: "/settings/updates", icon: "refresh3" },
+  { label: "Image Scanning", href: "/settings/image-scanning", icon: "shield-alert" },
   { label: "Authentication", href: "/settings/oauth", icon: "keys", sectionStart: true },
   { label: "Email", href: "/settings/email", icon: "mail" },
   { label: "Backup", href: "/settings/backup", icon: "database" },

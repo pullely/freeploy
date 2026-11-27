@@ -77,8 +77,8 @@ describe("Coolify's schema dump", () => {
 });
 
 describe(`${CATCH_UP}`, () => {
-  it("is the last deploy migration and follows 630", () => {
-    expect(all[all.length - 1]).toBe(CATCH_UP);
+  it("is the last deploy migration that changes the catalog (740, DP-116, adds a row-level security policy only) and follows 630", () => {
+    expect(all.slice(all.indexOf(CATCH_UP) + 1)).toEqual(["740_deploy_image_scan_instance_policy"]);
     expect(earlier[earlier.length - 1]).toBe("630_deploy_database_public_port_timeout");
   });
 

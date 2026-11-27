@@ -1,5 +1,7 @@
 // Derived from coollabsio/coolify@91b7e3e:resources/views/livewire/image-scan/{vulnerabilities,packages,scan-settings,
-// fleet-vulnerabilities}.blade.php, resources/views/livewire/image-scan/partials/{security-image,security-action,
+// fleet-vulnerabilities,instance-image-scanning,team-image-scanning,server-image-scanning}.blade.php,
+// resources/views/livewire/server/security/host-vulnerabilities.blade.php,
+// resources/views/components/server/remove-unused-packages-button.blade.php, resources/views/livewire/image-scan/partials/{security-image,security-action,
 // finding-row,ignore-modal,scan-rules,scan-ignores}.blade.php, resources/views/components/image-scan/{severity-badge,
 // export-menu,image-select,error-log}.blade.php, resources/views/livewire/project/{application,service,database}/
 // configuration.blade.php (the Security sub-page) and app/Livewire/ImageScan/*.php (Apache-2.0), modified.
@@ -12,6 +14,16 @@
 //   …/vulnerabilities/sbom/{scan}/{format} project.*.vulnerabilities.sbom        ImageScanSbomController: the file, saved
 //   /vulnerabilities                       vulnerabilities                       FleetVulnerabilities
 //
+// DP-116's pages:
+//
+//   /settings/image-scanning               settings.image-scanning               InstanceImageScanning (the operator's)
+//   /team/image-scanning                   team.image-scanning                   TeamImageScanning
+//   /server/{uuid}/security/vulnerabilities server.security.vulnerabilities      ServerImageScanning, HostVulnerabilities
+//   /server/{uuid}/security/image-scanning server.security.image-scanning        a redirect to the one above
+//
+// Getting the scanner, deleting its data, turning scanning on, a host scan, a package update and a reboot answer that
+// the SSH executor is not available yet (a toast); Freeploy keeps no scanner state, so the scanner reads as never got.
+//
 // Scan now, Update, Pull latest and Rebuild answer that the SSH executor is not available yet (a toast). The live updates
 // on scan events (ListensToTeamChannel) are not ported: Freeploy runs no scan.
 import { useCallback, useEffect, useState, type ReactNode } from "react";
@@ -19,13 +31,30 @@ import { Layout, useSignedIn } from "../layout/Layout";
 import { notify } from "../lib/toast";
 import { getJson, postJson } from "../lib/api";
 import { Reicon } from "../components/Reicon";
-import { Button, Callout, CopyButton, Empty, Listbox, ModalConfirmation, ModalInput, SettingsSection, SettingsSubsection, StatusBadge } from "../components/Coolify";
+import { Button, Callout, CopyButton, DangerCallout, Empty, Listbox, ModalConfirmation, ModalInput, SettingsSection, SettingsSubsection, StatusBadge } from "../components/Coolify";
 import { PAGER_BUTTON, PageSizeSelect, TableDropdown } from "../components/CoolifyList";
 import { resourceApi, resourceFrame, resourceUuidFromPath, type ResourceKind, type ResourceSectionData } from "./ApplicationSection";
 import { environmentPath, environmentUuidFromPath, limit, projectUuidFromPath } from "./ProjectChrome";
 import { ResourceWorkspace } from "./ResourceWorkspace";
+import { ServerWorkspace, serverUuidFromPath, limit as serverLimit, type ServerInfo } from "./ServerChrome";
+import { SettingsLayout } from "./PlatformSettings";
+import { PlatformNotFound } from "./PlatformAdmin";
+import { Sort, TeamLayout, teamApi } from "./Team";
 import {
   countOf,
+  gateHelper,
+  hostQuery,
+  inheritedOptions,
+  INITIAL_HOST,
+  otherKernelsLine,
+  removeUnusedSupported,
+  rulesHelper,
+  scanCostText,
+  scannerCheckpoints,
+  scanningSectionHelper,
+  setHost,
+  vulnerabilitiesWord,
+  type HostState,
   environmentOfPath,
   exportMenu,
   fleetQuery,
@@ -237,8 +266,8 @@ const DOTS: Record<string, string> = {
 };
 
 /** <x-image-scan.severity-badge> (an <x-status-badge> of a severity type). */
-function SeverityBadge({ severity, title }: { severity: string; title?: string | null }) {
-  const b = severityBadge(severity);
+function SeverityBadge({ severity, title, count = null }: { severity: string; title?: string | null; count?: number | null }) {
+  const b = severityBadge(severity, count);
   return (
     <span className="inline-flex max-w-full items-center whitespace-nowrap text-neutral-700 dark:text-fg gap-1.5 text-[13px]" title={title ?? undefined}>
       <span className="relative flex size-1.5 shrink-0">
@@ -1218,7 +1247,7 @@ function PackagesSection({ p, state, setState }: { p: Packages; state: PackagesS
 const IGNORES_HELPER = "Ignored findings do not count for the status, alerts, or Block deploys. Ignore a finding from All findings on the Security page of a resource.";
 
 /** scan-ignores.blade.php */
-function ScanIgnores({ s, run }: { s: ScanSettings; run: Run }) {
+function ScanIgnores({ s, run }: { s: Pick<ScanSettings, "ignores" | "canEdit" | "showsTeamSettingsLink">; run: Run }) {
   if (s.ignores.length === 0) return <Empty size="sm" title="No ignored findings." />;
   return (
     <div className="data-table">
@@ -1595,6 +1624,717 @@ export function FleetVulnerabilitiesPage() {
   return (
     <Layout title="Security" href="/vulnerabilities" navHref="/vulnerabilities" documentTitle="Security">
       <FleetContent />
+    </Layout>
+  );
+}
+
+// ---------------------------------------------------------------- DP-116: the scan rules of a level
+
+interface LevelSettings {
+  scopeType: "instance" | "team" | "server";
+  canEdit: boolean;
+  showsIgnores: boolean;
+  showsTeamSettingsLink: boolean;
+  ignores: ScanSettings["ignores"];
+  rules: {
+    gateMode: string;
+    onScanError: string;
+    countMedium: string;
+    scanNewServers?: string;
+    canEditScanNewServers?: boolean;
+    appScanOn: boolean;
+    inheritLabels: Record<string, string> | null;
+    gateModeOptions: Array<{ value: string; label: string; description?: string }>;
+    onScanErrorOptions: Array<{ value: string; label: string }>;
+    countMediumOptions: Array<{ value: string; label: string }>;
+  };
+}
+
+const ON_OFF = [
+  { value: "0", label: "Off" },
+  { value: "1", label: "On" },
+];
+
+/** A page's action: PATCH { action, … }, its toasts, a refusal (or what needs the SSH executor) as an error toast; then reload. */
+function usePageRun(api: string, reload: () => Promise<void>): Run {
+  return useCallback(
+    async (body) => {
+      const r = await postJson<{ toasts: Array<{ type: string; message: string }> }>(api, body, "PATCH");
+      if (!r.ok) {
+        notify.error(r.error.messages[0] ?? "Something went wrong.");
+        await reload();
+        return false;
+      }
+      for (const t of r.data.toasts) (t.type === "success" ? notify.success : notify.error)(t.message);
+      await reload();
+      return true;
+    },
+    [api, reload],
+  );
+}
+
+/** partials/scan-rules.blade.php of the instance, a team or a server. */
+function LevelRules({ s, run }: { s: LevelSettings; run: Run }) {
+  const r = s.rules;
+  const labels = r.inheritLabels;
+  return (
+    <div className="flex flex-col gap-4">
+      {s.scopeType === "team" ? (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <Listbox
+            id="scanNewServers"
+            label="Scan images on new servers"
+            disabled={!s.canEdit || r.canEditScanNewServers !== true}
+            helper="Pre-selects image scanning when someone adds a server to this team. They can change it."
+            options={ON_OFF}
+            value={r.scanNewServers ?? "0"}
+            onChange={(value) => void run({ action: "scanNewServers", value })}
+          />
+        </div>
+      ) : null}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="min-w-0">
+          <Listbox id="gateMode" label="Block deploys" disabled={!s.canEdit || !r.appScanOn} helper={gateHelper(s.scopeType)} options={inheritedOptions(labels?.gate_mode, r.gateModeOptions)} value={r.gateMode} onChange={(value) => void run({ action: "saveRule", column: "gate_mode", value })} />
+        </div>
+        <Listbox id="onScanError" label="If the scan cannot run" disabled={!s.canEdit} helper="Applies when Block deploys is On or Strict." options={inheritedOptions(labels?.on_scan_error, r.onScanErrorOptions)} value={r.onScanError} onChange={(value) => void run({ action: "saveRule", column: "on_scan_error", value })} />
+        <Listbox
+          id="countMedium"
+          label="Count medium problems"
+          disabled={!s.canEdit}
+          helper="Medium problems that an update fixes give a security update. Problems that attackers are likely to use always count."
+          options={inheritedOptions(labels?.count_medium, r.countMediumOptions)}
+          value={r.countMedium}
+          onChange={(value) => void run({ action: "saveRule", column: "count_medium", value })}
+        />
+      </div>
+      <p className="text-[12px] text-neutral-500 dark:text-fg-faint">Block deploys applies only to apps.</p>
+    </div>
+  );
+}
+
+/** scan-settings.blade.php of a level: Rules (embedded in a server's card), and the team's Ignored findings. */
+function LevelSettingsView({ s, run, embedded = false }: { s: LevelSettings; run: Run; embedded?: boolean }) {
+  if (embedded) {
+    return (
+      <SettingsSubsection id="image-scan-rules-section" title="Rules" helper={rulesHelper(s.scopeType)} first>
+        <LevelRules s={s} run={run} />
+      </SettingsSubsection>
+    );
+  }
+  return (
+    <div className="flex flex-col gap-6">
+      <SettingsSection id="image-scan-rules-section" title="Rules" helper={rulesHelper(s.scopeType)}>
+        <LevelRules s={s} run={run} />
+      </SettingsSection>
+      {s.showsIgnores ? (
+        <SettingsSection id="image-scan-ignores-section" title="Ignored findings" helper={IGNORES_HELPER} flush>
+          <ScanIgnores s={s} run={run} />
+        </SettingsSection>
+      ) : null}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------- /settings/image-scanning
+
+const INSTANCE_IMAGE_SCANNING_API = "/v1/platform/settings/image-scanning";
+
+/** InstanceImageScanning: the defaults of every team; a customer gets the platform's 404. */
+function InstanceImageScanningContent() {
+  const [data, setData] = useState<LevelSettings | null>(null);
+  const [missing, setMissing] = useState(false);
+  const load = useCallback(async () => {
+    const r = await getJson<{ settings: LevelSettings }>(INSTANCE_IMAGE_SCANNING_API);
+    if (!r.data) {
+      if (r.status === 404) setMissing(true);
+      return;
+    }
+    setData(r.data.settings);
+  }, []);
+  useEffect(() => {
+    void load();
+    document.title = "Image Scanning | Freeploy";
+  }, [load]);
+  const run = usePageRun(INSTANCE_IMAGE_SCANNING_API, load);
+  if (missing) return <PlatformNotFound />;
+  if (!data) return null;
+  return (
+    <SettingsLayout>
+      <div className="application-settings-form flex min-w-0 flex-col gap-6">
+        <LevelSettingsView s={data} run={run} />
+      </div>
+    </SettingsLayout>
+  );
+}
+
+export function InstanceImageScanningPage() {
+  return (
+    <Layout title="Image Scanning" href="/settings/image-scanning" documentTitle="Image Scanning">
+      <InstanceImageScanningContent />
+    </Layout>
+  );
+}
+
+// ---------------------------------------------------------------- /team/image-scanning
+
+/** TeamImageScanning: the team's defaults, Scan images on new servers and the team-wide ignores. */
+function TeamImageScanningContent() {
+  const { me } = useSignedIn();
+  const api = `/v1/organizations/${me.team?.id ?? ""}/deploy/team/image-scanning`;
+  const [data, setData] = useState<LevelSettings | null>(null);
+  const [role, setRole] = useState<string | null>(null);
+  const load = useCallback(async () => {
+    const r = await getJson<{ settings: LevelSettings }>(api);
+    if (!r.data) {
+      if (r.status !== 401) notify.error("Failed to load the team.");
+      return;
+    }
+    setData(r.data.settings);
+  }, [api]);
+  useEffect(() => {
+    void load();
+    document.title = "Team Image Scanning | Freeploy";
+    void getJson<{ role: string }>(`${teamApi(me.team?.id)}/members`).then((m) => setRole(m.data?.role ?? null));
+  }, [load, me.team?.id]);
+  const run = usePageRun(api, load);
+  if (!data) return null;
+  return (
+    <TeamLayout role={role}>
+      <div className="application-settings-form flex flex-col gap-6">
+        <LevelSettingsView s={data} run={run} />
+      </div>
+    </TeamLayout>
+  );
+}
+
+export function TeamImageScanningPage() {
+  return (
+    <Layout title="Team" href="/team/image-scanning" documentTitle="Team Image Scanning">
+      <TeamImageScanningContent />
+    </Layout>
+  );
+}
+
+// ---------------------------------------------------------------- /server/{uuid}/security/vulnerabilities
+
+interface ServerScanning {
+  enabled: boolean;
+  limits: Record<"scannerMemoryMb" | "scannerSyftTimeout" | "scannerGrypeTimeout" | "scannerCpus", string>;
+  memoryLimit: string;
+  memoryOptions: Array<{ value: string; label: string }>;
+  timeoutOptions: Array<{ value: string; label: string }>;
+  cpuOptions: Array<{ value: string; label: string }>;
+  prepareState: string | null;
+  failedStep: string | null;
+  registries: string;
+  diskUsed: string | null;
+  hasScannerData: boolean;
+  toolVersions: string;
+  builtAt: string | null;
+  cpuLimit: string;
+}
+interface HostFinding {
+  key: string;
+  displayId: string;
+  title: string;
+  summary: string;
+  package: string;
+  version: string;
+  fixedIn: string | null;
+  severity: string;
+  signal: string | null;
+  kernelStatus: string | null;
+  isOtherKernel: boolean;
+  isOldKernel: boolean;
+  updates: Array<{ package: string; newVersion: string }>;
+  isOwnUpdate: boolean;
+  riskLabels: string[];
+  cvssScore: string | null;
+  kev: boolean;
+  likelihood: string | null;
+  aliases: string[];
+  advisoryUrl: string | null;
+}
+interface HostData {
+  hostScan: null | {
+    summary: Record<string, number | string> | null;
+    findingsTruncated: boolean;
+    scannedAt: { ago: string; title: string } | null;
+    error: string | null;
+    errorDetail: string | null;
+    eol: { name: string; version: string } | null;
+  };
+  hostScanRunning: boolean;
+  hostScanAvailable: boolean;
+  hasResult: boolean;
+  rebootRequired: boolean;
+  packageManager: string | null;
+  kernelStatusCounts: Record<string, number>;
+  otherKernelCount: number;
+  hasOldKernels: boolean;
+  runningKernel: string | null;
+  bootKernel: string | null;
+  hostFindingsCount: number;
+  shownCount: number;
+  items: Paged<HostFinding>;
+}
+interface ServerScanningData {
+  server: ServerInfo;
+  canUpdate: boolean;
+  scanning: ServerScanning;
+  settings: LevelSettings;
+  host: HostData;
+}
+
+/** <x-checkpoint-item> with its status. */
+function Checkpoint({ title, icon, status, description }: { title: string; icon: string; status: string; description: string }) {
+  const tone = status === "success" ? "text-success" : status === "error" ? "text-error" : status === "running" ? "text-warning" : "text-neutral-500 dark:text-fg-dim";
+  return (
+    <div className="flex min-h-14 items-center gap-3 px-4 py-3">
+      <span className={`flex size-8 shrink-0 items-center justify-center rounded-lg border border-neutral-200 bg-neutral-50 dark:border-white/[0.08] dark:bg-white/[0.035] ${tone}`}>
+        <Reicon name={icon} className="size-4" />
+      </span>
+      <span className="min-w-0">
+        <span className="block text-[13px] font-semibold">{title}</span>
+        <span className="mt-0.5 block text-[11px] text-neutral-500 dark:text-fg-faint">{description}</span>
+      </span>
+    </div>
+  );
+}
+
+/** server-image-scanning.blade.php: the Image scanning card — the switch, the scanner, its limits and the server's rules. */
+function ServerImageScanningCard({ data, run }: { data: ServerScanningData; run: Run }) {
+  const { server, canUpdate, scanning: sc, settings } = data;
+  const costText = scanCostText(sc.cpuLimit, sc.memoryLimit);
+  const checkpoints = scannerCheckpoints(sc.prepareState, sc.failedStep, sc.registries, sc.builtAt);
+  const cannotUpdate = !canUpdate;
+  const limit = (property: keyof ServerScanning["limits"], label: string, helper: string, options: Array<{ value: string; label: string }>) => (
+    <Listbox
+      id={property}
+      label={label}
+      disabled={cannotUpdate}
+      helper={helper}
+      options={options}
+      // A decimal column reads "1.00": the option of the same number is the current one.
+      value={options.find((o) => Number(o.value) === Number(sc.limits[property]))?.value ?? sc.limits[property]}
+      onChange={(value) => void run({ action: "limit", property, value })}
+    />
+  );
+  const actions = canUpdate ? (
+    <>
+      {sc.enabled && (sc.prepareState === null || sc.prepareState === "failed") ? <Button onClick={() => void run({ action: "prepareScanner" })}>{sc.prepareState === "failed" ? "Try again" : "Get scanner"}</Button> : null}
+      {!sc.enabled || sc.hasScannerData ? (
+        <ModalConfirmation
+          title="Delete scanner data?"
+          buttonTitle="Delete scanner data"
+          actions={["Freeploy removes the stored SBOMs, the vulnerability database, and the scanner images from this server.", "Scan results in Freeploy stay. The next scan gets the scanner again."]}
+          confirmationText={null}
+          step2ButtonText="Delete scanner data"
+          onSubmit={async () => {
+            await run({ action: "deleteScannerData" });
+          }}
+        />
+      ) : null}
+      <ModalConfirmation
+        key={sc.enabled ? "on" : "off"}
+        title={sc.enabled ? "Disable image scanning?" : "Enable image scanning?"}
+        trigger={<Button highlighted={!sc.enabled}>{sc.enabled ? "Disable" : "Enable"}</Button>}
+        warningMessage={sc.enabled ? "New deployments and running images on this server are no longer checked for vulnerabilities. You can enable it again at any time." : "Scans run on this server and use its resources. You can disable it again at any time."}
+        actions={sc.enabled ? ["Freeploy stops scanning the images and the operating system packages of this server.", "Scan results and scanner data on the server stay."] : [costText]}
+        confirmationText={null}
+        step2ButtonText={sc.enabled ? "Disable image scanning" : "Enable image scanning"}
+        onSubmit={async () => {
+          await run({ action: sc.enabled ? "disable" : "enable" });
+        }}
+      />
+    </>
+  ) : null;
+  return (
+    <SettingsSection id="server-image-scanning-section" title="Image scanning" helper={scanningSectionHelper(sc.toolVersions, sc.builtAt, sc.diskUsed, costText)} actions={actions}>
+      {!sc.enabled ? (
+        <Empty size="sm" iconName="shield-alert" title={`Image scanning is off for ${server.name}.`} description={costText}>
+          {!canUpdate ? <span className="text-[13px] text-neutral-500 dark:text-fg-faint">Ask a team admin to turn it on.</span> : null}
+        </Empty>
+      ) : sc.prepareState !== "ready" ? (
+        <div className="divide-y divide-neutral-200 rounded-lg border border-neutral-200 dark:divide-white/[0.08] dark:border-white/[0.08]">
+          <Checkpoint title="Get scanner" icon="download" status={checkpoints.pull.status} description={checkpoints.pull.description} />
+          <Checkpoint title="Update database" icon="database" status={checkpoints.database.status} description={checkpoints.database.description} />
+        </div>
+      ) : null}
+      <div className={!sc.enabled || sc.prepareState !== "ready" ? "mt-5 border-t border-neutral-200 pt-5 dark:border-white/[0.07]" : undefined}>
+        <SettingsSubsection
+          id="image-scan-limits-section"
+          title="Scanner limits"
+          helper="Limits of each scanner step on this server. Raise one when a scan stops because it took too long or ran out of memory. A new limit applies to the next scan."
+          first
+        >
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {limit("scannerSyftTimeout", "Syft time limit", "Time to export one local image from Docker, and time to list its packages. Large images and slow disks need more time.", sc.timeoutOptions)}
+            {limit("scannerGrypeTimeout", "Grype time limit", "Time to check the vulnerability database, and time to match the packages of one image with it. Slow disks need more time.", sc.timeoutOptions)}
+            {limit("scannerCpus", "Scanner CPU limit", "CPUs that each scanner step can use. Values above the CPU count of this server are not listed.", sc.cpuOptions)}
+            {limit("scannerMemoryMb", "Scanner memory limit", "Memory that each scanner step can use. Values above the memory of this server are not listed. The server must also have this much free memory when a scan runs.", sc.memoryOptions)}
+          </div>
+        </SettingsSubsection>
+        <div className="mt-5 border-t border-neutral-200 pt-5 dark:border-white/[0.07]">
+          <LevelSettingsView s={settings} run={run} embedded />
+        </div>
+      </div>
+    </SettingsSection>
+  );
+}
+
+/** host-vulnerabilities.blade.php: one finding, its row and its details. */
+function HostFindingRow({ f, runningKernel, canUpdate, run }: { f: HostFinding; runningKernel: string | null; canUpdate: boolean; run: Run }) {
+  const [open, setOpen] = useState(false);
+  const update = () => run({ action: "updateVulnerablePackage", package: f.package });
+  return (
+    <div className="border-b border-neutral-200 last:border-b-0 dark:border-white/[0.08]">
+      <div onClick={() => setOpen(!open)} className="data-table-row host-vulnerabilities-table-grid w-full cursor-pointer text-left hover:bg-neutral-50 dark:hover:bg-white/[0.03]">
+        <div className="flex min-w-0 items-start gap-1.5">
+          <Reicon name="chevron-down" className={`mt-0.5 size-3.5 shrink-0 text-neutral-500 transition-transform duration-150 dark:text-fg-faint ${open ? "rotate-0" : "-rotate-90"}`} />
+          <div className="min-w-0">
+            <p className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+              <button type="button" onClick={(e) => (e.stopPropagation(), setOpen(!open))} aria-expanded={open ? "true" : "false"} aria-label={`Show details of ${f.displayId}`} className="shrink-0 cursor-pointer font-mono text-[12px] text-neutral-950 dark:text-fg">
+                {f.displayId}
+              </button>
+              {f.signal === "exploited" ? <StatusBadge label="Exploited" type="error" /> : f.signal === "likely" ? <StatusBadge label="Likely exploited" type="warning" /> : null}
+            </p>
+            {f.title !== "" ? <p className="mt-0.5 truncate text-[11px] text-neutral-500 dark:text-fg-faint">{f.title}</p> : null}
+          </div>
+        </div>
+        <div className="min-w-0">
+          <p className="truncate font-mono text-[12px] text-neutral-700 dark:text-fg-dim">{f.package}</p>
+          <p className="mt-0.5 truncate text-[10px] text-neutral-500 dark:text-fg-faint">Installed: {f.version}</p>
+        </div>
+        <div className="flex min-w-0 flex-col items-start gap-1">
+          <span className="truncate font-mono text-[12px] text-neutral-700 dark:text-fg-dim">{f.fixedIn ?? "No fix yet"}</span>
+          {f.kernelStatus === "fixed_after_reboot" ? <StatusBadge label="Fix installed, reboot needed" type="warning" /> : f.isOldKernel ? <StatusBadge label="Kernel not running" type="neutral" /> : f.kernelStatus === "runs_after_reboot" ? <StatusBadge label="Runs after the reboot" type="neutral" /> : null}
+          {f.updates.length > 0 ? <StatusBadge label={f.isOwnUpdate ? `Update available: ${f.updates[0]!.newVersion}` : "Kernel update available"} type="success" /> : null}
+          {f.riskLabels.map((risk) => (
+            <span key={risk} className="flex items-center gap-1 text-[10px] text-neutral-500 dark:text-fg-faint">
+              <Reicon name="alert-triangle" className="size-3 shrink-0 text-red-500" />
+              {risk}
+            </span>
+          ))}
+        </div>
+        <div className="flex justify-end">
+          <SeverityBadge severity={f.severity} />
+        </div>
+        <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
+          {f.updates.length > 0 && canUpdate ? (
+            f.riskLabels.length > 0 ? (
+              <ModalConfirmation
+                title={`Update ${f.isOwnUpdate ? f.package : "the kernel"}?`}
+                buttonTitle="Update"
+                actions={[`Freeploy updates ${f.updates.map((u) => u.package).join(", ")}.`, ...f.riskLabels]}
+                warningMessage="Freeploy cannot roll back a package update. Check the update logs when it is done."
+                confirmationText={null}
+                step2ButtonText="Update"
+                onSubmit={async () => {
+                  await update();
+                }}
+              />
+            ) : (
+              <Button onClick={() => void update()}>Update</Button>
+            )
+          ) : null}
+        </div>
+      </div>
+      {open ? (
+        <dl className="grid grid-cols-[6.5rem_minmax(0,1fr)] gap-x-3 gap-y-1.5 px-4 pb-4 sm:grid-cols-[8rem_minmax(0,1fr)] sm:pl-9 text-[12px] text-neutral-700 dark:text-fg-dim">
+          {f.summary !== "" ? <dd className="col-span-2 mb-1 max-w-3xl leading-5">{f.summary}</dd> : null}
+          <dt className="text-neutral-500 dark:text-fg-faint">Package</dt>
+          <dd className="min-w-0 break-all font-mono">{f.package}</dd>
+          <dt className="text-neutral-500 dark:text-fg-faint">Installed</dt>
+          <dd className="min-w-0 break-all font-mono">{f.version}</dd>
+          <dt className="text-neutral-500 dark:text-fg-faint">Fixed in</dt>
+          <dd className="min-w-0 break-all font-mono">{f.fixedIn ?? "No fix yet"}</dd>
+          {f.updates.length > 0 ? (
+            <>
+              <dt className="text-neutral-500 dark:text-fg-faint">Update</dt>
+              <dd className="min-w-0 break-words">
+                {f.updates.map((u) => (
+                  <span key={u.package} className="block break-all font-mono">
+                    {u.package} {u.newVersion}
+                  </span>
+                ))}
+                {f.riskLabels.length > 0 ? <span className="block">{f.riskLabels.join(". ")}.</span> : null}
+              </dd>
+            </>
+          ) : null}
+          {f.kernelStatus !== null || f.isOtherKernel ? (
+            <>
+              <dt className="text-neutral-500 dark:text-fg-faint">Kernel</dt>
+              <dd className="min-w-0 break-words">
+                {f.kernelStatus === "fixed_after_reboot" ? (
+                  <>
+                    The server runs kernel <span className="font-mono">{runningKernel}</span>. The kernel that starts after a reboot has the fix. Reboot the server to use it.
+                  </>
+                ) : f.isOldKernel ? (
+                  <>
+                    No risk now: the server does not run this kernel (it runs <span className="font-mono">{runningKernel}</span>).
+                  </>
+                ) : (
+                  "This kernel is installed, but the server runs it only after a reboot."
+                )}
+              </dd>
+            </>
+          ) : null}
+          {f.cvssScore !== null ? (
+            <>
+              <dt className="text-neutral-500 dark:text-fg-faint">CVSS score</dt>
+              <dd>{f.cvssScore}</dd>
+            </>
+          ) : null}
+          {f.kev ? (
+            <>
+              <dt className="text-neutral-500 dark:text-fg-faint">Exploited</dt>
+              <dd>Attackers are using this, according to CISA.</dd>
+            </>
+          ) : f.likelihood !== null ? (
+            <>
+              <dt className="text-neutral-500 dark:text-fg-faint">Exploit likelihood</dt>
+              <dd>{f.likelihood}</dd>
+            </>
+          ) : null}
+          {f.aliases.length > 0 ? (
+            <>
+              <dt className="text-neutral-500 dark:text-fg-faint">Also known as</dt>
+              <dd className="min-w-0 break-all font-mono">{f.aliases.join(", ")}</dd>
+            </>
+          ) : null}
+          {f.advisoryUrl !== null ? (
+            <>
+              <dt className="text-neutral-500 dark:text-fg-faint">Advisory</dt>
+              <dd>
+                <a href={f.advisoryUrl} target="_blank" rel="noopener noreferrer" className="font-medium underline underline-offset-4">
+                  Open {f.displayId}
+                </a>
+              </dd>
+            </>
+          ) : null}
+        </dl>
+      ) : null}
+    </div>
+  );
+}
+
+/** HostVulnerabilities: the vulnerabilities in the operating system packages of the server, from the stored host scan. */
+function HostVulnerabilitiesSection({ data, state, setState, run, exportPath }: { data: ServerScanningData; state: HostState; setState: (s: HostState) => void; run: Run; exportPath: (format: string) => string }) {
+  const { server, canUpdate, host: h } = data;
+  const scan = h.hostScan;
+  const summary = scan?.summary ?? null;
+  const n = (k: string): number => Number(summary?.[k] ?? 0);
+  const hasFindings = h.hostFindingsCount > 0;
+  const fixedAfterReboot = h.kernelStatusCounts.fixed_after_reboot ?? 0;
+  const badges = (
+    <>
+      {scan?.error && !h.hostScanRunning ? <StatusBadge label="Scan failed" type="error" /> : null}
+      {summary ? (
+        <>
+          {(["critical", "high"] as const).map((severity) => (n(severity) > 0 ? <SeverityBadge key={severity} severity={severity} count={n(severity)} /> : null))}
+          {n("exploited") > 0 ? <StatusBadge label={`${n("exploited")} exploited`} type="error" /> : null}
+          {["critical", "high", "medium", "low", "unknown"].reduce((sum, k) => sum + n(k), 0) === 0 ? <StatusBadge label="No relevant problems" type="success" /> : null}
+        </>
+      ) : !h.hostScanAvailable ? (
+        <StatusBadge label="Off" type="neutral" />
+      ) : !h.hostScanRunning ? (
+        <StatusBadge label="Not scanned yet" type="neutral" />
+      ) : null}
+    </>
+  );
+  const actions =
+    hasFindings || h.hostScanAvailable ? (
+      <>
+        {hasFindings ? (
+          <>
+            <div className="w-56">
+              <TableSearch placeholder="Search by ID or package" value={state.search} onChange={(search) => setState(setHost(state, { search }))} />
+            </div>
+            <ExportMenu count={h.shownCount} noun="finding" withIds exportPath={exportPath} />
+          </>
+        ) : null}
+        {h.hostScanAvailable && canUpdate ? (
+          <Button disabled={h.hostScanRunning} onClick={() => void run({ action: "scanHostPackages" })}>
+            <Reicon name="refresh" className="size-3.5" />
+            Scan now
+          </Button>
+        ) : null}
+      </>
+    ) : null;
+  return (
+    <SettingsSection
+      id="server-host-vulnerabilities-section"
+      title="Vulnerabilities"
+      helper="Known vulnerabilities in the operating system packages of this server. Freeploy scans them with the image scanner every day and after a package update. Problems that the distribution does not fix are not shown."
+      flush
+      badges={badges}
+      actions={actions}
+    >
+      {!h.hostScanAvailable && scan === null ? (
+        <div className="p-4">
+          <Empty size="sm" iconName="shield-alert" title={`Image scanning is off for ${server.name}.`} description="Enable image scanning below to also scan the operating system packages of this server.">
+            <a className="text-[13px] font-medium underline" href="#server-image-scanning-section">
+              Image scanning settings
+            </a>
+          </Empty>
+        </div>
+      ) : (
+        <>
+          <div className="flex flex-col gap-3 p-4">
+            <div className="flex flex-wrap items-center gap-2 text-sm text-neutral-600 dark:text-fg-dim">
+              <span>
+                Last scan: {scan?.scannedAt ? <span title={scan.scannedAt.title}>{scan.scannedAt.ago}</span> : "never"}
+              </span>
+              {summary ? (
+                <>
+                  {n("medium") > 0 ? <SeverityBadge severity="medium" count={n("medium")} /> : null}
+                  {n("fixable") > 0 ? <StatusBadge label={`${n("fixable")} fixed by an update`} type="warning" /> : null}
+                </>
+              ) : null}
+            </div>
+            {hasFindings && (scan?.findingsTruncated || !h.hasResult) ? (
+              <p className="text-[12px] text-neutral-500 dark:text-fg-faint">
+                {scan?.findingsTruncated ? "Only the most important vulnerabilities of a larger result are shown. " : null}
+                {!h.hasResult ? 'Run "Check for updates" to see which packages have an update.' : null}
+              </p>
+            ) : null}
+            {h.rebootRequired ? (
+              <Callout type="warning" title="Reboot required">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <span>
+                    {fixedAfterReboot > 0 ? (
+                      <>
+                        The server runs kernel <span className="font-mono">{h.runningKernel}</span>, which has {fixedAfterReboot} listed {vulnerabilitiesWord(fixedAfterReboot)}. The fixed kernel <span className="font-mono">{h.bootKernel}</span> is installed and is the boot kernel. Reboot the server to start it.
+                      </>
+                    ) : h.runningKernel && h.bootKernel && h.bootKernel !== h.runningKernel ? (
+                      <>
+                        Kernel <span className="font-mono">{h.bootKernel}</span> is installed and starts after a reboot. The server now runs <span className="font-mono">{h.runningKernel}</span>. No listed vulnerability needs this reboot.
+                      </>
+                    ) : (
+                      "Some installed updates apply only after a reboot."
+                    )}
+                  </span>
+                  {canUpdate ? (
+                    <ModalConfirmation
+                      title="Reboot server?"
+                      buttonTitle="Reboot server"
+                      warningMessage="The containers on this server stop until the server is back."
+                      actions={["The server reboots in a few seconds.", "All containers on this server stop, and the containers with a restart policy start again after the reboot.", "The server is not reachable for a few minutes."]}
+                      confirmationText={server.name}
+                      confirmationLabel="Enter the server name to confirm"
+                      shortConfirmationLabel="Server name"
+                      step2ButtonText="Reboot server"
+                      onSubmit={async () => {
+                        await run({ action: "rebootServer" });
+                      }}
+                    />
+                  ) : null}
+                </div>
+              </Callout>
+            ) : null}
+            {h.otherKernelCount > 0 ? (
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-[12px] text-neutral-500 dark:text-fg-faint">
+                <span>{otherKernelsLine(h.otherKernelCount, state.showOtherKernels)}</span>
+                <button type="button" onClick={() => setState(setHost(state, { showOtherKernels: !state.showOtherKernels }))} className="cursor-pointer font-medium underline underline-offset-4">
+                  {state.showOtherKernels ? "Hide" : "Show"}
+                </button>
+                {h.hasOldKernels && canUpdate && removeUnusedSupported(h.packageManager) ? (
+                  <ModalConfirmation
+                    title="Remove unused packages?"
+                    buttonTitle="Remove old kernels"
+                    actions={["Removes packages that nothing needs anymore, and old kernels.", "The running kernel and the newest kernel stay installed."]}
+                    warningMessage="Freeploy cannot restore removed packages. Check the logs when it is done."
+                    confirmationText={null}
+                    step2ButtonText="Remove"
+                    onSubmit={async () => {
+                      await run({ action: "removeUnusedPackages" });
+                    }}
+                  />
+                ) : null}
+              </div>
+            ) : null}
+            {scan?.error ? (
+              <DangerCallout title="The last scan failed" className="">
+                {scan.error}
+                {canUpdate && scan.errorDetail ? <pre className="mt-2 max-h-48 overflow-auto whitespace-pre-wrap font-mono text-[11px]">{scan.errorDetail}</pre> : null}
+              </DangerCallout>
+            ) : null}
+            {scan?.eol ? (
+              <Callout type="warning" title="Operating system is end of life">
+                {scan.eol.name} {scan.eol.version} gets no security updates anymore. Upgrade the operating system of this server.
+              </Callout>
+            ) : null}
+            {scan?.scannedAt && !hasFindings ? <Empty size="sm" title="No relevant vulnerabilities" description="The installed packages have no critical, high, or exploited vulnerabilities." iconName="check-circle" /> : null}
+          </div>
+          {hasFindings && h.items.items.length === 0 ? (
+            <div className="border-t border-neutral-200 p-6 dark:border-white/[0.08]">
+              <Empty size="sm" title="No matching vulnerabilities" description="Try another ID or package, or clear the search." iconName="search" />
+            </div>
+          ) : hasFindings ? (
+            <div className="data-table">
+              <div className="data-table-header host-vulnerabilities-table-grid">
+                <Sort label="Vulnerability" asc="vulnerability_asc" desc="vulnerability_desc" sortBy={state.sortBy} onSort={(sortBy) => setState(setHost(state, { sortBy }))} />
+                <Sort label="Package" asc="package_asc" desc="package_desc" sortBy={state.sortBy} onSort={(sortBy) => setState(setHost(state, { sortBy }))} />
+                <Sort label="Fixed in" asc="fixed_asc" desc="fixed_desc" sortBy={state.sortBy} onSort={(sortBy) => setState(setHost(state, { sortBy }))} />
+                <div className="flex justify-end">
+                  <Sort label="Severity" asc="severity_asc" desc="severity_desc" first="desc" sortBy={state.sortBy} onSort={(sortBy) => setState(setHost(state, { sortBy }))} />
+                </div>
+                <span className="text-right">Action</span>
+              </div>
+              {h.items.items.map((f) => (
+                <HostFindingRow key={f.key} f={f} runningKernel={h.runningKernel} canUpdate={canUpdate} run={run} />
+              ))}
+              <Pagination paged={h.items} onPage={(page) => setState({ ...state, page })} onPerPage={(perPage) => setState(setHost(state, { perPage }))} />
+            </div>
+          ) : null}
+        </>
+      )}
+    </SettingsSection>
+  );
+}
+
+function ServerImageScanningContent() {
+  const { me } = useSignedIn();
+  const uuid = serverUuidFromPath();
+  const api = `/v1/organizations/${me.team?.id ?? ""}/deploy/servers/${encodeURIComponent(uuid)}/security/vulnerabilities`;
+  const [state, setState] = useState<HostState>(INITIAL_HOST);
+  const [data, setData] = useState<ServerScanningData | null>(null);
+  const load = useCallback(async () => {
+    const r = await getJson<ServerScanningData>(api + hostQuery(state));
+    if (!r.data) {
+      // mount(): a server of another team (or a page the caller may not open) is not found.
+      if (r.status === 404) window.location.replace("/servers");
+      return;
+    }
+    setData(r.data);
+  }, [api, state]);
+  useEffect(() => {
+    void load();
+  }, [load]);
+  useEffect(() => {
+    if (data) document.title = `${serverLimit(data.server.name, 10)} > Vulnerabilities | Freeploy`;
+  }, [data]);
+  const run = usePageRun(api, load);
+  if (!data) return null;
+  const exportPath = (format: string) => {
+    const q = hostQuery(state);
+    return `${api}/export${q}${q ? "&" : "?"}format=${format}`;
+  };
+  return (
+    <ServerWorkspace server={data.server} orgId={me.team?.id} active="security" activeSub="vulnerabilities" canUpdate={data.canUpdate}>
+      <div className="application-settings-form flex w-full min-w-0 flex-col gap-6">
+        <ServerImageScanningCard data={data} run={run} />
+        <HostVulnerabilitiesSection data={data} state={state} setState={setState} run={run} exportPath={exportPath} />
+      </div>
+    </ServerWorkspace>
+  );
+}
+
+export function ServerImageScanningPage() {
+  return (
+    <Layout title="Servers" href="/servers" navHref="/servers" documentTitle="Vulnerabilities">
+      <ServerImageScanningContent />
     </Layout>
   );
 }
