@@ -1,0 +1,13 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-117
+  title: "tests/deploy-core-worker: DP-103's GitLab Apps replay no longer takes a created row for a fixture row when its random uuid starts with y"
+spec:
+  goal: The GitLab Apps cases' after query (GL_AFTER in tests/deploy-core-worker/fixtures/api/cases.mjs) marked a row as the fixture's when its uuid started with 'y'. A row a case creates gets a random uuid, so about one run in 26 its uuid also started with 'y', its fixture_id read as its id instead of null, and "gitlab apps: create, every field, read:sensitive" failed. The fixture's GitLab Apps are y1paritygitlabapp0000001, y2paritygitlabapp0000002 and y3othergitlabapp00000003, so the query now matches uuid like 'y_%gitlabapp%', which no created row's uuid can. The goldens are unchanged (Coolify's emission recorded null for created rows); cases.json is regenerated from cases.mjs.
+  affects:
+    - tests/deploy-core-worker/**
+    - tasks/**
+  doneWhen:
+    - node cases.mjs regenerates cases.json byte for byte, and tests/deploy-core-worker passes with goldens.json unchanged
+  gates: []
