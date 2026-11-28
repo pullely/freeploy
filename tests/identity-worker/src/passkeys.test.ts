@@ -18,6 +18,23 @@ describe("passkeys", () => {
     expect(relyingParty({ ENVIRONMENT: "test" } as unknown as Env)).toBeNull();
   });
 
+  it("picks the console host the request comes from among DEPLOY_WEB_URL and DEPLOY_WEB_ALT_URLS, the primary otherwise", () => {
+    const both = { ...env, DEPLOY_WEB_URL: "https://stage.freeploy.io", DEPLOY_WEB_ALT_URLS: " https://freeploy-deploy-web-stage.example.workers.dev , not a url" } as unknown as Env;
+    expect(relyingParty(both, "https://stage.freeploy.io")).toEqual({ rpID: "stage.freeploy.io", origin: "https://stage.freeploy.io" });
+    expect(relyingParty(both, "https://freeploy-deploy-web-stage.example.workers.dev")).toEqual({ rpID: "freeploy-deploy-web-stage.example.workers.dev", origin: "https://freeploy-deploy-web-stage.example.workers.dev" });
+    expect(relyingParty(both, "https://evil.example")).toEqual({ rpID: "stage.freeploy.io", origin: "https://stage.freeploy.io" });
+    expect(relyingParty(both, null)).toEqual({ rpID: "stage.freeploy.io", origin: "https://stage.freeploy.io" });
+  });
+
+  it("offers sign-in options for the relying party of the request's Origin", async () => {
+    const both = { ...env, DEPLOY_WEB_URL: "https://app.freeploy.io", DEPLOY_WEB_ALT_URLS: "https://freeploy-deploy-web-prod.example.workers.dev" } as unknown as Env;
+    const from = (origin: string) => new Request("https://identity.internal/v1/auth/passkeys/login/options", { method: "POST", body: "{}", headers: { origin } });
+    const onDomain = (await (await handlePasskeyLoginOptions(from("https://app.freeploy.io"), both, "r")).json()) as { data: { options: { rpId: string } } };
+    const onWorkers = (await (await handlePasskeyLoginOptions(from("https://freeploy-deploy-web-prod.example.workers.dev"), both, "r")).json()) as { data: { options: { rpId: string } } };
+    expect(onDomain.data.options.rpId).toBe("app.freeploy.io");
+    expect(onWorkers.data.options.rpId).toBe("freeploy-deploy-web-prod.example.workers.dev");
+  });
+
   it("offers sign-in options for any credential on the relying party, with sealed state", async () => {
     const res = await handlePasskeyLoginOptions(post("/v1/auth/passkeys/login/options", {}), env, "r");
     const body = (await res.json()) as { data: { options: { rpId: string; challenge: string; allowCredentials?: unknown[] }; state: string } };

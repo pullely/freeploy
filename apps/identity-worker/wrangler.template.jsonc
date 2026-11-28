@@ -43,7 +43,8 @@
     },
     "stage": {
       "vars": {
-        "DEPLOY_WEB_URL": "https://freeploy-deploy-web-stage.nexo-7be.workers.dev",
+        "DEPLOY_WEB_URL": "https://stage.freeploy.io",
+        "DEPLOY_WEB_ALT_URLS": "https://freeploy-deploy-web-stage.nexo-7be.workers.dev",
         "REQUIRE_EMAIL_VERIFICATION": "false",
         "ENVIRONMENT": "stage",
         "DEBUG_DELIVERY": "true",
@@ -76,7 +77,8 @@
     },
     "prod": {
       "vars": {
-        "DEPLOY_WEB_URL": "https://freeploy-deploy-web-prod.nexo-7be.workers.dev",
+        "DEPLOY_WEB_URL": "https://app.freeploy.io",
+        "DEPLOY_WEB_ALT_URLS": "https://freeploy-deploy-web-prod.nexo-7be.workers.dev",
         "REQUIRE_EMAIL_VERIFICATION": "false",
         "ENVIRONMENT": "prod",
         "DEBUG_DELIVERY": "false",

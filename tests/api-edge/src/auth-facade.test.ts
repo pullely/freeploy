@@ -681,6 +681,20 @@ describe("api-edge auth facade", () => {
       expect(calls[0]!.url).toContain("?code=abc&state=xyz");
     });
 
+    it("forwards the Origin header, which the passkey handlers pick the relying party by", async () => {
+      const { fetcher, calls } = createFakeFetcher();
+      const request = new Request("https://api.example.com/v1/auth/passkeys/login/options", {
+        method: "POST",
+        headers: { origin: "https://app.freeploy.io", "content-type": "application/json" },
+        body: "{}",
+      });
+
+      await handleAuthRoute(request, { IDENTITY_WORKER: fetcher, ENVIRONMENT: "test" }, "req_pk", "/v1/auth/passkeys/login/options");
+
+      const forwarded = new Headers(calls[0]!.init.headers as HeadersInit);
+      expect(forwarded.get("origin")).toBe("https://app.freeploy.io");
+    });
+
     it("passes a 302 redirect (Location + Set-Cookie) back to the caller", async () => {
       const downstream = new Response(null, {
         status: 302,

@@ -11,8 +11,10 @@
 //   POST   /v1/auth/passkeys/login/options                          sign-in options
 //   POST   /v1/auth/passkeys/login      { state, response }         sign in (skips 2FA)
 //
-// The relying party is deploy-web's host (DEPLOY_WEB_URL); the WebAuthn
-// challenge travels sealed in `state`, so no challenge table is needed.
+// The relying party is deploy-web's host: DEPLOY_WEB_URL, or one of
+// DEPLOY_WEB_ALT_URLS when the request comes from it (a passkey is bound to
+// the host it was made on). The WebAuthn challenge travels sealed in
+// `state`, so no challenge table is needed.
 import type { Env } from "../env.js";
 import { createSqlExecutor } from "@saas/db/hyperdrive";
 import { createIdentityRepository, createPasskeyStore, createPasswordStore, createTwoFactorStore } from "@saas/db/identity";
@@ -50,10 +52,21 @@ const STATE_SECONDS = 300;
 const b64url = (b: Uint8Array) => btoa(String.fromCharCode(...b)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 const unb64url = (s: string) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0));
 
-export function relyingParty(env: Env): { rpID: string; origin: string } | null {
+export function relyingParty(env: Env, requestOrigin?: string | null): { rpID: string; origin: string } | null {
   if (!env.DEPLOY_WEB_URL) return null;
-  const u = new URL(env.DEPLOY_WEB_URL);
-  return { rpID: u.hostname, origin: u.origin };
+  const primary = new URL(env.DEPLOY_WEB_URL);
+  const candidates = [primary];
+  for (const raw of (env.DEPLOY_WEB_ALT_URLS ?? "").split(",")) {
+    const value = raw.trim();
+    if (!value) continue;
+    try {
+      candidates.push(new URL(value));
+    } catch {
+      /* a malformed entry is ignored */
+    }
+  }
+  const chosen = (requestOrigin && candidates.find((u) => u.origin === requestOrigin)) || primary;
+  return { rpID: chosen.hostname, origin: chosen.origin };
 }
 
 async function readJson(request: Request): Promise<Record<string, unknown>> {
@@ -102,7 +115,7 @@ export function handlePasskeyList(request: Request, env: Env, requestId: string)
 
 export function handlePasskeyOptions(request: Request, env: Env, requestId: string): Promise<Response> {
   return signedIn(request, env, requestId, async (s, db) => {
-    const rp = relyingParty(env);
+    const rp = relyingParty(env, request.headers.get("origin"));
     if (!rp) return errorResponse("unavailable", "Passkeys are not available.", 503, requestId);
     const at = await createTwoFactorStore(db).passwordConfirmedAt(s.sessionId);
     if (!at || Date.now() - at.getTime() >= PASSWORD_TIMEOUT_SECONDS * 1000) {
@@ -127,7 +140,7 @@ export function handlePasskeyOptions(request: Request, env: Env, requestId: stri
 
 export function handlePasskeyAdd(request: Request, env: Env, requestId: string): Promise<Response> {
   return signedIn(request, env, requestId, async (s, db) => {
-    const rp = relyingParty(env);
+    const rp = relyingParty(env, request.headers.get("origin"));
     if (!rp) return errorResponse("unavailable", "Passkeys are not available.", 503, requestId);
     const body = await readJson(request);
     const name = typeof body.name === "string" ? body.name.trim() : "";
@@ -185,8 +198,8 @@ export function handlePasskeyDelete(request: Request, env: Env, requestId: strin
   });
 }
 
-export async function handlePasskeyLoginOptions(_request: Request, env: Env, requestId: string): Promise<Response> {
-  const rp = relyingParty(env);
+export async function handlePasskeyLoginOptions(request: Request, env: Env, requestId: string): Promise<Response> {
+  const rp = relyingParty(env, request.headers.get("origin"));
   if (!rp) return errorResponse("unavailable", "Passkeys are not available.", 503, requestId);
   const options = await generateAuthenticationOptions({ rpID: rp.rpID, userVerification: "preferred" });
   const key = await loadKey(env.IDENTITY_ENCRYPTION_KEY);
@@ -197,7 +210,7 @@ export async function handlePasskeyLoginOptions(_request: Request, env: Env, req
 const LOGIN_FAILED = "The passkey could not be verified.";
 
 export async function handlePasskeyLogin(request: Request, env: Env, requestId: string): Promise<Response> {
-  const rp = relyingParty(env);
+  const rp = relyingParty(env, request.headers.get("origin"));
   if (!rp || !env.PLATFORM_DB) return errorResponse("unavailable", "Passkeys are not available.", 503, requestId);
   const body = await readJson(request);
   const response = body.response as AuthenticationResponseJSON | undefined;

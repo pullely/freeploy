@@ -33,6 +33,13 @@ export interface Env {
   OAUTH_ALLOWED_CONSOLE_ORIGINS?: string;
   /** The console (deploy-web) origin password-reset links point at. Never taken from a request. */
   DEPLOY_WEB_URL?: string;
+  /**
+   * Comma-separated further console origins that are passkey relying parties
+   * too (the workers.dev host beside the custom domain), so a passkey made on
+   * either keeps working there. Chosen only when the request's Origin is one
+   * of them; DEPLOY_WEB_URL otherwise.
+   */
+  DEPLOY_WEB_ALT_URLS?: string;
   /** 32 bytes base64: seals 2FA secrets, recovery codes and sign-in challenges (DP3). */
   IDENTITY_ENCRYPTION_KEY?: string;
   /**
