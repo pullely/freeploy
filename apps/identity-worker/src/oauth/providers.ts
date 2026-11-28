@@ -87,7 +87,9 @@ export function listEnabledProviderInfos(env: Env): OAuthProviderInfo[] {
   for (const id of Object.keys(PROVIDERS)) {
     if (getConfiguredProvider(env, id)) {
       const provider = PROVIDERS[id]!;
-      infos.push({ id: provider.id, displayName: provider.displayName });
+      // `start` on the callback's host, so its state cookie reaches the callback.
+      const base = getRedirectBaseOrigin(env)!;
+      infos.push({ id: provider.id, displayName: provider.displayName, startUrl: `${base}/v1/auth/oauth/${provider.id}/start` });
     }
   }
   return infos;

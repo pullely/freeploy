@@ -1,0 +1,17 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-122
+  title: "DP3: sign in with GitHub and Google on the Freeploy console — Coolify's login buttons, /auth/{provider}/redirect and /auth/{provider}/callback, on identity-worker's OAuth flow with its callback on the API's custom domain"
+spec:
+  goal: deploy-web's /login shows Coolify's "Or continue with" section with a "Login with GitHub" / "Login with Google" button for each provider GET /v1/auth/oauth/providers lists (only fully configured ones). /auth/{provider}/redirect (routes/web.php auth.redirect) sends the browser to the provider's startUrl with return_to the console's /auth/{provider}/callback (auth.callback), which stores the session from the fragment the identity worker's callback hands back, or returns to /login with Coolify's auth.failed message. The provider list gains startUrl, the start route on OAUTH_REDIRECT_BASE_URL's host, so the SameSite=Lax state cookie set by start is first-party to the callback whichever console host the user is on. OAUTH_REDIRECT_BASE_URL becomes https://api-stage.freeploy.io / https://api.freeploy.io and OAUTH_ALLOWED_CONSOLE_ORIGINS adds the Freeploy console's workers.dev host. The client secrets and OAUTH_STATE_SECRET are set with orun secrets set (identity-worker's optionalSecretEnv / runtimeSecrets already carry them); until they are, no button shows.
+  affects:
+    - apps/deploy-web/**
+    - apps/identity-worker/**
+    - packages/contracts/**
+    - tests/identity-worker/**
+    - tasks/**
+  doneWhen:
+    - apps/deploy-web/test/oauth-login.test.ts holds the labels, start URL, callback fragment, error messages and routes; tests/identity-worker holds each provider's startUrl on the callback host
+    - once GITHUB_OAUTH_CLIENT_SECRET, GOOGLE_OAUTH_CLIENT_SECRET and OAUTH_STATE_SECRET are set and identity-worker redeploys, GET https://api.freeploy.io/v1/auth/oauth/providers lists github and google, and https://app.freeploy.io/login signs in with each
+  gates: []

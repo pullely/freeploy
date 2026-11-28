@@ -11,6 +11,8 @@ export interface LoginMarkupProps {
   onPasskey: () => void;
   passkeyLoading: boolean;
   passkeyError: string | null;
+  /** DP-122: @if ($enabled_oauth_providers->isNotEmpty()) — the "Or continue with" section, after the passkey button. */
+  oauth?: ReactNode;
 }
 
 export function LoginMarkup(props: LoginMarkupProps) {
@@ -90,6 +92,7 @@ export function LoginMarkup(props: LoginMarkupProps) {
                     </div>
                   </div></>) : null}
                 </div>
+                {props.oauth}
               </div>
             </div>
             {" "}
