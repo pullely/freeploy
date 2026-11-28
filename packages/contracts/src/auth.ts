@@ -87,6 +87,13 @@ export interface OAuthProviderInfo {
   id: string;
   /** Human-readable label for the sign-in button, e.g. "GitHub". */
   displayName: string;
+  /**
+   * Where the console sends the browser to begin: `start` on the host the
+   * provider calls back to (OAUTH_REDIRECT_BASE_URL), so the state cookie set
+   * by `start` is first-party to the callback whichever console host the user
+   * is on. Append `?return_to=<console callback URL>`.
+   */
+  startUrl?: string;
 }
 
 export interface OAuthProvidersResponse {

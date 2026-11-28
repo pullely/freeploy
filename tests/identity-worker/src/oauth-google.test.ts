@@ -113,4 +113,18 @@ describe("provider enablement", () => {
     };
     expect(listEnabledProviderInfos(configured).map((p) => p.id)).toContain("google");
   });
+
+  it("gives each provider its start URL on the callback host (DP-122), so the state cookie reaches the callback", () => {
+    const configured: Env = {
+      ...base,
+      GITHUB_OAUTH_CLIENT_ID: "gh-cid",
+      GITHUB_OAUTH_CLIENT_SECRET: "gh-secret",
+      GOOGLE_OAUTH_CLIENT_ID: "cid.apps.googleusercontent.com",
+      GOOGLE_OAUTH_CLIENT_SECRET: "gsecret",
+    };
+    expect(listEnabledProviderInfos(configured)).toEqual([
+      { id: "github", displayName: "GitHub", startUrl: "https://api.example.com/v1/auth/oauth/github/start" },
+      { id: "google", displayName: "Google", startUrl: "https://api.example.com/v1/auth/oauth/google/start" },
+    ]);
+  });
 });

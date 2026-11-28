@@ -41,3 +41,25 @@ export function takeNotice(): string | null {
     return null;
   }
 }
+
+// A failed sign-in with a provider (DP-122): Coolify redirects to /login with
+// the error in the session; the login page shows it once in its error alert.
+const OAUTH_ERROR_KEY = "freeploy.flash.oauth-error";
+
+export function flashOAuthError(message: string): void {
+  try {
+    sessionStorage.setItem(OAUTH_ERROR_KEY, message);
+  } catch {
+    /* storage blocked: the message is skipped */
+  }
+}
+
+export function takeOAuthError(): string | null {
+  try {
+    const v = sessionStorage.getItem(OAUTH_ERROR_KEY);
+    sessionStorage.removeItem(OAUTH_ERROR_KEY);
+    return v;
+  } catch {
+    return null;
+  }
+}

@@ -6,8 +6,9 @@ import { useEffect, useState, type FormEvent } from "react";
 import { browserSupportsWebAuthn, browserSupportsWebAuthnAutofill, startAuthentication } from "@simplewebauthn/browser";
 import { LoginMarkup } from "./generated/LoginMarkup";
 import { AuthAlert, ErrorList } from "../components/AuthAlert";
-import { takeStatus } from "../lib/flash";
-import { postJson, storeSession } from "../lib/api";
+import { takeOAuthError, takeStatus } from "../lib/flash";
+import { getJson, postJson, storeSession } from "../lib/api";
+import { loginLabel, type OAuthLoginProvider } from "../lib/oauth-login";
 import { CHALLENGE_KEY } from "./TwoFactorChallenge";
 
 type Options = Parameters<typeof startAuthentication>[0]["optionsJSON"];
@@ -52,9 +53,40 @@ function usePasskeySignIn() {
   return { supported, loading, error, verify };
 }
 
+/**
+ * @if ($enabled_oauth_providers->isNotEmpty()): "Or continue with" and a
+ * button per provider, each to /auth/{provider}/redirect (DP-122).
+ */
+function OAuthButtons({ providers }: { providers: OAuthLoginProvider[] }) {
+  if (providers.length === 0) return null;
+  return (
+    <>
+      <div className="auth-divider">
+        <span>Or continue with</span>
+      </div>
+      <div className="flex flex-col gap-2">
+        {providers.map((p) => (
+          <button key={p.id} className="button w-full justify-center" type="button" onClick={() => window.location.assign(`/auth/${encodeURIComponent(p.id)}/redirect`)}>
+            <img className="size-5 shrink-0 dark:invert" src={`/svgs/${p.id}.svg`} alt="" aria-hidden="true" />
+            {loginLabel(p)}
+          </button>
+        ))}
+      </div>
+    </>
+  );
+}
+
 export function LoginPage() {
   const passkey = usePasskeySignIn();
-  const [errors, setErrors] = useState<string[]>([]);
+  // A failed provider sign-in comes back here with its message (DP-122).
+  const [errors, setErrors] = useState<string[]>(() => {
+    const oauthError = takeOAuthError();
+    return oauthError ? [oauthError] : [];
+  });
+  const [providers, setProviders] = useState<OAuthLoginProvider[]>([]);
+  useEffect(() => {
+    void getJson<{ providers: OAuthLoginProvider[] }>("/v1/auth/oauth/providers").then((res) => setProviders(res.data?.providers ?? []));
+  }, []);
   // Laravel's session('status'), e.g. after a password reset.
   const [status] = useState<string | null>(() => takeStatus());
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
@@ -92,6 +124,7 @@ export function LoginPage() {
       onPasskey={() => void passkey.verify()}
       passkeyLoading={passkey.loading}
       passkeyError={passkey.error}
+      oauth={<OAuthButtons providers={providers} />}
     />
   );
 }

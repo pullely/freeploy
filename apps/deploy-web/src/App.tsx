@@ -1,6 +1,7 @@
 import { pageFor, backupScheduleRedirect, scheduledTaskRedirect, backupLinkRedirect, securitySectionRedirect } from "./routes";
 import { LoginPage } from "./pages/Login";
 import { RegisterPage } from "./pages/Register";
+import { OAuthCallbackPage, OAuthRedirectPage } from "./pages/OAuthLogin";
 import { ForgotPasswordPage } from "./pages/ForgotPassword";
 import { ResetPasswordPage } from "./pages/ResetPassword";
 import { ConfirmPasswordPage } from "./pages/ConfirmPassword";
@@ -169,6 +170,11 @@ export function App() {
   switch (pageFor(window.location.pathname)) {
     case "login":
       return <LoginPage />;
+    // DP-122: sign in with GitHub or Google.
+    case "auth.redirect":
+      return <OAuthRedirectPage />;
+    case "auth.callback":
+      return <OAuthCallbackPage />;
     case "register":
       return <RegisterPage />;
     case "forgot-password":
