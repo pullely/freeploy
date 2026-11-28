@@ -1,0 +1,17 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-121
+  title: "Passkeys on freeploy.io: identity-worker's relying party follows the console host the browser is on (the custom domain, or its workers.dev host), and its console links use the custom domain"
+spec:
+  goal: After DP-120 put the console on app.freeploy.io and stage.freeploy.io, "Sign In With A Passkey" failed with 'The RP ID "freeploy-deploy-web-prod.nexo-7be.workers.dev" is invalid for this domain', because identity-worker took the WebAuthn relying party from DEPLOY_WEB_URL, still the workers.dev console. DEPLOY_WEB_URL becomes the custom domain (so password-reset and email-verification links point there too), DEPLOY_WEB_ALT_URLS lists the workers.dev console, and relyingParty() picks the one matching the request's Origin (the primary otherwise) for registration options, registration, sign-in options and sign-in, so a passkey made on either host keeps working there. api-edge's auth facade forwards Origin; WebAuthn still verifies the origin signed into clientDataJSON against the chosen relying party, and only configured console origins are ever chosen.
+  affects:
+    - apps/identity-worker/**
+    - apps/api-edge/src/auth-facade.ts
+    - tests/identity-worker/**
+    - tests/api-edge/**
+    - tasks/**
+  doneWhen:
+    - tests/identity-worker/src/passkeys.test.ts holds the relying party chosen by Origin (custom domain, workers.dev, an unknown origin and none) and the sign-in options' rpId per Origin; tests/api-edge/src/auth-facade.test.ts holds Origin forwarded to identity-worker
+    - on prod after the merge, https://app.freeploy.io/login's "Sign In With A Passkey" offers rpId app.freeploy.io and no longer shows the RP ID error
+  gates: []

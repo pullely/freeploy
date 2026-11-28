@@ -70,6 +70,11 @@ const FORWARDED_HEADERS = [
   // Forwarded so the OAuth callback can read the state cookie set by `start`
   // (double-submit CSRF defense). Cookies are first-party to api-edge.
   "cookie",
+  // Forwarded so the passkey handlers can pick the relying party the browser
+  // is on (the console's custom domain or its workers.dev host). WebAuthn
+  // still checks the origin signed into clientDataJSON, and identity-worker
+  // accepts only the console origins it is configured with.
+  "origin",
 ];
 
 /**
