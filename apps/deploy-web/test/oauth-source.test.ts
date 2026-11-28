@@ -24,8 +24,8 @@ test("selectProvider(): Gitea.com and Codeberg fill in their URLs and the defaul
 test("getOAuthUrl(): PHP's http_build_query() of the client id, redirect URI, scopes and state (php -r, coolify@91b7e3e's PHP 8.3)", () => {
   // php -r 'echo "https://gitlab.acme.test/oauth/authorize?".http_build_query(["client_id"=>"gl client~1","redirect_uri"=>"…","response_type"=>"code","scope"=>"api read_user read_repository","state"=>"a.b-c_d"]);'
   assert.equal(
-    oauthAuthorizeUrl("gitlab", { htmlUrl: "https://gitlab.acme.test/", clientId: "gl client~1", redirectUri: "https://app.freeploy.dev/webhooks/source/gitlab/redirect", state: "a.b-c_d" }),
-    "https://gitlab.acme.test/oauth/authorize?client_id=gl+client%7E1&redirect_uri=https%3A%2F%2Fapp.freeploy.dev%2Fwebhooks%2Fsource%2Fgitlab%2Fredirect&response_type=code&scope=api+read_user+read_repository&state=a.b-c_d",
+    oauthAuthorizeUrl("gitlab", { htmlUrl: "https://gitlab.acme.test/", clientId: "gl client~1", redirectUri: "https://app.freeploy.io/webhooks/source/gitlab/redirect", state: "a.b-c_d" }),
+    "https://gitlab.acme.test/oauth/authorize?client_id=gl+client%7E1&redirect_uri=https%3A%2F%2Fapp.freeploy.io%2Fwebhooks%2Fsource%2Fgitlab%2Fredirect&response_type=code&scope=api+read_user+read_repository&state=a.b-c_d",
   );
   // A null value is left out, as http_build_query() leaves it.
   assert.equal(
@@ -39,6 +39,6 @@ test("getOAuthUrl(): PHP's http_build_query() of the client id, redirect URI, sc
 test("Step 1's link and the webhook URL", () => {
   assert.equal(oauthApplicationsUrl("gitlab", "https://gitlab.com/"), "https://gitlab.com/-/profile/applications");
   assert.equal(oauthApplicationsUrl("gitea", "https://codeberg.org"), "https://codeberg.org/user/settings/applications");
-  assert.equal(oauthWebhookUrl("gitlab", "https://api.freeploy.dev/"), "https://api.freeploy.dev/webhooks/source/gitlab/events");
+  assert.equal(oauthWebhookUrl("gitlab", "https://api.freeploy.io/"), "https://api.freeploy.io/webhooks/source/gitlab/events");
   assert.equal(oauthWebhookUrl("gitea", "http://127.0.0.1:8787"), "http://127.0.0.1:8787/webhooks/source/gitea/events");
 });

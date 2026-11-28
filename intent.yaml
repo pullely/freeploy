@@ -155,17 +155,23 @@ environments:
         owner: sourceplane
         repo: freeploy
         CONSOLE_CUSTOM_DOMAIN: ""
+        API_CUSTOM_DOMAIN: ""
     policies:
       requireApproval: "false"
     env:
-      BASE_DOMAIN: freeploy.dev
+      BASE_DOMAIN: freeploy.io
 
   stage:
     description: The fleet, the API edge and the console, deployed on every merge to main before prod.
-    url: https://freeploy-web-console-next-stage.nexo-7be.workers.dev
+    # The Freeploy console (deploy-web) on its custom domain, attached by
+    # infra/terraform/cloudflare-domain. Keep it in step with
+    # CONSOLE_CUSTOM_DOMAIN below.
+    url: https://stage.freeploy.io
     links:
-      - { title: API, url: https://freeploy-api-edge-stage.nexo-7be.workers.dev }
-      - { title: Health, url: https://freeploy-api-edge-stage.nexo-7be.workers.dev/health }
+      - { title: API, url: https://api-stage.freeploy.io }
+      - { title: Health, url: https://api-stage.freeploy.io/health }
+      - { title: Console (workers.dev), url: https://freeploy-deploy-web-stage.nexo-7be.workers.dev }
+      - { title: Admin console, url: https://freeploy-web-console-next-stage.nexo-7be.workers.dev }
     activation:
       triggerRefs:
         - github-pull-request
@@ -178,18 +184,24 @@ environments:
         namespacePrefix: stg-
         owner: sourceplane
         repo: freeploy
-        CONSOLE_CUSTOM_DOMAIN: stage.freeploy.dev
+        CONSOLE_CUSTOM_DOMAIN: stage.freeploy.io
+        API_CUSTOM_DOMAIN: api-stage.freeploy.io
     policies:
       requireApproval: "false"
     env:
-      BASE_DOMAIN: freeploy.dev
+      BASE_DOMAIN: freeploy.io
 
   prod:
     description: Where customers are. Deploys after stage converges on the same commit.
-    url: https://freeploy-web-console-next-prod.nexo-7be.workers.dev
+    # The Freeploy console (deploy-web) on its custom domain, attached by
+    # infra/terraform/cloudflare-domain. Keep it in step with
+    # CONSOLE_CUSTOM_DOMAIN below.
+    url: https://app.freeploy.io
     links:
-      - { title: API, url: https://freeploy-api-edge-prod.nexo-7be.workers.dev }
-      - { title: Health, url: https://freeploy-api-edge-prod.nexo-7be.workers.dev/health }
+      - { title: API, url: https://api.freeploy.io }
+      - { title: Health, url: https://api.freeploy.io/health }
+      - { title: Console (workers.dev), url: https://freeploy-deploy-web-prod.nexo-7be.workers.dev }
+      - { title: Admin console, url: https://freeploy-web-console-next-prod.nexo-7be.workers.dev }
     activation:
       triggerRefs:
         - github-pull-request
@@ -205,11 +217,12 @@ environments:
         namespacePrefix: prod-
         owner: sourceplane
         repo: freeploy
-        CONSOLE_CUSTOM_DOMAIN: prod.freeploy.dev
+        CONSOLE_CUSTOM_DOMAIN: app.freeploy.io
+        API_CUSTOM_DOMAIN: api.freeploy.io
     policies:
       requireApproval: "false"
     env:
-      BASE_DOMAIN: freeploy.dev
+      BASE_DOMAIN: freeploy.io
 
 # Repo-level catalog entity: front page + role-tagged docs (rendered in
 # the workspace Docs library, pinned to the commit by `orun plan`).

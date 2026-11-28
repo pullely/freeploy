@@ -3,7 +3,7 @@ kind: Component
 
 metadata:
   name: cloudflare-domain
-  description: Manages the Cloudflare zone and attaches custom domains to environment-specific Worker services (web-console-next)
+  description: Adopts the freeploy.io Cloudflare zone and attaches the Freeploy console (deploy-web) and API (api-edge) custom domains to each environment's Workers
   labels:
     domain: infra
     scope: dns-and-custom-domains
@@ -24,14 +24,18 @@ spec:
     stackName: cloudflare-domain
     terraformDir: terraform
     terraformVersion: "1.15.3"
-    baseDomain: freeploy.dev
+    baseDomain: freeploy.io
     zoneMode: existing
-    workerNamePrefix: freeploy-web-console-next
+    workerNamePrefix: freeploy-deploy-web
+    apiWorkerNamePrefix: freeploy-api-edge
+    # `API_CUSTOM_DOMAIN` is likewise NOT declared here, for the same reason
+    # as CONSOLE_CUSTOM_DOMAIN below: it is per-environment in `intent.yaml`
+    # (dev: "", stage: api-stage.freeploy.io, prod: api.freeploy.io).
     # NOTE: `CONSOLE_CUSTOM_DOMAIN` is intentionally NOT declared here.
     # It is supplied per-environment via
     # `environments.{dev,stage,prod}.parameterDefaults.terraform.CONSOLE_CUSTOM_DOMAIN`
-    # in `intent.yaml` (dev: "", stage: stage.freeploy.dev,
-    # prod: prod.freeploy.dev) and surfaced to Terraform as
+    # in `intent.yaml` (dev: "", stage: stage.freeploy.io,
+    # prod: app.freeploy.io) and surfaced to Terraform as
     # `TF_VAR_CONSOLE_CUSTOM_DOMAIN` by the generic `.parameters` →
     # `TF_VAR_<key>` loop in the cloudflare-domain-validate job template.
     # Declaring a default here would shadow the parameterDefault override
@@ -41,31 +45,43 @@ spec:
     # variable itself already defaults to "" in
     # `terraform/variables.tf`, so absence here is safe for dev.
 
-  dependsOn:
-    - component: web-console-next
+  # The Cloudflare Terraform provider authenticates via the CLOUDFLARE_API_TOKEN
+  # env var, resolved by orun from the brokered secret (fresh per run), exactly
+  # as cloudflare-kv and cloudflare-hyperdrive do. Declared at component level
+  # because plan-only lanes look the zone up against the live API too.
+  secretEnv:
+    CLOUDFLARE_API_TOKEN: "secret://ws_65T3WPCP/freeploy/{{ .environment }}/CLOUDFLARE_API_TOKEN"
+    CLOUDFLARE_ACCOUNT_ID: "secret://ws_65T3WPCP/freeploy/{{ .environment }}/CLOUDFLARE_ACCOUNT_ID"
+    TF_VAR_cloudflare_account_id: "secret://ws_65T3WPCP/freeploy/{{ .environment }}/CLOUDFLARE_ACCOUNT_ID"
 
-  # PARKED — no environment subscriptions, so no jobs are planned. The zone
-  # this stack manages (baseDomain freeploy.dev) is not delegated to Cloudflare
-  # and does not exist in the connected account (the domain is parked at
-  # dns.ws — a rebrand artifact), so `data.cloudflare_zone.existing` fails
-  # every plan with "no zone found". Restore the subscribe block below once
-  # the zone exists in the account (and finish the 0085b v5 re-import).
-  #
-  # subscribe:
-  #   environments:
-  #     - name: stage
-  #       profile: plan-only
-  #       profileRules:
-  #         - profile: apply
-  #           when:
-  #             triggerRef: github-push-main
-  #
-  #     - name: prod
-  #       profile: plan-only
-  #       profileRules:
-  #         - profile: apply
-  #           when:
-  #             triggerRef: github-push-main
+  # The attach needs both Workers to exist in the environment first.
+  dependsOn:
+    - component: deploy-web
+    - component: api-edge
+
+  # Unparked (DP-120): freeploy.io is delegated to Cloudflare (curt/jule
+  # .ns.cloudflare.com) and the zone is in the account, so the zone lookup
+  # resolves. Pull requests plan; a merge to main applies.
   subscribe:
-    environments: []
-# ci: trigger full-component verification (orun v2.12.0 upgrade — PR #183)
+    environments:
+      - name: stage
+        dependencyRules: # PRs don't wait on other lanes (intent.yaml, environments)
+          - mode: advisory
+            when:
+              triggerRef: github-pull-request
+        profile: plan-only
+        profileRules:
+          - profile: apply
+            when:
+              triggerRef: github-push-main
+
+      - name: prod
+        dependencyRules: # PRs don't wait on other lanes (intent.yaml, environments)
+          - mode: advisory
+            when:
+              triggerRef: github-pull-request
+        profile: plan-only
+        profileRules:
+          - profile: apply
+            when:
+              triggerRef: github-push-main

@@ -1,10 +1,14 @@
 // The console talks to api-edge. On workers.dev the edge is the same host with
-// "deploy-web" replaced by "api-edge"; on a custom domain it is api.<domain>.
+// "deploy-web" replaced by "api-edge"; on a custom domain it is api.<domain>
+// for app.<domain> and api-stage.<domain> for stage.<domain> (the hostnames
+// infra/terraform/cloudflare-domain attaches: app/api.freeploy.io and
+// stage/api-stage.freeploy.io).
 const SESSION_KEY = "freeploy.session";
 
 export function edgeBase(host = window.location.host): string {
   if (host.includes("deploy-web")) return `https://${host.replace("deploy-web", "api-edge")}`;
   if (host.startsWith("app.")) return `https://api.${host.slice(4)}`;
+  if (host.startsWith("stage.")) return `https://api-stage.${host.slice(6)}`;
   if (host.startsWith("localhost") || host.startsWith("127.0.0.1")) return "http://127.0.0.1:8787";
   return `https://api.${host}`;
 }

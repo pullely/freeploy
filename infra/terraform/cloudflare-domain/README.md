@@ -1,97 +1,68 @@
 # cloudflare-domain
 
-Manages the Cloudflare zone and attaches Workers Custom Domains to
-environment-specific console Workers. Domain configuration is driven by
-environment variables declared in `intent.yaml`.
+Adopts the `freeploy.io` Cloudflare zone and attaches Workers Custom Domains
+to each environment's Freeploy console (deploy-web) and API (api-edge) — the
+same shape as orun-cloud's `infra/terraform/cloudflare-domain`.
 
-## Purpose
+| Environment | Console (deploy-web) | API (api-edge) |
+|---|---|---|
+| prod | `app.freeploy.io` → `freeploy-deploy-web-prod` | `api.freeploy.io` → `freeploy-api-edge-prod` |
+| stage | `stage.freeploy.io` → `freeploy-deploy-web-stage` | `api-stage.freeploy.io` → `freeploy-api-edge-stage` |
+| dev | — (verify-only) | — |
 
-Provides Cloudflare custom domain management as a first-class Orun component.
-The zone already exists in the Cloudflare account (`zoneMode: existing`), so
-this component adopts it without creating a duplicate.
-
-## Environment Variables
-
-Custom domain configuration flows from `intent.yaml` environment-level `env:`
-declarations:
-
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `BASE_DOMAIN` | Root domain for the zone | `freeploy.dev` |
-| `CONSOLE_CUSTOM_DOMAIN` | Custom domain for the console Worker | `stage.freeploy.dev` |
-
-These are exported as `TF_VAR_*` by the Orun job template and consumed by
-Terraform. The same variables are available to Workers (via `wrangler.jsonc`
-vars) for runtime CORS decisions.
-
-## Resources Managed
-
-| Resource | Description |
-|----------|-------------|
-| `data.cloudflare_zone.existing` | Looks up the existing zone (when `zoneMode: existing`) |
-| `cloudflare_zone.managed` | Creates a new zone (when `zoneMode: managed`) |
-| `cloudflare_workers_domain.console` | (Phase 1 of v4→v5 migration — Task 0085a) State entry dropped via `removed { lifecycle { destroy = false } }`. Live Cloudflare custom-domain resource is untouched; Phase 2 (Task 0085b) re-imports it as the v5 `cloudflare_workers_custom_domain.console`. |
-
-> v4 → v5 migration status: Phase 1 of 2 (Task 0085a). The provider pin
-> stays at `cloudflare ~> 4.52` in this PR. The v4-typed state entry for
-> the Workers custom-domain attachment is dropped (no-op against the
-> live Cloudflare resource — only the Terraform state file in S3 is
-> mutated). Phase 2 (Task 0085b, separate PR) bumps the provider to
-> `~> 5.0` and re-imports the live resources by their known immutable
-> IDs as `cloudflare_workers_custom_domain.console`. The two live
-> custom-domain resources survive byte-identical through both phases.
+The `*.nexo-7be.workers.dev` hostnames keep serving alongside the custom
+domains. The console finds the API from its own host
+(`apps/deploy-web/src/lib/api.ts` `edgeBase()`: `app.` → `api.`,
+`stage.` → `api-stage.`).
 
 ## Parameters
 
-| Parameter | Required | Description |
-|-----------|----------|-------------|
-| `baseDomain` | yes | Root domain (e.g. `freeploy.dev`) |
-| `zoneMode` | yes | `existing` or `managed` |
-| `workerNamePrefix` | yes | Worker name prefix (e.g. `freeploy-web-console-next`); fully-qualified service name is `{workerNamePrefix}-{environment}` |
-| `stackName` | yes | Terraform stack identifier |
-| `terraformDir` | yes | Path to Terraform root |
-| `terraformVersion` | yes | Terraform CLI version |
+| Parameter | Where | Description |
+|---|---|---|
+| `baseDomain` | `component.yaml` | The zone, `freeploy.io` |
+| `zoneMode` | `component.yaml` | `existing` adopts the zone (the default; it is in the account) or `managed` creates it |
+| `workerNamePrefix` | `component.yaml` | `freeploy-deploy-web`; the Worker is `{prefix}-{environment}` |
+| `apiWorkerNamePrefix` | `component.yaml` | `freeploy-api-edge`; the Worker is `{prefix}-{environment}` |
+| `CONSOLE_CUSTOM_DOMAIN` | `intent.yaml` `environments.<env>.parameterDefaults.terraform` | The console hostname; empty attaches nothing |
+| `API_CUSTOM_DOMAIN` | `intent.yaml` `environments.<env>.parameterDefaults.terraform` | The API hostname; empty attaches nothing |
 
-## Changing the Base Domain (another context)
+`CONSOLE_CUSTOM_DOMAIN` and `API_CUSTOM_DOMAIN` are deliberately not declared
+in `component.yaml`: a component default would shadow the per-environment
+value and render an empty `TF_VAR_*` everywhere.
 
-1. Update `intent.yaml` → each environment's `env.BASE_DOMAIN` to the new domain.
-2. Update `intent.yaml` → each environment's `env.CONSOLE_CUSTOM_DOMAIN` with new hostnames.
-3. If the domain is NOT already in Cloudflare, set `zoneMode: managed` in
-   `component.yaml`. Terraform will create the zone.
-4. After the first apply with `managed` mode, add the NS records at your
-   registrar pointing to the Cloudflare nameservers shown in the output.
-5. Wait for zone activation (Cloudflare verifies NS delegation).
-6. Subsequent applies will attach Workers custom domains.
+The Cloudflare provider authenticates with the brokered
+`CLOUDFLARE_API_TOKEN` (and `CLOUDFLARE_ACCOUNT_ID`) from `secretEnv`, as
+`cloudflare-kv` and `cloudflare-hyperdrive` do. State lives on the platform
+(`backend "http"`).
 
-## Zone Modes
+## Resources
 
-### existing (adopt)
+| Resource | Description |
+|---|---|
+| `data.cloudflare_zone.existing` | Looks up the zone (`zoneMode: existing`) |
+| `cloudflare_zone.managed` | Creates the zone (`zoneMode: managed`) |
+| `cloudflare_workers_domain.console` | Attaches `CONSOLE_CUSTOM_DOMAIN` to `freeploy-deploy-web-<env>` |
+| `cloudflare_workers_domain.api` | Attaches `API_CUSTOM_DOMAIN` to `freeploy-api-edge-<env>` |
 
-- Uses `data.cloudflare_zone` to look up by domain name.
-- No zone creation or deletion.
-- Safe for domains already managed in Cloudflare.
+A Workers custom domain provisions its own DNS record and certificate. The
+provider is pinned at `cloudflare ~> 4.52`; when it moves to v5, rename the
+resources to `cloudflare_workers_custom_domain` with a state move.
 
-### managed (create)
+## Lifecycle
 
-- Creates `cloudflare_zone` resource.
-- Full lifecycle management (including potential deletion on `terraform destroy`).
-- Requires NS delegation at the registrar after first apply.
+Pull requests plan (`plan-only`); a merge to `main` applies, after deploy-web
+and api-edge have deployed in the environment.
 
-## Post-Merge Verification
+## Post-merge verification
 
-After merge to main, verify:
-
-1. `terraform apply` succeeds in CI (`github-push-main` trigger).
-2. Workers custom domains show `active` status in Cloudflare (Workers → the
-   `freeploy-web-console-next-{env}` Worker → Triggers → Custom Domains).
-3. `https://stage.freeploy.dev/` serves the stage console (web-console-next).
-4. `https://prod.freeploy.dev/` serves the prod console (web-console-next).
-5. SSL certificates are provisioned (automatic via Cloudflare).
+1. The `cloudflare-domain · stage` and `· prod` apply jobs succeed.
+2. `https://stage.freeploy.io/` and `https://app.freeploy.io/` serve the
+   Freeploy console; `https://api-stage.freeploy.io/health` and
+   `https://api.freeploy.io/health` answer api-edge.
+3. Certificates are issued (automatic for Workers custom domains).
 
 ## Outputs
 
-- `zone_id` — Cloudflare zone identifier
-- `zone_name` — Domain name
-- `zone_status` — Zone activation status
-- `console_custom_domain` — The custom domain hostname for this environment
-- `worker_custom_domain_id` — placeholder during 0085a (state entry intentionally untracked between Phase 1 drop and Phase 2 v5 re-import); restored to a real attachment ID after Task 0085b lands
+`zone_id`, `zone_name`, `zone_status`, `console_custom_domain`,
+`worker_name`, `worker_custom_domain_id`, `api_custom_domain`,
+`api_worker_name`, `api_worker_custom_domain_id`.

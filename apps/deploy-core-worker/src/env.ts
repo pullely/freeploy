@@ -11,7 +11,7 @@ export interface Env {
    * for the SSH executor (WAITING.md W3).
    */
   DEPLOYMENT_WORKFLOW?: { create(options: { id: string; params: { orgId: string; deploymentUuid: string } }): Promise<unknown> };
-  /** The console's URL for links in notifications (base_url()); https://app.freeploy.dev when unset (DP-67). */
+  /** The console's URL for links in notifications (base_url()); https://app.freeploy.io when unset (DP-67). */
   DEPLOY_CONSOLE_URL?: string;
   ENVIRONMENT: string;
 }

@@ -29,12 +29,11 @@ The agent re-checks every entry at the start of each loop iteration.
 - **Resolved by:** the owner paused stale projects in the org, which freed two slots. The failed `supabase · stage` job of run 45062761473 was re-run and created the project; the bootstrap then finished (PRs #8–#12).
 - **Still open:** the org remains on the **free plan**. Free projects pause after inactivity and can become unreachable (risks DP-H). Upgrading the org to Pro removes that risk; until then a paused stage or prod database blocks deploy verification only, never code.
 
-## W5 — Domain `freeploy.dev`
+## W5 — Domain (`freeploy.io`) and email
 
-- **Need:** the `freeploy.dev` zone on the `nexo` Cloudflare account, if the domain is to be used.
-- **Steps:** register `freeploy.dev` (or move it) and add the zone to the Nexo Cloudflare account. Then the agent routes prod to `freeploy.dev` and `app.freeploy.dev`, and stage to `stage.freeploy.dev`.
-- **Unblocked when:** the zone appears on the Nexo account. Until then the product uses `*.nexo-7be.workers.dev`.
-- **Email depends on it too:** the notifications worker sends from `no-reply@mail.freeploy.dev` (Cloudflare Email Service needs a verified sending domain), so until then stage and prod deliver no email: no password-reset links, no verification links, no email-change codes. Account verification is therefore not enforced yet (`REQUIRE_EMAIL_VERIFICATION=false` on identity-worker); once mail is delivered, the agent sets it to `true` for Coolify Cloud's behaviour.
+- **Domain — resolved (DP-120):** the owner added `freeploy.io` to the Cloudflare account (delegated to `curt`/`jule.ns.cloudflare.com`). `infra/terraform/cloudflare-domain` adopts the zone and attaches the Freeploy console (deploy-web) and the API (api-edge): prod `app.freeploy.io` and `api.freeploy.io`, stage `stage.freeploy.io` and `api-stage.freeploy.io`. The `*.nexo-7be.workers.dev` hostnames keep serving alongside.
+- **Still open — email:** the notifications worker sends from `no-reply@mail.freeploy.io`, and Cloudflare Email Service needs that sending domain verified (DKIM/SPF on `mail.freeploy.io`). Until it is, stage and prod deliver no email: no password-reset links, no verification links, no email-change codes. Account verification is therefore not enforced yet (`REQUIRE_EMAIL_VERIFICATION=false` on identity-worker); once mail is delivered, the agent sets it to `true` for Coolify Cloud's behaviour.
+- **Needs from a person:** verify `mail.freeploy.io` in Cloudflare Email Service.
 
 ## W6 — Reference host
 

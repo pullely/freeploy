@@ -95,7 +95,7 @@ function harness(c: Case) {
         body = JSON.stringify(step.body);
         headers.set("content-type", "application/json");
       }
-      return handleApiV1(new Request(`https://api.freeploy.dev${step.path}`, { method: step.method, headers, ...(body !== undefined && { body }) }), env, "req_test", { limiter, now: () => now });
+      return handleApiV1(new Request(`https://api.freeploy.io${step.path}`, { method: step.method, headers, ...(body !== undefined && { body }) }), env, "req_test", { limiter, now: () => now });
     },
   };
 }
@@ -186,7 +186,7 @@ describe("what the edge sends a worker", () => {
     await h.send(c, golden(c.name));
     const req = h.forwarded[0]!;
     expect(`${new URL(req.url).pathname}${new URL(req.url).search}`).toBe(`/v1/internal/api-v1/${ORG}/audit-events?per_page=1&page=2`);
-    expect(req.headers.get("x-api-v1-url")).toBe("https://api.freeploy.dev/api/v1/audit-events");
+    expect(req.headers.get("x-api-v1-url")).toBe("https://api.freeploy.io/api/v1/audit-events");
     const t = CASES.cases.find((x) => x.name === "team: update both settings")!;
     const ht = harness(t);
     await ht.send(t, golden(t.name));
@@ -208,7 +208,7 @@ describe("what the edge sends a worker", () => {
   it("is mounted on the edge for /api/ and never for Freeploy's routes", async () => {
     expect(isApiV1Route("/api/v1/projects")).toBe(true);
     expect(isApiV1Route("/v1/organizations")).toBe(false);
-    const res = await edge.fetch(new Request("https://api.freeploy.dev/api/v1/health"), { ENVIRONMENT: "test" } as Env);
+    const res = await edge.fetch(new Request("https://api.freeploy.io/api/v1/health"), { ENVIRONMENT: "test" } as Env);
     expect(res.status).toBe(200);
     expect(await res.text()).toBe("OK");
   });

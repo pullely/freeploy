@@ -79,7 +79,7 @@ describe("the OAuth sources", () => {
 
   it("updates the written columns only, stores the tokens, lists the connected ones and deletes", async () => {
     const row = (await withOrg(ex, A, (tx) => findOauthSourceByUuid(tx, "gitlab", "gla1")))!;
-    const updated = await withOrg(ex, A, (tx) => updateOauthSource(tx, "gitlab", row.id, { name: "renamed", client_id: "cid", client_secret: "fp1:cs", redirect_uri: "https://app.freeploy.dev/webhooks/source/gitlab/redirect", org_id: B, is_public: true }));
+    const updated = await withOrg(ex, A, (tx) => updateOauthSource(tx, "gitlab", row.id, { name: "renamed", client_id: "cid", client_secret: "fp1:cs", redirect_uri: "https://app.freeploy.io/webhooks/source/gitlab/redirect", org_id: B, is_public: true }));
     expect(updated).toMatchObject({ name: "renamed", client_id: "cid", client_secret: "fp1:cs", is_public: false });
     expect(await withOrg(ex, A, (tx) => listConnectedOauthSources(tx, "gitlab"))).toEqual([]);
     await withOrg(ex, A, (tx) => updateOauthSource(tx, "gitlab", row.id, { access_token: "fp1:at", refresh_token: "fp1:rt", expires_at: 1767232800 }));

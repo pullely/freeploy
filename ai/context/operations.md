@@ -139,6 +139,14 @@ that re-verifies.
 
 ## Setting the domain later
 
+**Set (DP-120): `freeploy.io`.** The zone is in the Cloudflare account and
+`infra/terraform/cloudflare-domain` attaches the Freeploy console and API —
+prod `app.freeploy.io` / `api.freeploy.io`, stage `stage.freeploy.io` /
+`api-stage.freeploy.io`. The placeholder below is replaced in every file
+except `.rebrand/values.json` (the identity record, left for its owner) and
+the regenerated `ai/context/deployment.md`. Step 3 (the mail domain) is
+still open. What follows is the original procedure, kept for reference.
+
 This product answers on workers.dev from its first deploy, and it was built
 without a domain. Every place the domain goes carries one string until an
 owner sets it — in this repository, `freeploy.dev` (built without a domain, that
