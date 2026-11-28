@@ -34,7 +34,7 @@
         "ENVIRONMENT": "stage",
         "NOTIFICATIONS_PROVIDER": "cloudflare-email",
         "DEBUG_DELIVERY": "true",
-        "EMAIL_FROM_ADDRESS": "no-reply@mail.freeploy.dev",
+        "EMAIL_FROM_ADDRESS": "no-reply@mail.freeploy.io",
         "EMAIL_FROM_NAME": "Freeploy"
       },
       "send_email": [
@@ -61,7 +61,7 @@
         "ENVIRONMENT": "prod",
         "NOTIFICATIONS_PROVIDER": "cloudflare-email",
         "DEBUG_DELIVERY": "false",
-        "EMAIL_FROM_ADDRESS": "no-reply@mail.freeploy.dev",
+        "EMAIL_FROM_ADDRESS": "no-reply@mail.freeploy.io",
         "EMAIL_FROM_NAME": "Freeploy"
       },
       "send_email": [

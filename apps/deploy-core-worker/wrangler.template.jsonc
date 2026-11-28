@@ -24,7 +24,10 @@
     "stage": {
       "workers_dev": false,
       "vars": {
-        "ENVIRONMENT": "stage"
+        "ENVIRONMENT": "stage",
+        // The Freeploy console's URL for links in notifications and webhooks (base_url()), on the
+        // custom domain infra/terraform/cloudflare-domain attaches (DP-120).
+        "DEPLOY_CONSOLE_URL": "https://stage.freeploy.io"
       },
       // DP4: the SshSession container (ssh-executor) is held back until the nexo
       // token can use Cloudflare Containers (WAITING W3): the first deploy was refused
@@ -50,7 +53,8 @@
     "prod": {
       "workers_dev": false,
       "vars": {
-        "ENVIRONMENT": "prod"
+        "ENVIRONMENT": "prod",
+        "DEPLOY_CONSOLE_URL": "https://app.freeploy.io"
       },
       "hyperdrive": [
         {

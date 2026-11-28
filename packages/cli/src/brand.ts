@@ -13,7 +13,7 @@ export const CLI_BIN = "freeploy";
 export const PRODUCT_NAME = "Freeploy";
 
 /** Default API base URL when `--api-url` is not supplied. */
-export const DEFAULT_API_URL = "https://api.freeploy.dev";
+export const DEFAULT_API_URL = "https://api.freeploy.io";
 
 /** OS keychain service name for stored credentials. */
 export const KEYCHAIN_SERVICE = `${CLI_BIN}-cli`;

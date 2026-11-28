@@ -18,7 +18,7 @@ export type AuthOption =
 export interface ClientOptions {
   /**
    * Base URL of the Freeploy api-edge worker, e.g.
-   * `https://api.freeploy.dev`. Trailing slash is stripped.
+   * `https://api.freeploy.io`. Trailing slash is stripped.
    */
   baseUrl: string;
   /** Optional auth credential; sent on every request when present. */

@@ -1,0 +1,22 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: DP-120
+  title: "freeploy.io: infra/terraform/cloudflare-domain adopts the zone and attaches the Freeploy console (deploy-web) and API (api-edge) per environment; intent.yaml's environment URLs are the Freeploy console on freeploy.io"
+spec:
+  goal: The owner added freeploy.io to the Cloudflare account (delegated to curt/jule.ns.cloudflare.com). infra/terraform/cloudflare-domain is unparked and reshaped after orun-cloud's — it adopts the zone (zoneMode existing), and attaches CONSOLE_CUSTOM_DOMAIN to freeploy-deploy-web-<env> and API_CUSTOM_DOMAIN to freeploy-api-edge-<env> with cloudflare_workers_domain (cloudflare ~> 4.52, platform http state, the brokered CLOUDFLARE_API_TOKEN/ACCOUNT_ID through secretEnv as cloudflare-kv does), planning on pull requests and applying on main after deploy-web and api-edge. intent.yaml sets BASE_DOMAIN freeploy.io and, per environment, CONSOLE_CUSTOM_DOMAIN / API_CUSTOM_DOMAIN (prod app.freeploy.io / api.freeploy.io, stage stage.freeploy.io / api-stage.freeploy.io, dev ""), and each environment's url is the Freeploy console on its domain (not web-console-next, which stays a link). The placeholder freeploy.dev is replaced where the runbook says — api-edge's CORS console origin, identity-worker's allowed console origins, billing's Polar return URL, the notifications sender, deploy-core-worker's DEPLOY_CONSOLE_URL and default, the CLI's DEFAULT_API_URL and the SDK docs — and deploy-web's edgeBase() maps stage.<domain> to api-stage.<domain>. execution.state, .rebrand/values.json and ai/context/deployment.md are untouched; OAuth callbacks stay on workers.dev.
+  affects:
+    - infra/terraform/cloudflare-domain/**
+    - intent.yaml
+    - apps/**
+    - packages/cli/**
+    - packages/sdk/**
+    - tests/**
+    - ai/context/operations.md
+    - WAITING.md
+    - tasks/**
+  doneWhen:
+    - terraform fmt and validate pass for infra/terraform/cloudflare-domain/terraform, and the PR's cloudflare-domain plan on stage and prod looks the zone up and plans the two cloudflare_workers_domain attaches per environment
+    - apps/deploy-web/test/edge-base.test.ts maps app./stage. hosts to api./api-stage. and the touched suites pass
+    - on stage and prod after the merge, https://stage.freeploy.io and https://app.freeploy.io serve the Freeploy console, and https://api-stage.freeploy.io/health and https://api.freeploy.io/health answer api-edge
+  gates: []

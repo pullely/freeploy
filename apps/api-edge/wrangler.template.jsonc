@@ -44,7 +44,7 @@
     "stage": {
       "vars": {
         "ENVIRONMENT": "stage",
-        "CONSOLE_CUSTOM_DOMAIN": "stage.freeploy.dev",
+        "CONSOLE_CUSTOM_DOMAIN": "stage.freeploy.io",
         "SOLO_MODE": "true"
       },
       "hyperdrive": [
@@ -117,7 +117,7 @@
     "prod": {
       "vars": {
         "ENVIRONMENT": "prod",
-        "CONSOLE_CUSTOM_DOMAIN": "prod.freeploy.dev",
+        "CONSOLE_CUSTOM_DOMAIN": "app.freeploy.io",
         "SOLO_MODE": "true"
       },
       "hyperdrive": [

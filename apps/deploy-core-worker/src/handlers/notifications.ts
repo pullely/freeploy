@@ -57,7 +57,7 @@ import {
 import { sendTestEmail, sendTestNotification, TestEmailLimiter } from "../notifications/test-send.js";
 
 /** The console's URL: base_url() of the links in notifications. */
-export const DEFAULT_CONSOLE_URL = "https://app.freeploy.dev";
+export const DEFAULT_CONSOLE_URL = "https://app.freeploy.io";
 
 /** Freeploy's PayloadContext: its name where Coolify's messages say "Coolify". */
 export function freeployContext(env: Env, now: () => number = () => Math.floor(Date.now() / 1000)): PayloadContext {

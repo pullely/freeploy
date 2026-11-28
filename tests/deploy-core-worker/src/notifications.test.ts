@@ -199,7 +199,7 @@ describe("settings: the chat channels", () => {
     expect(await fields("ftp://example.com/x")).toEqual({ discordWebhookUrl: ["The discord webhook url must use the http or https scheme."] });
     expect(await fields("http://169.254.169.254/latest")).toEqual({ discordWebhookUrl: ["The discord webhook url must not point to link-local addresses."] });
     expect(await fields("http://127.0.0.1:8080/x")).toEqual({
-      discordWebhookUrl: ["The discord webhook url points to a local or private address that is not allowed. Configure allowed internal targets: https://app.freeploy.dev/settings/advanced#endpoint-section"],
+      discordWebhookUrl: ["The discord webhook url points to a local or private address that is not allowed. Configure allowed internal targets: https://app.freeploy.io/settings/advanced#endpoint-section"],
     });
     expect((await call("PATCH", "/webhook", { action: "submit", webhookUrl: "https://example.com./x" })).body.error!.details.fields).toEqual({ webhookUrl: ["The webhook url host must not end with a trailing dot."] });
     expect((await call("PATCH", "/slack", { action: "instantSave", slackUrl: "x", slackWebhookUrl: "http://db.internal/x" })).body.error!.details.fields!.slackWebhookUrl![0]).toMatch(/^The slack webhook url points to a local/);
@@ -346,11 +346,11 @@ describe("Send test", () => {
     await call("POST", "/pushover/test", {});
     expect(net.requests[2]).toMatchObject({ url: "https://api.pushover.net/1/messages.json", method: "POST", headers: { "Content-Type": "application/json", "User-Agent": "GuzzleHttp/7" } });
     expect(net.requests[2]!.body).toBe(
-      '{"token":"FAKE-TOKEN","user":"FAKE-USER","title":"\\u2139\\ufe0f Test Pushover Notification","message":"This is a test Pushover notification from Freeploy.&nbsp;<a href=\'https:\\/\\/app.freeploy.dev\'>Go to your dashboard<\\/a>","html":1}',
+      '{"token":"FAKE-TOKEN","user":"FAKE-USER","title":"\\u2139\\ufe0f Test Pushover Notification","message":"This is a test Pushover notification from Freeploy.&nbsp;<a href=\'https:\\/\\/app.freeploy.io\'>Go to your dashboard<\\/a>","html":1}',
     );
     Object.assign(mem.rows.webhook, { webhook_enabled: true, webhook_url: "https://hooks.example.com/x?token=FAKE" });
     await call("POST", "/webhook/test", {});
-    expect(net.requests[3]!.body).toBe('{"success":true,"message":"This is a test webhook notification from Freeploy.","event":"test","url":"https:\\/\\/app.freeploy.dev"}');
+    expect(net.requests[3]!.body).toBe('{"success":true,"message":"This is a test webhook notification from Freeploy.","event":"test","url":"https:\\/\\/app.freeploy.io"}');
     // A channel that is off sends nothing (the channel class returns), and a private URL is blocked by the job.
     mem.rows.webhook.webhook_enabled = false;
     expect((await call("POST", "/webhook/test", {})).body.data!.delivery).toEqual({ channel: "webhook", status: "skipped", reason: "Webhook is not enabled or has no URL." });
@@ -366,7 +366,7 @@ describe("Send test", () => {
     expect(r.body.data!.message).toBe("Test notification sent.");
     expect(net.requests[0]!.url).toBe("https://api.telegram.org/bot1:FAKE/sendMessage");
     expect(net.requests[0]!.body).toBe(
-      '{"chat_id":"-100","text":"Freeploy: This is a test Telegram notification from Freeploy.","reply_markup":"{\\"inline_keyboard\\":[[{\\"text\\":\\"Go to your dashboard\\",\\"url\\":\\"https:\\\\\\/\\\\\\/app.freeploy.dev\\"}]]}"}',
+      '{"chat_id":"-100","text":"Freeploy: This is a test Telegram notification from Freeploy.","reply_markup":"{\\"inline_keyboard\\":[[{\\"text\\":\\"Go to your dashboard\\",\\"url\\":\\"https:\\\\\\/\\\\\\/app.freeploy.io\\"}]]}"}',
     );
     net.answers = [json({ ok: false, description: "Unauthorized" }, 401)];
     r = await call("POST", "/telegram/test", {});
@@ -379,7 +379,7 @@ describe("Send test", () => {
     net.answers = [json({ ok: false, description: "Bad Request: BUTTON_URL_INVALID" }, 400), json({ ok: true })];
     expect((await call("POST", "/telegram/test", {})).body.data!.message).toBe("Test notification sent.");
     expect(net.requests).toHaveLength(2);
-    expect(JSON.parse(net.requests[1]!.body)).toEqual({ chat_id: "-100", text: "Freeploy: This is a test Telegram notification from Freeploy.\n\nGo to your dashboard: https://app.freeploy.dev" });
+    expect(JSON.parse(net.requests[1]!.body)).toEqual({ chat_id: "-100", text: "Freeploy: This is a test Telegram notification from Freeploy.\n\nGo to your dashboard: https://app.freeploy.io" });
   });
 
   it("email: Resend over fetch exactly as Coolify's Resend transport, its error messages, the rate limit", async () => {
@@ -493,7 +493,7 @@ describe("notify(): the org's channels, the jobs' retries and failure counting",
     expect(told.map((r) => r.url)).toEqual(["https://hooks.slack.com/services/T/B/FAKE", "https://api.pushover.net/1/messages.json"]);
     expect(JSON.parse(told[0]!.body).text).toBe("Freeploy: Action required");
     expect(JSON.parse(told[0]!.body).attachments[0].blocks[1].text.text).toBe(
-      "Discord notifications were disabled after 3 failed deliveries in a row.\nReason: Discord returned HTTP 404 (Not Found).\nPlease fix the settings and enable Discord notifications again: https://app.freeploy.dev/notifications/discord",
+      "Discord notifications were disabled after 3 failed deliveries in a row.\nReason: Discord returned HTTP 404 (Not Found).\nPlease fix the settings and enable Discord notifications again: https://app.freeploy.io/notifications/discord",
     );
   });
 
@@ -510,7 +510,7 @@ describe("notify(): the org's channels, the jobs' retries and failure counting",
 });
 
 describe("SafeWebhookUrl without DNS", () => {
-  const msg = (u: string) => safeWebhookUrlMessage("webhook url", u, "https://app.freeploy.dev/settings/advanced#endpoint-section");
+  const msg = (u: string) => safeWebhookUrlMessage("webhook url", u, "https://app.freeploy.io/settings/advanced#endpoint-section");
   it("accepts public hosts and addresses, refuses the private, reserved and link-local ones", () => {
     for (const ok of ["https://discord.com/api/webhooks/1/x", "http://93.184.216.34/x", "https://[2606:4700::1111]/x", "https://example.com:8443/x?y=1"]) expect(msg(ok)).toBeNull();
     for (const bad of ["http://10.1.2.3/", "http://192.168.1.1/", "http://172.16.0.1/", "http://100.64.0.1/", "http://[::1]/", "http://[fd00::1]/", "http://[::ffff:127.0.0.1]/", "http://localhost/", "http://x.local/", "http://k8s.cluster.local/"]) {

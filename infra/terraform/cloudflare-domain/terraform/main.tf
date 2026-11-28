@@ -88,7 +88,7 @@ variable "terraformVersion" {
 
 variable "baseDomain" {
   type        = string
-  default     = "freeploy.dev"
+  default     = "freeploy.io"
   description = "Root domain to manage (from BASE_DOMAIN env or component parameter)"
 }
 
@@ -104,8 +104,8 @@ variable "zoneMode" {
 
 variable "workerNamePrefix" {
   type        = string
-  default     = "freeploy-web-console-next"
-  description = "Worker name prefix for the new console; full Worker service name is {prefix}-{environment}"
+  default     = "freeploy-deploy-web"
+  description = "Worker name prefix for the Freeploy console (deploy-web); full Worker service name is {prefix}-{environment}"
 }
 
 variable "CONSOLE_CUSTOM_DOMAIN" {
@@ -114,12 +114,34 @@ variable "CONSOLE_CUSTOM_DOMAIN" {
   description = "Custom domain for the console (from CONSOLE_CUSTOM_DOMAIN env var via TF_VAR)"
 }
 
+# The API's custom hostname, attached to api-edge exactly as
+# CONSOLE_CUSTOM_DOMAIN is attached to the console worker (the same shape as
+# orun-cloud's cloudflare-domain). The console derives it from its own host
+# (apps/deploy-web/src/lib/api.ts edgeBase(): app.<domain> -> api.<domain>,
+# stage.<domain> -> api-stage.<domain>). Empty (the dev default) attaches
+# nothing; the workers.dev hostname keeps serving alongside either way.
+variable "API_CUSTOM_DOMAIN" {
+  type        = string
+  default     = ""
+  description = "Custom domain for the API (api-edge), from API_CUSTOM_DOMAIN via TF_VAR. Empty = not attached."
+}
+
+variable "apiWorkerNamePrefix" {
+  type        = string
+  default     = "freeploy-api-edge"
+  description = "Worker name prefix for api-edge; the environment is appended."
+}
+
 # --- Locals ---
 
 locals {
   console_custom_domain = var.CONSOLE_CUSTOM_DOMAIN
   worker_name           = "${var.workerNamePrefix}-${var.environment}"
   has_custom_domain     = local.console_custom_domain != ""
+
+  api_custom_domain     = var.API_CUSTOM_DOMAIN
+  api_worker_name       = "${var.apiWorkerNamePrefix}-${var.environment}"
+  has_api_custom_domain = local.api_custom_domain != ""
 }
 
 # --- Zone lookup (existing mode) ---
@@ -144,62 +166,39 @@ locals {
   zone_status = var.zoneMode == "existing" ? data.cloudflare_zone.existing[0].status : cloudflare_zone.managed[0].status
 }
 
-# --- Worker custom domain attachment ---
+# --- Worker custom domain attachments ---
 #
-# Phase 1 of 2 — state entry dropped here; v5 re-import lands in Task 0085b.
+# The zone freeploy.io is delegated to Cloudflare and lives in the account
+# the product deploys into (zoneMode existing). This stack's platform state
+# has never held a custom-domain resource here — it was parked while the
+# placeholder freeploy.dev had no zone — so, as orun-cloud did on its clean
+# state, the v4 `cloudflare_workers_domain` resource is simply active under
+# the ~> 4.52 pin (the old `removed {}` block for the template's v4->v5
+# migration is gone with it). When the provider moves to v5, rename to
+# `cloudflare_workers_custom_domain` with a state move.
 #
-# Background: in the cloudflare TF provider v4.x line this resource is named
-# `cloudflare_workers_domain` (description: "Creates a Worker Custom Domain.").
-# It is renamed to `cloudflare_workers_custom_domain` in v5. The v5 provider
-# does not implement cross-resource-type `MoveState` for this rename, so a
-# single-PR migration is impossible (proven by failed PR-CI runs 26642692516
-# and 26642904336 — see ai/proposals/task-0085-spec-update.md).
-#
-# The v5 upgrade guide's sanctioned pattern (same shape `tf-migrate` produces
-# for `cloudflare_zone_settings_override`) is a two-phase migration gated on
-# a real v4 apply between the phases:
-#
-#   - Phase 1 (THIS PR, Task 0085a): stay on `cloudflare ~> 4.52`, drop the
-#     v4-typed state entry via `removed { lifecycle { destroy = false } }`.
-#     The live Cloudflare custom-domain resource is NOT touched — only the
-#     Terraform state file in S3 is mutated. Expected plan diff:
-#       Plan: 0 to add, 0 to change, 1 to forget.
-#     After post-merge apply, `stage.freeploy.dev` and `prod.freeploy.dev`
-#     continue to serve from their existing Workers (immutable IDs
-#     052eaece5e989d5a7280b6c206e562c42950e3a6 and
-#     31e5f2ed1b1e4a5700e8ae0678846a0d753840e1) but are no longer tracked.
-#
-#   - Phase 2 (Task 0085b, separate PR after 0085a's apply lands on both
-#     envs): bump `required_providers.cloudflare.version` to `~> 5.0`,
-#     replace the fenced block below with a v5
-#     `resource "cloudflare_workers_custom_domain" "console"`, and use an
-#     `import {}` block keyed by env to re-adopt the live resources by their
-#     known immutable IDs.
+# A Workers custom domain provisions its own DNS record and certificate, so
+# nothing else in the zone has to know.
 
-removed {
-  from = cloudflare_workers_domain.console
-  lifecycle {
-    destroy = false
-  }
+resource "cloudflare_workers_domain" "console" {
+  count = local.has_custom_domain ? 1 : 0
+
+  account_id  = var.cloudflare_account_id
+  zone_id     = local.zone_id
+  hostname    = local.console_custom_domain
+  service     = local.worker_name
+  environment = "production"
 }
 
-# REMOVED IN 0085a, REPLACED IN 0085b
-# The original v4 resource block is fenced (not deleted) so the diff is
-# obviously a state-only drop and the v5 replacement in 0085b is easy to
-# diff against the v4 shape. Do not uncomment this block — uncommenting it
-# under the ~> 4.52 pin would re-create the state entry on the next apply
-# and undo Phase 1. Phase 2 replaces it with the v5 resource type, not by
-# reviving this block.
-#
-# resource "cloudflare_workers_domain" "console" {
-#   count = local.has_custom_domain ? 1 : 0
-#
-#   account_id  = var.cloudflare_account_id
-#   zone_id     = local.zone_id
-#   hostname    = local.console_custom_domain
-#   service     = local.worker_name
-#   environment = "production"
-# }
+resource "cloudflare_workers_domain" "api" {
+  count = local.has_api_custom_domain ? 1 : 0
+
+  account_id  = var.cloudflare_account_id
+  zone_id     = local.zone_id
+  hostname    = local.api_custom_domain
+  service     = local.api_worker_name
+  environment = "production"
+}
 
 # --- Outputs (non-secret) ---
 
@@ -229,6 +228,21 @@ output "worker_name" {
 }
 
 output "worker_custom_domain_id" {
-  description = "Cloudflare Workers custom domain attachment ID (placeholder during 0085a — the resource is intentionally untracked between Phase 1 state drop and Phase 2 v5 re-import; downstream consumers should not read this value during the 0085a → 0085b window)."
-  value       = local.has_custom_domain ? "pending_v5_reimport_task_0085b" : "not_configured"
+  description = "ID of the console worker custom domain (if configured)"
+  value       = local.has_custom_domain ? cloudflare_workers_domain.console[0].id : "not_configured"
+}
+
+output "api_custom_domain" {
+  description = "API custom domain hostname"
+  value       = local.api_custom_domain
+}
+
+output "api_worker_name" {
+  description = "api-edge worker service name bound to the API custom domain"
+  value       = local.api_worker_name
+}
+
+output "api_worker_custom_domain_id" {
+  description = "ID of the api-edge worker custom domain (if configured)"
+  value       = local.has_api_custom_domain ? cloudflare_workers_domain.api[0].id : "not_configured"
 }

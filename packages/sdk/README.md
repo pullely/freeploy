@@ -25,7 +25,7 @@ Then `pnpm install` from the repo root.
 import { Freeploy } from "@saas/sdk";
 
 const client = new Freeploy({
-  baseUrl: "https://api.freeploy.dev",
+  baseUrl: "https://api.freeploy.io",
   auth: { kind: "bearer", token: process.env["FREEPLOY_TOKEN"]! },
 });
 
